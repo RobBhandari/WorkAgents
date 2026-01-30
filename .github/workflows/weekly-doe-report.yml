@@ -45,6 +45,17 @@ jobs:
           SMTP_PORT=${{ secrets.SMTP_PORT }}
           EOF
 
+      - name: Create baselines for all projects (if not exist)
+        run: |
+          python execution/ado_baseline.py --project-key Access_Legal_Case_Management || echo "Baseline exists or failed"
+          python execution/ado_baseline.py --project-key LawFusion || echo "Baseline exists or failed"
+          python execution/ado_baseline.py --project-key Learning_Content_Legal || echo "Baseline exists or failed"
+          python execution/ado_baseline.py --project-key LegalBricks || echo "Baseline exists or failed"
+          python execution/ado_baseline.py --project-key Legal_Compliance || echo "Baseline exists or failed"
+          python execution/ado_baseline.py --project-key Legal_InCase || echo "Baseline exists or failed"
+          python execution/ado_baseline.py --project-key Legal_Proclaim || echo "Baseline exists or failed"
+        continue-on-error: true
+
       - name: Run DOE tracker for Access Legal Case Management
         run: python execution/ado_doe_tracker.py --project "Access Legal Case Management" --project-key Access_Legal_Case_Management
         continue-on-error: false
