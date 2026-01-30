@@ -1,0 +1,16 @@
+{
+  "weeks": [
+    {
+      "week_number": 5,
+      "week_date": "2026-02-05",
+      "open": 276,
+      "new": 6,
+      "closed": 9,
+      "net_burn": 3,
+      "expected": 270,
+      "status": "AMBER",
+      "delta": 6,
+      "required_burn": 9.1
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "weeks": [
+    {
+      "week_number": 5,
+      "week_date": "2026-02-05",
+      "open": 21,
+      "new": 0,
+      "closed": 0,
+      "net_burn": 0,
+      "expected": 14,
+      "status": "RED",
+      "delta": 7,
+      "required_burn": 0.8
+    }
+  ]
+}
