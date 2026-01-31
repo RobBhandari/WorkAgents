@@ -1,7 +1,7 @@
 """
 ArmorCode Report Generator - Create HTML Report from Weekly Query Results
 
-Generates a visual HTML report showing progress towards vulnerability reduction goal.
+Generates a clean table-based HTML report for email delivery.
 """
 
 import os
@@ -20,6 +20,23 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+
+def get_status_indicator(baseline_count, current_count):
+    """Get status color bar based on progress."""
+    if current_count == 0 or baseline_count == 0:
+        color = '#28a745'  # Green
+    else:
+        change_percent = ((current_count - baseline_count) / baseline_count * 100)
+        if change_percent <= -10:
+            color = '#28a745'  # Green
+        elif change_percent <= 10:
+            color = '#ffc107'  # Amber
+        else:
+            color = '#dc3545'  # Red
+
+    # Use a table cell with background color for better email compatibility
+    return f'<table cellpadding="0" cellspacing="0" style="margin: 0 auto;"><tr><td style="width: 10px; height: 40px; background: {color}; border-radius: 3px;"></td></tr></table>'
 
 
 def generate_html_report(data, output_file):
@@ -43,30 +60,6 @@ def generate_html_report(data, output_file):
     # Extract severity breakdown
     current_critical = current.get('summary', {}).get('total_critical', 0)
     current_high = current.get('summary', {}).get('total_high', 0)
-    baseline_critical = baseline.get('summary', {}).get('total_critical', 0)
-    baseline_high = baseline.get('summary', {}).get('total_high', 0)
-
-    # Determine status
-    if change > 0:
-        status_color = "#28a745"  # Green
-        status_text = "Improving"
-        trend_icon = "↓"
-    elif change < 0:
-        status_color = "#dc3545"  # Red
-        status_text = "Worsening"
-        trend_icon = "↑"
-    else:
-        status_color = "#ffc107"  # Yellow
-        status_text = "Stable"
-        trend_icon = "→"
-
-    # Progress bar color
-    if progress_percent >= 100:
-        progress_color = "#28a745"  # Green - goal achieved
-    elif progress_percent >= 50:
-        progress_color = "#17a2b8"  # Blue - on track
-    else:
-        progress_color = "#ffc107"  # Yellow - needs attention
 
     # Generate product rows
     baseline_by_product = baseline.get('by_product', {})
@@ -82,27 +75,42 @@ def generate_html_report(data, output_file):
         current_prod_critical = current_counts.get('CRITICAL', 0)
         current_prod_high = current_counts.get('HIGH', 0)
         prod_change = baseline_prod_total - current_prod_total
-        prod_change_percent = (prod_change / baseline_prod_total * 100) if baseline_prod_total > 0 else 0
 
+        # Status indicator
+        status_bar = get_status_indicator(baseline_prod_total, current_prod_total)
+
+        # Change formatting
         if prod_change > 0:
-            prod_trend = f'<span style="color: #28a745;">↓ {prod_change} ({prod_change_percent:+.0f}%)</span>'
+            change_display = f'<span style="color: #28a745; font-weight: 600;">+{prod_change}</span>'
         elif prod_change < 0:
-            prod_trend = f'<span style="color: #dc3545;">↑ {abs(prod_change)} ({prod_change_percent:+.0f}%)</span>'
+            change_display = f'<span style="color: #dc3545; font-weight: 600;">{prod_change}</span>'
         else:
-            prod_trend = '<span style="color: #6c757d;">→ 0 (0%)</span>'
+            change_display = f'<span style="color: #6c757d;">+0</span>'
 
         product_rows.append(f"""
         <tr>
-            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">{product_name}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center;">{baseline_prod_total}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center;">{current_prod_total}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center;">{current_prod_critical}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center;">{current_prod_high}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center;">{prod_trend}</td>
+            <td style="padding: 12px 16px; border-bottom: 1px solid #e9ecef; font-weight: 500;">{product_name}</td>
+            <td style="padding: 12px 16px; border-bottom: 1px solid #e9ecef; text-align: center;">{status_bar}</td>
+            <td style="padding: 12px 16px; border-bottom: 1px solid #e9ecef; text-align: center;">{baseline_prod_total}</td>
+            <td style="padding: 12px 16px; border-bottom: 1px solid #e9ecef; text-align: center; font-weight: 600;">{current_prod_total}</td>
+            <td style="padding: 12px 16px; border-bottom: 1px solid #e9ecef; text-align: center;">{current_prod_critical}</td>
+            <td style="padding: 12px 16px; border-bottom: 1px solid #e9ecef; text-align: center;">{current_prod_high}</td>
+            <td style="padding: 12px 16px; border-bottom: 1px solid #e9ecef; text-align: center;">{change_display}</td>
         </tr>
         """)
 
     products_html = ''.join(product_rows)
+
+    # Overall status
+    if change > 0:
+        overall_status = "↑ Increased"
+        status_color = "#dc3545"
+    elif change < 0:
+        overall_status = "↓ Decreased"
+        status_color = "#28a745"
+    else:
+        overall_status = "→ Stable"
+        status_color = "#ffc107"
 
     # Generate HTML
     html = f"""
@@ -111,222 +119,93 @@ def generate_html_report(data, output_file):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ArmorCode Security Report - {datetime.now().strftime('%Y-%m-%d')}</title>
-        <style>
-            body {{
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-                line-height: 1.6;
-                color: #333;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #f8f9fa;
-            }}
-            .header {{
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 30px;
-                border-radius: 10px;
-                margin-bottom: 30px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            }}
-            .header h1 {{
-                margin: 0 0 10px 0;
-                font-size: 32px;
-            }}
-            .header p {{
-                margin: 5px 0;
-                opacity: 0.9;
-                font-size: 16px;
-            }}
-            .card {{
-                background: white;
-                border-radius: 8px;
-                padding: 25px;
-                margin-bottom: 20px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }}
-            .metric-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                margin-bottom: 20px;
-            }}
-            .metric {{
-                text-align: center;
-                padding: 20px;
-                background: #f8f9fa;
-                border-radius: 8px;
-            }}
-            .metric-value {{
-                font-size: 36px;
-                font-weight: bold;
-                margin: 10px 0;
-            }}
-            .metric-label {{
-                color: #6c757d;
-                font-size: 14px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }}
-            .progress-container {{
-                background: #e9ecef;
-                border-radius: 10px;
-                height: 40px;
-                margin: 20px 0;
-                position: relative;
-                overflow: hidden;
-            }}
-            .progress-bar {{
-                background: {progress_color};
-                height: 100%;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: bold;
-                transition: width 0.3s ease;
-                width: {min(progress_percent, 100)}%;
-            }}
-            .progress-text {{
-                position: absolute;
-                width: 100%;
-                text-align: center;
-                line-height: 40px;
-                font-weight: bold;
-                color: #333;
-                z-index: 1;
-            }}
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }}
-            th {{
-                background: #f8f9fa;
-                padding: 15px;
-                text-align: left;
-                font-weight: 600;
-                border-bottom: 2px solid #dee2e6;
-            }}
-            td {{
-                padding: 12px;
-                border-bottom: 1px solid #dee2e6;
-            }}
-            .status-badge {{
-                display: inline-block;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-weight: 600;
-                font-size: 14px;
-                background: {status_color};
-                color: white;
-            }}
-            .footer {{
-                text-align: center;
-                color: #6c757d;
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 1px solid #dee2e6;
-                font-size: 14px;
-            }}
-            h2 {{
-                color: #333;
-                margin-top: 0;
-                font-size: 24px;
-            }}
-            .summary-text {{
-                font-size: 18px;
-                margin: 15px 0;
-            }}
-        </style>
+        <title>ArmorCode Security Report - {datetime.now().strftime('%B %d, %Y')}</title>
     </head>
-    <body>
-        <div class="header">
-            <h1>🛡️ ArmorCode Security Report</h1>
-            <p><strong>Report Date:</strong> {datetime.now().strftime('%B %d, %Y')}</p>
-            <p><strong>Baseline Date:</strong> {baseline.get('baseline_date', 'N/A')}</p>
-            <p><strong>Target Date:</strong> {baseline.get('target_date', 'N/A')}</p>
-        </div>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
 
-        <div class="card">
-            <h2>📊 Executive Summary</h2>
-            <div class="summary-text">
-                Status: <span class="status-badge">{trend_icon} {status_text}</span>
-            </div>
-            <div class="summary-text">
-                <strong>{current_total}</strong> vulnerabilities currently open
-                ({change:+d} from baseline of {baseline_total})
-            </div>
-            <div class="summary-text">
-                <strong>Goal:</strong> Reduce by {reduction_goal_percent}% to {target_remaining} vulnerabilities
-            </div>
-        </div>
+        <!-- Main Container -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 1000px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
 
-        <div class="card">
-            <h2>🎯 Progress Towards Goal</h2>
-            <div class="progress-container">
-                <div class="progress-text">{progress_percent:.1f}% Complete</div>
-                <div class="progress-bar"></div>
-            </div>
-            <div class="metric-grid">
-                <div class="metric">
-                    <div class="metric-label">Baseline</div>
-                    <div class="metric-value">{baseline_total}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Current</div>
-                    <div class="metric-value" style="color: {status_color};">{current_total}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Target</div>
-                    <div class="metric-value">{target_remaining}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Remaining</div>
-                    <div class="metric-value">{current_total - target_remaining}</div>
-                </div>
-            </div>
-        </div>
+            <!-- Header -->
+            <tr>
+                <td style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 30px; color: white;">
+                    <h1 style="margin: 0 0 10px 0; font-size: 28px; font-weight: 600;">ArmorCode Security Report</h1>
+                    <p style="margin: 0; font-size: 16px; opacity: 0.9;">{datetime.now().strftime('%B %d, %Y')}</p>
+                </td>
+            </tr>
 
-        <div class="card">
-            <h2>⏱️ Timeline</h2>
-            <div class="metric-grid">
-                <div class="metric">
-                    <div class="metric-label">Days Tracking</div>
-                    <div class="metric-value">{days_tracking}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Days Remaining</div>
-                    <div class="metric-value">{days_remaining}</div>
-                </div>
-            </div>
-        </div>
+            <!-- Summary Metrics -->
+            <tr>
+                <td style="padding: 30px 30px 20px 30px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td width="20%" style="padding: 15px; background: #f8f9fa; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Baseline</div>
+                                <div style="font-size: 28px; font-weight: 700; color: #333;">{baseline_total}</div>
+                            </td>
+                            <td width="3%"></td>
+                            <td width="20%" style="padding: 15px; background: #f8f9fa; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Current</div>
+                                <div style="font-size: 28px; font-weight: 700; color: {status_color};">{current_total}</div>
+                            </td>
+                            <td width="3%"></td>
+                            <td width="20%" style="padding: 15px; background: #f8f9fa; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Target</div>
+                                <div style="font-size: 28px; font-weight: 700; color: #333;">{target_remaining}</div>
+                            </td>
+                            <td width="3%"></td>
+                            <td width="31%" style="padding: 15px; background: #f8f9fa; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Progress</div>
+                                <div style="font-size: 28px; font-weight: 700; color: #333;">{progress_percent:.1f}%</div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
 
-        <div class="card">
-            <h2>📋 Product Breakdown</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th style="text-align: center;">Baseline</th>
-                        <th style="text-align: center;">Current</th>
-                        <th style="text-align: center;">Critical</th>
-                        <th style="text-align: center;">High</th>
-                        <th style="text-align: center;">Change</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {products_html}
-                </tbody>
-            </table>
-        </div>
+            <!-- Goal Info -->
+            <tr>
+                <td style="padding: 10px 30px 20px 30px;">
+                    <div style="background: #e7f3ff; border-left: 4px solid #2a5298; padding: 12px 16px; border-radius: 4px;">
+                        <strong>Goal:</strong> Reduce by {reduction_goal_percent}% to {target_remaining} vulnerabilities by {baseline.get('target_date', 'June 30, 2026')}
+                        <span style="color: #6c757d; margin-left: 10px;">({days_remaining} days remaining)</span>
+                    </div>
+                </td>
+            </tr>
 
-        <div class="footer">
-            <p>Generated by ArmorCode Security Tracking System</p>
-            <p>Legal Products - HIGH + CRITICAL Vulnerabilities (OPEN + CONFIRMED)</p>
-        </div>
+            <!-- Product Breakdown Table -->
+            <tr>
+                <td style="padding: 0 30px 30px 30px;">
+                    <h2 style="font-size: 18px; font-weight: 600; margin: 0 0 15px 0; color: #333;">Product Breakdown</h2>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; background: white; border: 1px solid #dee2e6; border-radius: 6px; overflow: hidden;">
+                        <thead>
+                            <tr style="background: #1e3c72; color: white;">
+                                <th style="padding: 14px 16px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Product</th>
+                                <th style="padding: 14px 16px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+                                <th style="padding: 14px 16px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Baseline</th>
+                                <th style="padding: 14px 16px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Current</th>
+                                <th style="padding: 14px 16px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Critical</th>
+                                <th style="padding: 14px 16px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">High</th>
+                                <th style="padding: 14px 16px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Net Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {products_html}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+                <td style="padding: 20px 30px; background: #f8f9fa; border-top: 1px solid #dee2e6; text-align: center; font-size: 12px; color: #6c757d;">
+                    <p style="margin: 0;">Generated by ArmorCode Weekly Report Automation</p>
+                    <p style="margin: 5px 0 0 0;">Tracking Period: {baseline.get('baseline_date', 'Dec 1, 2025')} - {baseline.get('target_date', 'June 30, 2026')}</p>
+                </td>
+            </tr>
+        </table>
+
     </body>
     </html>
     """
@@ -336,40 +215,39 @@ def generate_html_report(data, output_file):
         f.write(html)
 
     logger.info(f"HTML report generated: {output_file}")
-    return output_file
 
 
 def main():
-    """Main execution."""
-    try:
-        # Find most recent weekly query file
-        import glob
-        query_files = glob.glob('.tmp/armorcode_weekly_*.json')
+    """Main execution function."""
 
-        if not query_files:
-            logger.error("No weekly query files found. Run armorcode_weekly_query.py first.")
-            sys.exit(1)
+    # Find the most recent weekly query file
+    tmp_dir = '.tmp'
+    files = [f for f in os.listdir(tmp_dir) if f.startswith('armorcode_weekly_') and f.endswith('.json')]
 
-        # Use most recent file
-        latest_file = max(query_files, key=os.path.getctime)
-        logger.info(f"Loading data from: {latest_file}")
-
-        with open(latest_file, 'r') as f:
-            data = json.load(f)
-
-        # Generate report
-        output_file = f'.tmp/armorcode_report_{datetime.now().strftime("%Y%m%d")}.html'
-        generate_html_report(data, output_file)
-
-        logger.info("="*70)
-        logger.info(f"Report generated successfully: {output_file}")
-        logger.info("="*70)
-
-        return output_file
-
-    except Exception as e:
-        logger.error(f"Error generating report: {e}", exc_info=True)
+    if not files:
+        logger.error("No weekly query files found in .tmp directory")
         sys.exit(1)
+
+    # Sort by date in filename and get most recent
+    files.sort(reverse=True)
+    latest_file = os.path.join(tmp_dir, files[0])
+
+    logger.info(f"Loading data from: {latest_file}")
+
+    # Load data
+    with open(latest_file, 'r') as f:
+        data = json.load(f)
+
+    # Generate output filename
+    date_str = datetime.now().strftime('%Y%m%d')
+    output_file = os.path.join(tmp_dir, f'armorcode_report_{date_str}.html')
+
+    # Generate report
+    generate_html_report(data, output_file)
+
+    logger.info("=" * 70)
+    logger.info(f"Report generated successfully: {output_file}")
+    logger.info("=" * 70)
 
 
 if __name__ == '__main__':

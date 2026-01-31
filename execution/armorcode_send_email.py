@@ -44,7 +44,7 @@ def send_email(html_file, recipients):
     # Create message
     msg = MIMEMultipart('alternative')
     msg['Subject'] = f'ArmorCode Security Report - {datetime.now().strftime("%B %d, %Y")}'
-    msg['From'] = email_address
+    msg['From'] = f'ArmorCode Report <{email_address}>'
     msg['To'] = ', '.join(recipients) if isinstance(recipients, list) else recipients
 
     # Attach HTML content
