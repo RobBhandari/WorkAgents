@@ -106,16 +106,24 @@ jobs:
 
       - name: Upload Dashboards to Azure Blob Storage
         run: |
-          # Upload all dashboards to Azure Static Website
-          az storage blob upload-batch \
-            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
-            --source .tmp/observatory/dashboards \
-            --destination '$web' \
-            --overwrite
+          # Check if dashboards directory exists and has files
+          if [ -d ".tmp/observatory/dashboards" ] && [ -n "$(ls -A .tmp/observatory/dashboards 2>/dev/null)" ]; then
+            echo "📁 Found dashboards to upload..."
 
-          echo "✅ Dashboards uploaded successfully!"
-          echo "🌐 Access at: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.z33.web.core.windows.net/"
+            # Upload all dashboards to Azure Static Website
+            az storage blob upload-batch \
+              --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+              --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+              --source .tmp/observatory/dashboards \
+              --destination '$web' \
+              --overwrite
+
+            echo "✅ Dashboards uploaded successfully!"
+            echo "🌐 Access at: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.z33.web.core.windows.net/"
+          else
+            echo "⚠️ No dashboards found in .tmp/observatory/dashboards - skipping upload"
+            echo "This is expected if data collection steps failed."
+          fi
 
       - name: Commit and push changes
         run: |
