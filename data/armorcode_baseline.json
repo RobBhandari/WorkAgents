@@ -1,9 +1,19 @@
 {
-  "created_at": "2026-01-31T01:26:22.922502",
+  "created_at": "2026-02-04T21:35:00.000000",
   "baseline_date": "2025-12-01",
   "target_date": "2026-06-30",
   "reduction_goal": 0.7,
+  "reduction_goal_pct": 70,
+  "vulnerability_count": 246,
+  "total_vulnerabilities": 246,
+  "target_count": 74,
+  "target_vulnerabilities": 74,
+  "weeks_to_target": 30,
+  "required_weekly_burn": 5.73,
+  "required_weekly_reduction": 5.73,
   "status_filter": "OPEN + CONFIRMED",
+  "immutable": true,
+  "note": "Manual baseline - 246 HIGH + CRITICAL vulnerabilities as of Dec 1, 2025",
   "products": [
     "Access Diversity",
     "Access Legal AI Services",
@@ -20,98 +30,5 @@
     "Proclaim Portals - Eclipse",
     "inCase"
   ],
-  "product_ids": [
-    "10480",
-    "645178",
-    "4317",
-    "20463",
-    "329274",
-    "5907",
-    "45454",
-    "4727",
-    "4730",
-    "5526",
-    "4728",
-    "4726",
-    "5527",
-    "227595"
-  ],
-  "total_vulnerabilities": 281,
-  "by_product": {
-    "Access Diversity": {
-      "HIGH": 2,
-      "CRITICAL": 0,
-      "total": 2
-    },
-    "Access Legal AI Services": {
-      "HIGH": 9,
-      "CRITICAL": 0,
-      "total": 9
-    },
-    "Access Legal Case Management": {
-      "HIGH": 67,
-      "CRITICAL": 2,
-      "total": 69
-    },
-    "Access Legal Compliance": {
-      "HIGH": 66,
-      "CRITICAL": 2,
-      "total": 68
-    },
-    "Access Legal Framework": {
-      "HIGH": 30,
-      "CRITICAL": 0,
-      "total": 30
-    },
-    "Access MyCalendars": {
-      "HIGH": 13,
-      "CRITICAL": 0,
-      "total": 13
-    },
-    "Eclipse": {
-      "HIGH": 21,
-      "CRITICAL": 5,
-      "total": 26
-    },
-    "Law Fusion": {
-      "HIGH": 16,
-      "CRITICAL": 0,
-      "total": 16
-    },
-    "Legal Bricks": {
-      "HIGH": 15,
-      "CRITICAL": 0,
-      "total": 15
-    },
-    "Legal Workspace": {
-      "HIGH": 13,
-      "CRITICAL": 0,
-      "total": 13
-    },
-    "One Office & Financial Director": {
-      "HIGH": 15,
-      "CRITICAL": 0,
-      "total": 15
-    },
-    "Proclaim": {
-      "HIGH": 0,
-      "CRITICAL": 0,
-      "total": 0
-    },
-    "Proclaim Portals - Eclipse": {
-      "HIGH": 0,
-      "CRITICAL": 0,
-      "total": 0
-    },
-    "inCase": {
-      "HIGH": 5,
-      "CRITICAL": 0,
-      "total": 5
-    }
-  },
-  "summary": {
-    "total_critical": 9,
-    "total_high": 272,
-    "products_tracked": 14
-  }
+  "vulnerabilities": []
 }
