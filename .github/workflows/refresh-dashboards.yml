@@ -108,8 +108,18 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add .tmp/observatory/
-          git diff --staged --quiet || git commit -m "Auto-refresh dashboards - $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push
+
+          # Only add and commit if .tmp/observatory directory exists and has files
+          if [ -d ".tmp/observatory" ] && [ -n "$(find .tmp/observatory -type f 2>/dev/null)" ]; then
+            git add .tmp/observatory/
+            if ! git diff --staged --quiet; then
+              git commit -m "Auto-refresh dashboards - $(date -u '+%Y-%m-%d %H:%M UTC')"
+              git push
+            else
+              echo "No changes to commit"
+            fi
+          else
+            echo "No .tmp/observatory directory or files found - skipping commit"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
