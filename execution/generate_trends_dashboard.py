@@ -384,6 +384,36 @@ def extract_trends_from_ownership():
     }
 
 
+def extract_trends_from_risk():
+    """Extract risk trends from risk_history.json
+
+    Tracks commit activity over time as indicator of delivery risk.
+    Matches executive summary calculation for consistency.
+    """
+    data = load_history_file('.tmp/observatory/risk_history.json')
+    if not data or not data.get('weeks'):
+        return None
+
+    weeks = data['weeks']
+    commits_trend = []
+
+    for week in weeks:
+        projects = week.get('projects', [])
+
+        # Total commits across all projects
+        total_commits = sum(p.get('code_churn', {}).get('total_commits', 0) for p in projects)
+        commits_trend.append(total_commits)
+
+    return {
+        'total_commits': {
+            'current': commits_trend[-1] if commits_trend else 0,
+            'previous': commits_trend[-2] if len(commits_trend) > 1 else 0,
+            'trend_data': commits_trend,
+            'unit': 'commits'
+        }
+    }
+
+
 def get_trend_indicator(current, previous, good_direction='down'):
     """Get trend indicator (↑↓→) and color"""
     change = current - previous
@@ -405,6 +435,77 @@ def get_trend_indicator(current, previous, good_direction='down'):
             return ('↓', 'trend-up', change)  # Red (bad)
 
 
+def get_rag_color(value, metric_type):
+    """Determine RAG color based on metric value and type"""
+    if value == "N/A" or value is None:
+        return "#94a3b8"  # Gray for N/A
+
+    try:
+        if metric_type == "lead_time":
+            # Lower is better: <30 days green, 30-60 amber, >60 red
+            val = float(value)
+            if val < 30: return "#10b981"  # Green
+            elif val < 60: return "#f59e0b"  # Amber
+            else: return "#ef4444"  # Red
+
+        elif metric_type == "mttr":
+            # Lower is better: <7 days green, 7-14 days amber, >14 days red
+            val = float(value)
+            if val < 7: return "#10b981"
+            elif val < 14: return "#f59e0b"
+            else: return "#ef4444"
+
+        elif metric_type == "total_vulns":
+            # Lower is better: <150 green, 150-250 amber, >250 red
+            val = int(value)
+            if val < 150: return "#10b981"
+            elif val < 250: return "#f59e0b"
+            else: return "#ef4444"
+
+        elif metric_type == "bugs":
+            # Lower is better: <100 green, 100-200 amber, >200 red
+            val = int(value)
+            if val < 100: return "#10b981"
+            elif val < 200: return "#f59e0b"
+            else: return "#ef4444"
+
+        elif metric_type == "success_rate":
+            # Higher is better: >90% green, 70-90% amber, <70% red
+            val = float(value)
+            if val >= 90: return "#10b981"
+            elif val >= 70: return "#f59e0b"
+            else: return "#ef4444"
+
+        elif metric_type == "merge_time":
+            # Lower is better: <4h green, 4-24h amber, >24h red
+            val = float(value)
+            if val < 4: return "#10b981"
+            elif val < 24: return "#f59e0b"
+            else: return "#ef4444"
+
+        elif metric_type == "unassigned":
+            # Lower is better: <20% green, 20-40% amber, >40% red
+            val = float(value)
+            if val < 20: return "#10b981"
+            elif val < 40: return "#f59e0b"
+            else: return "#ef4444"
+
+        elif metric_type == "target_progress":
+            # Higher is better: >=70% green, 40-70% amber, <40% red
+            val = float(value)
+            if val >= 70: return "#10b981"
+            elif val >= 40: return "#f59e0b"
+            else: return "#ef4444"
+
+        elif metric_type == "commits":
+            # Neutral metric - no RAG thresholds
+            return "#6366f1"  # Purple
+
+        return "#6366f1"  # Default purple
+    except (ValueError, TypeError):
+        return "#94a3b8"  # Gray for invalid values
+
+
 def generate_html(all_trends, target_progress):
     """Generate HTML dashboard"""
     now = datetime.now()
@@ -415,17 +516,21 @@ def generate_html(all_trends, target_progress):
     # 1. Target Progress
     if target_progress:
         arrow, css_class, change = get_trend_indicator(target_progress['current'], target_progress['previous'], 'up')
+        rag_color = get_rag_color(target_progress['current'], 'target_progress')
         metrics_js.append({
             'id': 'target',
             'icon': '🎯',
             'title': '70% Reduction Target',
+            'description': 'Track progress toward 70% reduction goals for security vulnerabilities and bugs. Combined progress from Dec 1, 2025 baseline through June 30, 2026.',
             'current': target_progress['current'],
             'unit': target_progress['unit'],
             'change': round(change, 1),
             'changeLabel': 'vs last week',
             'data': target_progress['trend_data'],
             'arrow': arrow,
-            'cssClass': css_class
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'target_dashboard.html'
         })
 
     # 2. Security Vulnerabilities
@@ -433,17 +538,21 @@ def generate_html(all_trends, target_progress):
     if security:
         vulns = security.get('vulnerabilities', {})
         arrow, css_class, change = get_trend_indicator(vulns['current'], vulns['previous'], 'down')
+        rag_color = get_rag_color(vulns['current'], 'total_vulns')
         metrics_js.append({
             'id': 'security',
             'icon': '🔒',
             'title': 'Security Vulnerabilities',
+            'description': 'Track vulnerability trends and security debt. Translate scanner noise into engineering action.',
             'current': vulns['current'],
             'unit': vulns['unit'],
             'change': change,
             'changeLabel': 'vs last week',
             'data': vulns['trend_data'],
             'arrow': arrow,
-            'cssClass': css_class
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'security_dashboard.html'
         })
 
     # 3. Open Bugs
@@ -451,17 +560,21 @@ def generate_html(all_trends, target_progress):
     if quality:
         bugs = quality.get('bugs', {})
         arrow, css_class, change = get_trend_indicator(bugs['current'], bugs['previous'], 'down')
+        rag_color = get_rag_color(bugs['current'], 'bugs')
         metrics_js.append({
             'id': 'bugs',
             'icon': '🐛',
             'title': 'Open Bugs',
+            'description': 'Track bug resolution speed and open bug trends. Measure how quickly issues are fixed across teams.',
             'current': bugs['current'],
             'unit': bugs['unit'],
             'change': change,
             'changeLabel': 'vs last week',
             'data': bugs['trend_data'],
             'arrow': arrow,
-            'cssClass': css_class
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'quality_dashboard.html'
         })
 
     # 4. Lead Time
@@ -469,88 +582,109 @@ def generate_html(all_trends, target_progress):
     if flow:
         lead_time = flow.get('lead_time', {})
         arrow, css_class, change = get_trend_indicator(lead_time['current'], lead_time['previous'], 'down')
+        rag_color = get_rag_color(lead_time['current'], 'lead_time')
         metrics_js.append({
             'id': 'flow',
             'icon': '🔄',
             'title': 'Lead Time (P85)',
+            'description': 'Measure delivery speed, work in progress, and throughput across teams. See bottlenecks before they become problems.',
             'current': lead_time['current'],
             'unit': lead_time['unit'],
             'change': round(change, 1),
             'changeLabel': 'vs last week',
             'data': lead_time['trend_data'],
             'arrow': arrow,
-            'cssClass': css_class
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'flow_dashboard.html'
         })
 
-    # 5. MTTR
-    if quality:
-        mttr = quality.get('mttr', {})
-        arrow, css_class, change = get_trend_indicator(mttr['current'], mttr['previous'], 'down')
-        metrics_js.append({
-            'id': 'mttr',
-            'icon': '✓',
-            'title': 'MTTR',
-            'current': mttr['current'],
-            'unit': mttr['unit'],
-            'change': round(change, 1),
-            'changeLabel': 'vs last week',
-            'data': mttr['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class
-        })
-
-    # 6. Build Success Rate
+    # 5. Build Success Rate
     deployment = all_trends.get('deployment', {})
     if deployment:
         build_success = deployment.get('build_success', {})
         arrow, css_class, change = get_trend_indicator(build_success['current'], build_success['previous'], 'up')
+        rag_color = get_rag_color(build_success['current'], 'success_rate')
         metrics_js.append({
             'id': 'deployment',
             'icon': '🚀',
             'title': 'Build Success Rate',
+            'description': 'Track deployment frequency, build success rates, and lead time for changes. Measure DevOps performance.',
             'current': build_success['current'],
             'unit': build_success['unit'],
             'change': round(change, 1),
             'changeLabel': 'vs last week',
             'data': build_success['trend_data'],
             'arrow': arrow,
-            'cssClass': css_class
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'deployment_dashboard.html'
         })
 
-    # 7. PR Merge Time
+    # 6. PR Merge Time
     collaboration = all_trends.get('collaboration', {})
     if collaboration:
         pr_merge = collaboration.get('pr_merge_time', {})
         arrow, css_class, change = get_trend_indicator(pr_merge['current'], pr_merge['previous'], 'down')
+        rag_color = get_rag_color(pr_merge['current'], 'merge_time')
         metrics_js.append({
             'id': 'collaboration',
             'icon': '🤝',
             'title': 'PR Merge Time',
+            'description': 'Monitor code review efficiency, PR merge times, and review iterations. Optimize team collaboration.',
             'current': pr_merge['current'],
             'unit': pr_merge['unit'],
             'change': round(change, 1),
             'changeLabel': 'vs last week',
             'data': pr_merge['trend_data'],
             'arrow': arrow,
-            'cssClass': css_class
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'collaboration_dashboard.html'
         })
 
-    # 8. Work Unassigned
+    # 7. Work Unassigned
     ownership = all_trends.get('ownership', {})
     if ownership:
         unassigned = ownership.get('work_unassigned', {})
         arrow, css_class, change = get_trend_indicator(unassigned['current'], unassigned['previous'], 'down')
+        rag_color = get_rag_color(unassigned['current'], 'unassigned')
         metrics_js.append({
             'id': 'ownership',
             'icon': '👤',
             'title': 'Work Unassigned',
+            'description': 'Track work assignment clarity and orphan areas. Identify ownership gaps early.',
             'current': unassigned['current'],
             'unit': unassigned['unit'],
             'change': round(change, 1),
             'changeLabel': 'vs last week',
             'data': unassigned['trend_data'],
             'arrow': arrow,
-            'cssClass': css_class
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'ownership_dashboard.html'
+        })
+
+    # 8. Total Commits (Risk)
+    risk = all_trends.get('risk', {})
+    if risk:
+        commits = risk.get('total_commits', {})
+        arrow, css_class, change = get_trend_indicator(commits['current'], commits['previous'], 'stable')
+        rag_color = get_rag_color(commits['current'], 'commits')
+        metrics_js.append({
+            'id': 'risk',
+            'icon': '📊',
+            'title': 'Total Commits',
+            'description': 'Track code change activity and commit patterns. Understand delivery risk through Git metrics.',
+            'current': commits['current'],
+            'unit': commits['unit'],
+            'change': change,
+            'changeLabel': 'vs last week',
+            'data': commits['trend_data'],
+            'arrow': arrow,
+            'cssClass': css_class,
+            'ragColor': rag_color,
+            'dashboardUrl': 'risk_dashboard.html'
         })
 
     metrics_json = json.dumps(metrics_js, indent=4)
@@ -696,17 +830,33 @@ def generate_html(all_trends, target_progress):
             }}
         }}
 
+        .metric-card-link {{
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            height: 100%;
+        }}
+
         .metric-card {{
             background: var(--bg-card);
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 4px 12px var(--shadow);
             border-left: 4px solid #667eea;
-            transition: transform 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            height: 100%;
         }}
 
         .metric-card:hover {{
-            transform: translateY(-2px);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+            border-left-color: #764ba2;
+            border-left-width: 6px;
+        }}
+
+        .metric-card:active {{
+            transform: translateY(-4px) scale(1.01);
         }}
 
         .metric-header {{
@@ -740,11 +890,18 @@ def generate_html(all_trends, target_progress):
         .trend-down {{ color: #10b981; }}
         .trend-stable {{ color: #f59e0b; }}
 
+        .metric-description {{
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.4;
+            opacity: 0.9;
+        }}
+
         .metric-value {{
             font-size: 2.2rem;
             font-weight: 700;
             margin-bottom: 8px;
-            color: var(--text-primary);
         }}
 
         .metric-change {{
@@ -967,6 +1124,11 @@ def generate_html(all_trends, target_progress):
             trendsData.forEach(metric => {{
                 const containerId = `sparkline-${{metric.id}}`;
 
+                // Create clickable link wrapper
+                const link = document.createElement('a');
+                link.href = metric.dashboardUrl;
+                link.className = 'metric-card-link';
+
                 const card = document.createElement('div');
                 card.className = 'metric-card';
                 card.innerHTML = `
@@ -979,14 +1141,16 @@ def generate_html(all_trends, target_progress):
                             ${{metric.arrow}}
                         </div>
                     </div>
-                    <div class="metric-value">${{metric.current}} <span style="font-size: 1rem; font-weight: normal; color: var(--text-secondary);">${{metric.unit}}</span></div>
+                    <div class="metric-description">${{metric.description}}</div>
+                    <div class="metric-value" style="color: ${{metric.ragColor}};">${{metric.current}} <span style="font-size: 1rem; font-weight: normal; color: var(--text-secondary);">${{metric.unit}}</span></div>
                     <div class="metric-change">
                         ${{metric.change > 0 ? '+' : ''}}${{metric.change}} ${{metric.changeLabel}}
                     </div>
                     <div class="sparkline-container" id="${{containerId}}"></div>
                 `;
 
-                container.appendChild(card);
+                link.appendChild(card);
+                container.appendChild(link);
 
                 // Generate sparkline after DOM is updated
                 setTimeout(() => generateSparkline(metric.data, containerId, metric.unit), 0);
@@ -1054,6 +1218,11 @@ def main():
     if ownership:
         all_trends['ownership'] = ownership
         print(f"✓ Ownership metrics: {len(ownership['work_unassigned']['trend_data'])} weeks")
+
+    risk = extract_trends_from_risk()
+    if risk:
+        all_trends['risk'] = risk
+        print(f"✓ Risk metrics: {len(risk['total_commits']['trend_data'])} weeks")
 
     if not all_trends:
         print("⚠ No historical data found")

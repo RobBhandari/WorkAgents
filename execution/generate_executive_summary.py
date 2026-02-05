@@ -288,23 +288,23 @@ def calculate_ownership_summary(ownership_data):
 
 
 def calculate_risk_summary(risk_data):
-    """Calculate risk metrics summary from project data"""
+    """Calculate risk metrics summary from project data (Git activity)"""
     if not risk_data or 'projects' not in risk_data:
         return None
 
     projects = risk_data['projects']
-    total_reopened = 0
+    total_commits = 0
+    total_files_changed = 0
 
     for proj in projects:
-        reopened_bugs = proj.get('reopened_bugs', {})
-        if isinstance(reopened_bugs, dict):
-            total_reopened += reopened_bugs.get('count', 0)
-        else:
-            total_reopened += reopened_bugs
+        code_churn = proj.get('code_churn', {})
+        total_commits += code_churn.get('total_commits', 0)
+        total_files_changed += code_churn.get('unique_files_touched', 0)
 
     return {
-        'reopened_bugs_count': total_reopened,
-        'projects_count': len(projects)
+        'total_commits': total_commits,
+        'files_changed': total_files_changed,
+        'active_projects': len(projects)
     }
 
 
@@ -660,6 +660,18 @@ def generate_html(metrics):
             grid-template-columns: 1fr 350px;
             gap: 20px;
             align-items: stretch;
+            cursor: move;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }}
+
+        .metric-pair.dragging {{
+            opacity: 0.5;
+            transform: scale(0.98);
+        }}
+
+        .metric-pair.drag-over {{
+            border-top: 3px solid #667eea;
+            margin-top: 3px;
         }}
 
         @media (max-width: 1024px) {{
@@ -851,9 +863,9 @@ def generate_html(metrics):
             <p style="font-size: 1.1rem;">Engineering health assessment across 7 key dimensions: flow, quality, security, deployment, collaboration, ownership, and risk.</p>
         </div>
 
-        <div class="metric-pairs-container">
+        <div class="metric-pairs-container" id="cards-container">
             <!-- Pair 0: 70% Reduction Target -->
-            <div class="metric-pair">
+            <div class="metric-pair" draggable="true" data-card-id="target">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>70% Reduction Target</h3>
@@ -887,7 +899,7 @@ def generate_html(metrics):
             </div>
 
             <!-- Pair 1: Flow -->
-            <div class="metric-pair">
+            <div class="metric-pair" draggable="true" data-card-id="flow">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>Flow & Throughput</h3>
@@ -921,7 +933,7 @@ def generate_html(metrics):
             </div>
 
             <!-- Pair 2: Quality -->
-            <div class="metric-pair">
+            <div class="metric-pair" draggable="true" data-card-id="quality">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>Quality & Fix Effectiveness</h3>
@@ -955,7 +967,7 @@ def generate_html(metrics):
             </div>
 
             <!-- Pair 3: Security -->
-            <div class="metric-pair">
+            <div class="metric-pair" draggable="true" data-card-id="security">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>Security & Vulnerabilities</h3>
@@ -989,7 +1001,7 @@ def generate_html(metrics):
             </div>
 
             <!-- Pair 4: Deployment -->
-            <div class="metric-pair">
+            <div class="metric-pair" draggable="true" data-card-id="deployment">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>Deployment & DORA</h3>
@@ -1023,7 +1035,7 @@ def generate_html(metrics):
             </div>
 
             <!-- Pair 5: Collaboration -->
-            <div class="metric-pair">
+            <div class="metric-pair" draggable="true" data-card-id="collaboration">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>Collaboration & PRs</h3>
@@ -1057,7 +1069,7 @@ def generate_html(metrics):
             </div>
 
             <!-- Pair 6: Ownership -->
-            <div class="metric-pair">
+            <div class="metric-pair" draggable="true" data-card-id="ownership">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>Ownership & Distribution</h3>
@@ -1090,36 +1102,34 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 7: Attention Items / Risk -->
-            <div class="metric-pair">
+            <!-- Pair 7: Delivery Risk (Git Activity) -->
+            <div class="metric-pair" draggable="true" data-card-id="risk">
                 <div class="question-card">
                     <div class="question-card-header">
                         <h3>Delivery Risk & Stability</h3>
                         <div class="header-description">
-                            Identify reopened bugs and projects at risk. Catch quality erosion early.
+                            Track code change activity and commit patterns. Understand delivery risk through Git metrics.
                         </div>
                     </div>
-                    <div class="metric" style="color: {attention_color};">{attention_count}</div>
-                    <div class="metric-label">Items Needing Attention</div>
+                    <div class="metric" style="color: #6366f1;">{risk_summary['total_commits'] if risk_summary else 'N/A'}</div>
+                    <div class="metric-label">Total Commits (90d)</div>
                     <div class="rag-legend">
-                        <div class="rag-legend-item"><span class="rag-dot" style="background: #10b981;"></span> Good: 0</div>
-                        <div class="rag-legend-item"><span class="rag-dot" style="background: #f59e0b;"></span> Caution: 1-2</div>
-                        <div class="rag-legend-item"><span class="rag-dot" style="background: #ef4444;"></span> Action: &gt;2</div>
+                        <div class="rag-legend-item"><span class="rag-dot" style="background: #6366f1;"></span> Git Activity Metrics</div>
                     </div>
                 </div>
                 <a href="risk_dashboard.html" class="detail-card">
-                    <h4><span class="dashboard-icon">⚠️</span> Risk Dashboard</h4>
+                    <h4><span class="dashboard-icon">📊</span> Risk Dashboard</h4>
                     <div class="metric-row">
-                        <span>Reopened Bugs</span>
-                        <strong>{risk_summary['reopened_bugs_count'] if risk_summary else 'N/A'}</strong>
+                        <span>Total Commits</span>
+                        <strong>{risk_summary['total_commits'] if risk_summary else 'N/A'}</strong>
                     </div>
                     <div class="metric-row">
-                        <span>Attention Items</span>
-                        <strong>{attention_count}</strong>
+                        <span>Files Changed</span>
+                        <strong>{risk_summary['files_changed'] if risk_summary else 'N/A'}</strong>
                     </div>
                     <div class="metric-row">
-                        <span>Projects</span>
-                        <strong>{risk_summary['projects_count'] if risk_summary else 'N/A'}</strong>
+                        <span>Active Projects</span>
+                        <strong>{risk_summary['active_projects'] if risk_summary else 'N/A'}</strong>
                     </div>
                 </a>
             </div>
@@ -1139,6 +1149,112 @@ def generate_html(metrics):
         // Load saved theme
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Drag and Drop functionality
+        let draggedElement = null;
+
+        function initDragAndDrop() {{
+            const cards = document.querySelectorAll('.metric-pair');
+
+            cards.forEach(card => {{
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('drop', handleDrop);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('dragleave', handleDragLeave);
+            }});
+
+            // Load saved order
+            loadCardOrder();
+        }}
+
+        function handleDragStart(e) {{
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }}
+
+        function handleDragOver(e) {{
+            if (e.preventDefault) {{
+                e.preventDefault();
+            }}
+            e.dataTransfer.dropEffect = 'move';
+
+            if (this !== draggedElement) {{
+                this.classList.add('drag-over');
+            }}
+            return false;
+        }}
+
+        function handleDragLeave(e) {{
+            this.classList.remove('drag-over');
+        }}
+
+        function handleDrop(e) {{
+            if (e.stopPropagation) {{
+                e.stopPropagation();
+            }}
+
+            this.classList.remove('drag-over');
+
+            if (draggedElement !== this) {{
+                const container = document.getElementById('cards-container');
+                const allCards = [...container.children];
+                const draggedIndex = allCards.indexOf(draggedElement);
+                const targetIndex = allCards.indexOf(this);
+
+                if (draggedIndex < targetIndex) {{
+                    container.insertBefore(draggedElement, this.nextSibling);
+                }} else {{
+                    container.insertBefore(draggedElement, this);
+                }}
+
+                saveCardOrder();
+            }}
+
+            return false;
+        }}
+
+        function handleDragEnd(e) {{
+            this.classList.remove('dragging');
+
+            const cards = document.querySelectorAll('.metric-pair');
+            cards.forEach(card => {{
+                card.classList.remove('drag-over');
+            }});
+        }}
+
+        function saveCardOrder() {{
+            const container = document.getElementById('cards-container');
+            const cards = [...container.children];
+            const order = cards.map(card => card.getAttribute('data-card-id'));
+            localStorage.setItem('cardOrder', JSON.stringify(order));
+        }}
+
+        function loadCardOrder() {{
+            const savedOrder = localStorage.getItem('cardOrder');
+            if (!savedOrder) return;
+
+            try {{
+                const order = JSON.parse(savedOrder);
+                const container = document.getElementById('cards-container');
+                const cards = [...container.children];
+
+                // Reorder cards based on saved order
+                order.forEach((cardId, index) => {{
+                    const card = cards.find(c => c.getAttribute('data-card-id') === cardId);
+                    if (card) {{
+                        container.appendChild(card);
+                    }}
+                }});
+            }} catch (e) {{
+                console.error('Failed to load card order:', e);
+            }}
+        }}
+
+        // Initialize drag and drop when page loads
+        document.addEventListener('DOMContentLoaded', initDragAndDrop);
     </script>
 </body>
 </html>'''
