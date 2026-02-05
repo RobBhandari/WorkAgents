@@ -104,6 +104,32 @@ jobs:
         run: python execution/generate_executive_summary.py
         continue-on-error: true
 
+      - name: Upload Dashboards to Azure Blob Storage
+        run: |
+          # Install Azure CLI (already available on GitHub runners)
+          # Upload all dashboards to Azure Static Website
+          az storage blob upload-batch \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+            --source .tmp/observatory/dashboards \
+            --destination '$web' \
+            --overwrite \
+            --content-type 'text/html' \
+            --pattern '*.html'
+
+          # Also upload any CSS/JS files if they exist
+          if [ -d ".tmp/observatory/dashboards/assets" ]; then
+            az storage blob upload-batch \
+              --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+              --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+              --source .tmp/observatory/dashboards/assets \
+              --destination '$web/assets' \
+              --overwrite
+          fi
+
+          echo "✅ Dashboards uploaded successfully!"
+          echo "🌐 Access at: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.z13.web.core.windows.net/"
+
       - name: Commit and push changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
