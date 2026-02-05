@@ -1,0 +1,115 @@
+name: Refresh Observatory Dashboards
+
+on:
+  # Run every day at 6 AM UTC (adjust timezone as needed)
+  schedule:
+    - cron: '0 6 * * *'
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  refresh-dashboards:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env file from secrets
+        run: |
+          echo "AZURE_DEVOPS_ORG_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
+          echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
+
+      - name: Collect Quality Metrics
+        run: python execution/ado_quality_metrics.py
+        continue-on-error: true
+
+      - name: Collect Flow Metrics
+        run: python execution/ado_flow_metrics.py
+        continue-on-error: true
+
+      - name: Collect Ownership Metrics
+        run: python execution/ado_ownership_metrics.py
+        continue-on-error: true
+
+      - name: Collect Risk Metrics
+        run: python execution/ado_risk_metrics.py
+        continue-on-error: true
+
+      - name: Collect Deployment Metrics
+        run: python execution/ado_deployment_metrics.py
+        continue-on-error: true
+
+      - name: Collect Collaboration Metrics
+        run: python execution/ado_collaboration_metrics.py
+        continue-on-error: true
+
+      - name: Collect Security Metrics (ArmorCode)
+        run: python execution/armorcode_enhanced_metrics.py
+        continue-on-error: true
+
+      - name: Generate Quality Dashboard
+        run: python execution/generate_quality_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Flow Dashboard
+        run: python execution/generate_flow_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Ownership Dashboard
+        run: python execution/generate_ownership_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Risk Dashboard
+        run: python execution/generate_risk_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Deployment Dashboard
+        run: python execution/generate_deployment_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Collaboration Dashboard
+        run: python execution/generate_collaboration_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Security Dashboard
+        run: python execution/generate_security_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Target Dashboard (70% Reduction Tracking)
+        run: python execution/generate_target_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Executive Trends Dashboard
+        run: python execution/generate_trends_dashboard.py
+        continue-on-error: true
+
+      - name: Generate Executive Summary Dashboard
+        run: python execution/generate_executive_summary.py
+        continue-on-error: true
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .tmp/observatory/
+          git diff --staged --quiet || git commit -m "Auto-refresh dashboards - $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
