@@ -24,20 +24,41 @@ if sys.platform == 'win32':
 
 
 def load_armorcode_data():
-    """Load ArmorCode weekly data"""
-    weekly_file = '.tmp/armorcode_weekly_20260131.json'  # Use most recent
+    """Load ArmorCode data from security history"""
+    history_file = '.tmp/observatory/security_history.json'
 
-    # Try to find the most recent weekly file
-    import glob
-    weekly_files = glob.glob('.tmp/armorcode_weekly_*.json')
-    if weekly_files:
-        weekly_file = max(weekly_files)  # Get most recent
+    if not os.path.exists(history_file):
+        raise FileNotFoundError(f"Security history not found: {history_file}")
 
-    print(f"Loading ArmorCode data from: {weekly_file}")
+    print(f"Loading ArmorCode data from: {history_file}")
 
-    with open(weekly_file, 'r', encoding='utf-8') as f:
+    with open(history_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    return data
+
+    # Get latest week's data
+    if not data.get('weeks') or len(data['weeks']) == 0:
+        raise ValueError("No weeks data found in security_history.json")
+
+    latest_week = data['weeks'][-1]
+
+    # Convert to expected format
+    result = {
+        'current': {
+            'by_product': {}
+        }
+    }
+
+    # Build by_product structure from latest week
+    for product in latest_week.get('by_product', []):
+        product_name = product.get('product_name')
+        if product_name:
+            result['current']['by_product'][product_name] = {
+                'total': product.get('total', 0),
+                'critical': product.get('critical', 0),
+                'high': product.get('high', 0)
+            }
+
+    return result
 
 
 def get_product_ids_graphql(api_key, base_url, product_names):
