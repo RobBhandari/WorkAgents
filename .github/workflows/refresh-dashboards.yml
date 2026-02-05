@@ -125,12 +125,15 @@ jobs:
           retention-days: 1
         if: always()
 
-  # Job 3: Upload all dashboards to Azure
-  upload-to-azure:
+  # Job 3: Deploy to Azure Static Web Apps
+  deploy-to-azure:
     needs: generate-dashboards
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download all dashboard artifacts
         uses: actions/download-artifact@v4
         with:
@@ -138,23 +141,18 @@ jobs:
           path: .tmp/observatory/dashboards/
           merge-multiple: true
 
-      - name: Upload Dashboards to Azure Blob Storage
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: ".tmp/observatory/dashboards"
+          skip_app_build: true
+          skip_api_build: true
+
+      - name: Deployment Complete
         run: |
-          # Check if dashboards directory exists and has files
-          if [ -d ".tmp/observatory/dashboards" ] && [ -n "$(ls -A .tmp/observatory/dashboards 2>/dev/null)" ]; then
-            echo "📁 Found dashboards to upload..."
-
-            # Upload all dashboards to Azure Static Website
-            az storage blob upload-batch \
-              --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-              --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
-              --source .tmp/observatory/dashboards \
-              --destination '$web' \
-              --overwrite
-
-            echo "✅ Dashboards uploaded successfully!"
-            echo "🌐 Access at: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.z33.web.core.windows.net/"
-          else
-            echo "⚠️ No dashboards found in .tmp/observatory/dashboards - skipping upload"
-            echo "This is expected if data collection steps failed."
-          fi
+          echo "✅ Dashboards deployed successfully to Azure Static Web Apps!"
+          echo "🔒 Access is now protected with Azure AD authentication"
+          echo "🌐 Your team can access at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net/"
