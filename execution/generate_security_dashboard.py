@@ -40,6 +40,8 @@ def load_armorcode_data():
         raise ValueError("No weeks data found in security_history.json")
 
     latest_week = data['weeks'][-1]
+    metrics = latest_week.get('metrics', {})
+    product_breakdown = metrics.get('product_breakdown', {})
 
     # Convert to expected format
     result = {
@@ -48,15 +50,13 @@ def load_armorcode_data():
         }
     }
 
-    # Build by_product structure from latest week
-    for product in latest_week.get('by_product', []):
-        product_name = product.get('product_name')
-        if product_name:
-            result['current']['by_product'][product_name] = {
-                'total': product.get('total', 0),
-                'critical': product.get('critical', 0),
-                'high': product.get('high', 0)
-            }
+    # Build by_product structure from product_breakdown
+    for product_name, counts in product_breakdown.items():
+        result['current']['by_product'][product_name] = {
+            'total': counts.get('total', 0),
+            'critical': counts.get('critical', 0),
+            'high': counts.get('high', 0)
+        }
 
     return result
 
