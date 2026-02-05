@@ -1006,17 +1006,38 @@ def generate_html(all_trends, target_progress):
 
         function generateSparkline(data, containerId, unit) {{
             const container = document.getElementById(containerId);
-            if (!container) return;
+            if (!container) {{
+                console.warn('Container not found:', containerId);
+                return;
+            }}
 
             // Slice data based on current view
             const viewData = data.slice(-currentView);
 
+            // Validate data
+            if (!viewData || viewData.length === 0) {{
+                console.warn('No data for sparkline:', containerId);
+                return;
+            }}
+
             const width = container.offsetWidth;
             const height = 60;
+
+            // Check if container has width
+            if (width === 0) {{
+                console.warn('Container has no width:', containerId);
+                return;
+            }}
 
             const max = Math.max(...viewData);
             const min = Math.min(...viewData);
             const range = max - min || 1;
+
+            // Validate calculated values
+            if (!isFinite(max) || !isFinite(min) || !isFinite(range)) {{
+                console.error('Invalid data values for sparkline:', containerId, {{ max, min, range, viewData }});
+                return;
+            }}
 
             // Create tooltip
             const tooltip = document.createElement('div');
@@ -1029,7 +1050,7 @@ def generate_html(all_trends, target_progress):
             svg.setAttribute('class', 'sparkline');
 
             const points = viewData.map((value, index) => {{
-                const x = (index / (viewData.length - 1)) * width;
+                const x = viewData.length > 1 ? (index / (viewData.length - 1)) * width : width / 2;
                 const y = height - ((value - min) / range) * (height - 10) - 5;
                 return `${{x}},${{y}}`;
             }}).join(' ');
