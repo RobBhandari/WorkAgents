@@ -88,6 +88,9 @@ def get_product_names_to_ids(product_names: List[str]) -> Dict[str, str]:
 
     # Map product names to IDs
     product_map = {p['name']: str(p['id']) for p in all_products}
+    print(f"      API returned {len(all_products)} total products from ArmorCode")
+    if len(all_products) > 0:
+        print(f"      Sample products: {list(product_map.keys())[:5]}")
     return product_map
 
 
