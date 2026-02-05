@@ -638,11 +638,7 @@ def main():
 
         # Load baselines
         security_baseline = load_baseline('data/armorcode_baseline.json', 'ArmorCode Security')
-        logger.info(f"DEBUG: Security baseline keys: {list(security_baseline.keys())}")
-        logger.info(f"DEBUG: Security baseline content: {security_baseline}")
-
         bugs_baseline = load_baseline('data/baseline.json', 'ADO Bugs')
-        logger.info(f"DEBUG: Bugs baseline keys: {list(bugs_baseline.keys())}")
 
         # Query current state
         logger.info("Querying current state...")
