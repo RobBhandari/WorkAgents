@@ -38,7 +38,7 @@ jobs:
 
       - name: Discover ADO Projects
         run: python execution/discover_projects.py
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Collect Quality Metrics
         run: python execution/ado_quality_metrics.py
