@@ -9,14 +9,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  refresh-dashboards:
+  # Job 1: Collect all metrics in parallel
+  collect-metrics:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        collector:
+          - { name: 'Discover Projects', script: 'discover_projects.py' }
+          - { name: 'Quality Metrics', script: 'ado_quality_metrics.py' }
+          - { name: 'Flow Metrics', script: 'ado_flow_metrics.py' }
+          - { name: 'Ownership Metrics', script: 'ado_ownership_metrics.py' }
+          - { name: 'Risk Metrics', script: 'ado_risk_metrics.py' }
+          - { name: 'Deployment Metrics', script: 'ado_deployment_metrics.py' }
+          - { name: 'Collaboration Metrics', script: 'ado_collaboration_metrics.py' }
+          - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py' }
+      fail-fast: false  # Continue even if one fails
+      max-parallel: 8   # Run all 8 collectors at once
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -38,77 +50,93 @@ jobs:
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
 
-      - name: Discover ADO Projects
-        run: python execution/discover_projects.py
+      - name: Collect ${{ matrix.collector.name }}
+        run: python execution/${{ matrix.collector.script }}
         continue-on-error: true
 
-      - name: Collect Quality Metrics
-        run: python execution/ado_quality_metrics.py
+      - name: Upload metrics artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: metrics-${{ strategy.job-index }}
+          path: .tmp/observatory/
+          retention-days: 1
+        if: always()
+
+  # Job 2: Generate all dashboards in parallel
+  generate-dashboards:
+    needs: collect-metrics
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dashboard:
+          - { name: 'Quality', script: 'generate_quality_dashboard.py' }
+          - { name: 'Flow', script: 'generate_flow_dashboard.py' }
+          - { name: 'Ownership', script: 'generate_ownership_dashboard.py' }
+          - { name: 'Risk', script: 'generate_risk_dashboard.py' }
+          - { name: 'Deployment', script: 'generate_deployment_dashboard.py' }
+          - { name: 'Collaboration', script: 'generate_collaboration_dashboard.py' }
+          - { name: 'Security', script: 'generate_security_dashboard.py' }
+          - { name: 'Target', script: 'generate_target_dashboard.py' }
+          - { name: 'Trends', script: 'generate_trends_dashboard.py' }
+          - { name: 'Executive Summary', script: 'generate_executive_summary.py' }
+      fail-fast: false   # Continue even if one fails
+      max-parallel: 10   # Run all 10 dashboards at once
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env file from secrets
+        run: |
+          echo "AZURE_DEVOPS_ORG_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ADO_ORGANIZATION_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
+          echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
+
+      - name: Download all metrics artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: .tmp/observatory/
+          merge-multiple: true
+
+      - name: Generate ${{ matrix.dashboard.name }} Dashboard
+        run: python execution/${{ matrix.dashboard.script }}
         continue-on-error: true
 
-      - name: Collect Flow Metrics
-        run: python execution/ado_flow_metrics.py
-        continue-on-error: true
+      - name: Upload dashboard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-${{ strategy.job-index }}
+          path: .tmp/observatory/dashboards/
+          retention-days: 1
+        if: always()
 
-      - name: Collect Ownership Metrics
-        run: python execution/ado_ownership_metrics.py
-        continue-on-error: true
+  # Job 3: Upload all dashboards to Azure
+  upload-to-azure:
+    needs: generate-dashboards
+    runs-on: ubuntu-latest
 
-      - name: Collect Risk Metrics
-        run: python execution/ado_risk_metrics.py
-        continue-on-error: true
-
-      - name: Collect Deployment Metrics
-        run: python execution/ado_deployment_metrics.py
-        continue-on-error: true
-
-      - name: Collect Collaboration Metrics
-        run: python execution/ado_collaboration_metrics.py
-        continue-on-error: true
-
-      - name: Collect Security Metrics (ArmorCode)
-        run: python execution/armorcode_enhanced_metrics.py
-        continue-on-error: true
-
-      - name: Generate Quality Dashboard
-        run: python execution/generate_quality_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Flow Dashboard
-        run: python execution/generate_flow_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Ownership Dashboard
-        run: python execution/generate_ownership_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Risk Dashboard
-        run: python execution/generate_risk_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Deployment Dashboard
-        run: python execution/generate_deployment_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Collaboration Dashboard
-        run: python execution/generate_collaboration_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Security Dashboard
-        run: python execution/generate_security_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Target Dashboard (70% Reduction Tracking)
-        run: python execution/generate_target_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Executive Trends Dashboard
-        run: python execution/generate_trends_dashboard.py
-        continue-on-error: true
-
-      - name: Generate Executive Summary Dashboard
-        run: python execution/generate_executive_summary.py
-        continue-on-error: true
+    steps:
+      - name: Download all dashboard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: dashboard-*
+          path: .tmp/observatory/dashboards/
+          merge-multiple: true
 
       - name: Upload Dashboards to Azure Blob Storage
         run: |
@@ -130,4 +158,3 @@ jobs:
             echo "⚠️ No dashboards found in .tmp/observatory/dashboards - skipping upload"
             echo "This is expected if data collection steps failed."
           fi
-
