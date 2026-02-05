@@ -1283,15 +1283,15 @@ def main():
     print("\nGenerating executive summary...")
     html = generate_html(metrics)
 
-    # Write to file
+    # Write to file (separate file, not landing page)
     output_dir = Path(".tmp/observatory/dashboards")
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "index.html"
+    output_file = output_dir / "executive_summary.html"
 
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html)
 
-    print(f"\n[SUCCESS] Executive summary generated as landing page!")
+    print(f"\n[SUCCESS] Executive summary generated!")
     print(f"  Location: {output_file}")
     print(f"  Size: {len(html):,} bytes")
     print(f"\nOpen in browser: start {output_file}")

@@ -1232,8 +1232,8 @@ def main():
     print("\nGenerating dashboard...")
     html = generate_html(all_trends, target_progress)
 
-    # Save to file
-    output_file = '.tmp/observatory/dashboards/trends_dashboard.html'
+    # Save to file (as index.html - this is the landing page)
+    output_file = '.tmp/observatory/dashboards/index.html'
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     with open(output_file, 'w', encoding='utf-8') as f:
