@@ -8,6 +8,7 @@ Uses modern "mint" design with Chart.js for visualizations.
 
 import json
 import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -923,6 +924,7 @@ def main():
 
     # Save to file
     output_file = '.tmp/observatory/dashboards/flow_dashboard.html'
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html)
 
