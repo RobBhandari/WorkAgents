@@ -39,20 +39,90 @@ def get_armorcode_headers():
     }
 
 
-def get_product_ids_from_baseline(baseline: Dict) -> List[str]:
+def get_product_names_to_ids(product_names: List[str]) -> Dict[str, str]:
     """
-    Extract product IDs from baseline data.
+    Convert product names to IDs using ArmorCode API.
 
     Args:
-        baseline: Baseline data dictionary
+        product_names: List of product names from baseline
+
+    Returns:
+        Dictionary mapping product name to product ID
+    """
+    base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
+    graphql_url = f"{base_url.rstrip('/')}/api/graphql"
+    headers = get_armorcode_headers()
+
+    all_products = []
+
+    # Fetch all pages of products
+    for page in range(1, 10):
+        query = f"""
+        {{
+          products(page: {page}, size: 100) {{
+            products {{
+              id
+              name
+            }}
+            pageInfo {{
+              hasNext
+            }}
+          }}
+        }}
+        """
+
+        try:
+            response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+            if response.status_code == 200:
+                data = response.json()
+                if 'data' in data and 'products' in data['data']:
+                    result = data['data']['products']
+                    products = result.get('products', [])
+                    all_products.extend(products)
+
+                    if not result.get('pageInfo', {}).get('hasNext', False):
+                        break
+        except Exception as e:
+            print(f"      [WARNING] Error fetching products: {e}")
+            break
+
+    # Map product names to IDs
+    product_map = {p['name']: str(p['id']) for p in all_products}
+    return product_map
+
+
+def get_product_ids_from_baseline(baseline: Dict) -> List[str]:
+    """
+    Extract product IDs from baseline data by converting product names to IDs.
+
+    Args:
+        baseline: Baseline data dictionary containing 'products' field with product names
 
     Returns:
         List of product ID strings
     """
-    product_ids = baseline.get('product_ids', [])
-    if not product_ids:
-        print(f"      [WARNING] No product_ids found in baseline")
-    return [str(pid) for pid in product_ids]
+    # Get product names from baseline
+    product_names = baseline.get('products', [])
+    if not product_names:
+        print(f"      [WARNING] No products found in baseline")
+        return []
+
+    print(f"      Found {len(product_names)} products in baseline")
+    print(f"      Converting product names to IDs...")
+
+    # Convert names to IDs
+    product_map = get_product_names_to_ids(product_names)
+
+    # Get IDs for products in baseline
+    product_ids = []
+    for name in product_names:
+        if name in product_map:
+            product_ids.append(product_map[name])
+        else:
+            print(f"      [WARNING] Product '{name}' not found in ArmorCode")
+
+    print(f"      Resolved {len(product_ids)} product IDs")
+    return product_ids
 
 
 def query_current_vulnerabilities_graphql(base_url: str, product_ids: List[str]) -> Dict:
