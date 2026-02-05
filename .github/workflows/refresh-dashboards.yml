@@ -33,6 +33,8 @@ jobs:
         run: |
           echo "AZURE_DEVOPS_ORG_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
           echo "AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ADO_ORGANIZATION_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
 
