@@ -25,6 +25,12 @@ from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 # Load environment variables
 load_dotenv()
 
@@ -266,16 +272,17 @@ def generate_table_html(df: pd.DataFrame, table_id: str, title: str, usage_colum
     html = f"""
             <div class="table-card">
                 <h2>{html_module.escape(title)}</h2>
-                <table id="{table_id}" class="usage-table">
-                    <thead>
-                        <tr>
-                            <th onclick="sortTable('{table_id}', 0)">Name</th>
-                            <th onclick="sortTable('{table_id}', 1)">Job Title</th>
-                            <th onclick="sortTable('{table_id}', 2)">Access</th>
-                            <th onclick="sortTable('{table_id}', 3)">Usage (30 days)</th>
-                        </tr>
-                    </thead>
-                    <tbody>"""
+                <div class="table-wrapper">
+                    <table id="{table_id}" class="usage-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('{table_id}', 0)">Name</th>
+                                <th onclick="sortTable('{table_id}', 1)">Job Title</th>
+                                <th onclick="sortTable('{table_id}', 2)">Access</th>
+                                <th onclick="sortTable('{table_id}', 3)">Usage (30 days)</th>
+                            </tr>
+                        </thead>
+                        <tbody>"""
 
     # Generate rows
     for _, row in df.iterrows():
@@ -309,8 +316,9 @@ def generate_table_html(df: pd.DataFrame, table_id: str, title: str, usage_colum
                         </tr>"""
 
     html += """
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>"""
 
     return html
@@ -358,6 +366,15 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
         'Devin Access'
     )
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#667eea',
+        header_gradient_end='#764ba2',
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=False
+    )
+
     # Complete HTML document
     html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -365,171 +382,161 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LGL AI Tools Usage Report</title>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
-        }}
-
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }}
-
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-        }}
-
-        .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px var(--shadow);
-        }}
-
-        .header h1 {{
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }}
-
-        .header .subtitle {{
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }}
-
-        .header .timestamp {{
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 10px;
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px var(--shadow);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }}
-
-        .theme-toggle:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--shadow);
-        }}
-
-        #theme-icon {{
-            font-size: 1.2rem;
-        }}
-
-        #theme-label {{
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            font-weight: 600;
-        }}
-
+        /* Dashboard-specific styles */
         .stats-card {{
             background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px var(--shadow);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }}
+
+        @media (min-width: 768px) {{
+            .stats-card {{
+                padding: 24px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }}
+        }}
+
+        @media (min-width: 1024px) {{
+            .stats-card {{
+                padding: 30px;
+            }}
         }}
 
         .stats-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }}
+
+        @media (min-width: 480px) {{
+            .stats-grid {{
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }}
+        }}
+
+        @media (min-width: 768px) {{
+            .stats-grid {{
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }}
+        }}
+
+        @media (min-width: 1024px) {{
+            .stats-grid {{
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }}
         }}
 
         .stat-card {{
             background: var(--bg-tertiary);
-            padding: 20px;
+            padding: 16px;
             border-radius: 8px;
             text-align: center;
             border-left: 4px solid #667eea;
         }}
 
+        @media (min-width: 768px) {{
+            .stat-card {{
+                padding: 20px;
+            }}
+        }}
+
         .stat-card .value {{
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 8px;
             font-variant-numeric: tabular-nums;
         }}
 
+        @media (min-width: 768px) {{
+            .stat-card .value {{
+                font-size: 2.5rem;
+            }}
+        }}
+
         .stat-card .label {{
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-secondary);
             font-weight: 600;
         }}
 
+        @media (min-width: 768px) {{
+            .stat-card .label {{
+                font-size: 0.75rem;
+            }}
+        }}
+
         .legend-card {{
             background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px var(--shadow);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }}
+
+        @media (min-width: 768px) {{
+            .legend-card {{
+                padding: 24px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }}
+        }}
+
+        @media (min-width: 1024px) {{
+            .legend-card {{
+                padding: 30px;
+            }}
         }}
 
         .legend-card h3 {{
-            font-size: 1.25rem;
-            margin-bottom: 16px;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
             color: var(--text-primary);
+        }}
+
+        @media (min-width: 768px) {{
+            .legend-card h3 {{
+                font-size: 1.25rem;
+                margin-bottom: 16px;
+            }}
         }}
 
         .legend-content {{
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             flex-wrap: wrap;
+        }}
+
+        @media (min-width: 768px) {{
+            .legend-content {{
+                gap: 20px;
+            }}
         }}
 
         .legend-item {{
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+        }}
+
+        @media (min-width: 768px) {{
+            .legend-item {{
+                font-size: 0.9rem;
+            }}
         }}
 
         .legend-box {{
@@ -556,21 +563,38 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 
         .search-card {{
             background: var(--bg-secondary);
-            padding: 20px 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px var(--shadow);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }}
+
+        @media (min-width: 768px) {{
+            .search-card {{
+                padding: 20px 30px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }}
         }}
 
         .search-box {{
             width: 100%;
-            padding: 14px 20px;
-            font-size: 1rem;
+            padding: 12px 16px;
+            font-size: 0.9rem;
             border: 2px solid var(--border-color);
             border-radius: 8px;
             transition: all 0.3s ease;
             background: var(--bg-primary);
             color: var(--text-primary);
+            min-height: 44px;
+        }}
+
+        @media (min-width: 768px) {{
+            .search-box {{
+                padding: 14px 20px;
+                font-size: 1rem;
+            }}
         }}
 
         .search-box:focus {{
@@ -581,72 +605,61 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 
         .tables-container {{
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }}
 
-        @media (max-width: 1200px) {{
+        @media (min-width: 1200px) {{
             .tables-container {{
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 30px;
             }}
         }}
 
         .table-card {{
             background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px var(--shadow);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }}
+
+        @media (min-width: 768px) {{
+            .table-card {{
+                padding: 24px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }}
+        }}
+
+        @media (min-width: 1024px) {{
+            .table-card {{
+                padding: 30px;
+            }}
         }}
 
         .table-card h2 {{
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
             color: var(--text-primary);
         }}
 
-        .usage-table {{
-            width: 100%;
-            border-collapse: collapse;
+        @media (min-width: 768px) {{
+            .table-card h2 {{
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }}
         }}
 
-        .usage-table thead {{
-            background: var(--bg-tertiary);
-        }}
-
-        .usage-table th {{
-            padding: 14px 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border-color);
-            cursor: pointer;
-            user-select: none;
-        }}
-
-        .usage-table th:hover {{
-            background: var(--bg-secondary);
-        }}
-
-        .usage-table th:nth-child(3), .usage-table th:nth-child(4) {{
+        .usage-table th:nth-child(3),
+        .usage-table th:nth-child(4) {{
             text-align: center;
         }}
 
-        .usage-table td {{
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }}
-
-        .usage-table td:nth-child(3), .usage-table td:nth-child(4) {{
+        .usage-table td:nth-child(3),
+        .usage-table td:nth-child(4) {{
             text-align: center;
-        }}
-
-        .usage-table tbody tr:hover {{
-            background: var(--bg-tertiary);
         }}
 
         .heatmap-cell {{
@@ -654,42 +667,10 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
             border-radius: 4px;
         }}
 
-        .badge {{
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }}
-
-        .badge-success {{
-            background-color: #10b981;
-            color: white;
-        }}
-
-        .badge-secondary {{
-            background-color: #6b7280;
-            color: white;
-        }}
-
-        @media (max-width: 768px) {{
-            .header h1 {{
-                font-size: 1.8rem;
-            }}
-
-            .stats-grid {{
-                grid-template-columns: 1fr;
-            }}
-
-            .tables-container {{
-                grid-template-columns: 1fr;
-            }}
-
-            .usage-table th,
-            .usage-table td {{
-                padding: 10px 12px;
-                font-size: 0.85rem;
-            }}
+        /* Sortable column indicator */
+        .usage-table th {{
+            cursor: pointer;
+            user-select: none;
         }}
     </style>
 </head>
@@ -763,7 +744,9 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
         </div>
     </div>
 
+    {framework_js}
     <script>
+        // Dashboard-specific functions
         function filterAllTables() {{
             const input = document.getElementById('globalSearch');
             const filter = input.value.toLowerCase();
@@ -820,43 +803,6 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 
             rows.forEach(row => tbody.appendChild(row));
         }}
-
-        // Theme toggle functionality
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            updateThemeButton(newTheme);
-        }}
-
-        function updateThemeButton(theme) {{
-            const icon = document.getElementById('theme-icon');
-            const label = document.getElementById('theme-label');
-
-            if (theme === 'dark') {{
-                icon.textContent = '☀️';
-                label.textContent = 'Light Mode';
-            }} else {{
-                icon.textContent = '🌙';
-                label.textContent = 'Dark Mode';
-            }}
-        }}
-
-        // Set dark mode as default on page load
-        (function() {{
-            const html = document.documentElement;
-            const savedTheme = localStorage.getItem('theme');
-
-            // If no saved preference, default to dark mode
-            const theme = savedTheme || 'dark';
-
-            html.setAttribute('data-theme', theme);
-            updateThemeButton(theme);
-        }})();
     </script>
 </body>
 </html>"""
