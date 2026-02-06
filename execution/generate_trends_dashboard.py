@@ -18,12 +18,50 @@ from pathlib import Path
 from statistics import median
 
 def load_history_file(file_path):
-    """Load a history JSON file"""
+    """Load a history JSON file with error handling"""
+    filename = os.path.basename(file_path)
+
     if not os.path.exists(file_path):
+        print(f"  ⚠️ {filename}: File not found")
         return None
 
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    try:
+        # Check file size
+        file_size = os.path.getsize(file_path)
+        if file_size == 0:
+            print(f"  ⚠️ {filename}: File is empty")
+            return None
+
+        # Load and parse JSON
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # Validate structure
+        if not isinstance(data, dict):
+            print(f"  ⚠️ {filename}: Invalid data structure (not a dictionary)")
+            return None
+
+        if 'weeks' not in data:
+            print(f"  ⚠️ {filename}: Missing 'weeks' key")
+            return None
+
+        weeks = data.get('weeks', [])
+        if not weeks:
+            print(f"  ⚠️ {filename}: No weeks data found")
+            return None
+
+        print(f"  ✓ {filename}: Loaded successfully ({len(weeks)} weeks, {file_size:,} bytes)")
+        return data
+
+    except json.JSONDecodeError as e:
+        print(f"  ✗ {filename}: JSON decode error - {e}")
+        return None
+    except UnicodeDecodeError as e:
+        print(f"  ✗ {filename}: Unicode decode error - {e}")
+        return None
+    except Exception as e:
+        print(f"  ✗ {filename}: Unexpected error - {e}")
+        return None
 
 
 def load_baseline_data():

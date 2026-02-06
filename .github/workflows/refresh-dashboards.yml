@@ -118,8 +118,9 @@ jobs:
 
       - name: Verify metrics data available
         run: |
-          echo "📊 Checking for metrics history files..."
-          ls -la .tmp/observatory/*.json 2>/dev/null || echo "⚠️ No history files found"
+          echo "📊 Validating metrics history files..."
+          python execution/validate_metrics_data.py || echo "⚠️ Some metrics files are invalid or missing"
+        continue-on-error: true
 
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
         run: python execution/${{ matrix.dashboard.script }}

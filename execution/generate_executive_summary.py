@@ -11,6 +11,7 @@ A one-page director-grade health brief that answers:
 
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from statistics import median
@@ -56,10 +57,14 @@ def calculate_target_progress():
     if not quality_file.exists() or not security_file.exists():
         return None
 
-    with open(quality_file, 'r', encoding='utf-8') as f:
-        quality_data = json.load(f)
-    with open(security_file, 'r', encoding='utf-8') as f:
-        security_data = json.load(f)
+    try:
+        with open(quality_file, 'r', encoding='utf-8') as f:
+            quality_data = json.load(f)
+        with open(security_file, 'r', encoding='utf-8') as f:
+            security_data = json.load(f)
+    except (json.JSONDecodeError, UnicodeDecodeError, Exception) as e:
+        print(f"⚠️ Error loading target progress baseline data: {e}")
+        return None
 
     if not quality_data.get('weeks') or not security_data.get('weeks'):
         return None
@@ -99,77 +104,119 @@ def calculate_target_progress():
     }
 
 
+def load_history_file_safe(file_path: Path, file_label: str = None):
+    """Load a history JSON file with error handling"""
+    label = file_label or file_path.name
+
+    if not file_path.exists():
+        print(f"  ⚠️ {label}: File not found")
+        return None
+
+    try:
+        # Check file size
+        file_size = file_path.stat().st_size
+        if file_size == 0:
+            print(f"  ⚠️ {label}: File is empty")
+            return None
+
+        # Load and parse JSON
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # Validate structure
+        if not isinstance(data, dict):
+            print(f"  ⚠️ {label}: Invalid data structure (not a dictionary)")
+            return None
+
+        if 'weeks' not in data:
+            print(f"  ⚠️ {label}: Missing 'weeks' key")
+            return None
+
+        weeks = data.get('weeks', [])
+        if not weeks:
+            print(f"  ⚠️ {label}: No weeks data found")
+            return None
+
+        print(f"  ✓ {label}: Loaded successfully ({len(weeks)} weeks, {file_size:,} bytes)")
+        return data
+
+    except json.JSONDecodeError as e:
+        print(f"  ✗ {label}: JSON decode error - {e}")
+        return None
+    except UnicodeDecodeError as e:
+        print(f"  ✗ {label}: Unicode decode error - {e}")
+        return None
+    except Exception as e:
+        print(f"  ✗ {label}: Unexpected error - {e}")
+        return None
+
+
 def load_dashboard_data():
     """Load metrics from all dashboard data files"""
     data_dir = Path(".tmp/observatory")
 
+    print("\nLoading historical data...")
+
     # Load flow metrics - use most recent week with actual flow data
     flow_file = data_dir / "flow_history.json"
     flow_data = None
-    if flow_file.exists():
-        with open(flow_file, 'r', encoding='utf-8') as f:
-            flow_history = json.load(f)
-            weeks = flow_history.get('weeks', [])
-            # Check if week has WIP or lead time data
-            flow_data = get_most_recent_week_with_data(
-                weeks,
-                lambda w: any(p.get('wip_count') or p.get('lead_time', {}).get('p85')
-                             for p in w.get('projects', []))
-            )
+    flow_history = load_history_file_safe(flow_file, "Flow metrics")
+    if flow_history:
+        weeks = flow_history.get('weeks', [])
+        # Check if week has WIP or lead time data
+        flow_data = get_most_recent_week_with_data(
+            weeks,
+            lambda w: any(p.get('wip_count') or p.get('lead_time', {}).get('p85')
+                         for p in w.get('projects', []))
+        )
 
     # Load ownership metrics
     ownership_file = data_dir / "ownership_history.json"
     ownership_data = None
-    if ownership_file.exists():
-        with open(ownership_file, 'r', encoding='utf-8') as f:
-            ownership_history = json.load(f)
-            weeks = ownership_history.get('weeks', [])
-            ownership_data = weeks[-1] if weeks else None
+    ownership_history = load_history_file_safe(ownership_file, "Ownership metrics")
+    if ownership_history:
+        weeks = ownership_history.get('weeks', [])
+        ownership_data = weeks[-1] if weeks else None
 
     # Load quality metrics
     quality_file = data_dir / "quality_history.json"
     quality_data = None
-    if quality_file.exists():
-        with open(quality_file, 'r', encoding='utf-8') as f:
-            quality_history = json.load(f)
-            weeks = quality_history.get('weeks', [])
-            quality_data = weeks[-1] if weeks else None
+    quality_history = load_history_file_safe(quality_file, "Quality metrics")
+    if quality_history:
+        weeks = quality_history.get('weeks', [])
+        quality_data = weeks[-1] if weeks else None
 
     # Load security metrics
     security_file = data_dir / "security_history.json"
     security_data = None
-    if security_file.exists():
-        with open(security_file, 'r', encoding='utf-8') as f:
-            security_history = json.load(f)
-            weeks = security_history.get('weeks', [])
-            security_data = weeks[-1] if weeks else None
+    security_history = load_history_file_safe(security_file, "Security metrics")
+    if security_history:
+        weeks = security_history.get('weeks', [])
+        security_data = weeks[-1] if weeks else None
 
     # Load risk metrics
     risk_file = data_dir / "risk_history.json"
     risk_data = None
-    if risk_file.exists():
-        with open(risk_file, 'r', encoding='utf-8') as f:
-            risk_history = json.load(f)
-            weeks = risk_history.get('weeks', [])
-            risk_data = weeks[-1] if weeks else None
+    risk_history = load_history_file_safe(risk_file, "Risk metrics")
+    if risk_history:
+        weeks = risk_history.get('weeks', [])
+        risk_data = weeks[-1] if weeks else None
 
     # Load deployment metrics
     deployment_file = data_dir / "deployment_history.json"
     deployment_data = None
-    if deployment_file.exists():
-        with open(deployment_file, 'r', encoding='utf-8') as f:
-            deployment_history = json.load(f)
-            weeks = deployment_history.get('weeks', [])
-            deployment_data = weeks[-1] if weeks else None
+    deployment_history = load_history_file_safe(deployment_file, "Deployment metrics")
+    if deployment_history:
+        weeks = deployment_history.get('weeks', [])
+        deployment_data = weeks[-1] if weeks else None
 
     # Load collaboration metrics
     collaboration_file = data_dir / "collaboration_history.json"
     collaboration_data = None
-    if collaboration_file.exists():
-        with open(collaboration_file, 'r', encoding='utf-8') as f:
-            collaboration_history = json.load(f)
-            weeks = collaboration_history.get('weeks', [])
-            collaboration_data = weeks[-1] if weeks else None
+    collaboration_history = load_history_file_safe(collaboration_file, "Collaboration metrics")
+    if collaboration_history:
+        weeks = collaboration_history.get('weeks', [])
+        collaboration_data = weeks[-1] if weeks else None
 
     return {
         'flow': flow_data,
@@ -898,7 +945,39 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 1: Flow -->
+            <!-- Pair 1: AI Usage Tracker -->
+            <div class="metric-pair" draggable="true" data-card-id="ai-usage">
+                <div class="question-card">
+                    <div class="question-card-header">
+                        <h3>AI Usage Tracker</h3>
+                        <div class="header-description">
+                            Monitor Claude and Devin usage across LGL team members. Track adoption and activity patterns.
+                        </div>
+                    </div>
+                    <div class="metric" style="color: #6366f1;">LGL Team</div>
+                    <div class="metric-label">AI Tools Adoption Report</div>
+                    <div class="rag-legend">
+                        <div class="rag-legend-item"><span class="rag-dot" style="background: #6366f1;"></span> Click to view usage report</div>
+                    </div>
+                </div>
+                <a href="javascript:void(0);" onclick="openUsageTracker()" class="detail-card">
+                    <h4><span class="dashboard-icon">🤖</span> Launch Usage Report</h4>
+                    <div class="metric-row">
+                        <span>Report Type</span>
+                        <strong>Claude & Devin Usage</strong>
+                    </div>
+                    <div class="metric-row">
+                        <span>Filters</span>
+                        <strong>LGL Team Members</strong>
+                    </div>
+                    <div class="metric-row">
+                        <span>Features</span>
+                        <strong>Search, Sort, Heatmaps</strong>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Pair 2: Flow -->
             <div class="metric-pair" draggable="true" data-card-id="flow">
                 <div class="question-card">
                     <div class="question-card-header">
@@ -932,7 +1011,7 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 2: Quality -->
+            <!-- Pair 3: Quality -->
             <div class="metric-pair" draggable="true" data-card-id="quality">
                 <div class="question-card">
                     <div class="question-card-header">
@@ -966,7 +1045,7 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 3: Security -->
+            <!-- Pair 4: Security -->
             <div class="metric-pair" draggable="true" data-card-id="security">
                 <div class="question-card">
                     <div class="question-card-header">
@@ -1000,7 +1079,7 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 4: Deployment -->
+            <!-- Pair 5: Deployment -->
             <div class="metric-pair" draggable="true" data-card-id="deployment">
                 <div class="question-card">
                     <div class="question-card-header">
@@ -1034,7 +1113,7 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 5: Collaboration -->
+            <!-- Pair 6: Collaboration -->
             <div class="metric-pair" draggable="true" data-card-id="collaboration">
                 <div class="question-card">
                     <div class="question-card-header">
@@ -1068,7 +1147,7 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 6: Ownership -->
+            <!-- Pair 7: Ownership -->
             <div class="metric-pair" draggable="true" data-card-id="ownership">
                 <div class="question-card">
                     <div class="question-card-header">
@@ -1102,7 +1181,7 @@ def generate_html(metrics):
                 </a>
             </div>
 
-            <!-- Pair 7: Delivery Risk (Git Activity) -->
+            <!-- Pair 8: Delivery Risk (Git Activity) -->
             <div class="metric-pair" draggable="true" data-card-id="risk">
                 <div class="question-card">
                     <div class="question-card-header">
@@ -1255,6 +1334,23 @@ def generate_html(metrics):
 
         // Initialize drag and drop when page loads
         document.addEventListener('DOMContentLoaded', initDragAndDrop);
+
+        // Open AI Usage Tracker
+        function openUsageTracker() {{
+            // Try to open the latest usage report
+            // Path is relative to executive_summary.html location
+            const reportPath = '../usage_tables_latest.html';
+
+            // Open in new tab
+            window.open(reportPath, '_blank');
+
+            // Show info message
+            setTimeout(() => {{
+                if (!confirm('Usage report opened in new tab.\\n\\nTo refresh with latest data, run:\\npython execution/usage_tables_report.py\\n\\nView report now?')) {{
+                    return;
+                }}
+            }}, 500);
+        }}
     </script>
 </body>
 </html>'''
@@ -1263,6 +1359,12 @@ def generate_html(metrics):
 
 
 def main():
+    # Set UTF-8 encoding for Windows console
+    if sys.platform == 'win32':
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
     print("\nExecutive Summary Generator")
     print("=" * 60)
 
