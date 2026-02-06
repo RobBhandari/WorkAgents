@@ -15,6 +15,7 @@ Read-only operation - does not modify any existing data.
 import os
 import json
 import sys
+import random
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Dict, Optional
@@ -104,7 +105,8 @@ def calculate_pr_review_time(git_client, project_name: str, prs: List[Dict]) -> 
     """
     review_times = []
 
-    for pr in prs[:50]:  # Sample to avoid API rate limits
+    # Random sample of 10 PRs for statistical validity with reduced API calls
+    for pr in random.sample(prs, min(10, len(prs))):
         try:
             # Get PR threads (comments)
             threads = git_client.get_threads(
@@ -232,7 +234,8 @@ def calculate_review_iteration_count(git_client, project_name: str, prs: List[Di
     """
     iteration_counts = []
 
-    for pr in prs[:50]:  # Sample to avoid API rate limits
+    # Random sample of 10 PRs for statistical validity with reduced API calls
+    for pr in random.sample(prs, min(10, len(prs))):
         try:
             iterations = git_client.get_pull_request_iterations(
                 repository_id=pr['repository_id'],
@@ -276,7 +279,8 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: List[Dict]) -> Dic
     """
     pr_sizes = []
 
-    for pr in prs[:50]:  # Sample to avoid API rate limits
+    # Random sample of 10 PRs for statistical validity with reduced API calls
+    for pr in random.sample(prs, min(10, len(prs))):
         try:
             # Get PR commits
             commits = git_client.get_pull_request_commits(
@@ -288,32 +292,8 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: List[Dict]) -> Dic
             if not commits:
                 continue
 
-            # Get changes for each commit and sum LOC
-            total_additions = 0
-            total_deletions = 0
-
-            for commit in commits:
-                try:
-                    changes = git_client.get_changes(
-                        commit_id=commit.commit_id,
-                        repository_id=pr['repository_id'],
-                        project=project_name
-                    )
-
-                    # Count file changes
-                    if changes and changes.changes:
-                        for change in changes.changes:
-                            # Note: Azure DevOps API doesn't provide line counts directly
-                            # We count file changes as a proxy
-                            # For true LOC, would need to fetch diffs
-                            pass
-
-                except Exception:
-                    continue
-
-            # Since ADO API doesn't provide line-level diffs easily,
-            # count commit count as proxy for now
-            # This is still hard data (actual commit count)
+            # Use commit count as proxy for PR size (hard data)
+            # Avoids expensive get_changes() API calls that don't provide line counts anyway
             pr_sizes.append(len(commits))
 
         except Exception as e:

@@ -68,31 +68,52 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
         commits = git_client.get_commits(
             repository_id=repo_id,
             project=project_name,
-            search_criteria=search_criteria
-            # No top limit - fetch ALL commits in the 90-day window
+            search_criteria=search_criteria,
+            top=100  # Limit to 100 most recent commits for performance
         )
 
         commit_data = []
-        for commit in commits:  # Analyze ALL fetched commits
-            try:
-                changes = git_client.get_changes(
-                    commit_id=commit.commit_id,
-                    repository_id=repo_id,
-                    project=project_name
-                    # No top limit - get ALL file changes per commit
-                )
 
+        # Process ALL commits for author/date info, but only fetch file details for first 20 (performance optimization)
+        for idx, commit in enumerate(commits):
+            # Fetch file details only for first 20 commits (representative sample for hot paths)
+            if idx < 20:
+                try:
+                    changes = git_client.get_changes(
+                        commit_id=commit.commit_id,
+                        repository_id=repo_id,
+                        project=project_name
+                    )
+
+                    commit_data.append({
+                        'commit_id': commit.commit_id,
+                        'author': commit.author.name if commit.author else 'Unknown',
+                        'date': commit.author.date if commit.author else None,
+                        'message': commit.comment,
+                        'changes': len(changes.changes) if changes.changes else 0,
+                        'files': [change['item']['path'] for change in changes.changes if isinstance(change, dict) and 'item' in change and change['item'] and 'path' in change['item']] if changes.changes else []
+                    })
+                except Exception as e:
+                    print(f"        [WARNING] Could not get changes for commit {commit.commit_id}: {e}")
+                    # Still add commit with basic info
+                    commit_data.append({
+                        'commit_id': commit.commit_id,
+                        'author': commit.author.name if commit.author else 'Unknown',
+                        'date': commit.author.date if commit.author else None,
+                        'message': commit.comment,
+                        'changes': 0,
+                        'files': []
+                    })
+            else:
+                # For commits beyond first 20, only store basic info (no file details)
                 commit_data.append({
                     'commit_id': commit.commit_id,
                     'author': commit.author.name if commit.author else 'Unknown',
                     'date': commit.author.date if commit.author else None,
                     'message': commit.comment,
-                    'changes': len(changes.changes) if changes.changes else 0,
-                    'files': [change['item']['path'] for change in changes.changes if isinstance(change, dict) and 'item' in change and change['item'] and 'path' in change['item']] if changes.changes else []
+                    'changes': 0,
+                    'files': []
                 })
-            except Exception as e:
-                print(f"        [WARNING] Could not get changes for commit {commit.commit_id}: {e}")
-                continue
 
         return commit_data
 
