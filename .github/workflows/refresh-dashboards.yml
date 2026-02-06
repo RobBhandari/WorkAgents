@@ -52,6 +52,7 @@ jobs:
           echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
+          echo "AI_USAGE_CSV_URL=${{ secrets.AI_USAGE_CSV_URL }}" >> .env
 
       - name: Collect ${{ matrix.collector.name }}
         id: collect
@@ -83,8 +84,9 @@ jobs:
           - { name: 'Target', script: 'generate_target_dashboard.py' }
           - { name: 'Trends', script: 'generate_trends_dashboard.py' }
           - { name: 'Executive Summary', script: 'generate_executive_summary.py' }
+          - { name: 'AI Usage Report', script: 'usage_tables_report.py' }
       fail-fast: false   # Continue even if one fails
-      max-parallel: 10   # Run all 10 dashboards at once
+      max-parallel: 11   # Run all 11 dashboards at once
 
     steps:
       - name: Checkout repository
@@ -109,6 +111,7 @@ jobs:
           echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
+          echo "AI_USAGE_CSV_URL=${{ secrets.AI_USAGE_CSV_URL }}" >> .env
 
       - name: Download all metrics artifacts
         uses: actions/download-artifact@v4

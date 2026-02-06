@@ -577,12 +577,12 @@ def generate_html(all_trends, target_progress):
         'icon': '🤖',
         'title': 'AI Usage Tracker',
         'description': 'Monitor Claude and Devin usage across LGL team members. Track adoption and activity patterns.',
-        'current': 'View Report',
+        'current': '',
         'unit': '',
-        'change': 0,
-        'changeLabel': 'Click to open usage dashboard',
+        'change': '',
+        'changeLabel': '',
         'data': [],  # Empty array - no sparkline needed for launcher
-        'arrow': '→',
+        'arrow': '',
         'cssClass': 'trend-stable',
         'ragColor': '#6366f1',
         'dashboardUrl': 'usage_tables_latest.html'
