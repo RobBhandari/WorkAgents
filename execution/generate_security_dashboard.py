@@ -13,6 +13,12 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 # Load environment variables
 load_dotenv()
 
@@ -869,6 +875,15 @@ def generate_heatmap_cell(count, intensity, severity_type):
 def generate_html(armorcode_data, vulnerabilities):
     """Generate self-contained HTML dashboard"""
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#1e293b',
+        header_gradient_end='#0f172a',
+        include_table_scroll=True,
+        include_expandable_rows=False,  # Using custom expandable rows
+        include_glossary=False
+    )
+
     # Extract current data
     current_data = armorcode_data.get('current', {})
     by_product = current_data.get('by_product', {})
@@ -903,253 +918,169 @@ def generate_html(armorcode_data, vulnerabilities):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Dashboard - {datetime.now().strftime('%Y-%m-%d')}</title>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
-        }}
+        /* Dashboard-specific styles for Security Dashboard */
 
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }}
-
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-        }}
-
-        .header {{
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px var(--shadow);
-        }}
-
-        .header h1 {{
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }}
-
-        .header .subtitle {{
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }}
-
-        .header .timestamp {{
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 10px;
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px var(--shadow);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }}
-
-        .theme-toggle:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--shadow);
-        }}
-
-        #theme-icon {{
-            font-size: 1.2rem;
-        }}
-
-        #theme-label {{
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            font-weight: 600;
-        }}
-
+        /* Executive summary section */
         .executive-summary {{
             background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 12px var(--shadow);
+            transition: background-color 0.3s ease;
+        }}
+
+        @media (min-width: 768px) {{
+            .executive-summary {{
+                padding: 30px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+            }}
         }}
 
         .status-badge {{
             display: inline-block;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             background: {status_color};
             color: white;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+        }}
+
+        @media (min-width: 768px) {{
+            .status-badge {{
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }}
         }}
 
         .summary-grid {{
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-top: 16px;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }}
+
+        @media (min-width: 480px) {{
+            .summary-grid {{
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }}
+        }}
+
+        @media (min-width: 768px) {{
+            .summary-grid {{
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                margin-top: 16px;
+            }}
         }}
 
         .summary-card {{
             background: var(--bg-tertiary);
-            padding: 16px;
+            padding: 14px;
             border-radius: 8px;
             border-left: 4px solid #ef4444;
+            transition: background-color 0.3s ease;
+        }}
+
+        @media (min-width: 768px) {{
+            .summary-card {{
+                padding: 16px;
+            }}
         }}
 
         .summary-card .label {{
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-secondary);
             margin-bottom: 6px;
         }}
 
+        @media (min-width: 768px) {{
+            .summary-card .label {{
+                font-size: 0.75rem;
+            }}
+        }}
+
         .summary-card .value {{
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
             font-variant-numeric: tabular-nums;
         }}
 
+        @media (min-width: 768px) {{
+            .summary-card .value {{
+                font-size: 1.75rem;
+            }}
+        }}
+
         .summary-card .explanation {{
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             margin-top: 6px;
+            line-height: 1.4;
         }}
 
-        .card {{
-            background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px var(--shadow);
+        @media (min-width: 768px) {{
+            .summary-card .explanation {{
+                font-size: 0.85rem;
+            }}
         }}
 
-        .card h2 {{
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: var(--text-primary);
-        }}
-
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }}
-
-        thead {{
-            background: var(--bg-tertiary);
-        }}
-
-        th {{
-            padding: 14px 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border-color);
-        }}
-
-        th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6) {{
-            text-align: center;
-        }}
-
+        /* View button for vulnerability details */
         .view-btn {{
             display: inline-block;
-            padding: 6px 16px;
+            padding: 6px 12px;
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }}
 
-        .view-btn:hover {{
-            background: linear-gradient(135deg, #2980b9, #21618c);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        @media (min-width: 768px) {{
+            .view-btn {{
+                padding: 6px 16px;
+                font-size: 0.85rem;
+                min-height: 36px;
+            }}
         }}
 
-        .view-btn:active {{
-            transform: translateY(0);
+        @media (hover: hover) and (pointer: fine) {{
+            .view-btn:hover {{
+                background: linear-gradient(135deg, #2980b9, #21618c);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            }}
         }}
 
-        tbody tr.data-row {{
-            cursor: pointer;
-            transition: background-color 0.15s ease;
+        @media (hover: none) and (pointer: coarse) {{
+            .view-btn:active {{
+                background: linear-gradient(135deg, #2980b9, #21618c);
+                transform: scale(0.97);
+            }}
         }}
 
-        tbody tr.data-row:hover {{
-            background: var(--bg-tertiary);
-        }}
-
-        tbody tr.data-row td:first-child {{
-            position: relative;
-            padding-left: 40px;
-        }}
-
-        tbody tr.data-row td:first-child::before {{
-            content: '▶';
-            position: absolute;
-            left: 16px;
-            transition: transform 0.2s ease;
-            color: var(--text-secondary);
-            font-size: 0.7em;
-        }}
-
-        tbody tr.data-row.expanded td:first-child::before {{
-            transform: rotate(90deg);
-        }}
-
-        tbody tr.data-row td {{
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border-color);
-            font-variant-numeric: tabular-nums;
+        /* Center alignment for specific table columns */
+        th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6) {{
+            text-align: center;
         }}
 
         tbody tr.data-row td:nth-child(2),
@@ -1158,6 +1089,54 @@ def generate_html(armorcode_data, vulnerabilities):
         tbody tr.data-row td:nth-child(5),
         tbody tr.data-row td:nth-child(6) {{
             text-align: center;
+        }}
+
+        /* Custom expandable row styling for security dashboard */
+        tbody tr.data-row {{
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }}
+
+        @media (hover: hover) and (pointer: fine) {{
+            tbody tr.data-row:hover {{
+                background: var(--bg-tertiary);
+            }}
+        }}
+
+        @media (hover: none) and (pointer: coarse) {{
+            tbody tr.data-row:active {{
+                background: var(--bg-tertiary);
+            }}
+        }}
+
+        tbody tr.data-row td:first-child {{
+            position: relative;
+            padding-left: 32px;
+        }}
+
+        @media (min-width: 768px) {{
+            tbody tr.data-row td:first-child {{
+                padding-left: 40px;
+            }}
+        }}
+
+        tbody tr.data-row td:first-child::before {{
+            content: '▶';
+            position: absolute;
+            left: 12px;
+            transition: transform 0.2s ease;
+            color: var(--text-secondary);
+            font-size: 0.7em;
+        }}
+
+        @media (min-width: 768px) {{
+            tbody tr.data-row td:first-child::before {{
+                left: 16px;
+            }}
+        }}
+
+        tbody tr.data-row.expanded td:first-child::before {{
+            transform: rotate(90deg);
         }}
 
         tbody tr.detail-row {{
@@ -1175,8 +1154,14 @@ def generate_html(armorcode_data, vulnerabilities):
         }}
 
         .detail-content {{
-            padding: 24px;
+            padding: 16px;
             animation: slideDown 0.3s ease;
+        }}
+
+        @media (min-width: 768px) {{
+            .detail-content {{
+                padding: 24px;
+            }}
         }}
 
         @keyframes slideDown {{
@@ -1190,99 +1175,206 @@ def generate_html(armorcode_data, vulnerabilities):
             }}
         }}
 
+        /* Vulnerability detail section */
         .detail-section {{
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+        }}
+
+        @media (min-width: 768px) {{
+            .detail-section {{
+                margin-bottom: 20px;
+            }}
         }}
 
         .detail-section h4 {{
-            font-size: 1rem;
-            margin-bottom: 12px;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
             color: var(--text-primary);
+        }}
+
+        @media (min-width: 768px) {{
+            .detail-section h4 {{
+                font-size: 1rem;
+                margin-bottom: 12px;
+            }}
         }}
 
         .vuln-list {{
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+        }}
+
+        @media (min-width: 768px) {{
+            .vuln-list {{
+                gap: 12px;
+            }}
         }}
 
         .vuln-item {{
             background: var(--bg-secondary);
-            padding: 16px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 6px;
             border-left: 3px solid #ef4444;
+            transition: background-color 0.3s ease;
+        }}
+
+        @media (min-width: 768px) {{
+            .vuln-item {{
+                padding: 16px;
+                border-radius: 8px;
+            }}
         }}
 
         .vuln-header {{
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 8px;
             margin-bottom: 8px;
+        }}
+
+        @media (min-width: 480px) {{
+            .vuln-header {{
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }}
         }}
 
         .vuln-severity {{
             display: inline-block;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 4px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: white;
             letter-spacing: 0.05em;
+            align-self: flex-start;
+        }}
+
+        @media (min-width: 768px) {{
+            .vuln-severity {{
+                padding: 4px 12px;
+                font-size: 0.75rem;
+            }}
         }}
 
         .vuln-age {{
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             font-weight: 600;
+        }}
+
+        @media (min-width: 768px) {{
+            .vuln-age {{
+                font-size: 0.85rem;
+            }}
         }}
 
         .vuln-title {{
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 8px;
+            line-height: 1.3;
+        }}
+
+        @media (min-width: 768px) {{
+            .vuln-title {{
+                font-size: 1rem;
+            }}
         }}
 
         .vuln-description {{
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             line-height: 1.5;
+        }}
+
+        @media (min-width: 768px) {{
+            .vuln-description {{
+                font-size: 0.9rem;
+            }}
         }}
 
         .no-data {{
             color: var(--text-secondary);
             font-style: italic;
-            padding: 20px;
+            padding: 16px;
             text-align: center;
+        }}
+
+        @media (min-width: 768px) {{
+            .no-data {{
+                padding: 20px;
+            }}
         }}
 
         /* Heatmap Styles */
         .heatmap-container {{
-            padding: 16px 24px;
+            padding: 12px 16px;
+        }}
+
+        @media (min-width: 768px) {{
+            .heatmap-container {{
+                padding: 16px 24px;
+            }}
         }}
 
         .heatmap-header {{
-            margin-bottom: 14px;
+            margin-bottom: 12px;
+        }}
+
+        @media (min-width: 768px) {{
+            .heatmap-header {{
+                margin-bottom: 14px;
+            }}
         }}
 
         .heatmap-header h4 {{
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             margin-bottom: 3px;
             color: var(--text-primary);
             font-weight: 600;
         }}
 
+        @media (min-width: 768px) {{
+            .heatmap-header h4 {{
+                font-size: 1.05rem;
+            }}
+        }}
+
         .heatmap-subtitle {{
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             margin: 0;
         }}
 
+        @media (min-width: 768px) {{
+            .heatmap-subtitle {{
+                font-size: 0.85rem;
+            }}
+        }}
+
         .heatmap-grid {{
             display: grid;
-            grid-template-columns: 80px repeat(5, 1fr);
-            gap: 10px;
+            grid-template-columns: 60px repeat(5, 1fr);
+            gap: 6px;
             align-items: stretch;
+        }}
+
+        @media (min-width: 480px) {{
+            .heatmap-grid {{
+                grid-template-columns: 70px repeat(5, 1fr);
+                gap: 8px;
+            }}
+        }}
+
+        @media (min-width: 768px) {{
+            .heatmap-grid {{
+                grid-template-columns: 80px repeat(5, 1fr);
+                gap: 10px;
+            }}
         }}
 
         .heatmap-corner {{
@@ -1291,13 +1383,13 @@ def generate_html(armorcode_data, vulnerabilities):
         }}
 
         .heatmap-col-header {{
-            font-size: 0.8rem;
+            font-size: 0.65rem;
             font-weight: 700;
             text-align: center;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 0 0 6px 0;
+            padding: 0 0 4px 0;
             display: flex;
             flex-direction: column;
             gap: 1px;
@@ -1305,16 +1397,48 @@ def generate_html(armorcode_data, vulnerabilities):
             justify-content: flex-end;
         }}
 
+        @media (min-width: 480px) {{
+            .heatmap-col-header {{
+                font-size: 0.75rem;
+                padding: 0 0 6px 0;
+            }}
+        }}
+
+        @media (min-width: 768px) {{
+            .heatmap-col-header {{
+                font-size: 0.8rem;
+            }}
+        }}
+
         .days-label {{
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 500;
             opacity: 0.6;
         }}
 
+        @media (min-width: 768px) {{
+            .days-label {{
+                font-size: 0.65rem;
+            }}
+        }}
+
         .heatmap-row-header {{
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             text-align: right;
+            padding-right: 8px;
+        }}
+
+        @media (min-width: 480px) {{
+            .heatmap-row-header {{
+                font-size: 0.85rem;
+                padding-right: 10px;
+            }}
+        }}
+
+        @media (min-width: 768px) {{
+            .heatmap-row-header {{
+                font-size: 0.9rem;
             padding-right: 14px;
             color: var(--text-primary);
             display: flex;
@@ -1334,21 +1458,48 @@ def generate_html(armorcode_data, vulnerabilities):
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 6px;
-            font-size: 1.1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
             font-weight: 700;
             transition: all 0.15s ease;
             cursor: pointer;
             position: relative;
-            height: 40px;
+            height: 32px;
             border: 1px solid transparent;
+            min-height: 32px;
         }}
 
-        .heatmap-cell:not(.empty):hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px var(--shadow);
-            border-color: rgba(255, 255, 255, 0.2);
-            z-index: 10;
+        @media (min-width: 480px) {{
+            .heatmap-cell {{
+                border-radius: 6px;
+                font-size: 1rem;
+                height: 36px;
+                min-height: 36px;
+            }}
+        }}
+
+        @media (min-width: 768px) {{
+            .heatmap-cell {{
+                font-size: 1.1rem;
+                height: 40px;
+                min-height: 40px;
+            }}
+        }}
+
+        @media (hover: hover) and (pointer: fine) {{
+            .heatmap-cell:not(.empty):hover {{
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px var(--shadow);
+                border-color: rgba(255, 255, 255, 0.2);
+                z-index: 10;
+            }}
+        }}
+
+        @media (hover: none) and (pointer: coarse) {{
+            .heatmap-cell:not(.empty):active {{
+                transform: scale(0.95);
+                box-shadow: 0 2px 6px var(--shadow);
+            }}
         }}
 
         .heatmap-cell.empty {{
@@ -1357,7 +1508,8 @@ def generate_html(armorcode_data, vulnerabilities):
             cursor: default;
         }}
 
-        .heatmap-cell.empty:hover {{
+        .heatmap-cell.empty:hover,
+        .heatmap-cell.empty:active {{
             transform: none;
             box-shadow: none;
         }}
@@ -1367,65 +1519,44 @@ def generate_html(armorcode_data, vulnerabilities):
             text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
         }}
 
-        .heatmap-cell[data-count]:not([data-count="0"])::after {{
-            content: attr(title);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-6px);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease, transform 0.15s ease;
-            z-index: 100;
-        }}
-
-        .heatmap-cell[data-count]:not([data-count="0"]):hover::after {{
-            opacity: 1;
-            transform: translateX(-50%) translateY(-2px);
-        }}
-
-        @media (max-width: 768px) {{
-            .heatmap-grid {{
-                grid-template-columns: 70px repeat(5, 1fr);
-                gap: 8px;
+        /* Tooltip for heatmap cells - only show on desktop */
+        @media (hover: hover) and (pointer: fine) and (min-width: 768px) {{
+            .heatmap-cell[data-count]:not([data-count="0"])::after {{
+                content: attr(title);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-6px);
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 4px 10px;
+                border-radius: 4px;
+                font-size: 0.7rem;
+                font-weight: 500;
+                white-space: nowrap;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.15s ease, transform 0.15s ease;
+                z-index: 100;
             }}
 
-            .heatmap-cell {{
-                height: 36px;
-                font-size: 1rem;
-            }}
-
-            .heatmap-col-header {{
-                font-size: 0.75rem;
-            }}
-
-            .heatmap-row-header {{
-                font-size: 0.85rem;
-                padding-right: 10px;
+            .heatmap-cell[data-count]:not([data-count="0"]):hover::after {{
+                opacity: 1;
+                transform: translateX(-50%) translateY(-2px);
             }}
         }}
 
         .footer {{
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }}
 
-        @media print {{
-            body {{
-                background: var(--bg-secondary);
-            }}
-            .card, .executive-summary {{
-                box-shadow: none;
-                border: 1px solid var(--border-color);
+        @media (min-width: 768px) {{
+            .footer {{
+                padding: 20px;
+                font-size: 0.85rem;
             }}
         }}
     </style>
@@ -1476,18 +1607,19 @@ def generate_html(armorcode_data, vulnerabilities):
         <!-- Product Vulnerability Table -->
         <div class="card">
             <h2>Vulnerabilities by Product</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Current</th>
-                        <th>Critical</th>
-                        <th>High</th>
-                        <th>View</th>
-                        <th title="Good: 0 vulns | Caution: 1-50 vulns | Action Needed: >50 vulns">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Current</th>
+                            <th>Critical</th>
+                            <th>High</th>
+                            <th>View</th>
+                            <th title="Good: 0 vulns | Caution: 1-50 vulns | Action Needed: >50 vulns">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 '''
 
     # Generate product rows
@@ -1571,7 +1703,8 @@ def generate_html(armorcode_data, vulnerabilities):
 
     html += f'''
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
 
         <!-- Footer -->
@@ -1581,7 +1714,10 @@ def generate_html(armorcode_data, vulnerabilities):
         </div>
     </div>
 
+    {framework_js}
     <script>
+        // Dashboard-specific JavaScript
+
         // Expandable row toggle function
         function toggleDetail(detailId, rowElement) {{
             const detailRow = document.getElementById(detailId);
@@ -1595,37 +1731,6 @@ def generate_html(armorcode_data, vulnerabilities):
                 rowElement.classList.add('expanded');
             }}
         }}
-
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            updateThemeIcon(newTheme);
-        }}
-
-        function updateThemeIcon(theme) {{
-            const icon = document.getElementById('theme-icon');
-            const label = document.getElementById('theme-label');
-
-            if (theme === 'dark') {{
-                icon.textContent = '🌙';
-                label.textContent = 'Dark';
-            }} else {{
-                icon.textContent = '☀️';
-                label.textContent = 'Light';
-            }}
-        }}
-
-        // Load theme preference on page load
-        document.addEventListener('DOMContentLoaded', function() {{
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        }});
     </script>
 </body>
 </html>

@@ -12,6 +12,12 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 # Set UTF-8 encoding for Windows
 if sys.platform == 'win32':
     import codecs
@@ -305,6 +311,15 @@ def load_quality_data():
 def generate_html(quality_data):
     """Generate self-contained HTML dashboard"""
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#8b5cf6',
+        header_gradient_end='#7c3aed',
+        include_table_scroll=True,
+        include_expandable_rows=True,  # Quality dashboard has expandable rows
+        include_glossary=True
+    )
+
     # Extract data for charts - HARD DATA ONLY
     projects = quality_data['projects']
     project_names = [p['project_name'] for p in projects]
@@ -341,119 +356,44 @@ def generate_html(quality_data):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quality Dashboard - Week {quality_data['week_number']}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
-        }}
-
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }}
-
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 50px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px var(--shadow);
-        }}
-
-        .theme-toggle:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--shadow);
-        }}
-
-        .theme-toggle span {{
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }}
-
-        .header {{
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }}
-
-        .header h1 {{
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }}
-
-        .header .subtitle {{
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }}
-
-        .header .timestamp {{
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 10px;
-        }}
+        /* Dashboard-specific styles for Quality Dashboard */
 
         .executive-summary {{
             background: var(--bg-secondary);
-            padding: 24px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 12px var(--shadow);
             transition: background-color 0.3s ease;
         }}
 
+        @media (min-width: 768px) {{
+            .executive-summary {{
+                padding: 24px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+            }}
+        }}
+
         .status-badge {{
             display: inline-block;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             background: {status_color};
             color: white;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+        }}
+
+        @media (min-width: 768px) {{
+            .status-badge {{
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }}
         }}
 
         .summary-grid {{
@@ -877,17 +817,18 @@ def generate_html(quality_data):
         <!-- Project Comparison Table -->
         <div class="card">
             <h2>Project Quality Metrics</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>MTTR</th>
-                        <th>Median Bug Age</th>
-                        <th>Open Bugs</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>MTTR</th>
+                            <th>Median Bug Age</th>
+                            <th>Open Bugs</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 '''
 
     # Add project rows with expandable drill-down
@@ -950,7 +891,8 @@ def generate_html(quality_data):
 '''
 
     html += f'''                </tbody>
-            </table>
+                </table>
+            </div>
         </div>
 
         <!-- Glossary -->
@@ -1070,28 +1012,9 @@ def generate_html(quality_data):
         </div>
     </div>
 
+    {framework_js}
     <script>
-        // Glossary toggle function
-        function toggleGlossary() {{
-            const content = document.getElementById('glossary-content');
-            const toggle = document.getElementById('glossary-toggle');
-            content.classList.toggle('expanded');
-            toggle.classList.toggle('expanded');
-        }}
-
-        // Expandable row toggle function
-        function toggleDetail(detailId, rowElement) {{
-            const detailRow = document.getElementById(detailId);
-            const isExpanded = detailRow.classList.contains('show');
-
-            if (isExpanded) {{
-                detailRow.classList.remove('show');
-                rowElement.classList.remove('expanded');
-            }} else {{
-                detailRow.classList.add('show');
-                rowElement.classList.add('expanded');
-            }}
-        }}
+        // Dashboard-specific JavaScript
 
         // Chart.js theme configuration
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1103,38 +1026,6 @@ def generate_html(quality_data):
 
         Chart.defaults.color = chartColors.text;
         Chart.defaults.borderColor = chartColors.grid;
-
-        // Theme Toggle Functionality
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            updateThemeIcon(newTheme);
-        }}
-
-        function updateThemeIcon(theme) {{
-            const icon = document.getElementById('theme-icon');
-            const label = document.getElementById('theme-label');
-
-            if (theme === 'dark') {{
-                icon.textContent = '🌙';
-                label.textContent = 'Dark';
-            }} else {{
-                icon.textContent = '☀️';
-                label.textContent = 'Light';
-            }}
-        }}
-
-        // Load theme preference on page load
-        document.addEventListener('DOMContentLoaded', function() {{
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        }});
 
     </script>
 </body>

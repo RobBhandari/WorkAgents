@@ -16,6 +16,12 @@ from datetime import datetime
 from pathlib import Path
 from statistics import median
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 
 def get_most_recent_week_with_data(weeks, data_check_fn):
     """Get the most recent week that has actual data"""
@@ -467,6 +473,15 @@ def determine_overall_status(metrics):
 def generate_html(metrics):
     """Generate executive summary HTML"""
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#8b5cf6',
+        header_gradient_end='#6d28d9',
+        include_table_scroll=False,
+        include_expandable_rows=False,
+        include_glossary=False
+    )
+
     # Calculate target progress (70% reduction goal)
     target_progress = calculate_target_progress()
 
@@ -602,113 +617,90 @@ def generate_html(metrics):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executive Summary - Director Observatory</title>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
-        }}
+        /* Dashboard-specific styles for Executive Summary */
 
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }}
-
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: var(--bg-card);
-            border: 2px solid var(--border-color);
-            border-radius: 50px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 12px var(--shadow);
-            transition: all 0.3s ease;
-        }}
-
-        .theme-toggle:hover {{
-            transform: translateY(-2px);
-        }}
-
-        .header {{
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }}
-
-        .header h1 {{
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }}
-
-        .header p {{
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }}
-
+        /* Status banner */
         .status-banner {{
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             border-left: 5px solid {status_color};
             box-shadow: 0 4px 12px var(--shadow);
+            transition: background-color 0.3s ease;
+        }}
+
+        @media (min-width: 768px) {{
+            .status-banner {{
+                padding: 30px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+            }}
         }}
 
         .status-banner h2 {{
             color: {status_color};
-            font-size: 2rem;
-            margin-bottom: 15px;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
         }}
 
+        @media (min-width: 768px) {{
+            .status-banner h2 {{
+                font-size: 2rem;
+                margin-bottom: 15px;
+            }}
+        }}
+
+        .status-banner p {{
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }}
+
+        @media (min-width: 768px) {{
+            .status-banner p {{
+                font-size: 1.1rem;
+            }}
+        }}
+
+        /* Metric pairs container */
         .metric-pairs-container {{
             display: flex;
             flex-direction: column;
-            gap: 24px;
-            margin-bottom: 30px;
+            gap: 16px;
+            margin-bottom: 20px;
         }}
 
+        @media (min-width: 768px) {{
+            .metric-pairs-container {{
+                gap: 24px;
+                margin-bottom: 30px;
+            }}
+        }}
+
+        /* Metric pair (question + detail cards) */
         .metric-pair {{
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
-            align-items: stretch;
+            grid-template-columns: 1fr;
+            gap: 12px;
             cursor: move;
             transition: opacity 0.2s ease, transform 0.2s ease;
+        }}
+
+        @media (min-width: 768px) {{
+            .metric-pair {{
+                gap: 16px;
+            }}
+        }}
+
+        @media (min-width: 1024px) {{
+            .metric-pair {{
+                grid-template-columns: 1fr 350px;
+                gap: 20px;
+                align-items: stretch;
+            }}
         }}
 
         .metric-pair.dragging {{
@@ -721,73 +713,122 @@ def generate_html(metrics):
             margin-top: 3px;
         }}
 
-        @media (max-width: 1024px) {{
-            .metric-pair {{
-                grid-template-columns: 1fr;
-            }}
-        }}
-
+        /* Question card */
         .question-card {{
-            background: var(--bg-card);
-            padding: 25px;
-            border-radius: 12px;
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 4px 12px var(--shadow);
             border-left: 4px solid #6366f1;
+            transition: background-color 0.3s ease;
+        }}
+
+        @media (min-width: 768px) {{
+            .question-card {{
+                padding: 25px;
+                border-radius: 12px;
+            }}
         }}
 
         .question-card-header {{
             display: flex;
-            align-items: baseline;
-            gap: 20px;
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }}
+
+        @media (min-width: 768px) {{
+            .question-card-header {{
+                flex-direction: row;
+                align-items: baseline;
+                gap: 20px;
+                margin-bottom: 20px;
+            }}
         }}
 
         .question-card h3 {{
             color: var(--text-primary);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin: 0;
             font-weight: 700;
-            flex-shrink: 0;
-            white-space: nowrap;
-            line-height: 1.5;
-            width: 280px;
+            line-height: 1.4;
+        }}
+
+        @media (min-width: 768px) {{
+            .question-card h3 {{
+                font-size: 1.2rem;
+                flex-shrink: 0;
+                white-space: nowrap;
+                line-height: 1.5;
+                width: 280px;
+            }}
         }}
 
         .header-description {{
             color: var(--text-secondary);
-            font-size: 1.15rem;
+            font-size: 0.9rem;
             line-height: 1.5;
             margin: 0;
-            flex: 1;
-            padding-top: 1px;
-            text-align: left;
         }}
 
+        @media (min-width: 768px) {{
+            .header-description {{
+                font-size: 1.15rem;
+                flex: 1;
+                padding-top: 1px;
+                text-align: left;
+            }}
+        }}
+
+        /* Metric display */
         .metric {{
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             line-height: 1;
-            height: 3rem;
             display: flex;
             align-items: baseline;
+            font-variant-numeric: tabular-nums;
+        }}
+
+        @media (min-width: 768px) {{
+            .metric {{
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                height: 3rem;
+            }}
         }}
 
         .metric-label {{
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
         }}
 
+        @media (min-width: 768px) {{
+            .metric-label {{
+                font-size: 0.9rem;
+            }}
+        }}
+
+        /* RAG legend */
         .rag-legend {{
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-secondary);
-            margin: 10px 0;
+            margin: 10px 0 0 0;
             padding: 6px 10px;
             background: rgba(0,0,0,0.2);
             border-radius: 6px;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
+        }}
+
+        @media (min-width: 768px) {{
+            .rag-legend {{
+                font-size: 0.7rem;
+                gap: 12px;
+            }}
         }}
 
         [data-theme="light"] .rag-legend {{
@@ -808,11 +849,11 @@ def generate_html(metrics):
             flex-shrink: 0;
         }}
 
-
+        /* Detail card (dashboard links) */
         .detail-card {{
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 12px;
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 8px;
             box-shadow: 0 4px 12px var(--shadow);
             transition: all 0.3s ease;
             text-decoration: none;
@@ -822,6 +863,13 @@ def generate_html(metrics):
             border: 2px solid var(--border-color);
             position: relative;
             overflow: hidden;
+        }}
+
+        @media (min-width: 768px) {{
+            .detail-card {{
+                padding: 20px;
+                border-radius: 12px;
+            }}
         }}
 
         .detail-card::before {{
@@ -836,37 +884,67 @@ def generate_html(metrics):
             transition: transform 0.3s ease;
         }}
 
-        .detail-card:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px var(--shadow);
-            border-color: #667eea;
+        /* Touch-friendly hover states */
+        @media (hover: hover) and (pointer: fine) {{
+            .detail-card:hover {{
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px var(--shadow);
+                border-color: #667eea;
+            }}
+
+            .detail-card:hover::before {{
+                transform: scaleX(1);
+            }}
         }}
 
-        .detail-card:hover::before {{
-            transform: scaleX(1);
+        @media (hover: none) and (pointer: coarse) {{
+            .detail-card:active {{
+                transform: scale(0.98);
+                border-color: #667eea;
+            }}
         }}
 
         .detail-card h4 {{
             color: var(--text-primary);
             margin-bottom: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 8px;
             font-weight: 600;
         }}
 
+        @media (min-width: 768px) {{
+            .detail-card h4 {{
+                font-size: 1rem;
+            }}
+        }}
+
         .dashboard-icon {{
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             opacity: 0.8;
+        }}
+
+        @media (min-width: 768px) {{
+            .dashboard-icon {{
+                font-size: 1.5rem;
+            }}
         }}
 
         .metric-row {{
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
             border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }}
+
+        @media (min-width: 768px) {{
+            .metric-row {{
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+            }}
         }}
 
         .metric-row:last-child {{
@@ -877,21 +955,25 @@ def generate_html(metrics):
 
         .metric-row span {{
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+        }}
+
+        @media (min-width: 768px) {{
+            .metric-row span {{
+                font-size: 0.85rem;
+            }}
         }}
 
         .metric-row strong {{
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
         }}
 
-        @media print {{
-            .theme-toggle {{
-                display: none;
-            }}
-            body {{
-                background: white;
-                color: black;
+        @media (min-width: 768px) {{
+            .metric-row strong {{
+                font-size: 0.95rem;
             }}
         }}
     </style>
@@ -1215,19 +1297,9 @@ def generate_html(metrics):
         </div>
     </div>
 
+    {framework_js}
     <script>
-        // Theme toggle
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }}
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        // Dashboard-specific JavaScript
 
         // Drag and Drop functionality
         let draggedElement = null;
