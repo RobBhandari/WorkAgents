@@ -61,7 +61,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: metrics-${{ strategy.job-index }}
-          path: .tmp/observatory/
+          path: |
+            .tmp/observatory/*_history.json
+            .tmp/observatory/ado_structure.json
           retention-days: 1
         if: always()
 
