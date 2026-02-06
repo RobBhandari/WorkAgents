@@ -477,6 +477,8 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
     Appends to existing history or creates new file.
     Validates data before saving to prevent persisting collection failures.
     """
+    from utils_atomic_json import atomic_json_save, load_json_with_recovery
+
     # Validate that we have actual data before saving
     projects = metrics.get('projects', [])
 
@@ -496,10 +498,12 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Load existing history
-    history = {"weeks": []}
-    if os.path.exists(output_file):
-        with open(output_file, 'r', encoding='utf-8') as f:
-            history = json.load(f)
+    history = load_json_with_recovery(output_file, default_value={"weeks": []})
+
+    # Add validation if structure check exists
+    if not isinstance(history, dict) or 'weeks' not in history:
+        print("\n[WARNING] Existing history file has invalid structure - recreating")
+        history = {"weeks": []}
 
     # Add new week entry
     history['weeks'].append(metrics)
@@ -508,12 +512,14 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
     history['weeks'] = history['weeks'][-52:]
 
     # Save updated history
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(history, f, indent=2, ensure_ascii=False)
-
-    print(f"\n[SAVED] Quality metrics saved to: {output_file}")
-    print(f"        History now contains {len(history['weeks'])} week(s)")
-    return True
+    try:
+        atomic_json_save(history, output_file)
+        print(f"\n[SAVED] Quality metrics saved to: {output_file}")
+        print(f"        History now contains {len(history['weeks'])} week(s)")
+        return True
+    except Exception as e:
+        print(f"\n[ERROR] Failed to save Quality metrics: {e}")
+        return False
 
 
 if __name__ == "__main__":
