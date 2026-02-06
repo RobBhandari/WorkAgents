@@ -12,6 +12,12 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 # Set UTF-8 encoding for Windows
 if sys.platform == 'win32':
     import codecs
@@ -108,6 +114,15 @@ def load_flow_data():
 def generate_html(flow_data):
     """Generate self-contained HTML dashboard with work type segmentation"""
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#10b981',
+        header_gradient_end='#059669',
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=True
+    )
+
     # Extract data for charts
     projects = flow_data['projects']
 
@@ -154,70 +169,21 @@ def generate_html(flow_data):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Engineering Flow Dashboard - Week {flow_data['week_number']}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
+        /* Dashboard-specific styles for Flow Dashboard */
+
+        /* Work type color indicators */
+        .work-type-bug {{
+            color: #ef4444;
         }}
 
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
+        .work-type-story {{
+            color: #3b82f6;
         }}
 
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px var(--shadow);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }}
-
-        .theme-toggle:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--shadow);
-        }}
-
-        #theme-icon {{
-            font-size: 1.2rem;
-        }}
-
-        #theme-label {{
-            font-size: 0.9rem;
-            color: var(--text-primary);
+        .work-type-task {{
+            color: #10b981;
             font-weight: 600;
         }}
 
@@ -578,20 +544,21 @@ def generate_html(flow_data):
                     — Avg Lead Time: {avg_wt_lead_time:.0f} days | Open: {totals_by_type[work_type]['open']:,} | Closed (90d): {totals_by_type[work_type]['closed']:,}
                 </span>
             </h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Lead Time (P85)</th>
-                        <th>Lead Time (Median)</th>
-                        <th>Throughput</th>
-                        <th>Cycle Time Variance</th>
-                        <th>Open</th>
-                        <th>Closed (90d)</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Lead Time (P85)</th>
+                            <th>Lead Time (Median)</th>
+                            <th>Throughput</th>
+                            <th>Cycle Time Variance</th>
+                            <th>Open</th>
+                            <th>Closed (90d)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 '''
 
         # Add project rows for this work type
@@ -706,7 +673,8 @@ def generate_html(flow_data):
 '''
 
         html += '''                </tbody>
-            </table>
+                </table>
+            </div>
         </div>
 '''
 
@@ -859,45 +827,10 @@ def generate_html(flow_data):
         </div>
     </div>
 
+    {framework_js}
     <script>
-        // Glossary toggle function
-        function toggleGlossary() {{
-            const content = document.getElementById('glossary-content');
-            const toggle = document.getElementById('glossary-toggle');
-            content.classList.toggle('expanded');
-            toggle.classList.toggle('expanded');
-        }}
-
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            updateThemeIcon(newTheme);
-        }}
-
-        function updateThemeIcon(theme) {{
-            const icon = document.getElementById('theme-icon');
-            const label = document.getElementById('theme-label');
-
-            if (theme === 'dark') {{
-                icon.textContent = '🌙';
-                label.textContent = 'Dark';
-            }} else {{
-                icon.textContent = '☀️';
-                label.textContent = 'Light';
-            }}
-        }}
-
-        // Load theme preference on page load
-        document.addEventListener('DOMContentLoaded', function() {{
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        }});
+        // Dashboard-specific JavaScript
+        // (Glossary toggle and table scroll are handled by framework)
     </script>
 </body>
 </html>
