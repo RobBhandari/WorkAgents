@@ -61,9 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: metrics-${{ strategy.job-index }}
-          path: |
-            .tmp/observatory/*_history.json
-            .tmp/observatory/ado_structure.json
+          path: .tmp/observatory/
           retention-days: 1
         if: always()
 
@@ -180,25 +178,15 @@ jobs:
           echo "🔒 Access is now protected with Azure AD authentication"
           echo "🌐 Your team can access at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net/"
 
-      - name: Commit History Files to Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # List what files we're trying to commit
-          echo "📊 History files to commit:"
-          ls -la .tmp/observatory/*.json 2>/dev/null || echo "No history files found"
-
-          # Force add history JSON files (override .gitignore)
-          git add -f .tmp/observatory/*.json 2>/dev/null || true
-
-          # Check if there are changes to commit
-          if git diff --staged --quiet; then
-            echo "⚠️ No new history data to commit (no changes detected)"
-          else
-            echo "✅ Committing history files..."
-            git commit -m "Update metrics history - $(date +'%Y-%m-%d')"
-            git push
-            echo "✅ History files committed to git for future trend accumulation"
-          fi
-        continue-on-error: true
+      # TEMPORARILY DISABLED - History persistence causing corruption issues
+      # Will re-enable after fixing the underlying problem
+      # - name: Commit History Files to Git
+      #   run: |
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+      #     git add -f .tmp/observatory/*.json 2>/dev/null || true
+      #     if ! git diff --staged --quiet; then
+      #       git commit -m "Update metrics history - $(date +'%Y-%m-%d')"
+      #       git push
+      #     fi
+      #   continue-on-error: true
