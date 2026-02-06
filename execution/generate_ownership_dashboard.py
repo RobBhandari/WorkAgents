@@ -12,6 +12,12 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 # Set UTF-8 encoding for Windows
 if sys.platform == 'win32':
     import codecs
@@ -190,6 +196,15 @@ def generate_html(ownership_data):
         status_color = "#f87171"  # Red
         status_text = "ACTION NEEDED"
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#3b82f6',
+        header_gradient_end='#2563eb',
+        include_table_scroll=True,
+        include_expandable_rows=True,
+        include_glossary=True
+    )
+
     html = f'''<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -197,101 +212,9 @@ def generate_html(ownership_data):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ownership Dashboard - Week {ownership_data['week_number']}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
-        }}
-
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }}
-
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 50px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px var(--shadow);
-        }}
-
-        .theme-toggle:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--shadow);
-        }}
-
-        .theme-toggle span {{
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }}
-
-        .header {{
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }}
-
-        .header h1 {{
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }}
-
-        .header .subtitle {{
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }}
-
-        .header .timestamp {{
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 10px;
-        }}
-
+        /* Dashboard-specific styles */
         .executive-summary {{
             background: var(--bg-secondary);
             padding: 24px;
@@ -302,91 +225,7 @@ def generate_html(ownership_data):
         }}
 
         .status-badge {{
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.9rem;
             background: {status_color};
-            color: white;
-            margin-bottom: 20px;
-        }}
-
-        .summary-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-            align-items: start;
-        }}
-
-        .summary-card {{
-            background: var(--bg-tertiary);
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #3b82f6;
-            transition: background-color 0.3s ease;
-        }}
-
-        .summary-card .label {{
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }}
-
-        .summary-card .value {{
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-        }}
-
-        .summary-card .unit {{
-            font-size: 1rem;
-            font-weight: 400;
-            color: var(--text-secondary);
-            margin-left: 4px;
-        }}
-
-        .summary-card .explanation {{
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 8px;
-            line-height: 1.4;
-        }}
-
-        .card {{
-            background: var(--bg-secondary);
-            padding: 24px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px var(--shadow);
-            transition: background-color 0.3s ease;
-        }}
-
-        .card h2 {{
-            font-size: 1.3rem;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }}
-
-        .card h2 .info-icon {{
-            cursor: help;
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
         }}
 
         .chart-container {{
@@ -395,104 +234,7 @@ def generate_html(ownership_data):
             margin-bottom: 8px;
         }}
 
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }}
-
-        thead {{
-            background: var(--bg-tertiary);
-        }}
-
-        th {{
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border-color);
-        }}
-
-        td {{
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-variant-numeric: tabular-nums;
-            color: var(--text-primary);
-        }}
-
-        tbody tr:hover {{
-            background: var(--bg-tertiary);
-        }}
-
-        /* Expandable Row Styles */
-        tbody tr.data-row {{
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }}
-
-        tbody tr.data-row:hover {{
-            background: var(--bg-tertiary);
-        }}
-
-        tbody tr.data-row td:first-child {{
-            position: relative;
-            padding-left: 30px;
-        }}
-
-        tbody tr.data-row td:first-child::before {{
-            content: '▶';
-            position: absolute;
-            left: 12px;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            transition: transform 0.3s ease;
-        }}
-
-        tbody tr.data-row.expanded td:first-child::before {{
-            transform: rotate(90deg);
-        }}
-
-        tr.detail-row {{
-            display: none;
-        }}
-
-        tr.detail-row.show {{
-            display: table-row;
-        }}
-
-        tr.detail-row td {{
-            padding: 0;
-            border-bottom: 2px solid var(--border-color);
-        }}
-
-        .detail-content {{
-            padding: 20px;
-            background: var(--bg-tertiary);
-            animation: slideDown 0.3s ease;
-        }}
-
-        @keyframes slideDown {{
-            from {{
-                opacity: 0;
-                max-height: 0;
-            }}
-            to {{
-                opacity: 1;
-                max-height: 1000px;
-            }}
-        }}
-
-        .detail-content h4 {{
-            font-size: 1rem;
-            margin: 0 0 12px 0;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }}
-
+        /* Detail content styles for expandable rows */
         .detail-section {{
             margin-bottom: 16px;
         }}
@@ -531,18 +273,6 @@ def generate_html(ownership_data):
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-top: 6px;
-        }}
-
-        .detail-metric.rag-green {{
-            background: rgba(16, 185, 129, 0.05);
-        }}
-
-        .detail-metric.rag-amber {{
-            background: rgba(245, 158, 11, 0.05);
-        }}
-
-        .detail-metric.rag-red {{
-            background: rgba(239, 68, 68, 0.05);
         }}
 
         .detail-list {{
@@ -593,38 +323,6 @@ def generate_html(ownership_data):
             color: var(--text-secondary);
         }}
 
-        .detail-row {{
-            background: var(--bg-secondary);
-        }}
-
-        .detail-row td {{
-            padding: 0;
-            border: none;
-        }}
-
-        .detail-content {{
-            padding: 20px;
-            animation: slideDown 0.3s ease-out;
-        }}
-
-        @keyframes slideDown {{
-            from {{
-                opacity: 0;
-                transform: translateY(-10px);
-            }}
-            to {{
-                opacity: 1;
-                transform: translateY(0);
-            }}
-        }}
-
-        .detail-content h4 {{
-            margin: 0 0 15px 0;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            font-weight: 600;
-        }}
-
         .detail-table {{
             width: 100%;
             margin-top: 10px;
@@ -646,100 +344,11 @@ def generate_html(ownership_data):
             background: var(--bg-tertiary);
         }}
 
-        .glossary {{
-            background: var(--bg-tertiary);
-            padding: 0;
-            border-radius: 12px;
-            margin-top: 30px;
-            overflow: hidden;
-        }}
-
-        .glossary-header {{
-            padding: 20px 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            user-select: none;
-            transition: background-color 0.2s ease;
-        }}
-
-        .glossary-header:hover {{
-            background: rgba(255, 255, 255, 0.05);
-        }}
-
-        [data-theme="light"] .glossary-header:hover {{
-            background: rgba(0, 0, 0, 0.03);
-        }}
-
-        .glossary-header h3 {{
-            font-size: 1.2rem;
-            margin: 0;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }}
-
-        .glossary-toggle {{
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            transition: transform 0.3s ease;
-        }}
-
-        .glossary-toggle.expanded {{
-            transform: rotate(180deg);
-        }}
-
-        .glossary-content {{
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-            padding: 0 30px;
-        }}
-
-        .glossary-content.expanded {{
-            max-height: 5000px;
-            padding: 0 30px 30px 30px;
-        }}
-
-        .glossary h3 {{
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }}
-
-        .glossary-item {{
-            margin-bottom: 15px;
-        }}
-
-        .glossary-term {{
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }}
-
-        .glossary-definition {{
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }}
-
         .footer {{
             text-align: center;
             padding: 20px;
             color: var(--text-secondary);
             font-size: 0.85rem;
-        }}
-
-        @media print {{
-            body {{
-                background: white;
-            }}
-            .card, .executive-summary {{
-                box-shadow: none;
-                border: 1px solid #e5e7eb;
-            }}
         }}
     </style>
 </head>
@@ -796,19 +405,20 @@ def generate_html(ownership_data):
         <!-- Project Comparison Table -->
         <div class="card">
             <h2>Project Ownership Metrics</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Total Items</th>
-                        <th>Unassigned</th>
-                        <th>Unassigned %</th>
-                        <th>Assignees</th>
-                        <th>Avg Active Days</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Total Items</th>
+                            <th>Unassigned</th>
+                            <th>Unassigned %</th>
+                            <th>Assignees</th>
+                            <th>Avg Active Days</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 '''
 
     # Add project rows with expandable drill-down
@@ -889,7 +499,8 @@ def generate_html(ownership_data):
 '''
 
     html += f'''                </tbody>
-            </table>
+                </table>
+            </div>
         </div>
 
         <!-- Glossary -->
@@ -983,29 +594,8 @@ def generate_html(ownership_data):
         </div>
     </div>
 
+    {framework_js}
     <script>
-        // Glossary toggle function
-        function toggleGlossary() {{
-            const content = document.getElementById('glossary-content');
-            const toggle = document.getElementById('glossary-toggle');
-            content.classList.toggle('expanded');
-            toggle.classList.toggle('expanded');
-        }}
-
-        // Expandable row toggle function
-        function toggleDetail(detailId, rowElement) {{
-            const detailRow = document.getElementById(detailId);
-            const isExpanded = detailRow.classList.contains('show');
-
-            if (isExpanded) {{
-                detailRow.classList.remove('show');
-                rowElement.classList.remove('expanded');
-            }} else {{
-                detailRow.classList.add('show');
-                rowElement.classList.add('expanded');
-            }}
-        }}
-
         // Chart.js theme configuration
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const chartColors = {{
@@ -1016,39 +606,6 @@ def generate_html(ownership_data):
 
         Chart.defaults.color = chartColors.text;
         Chart.defaults.borderColor = chartColors.grid;
-
-        // Theme Toggle Functionality
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            updateThemeIcon(newTheme);
-        }}
-
-        function updateThemeIcon(theme) {{
-            const icon = document.getElementById('theme-icon');
-            const label = document.getElementById('theme-label');
-
-            if (theme === 'dark') {{
-                icon.textContent = '🌙';
-                label.textContent = 'Dark';
-            }} else {{
-                icon.textContent = '☀️';
-                label.textContent = 'Light';
-            }}
-        }}
-
-        // Load theme preference on page load
-        document.addEventListener('DOMContentLoaded', function() {{
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        }});
-
     </script>
 </body>
 </html>
