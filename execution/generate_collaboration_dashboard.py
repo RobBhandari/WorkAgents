@@ -13,6 +13,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 # Set UTF-8 encoding for Windows
 if sys.platform == 'win32':
     import codecs
@@ -214,6 +220,15 @@ def generate_collaboration_dashboard():
     # Get collection date
     collection_date = latest_week.get('week_date', 'Unknown')
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#f093fb',
+        header_gradient_end='#f5576c',
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=True
+    )
+
     # Generate HTML
     html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -221,106 +236,9 @@ def generate_collaboration_dashboard():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collaboration Dashboard - PR Metrics</title>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
-            --accent-color: #f5576c;
-        }}
-
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
-            --accent-color: #fb7185;
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px var(--shadow);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }}
-
-        .theme-toggle:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--shadow);
-        }}
-
-        #theme-icon {{
-            font-size: 1.2rem;
-        }}
-
-        #theme-label {{
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            font-weight: 600;
-        }}
-
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-        }}
-
-        .header {{
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px var(--shadow);
-        }}
-
-        .header h1 {{
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }}
-
-        .header .subtitle {{
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }}
-
-        .header .timestamp {{
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 10px;
-        }}
-
+        /* Dashboard-specific styles */
         .metrics-grid {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -333,7 +251,7 @@ def generate_collaboration_dashboard():
             border-radius: 12px;
             padding: 24px;
             box-shadow: 0 4px 12px var(--shadow);
-            border-left: 4px solid var(--accent-color);
+            border-left: 4px solid #fb7185;
         }}
 
         .metric-label {{
@@ -362,7 +280,6 @@ def generate_collaboration_dashboard():
             border-radius: 12px;
             padding: 24px;
             box-shadow: 0 4px 12px var(--shadow);
-            overflow-x: auto;
             margin-bottom: 20px;
         }}
 
@@ -372,124 +289,20 @@ def generate_collaboration_dashboard():
             margin-bottom: 16px;
         }}
 
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-        }}
-
-        thead {{
-            background: var(--bg-tertiary);
-        }}
-
-        th {{
-            color: var(--text-secondary);
-            font-weight: 600;
-            text-align: left;
-            padding: 12px;
-            border-bottom: 2px solid var(--border-color);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }}
-
-        td {{
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }}
-
-        tbody tr:hover {{
-            background: var(--bg-tertiary);
-        }}
-
-        .glossary {{
-            background: var(--bg-tertiary);
-            padding: 0;
-            border-radius: 12px;
-            margin-top: 30px;
-            overflow: hidden;
-        }}
-
-        .glossary-header {{
-            padding: 20px 30px;
+        /* Sortable column styling */
+        th.sortable {{
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             user-select: none;
-            transition: background-color 0.2s ease;
         }}
 
-        .glossary-header:hover {{
-            background: rgba(255, 255, 255, 0.05);
+        th.sortable:hover {{
+            background: var(--bg-primary);
         }}
 
-        [data-theme="light"] .glossary-header:hover {{
-            background: rgba(0, 0, 0, 0.03);
-        }}
-
-        .glossary-header h3 {{
-            font-size: 1.2rem;
-            margin: 0;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }}
-
-        .glossary-toggle {{
-            font-size: 1.5rem;
+        th.sortable::after {{
+            content: ' ↕';
             color: var(--text-secondary);
-            transition: transform 0.3s ease;
-        }}
-
-        .glossary-toggle.expanded {{
-            transform: rotate(180deg);
-        }}
-
-        .glossary-content {{
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-            padding: 0 30px;
-        }}
-
-        .glossary-content.expanded {{
-            max-height: 5000px;
-            padding: 0 30px 30px 30px;
-        }}
-
-        .glossary-item {{
-            margin-bottom: 15px;
-        }}
-
-        .glossary-term {{
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }}
-
-        .glossary-definition {{
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }}
-
-        .footer {{
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }}
-
-        @media print {{
-            body {{
-                background: var(--bg-secondary);
-            }}
-            .table-card, .metric-card {{
-                box-shadow: none;
-                border: 1px solid var(--border-color);
-            }}
+            font-size: 0.7em;
         }}
     </style>
 </head>
@@ -528,21 +341,23 @@ def generate_collaboration_dashboard():
 
         <div class="table-card">
             <h2>PR Metrics by Project</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Total PRs</th>
-                        <th>Merge Time (Median)</th>
-                        <th>Iterations (Median)</th>
-                        <th>Size (Median Commits)</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {project_rows_html}
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Total PRs</th>
+                            <th>Merge Time (Median)</th>
+                            <th>Iterations (Median)</th>
+                            <th>Size (Median Commits)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {project_rows_html}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Glossary -->
@@ -680,46 +495,8 @@ def generate_collaboration_dashboard():
         </div>
     </div>
 
-    <script>
-        // Glossary toggle function
-        function toggleGlossary() {{
-            const content = document.getElementById('glossary-content');
-            const toggle = document.getElementById('glossary-toggle');
-            content.classList.toggle('expanded');
-            toggle.classList.toggle('expanded');
-        }}
+    {framework_js}
 
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            updateThemeIcon(newTheme);
-        }}
-
-        function updateThemeIcon(theme) {{
-            const icon = document.getElementById('theme-icon');
-            const label = document.getElementById('theme-label');
-
-            if (theme === 'dark') {{
-                icon.textContent = '🌙';
-                label.textContent = 'Dark';
-            }} else {{
-                icon.textContent = '☀️';
-                label.textContent = 'Light';
-            }}
-        }}
-
-        // Load theme preference on page load
-        document.addEventListener('DOMContentLoaded', function() {{
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        }});
-    </script>
 </body>
 </html>"""
 
