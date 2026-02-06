@@ -52,7 +52,6 @@ jobs:
           echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
-          echo "AI_USAGE_CSV_URL=${{ secrets.AI_USAGE_CSV_URL }}" >> .env
 
       - name: Collect ${{ matrix.collector.name }}
         id: collect
@@ -111,7 +110,6 @@ jobs:
           echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
-          echo "AI_USAGE_CSV_URL=${{ secrets.AI_USAGE_CSV_URL }}" >> .env
 
       - name: Download all metrics artifacts
         uses: actions/download-artifact@v4
