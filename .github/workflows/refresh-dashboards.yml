@@ -174,3 +174,21 @@ jobs:
           echo "✅ Dashboards deployed successfully to Azure Static Web Apps!"
           echo "🔒 Access is now protected with Azure AD authentication"
           echo "🌐 Your team can access at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net/"
+
+      - name: Commit History Files to Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add only history JSON files
+          git add .tmp/observatory/*.json 2>/dev/null || true
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "📊 No new history data to commit"
+          else
+            git commit -m "Update metrics history - $(date +'%Y-%m-%d')"
+            git push
+            echo "✅ History files committed to git for future trend accumulation"
+          fi
+        continue-on-error: true
