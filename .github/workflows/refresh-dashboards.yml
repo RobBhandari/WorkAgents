@@ -110,7 +110,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: metrics-*
-          path: ./
+          path: .tmp/observatory/
           merge-multiple: true
 
       - name: Verify metrics data available
@@ -143,14 +143,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: dashboard-*
-          path: ./
+          path: .tmp/observatory/dashboards/
           merge-multiple: true
 
       - name: Download all metrics artifacts (for data files)
         uses: actions/download-artifact@v4
         with:
           pattern: metrics-*
-          path: ./
+          path: .tmp/observatory/
           merge-multiple: true
 
       - name: Verify deployment package
