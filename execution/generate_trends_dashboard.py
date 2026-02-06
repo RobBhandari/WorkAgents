@@ -17,6 +17,12 @@ from datetime import datetime
 from pathlib import Path
 from statistics import median
 
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
+
 def load_history_file(file_path):
     """Load a history JSON file with error handling"""
     filename = os.path.basename(file_path)
@@ -744,14 +750,45 @@ def generate_html(all_trends, target_progress):
 
     metrics_json = json.dumps(metrics_js, indent=4)
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#667eea',
+        header_gradient_end='#764ba2',
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=False
+    )
+
     html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executive Trends - Director Observatory</title>
+    {framework_css}
     <style>
-        :root {{
+        /* Dashboard-specific styles */
+        .metrics-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }}
+
+        @media (max-width: 1024px) {{
+            .metrics-grid {{
+                grid-template-columns: 1fr;
+            }}
+        }}
+
+        .metric-card {{
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }}
+
+        .forecast-banner {{
             --bg-primary: #f9fafb;
             --bg-secondary: #ffffff;
             --bg-card: #ffffff;
@@ -1031,20 +1068,10 @@ def generate_html(all_trends, target_progress):
         </div>
     </div>
 
+    {framework_js}
     <script>
         const trendsData = {metrics_json};
         let currentView = 12; // Default to 12 weeks
-
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }}
-
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
 
         function changeView(weeks) {{
             currentView = weeks;
