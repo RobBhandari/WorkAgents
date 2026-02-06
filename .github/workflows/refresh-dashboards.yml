@@ -110,8 +110,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: metrics-*
-          path: .tmp/observatory/
+          path: ./
           merge-multiple: true
+
+      - name: Verify metrics data available
+        run: |
+          echo "📊 Checking for metrics history files..."
+          ls -la .tmp/observatory/*.json 2>/dev/null || echo "⚠️ No history files found"
 
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
         run: python execution/${{ matrix.dashboard.script }}
@@ -138,8 +143,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: dashboard-*
-          path: .tmp/observatory/dashboards/
+          path: ./
           merge-multiple: true
+
+      - name: Download all metrics artifacts (for data files)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: ./
+          merge-multiple: true
+
+      - name: Verify deployment package
+        run: |
+          echo "📦 Deployment package contents:"
+          ls -la .tmp/observatory/dashboards/ || echo "No dashboards found"
+          ls -la .tmp/observatory/*.json || echo "No data files found"
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
