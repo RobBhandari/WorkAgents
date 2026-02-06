@@ -13,6 +13,12 @@ import os
 import sys
 import json
 import argparse
+
+# Import mobile-responsive framework
+try:
+    from execution.dashboard_framework import get_dashboard_framework
+except ModuleNotFoundError:
+    from dashboard_framework import get_dashboard_framework
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
@@ -217,80 +223,83 @@ def generate_html(security_metrics: dict, bugs_metrics: dict) -> str:
 
     now = datetime.now()
 
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start='#1e40af',
+        header_gradient_end='#1e3a8a',
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=False
+    )
+
     html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>70% Reduction Target Dashboard - {now.strftime('%Y-%m-%d')}</title>
+    {framework_css}
     <style>
-        :root {{
-            --bg-primary: #f9fafb;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f3f4f6;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --shadow: rgba(0,0,0,0.1);
-        }}
-
-        [data-theme="dark"] {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: #475569;
-            --shadow: rgba(0,0,0,0.3);
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            padding: 20px;
-            color: var(--text-primary);
-            line-height: 1.6;
-        }}
-
-        .container {{
-            max-width: 1200px;
-            margin: 0 auto;
-        }}
-
-        .header {{
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-            color: white;
-            padding: 30px 40px;
-            border-radius: 12px;
+        /* Dashboard-specific styles */
+        .metrics-grid {{
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px var(--shadow);
         }}
 
-        .header h1 {{
-            font-size: 2rem;
-            font-weight: 700;
+        @media (max-width: 1024px) {{
+            .metrics-grid {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+        }}
+
+        @media (max-width: 768px) {{
+            .metrics-grid {{
+                grid-template-columns: 1fr;
+            }}
+        }}
+
+        .metric-card {{
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }}
+
+        .metric-label {{
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             margin-bottom: 8px;
         }}
 
-        .header .subtitle {{
-            font-size: 1rem;
-            opacity: 0.9;
+        .metric-value {{
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 700;
         }}
 
-        .header .timestamp {{
+        .metric-unit {{
             font-size: 0.875rem;
-            opacity: 0.8;
-            margin-top: 8px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }}
+
+        .progress-section {{
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }}
+
+        .progress-row {{
             display: flex;
-            align-items: center;
-            gap: 12px;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
         }}
 
         .refresh-btn {{
@@ -313,22 +322,6 @@ def generate_html(security_metrics: dict, bugs_metrics: dict) -> str:
 
         .refresh-btn:active {{
             transform: translateY(0);
-        }}
-
-        .theme-toggle {{
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px var(--shadow);
-            z-index: 1000;
         }}
 
         .section {{
@@ -361,41 +354,6 @@ def generate_html(security_metrics: dict, bugs_metrics: dict) -> str:
             font-weight: 600;
             font-size: 0.875rem;
             color: white;
-        }}
-
-        .metrics-grid {{
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }}
-
-        .metric-card {{
-            background: var(--bg-tertiary);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }}
-
-        .metric-label {{
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }}
-
-        .metric-value {{
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-        }}
-
-        .metric-unit {{
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
         }}
 
         .progress-section {{
@@ -560,27 +518,8 @@ def generate_html(security_metrics: dict, bugs_metrics: dict) -> str:
         </div>
     </div>
 
+    {framework_js}
     <script>
-        function toggleTheme() {{
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            const icon = document.getElementById('theme-icon');
-            const label = document.getElementById('theme-label');
-
-            if (newTheme === 'dark') {{
-                icon.textContent = '🌙';
-                label.textContent = 'Dark';
-            }} else {{
-                icon.textContent = '☀️';
-                label.textContent = 'Light';
-            }}
-        }}
-
         // Copy refresh command to clipboard
         function copyRefreshCommand() {{
             const command = 'python execution/generate_target_dashboard.py';
