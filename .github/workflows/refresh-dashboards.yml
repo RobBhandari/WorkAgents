@@ -18,14 +18,14 @@ jobs:
     strategy:
       matrix:
         collector:
-          - { name: 'Discover Projects', script: 'discover_projects.py' }
-          - { name: 'Quality Metrics', script: 'ado_quality_metrics.py' }
-          - { name: 'Flow Metrics', script: 'ado_flow_metrics.py' }
-          - { name: 'Ownership Metrics', script: 'ado_ownership_metrics.py' }
-          - { name: 'Risk Metrics', script: 'ado_risk_metrics.py' }
-          - { name: 'Deployment Metrics', script: 'ado_deployment_metrics.py' }
-          - { name: 'Collaboration Metrics', script: 'ado_collaboration_metrics.py' }
-          - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py' }
+          - { name: 'Discover Projects', script: 'discover_projects.py', outputs: 'ado_structure.json' }
+          - { name: 'Quality Metrics', script: 'ado_quality_metrics.py', outputs: 'quality_history.json' }
+          - { name: 'Flow Metrics', script: 'ado_flow_metrics.py', outputs: 'flow_history.json' }
+          - { name: 'Ownership Metrics', script: 'ado_ownership_metrics.py', outputs: 'ownership_history.json' }
+          - { name: 'Risk Metrics', script: 'ado_risk_metrics.py', outputs: 'risk_history.json' }
+          - { name: 'Deployment Metrics', script: 'ado_deployment_metrics.py', outputs: 'deployment_history.json' }
+          - { name: 'Collaboration Metrics', script: 'ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
+          - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
       fail-fast: false  # Continue even if one fails
       max-parallel: 8   # Run all 8 collectors at once
 
@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: metrics-${{ strategy.job-index }}
-          path: .tmp/observatory/
+          path: .tmp/observatory/${{ matrix.collector.outputs }}
           retention-days: 1
         if: always()
 
