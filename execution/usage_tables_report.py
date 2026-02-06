@@ -1,11 +1,11 @@
 """
 LGL AI Tools Usage Tables Report Generator
 
-Reads the hardcoded CSV file from OneDrive, filters for LGL users, and generates
-a modern, interactive HTML report with two side-by-side tables showing
+Reads the git-tracked CSV file from data/ai_usage_data.csv, filters for LGL users,
+and generates a modern, interactive HTML report with two side-by-side tables showing
 Claude and Devin usage with heatmap styling.
 
-The CSV file path is hardcoded (no need to provide it as an argument).
+Update data/ai_usage_data.csv weekly with the latest usage data.
 
 Usage:
     python execution/usage_tables_report.py
@@ -18,10 +18,8 @@ import sys
 import argparse
 import logging
 import html as html_module
-import requests
-import tempfile
 from datetime import datetime
-from typing import Tuple, Dict
+from typing import Tuple
 from pathlib import Path
 
 import pandas as pd
@@ -40,38 +38,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
-
-
-def download_csv_from_url(url: str) -> str:
-    """
-    Download CSV file from URL (OneDrive share link) to a temporary location.
-
-    Args:
-        url: Direct download URL for the CSV file
-
-    Returns:
-        str: Path to the downloaded temporary file
-
-    Raises:
-        requests.RequestException: If download fails
-    """
-    logger.info(f"Downloading CSV from URL...")
-
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-
-        # Create temp file
-        temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', encoding='utf-8')
-        temp_file.write(response.text)
-        temp_file.close()
-
-        logger.info(f"Downloaded CSV to: {temp_file.name}")
-        return temp_file.name
-
-    except requests.RequestException as e:
-        logger.error(f"Failed to download CSV: {e}")
-        raise
 
 
 def read_excel_usage_data(file_path: str) -> pd.DataFrame:
@@ -953,18 +919,9 @@ if __name__ == '__main__':
         # Ensure .tmp directory exists
         os.makedirs('.tmp', exist_ok=True)
 
-        # Determine file path: Check environment variable first, then fall back to local path
-        csv_url = os.getenv('AI_USAGE_CSV_URL')
-        temp_file_path = None
-
-        if csv_url:
-            logger.info("Using CSV from URL (environment variable AI_USAGE_CSV_URL)")
-            temp_file_path = download_csv_from_url(csv_url)
-            file_path = temp_file_path
-        else:
-            # Hardcoded local file path (fallback)
-            file_path = r"C:\Users\Robin.Bhandari\OneDrive - Access UK Ltd\__LEGAL\Delta Master Tracker\AI - Delta P & E People.csv"
-            logger.info(f"Using local CSV file: {file_path}")
+        # Use git-tracked CSV file in data directory
+        file_path = "data/ai_usage_data.csv"
+        logger.info(f"Using git-tracked CSV file: {file_path}")
 
         # Step 1: Read Excel file
         df = read_excel_usage_data(file_path)
@@ -1009,12 +966,3 @@ if __name__ == '__main__':
         logger.error(f"Script failed: {e}", exc_info=True)
         print(f"\nERROR: {e}", file=sys.stderr)
         sys.exit(1)
-
-    finally:
-        # Clean up temp file if it was downloaded
-        if temp_file_path and os.path.exists(temp_file_path):
-            try:
-                os.remove(temp_file_path)
-                logger.info(f"Cleaned up temporary file: {temp_file_path}")
-            except Exception as e:
-                logger.warning(f"Failed to clean up temp file: {e}")
