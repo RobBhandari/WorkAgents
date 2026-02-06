@@ -1,0 +1,136 @@
+{
+  "baseline_date": "2026-01-01",
+  "baseline_week": 0,
+  "open_count": 17,
+  "target_count": 5,
+  "target_date": "2026-06-30",
+  "target_percentage": 0.3,
+  "weeks_to_target": 25,
+  "required_weekly_burn": 0.48,
+  "immutable": true,
+  "created_at": "2026-01-30T12:49:56.492508",
+  "project": "Access LawFusion",
+  "project_key": "LawFusion",
+  "organization": "https://dev.azure.com/access-devops",
+  "bugs": [
+    {
+      "id": 550742,
+      "title": "Assessed Claims Manager - Payment in Full - Do not Claim VAT On LAA Bills",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2024-01-05T13:12:03.6Z"
+    },
+    {
+      "id": 566837,
+      "title": "AGFS Bill - Section 28 Hearing Tick box Not Retaining Value",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2024-01-18T17:28:26.483Z"
+    },
+    {
+      "id": 812085,
+      "title": "Wizards - Client Reference Being Re-used After Deletion",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2024-04-11T14:46:27.637Z"
+    },
+    {
+      "id": 1217412,
+      "title": "Pen-Test Finding - Uploaded File not Scanned for Malware",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2024-07-08T10:58:47.12Z"
+    },
+    {
+      "id": 1254661,
+      "title": "Accounts Desktop: Batch Journals - Error Occurs When Closed Nominal Is Selected",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2024-07-22T09:19:35.353Z"
+    },
+    {
+      "id": 1314801,
+      "title": "Law Fusion | Law Fusion Pen Test | User Enumeration Through Forgot Password Message Discrepancy",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2024-09-02T14:32:17.913Z"
+    },
+    {
+      "id": 1314803,
+      "title": "Law Fusion | Law Fusion Pen Test | Weak Password Requirements",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2024-09-02T14:32:44.907Z"
+    },
+    {
+      "id": 1314804,
+      "title": "Law Fusion | Law Fusion Pen Test | Brute-Force: Login Page Is Vulnerable To Password-Guessing Attacks",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2024-09-02T14:33:20.61Z"
+    },
+    {
+      "id": 1348093,
+      "title": "Fusion App - Segoe MDL2 Assets Usage",
+      "state": "New",
+      "priority": 1,
+      "created_date": "2024-09-13T14:50:46.127Z"
+    },
+    {
+      "id": 1401613,
+      "title": "Richard Nelson - Preview Pane Issue",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2024-10-17T15:58:15.38Z"
+    },
+    {
+      "id": 1410334,
+      "title": "Preview Pane crashing on Word Documents",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2024-10-23T16:20:45.263Z"
+    },
+    {
+      "id": 1488820,
+      "title": "Investigation: Include Closed Items tick box on Contact Search",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2024-12-18T16:12:33.053Z"
+    },
+    {
+      "id": 1619610,
+      "title": "Details box when creating a new expense in the draft billing is not updating if expense code is changed.",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-03-28T10:54:21.25Z"
+    },
+    {
+      "id": 1652993,
+      "title": "Time Recording - Rate Codes in Add-in",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-04-24T10:50:24.273Z"
+    },
+    {
+      "id": 1689495,
+      "title": "Notes - Procedure File Maintenance - Default Note Description For Time Details",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-05-22T16:42:51.18Z"
+    },
+    {
+      "id": 1727315,
+      "title": "Case Tracker - Document removed from Out-Tray of case still shows on Case Tracker",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-06-20T15:36:10.06Z"
+    },
+    {
+      "id": 1873955,
+      "title": "Cashflow reporting- Not producing as expected with the values.",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-10-06T17:04:32.21Z"
+    }
+  ]
+}

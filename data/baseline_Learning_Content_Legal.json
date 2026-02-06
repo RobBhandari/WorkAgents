@@ -1,0 +1,16 @@
+{
+  "baseline_date": "2026-01-01",
+  "baseline_week": 0,
+  "open_count": 0,
+  "target_count": 0,
+  "target_date": "2026-06-30",
+  "target_percentage": 0.3,
+  "weeks_to_target": 25,
+  "required_weekly_burn": 0.0,
+  "immutable": true,
+  "created_at": "2026-01-30T12:50:11.640744",
+  "project": "Learning Content Legal",
+  "project_key": "Learning_Content_Legal",
+  "organization": "https://dev.azure.com/access-devops",
+  "bugs": []
+}

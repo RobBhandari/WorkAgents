@@ -14,12 +14,12 @@ from typing import List, Dict, Optional
 from datetime import datetime
 
 
-def discover_projects(baseline_dir: str = ".tmp") -> List[Dict]:
+def discover_projects(baseline_dir: str = "data") -> List[Dict]:
     """
     Discover projects from baseline files.
 
     Args:
-        baseline_dir: Directory containing baseline_*.json files
+        baseline_dir: Directory containing baseline_*.json files (default: data)
 
     Returns:
         List of project dictionaries with metadata

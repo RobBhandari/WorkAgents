@@ -1,0 +1,696 @@
+{
+  "baseline_date": "2026-01-01",
+  "baseline_week": 0,
+  "open_count": 97,
+  "target_count": 29,
+  "target_date": "2026-06-30",
+  "target_percentage": 0.3,
+  "weeks_to_target": 25,
+  "required_weekly_burn": 2.72,
+  "immutable": true,
+  "created_at": "2026-01-30T12:53:40.138171",
+  "project": "Access Legal InCase",
+  "project_key": "Legal_InCase",
+  "organization": "https://dev.azure.com/access-devops",
+  "bugs": [
+    {
+      "id": 1759983,
+      "title": "[IM-148] Command logic abstraction",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2021-05-10T14:40:42.973Z"
+    },
+    {
+      "id": 1760017,
+      "title": "[IM-153] look at adding synthetics page in Datadog",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2021-05-18T10:06:30.33Z"
+    },
+    {
+      "id": 1760072,
+      "title": "[IM-173] String data, right truncated: 1406 Data too long for column 'content' at row",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2021-06-01T10:16:01.67Z"
+    },
+    {
+      "id": 1760090,
+      "title": "[IM-180] production.CRITICAL: Webhook failed",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2021-06-07T17:45:05.617Z"
+    },
+    {
+      "id": 1760406,
+      "title": "[IM-263] AWS Hosts with multiple docker containers",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2021-07-26T15:50:21.457Z"
+    },
+    {
+      "id": 1760529,
+      "title": "[IM-316] production.ERROR: {\"error\":{\"root_cause\":[{\"type\":\"query_shard_exception\",\"reason\":\"Failed to parse query [lh/has]\"",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2021-08-12T14:11:27.113Z"
+    },
+    {
+      "id": 1760530,
+      "title": "[IM-317] production.ERROR: {\"error\":{\"root_cause\":[{\"type\":\"token_mgr_error\",\"reason\":\"token_mgr_error: Lexical error at line 1, column 7.",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2021-08-12T14:16:24.277Z"
+    },
+    {
+      "id": 1760540,
+      "title": "[IM-319] Multiple stacktraces in single Datadog log",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2021-08-17T13:12:54.003Z"
+    },
+    {
+      "id": 1760839,
+      "title": "[IM-618] Deploying webapps via configurator tends to take all webapps offline",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2021-10-13T11:17:49.653Z"
+    },
+    {
+      "id": 1761310,
+      "title": "[ID-113] [Android] When starting a Biometric/IdCheck it requires two clicks of the 'Start' button to actually begin the process",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-01-18T09:28:20.413Z"
+    },
+    {
+      "id": 1761315,
+      "title": "[IM-557] Can access restricted pages on admin panel by typing url",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-01-18T16:53:30.11Z"
+    },
+    {
+      "id": 1761447,
+      "title": "[IM-582] action_events database table missing model & factory",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-02-22T13:44:21.363Z"
+    },
+    {
+      "id": 1761454,
+      "title": "[SUP-284] Message webhooks throw 401 HTTP errors when Chat History feature is enabled for the org",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-02-25T14:23:13.907Z"
+    },
+    {
+      "id": 1761472,
+      "title": "[SUP-288] Laravel Nova - Email tag search potential issue with + symbols",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2022-03-02T14:08:21.117Z"
+    },
+    {
+      "id": 1761881,
+      "title": "[SUP-360] TA6 - spelling and numbering issues",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-07-08T10:46:20.443Z"
+    },
+    {
+      "id": 1761974,
+      "title": "[SUP-377] Witness can't sign TR1 documents on device with inCase installed ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-08-15T10:28:43.683Z"
+    },
+    {
+      "id": 1762115,
+      "title": "[ID-262] iOS: New Cases not displaying",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2022-09-05T10:24:55.79Z"
+    },
+    {
+      "id": 1762370,
+      "title": "[SUP-417] ABD App - ID check step 5 warning message being covered up ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-10-06T10:39:04.11Z"
+    },
+    {
+      "id": 1762405,
+      "title": "[SUP-429] CAL clients unable to access cases, post switch to branded App",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-10-12T10:41:07.557Z"
+    },
+    {
+      "id": 1762643,
+      "title": "[SUP-468] iOS / SoF - No redirect modal when navigating back to in-case Native App",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2022-11-28T11:03:52.003Z"
+    },
+    {
+      "id": 1762688,
+      "title": "[IM-822] Automate ID Reporting",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2022-12-06T15:34:20.013Z"
+    },
+    {
+      "id": 1762792,
+      "title": "[SUP-492] End user listed 3 times in admin panel (same ID) and attached to the same org 3 times in Nova",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-01-06T15:09:32.327Z"
+    },
+    {
+      "id": 1762911,
+      "title": "[SUP-511] Android / NFC / 3 attempts to get the correct Passport Number",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2023-01-27T09:57:54.4Z"
+    },
+    {
+      "id": 1762995,
+      "title": "[Placeholder Name]",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2023-02-16T09:39:27.977Z"
+    },
+    {
+      "id": 1762997,
+      "title": "[Placeholder Name]",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2023-02-16T09:44:40.62Z"
+    },
+    {
+      "id": 1763046,
+      "title": "[SUP-531] Potential File Upload Issue in Questionnaires",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-03-01T15:41:28.097Z"
+    },
+    {
+      "id": 1763048,
+      "title": "[SUP-533] Forward Function Not Working Or Particular Device",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2023-03-02T11:23:05.657Z"
+    },
+    {
+      "id": 1763083,
+      "title": "[SUP-536] Email received advising a user had logged into an app when they hadn't",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-03-06T12:45:46.847Z"
+    },
+    {
+      "id": 1763117,
+      "title": "[SUP-541] LBMW - Document address format is changed when converting to PDF",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-03-14T15:47:22.747Z"
+    },
+    {
+      "id": 1763161,
+      "title": "[SUP-549] SEHBAC - first login email not reached organisation",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-03-28T09:48:34.297Z"
+    },
+    {
+      "id": 1763168,
+      "title": "[SUP-551] iOS / NFC / 3 attempts to get the correct Passport Number",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2023-03-28T11:42:51.147Z"
+    },
+    {
+      "id": 1763178,
+      "title": "[SUP-570] Source of Funds / Source of Funds Report email not being received",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-03-30T10:15:45.903Z"
+    },
+    {
+      "id": 1763222,
+      "title": "[SUP-563] Gateway Issues - Recent Messages failing to update",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-04-18T09:04:48.717Z"
+    },
+    {
+      "id": 1763249,
+      "title": "[SUP-571] Source of Funds / Branded / Redirected to Live URL on DEV",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-04-26T13:02:05.383Z"
+    },
+    {
+      "id": 1763251,
+      "title": "[SUP-572] Android / Signatures / Alignment of signatures",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-04-27T09:46:40.323Z"
+    },
+    {
+      "id": 1763262,
+      "title": "[SUP-576] ONP / Apostrophe in End Users name causing messaging issues",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-05-02T09:24:09.23Z"
+    },
+    {
+      "id": 1763266,
+      "title": "[SUP-578] [API] Attachments from SumSub need to be internally set as Yellow instead of Refer",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-05-03T07:51:38.727Z"
+    },
+    {
+      "id": 1763268,
+      "title": "[SUP-579] Android Issues at PJ OHare",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2023-05-03T14:39:41.3Z"
+    },
+    {
+      "id": 1763306,
+      "title": "[SUP-589] Android / Select Automatic directs user back to Biometric Yes/No page",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2023-05-22T11:18:37.307Z"
+    },
+    {
+      "id": 1763308,
+      "title": "[SUP-590] Android / 'The passport chip is invalid' error when user enters Passport details manually and then scans with NFC",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2023-05-22T15:16:37.517Z"
+    },
+    {
+      "id": 1763363,
+      "title": "[SUP-607] Native App/ Messages / File could not be downloaded/view that was sent from Fee Earner",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-06-08T10:34:22.177Z"
+    },
+    {
+      "id": 1763364,
+      "title": "[SUP-608] Android / Handling of 'money' question formatting",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-06-08T11:33:04.35Z"
+    },
+    {
+      "id": 1763412,
+      "title": "[SUP-611] Error Message for new user when creating password.",
+      "state": "Removed",
+      "priority": 1,
+      "created_date": "2023-06-15T12:05:34.577Z"
+    },
+    {
+      "id": 1763422,
+      "title": "[IM-957] Admin Portal - Search Bar is buggy and not intuative.",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-06-20T13:09:24.41Z"
+    },
+    {
+      "id": 1763437,
+      "title": "[SUP-622] TA10 / Sign TA10 form multiple times",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-06-23T14:50:46.81Z"
+    },
+    {
+      "id": 1763457,
+      "title": "[SUP-625] TA Forms not allowing the user to sign",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2023-07-04T11:36:00.637Z"
+    },
+    {
+      "id": 1763485,
+      "title": "[SUP-629] Unbranded Verification Issue",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2023-07-17T14:14:50.723Z"
+    },
+    {
+      "id": 1763604,
+      "title": "[Placeholder Name]",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2023-08-17T15:08:24.233Z"
+    },
+    {
+      "id": 1763607,
+      "title": "[Placeholder Name]",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2023-08-17T16:02:20.813Z"
+    },
+    {
+      "id": 1763619,
+      "title": "[Placeholder Name]",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2023-08-21T15:02:59.603Z"
+    },
+    {
+      "id": 1763620,
+      "title": "[Placeholder Name]",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2023-08-21T15:05:20.69Z"
+    },
+    {
+      "id": 1763637,
+      "title": "[SUP-633] Gorvins App - Reports of notifications not being sent",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-08-24T09:45:45.017Z"
+    },
+    {
+      "id": 1763641,
+      "title": "[SUP-636] DOB field might not be locked for ID Lite/ID Remo",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-08-25T10:00:17.687Z"
+    },
+    {
+      "id": 1763667,
+      "title": "[SUP-639] ID Processing Failures - Ensure that assets does not exceed total of 6MB",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-09-07T14:37:07.267Z"
+    },
+    {
+      "id": 1763721,
+      "title": "[SUP-644] Outlook plugin - Error and unable to do anything",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-09-27T13:07:04.187Z"
+    },
+    {
+      "id": 1763782,
+      "title": "[SUP-654] ID Check - Failure to convert PDF to Image when rejected by SumSub",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-10-11T13:34:52.337Z"
+    },
+    {
+      "id": 1763825,
+      "title": "[SUP-663] [TR1] iOS passcodes not being sent on unbranded apps",
+      "state": "Removed",
+      "priority": 2,
+      "created_date": "2023-10-30T12:10:21.36Z"
+    },
+    {
+      "id": 1763871,
+      "title": "[SUP-672] TA Forms - Only show a max of 2 signatures even if more signatures are requested / completed",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-11-09T10:33:27.583Z"
+    },
+    {
+      "id": 1763892,
+      "title": "[SUP-675] Rowlinsons - Sideways Document Signature",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-11-14T14:12:43.817Z"
+    },
+    {
+      "id": 1763915,
+      "title": "[IM-1064] [Admin] Convert tables with old styling to new",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2023-11-30T15:08:41.387Z"
+    },
+    {
+      "id": 1764031,
+      "title": "[SUP-696] Napthens- Multiple notifications of signed documents issue",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-01-25T15:50:04.737Z"
+    },
+    {
+      "id": 1764049,
+      "title": "[SUP-697] LBMW Questionnaire signature error- \"Oops! Questionnaire failed to send\"",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-02-01T11:59:59.637Z"
+    },
+    {
+      "id": 1764081,
+      "title": "[SUP-702] API Webhook timeout is too low",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-02-15T13:44:18.467Z"
+    },
+    {
+      "id": 1764093,
+      "title": "[IM-1161] Vue3 Admin panel fails to load if the user hasn't cleared cookies ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-02-19T11:02:41.187Z"
+    },
+    {
+      "id": 1764095,
+      "title": "[SUP-704] [~XPER-4] Unable to reset signatures on an incomplete questionnaire on admin portal ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-02-19T14:45:33.973Z"
+    },
+    {
+      "id": 1764108,
+      "title": "[SUP-707] ID report falsely marked as refer when should have been a pass",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-02-22T11:31:24.03Z"
+    },
+    {
+      "id": 1764238,
+      "title": "[SUP-713] Gorvins app user error message when trying to start an ID check ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-03-21T12:42:04.913Z"
+    },
+    {
+      "id": 1764259,
+      "title": "[SUP-715] Chad Law unable to download questionnaire from admin portal",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-03-26T12:29:26.02Z"
+    },
+    {
+      "id": 1764350,
+      "title": "[IM-1306] World limit of email templates can now exceed 10,000 words",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-04-29T17:08:12.48Z"
+    },
+    {
+      "id": 1764386,
+      "title": "[SUP-734] User reporting ID checking stuck at biometric scanning",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-05-14T09:06:40.593Z"
+    },
+    {
+      "id": 1764391,
+      "title": "[IM-1327] [API] Flaky Test for Questionnaire Template Controller Test",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-05-15T08:59:04.317Z"
+    },
+    {
+      "id": 1764464,
+      "title": "[XPR-43] When creating an ID check with certain questionnaire templates, this results in the admin panel crashing ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-05-29T13:02:39.467Z"
+    },
+    {
+      "id": 1764507,
+      "title": "[IM-1419] 'Single Choice with Comment, Confirmation and Attachments' & 'Single Choice with Confirmation and Attachments' inconsistencies between apps",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-06-07T15:50:13.97Z"
+    },
+    {
+      "id": 1764532,
+      "title": "[IM-1438] [iOS] Attach button not greyed out when selecting 'To Follow'",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-06-21T14:22:19.79Z"
+    },
+    {
+      "id": 1764559,
+      "title": "[IM-1459] Single choice questions only display attributes like a comment box on the first choice ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-07-04T14:34:19.337Z"
+    },
+    {
+      "id": 1764693,
+      "title": "[IM-1554] [API] Exception 'Call to a member function delete() on null'",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-09-09T14:04:19.433Z"
+    },
+    {
+      "id": 1764698,
+      "title": "[IM-1558] [API] Exception GetAddress could not validate the address",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-09-10T07:54:55.923Z"
+    },
+    {
+      "id": 1764710,
+      "title": "[IM-1571] [Android] Update autocompleting when created on Android",
+      "state": "Removed",
+      "priority": 4,
+      "created_date": "2024-09-17T11:13:04.647Z"
+    },
+    {
+      "id": 1764889,
+      "title": "[IM-1678] [API] Fix issue with test suite failing due to DemoHelper file already having been initialised",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2024-12-13T11:55:11.107Z"
+    },
+    {
+      "id": 1765176,
+      "title": "[IM-1838] [Android] App crashing on update",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2025-04-11T13:49:02.253Z"
+    },
+    {
+      "id": 1765225,
+      "title": "[IM-1869] In the web app, if one person downloads a embedded signature document, the second person cannot ",
+      "state": "Removed",
+      "priority": 3,
+      "created_date": "2025-05-06T09:35:57.89Z"
+    },
+    {
+      "id": 1773232,
+      "title": "Messages Endpoint returns 500 when no messages",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-07-21T15:06:25.187Z"
+    },
+    {
+      "id": 1829237,
+      "title": "Restrict Cases to only allow one process to be attached.",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-09-04T09:29:00.963Z"
+    },
+    {
+      "id": 1831361,
+      "title": "Sentry - Being hit by thousands of requests by android for production hostname not found",
+      "state": "Closed",
+      "priority": "N/A",
+      "created_date": "2025-09-05T13:18:49.893Z"
+    },
+    {
+      "id": 1846700,
+      "title": "inCase | incase-android | CVE-2025-55163 | netty-codec-http2-4.1.119.Final.jar",
+      "state": "Active",
+      "priority": 2,
+      "created_date": "2025-09-17T15:20:17.37Z"
+    },
+    {
+      "id": 1874787,
+      "title": "Remove check for user when resending ID Link",
+      "state": "Resolved",
+      "priority": "N/A",
+      "created_date": "2025-10-07T09:12:22.1Z"
+    },
+    {
+      "id": 1935703,
+      "title": "Unbundled Report Issue",
+      "state": "New",
+      "priority": 2,
+      "created_date": "2025-11-11T10:58:36.987Z"
+    },
+    {
+      "id": 1961577,
+      "title": "Name cannot include special characters",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-11-26T08:45:11.77Z"
+    },
+    {
+      "id": 1963286,
+      "title": "Fix for new items being marked as deleted",
+      "state": "Resolved",
+      "priority": 1,
+      "created_date": "2025-11-26T20:11:59.683Z"
+    },
+    {
+      "id": 1965000,
+      "title": "inCase | incase-client | CVE-2025-66031 | node-forge-1.3.1.tgz",
+      "state": "Closed",
+      "priority": 2,
+      "created_date": "2025-11-27T19:34:36.597Z"
+    },
+    {
+      "id": 1970340,
+      "title": "ID Checks page filters",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-12-03T08:15:25.497Z"
+    },
+    {
+      "id": 1970341,
+      "title": "ID Checks sorting",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-12-03T08:16:10.167Z"
+    },
+    {
+      "id": 1973643,
+      "title": "Id Checks Questionnaires are set to completed when they are in a resubmission state on SumSub",
+      "state": "Active",
+      "priority": "N/A",
+      "created_date": "2025-12-04T11:34:34.907Z"
+    },
+    {
+      "id": 1977628,
+      "title": "inCase | incase-client | CVE-2021-23337 | lodash.template-4.5.0.tgz",
+      "state": "New",
+      "priority": 2,
+      "created_date": "2025-12-08T09:53:00.763Z"
+    },
+    {
+      "id": 1986650,
+      "title": "Duplicate Questionnaire Entries",
+      "state": "Resolved",
+      "priority": "N/A",
+      "created_date": "2025-12-12T14:05:55.427Z"
+    },
+    {
+      "id": 1990243,
+      "title": "CVE-2025-67735 | netty-codec-http-4.1.128.Final.jar",
+      "state": "Resolved",
+      "priority": "N/A",
+      "created_date": "2025-12-16T13:17:07.907Z"
+    },
+    {
+      "id": 1992146,
+      "title": "Self-DDOS when user is not authorized",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-12-17T14:34:57.55Z"
+    }
+  ]
+}

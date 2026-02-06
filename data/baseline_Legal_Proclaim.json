@@ -1,0 +1,318 @@
+{
+  "baseline_date": "2026-01-01",
+  "baseline_week": 0,
+  "open_count": 43,
+  "target_count": 12,
+  "target_date": "2026-06-30",
+  "target_percentage": 0.3,
+  "weeks_to_target": 25,
+  "required_weekly_burn": 1.24,
+  "immutable": true,
+  "created_at": "2026-01-30T12:50:15.279749",
+  "project": "Access Legal Proclaim",
+  "project_key": "Legal_Proclaim",
+  "organization": "https://dev.azure.com/access-devops",
+  "bugs": [
+    {
+      "id": 1352641,
+      "title": "DEBUG: Table Process Issue in word based memo - need debugging",
+      "state": "New",
+      "priority": 4,
+      "created_date": "2024-09-16T14:26:36.963Z"
+    },
+    {
+      "id": 1468192,
+      "title": "DEBUG: MIWH - Invalid Handle errors doing miwhupdate via task server",
+      "state": "New",
+      "priority": 4,
+      "created_date": "2024-12-03T11:30:42.18Z"
+    },
+    {
+      "id": 1612681,
+      "title": "DEBUG: MIWH history entries not removed when case is archived",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2025-03-24T15:17:38.66Z"
+    },
+    {
+      "id": 1657187,
+      "title": "DEBUG: MIWH Templates error adding Optiontype fields",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-04-29T08:07:03.403Z"
+    },
+    {
+      "id": 1657291,
+      "title": "HF351: Case Type indexing gives permission errors when run via task server",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-04-29T08:42:12.797Z"
+    },
+    {
+      "id": 1684593,
+      "title": "Expand button - Linked action",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-05-19T14:32:31.933Z"
+    },
+    {
+      "id": 1721602,
+      "title": "HF35123/V4 RTF code appearing in letters CLIENT TESTED",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-06-17T10:14:52.85Z"
+    },
+    {
+      "id": 1739418,
+      "title": "DEBUG: DT search issues - debug required",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-06-30T15:59:21.743Z"
+    },
+    {
+      "id": 1754841,
+      "title": "DEBUG: further testing for closed bug 550943 with memory monitor video and logs (user able to reliably replicate once issue begins)",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-07-10T13:25:13.223Z"
+    },
+    {
+      "id": 1755666,
+      "title": "HF35123/V4 User History 32000 bytes",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-07-11T13:14:04.197Z"
+    },
+    {
+      "id": 1785697,
+      "title": "Secure docs",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2025-07-29T13:50:31.68Z"
+    },
+    {
+      "id": 1814065,
+      "title": "HF35123/V4 Secure document attachments are missing on imported files",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-08-21T09:08:08.94Z"
+    },
+    {
+      "id": 1856164,
+      "title": "MIWH - Correspondent data missing in SQL but appears in Proclaim",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-09-24T16:29:24.047Z"
+    },
+    {
+      "id": 1878776,
+      "title": "Documents not imported when using ProPostIncomingMail through Yorkshire Software",
+      "state": "New",
+      "priority": "N/A",
+      "created_date": "2025-10-08T13:59:11.777Z"
+    },
+    {
+      "id": 1878802,
+      "title": "Webview2 intermittently not showing pdfs in viewing pane",
+      "state": "Active",
+      "priority": 3,
+      "created_date": "2025-10-08T14:17:11.473Z"
+    },
+    {
+      "id": 1900018,
+      "title": "HF35123 Secure Docs",
+      "state": "Resolved",
+      "priority": 3,
+      "created_date": "2025-10-20T13:50:16.33Z"
+    },
+    {
+      "id": 1912570,
+      "title": "Hyperlinks no longer working",
+      "state": "Closed",
+      "priority": "N/A",
+      "created_date": "2025-10-28T16:49:27.097Z"
+    },
+    {
+      "id": 1937937,
+      "title": "HF35123/V4 History: Word based memo WIP adjustments",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-11-12T09:03:34.873Z"
+    },
+    {
+      "id": 1951816,
+      "title": "Post incoming mail error",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2025-11-20T08:36:56.277Z"
+    },
+    {
+      "id": 1964269,
+      "title": "HF35123/V4 Blank handler list using the Outlook Addin",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-11-27T12:45:51.687Z"
+    },
+    {
+      "id": 1974517,
+      "title": "HF35123/V4 Secure docs in history disappear but in the archive CLIENT TESTED",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-04T16:20:52.997Z"
+    },
+    {
+      "id": 1980637,
+      "title": "HF35123 Email via linked action is sending the Document Description",
+      "state": "Resolved",
+      "priority": 3,
+      "created_date": "2025-12-09T14:09:00.06Z"
+    },
+    {
+      "id": 1980857,
+      "title": "HF35123 Include user in selection lists disabled but still appears",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-09T15:35:07.16Z"
+    },
+    {
+      "id": 1982232,
+      "title": "Copy to todays cases not transferring history details",
+      "state": "Closed",
+      "priority": "N/A",
+      "created_date": "2025-12-10T12:08:26.067Z"
+    },
+    {
+      "id": 1983185,
+      "title": "Eclipse | Touchpoint | Change this code to not construct the path from file name entry of an archive.",
+      "state": "New",
+      "priority": 1,
+      "created_date": "2025-12-10T19:24:05.66Z"
+    },
+    {
+      "id": 1983186,
+      "title": "Eclipse | Touchpoint | Change this code to not construct the path from user-controlled data.",
+      "state": "New",
+      "priority": 1,
+      "created_date": "2025-12-10T19:24:16.2Z"
+    },
+    {
+      "id": 1983677,
+      "title": "HF35123 Data added after an action is being lost",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-11T08:54:45.33Z"
+    },
+    {
+      "id": 1984038,
+      "title": "HF35123 Document code appears on attachment rather than history details if added through ADDIN",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-11T10:57:16.917Z"
+    },
+    {
+      "id": 1986892,
+      "title": "Error Adding Paragraph to template",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-12T15:40:33.5Z"
+    },
+    {
+      "id": 1989040,
+      "title": "HF35123/V4 Review index usage in del-cases2.p and deleteAccounts.p CLIENT TESTED",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-15T16:59:57.1Z"
+    },
+    {
+      "id": 1989042,
+      "title": "Add time logging in the Case Accounts Deletion program",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-15T17:00:39.163Z"
+    },
+    {
+      "id": 1989726,
+      "title": "HF35123 Index idx$main of the table error",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-16T09:43:37.823Z"
+    },
+    {
+      "id": 1990608,
+      "title": "Prompt Window Appears After Every Login Despite Saved Yes/No Response",
+      "state": "Closed",
+      "priority": "N/A",
+      "created_date": "2025-12-16T16:38:48.34Z"
+    },
+    {
+      "id": 1991186,
+      "title": "HF35123 Daily Time bar doubling units",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-17T09:32:01.853Z"
+    },
+    {
+      "id": 1992350,
+      "title": "Large Draft Bills",
+      "state": "Closed",
+      "priority": 4,
+      "created_date": "2025-12-17T16:38:40.53Z"
+    },
+    {
+      "id": 1993991,
+      "title": "Empty Posting Message box popping when posting Slips",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-18T14:14:04.53Z"
+    },
+    {
+      "id": 1994096,
+      "title": "Timeout Behavior Occurs When AccessSSO=0 but SSO Button Is Still Visible",
+      "state": "Closed",
+      "priority": "N/A",
+      "created_date": "2025-12-18T14:43:06.28Z"
+    },
+    {
+      "id": 1994888,
+      "title": "Resolve Spelling Mistake - 'Provisioning'",
+      "state": "Closed",
+      "priority": "N/A",
+      "created_date": "2025-12-19T10:11:10.447Z"
+    },
+    {
+      "id": 1995007,
+      "title": "HF35123 Disable MIWH triggers for Proximo",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-19T11:08:35.237Z"
+    },
+    {
+      "id": 1996121,
+      "title": "HF35123 Issue with Run Partial rebuild option in MIWH",
+      "state": "New",
+      "priority": 3,
+      "created_date": "2025-12-19T14:43:26.417Z"
+    },
+    {
+      "id": 1996539,
+      "title": "Proclaim Portals - Eclipse | SecureDocs | CVE-2021-43113 | itextpdf-5.5.13.jar",
+      "state": "Closed",
+      "priority": 1,
+      "created_date": "2025-12-21T18:35:29.28Z"
+    },
+    {
+      "id": 1996544,
+      "title": "Eclipse | SecureDocs | CVE-2021-43113 | itextpdf-5.5.13.jar",
+      "state": "Closed",
+      "priority": 1,
+      "created_date": "2025-12-21T20:16:00.05Z"
+    },
+    {
+      "id": 1996819,
+      "title": "Generate a YourKit memory snapshot for Progress",
+      "state": "Closed",
+      "priority": 3,
+      "created_date": "2025-12-22T09:39:05.033Z"
+    }
+  ]
+}
