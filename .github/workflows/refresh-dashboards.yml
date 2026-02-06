@@ -54,6 +54,7 @@ jobs:
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
 
       - name: Collect ${{ matrix.collector.name }}
+        id: collect
         run: python execution/${{ matrix.collector.script }}
         continue-on-error: true
 
@@ -63,7 +64,7 @@ jobs:
           name: metrics-${{ strategy.job-index }}
           path: .tmp/observatory/${{ matrix.collector.outputs }}
           retention-days: 1
-        if: always()
+        if: steps.collect.outcome == 'success'
 
   # Job 2: Generate all dashboards in parallel
   generate-dashboards:
