@@ -394,7 +394,25 @@ def save_risk_metrics(metrics: Dict, output_file: str = ".tmp/observatory/risk_h
     Save risk metrics to history file.
 
     Appends to existing history or creates new file.
+    Validates data before saving to prevent persisting collection failures.
     """
+    # Validate that we have actual data before saving
+    projects = metrics.get('projects', [])
+
+    if not projects:
+        print("\n[SKIPPED] No project data to save - collection may have failed")
+        return False
+
+    # Check if this looks like a failed collection (all zeros)
+    total_commits = sum(p.get('code_churn', {}).get('total_commits', 0) for p in projects)
+    total_files = sum(p.get('code_churn', {}).get('unique_files_touched', 0) for p in projects)
+    total_repos = sum(p.get('repository_count', 0) for p in projects)
+
+    if total_commits == 0 and total_files == 0 and total_repos == 0:
+        print("\n[SKIPPED] All projects returned zero risk data - likely a collection failure")
+        print("          Not persisting this data to avoid corrupting trend history")
+        return False
+
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Load existing history
@@ -415,6 +433,7 @@ def save_risk_metrics(metrics: Dict, output_file: str = ".tmp/observatory/risk_h
 
     print(f"\n[SAVED] Risk metrics saved to: {output_file}")
     print(f"        History now contains {len(history['weeks'])} week(s)")
+    return True
 
 
 if __name__ == "__main__":

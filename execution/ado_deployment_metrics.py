@@ -392,7 +392,24 @@ def save_deployment_metrics(metrics: Dict, output_file: str = ".tmp/observatory/
     Save deployment metrics to history file.
 
     Appends to existing history or creates new file.
+    Validates data before saving to prevent persisting collection failures.
     """
+    # Validate that we have actual data before saving
+    projects = metrics.get('projects', [])
+
+    if not projects:
+        print("\n[SKIPPED] No project data to save - collection may have failed")
+        return False
+
+    # Check if this looks like a failed collection (all zeros)
+    total_builds = sum(p.get('build_success_rate', {}).get('total_builds', 0) for p in projects)
+    total_successful = sum(p.get('deployment_frequency', {}).get('total_successful_builds', 0) for p in projects)
+
+    if total_builds == 0 and total_successful == 0:
+        print("\n[SKIPPED] All projects returned zero deployment data - likely a collection failure")
+        print("          Not persisting this data to avoid corrupting trend history")
+        return False
+
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Load existing history
@@ -413,6 +430,7 @@ def save_deployment_metrics(metrics: Dict, output_file: str = ".tmp/observatory/
 
     print(f"\n[SAVED] Deployment metrics saved to: {output_file}")
     print(f"        History now contains {len(history['weeks'])} week(s)")
+    return True
 
 
 if __name__ == "__main__":

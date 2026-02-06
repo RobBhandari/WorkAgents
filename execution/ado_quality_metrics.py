@@ -99,6 +99,7 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
           AND [System.WorkItemType] = 'Bug'
           AND [System.State] <> 'Closed'
           AND [System.State] <> 'Removed'
+          AND ([Microsoft.VSTS.Common.Triage] <> 'Rejected' OR [Microsoft.VSTS.Common.Triage] = '')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] ASC
         """
@@ -179,6 +180,10 @@ def filter_security_bugs(bugs: List[Dict]) -> tuple:
     These bugs are already tracked in the Security Dashboard, so we exclude them
     from quality metrics to prevent inflating bug counts.
 
+    Excludes bugs if:
+    - Created by ArmorCode (creator name contains 'armorcode')
+    - Tagged with ArmorCode (tags contain 'armorcode')
+
     Returns:
         tuple: (filtered_bugs, excluded_count)
     """
@@ -187,6 +192,7 @@ def filter_security_bugs(bugs: List[Dict]) -> tuple:
 
     for bug in bugs:
         created_by = bug.get('System.CreatedBy', {})
+        tags = bug.get('System.Tags', '')
 
         # Extract creator name
         if isinstance(created_by, dict):
@@ -194,8 +200,11 @@ def filter_security_bugs(bugs: List[Dict]) -> tuple:
         else:
             creator_name = str(created_by).lower()
 
-        # Exclude bugs created by ArmorCode
-        if 'armorcode' in creator_name:
+        # Extract tags (handle as string, typically semicolon-separated)
+        tags_str = str(tags).lower() if tags else ''
+
+        # Exclude bugs created by ArmorCode OR tagged with armorcode
+        if 'armorcode' in creator_name or 'armorcode' in tags_str:
             excluded += 1
         else:
             filtered.append(bug)
@@ -466,7 +475,24 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
     Save quality metrics to history file.
 
     Appends to existing history or creates new file.
+    Validates data before saving to prevent persisting collection failures.
     """
+    # Validate that we have actual data before saving
+    projects = metrics.get('projects', [])
+
+    if not projects:
+        print("\n[SKIPPED] No project data to save - collection may have failed")
+        return False
+
+    # Check if this looks like a failed collection (all zeros)
+    total_bugs = sum(p.get('total_bugs_analyzed', 0) for p in projects)
+    total_open = sum(p.get('open_bugs_count', 0) for p in projects)
+
+    if total_bugs == 0 and total_open == 0:
+        print("\n[SKIPPED] All projects returned zero bugs - likely a collection failure")
+        print("          Not persisting this data to avoid corrupting trend history")
+        return False
+
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Load existing history
@@ -487,6 +513,7 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
 
     print(f"\n[SAVED] Quality metrics saved to: {output_file}")
     print(f"        History now contains {len(history['weeks'])} week(s)")
+    return True
 
 
 if __name__ == "__main__":
@@ -575,4 +602,5 @@ if __name__ == "__main__":
     print("  ✓ MTTR: Actual CreatedDate → ClosedDate")
     print("  ✓ Bug Age: Actual time open")
     print("  ✓ Security bugs filtered out (no double-counting)")
+    print("  ✓ Rejected bugs excluded (Triage = 'Rejected')")
     print("\nNext step: Generate quality dashboard")

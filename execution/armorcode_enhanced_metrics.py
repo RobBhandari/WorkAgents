@@ -553,7 +553,22 @@ def save_security_metrics(metrics: Dict, output_file: str = ".tmp/observatory/se
     Save enhanced security metrics to history file.
 
     Appends to existing history or creates new file.
+    Validates data before saving to prevent persisting collection failures.
     """
+    # Validate that we have actual data before saving
+    metrics_data = metrics.get('metrics', {})
+
+    # Check if this looks like a failed collection (all zeros/nulls)
+    current_total = metrics_data.get('current_total', 0)
+    severity_breakdown = metrics_data.get('severity_breakdown', {})
+    critical_count = severity_breakdown.get('critical', 0)
+    high_count = severity_breakdown.get('high', 0)
+
+    if current_total == 0 and critical_count == 0 and high_count == 0:
+        print("\n[SKIPPED] All vulnerability counts are zero - likely a collection failure")
+        print("          Not persisting this data to avoid corrupting trend history")
+        return False
+
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Load existing history
@@ -574,6 +589,7 @@ def save_security_metrics(metrics: Dict, output_file: str = ".tmp/observatory/se
 
     print(f"\n[SAVED] Security metrics saved to: {output_file}")
     print(f"        History now contains {len(history['weeks'])} week(s)")
+    return True
 
 
 if __name__ == "__main__":
