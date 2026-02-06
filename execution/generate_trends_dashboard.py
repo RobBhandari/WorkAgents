@@ -571,7 +571,24 @@ def generate_html(all_trends, target_progress):
             'dashboardUrl': 'target_dashboard.html'
         })
 
-    # 2. Security Vulnerabilities
+    # 2. AI Usage Tracker (Static launcher - no trend data)
+    metrics_js.append({
+        'id': 'ai-usage',
+        'icon': '🤖',
+        'title': 'AI Usage Tracker',
+        'description': 'Monitor Claude and Devin usage across LGL team members. Track adoption and activity patterns.',
+        'current': 'View Report',
+        'unit': '',
+        'change': 0,
+        'changeLabel': 'Click to open usage dashboard',
+        'data': [],  # Empty array - no sparkline needed for launcher
+        'arrow': '→',
+        'cssClass': 'trend-stable',
+        'ragColor': '#6366f1',
+        'dashboardUrl': 'usage_tables_latest.html'
+    })
+
+    # 3. Security Vulnerabilities
     security = all_trends.get('security', {})
     if security:
         vulns = security.get('vulnerabilities', {})
@@ -593,7 +610,7 @@ def generate_html(all_trends, target_progress):
             'dashboardUrl': 'security_dashboard.html'
         })
 
-    # 3. Open Bugs
+    # 4. Open Bugs
     quality = all_trends.get('quality', {})
     if quality:
         bugs = quality.get('bugs', {})
@@ -615,7 +632,7 @@ def generate_html(all_trends, target_progress):
             'dashboardUrl': 'quality_dashboard.html'
         })
 
-    # 4. Lead Time
+    # 5. Lead Time
     flow = all_trends.get('flow', {})
     if flow:
         lead_time = flow.get('lead_time', {})
@@ -637,7 +654,7 @@ def generate_html(all_trends, target_progress):
             'dashboardUrl': 'flow_dashboard.html'
         })
 
-    # 5. Build Success Rate
+    # 6. Build Success Rate
     deployment = all_trends.get('deployment', {})
     if deployment:
         build_success = deployment.get('build_success', {})
@@ -659,7 +676,7 @@ def generate_html(all_trends, target_progress):
             'dashboardUrl': 'deployment_dashboard.html'
         })
 
-    # 6. PR Merge Time
+    # 7. PR Merge Time
     collaboration = all_trends.get('collaboration', {})
     if collaboration:
         pr_merge = collaboration.get('pr_merge_time', {})
@@ -681,7 +698,7 @@ def generate_html(all_trends, target_progress):
             'dashboardUrl': 'collaboration_dashboard.html'
         })
 
-    # 7. Work Unassigned
+    # 8. Work Unassigned
     ownership = all_trends.get('ownership', {})
     if ownership:
         unassigned = ownership.get('work_unassigned', {})
@@ -703,7 +720,7 @@ def generate_html(all_trends, target_progress):
             'dashboardUrl': 'ownership_dashboard.html'
         })
 
-    # 8. Total Commits (Risk)
+    # 9. Total Commits (Risk)
     risk = all_trends.get('risk', {})
     if risk:
         commits = risk.get('total_commits', {})
