@@ -180,13 +180,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Add only history JSON files
-          git add .tmp/observatory/*.json 2>/dev/null || true
+          # List what files we're trying to commit
+          echo "📊 History files to commit:"
+          ls -la .tmp/observatory/*.json 2>/dev/null || echo "No history files found"
+
+          # Force add history JSON files (override .gitignore)
+          git add -f .tmp/observatory/*.json 2>/dev/null || true
 
           # Check if there are changes to commit
           if git diff --staged --quiet; then
-            echo "📊 No new history data to commit"
+            echo "⚠️ No new history data to commit (no changes detected)"
           else
+            echo "✅ Committing history files..."
             git commit -m "Update metrics history - $(date +'%Y-%m-%d')"
             git push
             echo "✅ History files committed to git for future trend accumulation"
