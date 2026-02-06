@@ -1,0 +1,1986 @@
+{
+  "weeks": [
+    {
+      "week_date": "2026-02-06",
+      "week_number": 6,
+      "projects": [
+        {
+          "project_key": "Access_Legal_Case_Management",
+          "project_name": "Access Legal Case Management",
+          "code_churn": {
+            "total_commits": 1100,
+            "total_file_changes": 21028,
+            "unique_files_touched": 2800,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 397
+              },
+              {
+                "path": "/XCode",
+                "change_count": 100
+              },
+              {
+                "path": "/XCode/iTime-iOS",
+                "change_count": 100
+              },
+              {
+                "path": "/app",
+                "change_count": 100
+              },
+              {
+                "path": "/src/app",
+                "change_count": 97
+              },
+              {
+                "path": "/app/src",
+                "change_count": 91
+              },
+              {
+                "path": "/app/src/main",
+                "change_count": 91
+              },
+              {
+                "path": "/src/tests",
+                "change_count": 88
+              },
+              {
+                "path": "/src/tests/e2e",
+                "change_count": 88
+              },
+              {
+                "path": "/inventory-management",
+                "change_count": 86
+              },
+              {
+                "path": "/inventory-management/src",
+                "change_count": 86
+              },
+              {
+                "path": "/app/src/main/java",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk/co",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk/co/dpssoftware",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk/co/dpssoftware/dpsmobile",
+                "change_count": 81
+              },
+              {
+                "path": "/inventory-management/src/features",
+                "change_count": 75
+              },
+              {
+                "path": "/XCode/iTime-iOS/MTR",
+                "change_count": 73
+              },
+              {
+                "path": "/src/PageObjects",
+                "change_count": 62
+              },
+              {
+                "path": "/src/tests/e2e/openCase",
+                "change_count": 62
+              }
+            ],
+            "avg_changes_per_commit": 19.116363636363637
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 2800,
+            "single_owner_count": 1978,
+            "two_owner_count": 586,
+            "multi_owner_count": 236,
+            "single_owner_pct": 70.6,
+            "single_owner_files": [
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services/TimeRecordingServiceTests.cs",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Business.Core",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Business.Core/AccessGroup.ALCM.Business.Core.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.API/AccessGroup.ALCM.API.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/AccessGroup.ALCM.Business.Tests.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Modals/ManageFolders",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Modals/ManageFolders/manage.folders.modal.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/tests/e2e/openCase/openCase.manage.folders.test.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components/document-fullview.modal.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components/document-preview-panel.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components/document-preview.component.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/mail/mail.file-history-email-actions.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/matter/matrimonial",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/matter/matrimonial/complexity-uplift.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/openCase/document.download.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/openCase/openCase.document.edit.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Data",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Data/AccessGroup.ALCM.Data.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.IdentityServer",
+                "owner": "Devin AI"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 596849,
+            "top_coupled_pairs": [
+              {
+                "file1": "/XCode",
+                "file2": "/XCode/iTime-iOS",
+                "co_change_count": 100
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/app",
+                "co_change_count": 97
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src",
+                "co_change_count": 91
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main",
+                "co_change_count": 91
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main",
+                "co_change_count": 91
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/tests",
+                "co_change_count": 88
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/tests/e2e",
+                "co_change_count": 88
+              },
+              {
+                "file1": "/src/tests",
+                "file2": "/src/tests/e2e",
+                "co_change_count": 88
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src",
+                "co_change_count": 86
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk/co",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk/co/dpssoftware",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk/co/dpssoftware/dpsmobile",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk/co",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk/co/dpssoftware",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk/co/dpssoftware/dpsmobile",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src/main",
+                "file2": "/app/src/main/java",
+                "co_change_count": 81
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 56,
+          "collected_at": "2026-02-06T09:07:07.075420"
+        },
+        {
+          "project_key": "One_Office",
+          "project_name": "One Office",
+          "code_churn": {
+            "total_commits": 1100,
+            "total_file_changes": 21028,
+            "unique_files_touched": 2800,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 397
+              },
+              {
+                "path": "/XCode",
+                "change_count": 100
+              },
+              {
+                "path": "/XCode/iTime-iOS",
+                "change_count": 100
+              },
+              {
+                "path": "/app",
+                "change_count": 100
+              },
+              {
+                "path": "/src/app",
+                "change_count": 97
+              },
+              {
+                "path": "/app/src",
+                "change_count": 91
+              },
+              {
+                "path": "/app/src/main",
+                "change_count": 91
+              },
+              {
+                "path": "/src/tests",
+                "change_count": 88
+              },
+              {
+                "path": "/src/tests/e2e",
+                "change_count": 88
+              },
+              {
+                "path": "/inventory-management",
+                "change_count": 86
+              },
+              {
+                "path": "/inventory-management/src",
+                "change_count": 86
+              },
+              {
+                "path": "/app/src/main/java",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk/co",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk/co/dpssoftware",
+                "change_count": 81
+              },
+              {
+                "path": "/app/src/main/java/uk/co/dpssoftware/dpsmobile",
+                "change_count": 81
+              },
+              {
+                "path": "/inventory-management/src/features",
+                "change_count": 75
+              },
+              {
+                "path": "/XCode/iTime-iOS/MTR",
+                "change_count": 73
+              },
+              {
+                "path": "/src/PageObjects",
+                "change_count": 62
+              },
+              {
+                "path": "/src/tests/e2e/openCase",
+                "change_count": 62
+              }
+            ],
+            "avg_changes_per_commit": 19.116363636363637
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 2800,
+            "single_owner_count": 1978,
+            "two_owner_count": 586,
+            "multi_owner_count": 236,
+            "single_owner_pct": 70.6,
+            "single_owner_files": [
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services/TimeRecordingServiceTests.cs",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Business.Core",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Business.Core/AccessGroup.ALCM.Business.Core.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.API/AccessGroup.ALCM.API.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/AccessGroup.ALCM.Business.Tests.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Modals/ManageFolders",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Modals/ManageFolders/manage.folders.modal.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/tests/e2e/openCase/openCase.manage.folders.test.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components/document-fullview.modal.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components/document-preview-panel.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/PageObjects/OpenCase/Components/document-preview.component.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/mail/mail.file-history-email-actions.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/matter/matrimonial",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/matter/matrimonial/complexity-uplift.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/openCase/document.download.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/tests/e2e/openCase/openCase.document.edit.test.ts",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Data",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Data/AccessGroup.ALCM.Data.csproj",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/src/AccessGroup.IdentityServer",
+                "owner": "Devin AI"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 596849,
+            "top_coupled_pairs": [
+              {
+                "file1": "/XCode",
+                "file2": "/XCode/iTime-iOS",
+                "co_change_count": 100
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/app",
+                "co_change_count": 97
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src",
+                "co_change_count": 91
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main",
+                "co_change_count": 91
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main",
+                "co_change_count": 91
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/tests",
+                "co_change_count": 88
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/tests/e2e",
+                "co_change_count": 88
+              },
+              {
+                "file1": "/src/tests",
+                "file2": "/src/tests/e2e",
+                "co_change_count": 88
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src",
+                "co_change_count": 86
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk/co",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk/co/dpssoftware",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/uk/co/dpssoftware/dpsmobile",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk/co",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk/co/dpssoftware",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/uk/co/dpssoftware/dpsmobile",
+                "co_change_count": 81
+              },
+              {
+                "file1": "/app/src/main",
+                "file2": "/app/src/main/java",
+                "co_change_count": 81
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 56,
+          "collected_at": "2026-02-06T09:09:55.845180"
+        },
+        {
+          "project_key": "LawFusion",
+          "project_name": "Access LawFusion",
+          "code_churn": {
+            "total_commits": 103,
+            "total_file_changes": 525,
+            "unique_files_touched": 56,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 100
+              },
+              {
+                "path": "/src/lawfusion-vb6",
+                "change_count": 66
+              },
+              {
+                "path": "/src/lawfusion-vb6/Fee Earner Desktop",
+                "change_count": 52
+              },
+              {
+                "path": "/src/lawfusion-vb6/Fee Earner Desktop/CDSForms.bas",
+                "change_count": 30
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet",
+                "change_count": 24
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade",
+                "change_count": 14
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade",
+                "change_count": 14
+              },
+              {
+                "path": "/src/lawfusion-sql",
+                "change_count": 14
+              },
+              {
+                "path": "/src/lawfusion-vb6/Fee Earner Desktop/frmCrimeRepStageOpts.frm",
+                "change_count": 13
+              },
+              {
+                "path": "/src/lawfusion-vb6/Fee Earner Desktop/frmCDS6Options.frm",
+                "change_count": 9
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade/frmMain.vb",
+                "change_count": 8
+              },
+              {
+                "path": "/src/lawfusion-sql/SQLServer",
+                "change_count": 8
+              },
+              {
+                "path": "/src/lawfusion-sql/SQLServer/crt_fixprocs_wizards.sql",
+                "change_count": 8
+              },
+              {
+                "path": "/src/lawfusion-vb6/SLSUpgrade_wizards",
+                "change_count": 8
+              },
+              {
+                "path": "/src/lawfusion-vb6/SLSUpgrade_wizards/basUpdateRecords.bas",
+                "change_count": 8
+              },
+              {
+                "path": "/src/lawfusion-vb6/CaseMan",
+                "change_count": 6
+              },
+              {
+                "path": "/src/lawfusion-vb6/CaseMan/SlsCriBl",
+                "change_count": 6
+              },
+              {
+                "path": "/src/lawfusion-vb6/CaseMan/SlsCriBl/Crimecourtduty.cls",
+                "change_count": 6
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade/LACCodeGeneration.vb",
+                "change_count": 6
+              },
+              {
+                "path": "/src/lawfusion-sql/Product Areas",
+                "change_count": 6
+              }
+            ],
+            "avg_changes_per_commit": 5.097087378640777
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 56,
+            "single_owner_count": 1,
+            "two_owner_count": 55,
+            "multi_owner_count": 0,
+            "single_owner_pct": 1.8,
+            "single_owner_files": [
+              {
+                "path": "/src/lawfusion-vb6/Fee Earner Desktop/CDSBillCalc.bas",
+                "owner": "Devin Azure DevOps Integration"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 465,
+            "top_coupled_pairs": [
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6",
+                "co_change_count": 66
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop",
+                "co_change_count": 52
+              },
+              {
+                "file1": "/src/lawfusion-vb6",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop",
+                "co_change_count": 52
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/CDSForms.bas",
+                "co_change_count": 30
+              },
+              {
+                "file1": "/src/lawfusion-vb6",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/CDSForms.bas",
+                "co_change_count": 30
+              },
+              {
+                "file1": "/src/lawfusion-vb6/Fee Earner Desktop",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/CDSForms.bas",
+                "co_change_count": 30
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-desktop-dotnet",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-desktop-dotnet/LSCUpgrade",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/lawfusion-desktop-dotnet",
+                "file2": "/src/lawfusion-desktop-dotnet/LSCUpgrade",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/lawfusion-desktop-dotnet",
+                "file2": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/lawfusion-desktop-dotnet/LSCUpgrade",
+                "file2": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-sql",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/frmCrimeRepStageOpts.frm",
+                "co_change_count": 13
+              },
+              {
+                "file1": "/src/lawfusion-vb6",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/frmCrimeRepStageOpts.frm",
+                "co_change_count": 13
+              },
+              {
+                "file1": "/src/lawfusion-vb6/Fee Earner Desktop",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/frmCrimeRepStageOpts.frm",
+                "co_change_count": 13
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/frmCDS6Options.frm",
+                "co_change_count": 9
+              },
+              {
+                "file1": "/src/lawfusion-vb6",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/frmCDS6Options.frm",
+                "co_change_count": 9
+              },
+              {
+                "file1": "/src/lawfusion-vb6/Fee Earner Desktop",
+                "file2": "/src/lawfusion-vb6/Fee Earner Desktop/frmCDS6Options.frm",
+                "co_change_count": 9
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade/frmMain.vb",
+                "co_change_count": 8
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 20,
+          "collected_at": "2026-02-06T09:10:13.264480"
+        },
+        {
+          "project_key": "Learning_Content_Legal",
+          "project_name": "Learning Content Legal",
+          "code_churn": {
+            "total_commits": 0,
+            "total_file_changes": 0,
+            "unique_files_touched": 0,
+            "hot_paths": [],
+            "avg_changes_per_commit": 0
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 0,
+            "single_owner_count": 0,
+            "two_owner_count": 0,
+            "multi_owner_count": 0,
+            "single_owner_pct": 0,
+            "single_owner_files": []
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 0,
+            "top_coupled_pairs": [],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 1,
+          "collected_at": "2026-02-06T09:10:13.646241"
+        },
+        {
+          "project_key": "LegalBricks",
+          "project_name": "Access LegalBricks",
+          "code_churn": {
+            "total_commits": 316,
+            "total_file_changes": 9891,
+            "unique_files_touched": 1744,
+            "hot_paths": [
+              {
+                "path": "/frontend",
+                "change_count": 97
+              },
+              {
+                "path": "/LegalBricks.TestSpecflow",
+                "change_count": 97
+              },
+              {
+                "path": "/frontend/src",
+                "change_count": 92
+              },
+              {
+                "path": "/src",
+                "change_count": 87
+              },
+              {
+                "path": "/frontend/src/components",
+                "change_count": 76
+              },
+              {
+                "path": "/LegalBricks.TestSpecflow/PageObjects",
+                "change_count": 68
+              },
+              {
+                "path": "/src/Public",
+                "change_count": 62
+              },
+              {
+                "path": "/LegalBricks.TestSpecflow/PageObjects/ClientPortal",
+                "change_count": 56
+              },
+              {
+                "path": "/src/Public/LegalBricks.Web.FrontEnd",
+                "change_count": 54
+              },
+              {
+                "path": "/frontend/src/components/led-screen",
+                "change_count": 46
+              },
+              {
+                "path": "/src/Public/LegalBricks.Web.FrontEnd/projects",
+                "change_count": 43
+              },
+              {
+                "path": "/LegalBricks.TestSpecflow/Screenshots",
+                "change_count": 40
+              },
+              {
+                "path": "/LegalBricks.TestSpecflow/StepDefinitions",
+                "change_count": 35
+              },
+              {
+                "path": "/LegalBricks.TestSpecflow/Screenshots/Pipeline",
+                "change_count": 35
+              },
+              {
+                "path": "/automated-testing",
+                "change_count": 33
+              },
+              {
+                "path": "/automated-testing/LegalBricks.TestSpecflow",
+                "change_count": 33
+              },
+              {
+                "path": "/frontend/src/App.tsx",
+                "change_count": 32
+              },
+              {
+                "path": "/automated-testing/LegalBricks.TestSpecflow/PageObjects",
+                "change_count": 32
+              },
+              {
+                "path": "/LegalBricks.TestSpecflow/StepDefinitions/ClientPortal",
+                "change_count": 32
+              },
+              {
+                "path": "/src/Tests",
+                "change_count": 31
+              }
+            ],
+            "avg_changes_per_commit": 31.300632911392405
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 1744,
+            "single_owner_count": 974,
+            "two_owner_count": 581,
+            "multi_owner_count": 189,
+            "single_owner_pct": 55.8,
+            "single_owner_files": [
+              {
+                "path": "/frontend",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/App.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/Header.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/public",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/public/Logo_Short_Compact_Legal Bricks.svg",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/PREDICTOR_ENGINE_IMPLEMENTATION.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/PREDICTOR_FEATURES_SUMMARY.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/PREDICTOR_RECOMMENDATION_GUIDE.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/predictor",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/predictor/DataWindowCard.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/predictor/PredictorHistoryTable.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/predictor/RecommendationCard.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/lib",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/lib/mock-data.ts",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/pages",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/pages/PerformanceAlertsPage.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/pages/dashboard.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/pages/local-authority-detail.tsx",
+                "owner": "James Harris"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 98320,
+            "top_coupled_pairs": [
+              {
+                "file1": "/frontend",
+                "file2": "/frontend/src",
+                "co_change_count": 92
+              },
+              {
+                "file1": "/frontend",
+                "file2": "/frontend/src/components",
+                "co_change_count": 76
+              },
+              {
+                "file1": "/frontend/src",
+                "file2": "/frontend/src/components",
+                "co_change_count": 76
+              },
+              {
+                "file1": "/LegalBricks.TestSpecflow",
+                "file2": "/LegalBricks.TestSpecflow/PageObjects",
+                "co_change_count": 68
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Public",
+                "co_change_count": 62
+              },
+              {
+                "file1": "/LegalBricks.TestSpecflow",
+                "file2": "/LegalBricks.TestSpecflow/PageObjects/ClientPortal",
+                "co_change_count": 56
+              },
+              {
+                "file1": "/LegalBricks.TestSpecflow/PageObjects",
+                "file2": "/LegalBricks.TestSpecflow/PageObjects/ClientPortal",
+                "co_change_count": 56
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Public/LegalBricks.Web.FrontEnd",
+                "co_change_count": 54
+              },
+              {
+                "file1": "/src/Public",
+                "file2": "/src/Public/LegalBricks.Web.FrontEnd",
+                "co_change_count": 54
+              },
+              {
+                "file1": "/frontend",
+                "file2": "/frontend/src/components/led-screen",
+                "co_change_count": 46
+              },
+              {
+                "file1": "/frontend/src",
+                "file2": "/frontend/src/components/led-screen",
+                "co_change_count": 46
+              },
+              {
+                "file1": "/frontend/src/components",
+                "file2": "/frontend/src/components/led-screen",
+                "co_change_count": 46
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Public/LegalBricks.Web.FrontEnd/projects",
+                "co_change_count": 43
+              },
+              {
+                "file1": "/src/Public",
+                "file2": "/src/Public/LegalBricks.Web.FrontEnd/projects",
+                "co_change_count": 43
+              },
+              {
+                "file1": "/src/Public/LegalBricks.Web.FrontEnd",
+                "file2": "/src/Public/LegalBricks.Web.FrontEnd/projects",
+                "co_change_count": 43
+              },
+              {
+                "file1": "/LegalBricks.TestSpecflow",
+                "file2": "/LegalBricks.TestSpecflow/Screenshots",
+                "co_change_count": 40
+              },
+              {
+                "file1": "/LegalBricks.TestSpecflow",
+                "file2": "/LegalBricks.TestSpecflow/StepDefinitions",
+                "co_change_count": 35
+              },
+              {
+                "file1": "/LegalBricks.TestSpecflow",
+                "file2": "/LegalBricks.TestSpecflow/Screenshots/Pipeline",
+                "co_change_count": 35
+              },
+              {
+                "file1": "/LegalBricks.TestSpecflow/Screenshots",
+                "file2": "/LegalBricks.TestSpecflow/Screenshots/Pipeline",
+                "co_change_count": 35
+              },
+              {
+                "file1": "/automated-testing",
+                "file2": "/automated-testing/LegalBricks.TestSpecflow",
+                "co_change_count": 33
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 37,
+          "collected_at": "2026-02-06T09:11:05.291584"
+        },
+        {
+          "project_key": "Legal_Compliance",
+          "project_name": "Access Legal Compliance",
+          "code_churn": {
+            "total_commits": 100,
+            "total_file_changes": 1071,
+            "unique_files_touched": 215,
+            "hot_paths": [
+              {
+                "path": "/Portal",
+                "change_count": 89
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS",
+                "change_count": 66
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src",
+                "change_count": 59
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components",
+                "change_count": 52
+              },
+              {
+                "path": "/Portal/User Interface HTML5",
+                "change_count": 30
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/app",
+                "change_count": 27
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components/shared",
+                "change_count": 24
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components/shared/detail-side-panel.tsx",
+                "change_count": 24
+              },
+              {
+                "path": "/Portal/User Interface HTML5/Scripts",
+                "change_count": 22
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components/tables",
+                "change_count": 17
+              },
+              {
+                "path": "/Portal/User Interface HTML5/Scripts/File-Audit",
+                "change_count": 15
+              },
+              {
+                "path": "/Portal/User Interface HTML5/Scripts/File-Audit/jquery.riliance.file-audit-detail.js",
+                "change_count": 15
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/app/audit-record",
+                "change_count": 14
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components/audit-record-view.tsx",
+                "change_count": 12
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/app/audits",
+                "change_count": 12
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/package.json",
+                "change_count": 11
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components/tables/audit-task-table.tsx",
+                "change_count": 11
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/app/audit-record/AuditRecordClient.tsx",
+                "change_count": 10
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/types",
+                "change_count": 10
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/app/audits/page.tsx",
+                "change_count": 10
+              }
+            ],
+            "avg_changes_per_commit": 10.71
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 215,
+            "single_owner_count": 109,
+            "two_owner_count": 84,
+            "multi_owner_count": 22,
+            "single_owner_pct": 50.7,
+            "single_owner_files": [
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/tsconfig.json",
+                "owner": "Norbert.Sentes"
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/public",
+                "owner": "Norbert.Sentes"
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/public/Web.config",
+                "owner": "Norbert.Sentes"
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/package-lock.json",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/ActionDashboard.aspx",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/Web.config",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/404.html",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/404",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/404/index.html",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/Web.config",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static/L0x-vLJJ-QrfSc93aMMvq",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static/L0x-vLJJ-QrfSc93aMMvq/_buildManifest.js",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static/L0x-vLJJ-QrfSc93aMMvq/_ssgManifest.js",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static/chunks",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static/chunks/237-26a349aedd1f5f19.js",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static/chunks/258-21ac395d3f54b075.js",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/Portal/User Interface HTML5/eds/_next/static/chunks/312-864885ae8aed0f4b.js",
+                "owner": "Devin AI"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 936,
+            "top_coupled_pairs": [
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/ComplianceUserInterfaceEDS",
+                "co_change_count": 66
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src",
+                "co_change_count": 59
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src",
+                "co_change_count": 59
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components",
+                "co_change_count": 52
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components",
+                "co_change_count": 52
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS/src",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components",
+                "co_change_count": 52
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/User Interface HTML5",
+                "co_change_count": 30
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/app",
+                "co_change_count": 27
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/app",
+                "co_change_count": 27
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS/src",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/app",
+                "co_change_count": 27
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared/detail-side-panel.tsx",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared/detail-side-panel.tsx",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS/src",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS/src",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared/detail-side-panel.tsx",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS/src/components",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS/src/components",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared/detail-side-panel.tsx",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal/ComplianceUserInterfaceEDS/src/components/shared",
+                "file2": "/Portal/ComplianceUserInterfaceEDS/src/components/shared/detail-side-panel.tsx",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/User Interface HTML5/Scripts",
+                "co_change_count": 22
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 2,
+          "collected_at": "2026-02-06T09:11:20.825228"
+        },
+        {
+          "project_key": "Legal_InCase",
+          "project_name": "Access Legal InCase",
+          "code_churn": {
+            "total_commits": 706,
+            "total_file_changes": 8039,
+            "unique_files_touched": 866,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 179
+              },
+              {
+                "path": "/app",
+                "change_count": 167
+              },
+              {
+                "path": "/pages",
+                "change_count": 94
+              },
+              {
+                "path": "/app/src",
+                "change_count": 85
+              },
+              {
+                "path": "/app/src/main",
+                "change_count": 85
+              },
+              {
+                "path": "/src/main",
+                "change_count": 84
+              },
+              {
+                "path": "/app/src/main/java",
+                "change_count": 82
+              },
+              {
+                "path": "/app/src/main/java/app",
+                "change_count": 82
+              },
+              {
+                "path": "/app/src/main/java/app/lavatech",
+                "change_count": 82
+              },
+              {
+                "path": "/app/src/main/java/app/lavatech/incase",
+                "change_count": 82
+              },
+              {
+                "path": "/stores",
+                "change_count": 74
+              },
+              {
+                "path": "/components",
+                "change_count": 69
+              },
+              {
+                "path": "/src/routes",
+                "change_count": 68
+              },
+              {
+                "path": "/package.json",
+                "change_count": 63
+              },
+              {
+                "path": "/pages/organisation",
+                "change_count": 61
+              },
+              {
+                "path": "/src/main/java",
+                "change_count": 60
+              },
+              {
+                "path": "/src/main/java/uk",
+                "change_count": 60
+              },
+              {
+                "path": "/src/main/java/uk/co",
+                "change_count": 60
+              },
+              {
+                "path": "/src/main/java/uk/co/incase",
+                "change_count": 60
+              },
+              {
+                "path": "/src/main/java/uk/co/incase/soap",
+                "change_count": 60
+              }
+            ],
+            "avg_changes_per_commit": 11.386685552407933
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 866,
+            "single_owner_count": 168,
+            "two_owner_count": 440,
+            "multi_owner_count": 258,
+            "single_owner_pct": 19.4,
+            "single_owner_files": [
+              {
+                "path": "/pages/organisation/webview-configurations/create.vue",
+                "owner": "Devin AI"
+              },
+              {
+                "path": "/public/previews/addressuk.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/bankdetails.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/boolean.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/date.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/email.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/fileupload.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/freetext-radio-money-freetext.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/freetext.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/information.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/money.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/multiselect-freetext.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/multiselect.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/name.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/radio-attachment-checkbox.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/radio-freetext-attachment-checkbox.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/radio-freetext.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/radio-money-freetext.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/public/previews/radio.png",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lib/questionnaire-template-helpers.ts",
+                "owner": "Devin Azure DevOps Integration"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 14329,
+            "top_coupled_pairs": [
+              {
+                "file1": "/app",
+                "file2": "/app/src",
+                "co_change_count": 85
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main",
+                "co_change_count": 85
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main",
+                "co_change_count": 85
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/main",
+                "co_change_count": 84
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/app",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/app/lavatech",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java/app/lavatech/incase",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/app",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/app/lavatech",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main/java/app/lavatech/incase",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main",
+                "file2": "/app/src/main/java",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main",
+                "file2": "/app/src/main/java/app",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main",
+                "file2": "/app/src/main/java/app/lavatech",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main",
+                "file2": "/app/src/main/java/app/lavatech/incase",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main/java",
+                "file2": "/app/src/main/java/app",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main/java",
+                "file2": "/app/src/main/java/app/lavatech",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main/java",
+                "file2": "/app/src/main/java/app/lavatech/incase",
+                "co_change_count": 82
+              },
+              {
+                "file1": "/app/src/main/java/app",
+                "file2": "/app/src/main/java/app/lavatech",
+                "co_change_count": 82
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 18,
+          "collected_at": "2026-02-06T09:13:07.082700"
+        },
+        {
+          "project_key": "Legal_Proclaim",
+          "project_name": "Access Legal Proclaim",
+          "code_churn": {
+            "total_commits": 296,
+            "total_file_changes": 3049,
+            "unique_files_touched": 453,
+            "hot_paths": [
+              {
+                "path": "/Classic",
+                "change_count": 95
+              },
+              {
+                "path": "/Proclaim",
+                "change_count": 68
+              },
+              {
+                "path": "/Classic/Proclaim",
+                "change_count": 53
+              },
+              {
+                "path": "/.pipelines",
+                "change_count": 51
+              },
+              {
+                "path": "/.pipelines/azure-pipelines.yml",
+                "change_count": 39
+              },
+              {
+                "path": "/Proclaim/Objects",
+                "change_count": 27
+              },
+              {
+                "path": "/Classic/EclipseOnly",
+                "change_count": 24
+              },
+              {
+                "path": "/Eclipse",
+                "change_count": 24
+              },
+              {
+                "path": "/Eclipse/Proclaim",
+                "change_count": 24
+              },
+              {
+                "path": "/Classic/Proclaim/Objects",
+                "change_count": 23
+              },
+              {
+                "path": "/TouchPoint",
+                "change_count": 22
+              },
+              {
+                "path": "/Classic/EclipseOnly/EngineeringDocs",
+                "change_count": 21
+              },
+              {
+                "path": "/TouchPoint/Areas",
+                "change_count": 19
+              },
+              {
+                "path": "/Proclaim/one-offs",
+                "change_count": 19
+              },
+              {
+                "path": "/.pipelines/azure-pipelines-production.yml",
+                "change_count": 17
+              },
+              {
+                "path": "/TouchPoint/Areas/Weather",
+                "change_count": 16
+              },
+              {
+                "path": "/TouchPoint/Areas/Weather/Adapters",
+                "change_count": 16
+              },
+              {
+                "path": "/TouchPoint/Web.config",
+                "change_count": 16
+              },
+              {
+                "path": "/packages",
+                "change_count": 16
+              },
+              {
+                "path": "/.pipelines/azure-pipelines-mend.yml",
+                "change_count": 14
+              }
+            ],
+            "avg_changes_per_commit": 10.300675675675675
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 453,
+            "single_owner_count": 225,
+            "two_owner_count": 200,
+            "multi_owner_count": 28,
+            "single_owner_pct": 49.7,
+            "single_owner_files": [
+              {
+                "path": "/Create-SharedFolder.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Install-DotNetFeatures.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Install-ProclaimHotfix.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/ODBC",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/ODBC/Add-ODBCBroker.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/ODBC/Grant-ODBCUserPermissions.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/ODBC/USER-GUIDE.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/Create-SharedFolder.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/Install-DotNetFeatures.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/Install-Progress-Proclaim-Hotfix-UserManual.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/Install-Progress-ProclaimHotfix-QA-TestPlan.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/ODBC",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/ODBC/Add-ODBCBroker-QA-TestPlan.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/ODBC/Add-ODBCBroker-UserManual.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/ODBC/Add-ODBCBroker.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/ODBC/Grant-ODBCUserPermissions-QA-TestPlan.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/ODBC/Grant-ODBCUserPermissions.ps1",
+                "owner": "Alex Barr"
+              },
+              {
+                "path": "/Powershell/Unblock-DownloadedFiles.ps1",
+                "owner": "Alex Barr"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 19823,
+            "top_coupled_pairs": [
+              {
+                "file1": "/Classic",
+                "file2": "/Classic/Proclaim",
+                "co_change_count": 53
+              },
+              {
+                "file1": "/.pipelines",
+                "file2": "/.pipelines/azure-pipelines.yml",
+                "co_change_count": 39
+              },
+              {
+                "file1": "/Proclaim",
+                "file2": "/Proclaim/Objects",
+                "co_change_count": 27
+              },
+              {
+                "file1": "/Classic",
+                "file2": "/Classic/EclipseOnly",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Eclipse",
+                "file2": "/Eclipse/Proclaim",
+                "co_change_count": 24
+              },
+              {
+                "file1": "/Classic",
+                "file2": "/Classic/Proclaim/Objects",
+                "co_change_count": 23
+              },
+              {
+                "file1": "/Classic/Proclaim",
+                "file2": "/Classic/Proclaim/Objects",
+                "co_change_count": 23
+              },
+              {
+                "file1": "/Classic",
+                "file2": "/Classic/EclipseOnly/EngineeringDocs",
+                "co_change_count": 21
+              },
+              {
+                "file1": "/Classic/EclipseOnly",
+                "file2": "/Classic/EclipseOnly/EngineeringDocs",
+                "co_change_count": 21
+              },
+              {
+                "file1": "/TouchPoint",
+                "file2": "/TouchPoint/Areas",
+                "co_change_count": 19
+              },
+              {
+                "file1": "/Proclaim",
+                "file2": "/Proclaim/one-offs",
+                "co_change_count": 19
+              },
+              {
+                "file1": "/.pipelines",
+                "file2": "/.pipelines/azure-pipelines-production.yml",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/Eclipse",
+                "file2": "/Proclaim",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/Eclipse/Proclaim",
+                "file2": "/Proclaim",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/TouchPoint",
+                "file2": "/TouchPoint/Areas/Weather",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/TouchPoint",
+                "file2": "/TouchPoint/Areas/Weather/Adapters",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/TouchPoint",
+                "file2": "/TouchPoint/Web.config",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/TouchPoint/Areas",
+                "file2": "/TouchPoint/Areas/Weather",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/TouchPoint/Areas",
+                "file2": "/TouchPoint/Areas/Weather/Adapters",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/TouchPoint/Areas",
+                "file2": "/TouchPoint/Web.config",
+                "co_change_count": 16
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 17,
+          "collected_at": "2026-02-06T09:13:54.848420"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    }
+  ]
+}
