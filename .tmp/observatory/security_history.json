@@ -314,6 +314,111 @@
         "lookback_days": 90,
         "stale_threshold_days": 90
       }
+    },
+    {
+      "week_date": "2026-02-06",
+      "week_number": 6,
+      "metrics": {
+        "current_total": 279,
+        "severity_breakdown": {
+          "critical": 8,
+          "high": 271,
+          "total": 279
+        },
+        "product_breakdown": {
+          "Access Diversity": {
+            "critical": 0,
+            "high": 2,
+            "total": 2
+          },
+          "Access Legal AI Services": {
+            "critical": 0,
+            "high": 10,
+            "total": 10
+          },
+          "Access Legal Case Management": {
+            "critical": 1,
+            "high": 66,
+            "total": 67
+          },
+          "Access Legal Compliance": {
+            "critical": 2,
+            "high": 66,
+            "total": 68
+          },
+          "Access Legal Framework": {
+            "critical": 0,
+            "high": 30,
+            "total": 30
+          },
+          "Access MyCalendars": {
+            "critical": 0,
+            "high": 13,
+            "total": 13
+          },
+          "Eclipse": {
+            "critical": 5,
+            "high": 21,
+            "total": 26
+          },
+          "Law Fusion": {
+            "critical": 0,
+            "high": 15,
+            "total": 15
+          },
+          "Legal Bricks": {
+            "critical": 0,
+            "high": 15,
+            "total": 15
+          },
+          "Legal Workspace": {
+            "critical": 0,
+            "high": 13,
+            "total": 13
+          },
+          "One Office & Financial Director": {
+            "critical": 0,
+            "high": 15,
+            "total": 15
+          },
+          "inCase": {
+            "critical": 0,
+            "high": 5,
+            "total": 5
+          }
+        },
+        "mttr": {
+          "critical_mttr_days": null,
+          "high_mttr_days": null,
+          "critical_sample_size": 0,
+          "high_sample_size": 0,
+          "note": "MTTR calculation disabled - date fields not available in GraphQL schema"
+        },
+        "stale_criticals": {
+          "count": 8,
+          "threshold_days": 90,
+          "items": [],
+          "note": "Age calculation disabled - date fields not available in GraphQL schema"
+        },
+        "age_distribution": {
+          "median_age_days": null,
+          "p85_age_days": null,
+          "p95_age_days": null,
+          "sample_size": 0,
+          "note": "Age calculation disabled - date fields not available in GraphQL schema"
+        },
+        "closed_count_90d": 0,
+        "collected_at": "2026-02-06T17:46:13.429933",
+        "baseline_reference": {
+          "baseline_date": "2025-12-01",
+          "baseline_count": 246,
+          "target_count": 74
+        }
+      },
+      "config": {
+        "lookback_days": 90,
+        "stale_threshold_days": 90
+      }
     }
   ]
 }
