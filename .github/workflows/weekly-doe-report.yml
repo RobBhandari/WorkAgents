@@ -95,7 +95,7 @@ jobs:
           cp .tmp/weekly_tracking*.json data/ 2>/dev/null || echo "No tracking files to save"
 
       - name: Commit and push updated tracking data
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: 'Update weekly tracking data - Week ${{ github.run_number }}'
           file_pattern: 'data/weekly_tracking*.json'
