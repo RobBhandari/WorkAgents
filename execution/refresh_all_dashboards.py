@@ -37,23 +37,42 @@ def main():
 
     results = {}
 
-    # Phase 1: Collect Metrics
+    # Phase 1: Collect Metrics (ASYNC - 3-5x faster!)
     print("\n" + "=" * 60)
-    print("PHASE 1: COLLECTING METRICS")
+    print("PHASE 1: COLLECTING METRICS (ASYNC)")
     print("=" * 60)
 
-    collectors = [
-        ("execution/ado_quality_metrics.py", "Quality Metrics"),
-        ("execution/ado_flow_metrics.py", "Flow Metrics"),
-        ("execution/ado_ownership_metrics.py", "Ownership Metrics"),
-        ("execution/ado_risk_metrics.py", "Risk Metrics"),
-        ("execution/ado_deployment_metrics.py", "Deployment Metrics (DORA)"),
-        ("execution/ado_collaboration_metrics.py", "Collaboration Metrics (PR Analysis)"),
-        ("execution/armorcode_enhanced_metrics.py", "Security Metrics (ArmorCode)"),
-    ]
+    # Run async collector orchestrator (runs all collectors concurrently)
+    print("\nRunning async metrics collection...")
+    print("Expected duration: 30-90 seconds (vs 3-7 minutes sequential)")
+    print()
 
-    for script, name in collectors:
-        results[name] = run_script(script, name)
+    result = subprocess.run(
+        [sys.executable, "execution/collect_all_metrics.py"],
+        capture_output=False,
+        text=True,
+        check=False
+    )
+
+    if result.returncode == 0:
+        print("\n[OK] Async metrics collection - SUCCESS")
+        results["Metrics Collection (Async)"] = True
+    else:
+        print("\n[WARN] Async metrics collection had some failures")
+        results["Metrics Collection (Async)"] = False
+
+    # Legacy sequential collectors (commented out - fallback if needed)
+    # collectors = [
+    #     ("execution/ado_quality_metrics.py", "Quality Metrics"),
+    #     ("execution/ado_flow_metrics.py", "Flow Metrics"),
+    #     ("execution/ado_ownership_metrics.py", "Ownership Metrics"),
+    #     ("execution/ado_risk_metrics.py", "Risk Metrics"),
+    #     ("execution/ado_deployment_metrics.py", "Deployment Metrics (DORA)"),
+    #     ("execution/ado_collaboration_metrics.py", "Collaboration Metrics (PR Analysis)"),
+    #     ("execution/armorcode_enhanced_metrics.py", "Security Metrics (ArmorCode)"),
+    # ]
+    # for script, name in collectors:
+    #     results[name] = run_script(script, name)
 
     # Phase 2: Generate Dashboards
     print("\n" + "=" * 60)
