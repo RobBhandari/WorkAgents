@@ -22,6 +22,9 @@ azure-devops==7.1.0b4  # Latest available - no stable release exists yet
 
 # ArmorCode integration uses requests (no additional SDK needed)
 
+# HTML templating (XSS prevention)
+jinja2>=3.1.6,<4.0  # Auto-escaping templates for secure HTML generation
+
 # Testing and security
 pytest>=9.0.0,<10.0  # For running security tests
 
