@@ -5,6 +5,7 @@ Scrapes a single website and extracts structured data based on CSS selectors.
 Handles rate limiting, retries, and robots.txt compliance.
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -36,7 +37,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_TIMEOUT = int(os.getenv('SCRAPE_TIMEOUT', '30'))
+DEFAULT_TIMEOUT = int(get_config().get("SCRAPE_TIMEOUT"))
 MAX_RETRIES = 3
 MAX_PAGE_SIZE = 10 * 1024 * 1024  # 10MB
 USER_AGENTS = [

@@ -10,6 +10,7 @@ Usage:
     python armorcode_baseline.py --force  # Overwrite existing baseline (use with caution)
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -258,13 +259,13 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        api_key = os.getenv('ARMORCODE_API_KEY')
-        base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
-        environment = os.getenv('ARMORCODE_ENVIRONMENT', 'PRODUCTION')
-        products_str = os.getenv('ARMORCODE_PRODUCTS', '')
-        baseline_date = os.getenv('ARMORCODE_BASELINE_DATE', '2026-01-01')
-        target_date = os.getenv('ARMORCODE_TARGET_DATE', '2026-06-30')
-        reduction_goal = float(os.getenv('ARMORCODE_REDUCTION_GOAL', '0.70'))
+        api_key = get_config().get_armorcode_config().api_key
+        base_url = get_config().get_armorcode_config().base_url
+        environment = get_config().get("ARMORCODE_ENVIRONMENT")
+        products_str = get_config().get("ARMORCODE_PRODUCTS")
+        baseline_date = get_config().get("ARMORCODE_BASELINE_DATE")
+        target_date = get_config().get("ARMORCODE_TARGET_DATE")
+        reduction_goal = float(get_config().get("ARMORCODE_REDUCTION_GOAL"))
 
         # Parse products list
         products = [p.strip() for p in products_str.split(',') if p.strip()] if products_str else []

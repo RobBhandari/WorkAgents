@@ -5,13 +5,13 @@ Queries current vulnerability counts and compares against baseline
 to track progress towards 70% reduction goal.
 """
 
+from execution.core import get_config
 import os
 import sys
 import json
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
-import requests
 from http_client import get, post, put, delete, patch
 
 # Load environment variables
@@ -175,8 +175,8 @@ def fetch_current_findings(api_key, base_url, product_id, product_name):
 
 def query_current_state(baseline):
     """Query current vulnerability counts for all products in baseline."""
-    api_key = os.getenv('ARMORCODE_API_KEY')
-    base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
+    api_key = get_config().get_armorcode_config().api_key
+    base_url = get_config().get_armorcode_config().base_url
 
     if not api_key:
         raise ValueError("ARMORCODE_API_KEY not set")

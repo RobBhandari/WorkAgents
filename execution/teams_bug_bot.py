@@ -22,6 +22,7 @@ Usage:
     python teams_bug_bot.py
 """
 
+from execution.core import get_config
 import os
 import sys
 import json
@@ -270,8 +271,8 @@ def load_project_data(project_key: str, organization_url: str, pat: str) -> dict
 
 def load_all_projects(project_keys: List[str] = None) -> List[dict]:
     """Load data for all projects."""
-    organization_url = os.getenv('ADO_ORGANIZATION_URL')
-    pat = os.getenv('ADO_PAT')
+    organization_url = get_config().get("ADO_ORGANIZATION_URL")
+    pat = get_config().get_ado_config().pat
 
     if not organization_url or not pat:
         raise RuntimeError("ADO_ORGANIZATION_URL and ADO_PAT must be configured")
@@ -466,8 +467,8 @@ Try **bugposition** to see the latest status!
 
     async def send_project_detail(self, turn_context: TurnContext, project_key: str):
         """Send details for a specific project."""
-        organization_url = os.getenv('ADO_ORGANIZATION_URL')
-        pat = os.getenv('ADO_PAT')
+        organization_url = get_config().get("ADO_ORGANIZATION_URL")
+        pat = get_config().get_ado_config().pat
 
         try:
             project_data = load_project_data(project_key, organization_url, pat)
@@ -487,8 +488,8 @@ Try **bugposition** to see the latest status!
 bot = BugPositionBot()
 
 # Bot Framework Adapter Settings
-APP_ID = os.getenv('MICROSOFT_APP_ID', '')
-APP_PASSWORD = os.getenv('MICROSOFT_APP_PASSWORD', '')
+APP_ID = get_config().get("MICROSOFT_APP_ID")
+APP_PASSWORD = get_config().get("MICROSOFT_APP_PASSWORD")
 SETTINGS = BotFrameworkAdapterSettings(APP_ID, APP_PASSWORD)
 ADAPTER = BotFrameworkAdapter(SETTINGS)
 
@@ -546,7 +547,8 @@ if __name__ == "__main__":
         if not APP_PASSWORD or APP_PASSWORD == 'your_microsoft_app_password_here':
             logger.warning("MICROSOFT_APP_PASSWORD not configured - bot will run in development mode")
 
-        PORT = int(os.getenv('PORT', 3978))
+        # Default port for Teams bots (can be overridden via Azure App Service configuration)
+        PORT = 3978
 
         logger.info(f"Starting Teams Bot on port {PORT}")
         print("=" * 60)

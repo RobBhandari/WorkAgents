@@ -10,6 +10,7 @@ Usage:
     python armorcode_list_products.py --output-file custom_products.json
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -228,8 +229,8 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        api_key = os.getenv('ARMORCODE_API_KEY')
-        base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
+        api_key = get_config().get_armorcode_config().api_key
+        base_url = get_config().get_armorcode_config().base_url
 
         # Validate environment variables
         if not api_key or api_key == 'your_armorcode_api_key_here':

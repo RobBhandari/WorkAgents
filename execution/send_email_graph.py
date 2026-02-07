@@ -5,6 +5,7 @@ Sends emails from Office365/Microsoft 365 accounts using Microsoft Graph API
 with OAuth 2.0 authentication (modern auth, no password required).
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -307,10 +308,10 @@ if __name__ == '__main__':
         os.makedirs('.tmp', exist_ok=True)
 
         # Get Azure AD credentials
-        tenant_id = os.getenv('AZURE_TENANT_ID')
-        client_id = os.getenv('AZURE_CLIENT_ID')
-        client_secret = os.getenv('AZURE_CLIENT_SECRET')
-        from_email = args.from_email or os.getenv('EMAIL_ADDRESS')
+        tenant_id = get_config().get("AZURE_TENANT_ID")
+        client_id = get_config().get("AZURE_CLIENT_ID")
+        client_secret = get_config().get("AZURE_CLIENT_SECRET")
+        from_email = args.from_email or get_config().get("EMAIL_ADDRESS")
 
         if not all([tenant_id, client_id, client_secret]):
             raise RuntimeError(

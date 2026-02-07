@@ -5,6 +5,7 @@ Retrieves birthday events from Google Calendar for a specified time period.
 Handles OAuth authentication and filters events by birthday keywords.
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -53,8 +54,8 @@ def get_calendar_service():
         RuntimeError: If authentication fails
     """
     creds = None
-    credentials_path = os.getenv('GOOGLE_CREDENTIALS_PATH', 'credentials.json')
-    token_path = os.getenv('GOOGLE_TOKEN_PATH', 'token.json')
+    credentials_path = get_config().get("GOOGLE_CREDENTIALS_PATH")
+    token_path = get_config().get("GOOGLE_TOKEN_PATH")
 
     # Check if credentials.json exists
     if not os.path.exists(credentials_path):

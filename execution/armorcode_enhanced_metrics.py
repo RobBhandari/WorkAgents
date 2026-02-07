@@ -13,10 +13,10 @@ Read-only operation - uses same query filters as existing ArmorCode scripts.
 Matches existing report counts exactly.
 """
 
+from execution.core import get_config
 import os
 import json
 import sys
-import requests
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from pathlib import Path
@@ -29,7 +29,7 @@ load_dotenv()
 
 def get_armorcode_headers():
     """Get ArmorCode API headers"""
-    api_key = os.getenv('ARMORCODE_API_KEY')
+    api_key = get_config().get_armorcode_config().api_key
     if not api_key:
         raise ValueError("ARMORCODE_API_KEY must be set in .env file")
 
@@ -50,7 +50,7 @@ def get_product_names_to_ids(product_names: List[str]) -> Dict[str, str]:
     Returns:
         Dictionary mapping product name to product ID
     """
-    base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
+    base_url = get_config().get_armorcode_config().base_url
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
     headers = get_armorcode_headers()
 
@@ -450,7 +450,7 @@ def collect_enhanced_security_metrics(config: Dict, baseline: Dict) -> Dict:
     Returns:
         Enhanced security metrics dictionary
     """
-    base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
+    base_url = get_config().get_armorcode_config().base_url
 
     print(f"\n  Collecting enhanced security metrics from ArmorCode...")
 

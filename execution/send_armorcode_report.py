@@ -11,6 +11,7 @@ Usage:
     python send_armorcode_report.py <html_file> --recipients email1@company.com,email2@company.com
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -255,16 +256,16 @@ if __name__ == '__main__':
         summary_data = load_summary_data(args.json_summary)
 
         # Load configuration from environment
-        tenant_id = os.getenv('AZURE_TENANT_ID')
-        client_id = os.getenv('AZURE_CLIENT_ID')
-        client_secret = os.getenv('AZURE_CLIENT_SECRET')
-        sender_email = os.getenv('EMAIL_ADDRESS')
+        tenant_id = get_config().get("AZURE_TENANT_ID")
+        client_id = get_config().get("AZURE_CLIENT_ID")
+        client_secret = get_config().get("AZURE_CLIENT_SECRET")
+        sender_email = get_config().get("EMAIL_ADDRESS")
 
         # Get recipients
         if args.recipients:
             recipients_str = args.recipients
         else:
-            recipients_str = os.getenv('ARMORCODE_EMAIL_RECIPIENTS', '')
+            recipients_str = get_config().get("ARMORCODE_EMAIL_RECIPIENTS")
 
         if not recipients_str:
             raise RuntimeError(

@@ -11,6 +11,7 @@ Usage:
     python send_multi_project_report.py --projects ALCM ProjectB ProjectC
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -339,10 +340,10 @@ def send_email(recipient: str, subject: str, body_text: str, body_html: str, dry
         bool: True if successful, False otherwise
     """
     # Load SMTP configuration from environment
-    sender_email = os.getenv('EMAIL_ADDRESS')
-    sender_password = os.getenv('EMAIL_PASSWORD')
-    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-    smtp_port = int(os.getenv('SMTP_PORT', '587'))
+    sender_email = get_config().get("EMAIL_ADDRESS")
+    sender_password = get_config().get("EMAIL_PASSWORD")
+    smtp_server = get_config().get("SMTP_SERVER")
+    smtp_port = int(get_config().get("SMTP_PORT"))
 
     # Validate configuration
     if not sender_email or sender_email == 'your_email@gmail.com':

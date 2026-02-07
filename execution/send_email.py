@@ -5,6 +5,7 @@ Sends emails via SMTP with optional HTML content and attachments.
 Supports Gmail, Outlook, and other SMTP servers.
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -80,8 +81,8 @@ def send_email(
     logger.info(f"Preparing to send email to {to_email}")
 
     # Get email credentials from environment or parameters
-    from_email = from_email or os.getenv('EMAIL_ADDRESS')
-    from_password = from_password or os.getenv('EMAIL_PASSWORD')
+    from_email = from_email or get_config().get("EMAIL_ADDRESS")
+    from_password = from_password or get_config().get("EMAIL_PASSWORD")
 
     if not from_email or not from_password:
         raise RuntimeError(
@@ -92,7 +93,7 @@ def send_email(
 
     # Auto-detect SMTP server if not provided
     if not smtp_server:
-        smtp_server = os.getenv('SMTP_SERVER')
+        smtp_server = get_config().get("SMTP_SERVER")
         if not smtp_server:
             # Try to detect from email domain
             domain = from_email.split('@')[1].lower()
@@ -107,7 +108,7 @@ def send_email(
                 )
             logger.info(f"Auto-detected SMTP: {smtp_server}:{smtp_port}")
 
-    smtp_port = smtp_port or int(os.getenv('SMTP_PORT', '587'))
+    smtp_port = smtp_port or int(get_config().get("SMTP_PORT"))
 
     # Create message
     msg = MIMEMultipart('alternative')

@@ -4,6 +4,7 @@ ArmorCode Email Delivery - Send HTML Report via Email
 Sends the generated HTML report to configured recipients.
 """
 
+from execution.core import get_config
 import os
 import sys
 import logging
@@ -29,10 +30,11 @@ def send_email(html_file, recipients):
     """Send HTML report via email."""
 
     # Get email configuration
-    email_address = os.getenv('EMAIL_ADDRESS')
-    email_password = os.getenv('EMAIL_PASSWORD')
-    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-    smtp_port = int(os.getenv('SMTP_PORT', 587))
+    config = get_config()
+    email_address = config.get("EMAIL_ADDRESS")
+    email_password = config.get("EMAIL_PASSWORD")
+    smtp_server = config.get("SMTP_SERVER")
+    smtp_port = int(config.get("SMTP_PORT", "587"))
 
     if not email_address or not email_password:
         raise ValueError("EMAIL_ADDRESS and EMAIL_PASSWORD must be set in .env")
@@ -73,7 +75,7 @@ def main():
     """Main execution."""
     try:
         # Get recipients from environment
-        recipients_str = os.getenv('ARMORCODE_EMAIL_RECIPIENTS', '')
+        recipients_str = get_config().get("ARMORCODE_EMAIL_RECIPIENTS")
         if not recipients_str:
             logger.error("ARMORCODE_EMAIL_RECIPIENTS not set in .env")
             sys.exit(1)

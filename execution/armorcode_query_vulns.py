@@ -10,6 +10,7 @@ Usage:
     python armorcode_query_vulns.py --output-file custom_query.json
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -367,10 +368,10 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        api_key = os.getenv('ARMORCODE_API_KEY')
-        base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
-        environment = os.getenv('ARMORCODE_ENVIRONMENT', 'PRODUCTION')
-        products_str = os.getenv('ARMORCODE_PRODUCTS', '')
+        api_key = get_config().get_armorcode_config().api_key
+        base_url = get_config().get_armorcode_config().base_url
+        environment = get_config().get("ARMORCODE_ENVIRONMENT")
+        products_str = get_config().get("ARMORCODE_PRODUCTS")
 
         # Parse products list
         products = [p.strip() for p in products_str.split(',') if p.strip()] if products_str else []

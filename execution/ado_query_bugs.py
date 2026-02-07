@@ -10,6 +10,7 @@ Usage:
     python ado_query_bugs.py --output-file ".tmp/my_bugs.json"
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -211,9 +212,9 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        organization_url = os.getenv('ADO_ORGANIZATION_URL')
-        project_name = args.project or os.getenv('ADO_PROJECT_NAME')
-        pat = os.getenv('ADO_PAT')
+        organization_url = get_config().get("ADO_ORGANIZATION_URL")
+        project_name = args.project or get_config().get("ADO_PROJECT_NAME")
+        pat = get_config().get_ado_config().pat
 
         # Validate environment variables
         if not organization_url or organization_url == 'your_ado_org_url_here':

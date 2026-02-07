@@ -5,6 +5,7 @@ Uses GraphQL API with proper filtering to create accurate baseline.
 Filters: severity=[High,Critical], status=[OPEN,CONFIRMED]
 """
 
+from execution.core import get_config
 import os
 import sys
 import argparse
@@ -12,7 +13,6 @@ import logging
 import json
 from datetime import datetime
 from dotenv import load_dotenv
-import requests
 from http_client import get, post, put, delete, patch
 
 # Load environment variables
@@ -187,12 +187,12 @@ def create_baseline(force=False):
         return None
 
     # Get configuration
-    api_key = os.getenv('ARMORCODE_API_KEY')
-    base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
-    products_str = os.getenv('ARMORCODE_PRODUCTS', '')
-    baseline_date = os.getenv('ARMORCODE_BASELINE_DATE')
-    target_date = os.getenv('ARMORCODE_TARGET_DATE')
-    reduction_goal = float(os.getenv('ARMORCODE_REDUCTION_GOAL', '0.70'))
+    api_key = get_config().get_armorcode_config().api_key
+    base_url = get_config().get_armorcode_config().base_url
+    products_str = get_config().get("ARMORCODE_PRODUCTS")
+    baseline_date = get_config().get("ARMORCODE_BASELINE_DATE")
+    target_date = get_config().get("ARMORCODE_TARGET_DATE")
+    reduction_goal = float(get_config().get("ARMORCODE_REDUCTION_GOAL"))
 
     if not api_key:
         raise ValueError("ARMORCODE_API_KEY not set")

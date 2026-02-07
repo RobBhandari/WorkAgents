@@ -11,6 +11,7 @@ Collects delivery risk and change stability metrics at project level:
 Read-only operation - does not modify any existing data.
 """
 
+from execution.core import get_config
 import os
 import json
 import sys
@@ -31,8 +32,8 @@ load_dotenv()
 
 def get_ado_connection():
     """Get ADO connection using credentials from .env"""
-    organization_url = os.getenv('ADO_ORGANIZATION_URL')
-    pat = os.getenv('ADO_PAT')
+    organization_url = get_config().get("ADO_ORGANIZATION_URL")
+    pat = get_config().get_ado_config().pat
 
     if not organization_url or not pat:
         raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
