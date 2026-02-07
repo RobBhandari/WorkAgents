@@ -22,6 +22,17 @@ azure-devops==7.1.0b4  # Latest available - no stable release exists yet
 
 # ArmorCode integration uses requests (no additional SDK needed)
 
+# Telegram bot integration (deprecated - use Teams bot instead)
+python-telegram-bot>=22.6,<23.0  # Updated from 21.0
+
+# Microsoft Teams bot integration
+botbuilder-core>=4.17.1,<5.0  # Security fix: updated from 4.15.0
+botbuilder-schema>=4.17.1,<5.0
+botframework-connector>=4.17.1,<5.0
+botframework-streaming>=4.17.1,<5.0
+aiohttp>=3.13.3,<4.0  # Security fix: CVE-2025-53643, CVE-2025-69223-69230 fixed
+urllib3>=2.6.3,<3.0  # Security fix: CVE-2025-50181, CVE-2025-66418, CVE-2025-66471, CVE-2026-21441 fixed
+
 # Testing and security
 pytest>=9.0.0,<10.0  # For running security tests
 

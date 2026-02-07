@@ -23,6 +23,9 @@ from dotenv import load_dotenv
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 
+# Security utilities for input validation
+from security_utils import WIQLValidator, ValidationError
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -156,14 +159,20 @@ def query_current_bugs(organization_url: str, project_name: str, pat: str) -> in
         logger.info("Successfully connected to Azure DevOps")
 
         # Step 2: Query for currently open bugs
-        wiql_query = f"""
-        SELECT [System.Id]
-        FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
-        AND [System.WorkItemType] = 'Bug'
-        AND [System.State] <> 'Closed'
-        ORDER BY [System.Id] ASC
-        """
+        # Validate input to prevent WIQL injection
+        safe_project = WIQLValidator.validate_project_name(project_name)
+
+        wiql_query = WIQLValidator.build_safe_wiql(
+            """SELECT [System.Id]
+            FROM WorkItems
+            WHERE [System.TeamProject] = '{project}'
+            AND [System.WorkItemType] = '{work_type}'
+            AND [System.State] <> '{state}'
+            ORDER BY [System.Id] ASC""",
+            project=safe_project,
+            work_type='Bug',
+            state='Closed'
+        )
 
         logger.info("Querying current open bugs...")
         wiql_results = wit_client.query_by_wiql(wiql={'query': wiql_query})
