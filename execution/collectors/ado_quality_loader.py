@@ -21,7 +21,7 @@ Path = pathlib.Path
 class ADOQualityLoader:
     """Load quality metrics from ADO history data."""
 
-    def __init__(self, history_file: "Optional[pathlib.Path]" = None):
+    def __init__(self, history_file: "pathlib.Path | None" = None):
         """
         Initialize loader.
 

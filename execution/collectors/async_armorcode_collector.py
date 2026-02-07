@@ -225,7 +225,7 @@ class AsyncArmorCodeCollector:
                             continue
 
                         try:
-                            if hasattr(result, 'json'):
+                            if hasattr(result, "json"):
                                 data = result.json()
                                 if "data" in data and "products" in data["data"]:
                                     page_result = data["data"]["products"]

@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 class ADOFlowLoader:
     """Load flow metrics from ADO history data."""
 
-    def __init__(self, history_file: "Optional[pathlib.Path]" = None):
+    def __init__(self, history_file: "pathlib.Path | None" = None):
         """
         Initialize loader.
 

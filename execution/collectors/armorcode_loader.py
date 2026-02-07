@@ -43,7 +43,7 @@ class ArmorCodeLoader:
         history_file: Path to security_history.json file
     """
 
-    def __init__(self, history_file: "Optional[pathlib.Path]" = None):
+    def __init__(self, history_file: "pathlib.Path | None" = None):
         """
         Initialize ArmorCode loader.
 
@@ -154,7 +154,7 @@ class ArmorCodeLoader:
 
 
 # Convenience function for quick access
-def load_security_metrics(history_file: "Optional[pathlib.Path]" = None) -> dict[str, SecurityMetrics]:
+def load_security_metrics(history_file: "pathlib.Path | None" = None) -> dict[str, SecurityMetrics]:
     """
     Convenience function to load latest security metrics.
 
