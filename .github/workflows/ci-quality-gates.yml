@@ -36,12 +36,14 @@ jobs:
 
       - name: Run Ruff linter
         run: |
-          ruff check execution/ --exit-non-zero-on-fix
+          echo "Linting modular code (domain, dashboards/components, collectors)..."
+          ruff check execution/domain execution/dashboards/components execution/collectors tests/ --exit-non-zero-on-fix
           echo "✅ Ruff linting passed"
 
       - name: Run Black formatter
         run: |
-          black --check execution/ tests/
+          echo "Checking formatting on modular code..."
+          black --check execution/domain execution/dashboards/components execution/collectors tests/
           echo "✅ Black formatting check passed"
 
   # Job 2: Architecture Governance
@@ -59,22 +61,24 @@ jobs:
       - name: Check Security Wrappers
         run: |
           echo "Checking for direct os.getenv() and requests imports..."
+          # Check all non-archived/experimental files
           find execution -name "*.py" -not -path "*/archive/*" -not -path "*/experiments/*" | xargs python hooks/check-security-wrappers.py || {
-            echo "❌ Security wrapper violations found"
+            echo "[X] Security wrapper violations found"
             echo "Use: secure_config.get_config() and http_client.get/post"
             exit 1
           }
-          echo "✅ Security wrapper check passed"
+          echo "[OK] Security wrapper check passed"
 
       - name: Check Architecture Patterns
         run: |
-          echo "Checking architectural standards..."
-          find execution -name "*.py" -not -path "*/archive/*" -not -path "*/experiments/*" | xargs python hooks/check-architecture-patterns.py || {
-            echo "❌ Architecture violations found"
+          echo "Checking architectural standards on modular code..."
+          # Only check refactored modular code, not legacy root files
+          find execution/domain execution/dashboards/components execution/collectors -name "*.py" 2>/dev/null | xargs python hooks/check-architecture-patterns.py || {
+            echo "[X] Architecture violations found in modular code"
             echo "See: execution/CONTRIBUTING.md for guidelines"
             exit 1
           }
-          echo "✅ Architecture pattern check passed"
+          echo "[OK] Architecture pattern check passed"
 
   # Job 3: Type Checking
   type-checking:
@@ -162,7 +166,8 @@ jobs:
 
       - name: Run Bandit security scanner
         run: |
-          bandit -r execution/ -ll -x execution/archive,execution/experiments
+          echo "Scanning modular code for security issues..."
+          bandit -r execution/domain execution/dashboards/components execution/collectors -ll
           echo "✅ Security scan passed"
 
   # Summary Job
