@@ -41,10 +41,10 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
           pip install -r requirements.txt
-          pip install -e .  # Install package in editable mode for autodoc imports
 
       - name: Build documentation
         run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           cd docs
           sphinx-build -b html . _build/html
           touch _build/html/.nojekyll  # Disable Jekyll processing

@@ -128,10 +128,10 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install pytest pytest-cov
-          pip install -e .  # Install package for test imports
 
       - name: Run tests with coverage
         run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           pytest tests/ -v --cov=execution --cov-report=term --cov-report=xml
 
       - name: Coverage check
