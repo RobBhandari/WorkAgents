@@ -734,7 +734,7 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
             <input type="text"
                    id="globalSearch"
                    class="search-box"
-                   placeholder="🔍 Search by name across both tables..."
+                   placeholder="🔍 Search..."
                    onkeyup="filterAllTables()">
         </div>
 
@@ -760,9 +760,15 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 
                 for (let i = 1; i < rows.length; i++) {{
                     const nameCell = rows[i].cells[0];
-                    if (nameCell) {{
+                    const jobTitleCell = rows[i].cells[1];
+                    const accessCell = rows[i].cells[2];
+
+                    if (nameCell && jobTitleCell && accessCell) {{
                         const name = nameCell.textContent.toLowerCase();
-                        if (name.includes(filter)) {{
+                        const jobTitle = jobTitleCell.textContent.toLowerCase();
+                        const access = accessCell.textContent.toLowerCase();
+
+                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {{
                             rows[i].style.display = '';
                         }} else {{
                             rows[i].style.display = 'none';
