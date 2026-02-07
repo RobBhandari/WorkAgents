@@ -16,8 +16,9 @@ Usage:
 """
 
 import json
+import pathlib
 from datetime import datetime
-from pathlib import Path
+from typing import Optional
 
 # Structured logging
 from execution.core.logging_config import get_logger
@@ -30,7 +31,7 @@ try:
 except ImportError:
     import sys
 
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
     from domain.security import SecurityMetrics  # type: ignore[no-redef]
 
 
@@ -42,7 +43,7 @@ class ArmorCodeLoader:
         history_file: Path to security_history.json file
     """
 
-    def __init__(self, history_file: Path | None = None):
+    def __init__(self, history_file: "Optional[pathlib.Path]" = None):
         """
         Initialize ArmorCode loader.
 
@@ -50,9 +51,9 @@ class ArmorCodeLoader:
             history_file: Path to history file (defaults to .tmp/observatory/security_history.json)
         """
         if history_file is None:
-            self.history_file = Path(".tmp/observatory/security_history.json")
+            self.history_file = pathlib.Path(".tmp/observatory/security_history.json")
         else:
-            self.history_file = Path(history_file)
+            self.history_file = pathlib.Path(history_file)
 
     def load_latest_metrics(self) -> dict[str, SecurityMetrics]:
         """
@@ -89,7 +90,8 @@ class ArmorCodeLoader:
 
         # Get latest week's data
         latest_week = data["weeks"][-1]
-        week_ending = latest_week.get("week_ending", "Unknown")
+        # Support both week_date (new format) and week_ending (old format)
+        week_ending = latest_week.get("week_date") or latest_week.get("week_ending", "Unknown")
         metrics = latest_week.get("metrics", {})
         product_breakdown = metrics.get("product_breakdown", {})
 
@@ -152,7 +154,7 @@ class ArmorCodeLoader:
 
 
 # Convenience function for quick access
-def load_security_metrics(history_file: Path | None = None) -> dict[str, SecurityMetrics]:
+def load_security_metrics(history_file: "Optional[pathlib.Path]" = None) -> dict[str, SecurityMetrics]:
     """
     Convenience function to load latest security metrics.
 

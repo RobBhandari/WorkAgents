@@ -387,7 +387,7 @@ def create_app() -> FastAPI:
                 "lead_time_p50": metrics.lead_time_p50,
                 "lead_time_p85": metrics.lead_time_p85,
                 "lead_time_p95": metrics.lead_time_p95,
-                "work_items_completed": metrics.work_items_completed,
+                "work_items_completed": metrics.throughput,
             }
         except FileNotFoundError:
             raise HTTPException(
