@@ -12,6 +12,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
+from http_client import get, post, put, delete, patch
 
 # Import mobile-responsive framework
 try:
@@ -96,7 +97,7 @@ def get_product_ids_graphql(api_key, base_url, product_names):
         """
 
         try:
-            response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+            response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
             if response.status_code == 200:
                 data = response.json()
                 if 'data' in data and 'products' in data['data']:
@@ -185,7 +186,7 @@ def query_vulnerabilities_from_armorcode(product_names):
                 """
 
                 try:
-                    response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+                    response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
 
                     if response.status_code == 200:
                         data = response.json()

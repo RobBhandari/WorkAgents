@@ -19,6 +19,7 @@ from urllib.robotparser import RobotFileParser
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from http_client import get, post, put, delete, patch
 
 # Load environment variables
 load_dotenv()
@@ -124,7 +125,7 @@ def scrape_website(url: str, selectors: Optional[Dict[str, str]] = None, respect
         try:
             logger.info(f"Fetch attempt {attempt + 1}/{MAX_RETRIES}")
 
-            response = requests.get(url, headers=headers, timeout=DEFAULT_TIMEOUT, stream=True)
+            response = get(url, headers=headers, timeout=DEFAULT_TIMEOUT, stream=True)
 
             # Check content length
             content_length = response.headers.get('content-length')

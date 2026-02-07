@@ -22,6 +22,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from dotenv import load_dotenv
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from security_utils import PathValidator, ValidationError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -143,7 +145,7 @@ Time left: {weeks_remaining} weeks until {baseline['target_date']}
 
 def format_email_body_html(report: dict, baseline: dict) -> str:
     """
-    Format email body as HTML with color coding.
+    Format email body as HTML with color coding using Jinja2 templates.
 
     Args:
         report: Weekly report data
@@ -151,138 +153,52 @@ def format_email_body_html(report: dict, baseline: dict) -> str:
 
     Returns:
         str: HTML email body
+
+    Raises:
+        RuntimeError: If template rendering fails
     """
-    status = report['status']
-    status_color = STATUS_COLORS[status]
-    status_emoji = '🟢' if status == 'GREEN' else ('🟠' if status == 'AMBER' else '🔴')
-    weeks_remaining = baseline['weeks_to_target'] - report['week_number']
-    net_burn_color = '#28a745' if report['net_burn'] > 0 else '#dc3545'
-    delta_text = f"{abs(report['delta'])} bugs {'behind' if report['delta'] > 0 else 'ahead'} schedule"
-    required_burn = report.get('required_burn', baseline['required_weekly_burn'])
+    logger.info("Generating email HTML with Jinja2")
 
-    html = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #ffffff;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0; padding: 0;">
-        <tr>
-            <td align="center" style="margin: 0; padding: 0;">
-                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; margin: 0; padding: 0;">
+    try:
+        # Calculate derived values
+        status = report['status']
+        status_color = STATUS_COLORS[status]
+        weeks_remaining = baseline['weeks_to_target'] - report['week_number']
+        net_burn_color = '#28a745' if report['net_burn'] > 0 else '#dc3545'
+        delta_text = f"{abs(report['delta'])} bugs {'behind' if report['delta'] > 0 else 'ahead'} schedule"
+        required_burn = report.get('required_burn', baseline['required_weekly_burn'])
 
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Bug Position - ALCM</h1>
-                            <p style="margin: 6px 0 0 0; color: #ffffff; font-size: 14px; opacity: 0.95;">Week {report['week_number']} Report</p>
-                        </td>
-                    </tr>
+        # Setup Jinja2 environment with auto-escaping (XSS prevention)
+        template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
+        env = Environment(
+            loader=FileSystemLoader(template_dir),
+            autoescape=select_autoescape(['html', 'xml']),  # CRITICAL: Auto-escape for XSS prevention
+            trim_blocks=True,
+            lstrip_blocks=True
+        )
 
-                    <!-- Status Banner -->
-                    <tr>
-                        <td style="padding: 20px 25px 15px 25px;">
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: {status_color}; border-radius: 6px;">
-                                <tr>
-                                    <td style="padding: 20px; text-align: center;">
-                                        <div style="color: #000000; font-size: 18px; font-weight: 600;">{status}</div>
-                                        <div style="color: #000000; font-size: 14px; margin-top: 5px;">{delta_text}</div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
+        # Prepare template context
+        context = {
+            'report': report,
+            'baseline': baseline,
+            'status': status,
+            'status_color': status_color,
+            'weeks_remaining': weeks_remaining,
+            'net_burn_color': net_burn_color,
+            'delta_text': delta_text,
+            'required_burn': required_burn
+        }
 
-                    <!-- Metrics Grid -->
-                    <tr>
-                        <td style="padding: 15px 25px;">
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                                <tr>
-                                    <td width="48%" valign="top" style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #667eea;">
-                                        <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">BASELINE</div>
-                                        <div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">{baseline['open_count']}</div>
-                                        <div style="font-size: 12px; color: #666; margin-top: 3px;">Week 0 starting point</div>
-                                    </td>
-                                    <td width="4%"></td>
-                                    <td width="48%" valign="top" style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #667eea;">
-                                        <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">TARGET (30%)</div>
-                                        <div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">{baseline['target_count']}</div>
-                                        <div style="font-size: 12px; color: #666; margin-top: 3px;">by {baseline['target_date']}</div>
-                                    </td>
-                                </tr>
-                                <tr><td colspan="3" height="15"></td></tr>
-                                <tr>
-                                    <td width="48%" valign="top" style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #667eea;">
-                                        <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">EXPECTED NOW</div>
-                                        <div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">{report['expected']}</div>
-                                        <div style="font-size: 12px; color: #666; margin-top: 3px;">projected for week {report['week_number']}</div>
-                                    </td>
-                                    <td width="4%"></td>
-                                    <td width="48%" valign="top" style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid {status_color};">
-                                        <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">ACTUAL</div>
-                                        <div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">{report['open']}</div>
-                                        <div style="font-size: 12px; color: #666; margin-top: 3px;">current open bugs</div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
+        # Render template (Jinja2 auto-escapes all variables)
+        template = env.get_template('bug_position_email.html')
+        html = template.render(**context)
 
-                    <!-- Weekly Activity -->
-                    <tr>
-                        <td style="padding: 15px 25px;">
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa; border-radius: 6px;">
-                                <tr>
-                                    <td style="padding: 20px;">
-                                        <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; font-weight: 600;">THIS WEEK'S ACTIVITY</div>
+        logger.info("Email HTML generated successfully with Jinja2")
+        return html
 
-                                        <table role="presentation" width="100%" cellspacing="0" cellpadding="10" border="0">
-                                            <tr style="border-bottom: 1px solid #e0e0e0;">
-                                                <td style="font-size: 14px; color: #666;">Closed</td>
-                                                <td align="right" style="font-size: 18px; font-weight: 600; color: #1a1a1a;">{report['closed']}</td>
-                                            </tr>
-                                            <tr style="border-bottom: 1px solid #e0e0e0;">
-                                                <td style="font-size: 14px; color: #666;">Created</td>
-                                                <td align="right" style="font-size: 18px; font-weight: 600; color: #1a1a1a;">{report['new']}</td>
-                                            </tr>
-                                            <tr style="border-bottom: 1px solid #e0e0e0;">
-                                                <td style="font-size: 14px; color: #666;">Net Burn</td>
-                                                <td align="right" style="font-size: 18px; font-weight: 600; color: {net_burn_color};">{report['net_burn']:+d}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-size: 14px; color: #666;">Required Burn</td>
-                                                <td align="right" style="font-size: 18px; font-weight: 600; color: #1a1a1a;">+{required_burn:.2f}</td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Timeline -->
-                    <tr>
-                        <td style="padding: 15px 25px 30px 25px;">
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa; border-radius: 6px;">
-                                <tr>
-                                    <td style="padding: 15px 20px; text-align: center; font-size: 14px; color: #666;">
-                                        <strong style="color: #1a1a1a; font-size: 16px;">{weeks_remaining}</strong> weeks remaining until <strong style="color: #1a1a1a; font-size: 16px;">{baseline['target_date']}</strong>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-"""
-
-    return html
+    except Exception as e:
+        logger.error(f"Error generating email HTML: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to generate email HTML: {e}") from e
 
 
 def send_email(recipient: str, subject: str, body_text: str, body_html: str, dry_run: bool = False) -> bool:
@@ -392,26 +308,47 @@ def check_and_create_scheduled_task() -> bool:
     batch_file = os.path.join(script_dir, "run_weekly_doe_report.bat")
     log_file = os.path.join(os.path.dirname(script_dir), ".tmp", "scheduled_doe_report.log")
 
+    # SECURITY: Validate file paths to prevent command injection
+    try:
+        # Validate batch file path (must be in script directory)
+        safe_batch_file = PathValidator.validate_safe_path(script_dir, batch_file)
+
+        # Validate log file path (must be in .tmp directory)
+        tmp_dir = os.path.join(os.path.dirname(script_dir), ".tmp")
+        os.makedirs(tmp_dir, exist_ok=True)  # Ensure .tmp exists
+        safe_log_file = PathValidator.validate_safe_path(tmp_dir, log_file)
+
+        logger.info(f"Validated batch file: {safe_batch_file}")
+        logger.info(f"Validated log file: {safe_log_file}")
+
+    except ValidationError as e:
+        logger.error(f"Path validation failed: {e}")
+        print(f"\n[SECURITY ERROR] Invalid file paths detected: {e}")
+        return False
+
     # Create the scheduled task
+    # SECURITY: Execute batch file directly (no cmd.exe wrapper to prevent injection)
+    # Note: The batch file itself should handle logging to {safe_log_file}
     try:
         result = subprocess.run([
             'schtasks', '/create',
             '/tn', task_name,
-            '/tr', f'cmd.exe /c "{batch_file}" >> "{log_file}" 2>&1',
+            '/tr', safe_batch_file,  # SECURE: Direct execution, no cmd.exe wrapper
             '/sc', 'weekly',
             '/d', 'FRI',
             '/st', '07:00',
             '/f'
-        ], capture_output=True, text=True, timeout=10)
+        ], capture_output=True, text=True, timeout=10, shell=False)  # CRITICAL: shell=False
 
         if result.returncode == 0:
-            logger.info(f"✓ Scheduled task created successfully!")
+            logger.info(f"[OK] Scheduled task created successfully!")
             print(f"\n{'='*60}")
-            print(f"✓ AUTO-SCHEDULED: Weekly email every Friday at 7:00 AM")
+            print(f"[OK] AUTO-SCHEDULED: Weekly email every Friday at 7:00 AM")
             print(f"{'='*60}")
             print(f"Task name: {task_name}")
             print(f"Schedule: Every Friday at 7:00 AM")
-            print(f"Logs: {log_file}")
+            print(f"Batch file: {safe_batch_file}")
+            print(f"Logs: {safe_log_file}")
             print(f"\nTo view: taskschd.msc")
             print(f"To test now: schtasks /run /tn \"{task_name}\"")
             print(f"To remove: schtasks /delete /tn \"{task_name}\" /f")

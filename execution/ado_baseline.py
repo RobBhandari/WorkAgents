@@ -21,6 +21,9 @@ from dotenv import load_dotenv
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 
+# Security utilities for input validation
+from security_utils import WIQLValidator, ValidationError
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -95,18 +98,27 @@ def create_baseline(organization_url: str, project_name: str, pat: str, force: b
         # Bugs open on 2026-01-01 means:
         # - Created BEFORE 2026-01-01 (not on that day, as we want bugs at start of day)
         # - AND (Currently not closed OR closed ON/AFTER 2026-01-01)
-        wiql_query = f"""
-        SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Priority]
-        FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
-        AND [System.WorkItemType] = 'Bug'
-        AND [System.CreatedDate] < '{BASELINE_DATE}'
-        AND (
-            [System.State] <> 'Closed'
-            OR [Microsoft.VSTS.Common.ClosedDate] >= '{BASELINE_DATE}'
+
+        # Validate inputs to prevent WIQL injection
+        safe_project = WIQLValidator.validate_project_name(project_name)
+        safe_baseline_date = WIQLValidator.validate_date_iso8601(BASELINE_DATE)
+
+        wiql_query = WIQLValidator.build_safe_wiql(
+            """SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Priority]
+            FROM WorkItems
+            WHERE [System.TeamProject] = '{project}'
+            AND [System.WorkItemType] = '{work_type}'
+            AND [System.CreatedDate] < '{baseline_date}'
+            AND (
+                [System.State] <> '{closed_state}'
+                OR [Microsoft.VSTS.Common.ClosedDate] >= '{baseline_date}'
+            )
+            ORDER BY [System.Id] ASC""",
+            project=safe_project,
+            work_type='Bug',
+            baseline_date=safe_baseline_date,
+            closed_state='Closed'
         )
-        ORDER BY [System.Id] ASC
-        """
 
         # Step 3: Execute WIQL query
         logger.info(f"Executing WIQL query for bugs open on {BASELINE_DATE}...")

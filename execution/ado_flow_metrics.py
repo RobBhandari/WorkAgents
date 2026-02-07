@@ -28,6 +28,9 @@ from azure.devops.v7_1.work_item_tracking import Wiql
 from dotenv import load_dotenv
 load_dotenv()
 
+# Security utilities for input validation
+from security_utils import WIQLValidator, ValidationError
+
 
 def calculate_percentile(values: List[float], percentile: int) -> Optional[float]:
     """Calculate percentile from list of values."""
@@ -114,44 +117,49 @@ def query_work_items_by_type(wit_client, project_name: str, work_type: str, look
     """
     lookback_date = (datetime.now() - timedelta(days=lookback_days)).strftime('%Y-%m-%d')
 
-    # Build area path filter clause
+    # Validate inputs to prevent WIQL injection
+    safe_project = WIQLValidator.validate_project_name(project_name)
+    safe_work_type = WIQLValidator.validate_work_item_type(work_type)
+    safe_lookback_date = WIQLValidator.validate_date_iso8601(lookback_date)
+
+    # Build area path filter clause with validation
     area_filter_clause = ""
     if area_path_filter:
         if area_path_filter.startswith("EXCLUDE:"):
             path = area_path_filter.replace("EXCLUDE:", "")
-            area_filter_clause = f"AND [System.AreaPath] NOT UNDER '{path}'"
+            safe_path = WIQLValidator.validate_area_path(path)
+            area_filter_clause = f"AND [System.AreaPath] NOT UNDER '{safe_path}'"
         elif area_path_filter.startswith("INCLUDE:"):
             path = area_path_filter.replace("INCLUDE:", "")
-            area_filter_clause = f"AND [System.AreaPath] UNDER '{path}'"
+            safe_path = WIQLValidator.validate_area_path(path)
+            area_filter_clause = f"AND [System.AreaPath] UNDER '{safe_path}'"
 
     # Query 1: Currently open items of this type
-    wiql_open = Wiql(
-        query=f"""
+    query_open = f"""
         SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
                [System.WorkItemType], [Microsoft.VSTS.Common.StateChangeDate], [System.CreatedBy]
         FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
-          AND [System.WorkItemType] = '{work_type}'
+        WHERE [System.TeamProject] = '{safe_project}'
+          AND [System.WorkItemType] = '{safe_work_type}'
           AND [System.State] NOT IN ('Closed', 'Removed')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
         """
-    )
+    wiql_open = Wiql(query=query_open)
 
     # Query 2: Recently closed items of this type
-    wiql_closed = Wiql(
-        query=f"""
+    query_closed = f"""
         SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
                [Microsoft.VSTS.Common.ClosedDate], [System.WorkItemType], [Microsoft.VSTS.Common.StateChangeDate], [System.CreatedBy]
         FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
-          AND [System.WorkItemType] = '{work_type}'
+        WHERE [System.TeamProject] = '{safe_project}'
+          AND [System.WorkItemType] = '{safe_work_type}'
           AND [System.State] = 'Closed'
-          AND [Microsoft.VSTS.Common.ClosedDate] >= '{lookback_date}'
+          AND [Microsoft.VSTS.Common.ClosedDate] >= '{safe_lookback_date}'
           {area_filter_clause}
         ORDER BY [Microsoft.VSTS.Common.ClosedDate] DESC
         """
-    )
+    wiql_closed = Wiql(query=query_closed)
 
     try:
         # Execute queries

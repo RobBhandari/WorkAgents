@@ -22,6 +22,9 @@ from dotenv import load_dotenv
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 
+# Security utilities for input validation
+from security_utils import WIQLValidator, ValidationError
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -74,14 +77,20 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
         logger.info("Successfully connected to Azure DevOps")
 
         # Step 4: Build WIQL query for outstanding bugs
-        wiql_query = f"""
-        SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Priority]
-        FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
-        AND [System.WorkItemType] = 'Bug'
-        AND [System.State] <> 'Closed'
-        ORDER BY [Microsoft.VSTS.Common.Priority] ASC, [System.Id] ASC
-        """
+        # Validate input to prevent WIQL injection
+        safe_project = WIQLValidator.validate_project_name(project_name)
+
+        wiql_query = WIQLValidator.build_safe_wiql(
+            """SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Priority]
+            FROM WorkItems
+            WHERE [System.TeamProject] = '{project}'
+            AND [System.WorkItemType] = '{work_type}'
+            AND [System.State] <> '{state}'
+            ORDER BY [Microsoft.VSTS.Common.Priority] ASC, [System.Id] ASC""",
+            project=safe_project,
+            work_type='Bug',
+            state='Closed'
+        )
 
         # Step 5: Execute WIQL query
         logger.info("Executing WIQL query for bugs...")
