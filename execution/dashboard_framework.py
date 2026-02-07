@@ -796,11 +796,11 @@ def get_expandable_row_script():
 
 
 def get_dashboard_framework(
-    header_gradient_start='#667eea',
-    header_gradient_end='#764ba2',
+    header_gradient_start="#667eea",
+    header_gradient_end="#764ba2",
     include_table_scroll=True,
     include_expandable_rows=False,
-    include_glossary=True
+    include_glossary=True,
 ):
     """
     Returns complete mobile-responsive CSS + JavaScript framework.

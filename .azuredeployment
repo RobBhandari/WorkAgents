@@ -1,0 +1,30 @@
+# Azure App Service Deployment Configuration
+
+## Deployment Steps (will be automated in setup guide)
+
+1. Create App Service Plan
+2. Create Web App
+3. Configure environment variables
+4. Deploy code
+5. Test endpoint
+
+## Required Azure Resources
+
+- Resource Group: bug-position-bot-rg
+- App Service Plan: bug-bot-plan (Free F1 tier)
+- Web App: bug-position-bot-{unique-id}
+
+## Environment Variables to Configure in Azure
+
+All variables from .env file must be added to Azure App Service Configuration:
+- ADO_ORGANIZATION_URL
+- ADO_PROJECT_NAME
+- ADO_PAT
+- MICROSOFT_APP_ID
+- MICROSOFT_APP_PASSWORD
+
+## Startup Command
+
+gunicorn --bind=0.0.0.0:8000 --worker-class aiohttp.GunicornWebWorker execution.teams_bug_bot:app
+
+Note: Will need to install gunicorn for production deployment

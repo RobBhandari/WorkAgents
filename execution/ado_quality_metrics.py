@@ -12,22 +12,22 @@ Collects quality and defect metrics at project level:
 Read-only operation - does not modify any existing data.
 """
 
-from execution.core import get_config
-import os
 import json
-import sys
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import List, Dict, Optional
+import os
 import statistics
+import sys
+from datetime import UTC, datetime, timedelta
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
-from msrest.authentication import BasicAuthentication
 from azure.devops.v7_1.work_item_tracking import Wiql
 
 # Load environment variables
 from dotenv import load_dotenv
+from msrest.authentication import BasicAuthentication
+
+from execution.core import get_config
+
 load_dotenv()
 
 
@@ -39,12 +39,14 @@ def get_ado_connection():
     if not organization_url or not pat:
         raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
 
-    credentials = BasicAuthentication('', pat)
+    credentials = BasicAuthentication("", pat)
     connection = Connection(base_url=organization_url, creds=credentials)
     return connection
 
 
-def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 90, area_path_filter: str = None) -> Dict:
+def query_bugs_for_quality(
+    wit_client, project_name: str, lookback_days: int = 90, area_path_filter: str = None
+) -> dict:
     """
     Query bugs for quality metrics.
 
@@ -57,7 +59,7 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
     Returns:
         Dictionary with categorized bugs
     """
-    lookback_date = (datetime.now() - timedelta(days=lookback_days)).strftime('%Y-%m-%d')
+    lookback_date = (datetime.now() - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
 
     print(f"    Querying bugs for {project_name}...")
 
@@ -74,8 +76,7 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
             print(f"      Including only area path: {path}")
 
     # Query 1: All bugs (for overall quality assessment)
-    wiql_all_bugs = Wiql(
-        query=f"""
+    wiql_all_bugs = Wiql(query=f"""
         SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
                [System.WorkItemType], [Microsoft.VSTS.Common.Priority],
                [Microsoft.VSTS.Common.Severity], [System.Tags],
@@ -86,12 +87,10 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
           AND [System.CreatedDate] >= '{lookback_date}'
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
-        """
-    )
+        """)
 
     # Query 2: Currently open bugs (for aging analysis)
-    wiql_open_bugs = Wiql(
-        query=f"""
+    wiql_open_bugs = Wiql(query=f"""
         SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
                [System.WorkItemType], [Microsoft.VSTS.Common.Priority],
                [Microsoft.VSTS.Common.Severity], [System.Tags]
@@ -103,8 +102,7 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
           AND ([Microsoft.VSTS.Common.Triage] <> 'Rejected' OR [Microsoft.VSTS.Common.Triage] = '')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] ASC
-        """
-    )
+        """)
 
     try:
         # Execute queries
@@ -120,14 +118,22 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
             all_bug_ids = [item.id for item in all_bugs_result]  # Fetch ALL bugs for accurate metrics
             try:
                 for i in range(0, len(all_bug_ids), 200):
-                    batch_ids = all_bug_ids[i:i+200]
+                    batch_ids = all_bug_ids[i : i + 200]
                     batch_bugs = wit_client.get_work_items(
                         ids=batch_ids,
-                        fields=['System.Id', 'System.Title', 'System.State', 'System.CreatedDate',
-                                'System.WorkItemType', 'Microsoft.VSTS.Common.Priority',
-                                'Microsoft.VSTS.Common.Severity', 'System.Tags',
-                                'Microsoft.VSTS.Common.ClosedDate', 'Microsoft.VSTS.Common.ResolvedDate',
-                                'System.CreatedBy']
+                        fields=[
+                            "System.Id",
+                            "System.Title",
+                            "System.State",
+                            "System.CreatedDate",
+                            "System.WorkItemType",
+                            "Microsoft.VSTS.Common.Priority",
+                            "Microsoft.VSTS.Common.Severity",
+                            "System.Tags",
+                            "Microsoft.VSTS.Common.ClosedDate",
+                            "Microsoft.VSTS.Common.ResolvedDate",
+                            "System.CreatedBy",
+                        ],
                         # Note: Cannot use expand='Relations' with fields parameter
                     )
                     all_bugs.extend([item.fields for item in batch_bugs])
@@ -139,28 +145,30 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
             open_bug_ids = [item.id for item in open_bugs_result]  # Fetch ALL open bugs for accurate metrics
             try:
                 for i in range(0, len(open_bug_ids), 200):
-                    batch_ids = open_bug_ids[i:i+200]
+                    batch_ids = open_bug_ids[i : i + 200]
                     batch_bugs = wit_client.get_work_items(
                         ids=batch_ids,
-                        fields=['System.Id', 'System.Title', 'System.State', 'System.CreatedDate',
-                                'System.WorkItemType', 'Microsoft.VSTS.Common.Priority',
-                                'Microsoft.VSTS.Common.Severity', 'System.Tags', 'System.CreatedBy']
+                        fields=[
+                            "System.Id",
+                            "System.Title",
+                            "System.State",
+                            "System.CreatedDate",
+                            "System.WorkItemType",
+                            "Microsoft.VSTS.Common.Priority",
+                            "Microsoft.VSTS.Common.Severity",
+                            "System.Tags",
+                            "System.CreatedBy",
+                        ],
                     )
                     open_bugs.extend([item.fields for item in batch_bugs])
             except Exception as e:
                 print(f"      [WARNING] Error fetching open bugs: {e}")
 
-        return {
-            "all_bugs": all_bugs,
-            "open_bugs": open_bugs
-        }
+        return {"all_bugs": all_bugs, "open_bugs": open_bugs}
 
     except Exception as e:
         print(f"      [ERROR] Failed to query bugs: {e}")
-        return {
-            "all_bugs": [],
-            "open_bugs": []
-        }
+        return {"all_bugs": [], "open_bugs": []}
 
 
 # REMOVED: calculate_reopen_rate
@@ -174,7 +182,7 @@ def query_bugs_for_quality(wit_client, project_name: str, lookback_days: int = 9
 # Cannot reliably distinguish customer-found bugs from internally-found production bugs.
 
 
-def filter_security_bugs(bugs: List[Dict]) -> tuple:
+def filter_security_bugs(bugs: list[dict]) -> tuple:
     """
     Filter out security bugs created by ArmorCode to avoid double-counting.
 
@@ -192,20 +200,20 @@ def filter_security_bugs(bugs: List[Dict]) -> tuple:
     excluded = 0
 
     for bug in bugs:
-        created_by = bug.get('System.CreatedBy', {})
-        tags = bug.get('System.Tags', '')
+        created_by = bug.get("System.CreatedBy", {})
+        tags = bug.get("System.Tags", "")
 
         # Extract creator name
         if isinstance(created_by, dict):
-            creator_name = created_by.get('displayName', '').lower()
+            creator_name = created_by.get("displayName", "").lower()
         else:
             creator_name = str(created_by).lower()
 
         # Extract tags (handle as string, typically semicolon-separated)
-        tags_str = str(tags).lower() if tags else ''
+        tags_str = str(tags).lower() if tags else ""
 
         # Exclude bugs created by ArmorCode OR tagged with armorcode
-        if 'armorcode' in creator_name or 'armorcode' in tags_str:
+        if "armorcode" in creator_name or "armorcode" in tags_str:
             excluded += 1
         else:
             filtered.append(bug)
@@ -213,23 +221,22 @@ def filter_security_bugs(bugs: List[Dict]) -> tuple:
     return filtered, excluded
 
 
-def calculate_bug_age_distribution(open_bugs: List[Dict]) -> Dict:
+def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
     """
     Calculate bug age distribution: How long bugs have been open.
 
     Returns age distribution metrics
     """
-    from datetime import timezone
-    now = datetime.now(timezone.utc)  # Make timezone-aware to match Azure DevOps dates
+    now = datetime.now(UTC)  # Make timezone-aware to match Azure DevOps dates
     ages = []
     parse_errors = 0
 
     for bug in open_bugs:
-        created = bug.get('System.CreatedDate')
+        created = bug.get("System.CreatedDate")
 
         if created:
             try:
-                created_dt = datetime.fromisoformat(created.replace('Z', '+00:00'))
+                created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
                 age_days = (now - created_dt).total_seconds() / 86400
                 ages.append(age_days)
             except Exception as e:
@@ -248,12 +255,7 @@ def calculate_bug_age_distribution(open_bugs: List[Dict]) -> Dict:
             "p85_age_days": None,
             "p95_age_days": None,
             "sample_size": 0,
-            "ages_distribution": {
-                "0-7_days": 0,
-                "8-30_days": 0,
-                "31-90_days": 0,
-                "90+_days": 0
-            }
+            "ages_distribution": {"0-7_days": 0, "8-30_days": 0, "31-90_days": 0, "90+_days": 0},
         }
 
     sorted_ages = sorted(ages)
@@ -267,8 +269,8 @@ def calculate_bug_age_distribution(open_bugs: List[Dict]) -> Dict:
             "0-7_days": sum(1 for age in ages if age <= 7),
             "8-30_days": sum(1 for age in ages if 7 < age <= 30),
             "31-90_days": sum(1 for age in ages if 30 < age <= 90),
-            "90+_days": sum(1 for age in ages if age > 90)
-        }
+            "90+_days": sum(1 for age in ages if age > 90),
+        },
     }
 
 
@@ -278,7 +280,7 @@ def calculate_bug_age_distribution(open_bugs: List[Dict]) -> Dict:
 # Weights and formula are speculation, not based on actual business impact.
 
 
-def calculate_mttr(all_bugs: List[Dict]) -> Dict:
+def calculate_mttr(all_bugs: list[dict]) -> dict:
     """
     Calculate MTTR (Mean Time To Repair): Average time from bug creation to closure.
 
@@ -287,14 +289,14 @@ def calculate_mttr(all_bugs: List[Dict]) -> Dict:
     repair_times = []
 
     for bug in all_bugs:
-        created_date = bug.get('System.CreatedDate')
-        closed_date = bug.get('Microsoft.VSTS.Common.ClosedDate')
+        created_date = bug.get("System.CreatedDate")
+        closed_date = bug.get("Microsoft.VSTS.Common.ClosedDate")
 
         # Only calculate for bugs that have been closed
         if created_date and closed_date:
             try:
-                created_dt = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
-                closed_dt = datetime.fromisoformat(closed_date.replace('Z', '+00:00'))
+                created_dt = datetime.fromisoformat(created_date.replace("Z", "+00:00"))
+                closed_dt = datetime.fromisoformat(closed_date.replace("Z", "+00:00"))
 
                 # Calculate repair time in days
                 repair_time_days = (closed_dt - created_dt).total_seconds() / 86400
@@ -302,7 +304,7 @@ def calculate_mttr(all_bugs: List[Dict]) -> Dict:
                 # Filter out negative values (data quality issue)
                 if repair_time_days >= 0:
                     repair_times.append(repair_time_days)
-            except Exception as e:
+            except Exception:
                 continue
 
     if not repair_times:
@@ -312,12 +314,7 @@ def calculate_mttr(all_bugs: List[Dict]) -> Dict:
             "p85_mttr_days": None,
             "p95_mttr_days": None,
             "sample_size": 0,
-            "mttr_distribution": {
-                "0-1_days": 0,
-                "1-7_days": 0,
-                "7-30_days": 0,
-                "30+_days": 0
-            }
+            "mttr_distribution": {"0-1_days": 0, "1-7_days": 0, "7-30_days": 0, "30+_days": 0},
         }
 
     sorted_times = sorted(repair_times)
@@ -333,8 +330,8 @@ def calculate_mttr(all_bugs: List[Dict]) -> Dict:
             "0-1_days": sum(1 for t in repair_times if t <= 1),
             "1-7_days": sum(1 for t in repair_times if 1 < t <= 7),
             "7-30_days": sum(1 for t in repair_times if 7 < t <= 30),
-            "30+_days": sum(1 for t in repair_times if t > 30)
-        }
+            "30+_days": sum(1 for t in repair_times if t > 30),
+        },
     }
 
 
@@ -343,7 +340,7 @@ def calculate_mttr(all_bugs: List[Dict]) -> Dict:
 # Cannot reliably track if bugs stayed fixed without revision history.
 
 
-def calculate_test_execution_time(test_client, project_name: str) -> Dict:
+def calculate_test_execution_time(test_client, project_name: str) -> dict:
     """
     Calculate test execution time from recent test runs.
 
@@ -374,12 +371,7 @@ def calculate_test_execution_time(test_client, project_name: str) -> Dict:
                     continue
 
         if not execution_times:
-            return {
-                'sample_size': 0,
-                'median_minutes': None,
-                'p85_minutes': None,
-                'p95_minutes': None
-            }
+            return {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
 
         sorted_times = sorted(execution_times)
         n = len(sorted_times)
@@ -389,23 +381,18 @@ def calculate_test_execution_time(test_client, project_name: str) -> Dict:
             return data[min(index, n - 1)]
 
         return {
-            'sample_size': n,
-            'median_minutes': round(statistics.median(execution_times), 1),
-            'p85_minutes': round(percentile(sorted_times, 85), 1),
-            'p95_minutes': round(percentile(sorted_times, 95), 1)
+            "sample_size": n,
+            "median_minutes": round(statistics.median(execution_times), 1),
+            "p85_minutes": round(percentile(sorted_times, 85), 1),
+            "p95_minutes": round(percentile(sorted_times, 95), 1),
         }
 
     except Exception as e:
         print(f"      [WARNING] Could not calculate test execution time: {e}")
-        return {
-            'sample_size': 0,
-            'median_minutes': None,
-            'p85_minutes': None,
-            'p95_minutes': None
-        }
+        return {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
 
 
-def collect_quality_metrics_for_project(connection, project: Dict, config: Dict) -> Dict:
+def collect_quality_metrics_for_project(connection, project: dict, config: dict) -> dict:
     """
     Collect all quality metrics for a single project.
 
@@ -417,14 +404,14 @@ def collect_quality_metrics_for_project(connection, project: Dict, config: Dict)
     Returns:
         Quality metrics dictionary for the project
     """
-    project_name = project['project_name']
-    project_key = project['project_key']
+    project_name = project["project_name"]
+    project_key = project["project_key"]
 
     # Get the actual ADO project name (may differ from display name)
-    ado_project_name = project.get('ado_project_name', project_name)
+    ado_project_name = project.get("ado_project_name", project_name)
 
     # Get area path filter if specified
-    area_path_filter = project.get('area_path_filter')
+    area_path_filter = project.get("area_path_filter")
 
     print(f"\n  Collecting quality metrics for: {project_name}")
 
@@ -433,22 +420,21 @@ def collect_quality_metrics_for_project(connection, project: Dict, config: Dict)
 
     # Query bugs
     bugs = query_bugs_for_quality(
-        wit_client,
-        ado_project_name,
-        lookback_days=config.get('lookback_days', 90),
-        area_path_filter=area_path_filter
+        wit_client, ado_project_name, lookback_days=config.get("lookback_days", 90), area_path_filter=area_path_filter
     )
 
     # Filter out ArmorCode security bugs to avoid double-counting
-    bugs['all_bugs'], excluded_all = filter_security_bugs(bugs['all_bugs'])
-    bugs['open_bugs'], excluded_open = filter_security_bugs(bugs['open_bugs'])
+    bugs["all_bugs"], excluded_all = filter_security_bugs(bugs["all_bugs"])
+    bugs["open_bugs"], excluded_open = filter_security_bugs(bugs["open_bugs"])
 
     if excluded_open > 0 or excluded_all > 0:
-        print(f"    Excluded {excluded_open} open security bugs and {excluded_all} total security bugs from quality metrics")
+        print(
+            f"    Excluded {excluded_open} open security bugs and {excluded_all} total security bugs from quality metrics"
+        )
 
     # Calculate metrics - ONLY HARD DATA
-    age_distribution = calculate_bug_age_distribution(bugs['open_bugs'])
-    mttr = calculate_mttr(bugs['all_bugs'])
+    age_distribution = calculate_bug_age_distribution(bugs["open_bugs"])
+    mttr = calculate_mttr(bugs["all_bugs"])
     test_execution = calculate_test_execution_time(test_client, ado_project_name)
 
     print(f"    Median Bug Age: {age_distribution['median_age_days']} days")
@@ -461,17 +447,14 @@ def collect_quality_metrics_for_project(connection, project: Dict, config: Dict)
         "bug_age_distribution": age_distribution,
         "mttr": mttr,
         "test_execution_time": test_execution,  # NEW
-        "total_bugs_analyzed": len(bugs['all_bugs']),
-        "open_bugs_count": len(bugs['open_bugs']),
-        "excluded_security_bugs": {
-            "total": excluded_all,
-            "open": excluded_open
-        },
-        "collected_at": datetime.now().isoformat()
+        "total_bugs_analyzed": len(bugs["all_bugs"]),
+        "open_bugs_count": len(bugs["open_bugs"]),
+        "excluded_security_bugs": {"total": excluded_all, "open": excluded_open},
+        "collected_at": datetime.now().isoformat(),
     }
 
 
-def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/quality_history.json"):
+def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/quality_history.json"):
     """
     Save quality metrics to history file.
 
@@ -481,15 +464,15 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
     from utils_atomic_json import atomic_json_save, load_json_with_recovery
 
     # Validate that we have actual data before saving
-    projects = metrics.get('projects', [])
+    projects = metrics.get("projects", [])
 
     if not projects:
         print("\n[SKIPPED] No project data to save - collection may have failed")
         return False
 
     # Check if this looks like a failed collection (all zeros)
-    total_bugs = sum(p.get('total_bugs_analyzed', 0) for p in projects)
-    total_open = sum(p.get('open_bugs_count', 0) for p in projects)
+    total_bugs = sum(p.get("total_bugs_analyzed", 0) for p in projects)
+    total_open = sum(p.get("open_bugs_count", 0) for p in projects)
 
     if total_bugs == 0 and total_open == 0:
         print("\n[SKIPPED] All projects returned zero bugs - likely a collection failure")
@@ -502,15 +485,15 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
     # Add validation if structure check exists
-    if not isinstance(history, dict) or 'weeks' not in history:
+    if not isinstance(history, dict) or "weeks" not in history:
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
     # Add new week entry
-    history['weeks'].append(metrics)
+    history["weeks"].append(metrics)
 
     # Keep only last 52 weeks (12 months) for quarter/annual analysis
-    history['weeks'] = history['weeks'][-52:]
+    history["weeks"] = history["weeks"][-52:]
 
     # Save updated history
     try:
@@ -525,10 +508,11 @@ def save_quality_metrics(metrics: Dict, output_file: str = ".tmp/observatory/qua
 
 if __name__ == "__main__":
     # Set UTF-8 encoding for Windows console
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("Director Observatory - Quality Metrics Collector\n")
     print("=" * 60)
@@ -540,9 +524,9 @@ if __name__ == "__main__":
 
     # Load discovered projects
     try:
-        with open(".tmp/observatory/ado_structure.json", 'r', encoding='utf-8') as f:
+        with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
             discovery_data = json.load(f)
-        projects = discovery_data['projects']
+        projects = discovery_data["projects"]
         print(f"Loaded {len(projects)} projects from discovery")
     except FileNotFoundError:
         print("[ERROR] Project discovery file not found.")
@@ -573,10 +557,10 @@ if __name__ == "__main__":
 
     # Save results
     week_metrics = {
-        "week_date": datetime.now().strftime('%Y-%m-%d'),
+        "week_date": datetime.now().strftime("%Y-%m-%d"),
         "week_number": datetime.now().isocalendar()[1],  # ISO week number
         "projects": project_metrics,
-        "config": config
+        "config": config,
     }
 
     save_quality_metrics(week_metrics)
@@ -586,20 +570,20 @@ if __name__ == "__main__":
     print("Quality Metrics Collection Summary:")
     print(f"  Projects processed: {len(project_metrics)}")
 
-    total_bugs = sum(p['total_bugs_analyzed'] for p in project_metrics)
-    total_open = sum(p['open_bugs_count'] for p in project_metrics)
-    total_excluded = sum(p['excluded_security_bugs']['total'] for p in project_metrics)
-    total_excluded_open = sum(p['excluded_security_bugs']['open'] for p in project_metrics)
+    total_bugs = sum(p["total_bugs_analyzed"] for p in project_metrics)
+    total_open = sum(p["open_bugs_count"] for p in project_metrics)
+    total_excluded = sum(p["excluded_security_bugs"]["total"] for p in project_metrics)
+    total_excluded_open = sum(p["excluded_security_bugs"]["open"] for p in project_metrics)
 
     print(f"  Total bugs analyzed: {total_bugs}")
     print(f"  Total open bugs: {total_open}")
 
     if total_excluded > 0:
         print(f"  Security bugs excluded: {total_excluded} total ({total_excluded_open} open)")
-        print(f"    → Prevents double-counting with Security Dashboard")
+        print("    → Prevents double-counting with Security Dashboard")
 
     # Calculate average MTTR
-    mttr_values = [p['mttr']['mttr_days'] for p in project_metrics if p['mttr']['mttr_days'] is not None]
+    mttr_values = [p["mttr"]["mttr_days"] for p in project_metrics if p["mttr"]["mttr_days"] is not None]
     if mttr_values:
         avg_mttr = sum(mttr_values) / len(mttr_values)
         print(f"  Avg MTTR: {round(avg_mttr, 1)} days")

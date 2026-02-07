@@ -22,26 +22,27 @@ Usage:
     python teams_bug_bot.py
 """
 
-from execution.core import get_config
+import glob
+import json
+import logging
 import os
 import sys
-import json
-import glob
-import logging
 from datetime import datetime, timedelta
 
-# Security utilities for input validation
-from security_utils import WIQLValidator, ValidationError
-from typing import List, Dict
 from aiohttp import web
 from aiohttp.web import Request, Response
-from botbuilder.core import BotFrameworkAdapter, BotFrameworkAdapterSettings, TurnContext
-from botbuilder.schema import Activity, ActivityTypes
-from dotenv import load_dotenv
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
+from botbuilder.core import BotFrameworkAdapter, BotFrameworkAdapterSettings, TurnContext
+from botbuilder.schema import Activity, ActivityTypes
+from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
+
+# Security utilities for input validation
+from security_utils import ValidationError, WIQLValidator
+
+from execution.core import get_config
 
 # Load environment variables
 load_dotenv()
@@ -49,26 +50,16 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
 # Status emojis
-STATUS_EMOJIS = {
-    'GREEN': '🟢',
-    'AMBER': '🟠',
-    'RED': '🔴'
-}
+STATUS_EMOJIS = {"GREEN": "🟢", "AMBER": "🟠", "RED": "🔴"}
 
 # Status sort order
-STATUS_ORDER = {
-    'GREEN': 0,
-    'AMBER': 1,
-    'RED': 2
-}
+STATUS_ORDER = {"GREEN": 0, "AMBER": 1, "RED": 2}
 
 # Status thresholds
 STATUS_AMBER_THRESHOLD = 1.10
@@ -77,7 +68,7 @@ STATUS_AMBER_THRESHOLD = 1.10
 def query_current_bugs(organization_url: str, project_name: str, pat: str) -> int:
     """Query current count of open bugs in ADO."""
     try:
-        credentials = BasicAuthentication('', pat)
+        credentials = BasicAuthentication("", pat)
         connection = Connection(base_url=organization_url, creds=credentials)
         wit_client = connection.clients.get_work_item_tracking_client()
 
@@ -92,11 +83,11 @@ def query_current_bugs(organization_url: str, project_name: str, pat: str) -> in
             AND [System.State] <> '{state}'
             ORDER BY [System.Id] ASC""",
             project=safe_project,
-            work_type='Bug',
-            state='Closed'
+            work_type="Bug",
+            state="Closed",
         )
 
-        wiql_results = wit_client.query_by_wiql(wiql={'query': wiql_query})
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
 
         if not wiql_results.work_items:
             return 0
@@ -111,11 +102,12 @@ def query_current_bugs(organization_url: str, project_name: str, pat: str) -> in
         raise
 
 
-def query_bugs_by_date_range(organization_url: str, project_name: str, pat: str,
-                              start_date: str, end_date: str, query_type: str) -> int:
+def query_bugs_by_date_range(
+    organization_url: str, project_name: str, pat: str, start_date: str, end_date: str, query_type: str
+) -> int:
     """Query bugs created or closed within a date range."""
     try:
-        credentials = BasicAuthentication('', pat)
+        credentials = BasicAuthentication("", pat)
         connection = Connection(base_url=organization_url, creds=credentials)
         wit_client = connection.clients.get_work_item_tracking_client()
 
@@ -124,7 +116,7 @@ def query_bugs_by_date_range(organization_url: str, project_name: str, pat: str,
         safe_start_date = WIQLValidator.validate_date_iso8601(start_date)
         safe_end_date = WIQLValidator.validate_date_iso8601(end_date)
 
-        if query_type == 'created':
+        if query_type == "created":
             wiql_query = WIQLValidator.build_safe_wiql(
                 """SELECT [System.Id]
                 FROM WorkItems
@@ -133,11 +125,11 @@ def query_bugs_by_date_range(organization_url: str, project_name: str, pat: str,
                 AND [System.CreatedDate] >= '{start_date}'
                 AND [System.CreatedDate] < '{end_date}'""",
                 project=safe_project,
-                work_type='Bug',
+                work_type="Bug",
                 start_date=safe_start_date,
-                end_date=safe_end_date
+                end_date=safe_end_date,
             )
-        elif query_type == 'closed':
+        elif query_type == "closed":
             wiql_query = WIQLValidator.build_safe_wiql(
                 """SELECT [System.Id]
                 FROM WorkItems
@@ -147,15 +139,15 @@ def query_bugs_by_date_range(organization_url: str, project_name: str, pat: str,
                 AND [Microsoft.VSTS.Common.ClosedDate] >= '{start_date}'
                 AND [Microsoft.VSTS.Common.ClosedDate] < '{end_date}'""",
                 project=safe_project,
-                work_type='Bug',
-                state='Closed',
+                work_type="Bug",
+                state="Closed",
                 start_date=safe_start_date,
-                end_date=safe_end_date
+                end_date=safe_end_date,
             )
         else:
             raise ValueError(f"Invalid query_type: {query_type}")
 
-        wiql_results = wit_client.query_by_wiql(wiql={'query': wiql_query})
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
 
         if not wiql_results.work_items:
             return 0
@@ -189,19 +181,19 @@ def calculate_current_week(baseline_date: str) -> int:
 def determine_status(actual: int, expected: int) -> str:
     """Determine status based on actual vs expected values."""
     if actual <= expected:
-        return 'GREEN'
+        return "GREEN"
     elif actual <= expected * STATUS_AMBER_THRESHOLD:
-        return 'AMBER'
+        return "AMBER"
     else:
-        return 'RED'
+        return "RED"
 
 
-def discover_projects() -> List[str]:
+def discover_projects() -> list[str]:
     """Discover all projects by finding baseline files."""
-    baseline_files = glob.glob('.tmp/baseline_*.json')
+    baseline_files = glob.glob(".tmp/baseline_*.json")
     project_keys = []
     for file in baseline_files:
-        project_key = os.path.basename(file).replace('baseline_', '').replace('.json', '')
+        project_key = os.path.basename(file).replace("baseline_", "").replace(".json", "")
         project_keys.append(project_key)
     logger.info(f"Discovered {len(project_keys)} projects")
     return project_keys
@@ -209,12 +201,12 @@ def discover_projects() -> List[str]:
 
 def load_baseline(project_key: str) -> dict:
     """Load baseline data from file."""
-    baseline_file = f'.tmp/baseline_{project_key}.json'
+    baseline_file = f".tmp/baseline_{project_key}.json"
 
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(f"Baseline not found for project '{project_key}'")
 
-    with open(baseline_file, 'r', encoding='utf-8') as f:
+    with open(baseline_file, encoding="utf-8") as f:
         baseline = json.load(f)
 
     return baseline
@@ -224,52 +216,52 @@ def load_project_data(project_key: str, organization_url: str, pat: str) -> dict
     """Load project data by querying ADO API."""
     # Load baseline from file
     baseline = load_baseline(project_key)
-    project_name = baseline.get('project', project_key)
+    project_name = baseline.get("project", project_key)
 
     # Calculate current week
-    week_number = calculate_current_week(baseline['baseline_date'])
-    week_start, week_end = calculate_week_dates(baseline['baseline_date'], week_number)
+    week_number = calculate_current_week(baseline["baseline_date"])
+    week_start, week_end = calculate_week_dates(baseline["baseline_date"], week_number)
 
     # Query current open bugs
     current_open = query_current_bugs(organization_url, project_name, pat)
 
     # Query bugs created/closed this week
-    new_bugs = query_bugs_by_date_range(organization_url, project_name, pat, week_start, week_end, 'created')
-    closed_bugs = query_bugs_by_date_range(organization_url, project_name, pat, week_start, week_end, 'closed')
+    new_bugs = query_bugs_by_date_range(organization_url, project_name, pat, week_start, week_end, "created")
+    closed_bugs = query_bugs_by_date_range(organization_url, project_name, pat, week_start, week_end, "closed")
 
     # Calculate metrics
     net_burn = closed_bugs - new_bugs
     weeks_elapsed = week_number
-    expected_reduction = baseline['required_weekly_burn'] * weeks_elapsed
-    expected_open = max(baseline['target_count'], int(baseline['open_count'] - expected_reduction))
+    expected_reduction = baseline["required_weekly_burn"] * weeks_elapsed
+    expected_open = max(baseline["target_count"], int(baseline["open_count"] - expected_reduction))
     delta = current_open - expected_open
     status = determine_status(current_open, expected_open)
-    weeks_remaining = baseline['weeks_to_target'] - week_number
-    dynamic_required_burn = (current_open - baseline['target_count']) / weeks_remaining if weeks_remaining > 0 else 0
+    weeks_remaining = baseline["weeks_to_target"] - week_number
+    dynamic_required_burn = (current_open - baseline["target_count"]) / weeks_remaining if weeks_remaining > 0 else 0
 
     latest_week = {
-        'week_number': week_number,
-        'open': current_open,
-        'new': new_bugs,
-        'closed': closed_bugs,
-        'net_burn': net_burn,
-        'expected': expected_open,
-        'delta': delta,
-        'status': status,
-        'required_burn': round(dynamic_required_burn, 2)
+        "week_number": week_number,
+        "open": current_open,
+        "new": new_bugs,
+        "closed": closed_bugs,
+        "net_burn": net_burn,
+        "expected": expected_open,
+        "delta": delta,
+        "status": status,
+        "required_burn": round(dynamic_required_burn, 2),
     }
 
     return {
-        'project_key': project_key,
-        'project_name': project_name,
-        'baseline': baseline,
-        'latest_week': latest_week,
-        'week_number': week_number,
-        'weeks_remaining': weeks_remaining
+        "project_key": project_key,
+        "project_name": project_name,
+        "baseline": baseline,
+        "latest_week": latest_week,
+        "week_number": week_number,
+        "weeks_remaining": weeks_remaining,
     }
 
 
-def load_all_projects(project_keys: List[str] = None) -> List[dict]:
+def load_all_projects(project_keys: list[str] = None) -> list[dict]:
     """Load data for all projects."""
     organization_url = get_config().get("ADO_ORGANIZATION_URL")
     pat = get_config().get_ado_config().pat
@@ -291,24 +283,26 @@ def load_all_projects(project_keys: List[str] = None) -> List[dict]:
     return projects
 
 
-def sort_projects_by_status(projects: List[dict]) -> List[dict]:
+def sort_projects_by_status(projects: list[dict]) -> list[dict]:
     """Sort projects by RAG status (GREEN, AMBER, RED)."""
+
     def get_sort_key(project):
-        status = project['latest_week']['status']
+        status = project["latest_week"]["status"]
         return STATUS_ORDER.get(status, 99)
+
     return sorted(projects, key=get_sort_key)
 
 
-def format_bug_position_report(projects: List[dict]) -> str:
+def format_bug_position_report(projects: list[dict]) -> str:
     """Format bug position report for Teams."""
     projects = sort_projects_by_status(projects)
 
     if not projects:
         return "❌ No projects found. Please ensure baseline files are deployed."
 
-    week_number = projects[0]['week_number']
-    weeks_remaining = projects[0]['weeks_remaining']
-    target_date = projects[0]['baseline']['target_date']
+    week_number = projects[0]["week_number"]
+    weeks_remaining = projects[0]["weeks_remaining"]
+    target_date = projects[0]["baseline"]["target_date"]
 
     lines = []
     lines.append(f"# 🐛 Bug Position Report - Week {week_number}\n")
@@ -317,22 +311,24 @@ def format_bug_position_report(projects: List[dict]) -> str:
 
     current_status = None
     for project in projects:
-        week = project['latest_week']
-        baseline = project['baseline']
-        status = week['status']
+        week = project["latest_week"]
+        baseline = project["baseline"]
+        status = week["status"]
 
         if current_status != status:
             if current_status is not None:
                 lines.append("\n")
             current_status = status
 
-        status_emoji = STATUS_EMOJIS.get(status, '⚪')
-        net_burn_indicator = "🔥" if week['net_burn'] > 0 else "❄️"
+        status_emoji = STATUS_EMOJIS.get(status, "⚪")
+        net_burn_indicator = "🔥" if week["net_burn"] > 0 else "❄️"
 
         lines.append(f"**{project['project_name']}**  \n")
         lines.append(f"{status_emoji} Status: **{status}**  \n")
         lines.append(f"📊 Current: {week['open']} | Expected: {week['expected']} | Delta: {week['delta']:+d}  \n")
-        lines.append(f"{net_burn_indicator} Net burn: {week['net_burn']:+d} | Required: +{week['required_burn']:.2f}/week\n")
+        lines.append(
+            f"{net_burn_indicator} Net burn: {week['net_burn']:+d} | Required: +{week['required_burn']:.2f}/week\n"
+        )
 
     lines.append("\n---\n")
     lines.append(f"⏰ **{weeks_remaining} weeks** remaining until **{target_date}**")
@@ -342,9 +338,9 @@ def format_bug_position_report(projects: List[dict]) -> str:
 
 def format_project_detail(project_data: dict) -> str:
     """Format detailed view for a single project."""
-    week = project_data['latest_week']
-    baseline = project_data['baseline']
-    status_emoji = STATUS_EMOJIS.get(week['status'], '⚪')
+    week = project_data["latest_week"]
+    baseline = project_data["baseline"]
+    status_emoji = STATUS_EMOJIS.get(week["status"], "⚪")
 
     lines = []
     lines.append(f"# 📊 {project_data['project_name']}\n")
@@ -354,12 +350,12 @@ def format_project_detail(project_data: dict) -> str:
     lines.append(f"• Open bugs: {week['open']}  \n")
     lines.append(f"• Expected: {week['expected']}  \n")
     lines.append(f"• Delta: {week['delta']:+d}\n")
-    lines.append(f"\n**📉 This Week's Activity**  \n")
+    lines.append("\n**📉 This Week's Activity**  \n")
     lines.append(f"• New bugs: {week['new']}  \n")
     lines.append(f"• Closed bugs: {week['closed']}  \n")
     lines.append(f"• Net burn: {week['net_burn']:+d}  \n")
     lines.append(f"• Required burn/week: +{week['required_burn']:.2f}\n")
-    lines.append(f"\n**🎯 Baseline**  \n")
+    lines.append("\n**🎯 Baseline**  \n")
     lines.append(f"• Starting bugs: {baseline['open_count']}  \n")
     lines.append(f"• Target: {baseline['target_count']}  \n")
     lines.append(f"• Target date: {baseline['target_date']}\n")
@@ -377,16 +373,16 @@ class BugPositionBot:
             text = turn_context.activity.text.strip().lower()
 
             try:
-                if text in ['help', 'start']:
+                if text in ["help", "start"]:
                     await self.send_help(turn_context)
-                elif text == 'bugposition':
+                elif text == "bugposition":
                     await self.send_bug_position(turn_context)
-                elif text == 'week':
+                elif text == "week":
                     await self.send_week_info(turn_context)
-                elif text == 'projects':
+                elif text == "projects":
                     await self.send_projects_list(turn_context)
-                elif text.startswith('project '):
-                    project_key = text[8:].strip().replace(' ', '_')
+                elif text.startswith("project "):
+                    project_key = text[8:].strip().replace(" ", "_")
                     await self.send_project_detail(turn_context, project_key)
                 else:
                     await turn_context.send_activity(
@@ -437,13 +433,12 @@ Try **bugposition** to see the latest status!
             await turn_context.send_activity("❌ No projects found.")
             return
 
-        week_number = projects[0]['week_number']
-        weeks_remaining = projects[0]['weeks_remaining']
-        target_date = projects[0]['baseline']['target_date']
+        week_number = projects[0]["week_number"]
+        weeks_remaining = projects[0]["weeks_remaining"]
+        target_date = projects[0]["baseline"]["target_date"]
 
         await turn_context.send_activity(
-            f"📅 **Current Week: {week_number}**\n\n"
-            f"⏰ {weeks_remaining} weeks remaining until {target_date}"
+            f"📅 **Current Week: {week_number}**\n\n" f"⏰ {weeks_remaining} weeks remaining until {target_date}"
         )
 
     async def send_projects_list(self, turn_context: TurnContext):
@@ -458,7 +453,7 @@ Try **bugposition** to see the latest status!
         lines = ["# 📋 Tracked Projects\n"]
 
         for project in projects:
-            status_emoji = STATUS_EMOJIS.get(project['latest_week']['status'], '⚪')
+            status_emoji = STATUS_EMOJIS.get(project["latest_week"]["status"], "⚪")
             lines.append(f"{status_emoji} **{project['project_name']}** (`{project['project_key']}`)")
 
         lines.append("\n💡 Use **project <name>** for details")
@@ -474,8 +469,7 @@ Try **bugposition** to see the latest status!
             project_data = load_project_data(project_key, organization_url, pat)
         except FileNotFoundError:
             await turn_context.send_activity(
-                f"❌ Project '{project_key}' not found.\n\n"
-                f"Use **projects** to see available projects."
+                f"❌ Project '{project_key}' not found.\n\n" f"Use **projects** to see available projects."
             )
             return
 
@@ -541,10 +535,10 @@ if __name__ == "__main__":
     """Start the web server."""
     try:
         # Validate configuration
-        if not APP_ID or APP_ID == 'your_microsoft_app_id_here':
+        if not APP_ID or APP_ID == "your_microsoft_app_id_here":
             logger.warning("MICROSOFT_APP_ID not configured - bot will run in development mode")
 
-        if not APP_PASSWORD or APP_PASSWORD == 'your_microsoft_app_password_here':
+        if not APP_PASSWORD or APP_PASSWORD == "your_microsoft_app_password_here":
             logger.warning("MICROSOFT_APP_PASSWORD not configured - bot will run in development mode")
 
         # Default port for Teams bots (can be overridden via Azure App Service configuration)
@@ -558,7 +552,7 @@ if __name__ == "__main__":
         print("Health check: http://localhost:3978/health")
         print("\nPress Ctrl+C to stop the bot.\n")
 
-        web.run_app(app, host='0.0.0.0', port=PORT)
+        web.run_app(app, host="0.0.0.0", port=PORT)
 
     except Exception as e:
         logger.error(f"Failed to start bot: {e}", exc_info=True)

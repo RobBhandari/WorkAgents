@@ -27,9 +27,8 @@ Author: Security Audit Implementation
 Date: 2026-02-06
 """
 
-import re
 import os
-from typing import Union, List, Dict, Any
+import re
 from datetime import datetime
 
 
@@ -40,6 +39,7 @@ class ValidationError(Exception):
     This exception should be caught and handled appropriately,
     ensuring sensitive details are not leaked to users.
     """
+
     pass
 
 
@@ -57,59 +57,68 @@ class WIQLValidator:
 
     # Whitelist of valid ADO field names
     VALID_FIELDS = {
-        'System.Id',
-        'System.Title',
-        'System.State',
-        'System.WorkItemType',
-        'System.TeamProject',
-        'System.CreatedDate',
-        'System.CreatedBy',
-        'System.ChangedDate',
-        'System.ChangedBy',
-        'System.ClosedDate',
-        'System.AreaPath',
-        'System.IterationPath',
-        'System.AssignedTo',
-        'Microsoft.VSTS.Common.Priority',
-        'Microsoft.VSTS.Common.Severity',
-        'Microsoft.VSTS.Common.ClosedDate',
-        'Microsoft.VSTS.Common.StateChangeDate',
-        'Microsoft.VSTS.Common.ActivatedDate',
-        'Microsoft.VSTS.Common.ResolvedDate',
+        "System.Id",
+        "System.Title",
+        "System.State",
+        "System.WorkItemType",
+        "System.TeamProject",
+        "System.CreatedDate",
+        "System.CreatedBy",
+        "System.ChangedDate",
+        "System.ChangedBy",
+        "System.ClosedDate",
+        "System.AreaPath",
+        "System.IterationPath",
+        "System.AssignedTo",
+        "Microsoft.VSTS.Common.Priority",
+        "Microsoft.VSTS.Common.Severity",
+        "Microsoft.VSTS.Common.ClosedDate",
+        "Microsoft.VSTS.Common.StateChangeDate",
+        "Microsoft.VSTS.Common.ActivatedDate",
+        "Microsoft.VSTS.Common.ResolvedDate",
     }
 
     # Whitelist of valid work item types
     VALID_WORK_TYPES = {
-        'Bug',
-        'User Story',
-        'Task',
-        'Epic',
-        'Feature',
-        'Issue',
-        'Test Case',
-        'Product Backlog Item',
+        "Bug",
+        "User Story",
+        "Task",
+        "Epic",
+        "Feature",
+        "Issue",
+        "Test Case",
+        "Product Backlog Item",
     }
 
     # Whitelist of valid states
     VALID_STATES = {
-        'New',
-        'Active',
-        'Resolved',
-        'Closed',
-        'Removed',
-        'Done',
-        'Committed',
-        'In Progress',
-        'To Do',
+        "New",
+        "Active",
+        "Resolved",
+        "Closed",
+        "Removed",
+        "Done",
+        "Committed",
+        "In Progress",
+        "To Do",
     }
 
     # Whitelist of valid operators
     VALID_OPERATORS = {
-        '=', '<>', '>', '<', '>=', '<=',
-        'UNDER', 'NOT UNDER',
-        'IN', 'NOT IN',
-        'CONTAINS', 'NOT CONTAINS',
-        'LIKE', 'NOT LIKE',
+        "=",
+        "<>",
+        ">",
+        "<",
+        ">=",
+        "<=",
+        "UNDER",
+        "NOT UNDER",
+        "IN",
+        "NOT IN",
+        "CONTAINS",
+        "NOT CONTAINS",
+        "LIKE",
+        "NOT LIKE",
     }
 
     @staticmethod
@@ -149,12 +158,10 @@ class WIQLValidator:
             raise ValidationError(f"Project name must be string, got {type(project_name)}")
 
         if len(project_name) > 64:
-            raise ValidationError(
-                f"Project name too long: {len(project_name)} chars (max 64)"
-            )
+            raise ValidationError(f"Project name too long: {len(project_name)} chars (max 64)")
 
         # Strict whitelist: alphanumeric, space, hyphen, underscore, period
-        if not re.match(r'^[a-zA-Z0-9 _\-\.]+$', project_name):
+        if not re.match(r"^[a-zA-Z0-9 _\-\.]+$", project_name):
             raise ValidationError(
                 f"Invalid project name: '{project_name}'. "
                 f"Only letters, numbers, spaces, hyphens, underscores, and periods allowed."
@@ -162,29 +169,39 @@ class WIQLValidator:
 
         # Check for WIQL injection patterns (defense in depth)
         dangerous_patterns = [
-            "'", '"',  # Quote characters
-            ';', '--', '/*', '*/',  # SQL comment patterns
+            "'",
+            '"',  # Quote characters
+            ";",
+            "--",
+            "/*",
+            "*/",  # SQL comment patterns
         ]
 
         for pattern in dangerous_patterns:
             if pattern in project_name:
-                raise ValidationError(
-                    f"Project name contains potentially dangerous pattern: {pattern}"
-                )
+                raise ValidationError(f"Project name contains potentially dangerous pattern: {pattern}")
 
         # Check for SQL/WIQL keywords that shouldn't be in project names
         project_upper = project_name.upper()
         dangerous_keywords = [
-            'OR ', ' OR', 'AND ', ' AND',
-            'UNION', 'SELECT', 'DROP', 'INSERT', 'UPDATE', 'DELETE',
-            'EXEC', 'EXECUTE', 'SCRIPT',
+            "OR ",
+            " OR",
+            "AND ",
+            " AND",
+            "UNION",
+            "SELECT",
+            "DROP",
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "EXEC",
+            "EXECUTE",
+            "SCRIPT",
         ]
 
         for keyword in dangerous_keywords:
             if keyword in project_upper:
-                raise ValidationError(
-                    f"Project name contains potentially dangerous keyword: {keyword.strip()}"
-                )
+                raise ValidationError(f"Project name contains potentially dangerous keyword: {keyword.strip()}")
 
         return project_name
 
@@ -225,8 +242,7 @@ class WIQLValidator:
         """
         if state not in WIQLValidator.VALID_STATES:
             raise ValidationError(
-                f"Invalid state: '{state}'. "
-                f"Must be one of: {', '.join(sorted(WIQLValidator.VALID_STATES))}"
+                f"Invalid state: '{state}'. " f"Must be one of: {', '.join(sorted(WIQLValidator.VALID_STATES))}"
             )
         return state
 
@@ -259,14 +275,12 @@ class WIQLValidator:
             raise ValidationError(f"Date must be string, got {type(date_str)}")
 
         # Validate format
-        if not re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
-            raise ValidationError(
-                f"Invalid date format: '{date_str}'. Must be YYYY-MM-DD"
-            )
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_str):
+            raise ValidationError(f"Invalid date format: '{date_str}'. Must be YYYY-MM-DD")
 
         # Validate date components are valid
         try:
-            year, month, day = date_str.split('-')
+            year, month, day = date_str.split("-")
             year, month, day = int(year), int(month), int(day)
 
             if not (1900 <= year <= 2100):
@@ -277,7 +291,7 @@ class WIQLValidator:
                 raise ValidationError(f"Day out of range: {day} (must be 1-31)")
 
             # Validate date is actually valid (e.g., not Feb 30)
-            datetime.strptime(date_str, '%Y-%m-%d')
+            datetime.strptime(date_str, "%Y-%m-%d")
 
         except ValueError as e:
             raise ValidationError(f"Invalid date: {e}")
@@ -304,12 +318,10 @@ class WIQLValidator:
             raise ValidationError("Area path cannot be empty")
 
         if len(area_path) > 256:
-            raise ValidationError(
-                f"Area path too long: {len(area_path)} chars (max 256)"
-            )
+            raise ValidationError(f"Area path too long: {len(area_path)} chars (max 256)")
 
         # Allow backslashes, forward slashes, alphanumeric, spaces, hyphens, underscores
-        if not re.match(r'^[a-zA-Z0-9 _\-\\/]+$', area_path):
+        if not re.match(r"^[a-zA-Z0-9 _\-\\/]+$", area_path):
             raise ValidationError(
                 f"Invalid area path: '{area_path}'. "
                 f"Only letters, numbers, spaces, hyphens, underscores, and slashes allowed."
@@ -375,22 +387,22 @@ class WIQLValidator:
             # Determine validation based on parameter name
             key_lower = key.lower()
 
-            if 'project' in key_lower:
+            if "project" in key_lower:
                 validated_params[key] = WIQLValidator.validate_project_name(value)
 
-            elif 'work_type' in key_lower or 'workitemtype' in key_lower:
+            elif "work_type" in key_lower or "workitemtype" in key_lower:
                 validated_params[key] = WIQLValidator.validate_work_item_type(value)
 
-            elif 'state' in key_lower:
+            elif "state" in key_lower:
                 validated_params[key] = WIQLValidator.validate_state(value)
 
-            elif 'date' in key_lower:
+            elif "date" in key_lower:
                 validated_params[key] = WIQLValidator.validate_date_iso8601(value)
 
-            elif 'area' in key_lower and 'path' in key_lower:
+            elif "area" in key_lower and "path" in key_lower:
                 validated_params[key] = WIQLValidator.validate_area_path(value)
 
-            elif 'field' in key_lower:
+            elif "field" in key_lower:
                 validated_params[key] = WIQLValidator.validate_field_name(value)
 
             else:
@@ -404,7 +416,7 @@ class WIQLValidator:
                 # Block quotes and semicolons
                 if "'" in value or '"' in value:
                     raise ValidationError(f"Parameter '{key}' contains quotes")
-                if ';' in value:
+                if ";" in value:
                     raise ValidationError(f"Parameter '{key}' contains semicolon")
 
                 validated_params[key] = value
@@ -425,16 +437,16 @@ class HTMLSanitizer:
 
     # HTML entities that must be escaped
     HTML_ESCAPES = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '/': '&#x2F;',
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#x27;",
+        "/": "&#x2F;",
     }
 
     @staticmethod
-    def escape_html(text: Union[str, None]) -> str:
+    def escape_html(text: str | None) -> str:
         """
         Escape HTML special characters to prevent XSS.
 
@@ -452,7 +464,7 @@ class HTMLSanitizer:
             '&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;'
         """
         if text is None:
-            return ''
+            return ""
 
         text = str(text)
 
@@ -463,7 +475,7 @@ class HTMLSanitizer:
         return text
 
     @staticmethod
-    def escape_html_attribute(text: Union[str, None]) -> str:
+    def escape_html_attribute(text: str | None) -> str:
         """
         Escape text for use in HTML attributes.
 
@@ -476,18 +488,18 @@ class HTMLSanitizer:
             Escaped text safe for HTML attribute context
         """
         if text is None:
-            return ''
+            return ""
 
         text = str(text)
 
         # Remove control characters (ASCII < 32, except space)
-        text = ''.join(char for char in text if ord(char) >= 32 or char == ' ')
+        text = "".join(char for char in text if ord(char) >= 32 or char == " ")
 
         # Escape HTML entities
         return HTMLSanitizer.escape_html(text)
 
     @staticmethod
-    def escape_javascript_string(text: Union[str, None]) -> str:
+    def escape_javascript_string(text: str | None) -> str:
         """
         Escape text for use in JavaScript string context.
 
@@ -498,20 +510,20 @@ class HTMLSanitizer:
             Escaped text safe for JavaScript string context
         """
         if text is None:
-            return ''
+            return ""
 
         text = str(text)
 
         # Escape JavaScript special characters
         js_escapes = {
-            '\\': '\\\\',
+            "\\": "\\\\",
             "'": "\\'",
             '"': '\\"',
-            '\n': '\\n',
-            '\r': '\\r',
-            '\t': '\\t',
-            '<': '\\x3C',  # Prevent </script> injection
-            '>': '\\x3E',
+            "\n": "\\n",
+            "\r": "\\r",
+            "\t": "\\t",
+            "<": "\\x3C",  # Prevent </script> injection
+            ">": "\\x3E",
         }
 
         for char, escape in js_escapes.items():
@@ -528,7 +540,7 @@ class PathValidator:
     """
 
     @staticmethod
-    def validate_filename(filename: str, allowed_extensions: List[str] = None) -> str:
+    def validate_filename(filename: str, allowed_extensions: list[str] = None) -> str:
         """
         Validate filename to prevent path traversal.
 
@@ -560,24 +572,20 @@ class PathValidator:
         # Get basename to prevent directory traversal
         basename = os.path.basename(filename)
 
-        if not basename or basename in ('.', '..'):
+        if not basename or basename in (".", ".."):
             raise ValidationError(f"Invalid filename: '{filename}'")
 
         # Check for path traversal attempts
-        if '..' in filename or '/' in filename or '\\' in filename:
-            raise ValidationError(
-                f"Filename contains path separators: '{filename}'"
-            )
+        if ".." in filename or "/" in filename or "\\" in filename:
+            raise ValidationError(f"Filename contains path separators: '{filename}'")
 
         # Validate extension if whitelist provided
         if allowed_extensions:
             if not any(basename.lower().endswith(ext.lower()) for ext in allowed_extensions):
-                raise ValidationError(
-                    f"Invalid file extension. Allowed: {', '.join(allowed_extensions)}"
-                )
+                raise ValidationError(f"Invalid file extension. Allowed: {', '.join(allowed_extensions)}")
 
         # Check for dangerous patterns
-        if basename.startswith('.'):
+        if basename.startswith("."):
             raise ValidationError("Hidden files not allowed")
 
         # Validate length
@@ -626,14 +634,10 @@ class PathValidator:
             common = os.path.commonpath([base_dir, full_path])
         except ValueError:
             # Paths on different drives (Windows)
-            raise ValidationError(
-                f"Path traversal detected: paths on different drives"
-            )
+            raise ValidationError("Path traversal detected: paths on different drives")
 
         if common != base_dir:
-            raise ValidationError(
-                f"Path traversal detected: '{user_path}' escapes base directory"
-            )
+            raise ValidationError(f"Path traversal detected: '{user_path}' escapes base directory")
 
         return full_path
 
@@ -675,13 +679,11 @@ class CommandValidator:
             arg = str(arg)
 
         # Check for dangerous patterns
-        dangerous_chars = ['&', '|', ';', '`', '$', '(', ')', '<', '>', '\n', '\r', '\x00']
+        dangerous_chars = ["&", "|", ";", "`", "$", "(", ")", "<", ">", "\n", "\r", "\x00"]
 
         for char in dangerous_chars:
             if char in arg:
-                raise ValidationError(
-                    f"Argument contains dangerous character: {char}"
-                )
+                raise ValidationError(f"Argument contains dangerous character: {char}")
 
         # Validate length
         if len(arg) > 1024:
@@ -690,7 +692,7 @@ class CommandValidator:
         return arg
 
     @staticmethod
-    def validate_command_path(command_path: str, allowed_commands: List[str] = None) -> str:
+    def validate_command_path(command_path: str, allowed_commands: list[str] = None) -> str:
         """
         Validate command executable path.
 
@@ -714,12 +716,11 @@ class CommandValidator:
         if allowed_commands:
             if command_name not in allowed_commands:
                 raise ValidationError(
-                    f"Command '{command_name}' not in whitelist. "
-                    f"Allowed: {', '.join(allowed_commands)}"
+                    f"Command '{command_name}' not in whitelist. " f"Allowed: {', '.join(allowed_commands)}"
                 )
 
         # Validate path doesn't contain dangerous patterns
-        if '..' in command_path:
+        if ".." in command_path:
             raise ValidationError("Command path contains '..' (path traversal)")
 
         return command_path
@@ -727,7 +728,8 @@ class CommandValidator:
 
 # Convenience functions for common use cases
 
-def safe_html(text: Union[str, None]) -> str:
+
+def safe_html(text: str | None) -> str:
     """Convenience wrapper for HTMLSanitizer.escape_html()"""
     return HTMLSanitizer.escape_html(text)
 
@@ -738,7 +740,7 @@ def safe_wiql(template: str, **params) -> str:
 
 
 # Module-level test
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Security Utils - Self Test")
     print("=" * 60)
 
@@ -760,7 +762,7 @@ if __name__ == '__main__':
     print("\n2. Testing HTML Sanitizer:")
     xss_payload = "<script>alert('XSS')</script>"
     escaped = HTMLSanitizer.escape_html(xss_payload)
-    if '<script>' not in escaped and '&lt;' in escaped:
+    if "<script>" not in escaped and "&lt;" in escaped:
         print(f"  [PASS] XSS payload escaped: {escaped}")
     else:
         print(f"  [FAIL] XSS not properly escaped: {escaped}")
@@ -774,7 +776,7 @@ if __name__ == '__main__':
         print(f"  [PASS] Path traversal blocked: {e}")
 
     try:
-        safe_file = PathValidator.validate_filename("report.html", ['.html'])
+        safe_file = PathValidator.validate_filename("report.html", [".html"])
         print(f"  [PASS] Valid filename accepted: '{safe_file}'")
     except ValidationError as e:
         print(f"  [FAIL] Valid filename rejected: {e}")

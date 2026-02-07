@@ -9,8 +9,7 @@ Represents security vulnerabilities and metrics for tracking:
 """
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
+
 from .metrics import MetricSnapshot
 
 
@@ -45,23 +44,24 @@ class Vulnerability:
         if vuln.is_aging:
             print(f"Vulnerability has been open for {vuln.age_days} days")
     """
+
     id: str
     title: str
     severity: str  # CRITICAL, HIGH, MEDIUM, LOW
     status: str
     product: str
     age_days: int
-    cve_id: Optional[str] = None
+    cve_id: str | None = None
 
     @property
     def is_critical(self) -> bool:
         """Check if vulnerability is CRITICAL severity"""
-        return self.severity == 'CRITICAL'
+        return self.severity == "CRITICAL"
 
     @property
     def is_high(self) -> bool:
         """Check if vulnerability is HIGH severity"""
-        return self.severity == 'HIGH'
+        return self.severity == "HIGH"
 
     @property
     def is_critical_or_high(self) -> bool:
@@ -73,12 +73,12 @@ class Vulnerability:
         Returns:
             True if severity is CRITICAL or HIGH
         """
-        return self.severity in ('CRITICAL', 'HIGH')
+        return self.severity in ("CRITICAL", "HIGH")
 
     @property
     def is_open(self) -> bool:
         """Check if vulnerability is currently open"""
-        closed_statuses = {'Closed', 'Resolved', 'Fixed', 'Accepted Risk'}
+        closed_statuses = {"Closed", "Resolved", "Fixed", "Accepted Risk"}
         return self.status not in closed_statuses
 
     @property
@@ -101,12 +101,7 @@ class Vulnerability:
         Returns:
             4 for CRITICAL, 3 for HIGH, 2 for MEDIUM, 1 for LOW
         """
-        severity_map = {
-            'CRITICAL': 4,
-            'HIGH': 3,
-            'MEDIUM': 2,
-            'LOW': 1
-        }
+        severity_map = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}
         return severity_map.get(self.severity, 0)
 
 
@@ -147,13 +142,14 @@ class SecurityMetrics(MetricSnapshot):
         if metrics.has_critical:
             print("CRITICAL vulnerabilities need immediate attention!")
     """
+
     total_vulnerabilities: int
     critical: int
     high: int
     medium: int = 0
     low: int = 0
-    baseline: Optional[int] = None  # For 70% reduction tracking
-    target: Optional[int] = None    # 30% of baseline
+    baseline: int | None = None  # For 70% reduction tracking
+    target: int | None = None  # 30% of baseline
 
     @property
     def critical_high_count(self) -> int:
@@ -177,7 +173,7 @@ class SecurityMetrics(MetricSnapshot):
         """Check if there are any HIGH vulnerabilities"""
         return self.high > 0
 
-    def reduction_progress(self) -> Optional[float]:
+    def reduction_progress(self) -> float | None:
         """
         Calculate progress toward 70% reduction target.
 
@@ -203,7 +199,7 @@ class SecurityMetrics(MetricSnapshot):
         progress = (reduction_achieved / reduction_needed) * 100
         return min(max(progress, 0), 100)  # Clamp to 0-100
 
-    def is_on_track(self) -> Optional[bool]:
+    def is_on_track(self) -> bool | None:
         """
         Check if on track to meet 70% reduction target.
 

@@ -9,8 +9,7 @@ Represents bug work items and quality metrics for tracking:
 """
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
+
 from .metrics import MetricSnapshot
 
 
@@ -45,12 +44,13 @@ class Bug:
         if bug.is_high_priority:
             print("HIGH PRIORITY BUG!")
     """
+
     id: int
     title: str
     state: str
-    priority: Optional[int]
+    priority: int | None
     created_date: str  # ISO 8601 format
-    closed_date: Optional[str]  # ISO 8601 format or None
+    closed_date: str | None  # ISO 8601 format or None
     age_days: int
 
     @property
@@ -61,7 +61,7 @@ class Bug:
         Returns:
             True if state indicates bug is not fully resolved
         """
-        closed_states = {'Closed', 'Resolved', 'Removed', 'Done'}
+        closed_states = {"Closed", "Resolved", "Removed", "Done"}
         return self.state not in closed_states
 
     @property
@@ -124,6 +124,7 @@ class QualityMetrics(MetricSnapshot):
         if metrics.has_critical_bugs:
             print("Critical P1 bugs need attention!")
     """
+
     open_bugs: int
     closed_this_week: int
     created_this_week: int
@@ -163,7 +164,7 @@ class QualityMetrics(MetricSnapshot):
         return self.p1_count + self.p2_count
 
     @property
-    def closure_rate(self) -> Optional[float]:
+    def closure_rate(self) -> float | None:
         """
         Calculate weekly closure rate as percentage.
 
@@ -176,7 +177,4 @@ class QualityMetrics(MetricSnapshot):
 
     def __str__(self) -> str:
         """String representation for logging/debugging"""
-        return (
-            f"QualityMetrics(project={self.project}, "
-            f"open={self.open_bugs}, net_change={self.net_change:+d})"
-        )
+        return f"QualityMetrics(project={self.project}, " f"open={self.open_bugs}, net_change={self.net_change:+d})"

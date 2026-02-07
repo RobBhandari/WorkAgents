@@ -16,17 +16,17 @@ Usage:
 """
 
 import json
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from pathlib import Path
 
 # Import domain models
 try:
     from ..domain.security import SecurityMetrics, Vulnerability
 except ImportError:
     import sys
+
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from domain.security import SecurityMetrics, Vulnerability  # type: ignore[no-redef]
+    from domain.security import SecurityMetrics  # type: ignore[no-redef]
 
 
 class ArmorCodeLoader:
@@ -37,7 +37,7 @@ class ArmorCodeLoader:
         history_file: Path to security_history.json file
     """
 
-    def __init__(self, history_file: Optional[Path] = None):
+    def __init__(self, history_file: Path | None = None):
         """
         Initialize ArmorCode loader.
 
@@ -45,11 +45,11 @@ class ArmorCodeLoader:
             history_file: Path to history file (defaults to .tmp/observatory/security_history.json)
         """
         if history_file is None:
-            self.history_file = Path('.tmp/observatory/security_history.json')
+            self.history_file = Path(".tmp/observatory/security_history.json")
         else:
             self.history_file = Path(history_file)
 
-    def load_latest_metrics(self) -> Dict[str, SecurityMetrics]:
+    def load_latest_metrics(self) -> dict[str, SecurityMetrics]:
         """
         Load latest security metrics by product from history file.
 
@@ -75,21 +75,18 @@ class ArmorCodeLoader:
             )
 
         # Load JSON data
-        with open(self.history_file, 'r', encoding='utf-8') as f:
+        with open(self.history_file, encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
-        if not data.get('weeks') or len(data['weeks']) == 0:
-            raise ValueError(
-                f"No weeks data found in {self.history_file}\n"
-                f"History file may be corrupted or empty."
-            )
+        if not data.get("weeks") or len(data["weeks"]) == 0:
+            raise ValueError(f"No weeks data found in {self.history_file}\n" f"History file may be corrupted or empty.")
 
         # Get latest week's data
-        latest_week = data['weeks'][-1]
-        week_ending = latest_week.get('week_ending', 'Unknown')
-        metrics = latest_week.get('metrics', {})
-        product_breakdown = metrics.get('product_breakdown', {})
+        latest_week = data["weeks"][-1]
+        week_ending = latest_week.get("week_ending", "Unknown")
+        metrics = latest_week.get("metrics", {})
+        product_breakdown = metrics.get("product_breakdown", {})
 
         print(f"[INFO] Loading security data for week ending: {week_ending}")
         print(f"[INFO] Found {len(product_breakdown)} products")
@@ -100,17 +97,17 @@ class ArmorCodeLoader:
             security_metrics = SecurityMetrics(
                 timestamp=datetime.now(),
                 project=product_name,
-                total_vulnerabilities=counts.get('total', 0),
-                critical=counts.get('critical', 0),
-                high=counts.get('high', 0),
-                medium=counts.get('medium', 0),
-                low=counts.get('low', 0)
+                total_vulnerabilities=counts.get("total", 0),
+                critical=counts.get("critical", 0),
+                high=counts.get("high", 0),
+                medium=counts.get("medium", 0),
+                low=counts.get("low", 0),
             )
             metrics_by_product[product_name] = security_metrics
 
         return metrics_by_product
 
-    def load_all_weeks(self) -> List[Dict]:
+    def load_all_weeks(self) -> list[dict]:
         """
         Load all historical weeks of security data.
 
@@ -125,13 +122,13 @@ class ArmorCodeLoader:
         if not self.history_file.exists():
             raise FileNotFoundError(f"History file not found: {self.history_file}")
 
-        with open(self.history_file, 'r', encoding='utf-8') as f:
-            data: Dict = json.load(f)
+        with open(self.history_file, encoding="utf-8") as f:
+            data: dict = json.load(f)
 
-        weeks: List[Dict] = data.get('weeks', [])
+        weeks: list[dict] = data.get("weeks", [])
         return weeks
 
-    def get_product_names(self) -> List[str]:
+    def get_product_names(self) -> list[str]:
         """
         Get list of all product names in latest data.
 
@@ -148,7 +145,7 @@ class ArmorCodeLoader:
 
 
 # Convenience function for quick access
-def load_security_metrics(history_file: Optional[Path] = None) -> Dict[str, SecurityMetrics]:
+def load_security_metrics(history_file: Path | None = None) -> dict[str, SecurityMetrics]:
     """
     Convenience function to load latest security metrics.
 
@@ -167,7 +164,7 @@ def load_security_metrics(history_file: Optional[Path] = None) -> Dict[str, Secu
 
 
 # Self-test when run directly
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("ArmorCode Loader - Self Test")
     print("=" * 60)
 
@@ -184,18 +181,16 @@ if __name__ == '__main__':
         total_critical = sum(m.critical for m in metrics.values())
         total_high = sum(m.high for m in metrics.values())
 
-        print(f"\n[SUMMARY]")
+        print("\n[SUMMARY]")
         print(f"  Total vulnerabilities: {total_vulns}")
         print(f"  Critical: {total_critical}")
         print(f"  High: {total_high}")
         print(f"  Critical+High: {total_critical + total_high}")
 
         # Show products with critical vulnerabilities
-        critical_products = [
-            name for name, m in metrics.items() if m.has_critical
-        ]
+        critical_products = [name for name, m in metrics.items() if m.has_critical]
         if critical_products:
-            print(f"\n[ALERT] Products with critical vulnerabilities:")
+            print("\n[ALERT] Products with critical vulnerabilities:")
             for product in critical_products:
                 m = metrics[product]
                 print(f"  - {product}: {m.critical} critical, {m.high} high")
@@ -211,4 +206,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"\n[ERROR] Unexpected error: {e}")
         import traceback
+
         traceback.print_exc()

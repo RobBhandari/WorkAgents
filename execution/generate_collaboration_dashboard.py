@@ -20,10 +20,11 @@ except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
 
 # Set UTF-8 encoding for Windows
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 
 def calculate_composite_status(merge_time, iterations, pr_size):
@@ -49,10 +50,10 @@ def calculate_composite_status(merge_time, iterations, pr_size):
     # Check Merge Time (hours)
     if merge_time is not None and merge_time > 0:
         if merge_time > 72:
-            issues.append('poor')
+            issues.append("poor")
             metric_details.append(f"Merge time {merge_time:.1f}h (poor - target <24h)")
         elif merge_time > 24:
-            issues.append('caution')
+            issues.append("caution")
             metric_details.append(f"Merge time {merge_time:.1f}h (caution - target <24h)")
         else:
             metric_details.append(f"Merge time {merge_time:.1f}h (good)")
@@ -60,10 +61,10 @@ def calculate_composite_status(merge_time, iterations, pr_size):
     # Check Iterations
     if iterations is not None and iterations > 0:
         if iterations > 5:
-            issues.append('poor')
+            issues.append("poor")
             metric_details.append(f"{iterations:.1f} iterations (poor - target ≤2)")
         elif iterations > 2:
-            issues.append('caution')
+            issues.append("caution")
             metric_details.append(f"{iterations:.1f} iterations (caution - target ≤2)")
         else:
             metric_details.append(f"{iterations:.1f} iterations (good)")
@@ -71,10 +72,10 @@ def calculate_composite_status(merge_time, iterations, pr_size):
     # Check PR Size
     if pr_size is not None and pr_size > 0:
         if pr_size > 10:
-            issues.append('poor')
+            issues.append("poor")
             metric_details.append(f"{pr_size:.1f} commits (poor - target ≤5)")
         elif pr_size > 5:
-            issues.append('caution')
+            issues.append("caution")
             metric_details.append(f"{pr_size:.1f} commits (caution - target ≤5)")
         else:
             metric_details.append(f"{pr_size:.1f} commits (good)")
@@ -83,15 +84,15 @@ def calculate_composite_status(merge_time, iterations, pr_size):
     tooltip = "\n".join(metric_details) if metric_details else "No data available"
 
     # Determine overall status
-    if 'poor' in issues and len([i for i in issues if i == 'poor']) >= 2:
+    if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
         # Two or more metrics poor = Action Needed
         status_html = '<span style="color: #ef4444;">● Action Needed</span>'
         priority = 0
-    elif 'poor' in issues:
+    elif "poor" in issues:
         # One poor metric = Caution
         status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
         priority = 1
-    elif 'caution' in issues:
+    elif "caution" in issues:
         # Some caution metrics = Caution
         status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
         priority = 1
@@ -116,7 +117,7 @@ def load_collaboration_data():
         print("Run: python execution/ado_collaboration_metrics.py")
         sys.exit(1)
 
-    with open(history_file, 'r', encoding='utf-8') as f:
+    with open(history_file, encoding="utf-8") as f:
         data = json.load(f)
 
     return data
@@ -130,13 +131,13 @@ def generate_collaboration_dashboard():
     # Load data
     data = load_collaboration_data()
 
-    if not data.get('weeks'):
+    if not data.get("weeks"):
         print("[ERROR] No collaboration data found in history")
         sys.exit(1)
 
     # Get latest week data
-    latest_week = data['weeks'][-1]
-    projects = latest_week.get('projects', [])
+    latest_week = data["weeks"][-1]
+    projects = latest_week.get("projects", [])
 
     print(f"  Found {len(projects)} projects with collaboration data")
 
@@ -144,26 +145,26 @@ def generate_collaboration_dashboard():
     projects_with_status = []
 
     for project in projects:
-        proj_name = project['project_name']
+        proj_name = project["project_name"]
 
         # PR Merge Time
-        merge_time = project.get('pr_merge_time', {})
-        median_merge = merge_time.get('median_hours', 0) or 0
-        p85_merge = merge_time.get('p85_hours', 0) or 0
-        merge_sample = merge_time.get('sample_size', 0)
+        merge_time = project.get("pr_merge_time", {})
+        median_merge = merge_time.get("median_hours", 0) or 0
+        p85_merge = merge_time.get("p85_hours", 0) or 0
+        merge_sample = merge_time.get("sample_size", 0)
 
         # Review Iteration Count
-        iterations = project.get('review_iteration_count', {})
-        median_iterations = iterations.get('median_iterations', 0) or 0
-        max_iterations = iterations.get('max_iterations', 0) or 0
+        iterations = project.get("review_iteration_count", {})
+        median_iterations = iterations.get("median_iterations", 0) or 0
+        max_iterations = iterations.get("max_iterations", 0) or 0
 
         # PR Size
-        pr_size = project.get('pr_size', {})
-        median_commits = pr_size.get('median_commits', 0) or 0
-        p85_commits = pr_size.get('p85_commits', 0) or 0
+        pr_size = project.get("pr_size", {})
+        median_commits = pr_size.get("median_commits", 0) or 0
+        p85_commits = pr_size.get("p85_commits", 0) or 0
 
         # Total PRs
-        total_prs = project.get('total_prs_analyzed', 0)
+        total_prs = project.get("total_prs_analyzed", 0)
 
         # Format values
         merge_display = f"{median_merge:.1f}h" if median_merge else "N/A"
@@ -179,25 +180,27 @@ def generate_collaboration_dashboard():
         status_html, status_tooltip, status_priority = calculate_composite_status(
             merge_time=median_merge if median_merge else None,
             iterations=median_iterations if median_iterations else None,
-            pr_size=median_commits if median_commits else None
+            pr_size=median_commits if median_commits else None,
         )
 
-        projects_with_status.append({
-            'proj_name': proj_name,
-            'total_prs': total_prs,
-            'merge_display': merge_display,
-            'merge_detail': merge_detail,
-            'iterations_display': iterations_display,
-            'iterations_detail': iterations_detail,
-            'size_display': size_display,
-            'size_detail': size_detail,
-            'status_html': status_html,
-            'status_tooltip': status_tooltip,
-            'status_priority': status_priority
-        })
+        projects_with_status.append(
+            {
+                "proj_name": proj_name,
+                "total_prs": total_prs,
+                "merge_display": merge_display,
+                "merge_detail": merge_detail,
+                "iterations_display": iterations_display,
+                "iterations_detail": iterations_detail,
+                "size_display": size_display,
+                "size_detail": size_detail,
+                "status_html": status_html,
+                "status_tooltip": status_tooltip,
+                "status_priority": status_priority,
+            }
+        )
 
     # Sort by status priority (Red->Amber->Green), then by total PRs
-    projects_with_status.sort(key=lambda x: (x['status_priority'], -x['total_prs']))
+    projects_with_status.sort(key=lambda x: (x["status_priority"], -x["total_prs"]))
 
     # Generate HTML rows
     project_rows_html = ""
@@ -214,19 +217,19 @@ def generate_collaboration_dashboard():
         """
 
     # Calculate totals
-    total_prs_all = sum(p.get('total_prs_analyzed', 0) for p in projects)
-    projects_with_prs = sum(1 for p in projects if p.get('total_prs_analyzed', 0) > 0)
+    total_prs_all = sum(p.get("total_prs_analyzed", 0) for p in projects)
+    projects_with_prs = sum(1 for p in projects if p.get("total_prs_analyzed", 0) > 0)
 
     # Get collection date
-    collection_date = latest_week.get('week_date', 'Unknown')
+    collection_date = latest_week.get("week_date", "Unknown")
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#f093fb',
-        header_gradient_end='#f5576c',
+        header_gradient_start="#f093fb",
+        header_gradient_end="#f5576c",
         include_table_scroll=True,
         include_expandable_rows=False,
-        include_glossary=True
+        include_glossary=True,
     )
 
     # Generate HTML
@@ -505,7 +508,7 @@ def generate_collaboration_dashboard():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     output_file = output_dir / "collaboration_dashboard.html"
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
     print(f"[SUCCESS] Collaboration dashboard generated: {output_file}")
@@ -525,5 +528,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n[ERROR] Failed to generate dashboard: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

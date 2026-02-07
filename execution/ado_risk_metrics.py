@@ -11,22 +11,21 @@ Collects delivery risk and change stability metrics at project level:
 Read-only operation - does not modify any existing data.
 """
 
-from execution.core import get_config
-import os
 import json
+import os
 import sys
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import List, Dict, Optional
 from collections import Counter, defaultdict
+from datetime import datetime, timedelta
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
-from msrest.authentication import BasicAuthentication
-from azure.devops.v7_1.work_item_tracking import Wiql
 
 # Load environment variables
 from dotenv import load_dotenv
+from msrest.authentication import BasicAuthentication
+
+from execution.core import get_config
+
 load_dotenv()
 
 
@@ -38,12 +37,12 @@ def get_ado_connection():
     if not organization_url or not pat:
         raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
 
-    credentials = BasicAuthentication('', pat)
+    credentials = BasicAuthentication("", pat)
     connection = Connection(base_url=organization_url, creds=credentials)
     return connection
 
 
-def query_recent_commits(git_client, project_name: str, repo_id: str, days: int = 90) -> List[Dict]:
+def query_recent_commits(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:
     """
     Query recent commits to analyze code churn.
 
@@ -62,15 +61,13 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
         # Azure DevOps SDK expects parameters directly, not in search_criteria dict
         from azure.devops.v7_1.git.models import GitQueryCommitsCriteria
 
-        search_criteria = GitQueryCommitsCriteria(
-            from_date=since_date.isoformat()
-        )
+        search_criteria = GitQueryCommitsCriteria(from_date=since_date.isoformat())
 
         commits = git_client.get_commits(
             repository_id=repo_id,
             project=project_name,
             search_criteria=search_criteria,
-            top=100  # Limit to 100 most recent commits for performance
+            top=100,  # Limit to 100 most recent commits for performance
         )
 
         commit_data = []
@@ -81,40 +78,55 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
             if idx < 20:
                 try:
                     changes = git_client.get_changes(
-                        commit_id=commit.commit_id,
-                        repository_id=repo_id,
-                        project=project_name
+                        commit_id=commit.commit_id, repository_id=repo_id, project=project_name
                     )
 
-                    commit_data.append({
-                        'commit_id': commit.commit_id,
-                        'author': commit.author.name if commit.author else 'Unknown',
-                        'date': commit.author.date if commit.author else None,
-                        'message': commit.comment,
-                        'changes': len(changes.changes) if changes.changes else 0,
-                        'files': [change['item']['path'] for change in changes.changes if isinstance(change, dict) and 'item' in change and change['item'] and 'path' in change['item']] if changes.changes else []
-                    })
+                    commit_data.append(
+                        {
+                            "commit_id": commit.commit_id,
+                            "author": commit.author.name if commit.author else "Unknown",
+                            "date": commit.author.date if commit.author else None,
+                            "message": commit.comment,
+                            "changes": len(changes.changes) if changes.changes else 0,
+                            "files": (
+                                [
+                                    change["item"]["path"]
+                                    for change in changes.changes
+                                    if isinstance(change, dict)
+                                    and "item" in change
+                                    and change["item"]
+                                    and "path" in change["item"]
+                                ]
+                                if changes.changes
+                                else []
+                            ),
+                        }
+                    )
                 except Exception as e:
                     print(f"        [WARNING] Could not get changes for commit {commit.commit_id}: {e}")
                     # Still add commit with basic info
-                    commit_data.append({
-                        'commit_id': commit.commit_id,
-                        'author': commit.author.name if commit.author else 'Unknown',
-                        'date': commit.author.date if commit.author else None,
-                        'message': commit.comment,
-                        'changes': 0,
-                        'files': []
-                    })
+                    commit_data.append(
+                        {
+                            "commit_id": commit.commit_id,
+                            "author": commit.author.name if commit.author else "Unknown",
+                            "date": commit.author.date if commit.author else None,
+                            "message": commit.comment,
+                            "changes": 0,
+                            "files": [],
+                        }
+                    )
             else:
                 # For commits beyond first 20, only store basic info (no file details)
-                commit_data.append({
-                    'commit_id': commit.commit_id,
-                    'author': commit.author.name if commit.author else 'Unknown',
-                    'date': commit.author.date if commit.author else None,
-                    'message': commit.comment,
-                    'changes': 0,
-                    'files': []
-                })
+                commit_data.append(
+                    {
+                        "commit_id": commit.commit_id,
+                        "author": commit.author.name if commit.author else "Unknown",
+                        "date": commit.author.date if commit.author else None,
+                        "message": commit.comment,
+                        "changes": 0,
+                        "files": [],
+                    }
+                )
 
         return commit_data
 
@@ -123,7 +135,7 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
         return []
 
 
-def query_pull_requests(git_client, project_name: str, repo_id: str, days: int = 90) -> List[Dict]:
+def query_pull_requests(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:
     """
     Query recent pull requests to analyze PR size.
 
@@ -141,19 +153,19 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
         from azure.devops.v7_1.git.models import GitPullRequestSearchCriteria
 
         # Use string value for status instead of enum (which doesn't exist in SDK)
-        search_criteria = GitPullRequestSearchCriteria(
-            status='completed'
-        )
+        search_criteria = GitPullRequestSearchCriteria(status="completed")
 
         prs = git_client.get_pull_requests(
             repository_id=repo_id,
             project=project_name,
-            search_criteria=search_criteria
+            search_criteria=search_criteria,
             # No top limit - fetch ALL PRs
         )
 
         pr_data = []
-        cutoff_date = datetime.now(prs[0].creation_date.tzinfo if prs and prs[0].creation_date else None) - timedelta(days=days)
+        cutoff_date = datetime.now(prs[0].creation_date.tzinfo if prs and prs[0].creation_date else None) - timedelta(
+            days=days
+        )
 
         for pr in prs:
             if pr.creation_date < cutoff_date:
@@ -162,26 +174,26 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
             # Get PR commits to estimate size
             try:
                 commits = git_client.get_pull_request_commits(
-                    repository_id=repo_id,
-                    pull_request_id=pr.pull_request_id,
-                    project=project_name
+                    repository_id=repo_id, pull_request_id=pr.pull_request_id, project=project_name
                 )
                 commit_count = len(commits) if commits else 0
             except:
                 commit_count = 0
 
-            pr_data.append({
-                'pr_id': pr.pull_request_id,
-                'title': pr.title,
-                'created_date': pr.creation_date.isoformat() if pr.creation_date else None,
-                'closed_date': pr.closed_date.isoformat() if pr.closed_date else None,
-                'commit_count': commit_count,
-                'status': pr.status,
-                'created_by': pr.created_by.display_name if pr.created_by else 'Unknown',
-                'created_by_email': pr.created_by.unique_name if pr.created_by else None,
-                'source_branch': pr.source_ref_name if hasattr(pr, 'source_ref_name') else None,
-                'description': pr.description if hasattr(pr, 'description') else None
-            })
+            pr_data.append(
+                {
+                    "pr_id": pr.pull_request_id,
+                    "title": pr.title,
+                    "created_date": pr.creation_date.isoformat() if pr.creation_date else None,
+                    "closed_date": pr.closed_date.isoformat() if pr.closed_date else None,
+                    "commit_count": commit_count,
+                    "status": pr.status,
+                    "created_by": pr.created_by.display_name if pr.created_by else "Unknown",
+                    "created_by_email": pr.created_by.unique_name if pr.created_by else None,
+                    "source_branch": pr.source_ref_name if hasattr(pr, "source_ref_name") else None,
+                    "description": pr.description if hasattr(pr, "description") else None,
+                }
+            )
 
         return pr_data
 
@@ -196,7 +208,7 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
 # Would require revision history to accurately track reopens.
 
 
-def analyze_code_churn(commits: List[Dict]) -> Dict:
+def analyze_code_churn(commits: list[dict]) -> dict:
     """
     Analyze code churn from commits.
 
@@ -210,22 +222,19 @@ def analyze_code_churn(commits: List[Dict]) -> Dict:
     total_changes = 0
 
     for commit in commits:
-        total_changes += commit['changes']
-        for file_path in commit['files']:
+        total_changes += commit["changes"]
+        for file_path in commit["files"]:
             file_change_counts[file_path] += 1
 
     # Get top 20 most changed files (hot paths)
-    hot_paths = [
-        {'path': path, 'change_count': count}
-        for path, count in file_change_counts.most_common(20)
-    ]
+    hot_paths = [{"path": path, "change_count": count} for path, count in file_change_counts.most_common(20)]
 
     return {
-        'total_commits': len(commits),
-        'total_file_changes': total_changes,
-        'unique_files_touched': len(file_change_counts),
-        'hot_paths': hot_paths,
-        'avg_changes_per_commit': total_changes / len(commits) if commits else 0
+        "total_commits": len(commits),
+        "total_file_changes": total_changes,
+        "unique_files_touched": len(file_change_counts),
+        "hot_paths": hot_paths,
+        "avg_changes_per_commit": total_changes / len(commits) if commits else 0,
     }
 
 
@@ -235,7 +244,7 @@ def analyze_code_churn(commits: List[Dict]) -> Dict:
 # Would need to analyze actual file diffs to measure real PR size.
 
 
-def calculate_knowledge_distribution(commits: List[Dict]) -> Dict:
+def calculate_knowledge_distribution(commits: list[dict]) -> dict:
     """
     Calculate knowledge distribution - bus factor / key person risk.
 
@@ -247,13 +256,12 @@ def calculate_knowledge_distribution(commits: List[Dict]) -> Dict:
     Returns:
         Knowledge distribution metrics
     """
-    from collections import defaultdict
 
     file_contributors = defaultdict(set)  # file -> set of authors
 
     for commit in commits:
-        author = commit.get('author', 'Unknown')
-        files = commit.get('files', [])
+        author = commit.get("author", "Unknown")
+        files = commit.get("files", [])
 
         for file_path in files:
             file_contributors[file_path].add(author)
@@ -267,35 +275,26 @@ def calculate_knowledge_distribution(commits: List[Dict]) -> Dict:
         contributor_count = len(contributors)
 
         if contributor_count == 1:
-            single_owner_files.append({
-                'path': file_path,
-                'owner': list(contributors)[0]
-            })
+            single_owner_files.append({"path": file_path, "owner": list(contributors)[0]})
         elif contributor_count == 2:
-            two_owner_files.append({
-                'path': file_path,
-                'contributors': list(contributors)
-            })
+            two_owner_files.append({"path": file_path, "contributors": list(contributors)})
         else:
-            multi_owner_files.append({
-                'path': file_path,
-                'contributor_count': contributor_count
-            })
+            multi_owner_files.append({"path": file_path, "contributor_count": contributor_count})
 
     total_files = len(file_contributors)
     single_owner_pct = (len(single_owner_files) / total_files * 100) if total_files > 0 else 0
 
     return {
-        'total_files_analyzed': total_files,
-        'single_owner_count': len(single_owner_files),
-        'two_owner_count': len(two_owner_files),
-        'multi_owner_count': len(multi_owner_files),
-        'single_owner_pct': round(single_owner_pct, 1),
-        'single_owner_files': single_owner_files[:20]  # Top 20 for reference
+        "total_files_analyzed": total_files,
+        "single_owner_count": len(single_owner_files),
+        "two_owner_count": len(two_owner_files),
+        "multi_owner_count": len(multi_owner_files),
+        "single_owner_pct": round(single_owner_pct, 1),
+        "single_owner_files": single_owner_files[:20],  # Top 20 for reference
     }
 
 
-def calculate_module_coupling(commits: List[Dict]) -> Dict:
+def calculate_module_coupling(commits: list[dict]) -> dict:
     """
     Calculate module coupling - files that change together.
 
@@ -307,13 +306,12 @@ def calculate_module_coupling(commits: List[Dict]) -> Dict:
     Returns:
         Module coupling metrics
     """
-    from collections import defaultdict
     from itertools import combinations
 
     file_pair_counts = defaultdict(int)
 
     for commit in commits:
-        files = commit.get('files', [])
+        files = commit.get("files", [])
 
         # For each commit with multiple files, count file pair co-changes
         if len(files) > 1:
@@ -324,26 +322,22 @@ def calculate_module_coupling(commits: List[Dict]) -> Dict:
 
     # Find top coupled pairs
     coupled_pairs = [
-        {
-            'file1': pair[0],
-            'file2': pair[1],
-            'co_change_count': count
-        }
+        {"file1": pair[0], "file2": pair[1], "co_change_count": count}
         for pair, count in file_pair_counts.items()
         if count >= 3  # Only pairs that changed together 3+ times
     ]
 
     # Sort by co-change count
-    coupled_pairs.sort(key=lambda x: x['co_change_count'], reverse=True)
+    coupled_pairs.sort(key=lambda x: x["co_change_count"], reverse=True)
 
     return {
-        'total_coupled_pairs': len(coupled_pairs),
-        'top_coupled_pairs': coupled_pairs[:20],  # Top 20
-        'note': 'Pairs that changed together 3+ times'
+        "total_coupled_pairs": len(coupled_pairs),
+        "top_coupled_pairs": coupled_pairs[:20],  # Top 20
+        "note": "Pairs that changed together 3+ times",
     }
 
 
-def collect_risk_metrics_for_project(connection, project: Dict, config: Dict) -> Dict:
+def collect_risk_metrics_for_project(connection, project: dict, config: dict) -> dict:
     """
     Collect all risk metrics for a single project.
 
@@ -355,13 +349,13 @@ def collect_risk_metrics_for_project(connection, project: Dict, config: Dict) ->
     Returns:
         Risk metrics dictionary for the project
     """
-    project_name = project['project_name']
-    project_key = project['project_key']
+    project_name = project["project_name"]
+    project_key = project["project_key"]
 
     # Get the actual ADO project name (may differ from display name)
     # Note: Risk metrics are at repository level, not work item level
     # Area path filters don't apply to Git repositories
-    ado_project_name = project.get('ado_project_name', project_name)
+    ado_project_name = project.get("ado_project_name", project_name)
 
     print(f"\n  Collecting risk metrics for: {project_name}")
 
@@ -384,7 +378,7 @@ def collect_risk_metrics_for_project(connection, project: Dict, config: Dict) ->
 
         try:
             # Get commits for code churn analysis
-            commits = query_recent_commits(git_client, ado_project_name, repo.id, days=config.get('lookback_days', 90))
+            commits = query_recent_commits(git_client, ado_project_name, repo.id, days=config.get("lookback_days", 90))
             all_commits.extend(commits)
             print(f"      Found {len(commits)} commits")
         except Exception as e:
@@ -397,21 +391,23 @@ def collect_risk_metrics_for_project(connection, project: Dict, config: Dict) ->
     module_coupling = calculate_module_coupling(all_commits)
 
     print(f"    Code churn: {churn_analysis['total_commits']} commits, {churn_analysis['unique_files_touched']} files")
-    print(f"    Knowledge: {knowledge_dist['single_owner_count']} single-owner files ({knowledge_dist['single_owner_pct']}%)")
+    print(
+        f"    Knowledge: {knowledge_dist['single_owner_count']} single-owner files ({knowledge_dist['single_owner_pct']}%)"
+    )
     print(f"    Coupling: {module_coupling['total_coupled_pairs']} file pairs frequently changed together")
 
     return {
-        'project_key': project_key,
-        'project_name': project_name,
-        'code_churn': churn_analysis,
-        'knowledge_distribution': knowledge_dist,  # NEW
-        'module_coupling': module_coupling,  # NEW
-        'repository_count': len(repos),
-        'collected_at': datetime.now().isoformat()
+        "project_key": project_key,
+        "project_name": project_name,
+        "code_churn": churn_analysis,
+        "knowledge_distribution": knowledge_dist,  # NEW
+        "module_coupling": module_coupling,  # NEW
+        "repository_count": len(repos),
+        "collected_at": datetime.now().isoformat(),
     }
 
 
-def save_risk_metrics(metrics: Dict, output_file: str = ".tmp/observatory/risk_history.json"):
+def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json"):
     """
     Save risk metrics to history file.
 
@@ -421,16 +417,16 @@ def save_risk_metrics(metrics: Dict, output_file: str = ".tmp/observatory/risk_h
     from utils_atomic_json import atomic_json_save, load_json_with_recovery
 
     # Validate that we have actual data before saving
-    projects = metrics.get('projects', [])
+    projects = metrics.get("projects", [])
 
     if not projects:
         print("\n[SKIPPED] No project data to save - collection may have failed")
         return False
 
     # Check if this looks like a failed collection (all zeros)
-    total_commits = sum(p.get('code_churn', {}).get('total_commits', 0) for p in projects)
-    total_files = sum(p.get('code_churn', {}).get('unique_files_touched', 0) for p in projects)
-    total_repos = sum(p.get('repository_count', 0) for p in projects)
+    total_commits = sum(p.get("code_churn", {}).get("total_commits", 0) for p in projects)
+    total_files = sum(p.get("code_churn", {}).get("unique_files_touched", 0) for p in projects)
+    total_repos = sum(p.get("repository_count", 0) for p in projects)
 
     if total_commits == 0 and total_files == 0 and total_repos == 0:
         print("\n[SKIPPED] All projects returned zero risk data - likely a collection failure")
@@ -443,15 +439,15 @@ def save_risk_metrics(metrics: Dict, output_file: str = ".tmp/observatory/risk_h
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
     # Add validation if structure check exists
-    if not isinstance(history, dict) or 'weeks' not in history:
+    if not isinstance(history, dict) or "weeks" not in history:
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
     # Add new week entry
-    history['weeks'].append(metrics)
+    history["weeks"].append(metrics)
 
     # Keep only last 52 weeks (12 months) for quarter/annual analysis
-    history['weeks'] = history['weeks'][-52:]
+    history["weeks"] = history["weeks"][-52:]
 
     # Save updated history
     try:
@@ -466,24 +462,23 @@ def save_risk_metrics(metrics: Dict, output_file: str = ".tmp/observatory/risk_h
 
 if __name__ == "__main__":
     # Set UTF-8 encoding for Windows console
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("Director Observatory - Delivery Risk Metrics Collector\n")
     print("=" * 60)
 
     # Configuration
-    config = {
-        'lookback_days': 90
-    }
+    config = {"lookback_days": 90}
 
     # Load discovered projects
     try:
-        with open(".tmp/observatory/ado_structure.json", 'r', encoding='utf-8') as f:
+        with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
             discovery_data = json.load(f)
-        projects = discovery_data['projects']
+        projects = discovery_data["projects"]
         print(f"Loaded {len(projects)} projects from discovery")
     except FileNotFoundError:
         print("[ERROR] Project discovery file not found.")
@@ -514,10 +509,10 @@ if __name__ == "__main__":
 
     # Save results
     week_metrics = {
-        'week_date': datetime.now().strftime('%Y-%m-%d'),
-        'week_number': datetime.now().isocalendar()[1],
-        'projects': project_metrics,
-        'config': config
+        "week_date": datetime.now().strftime("%Y-%m-%d"),
+        "week_number": datetime.now().isocalendar()[1],
+        "projects": project_metrics,
+        "config": config,
     }
 
     save_risk_metrics(week_metrics)
@@ -527,8 +522,8 @@ if __name__ == "__main__":
     print("Delivery Risk Metrics Collection Summary:")
     print(f"  Projects processed: {len(project_metrics)}")
 
-    total_commits = sum(p['code_churn']['total_commits'] for p in project_metrics)
-    total_files = sum(p['code_churn']['unique_files_touched'] for p in project_metrics)
+    total_commits = sum(p["code_churn"]["total_commits"] for p in project_metrics)
+    total_files = sum(p["code_churn"]["unique_files_touched"] for p in project_metrics)
 
     print(f"  Total commits analyzed: {total_commits}")
     print(f"  Total unique files changed: {total_files}")

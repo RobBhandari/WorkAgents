@@ -17,28 +17,28 @@ Usage:
     generate_security_dashboard(output_path)
 """
 
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from pathlib import Path
 
 # Import domain models
 try:
-    from ..domain.security import SecurityMetrics
     from ..collectors.armorcode_loader import ArmorCodeLoader
+    from ..dashboard_framework import get_dashboard_framework
     from ..dashboards.components.cards import metric_card, summary_card
     from ..dashboards.renderer import render_dashboard
-    from ..dashboard_framework import get_dashboard_framework
+    from ..domain.security import SecurityMetrics
 except ImportError:
     import sys
+
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from domain.security import SecurityMetrics  # type: ignore[no-redef]
     from collectors.armorcode_loader import ArmorCodeLoader  # type: ignore[no-redef]
-    from dashboards.components.cards import metric_card, summary_card  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
     from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
+    from dashboards.components.cards import metric_card  # type: ignore[no-redef]
+    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
+    from domain.security import SecurityMetrics  # type: ignore[no-redef]
 
 
-def generate_security_dashboard(output_path: Optional[Path] = None) -> str:
+def generate_security_dashboard(output_path: Path | None = None) -> str:
     """
     Generate security vulnerabilities dashboard HTML.
 
@@ -79,19 +79,19 @@ def generate_security_dashboard(output_path: Optional[Path] = None) -> str:
 
     # Step 4: Render template
     print("[4/4] Rendering HTML template...")
-    html = render_dashboard('dashboards/security_dashboard.html', context)
+    html = render_dashboard("dashboards/security_dashboard.html", context)
 
     # Write to file if specified
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(html, encoding='utf-8')
+        output_path.write_text(html, encoding="utf-8")
         print(f"[SUCCESS] Dashboard written to: {output_path}")
 
     print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
     return html
 
 
-def _calculate_summary(metrics_by_product: Dict[str, SecurityMetrics]) -> Dict:
+def _calculate_summary(metrics_by_product: dict[str, SecurityMetrics]) -> dict:
     """
     Calculate summary statistics across all products.
 
@@ -114,22 +114,19 @@ def _calculate_summary(metrics_by_product: Dict[str, SecurityMetrics]) -> Dict:
     products_with_high = sum(1 for m in metrics_by_product.values() if m.has_high)
 
     return {
-        'total_vulnerabilities': total_vulns,
-        'total_critical': total_critical,
-        'total_high': total_high,
-        'total_medium': total_medium,
-        'total_low': total_low,
-        'critical_high_total': critical_high_total,
-        'products_with_critical': products_with_critical,
-        'products_with_high': products_with_high,
-        'product_count': len(metrics_by_product),
+        "total_vulnerabilities": total_vulns,
+        "total_critical": total_critical,
+        "total_high": total_high,
+        "total_medium": total_medium,
+        "total_low": total_low,
+        "critical_high_total": critical_high_total,
+        "products_with_critical": products_with_critical,
+        "products_with_high": products_with_high,
+        "product_count": len(metrics_by_product),
     }
 
 
-def _build_context(
-    metrics_by_product: Dict[str, SecurityMetrics],
-    summary_stats: Dict
-) -> Dict:
+def _build_context(metrics_by_product: dict[str, SecurityMetrics], summary_stats: dict) -> dict:
     """
     Build template context with all dashboard data.
 
@@ -142,11 +139,11 @@ def _build_context(
     """
     # Get dashboard framework (CSS/JS)
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#8b5cf6',
-        header_gradient_end='#7c3aed',
+        header_gradient_start="#8b5cf6",
+        header_gradient_end="#7c3aed",
         include_table_scroll=True,
         include_expandable_rows=False,
-        include_glossary=True
+        include_glossary=True,
     )
 
     # Build summary cards
@@ -157,18 +154,18 @@ def _build_context(
 
     # Build context
     context = {
-        'framework_css': framework_css,
-        'framework_js': framework_js,
-        'generation_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'summary_cards': summary_cards,
-        'products': products,
-        'show_glossary': True,
+        "framework_css": framework_css,
+        "framework_js": framework_js,
+        "generation_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "summary_cards": summary_cards,
+        "products": products,
+        "show_glossary": True,
     }
 
     return context
 
 
-def _build_summary_cards(summary_stats: Dict) -> List[str]:
+def _build_summary_cards(summary_stats: dict) -> list[str]:
     """
     Build summary metric cards HTML.
 
@@ -181,41 +178,47 @@ def _build_summary_cards(summary_stats: Dict) -> List[str]:
     cards = []
 
     # Total vulnerabilities
-    cards.append(metric_card(
-        title="Total Vulnerabilities",
-        value=str(summary_stats['total_vulnerabilities']),
-        subtitle=f"Across {summary_stats['product_count']} products"
-    ))
+    cards.append(
+        metric_card(
+            title="Total Vulnerabilities",
+            value=str(summary_stats["total_vulnerabilities"]),
+            subtitle=f"Across {summary_stats['product_count']} products",
+        )
+    )
 
     # Critical vulnerabilities
-    critical_class = "rag-red" if summary_stats['total_critical'] > 0 else "rag-green"
-    cards.append(metric_card(
-        title="Critical",
-        value=str(summary_stats['total_critical']),
-        subtitle=f"{summary_stats['products_with_critical']} products affected",
-        css_class=critical_class
-    ))
+    critical_class = "rag-red" if summary_stats["total_critical"] > 0 else "rag-green"
+    cards.append(
+        metric_card(
+            title="Critical",
+            value=str(summary_stats["total_critical"]),
+            subtitle=f"{summary_stats['products_with_critical']} products affected",
+            css_class=critical_class,
+        )
+    )
 
     # High vulnerabilities
-    high_class = "rag-amber" if summary_stats['total_high'] > 5 else "rag-green"
-    cards.append(metric_card(
-        title="High",
-        value=str(summary_stats['total_high']),
-        subtitle=f"{summary_stats['products_with_high']} products affected",
-        css_class=high_class
-    ))
+    high_class = "rag-amber" if summary_stats["total_high"] > 5 else "rag-green"
+    cards.append(
+        metric_card(
+            title="High",
+            value=str(summary_stats["total_high"]),
+            subtitle=f"{summary_stats['products_with_high']} products affected",
+            css_class=high_class,
+        )
+    )
 
     # Critical + High (70% reduction target)
-    cards.append(metric_card(
-        title="Critical + High",
-        value=str(summary_stats['critical_high_total']),
-        subtitle="70% reduction target"
-    ))
+    cards.append(
+        metric_card(
+            title="Critical + High", value=str(summary_stats["critical_high_total"]), subtitle="70% reduction target"
+        )
+    )
 
     return cards
 
 
-def _build_product_rows(metrics_by_product: Dict[str, SecurityMetrics]) -> List[Dict]:
+def _build_product_rows(metrics_by_product: dict[str, SecurityMetrics]) -> list[dict]:
     """
     Build product table rows with status indicators.
 
@@ -243,15 +246,15 @@ def _build_product_rows(metrics_by_product: Dict[str, SecurityMetrics]) -> List[
             status_class = "good"
 
         row = {
-            'name': product_name,
-            'total': metrics.total_vulnerabilities,
-            'critical': metrics.critical,
-            'high': metrics.high,
-            'medium': metrics.medium,
-            'status': status,
-            'status_class': status_class,
-            'expandable': False,  # Can add drill-down later
-            'details': None
+            "name": product_name,
+            "total": metrics.total_vulnerabilities,
+            "critical": metrics.critical,
+            "high": metrics.high,
+            "medium": metrics.medium,
+            "status": status,
+            "status_class": status_class,
+            "expandable": False,  # Can add drill-down later
+            "details": None,
         }
 
         rows.append(row)
@@ -260,12 +263,12 @@ def _build_product_rows(metrics_by_product: Dict[str, SecurityMetrics]) -> List[
 
 
 # Main execution for testing
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Security Dashboard Generator - Self Test")
     print("=" * 60)
 
     try:
-        output_path = Path('.tmp/observatory/dashboards/security.html')
+        output_path = Path(".tmp/observatory/dashboards/security.html")
         html = generate_security_dashboard(output_path)
 
         print("\n" + "=" * 60)
@@ -288,4 +291,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"\n[ERROR] {e}")
         import traceback
+
         traceback.print_exc()

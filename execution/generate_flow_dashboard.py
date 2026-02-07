@@ -7,10 +7,9 @@ Uses modern "mint" design with Chart.js for visualizations.
 """
 
 import json
-import sys
 import os
+import sys
 from datetime import datetime
-from pathlib import Path
 
 # Import mobile-responsive framework
 try:
@@ -19,10 +18,11 @@ except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
 
 # Set UTF-8 encoding for Windows
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 
 def calculate_composite_flow_status(p85_lead_time, p50_lead_time):
@@ -51,10 +51,10 @@ def calculate_composite_flow_status(p85_lead_time, p50_lead_time):
     # Check P85 Lead Time
     if p85_lead_time > 0:
         if p85_lead_time > 150:
-            issues.append('poor')
+            issues.append("poor")
             metric_details.append(f"P85 Lead Time {p85_lead_time:.1f} days (poor - target <60)")
         elif p85_lead_time > 60:
-            issues.append('caution')
+            issues.append("caution")
             metric_details.append(f"P85 Lead Time {p85_lead_time:.1f} days (caution - target <60)")
         else:
             metric_details.append(f"P85 Lead Time {p85_lead_time:.1f} days (good)")
@@ -64,10 +64,10 @@ def calculate_composite_flow_status(p85_lead_time, p50_lead_time):
     # Check P50 Lead Time (Median)
     if p50_lead_time > 0:
         if p50_lead_time > 90:
-            issues.append('poor')
+            issues.append("poor")
             metric_details.append(f"Median Lead Time {p50_lead_time:.1f} days (poor - target <30)")
         elif p50_lead_time > 30:
-            issues.append('caution')
+            issues.append("caution")
             metric_details.append(f"Median Lead Time {p50_lead_time:.1f} days (caution - target <30)")
         else:
             metric_details.append(f"Median Lead Time {p50_lead_time:.1f} days (good)")
@@ -78,19 +78,19 @@ def calculate_composite_flow_status(p85_lead_time, p50_lead_time):
     tooltip = "\n".join(metric_details)
 
     # Determine overall status and priority
-    if 'poor' in issues and len([i for i in issues if i == 'poor']) >= 2:
+    if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
         # Both metrics poor = Action Needed
         status_html = '<span style="color: #ef4444;">● Action Needed</span>'
         priority = 0
-    elif 'poor' in issues:
+    elif "poor" in issues:
         # One poor metric = Caution
         status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
         priority = 1
-    elif 'caution' in issues and len([i for i in issues if i == 'caution']) >= 2:
+    elif "caution" in issues and len([i for i in issues if i == "caution"]) >= 2:
         # Both metrics caution = Caution
         status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
         priority = 1
-    elif 'caution' in issues:
+    elif "caution" in issues:
         # One caution metric = Caution
         status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
         priority = 1
@@ -102,13 +102,11 @@ def calculate_composite_flow_status(p85_lead_time, p50_lead_time):
     return status_html, tooltip, priority
 
 
-
-
 def load_flow_data():
     """Load flow metrics from history file"""
-    with open('.tmp/observatory/flow_history.json', 'r', encoding='utf-8') as f:
+    with open(".tmp/observatory/flow_history.json", encoding="utf-8") as f:
         data = json.load(f)
-    return data['weeks'][-1]  # Most recent week
+    return data["weeks"][-1]  # Most recent week
 
 
 def generate_html(flow_data):
@@ -116,40 +114,40 @@ def generate_html(flow_data):
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#10b981',
-        header_gradient_end='#059669',
+        header_gradient_start="#10b981",
+        header_gradient_end="#059669",
         include_table_scroll=True,
         include_expandable_rows=False,
-        include_glossary=True
+        include_glossary=True,
     )
 
     # Extract data for charts
-    projects = flow_data['projects']
+    projects = flow_data["projects"]
 
     # Calculate portfolio stats by work type
     totals_by_type = {
-        'Bug': {'open': 0, 'closed': 0, 'lead_times': []},
-        'User Story': {'open': 0, 'closed': 0, 'lead_times': []},
-        'Task': {'open': 0, 'closed': 0, 'lead_times': []}
+        "Bug": {"open": 0, "closed": 0, "lead_times": []},
+        "User Story": {"open": 0, "closed": 0, "lead_times": []},
+        "Task": {"open": 0, "closed": 0, "lead_times": []},
     }
 
     for p in projects:
-        for work_type in ['Bug', 'User Story', 'Task']:
-            metrics = p.get('work_type_metrics', {}).get(work_type, {})
-            totals_by_type[work_type]['open'] += metrics.get('open_count', 0)
-            totals_by_type[work_type]['closed'] += metrics.get('closed_count_90d', 0)
-            p85 = metrics.get('lead_time', {}).get('p85')
+        for work_type in ["Bug", "User Story", "Task"]:
+            metrics = p.get("work_type_metrics", {}).get(work_type, {})
+            totals_by_type[work_type]["open"] += metrics.get("open_count", 0)
+            totals_by_type[work_type]["closed"] += metrics.get("closed_count_90d", 0)
+            p85 = metrics.get("lead_time", {}).get("p85")
             if p85 and p85 > 0:
-                totals_by_type[work_type]['lead_times'].append(p85)
+                totals_by_type[work_type]["lead_times"].append(p85)
 
     # Calculate average lead time across all work types for status determination
     all_lead_times = []
-    for wtype in ['Bug', 'User Story', 'Task']:
-        all_lead_times.extend(totals_by_type[wtype]['lead_times'])
+    for wtype in ["Bug", "User Story", "Task"]:
+        all_lead_times.extend(totals_by_type[wtype]["lead_times"])
 
     avg_lead_time = sum(all_lead_times) / len(all_lead_times) if all_lead_times else 0
-    total_wip = sum(totals_by_type[wt]['open'] for wt in ['Bug', 'User Story', 'Task'])
-    total_closed = sum(totals_by_type[wt]['closed'] for wt in ['Bug', 'User Story', 'Task'])
+    total_wip = sum(totals_by_type[wt]["open"] for wt in ["Bug", "User Story", "Task"])
+    total_closed = sum(totals_by_type[wt]["closed"] for wt in ["Bug", "User Story", "Task"])
 
     # Status determination
     if avg_lead_time < 60:
@@ -162,7 +160,7 @@ def generate_html(flow_data):
         status_color = "#f87171"  # Red
         status_text = "ACTION NEEDED"
 
-    html = f'''<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -530,13 +528,17 @@ def generate_html(flow_data):
                 </div>
             </div>
         </div>
-'''
+"""
 
     # Generate tables for each work type
-    for work_type, color in [('Bug', '#ef4444'), ('User Story', '#3b82f6'), ('Task', '#10b981')]:
-        avg_wt_lead_time = sum(totals_by_type[work_type]['lead_times']) / len(totals_by_type[work_type]['lead_times']) if totals_by_type[work_type]['lead_times'] else 0
+    for work_type, color in [("Bug", "#ef4444"), ("User Story", "#3b82f6"), ("Task", "#10b981")]:
+        avg_wt_lead_time = (
+            sum(totals_by_type[work_type]["lead_times"]) / len(totals_by_type[work_type]["lead_times"])
+            if totals_by_type[work_type]["lead_times"]
+            else 0
+        )
 
-        html += f'''
+        html += f"""
         <!-- {work_type} Flow Table -->
         <div class="card">
             <h2 style="border-left: 4px solid {color}; padding-left: 12px;">{work_type} Flow Metrics
@@ -559,95 +561,96 @@ def generate_html(flow_data):
                         </tr>
                     </thead>
                     <tbody>
-'''
+"""
 
         # Add project rows for this work type
         # First, prepare projects with their status for sorting
         projects_with_status = []
         for project in projects:
-            work_type_metrics = project.get('work_type_metrics', {}).get(work_type, {})
-            lead_time = work_type_metrics.get('lead_time', {})
-            dual_metrics = work_type_metrics.get('dual_metrics', {})
-            p85 = lead_time.get('p85') or 0
-            p50 = lead_time.get('p50') or 0
-            open_count = work_type_metrics.get('open_count', 0)
-            closed_count = work_type_metrics.get('closed_count_90d', 0)
+            work_type_metrics = project.get("work_type_metrics", {}).get(work_type, {})
+            lead_time = work_type_metrics.get("lead_time", {})
+            dual_metrics = work_type_metrics.get("dual_metrics", {})
+            p85 = lead_time.get("p85") or 0
+            p50 = lead_time.get("p50") or 0
+            open_count = work_type_metrics.get("open_count", 0)
+            closed_count = work_type_metrics.get("closed_count_90d", 0)
 
             # Extract throughput and cycle time variance
-            throughput_data = work_type_metrics.get('throughput', {})
-            throughput_per_week = throughput_data.get('per_week', 0) or 0
+            throughput_data = work_type_metrics.get("throughput", {})
+            throughput_per_week = throughput_data.get("per_week", 0) or 0
 
-            cycle_variance_data = work_type_metrics.get('cycle_time_variance', {})
-            std_dev_days = cycle_variance_data.get('std_dev_days', 0) or 0
-            coefficient_of_variation = cycle_variance_data.get('coefficient_of_variation', 0) or 0
+            cycle_variance_data = work_type_metrics.get("cycle_time_variance", {})
+            std_dev_days = cycle_variance_data.get("std_dev_days", 0) or 0
+            coefficient_of_variation = cycle_variance_data.get("coefficient_of_variation", 0) or 0
 
             # Skip if no data for this work type
             if open_count == 0 and closed_count == 0:
                 continue
 
             # Check for cleanup work
-            has_cleanup = dual_metrics.get('indicators', {}).get('is_cleanup_effort', False)
-            operational_metrics = dual_metrics.get('operational', {}) if has_cleanup else None
+            has_cleanup = dual_metrics.get("indicators", {}).get("is_cleanup_effort", False)
+            operational_metrics = dual_metrics.get("operational", {}) if has_cleanup else None
 
             # Determine status (use operational metrics if cleanup is present)
             if has_cleanup and operational_metrics:
-                status_p85 = operational_metrics.get('p85') or 0
-                status_p50 = operational_metrics.get('p50') or 0
+                status_p85 = operational_metrics.get("p85") or 0
+                status_p50 = operational_metrics.get("p50") or 0
             else:
                 status_p85 = p85
                 status_p50 = p50
 
             row_status, status_tooltip, status_priority = calculate_composite_flow_status(
-                p85_lead_time=status_p85,
-                p50_lead_time=status_p50
+                p85_lead_time=status_p85, p50_lead_time=status_p50
             )
 
-            projects_with_status.append({
-                'project': project,
-                'p85': p85,
-                'p50': p50,
-                'open_count': open_count,
-                'closed_count': closed_count,
-                'throughput_per_week': throughput_per_week,
-                'std_dev_days': std_dev_days,
-                'coefficient_of_variation': coefficient_of_variation,
-                'row_status': row_status,
-                'status_tooltip': status_tooltip,
-                'status_priority': status_priority,
-                'has_cleanup': has_cleanup,
-                'dual_metrics': dual_metrics,
-                'operational_metrics': operational_metrics
-            })
+            projects_with_status.append(
+                {
+                    "project": project,
+                    "p85": p85,
+                    "p50": p50,
+                    "open_count": open_count,
+                    "closed_count": closed_count,
+                    "throughput_per_week": throughput_per_week,
+                    "std_dev_days": std_dev_days,
+                    "coefficient_of_variation": coefficient_of_variation,
+                    "row_status": row_status,
+                    "status_tooltip": status_tooltip,
+                    "status_priority": status_priority,
+                    "has_cleanup": has_cleanup,
+                    "dual_metrics": dual_metrics,
+                    "operational_metrics": operational_metrics,
+                }
+            )
 
         # Sort by status priority (Red->Amber->Green), then by P85 lead time descending
-        projects_with_status.sort(key=lambda x: (x['status_priority'], -x['p85']))
+        projects_with_status.sort(key=lambda x: (x["status_priority"], -x["p85"]))
 
         # Now render the sorted projects
         for idx, proj_data in enumerate(projects_with_status):
-            project = proj_data['project']
-            p85 = proj_data['p85']
-            p50 = proj_data['p50']
-            open_count = proj_data['open_count']
-            closed_count = proj_data['closed_count']
-            throughput_per_week = proj_data['throughput_per_week']
-            std_dev_days = proj_data['std_dev_days']
-            coefficient_of_variation = proj_data['coefficient_of_variation']
-            row_status = proj_data['row_status']
-            status_tooltip = proj_data['status_tooltip']
-            has_cleanup = proj_data['has_cleanup']
-            dual_metrics = proj_data['dual_metrics']
-            operational_metrics = proj_data['operational_metrics']
+            project = proj_data["project"]
+            p85 = proj_data["p85"]
+            p50 = proj_data["p50"]
+            open_count = proj_data["open_count"]
+            closed_count = proj_data["closed_count"]
+            throughput_per_week = proj_data["throughput_per_week"]
+            std_dev_days = proj_data["std_dev_days"]
+            coefficient_of_variation = proj_data["coefficient_of_variation"]
+            row_status = proj_data["row_status"]
+            status_tooltip = proj_data["status_tooltip"]
+            has_cleanup = proj_data["has_cleanup"]
+            dual_metrics = proj_data["dual_metrics"]
+            operational_metrics = proj_data["operational_metrics"]
 
             # Main data row - show operational metrics if cleanup detected
             if has_cleanup and operational_metrics:
                 # Show operational metrics with cleanup indicator
-                op_p85 = operational_metrics.get('p85', 0)
-                op_p50 = operational_metrics.get('p50', 0)
-                op_closed = operational_metrics.get('closed_count', 0)
-                cleanup_closed = dual_metrics.get('cleanup', {}).get('closed_count', 0)
-                cleanup_pct = dual_metrics.get('indicators', {}).get('cleanup_percentage', 0)
+                op_p85 = operational_metrics.get("p85", 0)
+                op_p50 = operational_metrics.get("p50", 0)
+                op_closed = operational_metrics.get("closed_count", 0)
+                cleanup_closed = dual_metrics.get("cleanup", {}).get("closed_count", 0)
+                cleanup_pct = dual_metrics.get("indicators", {}).get("cleanup_percentage", 0)
 
-                html += f'''                    <tr>
+                html += f"""                    <tr>
                         <td><strong>{project['project_name']}</strong> <span style="color: #f59e0b;" title="{cleanup_pct:.0f}% of closures are cleanup work (>1 year old)">⚠️ Cleanup</span></td>
                         <td><strong>{op_p85:.1f} days</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(Total: {p85:.1f})</span></td>
                         <td><strong>{op_p50:.1f} days</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(Total: {p50:.1f})</span></td>
@@ -657,10 +660,10 @@ def generate_html(flow_data):
                         <td><strong>{op_closed:,}</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(+{cleanup_closed:,} cleanup)</span></td>
                         <td title="{status_tooltip} (based on operational metrics)">{row_status}</td>
                     </tr>
-'''
+"""
             else:
                 # Standard row without cleanup
-                html += f'''                    <tr>
+                html += f"""                    <tr>
                         <td><strong>{project['project_name']}</strong></td>
                         <td>{p85:.1f} days</td>
                         <td>{p50:.1f} days</td>
@@ -670,15 +673,15 @@ def generate_html(flow_data):
                         <td>{closed_count:,}</td>
                         <td title="{status_tooltip}">{row_status}</td>
                     </tr>
-'''
+"""
 
-        html += '''                </tbody>
+        html += """                </tbody>
                 </table>
             </div>
         </div>
-'''
+"""
 
-    html += f'''
+    html += f"""
         <!-- Glossary -->
         <div class="glossary">
             <div class="glossary-header" onclick="toggleGlossary()">
@@ -834,7 +837,7 @@ def generate_html(flow_data):
     </script>
 </body>
 </html>
-'''
+"""
     return html
 
 
@@ -856,12 +859,12 @@ def main():
     html = generate_html(flow_data)
 
     # Save to file
-    output_file = '.tmp/observatory/dashboards/flow_dashboard.html'
+    output_file = ".tmp/observatory/dashboards/flow_dashboard.html"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\n[SUCCESS] Dashboard generated!")
+    print("\n[SUCCESS] Dashboard generated!")
     print(f"  Location: {output_file}")
     print(f"  Size: {len(html):,} bytes")
     print(f"\nOpen in browser: start {output_file}")

@@ -9,10 +9,9 @@ Focuses on work item-based risk signals (reopened bugs, change patterns).
 """
 
 import json
-import sys
 import os
+import sys
 from datetime import datetime
-from pathlib import Path
 
 # Import mobile-responsive framework
 try:
@@ -21,10 +20,11 @@ except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
 
 # Set UTF-8 encoding for Windows
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 
 def calculate_risk_level(commit_count):
@@ -54,49 +54,49 @@ def generate_risk_drilldown_html(project):
     html = '<div class="detail-content">'
 
     # Section 1: Code Churn Metrics
-    code_churn = project.get('code_churn', {})
-    pr_dist = project.get('pr_size_distribution', {})
-    repo_count = project.get('repository_count', 0)
+    code_churn = project.get("code_churn", {})
+    pr_dist = project.get("pr_size_distribution", {})
+    repo_count = project.get("repository_count", 0)
 
     html += '<div class="detail-section">'
-    html += '<h4>Code Activity Metrics (Last 90 Days - All Project Activity)</h4>'
+    html += "<h4>Code Activity Metrics (Last 90 Days - All Project Activity)</h4>"
 
-    if code_churn.get('total_commits', 0) > 0 or pr_dist.get('total_prs', 0) > 0:
+    if code_churn.get("total_commits", 0) > 0 or pr_dist.get("total_prs", 0) > 0:
         html += '<div class="detail-grid">'
 
-        if code_churn.get('total_commits', 0) > 0:
-            html += f'''<div class="detail-metric">
+        if code_churn.get("total_commits", 0) > 0:
+            html += f"""<div class="detail-metric">
                 <div class="detail-metric-label">Total Commits</div>
                 <div class="detail-metric-value">{code_churn['total_commits']}</div>
-            </div>'''
+            </div>"""
 
-            html += f'''<div class="detail-metric">
+            html += f"""<div class="detail-metric">
                 <div class="detail-metric-label">Files Changed</div>
                 <div class="detail-metric-value">{code_churn.get('total_file_changes', 0)}</div>
-            </div>'''
+            </div>"""
 
-            html += f'''<div class="detail-metric">
+            html += f"""<div class="detail-metric">
                 <div class="detail-metric-label">Avg Changes/Commit</div>
                 <div class="detail-metric-value">{code_churn.get('avg_changes_per_commit', 0):.1f}</div>
-            </div>'''
+            </div>"""
 
-        if pr_dist.get('total_prs', 0) > 0:
-            html += f'''<div class="detail-metric">
+        if pr_dist.get("total_prs", 0) > 0:
+            html += f"""<div class="detail-metric">
                 <div class="detail-metric-label">Total PRs</div>
                 <div class="detail-metric-value">{pr_dist['total_prs']}</div>
-            </div>'''
+            </div>"""
 
-            html += f'''<div class="detail-metric">
+            html += f"""<div class="detail-metric">
                 <div class="detail-metric-label">Small PRs</div>
                 <div class="detail-metric-value">{pr_dist.get('small_prs', 0)} ({pr_dist.get('small_pct', 0):.0f}%)</div>
-            </div>'''
+            </div>"""
 
-            html += f'''<div class="detail-metric">
+            html += f"""<div class="detail-metric">
                 <div class="detail-metric-label">Large PRs</div>
                 <div class="detail-metric-value">{pr_dist.get('large_prs', 0)} ({pr_dist.get('large_pct', 0):.0f}%)</div>
-            </div>'''
+            </div>"""
 
-        html += '</div>'
+        html += "</div>"
     else:
         # Show message when no activity data is found
         if repo_count > 0:
@@ -104,53 +104,53 @@ def generate_risk_drilldown_html(project):
         else:
             html += '<p style="color: #6b7280; font-size: 0.9rem;">No repository data available.</p>'
 
-    html += '</div>'
+    html += "</div>"
 
     # Section 3: Hot Paths (High Churn Files)
-    hot_paths = code_churn.get('hot_paths', [])
+    hot_paths = code_churn.get("hot_paths", [])
     if hot_paths:
         html += '<div class="detail-section">'
-        html += '<h4>Hot Paths (High Churn Files)</h4>'
+        html += "<h4>Hot Paths (High Churn Files)</h4>"
         html += '<ul class="detail-list">'
         for path_data in hot_paths[:10]:  # Show max 10
-            path = path_data.get('path', 'Unknown')
-            changes = path_data.get('change_count', 0)
-            html += f'''<li>
+            path = path_data.get("path", "Unknown")
+            changes = path_data.get("change_count", 0)
+            html += f"""<li>
                 <strong>{path}</strong>
                 <em>({changes} changes)</em>
-            </li>'''
-        html += '</ul></div>'
+            </li>"""
+        html += "</ul></div>"
 
     # Section 4: Repository Info
     if repo_count > 0:
-        html += f'<div class="detail-section">'
+        html += '<div class="detail-section">'
         html += f'<p style="color: #6b7280; font-size: 0.9rem;"><strong>Repositories:</strong> {repo_count} repos tracked for this project</p>'
-        html += '</div>'
+        html += "</div>"
 
     # If no data at all
-    if not (code_churn.get('total_commits', 0) > 0 or pr_dist.get('total_prs', 0) > 0):
+    if not (code_churn.get("total_commits", 0) > 0 or pr_dist.get("total_prs", 0) > 0):
         html += '<div class="no-data">No detailed metrics available for this project</div>'
 
-    html += '</div>'
+    html += "</div>"
     return html
 
 
 def load_risk_data():
     """Load risk metrics from history file"""
-    with open('.tmp/observatory/risk_history.json', 'r', encoding='utf-8') as f:
+    with open(".tmp/observatory/risk_history.json", encoding="utf-8") as f:
         data = json.load(f)
-    return data['weeks'][-1]  # Most recent week
+    return data["weeks"][-1]  # Most recent week
 
 
 def generate_html(risk_data):
     """Generate self-contained HTML dashboard"""
 
     # Extract project data
-    projects = risk_data['projects']
+    projects = risk_data["projects"]
 
     # Calculate portfolio stats
-    total_commits = sum(p['code_churn']['total_commits'] for p in projects)
-    total_files = sum(p['code_churn']['unique_files_touched'] for p in projects)
+    total_commits = sum(p["code_churn"]["total_commits"] for p in projects)
+    total_files = sum(p["code_churn"]["unique_files_touched"] for p in projects)
 
     # Status determination based on code activity
     if total_commits > 1000:
@@ -165,14 +165,14 @@ def generate_html(risk_data):
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#f59e0b',
-        header_gradient_end='#d97706',
+        header_gradient_start="#f59e0b",
+        header_gradient_end="#d97706",
         include_table_scroll=True,
         include_expandable_rows=True,
-        include_glossary=True
+        include_glossary=True,
     )
 
-    html = f'''<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -359,23 +359,23 @@ def generate_html(risk_data):
                         </tr>
                     </thead>
                     <tbody>
-'''
+"""
 
     # Add project rows with expandable drill-down
     # First, prepare projects with their activity level for sorting
     projects_with_activity = []
     for project in projects:
-        commits = project['code_churn']['total_commits']
-        files = project['code_churn']['unique_files_touched']
+        commits = project["code_churn"]["total_commits"]
+        files = project["code_churn"]["unique_files_touched"]
 
         # Extract knowledge distribution
-        knowledge_dist = project.get('knowledge_distribution', {})
-        single_owner_pct = knowledge_dist.get('single_owner_pct', 0) or 0
-        total_files_analyzed = knowledge_dist.get('total_files_analyzed', 0)
+        knowledge_dist = project.get("knowledge_distribution", {})
+        single_owner_pct = knowledge_dist.get("single_owner_pct", 0) or 0
+        total_files_analyzed = knowledge_dist.get("total_files_analyzed", 0)
 
         # Extract module coupling
-        module_coupling = project.get('module_coupling', {})
-        total_coupled_pairs = module_coupling.get('total_coupled_pairs', 0)
+        module_coupling = project.get("module_coupling", {})
+        total_coupled_pairs = module_coupling.get("total_coupled_pairs", 0)
 
         # Determine activity level and tooltip
         activity_level, activity_tooltip, activity_priority = calculate_risk_level(commits)
@@ -383,42 +383,46 @@ def generate_html(risk_data):
         # Generate drill-down content
         drilldown_html = generate_risk_drilldown_html(project)
 
-        projects_with_activity.append({
-            'project': project,
-            'commits': commits,
-            'files': files,
-            'single_owner_pct': single_owner_pct,
-            'total_files_analyzed': total_files_analyzed,
-            'total_coupled_pairs': total_coupled_pairs,
-            'activity_level': activity_level,
-            'activity_tooltip': activity_tooltip,
-            'activity_priority': activity_priority,
-            'drilldown_html': drilldown_html
-        })
+        projects_with_activity.append(
+            {
+                "project": project,
+                "commits": commits,
+                "files": files,
+                "single_owner_pct": single_owner_pct,
+                "total_files_analyzed": total_files_analyzed,
+                "total_coupled_pairs": total_coupled_pairs,
+                "activity_level": activity_level,
+                "activity_tooltip": activity_tooltip,
+                "activity_priority": activity_priority,
+                "drilldown_html": drilldown_html,
+            }
+        )
 
     # Sort by activity priority (High->Medium->Low), then by commits descending
-    projects_with_activity.sort(key=lambda x: (x['activity_priority'], -x['commits']))
+    projects_with_activity.sort(key=lambda x: (x["activity_priority"], -x["commits"]))
 
     # Now render the sorted projects
     for idx, proj_data in enumerate(projects_with_activity):
-        project = proj_data['project']
-        commits = proj_data['commits']
-        files = proj_data['files']
-        single_owner_pct = proj_data['single_owner_pct']
-        total_files_analyzed = proj_data['total_files_analyzed']
-        total_coupled_pairs = proj_data['total_coupled_pairs']
-        activity_level = proj_data['activity_level']
-        activity_tooltip = proj_data['activity_tooltip']
-        drilldown_html = proj_data['drilldown_html']
+        project = proj_data["project"]
+        commits = proj_data["commits"]
+        files = proj_data["files"]
+        single_owner_pct = proj_data["single_owner_pct"]
+        total_files_analyzed = proj_data["total_files_analyzed"]
+        total_coupled_pairs = proj_data["total_coupled_pairs"]
+        activity_level = proj_data["activity_level"]
+        activity_tooltip = proj_data["activity_tooltip"]
+        drilldown_html = proj_data["drilldown_html"]
 
         # Format display values
-        knowledge_display = f'{single_owner_pct:.1f}%' if single_owner_pct > 0 else 'N/A'
-        knowledge_title = f'{total_files_analyzed:,} files analyzed' if total_files_analyzed > 0 else 'No file data'
-        coupling_display = f'{total_coupled_pairs:,}' if total_coupled_pairs > 0 else 'N/A'
-        coupling_title = 'Files that change together frequently (3+ times)' if total_coupled_pairs > 0 else 'No coupling data'
+        knowledge_display = f"{single_owner_pct:.1f}%" if single_owner_pct > 0 else "N/A"
+        knowledge_title = f"{total_files_analyzed:,} files analyzed" if total_files_analyzed > 0 else "No file data"
+        coupling_display = f"{total_coupled_pairs:,}" if total_coupled_pairs > 0 else "N/A"
+        coupling_title = (
+            "Files that change together frequently (3+ times)" if total_coupled_pairs > 0 else "No coupling data"
+        )
 
         # Main data row (clickable)
-        html += f'''                    <tr class="data-row" onclick="toggleDetail('risk-detail-{idx}', this)">
+        html += f"""                    <tr class="data-row" onclick="toggleDetail('risk-detail-{idx}', this)">
                         <td><strong>{project['project_name']}</strong></td>
                         <td>{commits}</td>
                         <td>{files}</td>
@@ -431,9 +435,9 @@ def generate_html(risk_data):
                             {drilldown_html}
                         </td>
                     </tr>
-'''
+"""
 
-    html += f'''                </tbody>
+    html += f"""                </tbody>
                 </table>
             </div>
         </div>
@@ -539,7 +543,7 @@ def generate_html(risk_data):
     </script>
 </body>
 </html>
-'''
+"""
     return html
 
 
@@ -561,12 +565,12 @@ def main():
     html = generate_html(risk_data)
 
     # Save to file
-    output_file = '.tmp/observatory/dashboards/risk_dashboard.html'
+    output_file = ".tmp/observatory/dashboards/risk_dashboard.html"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\n[SUCCESS] Dashboard generated!")
+    print("\n[SUCCESS] Dashboard generated!")
     print(f"  Location: {output_file}")
     print(f"  Size: {len(html):,} bytes")
     print(f"\nOpen in browser: start {output_file}")

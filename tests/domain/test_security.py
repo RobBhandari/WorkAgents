@@ -35,24 +35,14 @@ class TestVulnerability:
     def test_is_critical_or_high_high(self):
         """Test is_critical_or_high for HIGH vuln"""
         vuln = Vulnerability(
-            id="VUL-123",
-            title="XSS vulnerability",
-            severity="HIGH",
-            status="Open",
-            product="Web App",
-            age_days=10
+            id="VUL-123", title="XSS vulnerability", severity="HIGH", status="Open", product="Web App", age_days=10
         )
         assert vuln.is_critical_or_high is True
 
     def test_is_critical_or_high_medium(self):
         """Test is_critical_or_high for MEDIUM vuln"""
         vuln = Vulnerability(
-            id="VUL-123",
-            title="Info disclosure",
-            severity="MEDIUM",
-            status="Open",
-            product="API",
-            age_days=5
+            id="VUL-123", title="Info disclosure", severity="MEDIUM", status="Open", product="API", age_days=5
         )
         assert vuln.is_critical_or_high is False
 

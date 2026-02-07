@@ -25,17 +25,17 @@ def validate_history_file(file_path: str, required_fields: list = None) -> tuple
         # Check file is not empty
         file_size = os.path.getsize(file_path)
         if file_size == 0:
-            return False, f"File is empty (0 bytes)"
+            return False, "File is empty (0 bytes)"
 
         # Check valid JSON
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
         # Check has weeks structure
-        if 'weeks' not in data:
+        if "weeks" not in data:
             return False, "Missing 'weeks' key in data structure"
 
-        weeks = data['weeks']
+        weeks = data["weeks"]
         if not isinstance(weeks, list):
             return False, "'weeks' is not a list"
 
@@ -62,10 +62,11 @@ def validate_history_file(file_path: str, required_fields: list = None) -> tuple
 def main():
     """Validate all metrics history files"""
     # Set UTF-8 encoding for Windows console
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("=" * 70)
     print("Metrics Data Validation")
@@ -96,11 +97,7 @@ def main():
 
         print(f"{status_icon} {filename:30s} {status_text:8s} - {message}")
 
-        validation_results.append({
-            "file": filename,
-            "valid": is_valid,
-            "message": message
-        })
+        validation_results.append({"file": filename, "valid": is_valid, "message": message})
 
         if not is_valid:
             all_valid = False
@@ -112,11 +109,11 @@ def main():
         print(f"✓ Total files validated: {len(required_files)}")
         return 0
     else:
-        invalid_count = sum(1 for r in validation_results if not r['valid'])
+        invalid_count = sum(1 for r in validation_results if not r["valid"])
         print(f"✗ Validation failed! {invalid_count}/{len(required_files)} files are invalid.")
         print("\nInvalid files:")
         for result in validation_results:
-            if not result['valid']:
+            if not result["valid"]:
                 print(f"  - {result['file']}: {result['message']}")
         return 1
 

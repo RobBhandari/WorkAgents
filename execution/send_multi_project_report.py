@@ -11,18 +11,20 @@ Usage:
     python send_multi_project_report.py --projects ALCM ProjectB ProjectC
 """
 
-from execution.core import get_config
-import os
-import sys
 import argparse
-import logging
-import json
-import smtplib
 import glob
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import json
+import logging
+import os
+import smtplib
+import sys
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from dotenv import load_dotenv
+
+from execution.core import get_config
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,11 +32,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/send_multi_project_report_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -42,18 +44,10 @@ logger = logging.getLogger(__name__)
 DEFAULT_RECIPIENT = "robin.bhandari@theaccessgroup.com"
 
 # Status colors for HTML (softer, gradient-friendly tones)
-STATUS_COLORS = {
-    'GREEN': '#10b981',
-    'AMBER': '#f59e0b',
-    'RED': '#f87171'
-}
+STATUS_COLORS = {"GREEN": "#10b981", "AMBER": "#f59e0b", "RED": "#f87171"}
 
 # Status sort order
-STATUS_ORDER = {
-    'GREEN': 0,
-    'AMBER': 1,
-    'RED': 2
-}
+STATUS_ORDER = {"GREEN": 0, "AMBER": 1, "RED": 2}
 
 
 def discover_projects() -> list[str]:
@@ -63,12 +57,12 @@ def discover_projects() -> list[str]:
     Returns:
         list: List of project keys
     """
-    baseline_files = glob.glob('.tmp/baseline_*.json')
+    baseline_files = glob.glob(".tmp/baseline_*.json")
     project_keys = []
 
     for file in baseline_files:
         # Extract project key from filename: baseline_<project_key>.json
-        project_key = os.path.basename(file).replace('baseline_', '').replace('.json', '')
+        project_key = os.path.basename(file).replace("baseline_", "").replace(".json", "")
         project_keys.append(project_key)
 
     logger.info(f"Discovered {len(project_keys)} projects: {', '.join(project_keys)}")
@@ -88,8 +82,8 @@ def load_project_data(project_key: str) -> dict:
     Raises:
         FileNotFoundError: If baseline or tracking file doesn't exist
     """
-    baseline_file = f'.tmp/baseline_{project_key}.json'
-    tracking_file = f'.tmp/weekly_tracking_{project_key}.json'
+    baseline_file = f".tmp/baseline_{project_key}.json"
+    tracking_file = f".tmp/weekly_tracking_{project_key}.json"
 
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(f"Baseline not found for project '{project_key}': {baseline_file}")
@@ -99,25 +93,25 @@ def load_project_data(project_key: str) -> dict:
 
     logger.info(f"Loading data for project '{project_key}'")
 
-    with open(baseline_file, 'r', encoding='utf-8') as f:
+    with open(baseline_file, encoding="utf-8") as f:
         baseline = json.load(f)
 
-    with open(tracking_file, 'r', encoding='utf-8') as f:
+    with open(tracking_file, encoding="utf-8") as f:
         tracking = json.load(f)
 
-    weeks = tracking.get('weeks', [])
+    weeks = tracking.get("weeks", [])
     if not weeks:
         raise ValueError(f"No weekly data found for project '{project_key}'")
 
     latest_week = weeks[-1]
 
     return {
-        'project_key': project_key,
-        'project_name': baseline.get('project', project_key),
-        'baseline': baseline,
-        'latest_week': latest_week,
-        'week_number': latest_week['week_number'],
-        'weeks_remaining': baseline['weeks_to_target'] - latest_week['week_number']
+        "project_key": project_key,
+        "project_name": baseline.get("project", project_key),
+        "baseline": baseline,
+        "latest_week": latest_week,
+        "week_number": latest_week["week_number"],
+        "weeks_remaining": baseline["weeks_to_target"] - latest_week["week_number"],
     }
 
 
@@ -155,8 +149,9 @@ def sort_projects_by_status(projects: list[dict]) -> list[dict]:
     Returns:
         list: Sorted list of projects
     """
+
     def get_sort_key(project):
-        status = project['latest_week']['status']
+        status = project["latest_week"]["status"]
         return STATUS_ORDER.get(status, 99)
 
     return sorted(projects, key=get_sort_key)
@@ -176,7 +171,7 @@ def format_email_body_text(projects: list[dict]) -> str:
     projects = sort_projects_by_status(projects)
 
     # Calculate week number (should be same for all projects)
-    week_number = projects[0]['week_number'] if projects else 0
+    week_number = projects[0]["week_number"] if projects else 0
 
     body = f"""Bug Position Report - Week {week_number}
 Generated: {datetime.now().strftime('%B %d, %Y')}
@@ -190,12 +185,12 @@ Generated: {datetime.now().strftime('%B %d, %Y')}
 
     # Table rows
     for project in projects:
-        week = project['latest_week']
-        baseline = project['baseline']
+        week = project["latest_week"]
+        baseline = project["baseline"]
 
         # Status indicator (using text for plain email)
-        status_map = {'GREEN': '[G]', 'AMBER': '[A]', 'RED': '[R]'}
-        status_text = status_map.get(week['status'], '[?]')
+        status_map = {"GREEN": "[G]", "AMBER": "[A]", "RED": "[R]"}
+        status_text = status_map.get(week["status"], "[?]")
 
         body += f"{project['project_name']:<20} {status_text:<8} {baseline['open_count']:<9} {baseline['target_count']:<7} {week['open']:<8} {week['expected']:<9} {week['net_burn']:+9} {week['required_burn']:+9.2f}\n"
 
@@ -219,9 +214,9 @@ def format_email_body_html(projects: list[dict]) -> str:
     projects = sort_projects_by_status(projects)
 
     # Calculate week number (should be same for all projects)
-    week_number = projects[0]['week_number'] if projects else 0
-    weeks_remaining = projects[0]['weeks_remaining'] if projects else 0
-    target_date = projects[0]['baseline']['target_date'] if projects else ''
+    week_number = projects[0]["week_number"] if projects else 0
+    weeks_remaining = projects[0]["weeks_remaining"] if projects else 0
+    target_date = projects[0]["baseline"]["target_date"] if projects else ""
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -266,24 +261,32 @@ def format_email_body_html(projects: list[dict]) -> str:
 
     # Table rows
     for i, project in enumerate(projects):
-        week = project['latest_week']
-        baseline = project['baseline']
-        status = week['status']
+        week = project["latest_week"]
+        baseline = project["baseline"]
+        status = week["status"]
         status_color = STATUS_COLORS[status]
 
         # Determine if next project has same status (add stronger separator between different statuses)
-        next_same_status = i < len(projects) - 1 and projects[i + 1]['latest_week']['status'] == status
-        status_border = '' if next_same_status else 'border-bottom: 4px solid rgba(0,0,0,0.15);'
+        next_same_status = i < len(projects) - 1 and projects[i + 1]["latest_week"]["status"] == status
+        status_border = "" if next_same_status else "border-bottom: 4px solid rgba(0,0,0,0.15);"
 
         # Alternate row colors with soft gradients
-        row_bg = 'linear-gradient(to right, #ffffff 0%, #fafbfc 100%)' if i % 2 == 0 else 'linear-gradient(to right, #f8f9fa 0%, #f1f3f5 100%)'
+        row_bg = (
+            "linear-gradient(to right, #ffffff 0%, #fafbfc 100%)"
+            if i % 2 == 0
+            else "linear-gradient(to right, #f8f9fa 0%, #f1f3f5 100%)"
+        )
 
         # Net burn color with softer tones (only positive is green, zero or negative is red)
-        net_burn_color = '#10b981' if week['net_burn'] > 0 else '#f87171'
-        net_burn_bg = 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.12) 100%)' if week['net_burn'] > 0 else 'linear-gradient(135deg, rgba(248, 113, 113, 0.08) 0%, rgba(248, 113, 113, 0.12) 100%)'
+        net_burn_color = "#10b981" if week["net_burn"] > 0 else "#f87171"
+        net_burn_bg = (
+            "linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.12) 100%)"
+            if week["net_burn"] > 0
+            else "linear-gradient(135deg, rgba(248, 113, 113, 0.08) 0%, rgba(248, 113, 113, 0.12) 100%)"
+        )
 
         # Add extra padding for last row of each status group
-        row_padding = '14px 10px 20px 10px' if not next_same_status else '14px 10px'
+        row_padding = "14px 10px 20px 10px" if not next_same_status else "14px 10px"
 
         html += f"""
                                 <tr style="background: {row_bg};">
@@ -346,17 +349,11 @@ def send_email(recipient: str, subject: str, body_text: str, body_html: str, dry
     smtp_port = int(get_config().get("SMTP_PORT"))
 
     # Validate configuration
-    if not sender_email or sender_email == 'your_email@gmail.com':
-        raise ValueError(
-            "EMAIL_ADDRESS not configured in .env file.\n"
-            "Please set your Gmail address"
-        )
+    if not sender_email or sender_email == "your_email@gmail.com":
+        raise ValueError("EMAIL_ADDRESS not configured in .env file.\n" "Please set your Gmail address")
 
-    if not sender_password or sender_password == 'your_app_password_here':
-        raise ValueError(
-            "EMAIL_PASSWORD not configured in .env file.\n"
-            "Please create a Gmail App Password"
-        )
+    if not sender_password or sender_password == "your_app_password_here":
+        raise ValueError("EMAIL_PASSWORD not configured in .env file.\n" "Please create a Gmail App Password")
 
     if dry_run:
         logger.info("DRY RUN - Email not sent")
@@ -373,14 +370,14 @@ def send_email(recipient: str, subject: str, body_text: str, body_html: str, dry
 
     try:
         # Create message
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = f"Bug Position Report <{sender_email}>"
-        msg['To'] = recipient
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"Bug Position Report <{sender_email}>"
+        msg["To"] = recipient
 
         # Attach both plain text and HTML versions
-        part1 = MIMEText(body_text, 'plain')
-        part2 = MIMEText(body_html, 'html')
+        part1 = MIMEText(body_text, "plain")
+        part2 = MIMEText(body_html, "html")
         msg.attach(part1)
         msg.attach(part2)
 
@@ -406,39 +403,29 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Send multi-project DOE bug tracking report via email'
-    )
+    parser = argparse.ArgumentParser(description="Send multi-project DOE bug tracking report via email")
+
+    parser.add_argument("--recipient", help=f"Email recipient (default: {DEFAULT_RECIPIENT})")
+
+    parser.add_argument("--dry-run", action="store_true", help="Print email without sending")
 
     parser.add_argument(
-        '--recipient',
-        help=f'Email recipient (default: {DEFAULT_RECIPIENT})'
-    )
-
-    parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Print email without sending'
-    )
-
-    parser.add_argument(
-        '--projects',
-        nargs='+',
-        help='Specific project keys to include (default: all discovered projects)'
+        "--projects", nargs="+", help="Specific project keys to include (default: all discovered projects)"
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
     try:
         # Fix encoding for Windows console
         import io
-        if sys.stdout.encoding != 'utf-8':
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+        if sys.stdout.encoding != "utf-8":
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
         # Parse command-line arguments
         args = parse_arguments()
@@ -455,7 +442,7 @@ if __name__ == '__main__':
         logger.info(f"Loaded {len(projects)} projects")
 
         # Get week number from first project
-        week_number = projects[0]['week_number']
+        week_number = projects[0]["week_number"]
 
         # Format email
         subject = f"Bug Position Report - Week {week_number}"
@@ -463,13 +450,7 @@ if __name__ == '__main__':
         body_html = format_email_body_html(projects)
 
         # Send email
-        send_email(
-            recipient=recipient,
-            subject=subject,
-            body_text=body_text,
-            body_html=body_html,
-            dry_run=args.dry_run
-        )
+        send_email(recipient=recipient, subject=subject, body_text=body_text, body_html=body_html, dry_run=args.dry_run)
 
         if not args.dry_run:
             print(f"\n✓ Multi-project report sent successfully to {recipient}")

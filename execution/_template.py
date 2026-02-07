@@ -9,11 +9,12 @@ This template demonstrates best practices for creating execution scripts:
 - Clear docstrings and comments
 """
 
-import os
-import sys
 import argparse
 import logging
+import os
+import sys
 from datetime import datetime
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -22,11 +23,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/script_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ def main(input_param: str, optional_param: str = None) -> dict:
             raise ValueError("input_param cannot be empty")
 
         # Step 2: Load configuration from environment
-        api_key = os.getenv('YOUR_API_KEY')
+        api_key = os.getenv("YOUR_API_KEY")
         if not api_key:
             raise RuntimeError("YOUR_API_KEY not found in environment variables")
 
@@ -84,34 +85,20 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Description of what this script does'
-    )
+    parser = argparse.ArgumentParser(description="Description of what this script does")
+
+    parser.add_argument("input_param", type=str, help="Description of required parameter")
+
+    parser.add_argument("--optional-param", type=str, default=None, help="Description of optional parameter")
 
     parser.add_argument(
-        'input_param',
-        type=str,
-        help='Description of required parameter'
-    )
-
-    parser.add_argument(
-        '--optional-param',
-        type=str,
-        default=None,
-        help='Description of optional parameter'
-    )
-
-    parser.add_argument(
-        '--output-file',
-        type=str,
-        default='.tmp/output.json',
-        help='Path to output file (default: .tmp/output.json)'
+        "--output-file", type=str, default=".tmp/output.json", help="Path to output file (default: .tmp/output.json)"
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -120,14 +107,12 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Run main function
-        result = main(
-            input_param=args.input_param,
-            optional_param=args.optional_param
-        )
+        result = main(input_param=args.input_param, optional_param=args.optional_param)
 
         # Save output if needed
         import json
-        with open(args.output_file, 'w') as f:
+
+        with open(args.output_file, "w") as f:
             json.dump(result, f, indent=2)
 
         logger.info(f"Results saved to {args.output_file}")

@@ -13,7 +13,7 @@ import os
 import sys
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from execution.security_utils import (
     WIQLValidator,
@@ -25,10 +25,10 @@ from execution.security_utils import (
     safe_wiql,
 )
 
-
 # ============================================================================
 # WIQL Validator Tests
 # ============================================================================
+
 
 class TestWIQLValidator:
     """Tests for WIQL injection prevention"""
@@ -152,10 +152,7 @@ class TestWIQLValidator:
 
     def test_build_safe_wiql_basic(self):
         """Test basic WIQL query building"""
-        query = WIQLValidator.build_safe_wiql(
-            "WHERE [System.TeamProject] = '{project}'",
-            project="My Project"
-        )
+        query = WIQLValidator.build_safe_wiql("WHERE [System.TeamProject] = '{project}'", project="My Project")
         assert "My Project" in query
         assert "WHERE [System.TeamProject] = 'My Project'" in query
 
@@ -164,7 +161,7 @@ class TestWIQLValidator:
         query = WIQLValidator.build_safe_wiql(
             "WHERE [System.TeamProject] = '{project}' AND [System.WorkItemType] = '{work_type}'",
             project="Test Project",
-            work_type="Bug"
+            work_type="Bug",
         )
         assert "Test Project" in query
         assert "Bug" in query
@@ -172,10 +169,7 @@ class TestWIQLValidator:
     def test_build_safe_wiql_injection_blocked(self):
         """Test that injection attempts are blocked in WIQL building"""
         with pytest.raises(ValidationError):
-            WIQLValidator.build_safe_wiql(
-                "WHERE [System.TeamProject] = '{project}'",
-                project="'; DROP TABLE--"
-            )
+            WIQLValidator.build_safe_wiql("WHERE [System.TeamProject] = '{project}'", project="'; DROP TABLE--")
 
     def test_build_safe_wiql_missing_param(self):
         """Test that missing parameters raise error"""
@@ -189,6 +183,7 @@ class TestWIQLValidator:
 # ============================================================================
 # HTML Sanitizer Tests
 # ============================================================================
+
 
 class TestHTMLSanitizer:
     """Tests for XSS prevention"""
@@ -209,7 +204,7 @@ class TestHTMLSanitizer:
 
     def test_escape_event_handlers(self):
         """Test that event handlers are escaped"""
-        xss = '<div onclick="alert(\'XSS\')">Click</div>'
+        xss = "<div onclick=\"alert('XSS')\">Click</div>"
         result = HTMLSanitizer.escape_html(xss)
         # Tags should be escaped (< and > converted to entities)
         assert "<div" not in result
@@ -218,7 +213,7 @@ class TestHTMLSanitizer:
 
     def test_escape_javascript_protocol(self):
         """Test that javascript: protocol is escaped"""
-        xss = '<a href="javascript:alert(\'XSS\')">Click</a>'
+        xss = "<a href=\"javascript:alert('XSS')\">Click</a>"
         result = HTMLSanitizer.escape_html(xss)
         # Tags should be escaped (< and > converted to entities)
         assert "<a" not in result
@@ -234,7 +229,7 @@ class TestHTMLSanitizer:
 
     def test_escape_iframe(self):
         """Test that iframe injection is escaped"""
-        xss = '<iframe src="javascript:alert(\'XSS\')"></iframe>'
+        xss = "<iframe src=\"javascript:alert('XSS')\"></iframe>"
         result = HTMLSanitizer.escape_html(xss)
         assert "<iframe" not in result
         assert "&lt;iframe" in result
@@ -254,7 +249,7 @@ class TestHTMLSanitizer:
     def test_escape_none(self):
         """Test that None values are handled"""
         result = HTMLSanitizer.escape_html(None)
-        assert result == ''
+        assert result == ""
 
     def test_escape_html_attribute(self):
         """Test attribute-specific escaping"""
@@ -280,6 +275,7 @@ class TestHTMLSanitizer:
 # Path Validator Tests
 # ============================================================================
 
+
 class TestPathValidator:
     """Tests for path traversal prevention"""
 
@@ -290,13 +286,13 @@ class TestPathValidator:
 
     def test_validate_filename_with_extension_check(self):
         """Test filename with extension whitelist"""
-        result = PathValidator.validate_filename("report.html", ['.html', '.htm'])
+        result = PathValidator.validate_filename("report.html", [".html", ".htm"])
         assert result == "report.html"
 
     def test_reject_invalid_extension(self):
         """Test that invalid extensions are rejected"""
         with pytest.raises(ValidationError, match="Invalid file extension"):
-            PathValidator.validate_filename("report.txt", ['.html', '.htm'])
+            PathValidator.validate_filename("report.txt", [".html", ".htm"])
 
     def test_reject_path_traversal_dotdot(self):
         """Test that ../ is rejected"""
@@ -352,6 +348,7 @@ class TestPathValidator:
 # Command Validator Tests
 # ============================================================================
 
+
 class TestCommandValidator:
     """Tests for command injection prevention"""
 
@@ -402,19 +399,13 @@ class TestCommandValidator:
 
     def test_validate_command_path_with_whitelist(self):
         """Test command path with whitelist"""
-        result = CommandValidator.validate_command_path(
-            "python",
-            allowed_commands=['python', 'pip', 'pytest']
-        )
+        result = CommandValidator.validate_command_path("python", allowed_commands=["python", "pip", "pytest"])
         assert result == "python"
 
     def test_reject_command_not_in_whitelist(self):
         """Test that commands not in whitelist are rejected"""
         with pytest.raises(ValidationError, match="not in whitelist"):
-            CommandValidator.validate_command_path(
-                "malicious_command",
-                allowed_commands=['python', 'pip', 'pytest']
-            )
+            CommandValidator.validate_command_path("malicious_command", allowed_commands=["python", "pip", "pytest"])
 
     def test_reject_command_path_traversal(self):
         """Test that path traversal in commands is rejected"""
@@ -426,21 +417,22 @@ class TestCommandValidator:
 # Integration Tests
 # ============================================================================
 
+
 class TestIntegration:
     """Integration tests combining multiple validators"""
 
     def test_wiql_query_end_to_end(self):
         """Test complete WIQL query construction"""
         query = safe_wiql(
-            '''SELECT [System.Id], [System.Title], [System.State]
+            """SELECT [System.Id], [System.Title], [System.State]
                FROM WorkItems
                WHERE [System.TeamProject] = '{project}'
                AND [System.WorkItemType] = '{work_type}'
                AND [System.CreatedDate] >= '{start_date}'
-               ORDER BY [System.Id] ASC''',
+               ORDER BY [System.Id] ASC""",
             project="Access Legal",
             work_type="Bug",
-            start_date="2026-01-01"
+            start_date="2026-01-01",
         )
 
         assert "Access Legal" in query
@@ -476,8 +468,9 @@ class TestIntegration:
 # Run Tests
 # ============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run with pytest
     import subprocess
-    result = subprocess.run(['pytest', __file__, '-v'], capture_output=False)
+
+    result = subprocess.run(["pytest", __file__, "-v"], capture_output=False)
     sys.exit(result.returncode)

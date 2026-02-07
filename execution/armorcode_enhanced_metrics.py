@@ -13,17 +13,17 @@ Read-only operation - uses same query filters as existing ArmorCode scripts.
 Matches existing report counts exactly.
 """
 
-from execution.core import get_config
-import os
 import json
+import os
 import sys
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
-from pathlib import Path
+from datetime import datetime
 
 # Load environment variables
 from dotenv import load_dotenv
-from http_client import get, post, put, delete, patch
+from http_client import post
+
+from execution.core import get_config
+
 load_dotenv()
 
 
@@ -33,14 +33,10 @@ def get_armorcode_headers():
     if not api_key:
         raise ValueError("ARMORCODE_API_KEY must be set in .env file")
 
-    return {
-        'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
+    return {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "Accept": "application/json"}
 
 
-def get_product_names_to_ids(product_names: List[str]) -> Dict[str, str]:
+def get_product_names_to_ids(product_names: list[str]) -> dict[str, str]:
     """
     Convert product names to IDs using ArmorCode API.
 
@@ -73,29 +69,29 @@ def get_product_names_to_ids(product_names: List[str]) -> Dict[str, str]:
         """
 
         try:
-            response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+            response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
             if response.status_code == 200:
                 data = response.json()
-                if 'data' in data and 'products' in data['data']:
-                    result = data['data']['products']
-                    products = result.get('products', [])
+                if "data" in data and "products" in data["data"]:
+                    result = data["data"]["products"]
+                    products = result.get("products", [])
                     all_products.extend(products)
 
-                    if not result.get('pageInfo', {}).get('hasNext', False):
+                    if not result.get("pageInfo", {}).get("hasNext", False):
                         break
         except Exception as e:
             print(f"      [WARNING] Error fetching products: {e}")
             break
 
     # Map product names to IDs
-    product_map = {p['name']: str(p['id']) for p in all_products}
+    product_map = {p["name"]: str(p["id"]) for p in all_products}
     print(f"      API returned {len(all_products)} total products from ArmorCode")
     if len(all_products) > 0:
         print(f"      Sample products: {list(product_map.keys())[:5]}")
     return product_map
 
 
-def get_product_ids_from_baseline(baseline: Dict) -> List[str]:
+def get_product_ids_from_baseline(baseline: dict) -> list[str]:
     """
     Extract product IDs from baseline data by converting product names to IDs.
 
@@ -106,13 +102,13 @@ def get_product_ids_from_baseline(baseline: Dict) -> List[str]:
         List of product ID strings
     """
     # Get product names from baseline
-    product_names = baseline.get('products', [])
+    product_names = baseline.get("products", [])
     if not product_names:
-        print(f"      [WARNING] No products found in baseline")
+        print("      [WARNING] No products found in baseline")
         return []
 
     print(f"      Found {len(product_names)} products in baseline")
-    print(f"      Converting product names to IDs...")
+    print("      Converting product names to IDs...")
 
     # Convert names to IDs
     product_map = get_product_names_to_ids(product_names)
@@ -129,7 +125,7 @@ def get_product_ids_from_baseline(baseline: Dict) -> List[str]:
     return product_ids
 
 
-def query_current_vulnerabilities_graphql(base_url: str, product_ids: List[str]) -> Dict:
+def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str]) -> dict:
     """
     Query current HIGH and CRITICAL vulnerabilities using GraphQL API.
 
@@ -145,7 +141,7 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: List[str])
     Returns:
         Dictionary with vulnerability data
     """
-    print(f"    Querying current HIGH and CRITICAL vulnerabilities via GraphQL...")
+    print("    Querying current HIGH and CRITICAL vulnerabilities via GraphQL...")
     print(f"    Products: {len(product_ids)}")
 
     headers = get_armorcode_headers()
@@ -187,22 +183,22 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: List[str])
                 }}
                 """
 
-                response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
                 response.raise_for_status()
 
                 data = response.json()
 
-                if 'errors' in data:
+                if "errors" in data:
                     print(f"      [ERROR] GraphQL error for product {product_id}: {data['errors']}")
                     break
 
-                if 'data' in data and 'findings' in data['data']:
-                    findings_data = data['data']['findings']
-                    page_findings = findings_data.get('findings', [])
-                    page_info = findings_data.get('pageInfo', {})
+                if "data" in data and "findings" in data["data"]:
+                    findings_data = data["data"]["findings"]
+                    page_findings = findings_data.get("findings", [])
+                    page_info = findings_data.get("pageInfo", {})
 
                     all_findings.extend(page_findings)
-                    has_next = page_info.get('hasNext', False)
+                    has_next = page_info.get("hasNext", False)
                     page += 1
 
                     if page > 100:
@@ -213,22 +209,17 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: List[str])
 
         print(f"      Found {len(all_findings)} total current HIGH/CRITICAL vulnerabilities")
 
-        return {
-            "findings": all_findings,
-            "total_count": len(all_findings)
-        }
+        return {"findings": all_findings, "total_count": len(all_findings)}
 
     except Exception as e:
         print(f"      [ERROR] Failed to query vulnerabilities: {e}")
         import traceback
+
         traceback.print_exc()
-        return {
-            "findings": [],
-            "total_count": 0
-        }
+        return {"findings": [], "total_count": 0}
 
 
-def query_closed_vulnerabilities_graphql(base_url: str, product_ids: List[str], lookback_days: int = 90) -> Dict:
+def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], lookback_days: int = 90) -> dict:
     """
     Query recently closed HIGH and CRITICAL vulnerabilities using GraphQL API.
 
@@ -243,7 +234,7 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: List[str], 
         Dictionary with closed vulnerability data (count only, no date data)
     """
     print(f"    Querying closed vulnerabilities (last {lookback_days} days) via GraphQL...")
-    print(f"      [INFO] MTTR calculation disabled - date fields not available in GraphQL schema")
+    print("      [INFO] MTTR calculation disabled - date fields not available in GraphQL schema")
 
     headers = get_armorcode_headers()
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
@@ -279,42 +270,36 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: List[str], 
                 }}
                 """
 
-                response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
                 response.raise_for_status()
 
                 data = response.json()
 
-                if 'errors' in data:
+                if "errors" in data:
                     break
 
-                if 'data' in data and 'findings' in data['data']:
-                    findings_data = data['data']['findings']
-                    page_findings = findings_data.get('findings', [])
-                    page_info = findings_data.get('pageInfo', {})
+                if "data" in data and "findings" in data["data"]:
+                    findings_data = data["data"]["findings"]
+                    page_findings = findings_data.get("findings", [])
+                    page_info = findings_data.get("pageInfo", {})
 
                     all_findings.extend(page_findings)
 
-                    has_next = page_info.get('hasNext', False)
+                    has_next = page_info.get("hasNext", False)
                     page += 1
                 else:
                     break
 
         print(f"      Found ~{len(all_findings)} closed vulnerabilities (limited sample, no date filtering)")
 
-        return {
-            "findings": all_findings,
-            "total_count": len(all_findings)
-        }
+        return {"findings": all_findings, "total_count": len(all_findings)}
 
     except Exception as e:
         print(f"      [ERROR] Failed to query closed vulnerabilities: {e}")
-        return {
-            "findings": [],
-            "total_count": 0
-        }
+        return {"findings": [], "total_count": 0}
 
 
-def calculate_mttr(closed_findings: List[Dict]) -> Dict:
+def calculate_mttr(closed_findings: list[dict]) -> dict:
     """
     Calculate Mean Time To Remediate for closed vulnerabilities.
 
@@ -331,11 +316,11 @@ def calculate_mttr(closed_findings: List[Dict]) -> Dict:
         "high_mttr_days": None,
         "critical_sample_size": 0,
         "high_sample_size": 0,
-        "note": "MTTR calculation disabled - date fields not available in GraphQL schema"
+        "note": "MTTR calculation disabled - date fields not available in GraphQL schema",
     }
 
 
-def identify_stale_criticals(current_findings: List[Dict], stale_threshold_days: int = 90) -> Dict:
+def identify_stale_criticals(current_findings: list[dict], stale_threshold_days: int = 90) -> dict:
     """
     Identify critical vulnerabilities open >90 days.
 
@@ -349,17 +334,17 @@ def identify_stale_criticals(current_findings: List[Dict], stale_threshold_days:
         Stale critical vulnerabilities (count only, no age data)
     """
     # Just count criticals (can't calculate age without date fields)
-    critical_count = sum(1 for f in current_findings if f.get('severity', '').upper() == 'CRITICAL')
+    critical_count = sum(1 for f in current_findings if f.get("severity", "").upper() == "CRITICAL")
 
     return {
         "count": critical_count,
         "threshold_days": stale_threshold_days,
         "items": [],  # Can't calculate without date fields
-        "note": "Age calculation disabled - date fields not available in GraphQL schema"
+        "note": "Age calculation disabled - date fields not available in GraphQL schema",
     }
 
 
-def calculate_severity_breakdown(current_findings: List[Dict]) -> Dict:
+def calculate_severity_breakdown(current_findings: list[dict]) -> dict:
     """
     Calculate breakdown by severity.
 
@@ -369,17 +354,13 @@ def calculate_severity_breakdown(current_findings: List[Dict]) -> Dict:
     Returns:
         Counts by severity
     """
-    critical_count = sum(1 for f in current_findings if f.get('severity', '').upper() == 'CRITICAL')
-    high_count = sum(1 for f in current_findings if f.get('severity', '').upper() == 'HIGH')
+    critical_count = sum(1 for f in current_findings if f.get("severity", "").upper() == "CRITICAL")
+    high_count = sum(1 for f in current_findings if f.get("severity", "").upper() == "HIGH")
 
-    return {
-        "critical": critical_count,
-        "high": high_count,
-        "total": len(current_findings)
-    }
+    return {"critical": critical_count, "high": high_count, "total": len(current_findings)}
 
 
-def calculate_product_breakdown(current_findings: List[Dict]) -> Dict:
+def calculate_product_breakdown(current_findings: list[dict]) -> dict:
     """
     Calculate breakdown by product.
 
@@ -392,33 +373,29 @@ def calculate_product_breakdown(current_findings: List[Dict]) -> Dict:
     product_counts = {}
 
     for finding in current_findings:
-        product_raw = finding.get('product', 'Unknown')
+        product_raw = finding.get("product", "Unknown")
 
         # Handle product being a dict (extract name) or string
         if isinstance(product_raw, dict):
-            product = product_raw.get('name', 'Unknown')
+            product = product_raw.get("name", "Unknown")
         else:
-            product = product_raw if product_raw else 'Unknown'
+            product = product_raw if product_raw else "Unknown"
 
-        severity = finding.get('severity', '').upper()
+        severity = finding.get("severity", "").upper()
 
         if product not in product_counts:
-            product_counts[product] = {
-                "critical": 0,
-                "high": 0,
-                "total": 0
-            }
+            product_counts[product] = {"critical": 0, "high": 0, "total": 0}
 
         product_counts[product]["total"] += 1
-        if severity == 'CRITICAL':
+        if severity == "CRITICAL":
             product_counts[product]["critical"] += 1
-        elif severity == 'HIGH':
+        elif severity == "HIGH":
             product_counts[product]["high"] += 1
 
     return product_counts
 
 
-def calculate_age_distribution(current_findings: List[Dict]) -> Dict:
+def calculate_age_distribution(current_findings: list[dict]) -> dict:
     """
     Calculate age distribution of current vulnerabilities.
 
@@ -435,11 +412,11 @@ def calculate_age_distribution(current_findings: List[Dict]) -> Dict:
         "p85_age_days": None,
         "p95_age_days": None,
         "sample_size": 0,
-        "note": "Age calculation disabled - date fields not available in GraphQL schema"
+        "note": "Age calculation disabled - date fields not available in GraphQL schema",
     }
 
 
-def collect_enhanced_security_metrics(config: Dict, baseline: Dict) -> Dict:
+def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
     """
     Collect all enhanced security metrics using same product filter as baseline.
 
@@ -452,21 +429,26 @@ def collect_enhanced_security_metrics(config: Dict, baseline: Dict) -> Dict:
     """
     base_url = get_config().get_armorcode_config().base_url
 
-    print(f"\n  Collecting enhanced security metrics from ArmorCode...")
+    print("\n  Collecting enhanced security metrics from ArmorCode...")
 
     # Get product IDs from baseline
     product_ids = get_product_ids_from_baseline(baseline)
     if not product_ids:
-        print(f"      [ERROR] No product IDs found in baseline - cannot query")
+        print("      [ERROR] No product IDs found in baseline - cannot query")
         return {
             "current_total": 0,
             "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
             "product_breakdown": {},
-            "mttr": {"critical_mttr_days": None, "high_mttr_days": None, "critical_sample_size": 0, "high_sample_size": 0},
+            "mttr": {
+                "critical_mttr_days": None,
+                "high_mttr_days": None,
+                "critical_sample_size": 0,
+                "high_sample_size": 0,
+            },
             "stale_criticals": {"count": 0, "threshold_days": 90, "items": []},
             "age_distribution": {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0},
             "closed_count_90d": 0,
-            "collected_at": datetime.now().isoformat()
+            "collected_at": datetime.now().isoformat(),
         }
 
     # Query current vulnerabilities using GraphQL with product filter
@@ -474,82 +456,81 @@ def collect_enhanced_security_metrics(config: Dict, baseline: Dict) -> Dict:
 
     # Query closed vulnerabilities (for MTTR) using GraphQL
     closed_vulns = query_closed_vulnerabilities_graphql(
-        base_url,
-        product_ids,
-        lookback_days=config.get('lookback_days', 90)
+        base_url, product_ids, lookback_days=config.get("lookback_days", 90)
     )
 
     # Calculate metrics
     try:
-        mttr = calculate_mttr(closed_vulns['findings'])
+        mttr = calculate_mttr(closed_vulns["findings"])
     except Exception as e:
         print(f"      [ERROR] MTTR calculation failed: {e}")
         mttr = {"critical_mttr_days": None, "high_mttr_days": None, "critical_sample_size": 0, "high_sample_size": 0}
 
     try:
         stale_criticals = identify_stale_criticals(
-            current_vulns['findings'],
-            stale_threshold_days=config.get('stale_threshold_days', 90)
+            current_vulns["findings"], stale_threshold_days=config.get("stale_threshold_days", 90)
         )
     except Exception as e:
         print(f"      [ERROR] Stale criticals calculation failed: {e}")
         stale_criticals = {"count": 0, "threshold_days": 90, "items": []}
 
     try:
-        severity_breakdown = calculate_severity_breakdown(current_vulns['findings'])
+        severity_breakdown = calculate_severity_breakdown(current_vulns["findings"])
     except Exception as e:
         print(f"      [ERROR] Severity breakdown calculation failed: {e}")
         severity_breakdown = {"critical": 0, "high": 0, "total": 0}
 
     try:
-        product_breakdown = calculate_product_breakdown(current_vulns['findings'])
+        product_breakdown = calculate_product_breakdown(current_vulns["findings"])
     except Exception as e:
         print(f"      [ERROR] Product breakdown calculation failed: {e}")
         product_breakdown = {}
 
     try:
-        age_distribution = calculate_age_distribution(current_vulns['findings'])
+        age_distribution = calculate_age_distribution(current_vulns["findings"])
     except Exception as e:
         print(f"      [ERROR] Age distribution calculation failed: {e}")
         age_distribution = {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0}
 
-    print(f"    Current Total: {current_vulns['total_count']} (Critical: {severity_breakdown['critical']}, High: {severity_breakdown['high']})")
+    print(
+        f"    Current Total: {current_vulns['total_count']} (Critical: {severity_breakdown['critical']}, High: {severity_breakdown['high']})"
+    )
     print(f"    MTTR - Critical: {mttr['critical_mttr_days']} days, High: {mttr['high_mttr_days']} days")
     print(f"    Stale Criticals (>90d): {stale_criticals['count']}")
     print(f"    Closed (last 90d): {closed_vulns['total_count']}")
 
     return {
-        "current_total": current_vulns['total_count'],
+        "current_total": current_vulns["total_count"],
         "severity_breakdown": severity_breakdown,
         "product_breakdown": product_breakdown,
         "mttr": mttr,
         "stale_criticals": stale_criticals,
         "age_distribution": age_distribution,
-        "closed_count_90d": closed_vulns['total_count'],
-        "collected_at": datetime.now().isoformat()
+        "closed_count_90d": closed_vulns["total_count"],
+        "collected_at": datetime.now().isoformat(),
     }
 
 
 def load_existing_baseline():
     """Load existing ArmorCode baseline to track against"""
     # Try data/ folder first (preferred location), then .tmp/
-    baseline_files = ['data/armorcode_baseline.json', '.tmp/armorcode_baseline.json']
+    baseline_files = ["data/armorcode_baseline.json", ".tmp/armorcode_baseline.json"]
 
     for baseline_file in baseline_files:
         if os.path.exists(baseline_file):
-            with open(baseline_file, 'r', encoding='utf-8') as f:
+            with open(baseline_file, encoding="utf-8") as f:
                 baseline = json.load(f)
 
-            vuln_count = baseline.get('total_vulnerabilities') or baseline.get('vulnerability_count')
+            vuln_count = baseline.get("total_vulnerabilities") or baseline.get("vulnerability_count")
             print(f"    Loaded existing baseline: {vuln_count} vulns on {baseline.get('baseline_date')}")
             print(f"    Tracking {len(baseline.get('products', []))} products")
             return baseline
 
-    print(f"    [WARNING] No existing baseline found")
+    print("    [WARNING] No existing baseline found")
     return None
 
 
-def save_security_metrics(metrics: Dict, output_file: str = ".tmp/observatory/security_history.json"):
+def save_security_metrics(metrics: dict, output_file: str = ".tmp/observatory/security_history.json"):
     """
     Save enhanced security metrics to history file.
 
@@ -559,13 +540,13 @@ def save_security_metrics(metrics: Dict, output_file: str = ".tmp/observatory/se
     from utils_atomic_json import atomic_json_save, load_json_with_recovery
 
     # Validate that we have actual data before saving
-    metrics_data = metrics.get('metrics', {})
+    metrics_data = metrics.get("metrics", {})
 
     # Check if this looks like a failed collection (all zeros/nulls)
-    current_total = metrics_data.get('current_total', 0)
-    severity_breakdown = metrics_data.get('severity_breakdown', {})
-    critical_count = severity_breakdown.get('critical', 0)
-    high_count = severity_breakdown.get('high', 0)
+    current_total = metrics_data.get("current_total", 0)
+    severity_breakdown = metrics_data.get("severity_breakdown", {})
+    critical_count = severity_breakdown.get("critical", 0)
+    high_count = severity_breakdown.get("high", 0)
 
     if current_total == 0 and critical_count == 0 and high_count == 0:
         print("\n[SKIPPED] All vulnerability counts are zero - likely a collection failure")
@@ -578,15 +559,15 @@ def save_security_metrics(metrics: Dict, output_file: str = ".tmp/observatory/se
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
     # Add validation if structure check exists
-    if not isinstance(history, dict) or 'weeks' not in history:
+    if not isinstance(history, dict) or "weeks" not in history:
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
     # Add new week entry
-    history['weeks'].append(metrics)
+    history["weeks"].append(metrics)
 
     # Keep only last 52 weeks (12 months) for quarter/annual analysis
-    history['weeks'] = history['weeks'][-52:]
+    history["weeks"] = history["weeks"][-52:]
 
     # Save updated history
     try:
@@ -601,10 +582,11 @@ def save_security_metrics(metrics: Dict, output_file: str = ".tmp/observatory/se
 
 if __name__ == "__main__":
     # Set UTF-8 encoding for Windows console
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("Director Observatory - Enhanced Security Metrics Collector\n")
     print("=" * 60)
@@ -631,18 +613,18 @@ if __name__ == "__main__":
 
         # Add baseline reference
         if baseline:
-            metrics['baseline_reference'] = {
-                "baseline_date": baseline.get('baseline_date'),
-                "baseline_count": baseline.get('vulnerability_count'),
-                "target_count": baseline.get('target_count'),
+            metrics["baseline_reference"] = {
+                "baseline_date": baseline.get("baseline_date"),
+                "baseline_count": baseline.get("vulnerability_count"),
+                "target_count": baseline.get("target_count"),
             }
 
         # Save results
         week_metrics = {
-            "week_date": datetime.now().strftime('%Y-%m-%d'),
+            "week_date": datetime.now().strftime("%Y-%m-%d"),
             "week_number": datetime.now().isocalendar()[1],
             "metrics": metrics,
-            "config": config
+            "config": config,
         }
 
         save_security_metrics(week_metrics)
@@ -657,7 +639,7 @@ if __name__ == "__main__":
 
         if baseline:
             print(f"  Baseline: {baseline.get('vulnerability_count')} → Target: {baseline.get('target_count')}")
-            delta = metrics['current_total'] - baseline.get('vulnerability_count', 0)
+            delta = metrics["current_total"] - baseline.get("vulnerability_count", 0)
             print(f"  Net change from baseline: {delta:+d}")
 
         print("\nEnhanced security metrics collection complete!")

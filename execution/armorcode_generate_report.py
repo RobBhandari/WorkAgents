@@ -4,36 +4,34 @@ ArmorCode Report Generator - Create HTML Report from Weekly Query Results
 Generates a clean table-based HTML report for email delivery.
 """
 
-import os
-import sys
 import json
 import logging
+import os
+import sys
 from datetime import datetime
+
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
 def get_status_indicator(baseline_count, current_count):
     """Get status color bar based on progress."""
     if current_count == 0 or baseline_count == 0:
-        color = '#28a745'  # Green
+        color = "#28a745"  # Green
     else:
-        change_percent = ((current_count - baseline_count) / baseline_count * 100)
+        change_percent = (current_count - baseline_count) / baseline_count * 100
         if change_percent <= -10:
-            color = '#28a745'  # Green
+            color = "#28a745"  # Green
         elif change_percent <= 10:
-            color = '#ffc107'  # Amber
+            color = "#ffc107"  # Amber
         else:
-            color = '#dc3545'  # Red
+            color = "#dc3545"  # Red
 
     # Use a table cell with background color for better email compatibility
     return f'<table cellpadding="0" cellspacing="0" style="margin: 0 auto;"><tr><td style="width: 10px; height: 40px; background: {color}; border-radius: 3px;"></td></tr></table>'
@@ -42,38 +40,38 @@ def get_status_indicator(baseline_count, current_count):
 def generate_html_report(data, output_file):
     """Generate HTML report from weekly query data."""
 
-    baseline = data.get('baseline', {})
-    current = data.get('current', {})
-    progress = data.get('progress', {})
+    baseline = data.get("baseline", {})
+    current = data.get("current", {})
+    progress = data.get("progress", {})
 
     # Extract key metrics
-    baseline_total = progress.get('baseline_total', 0)
-    current_total = progress.get('current_total', 0)
-    change = progress.get('change', 0)
-    change_percent = progress.get('change_percent', 0)
-    reduction_goal_percent = progress.get('reduction_goal_percent', 70)
-    target_remaining = progress.get('target_remaining', 0)
-    progress_percent = progress.get('progress_towards_goal', 0)
-    days_tracking = progress.get('days_tracking', 0)
-    days_remaining = progress.get('days_remaining', 0)
+    baseline_total = progress.get("baseline_total", 0)
+    current_total = progress.get("current_total", 0)
+    change = progress.get("change", 0)
+    change_percent = progress.get("change_percent", 0)
+    reduction_goal_percent = progress.get("reduction_goal_percent", 70)
+    target_remaining = progress.get("target_remaining", 0)
+    progress_percent = progress.get("progress_towards_goal", 0)
+    days_tracking = progress.get("days_tracking", 0)
+    days_remaining = progress.get("days_remaining", 0)
 
     # Extract severity breakdown
-    current_critical = current.get('summary', {}).get('total_critical', 0)
-    current_high = current.get('summary', {}).get('total_high', 0)
+    current_critical = current.get("summary", {}).get("total_critical", 0)
+    current_high = current.get("summary", {}).get("total_high", 0)
 
     # Generate product rows
-    baseline_by_product = baseline.get('by_product', {})
-    current_by_product = current.get('by_product', {})
+    baseline_by_product = baseline.get("by_product", {})
+    current_by_product = current.get("by_product", {})
 
     product_rows = []
     for product_name in sorted(baseline_by_product.keys()):
         baseline_counts = baseline_by_product.get(product_name, {})
         current_counts = current_by_product.get(product_name, {})
 
-        baseline_prod_total = baseline_counts.get('total', 0)
-        current_prod_total = current_counts.get('total', 0)
-        current_prod_critical = current_counts.get('CRITICAL', 0)
-        current_prod_high = current_counts.get('HIGH', 0)
+        baseline_prod_total = baseline_counts.get("total", 0)
+        current_prod_total = current_counts.get("total", 0)
+        current_prod_critical = current_counts.get("CRITICAL", 0)
+        current_prod_high = current_counts.get("HIGH", 0)
         prod_change = baseline_prod_total - current_prod_total
 
         # Status indicator
@@ -85,7 +83,7 @@ def generate_html_report(data, output_file):
         elif prod_change < 0:
             change_display = f'<span style="color: #dc3545; font-weight: 600;">{prod_change}</span>'
         else:
-            change_display = f'<span style="color: #6c757d;">+0</span>'
+            change_display = '<span style="color: #6c757d;">+0</span>'
 
         product_rows.append(f"""
         <tr>
@@ -99,7 +97,7 @@ def generate_html_report(data, output_file):
         </tr>
         """)
 
-    products_html = ''.join(product_rows)
+    products_html = "".join(product_rows)
 
     # Overall status
     if change > 0:
@@ -211,7 +209,7 @@ def generate_html_report(data, output_file):
     """
 
     # Write to file
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
     logger.info(f"HTML report generated: {output_file}")
@@ -221,8 +219,8 @@ def main():
     """Main execution function."""
 
     # Find the most recent weekly query file
-    tmp_dir = '.tmp'
-    files = [f for f in os.listdir(tmp_dir) if f.startswith('armorcode_weekly_') and f.endswith('.json')]
+    tmp_dir = ".tmp"
+    files = [f for f in os.listdir(tmp_dir) if f.startswith("armorcode_weekly_") and f.endswith(".json")]
 
     if not files:
         logger.error("No weekly query files found in .tmp directory")
@@ -235,12 +233,12 @@ def main():
     logger.info(f"Loading data from: {latest_file}")
 
     # Load data
-    with open(latest_file, 'r') as f:
+    with open(latest_file) as f:
         data = json.load(f)
 
     # Generate output filename
-    date_str = datetime.now().strftime('%Y%m%d')
-    output_file = os.path.join(tmp_dir, f'armorcode_report_{date_str}.html')
+    date_str = datetime.now().strftime("%Y%m%d")
+    output_file = os.path.join(tmp_dir, f"armorcode_report_{date_str}.html")
 
     # Generate report
     generate_html_report(data, output_file)
@@ -250,5 +248,5 @@ def main():
     logger.info("=" * 70)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

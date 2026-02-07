@@ -76,7 +76,7 @@ class TestQualityMetrics:
             open_bugs=55,
             closed_this_week=5,
             created_this_week=10,
-            net_change=5
+            net_change=5,
         )
         assert metrics.is_improving is False
 
@@ -93,7 +93,7 @@ class TestQualityMetrics:
             closed_this_week=5,
             created_this_week=3,
             net_change=-2,
-            p1_count=0
+            p1_count=0,
         )
         assert metrics.has_critical_bugs is False
 
@@ -115,7 +115,7 @@ class TestQualityMetrics:
             open_bugs=0,
             closed_this_week=0,
             created_this_week=0,
-            net_change=0
+            net_change=0,
         )
         assert metrics.closure_rate is None
 

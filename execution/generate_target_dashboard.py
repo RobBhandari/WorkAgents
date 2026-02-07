@@ -9,10 +9,10 @@ Usage:
     python generate_target_dashboard.py --output-file custom_dashboard.html
 """
 
+import argparse
+import json
 import os
 import sys
-import json
-import argparse
 
 # Import mobile-responsive framework
 try:
@@ -21,11 +21,9 @@ except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
 import logging
 from datetime import datetime
-from dotenv import load_dotenv
 
 # Azure DevOps SDK
-from azure.devops.connection import Connection
-from msrest.authentication import BasicAuthentication
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
@@ -33,11 +31,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/target_dashboard_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -47,7 +45,7 @@ def load_baseline(file_path: str, system_name: str) -> dict:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"{system_name} baseline not found: {file_path}")
 
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding="utf-8") as f:
         baseline = json.load(f)
 
     logger.info(f"Loaded {system_name} baseline: {file_path}")
@@ -63,24 +61,24 @@ def query_current_ado_bugs() -> int:
     - Aggregates across all tracked projects
     """
     try:
-        quality_history_file = '.tmp/observatory/quality_history.json'
+        quality_history_file = ".tmp/observatory/quality_history.json"
 
         if not os.path.exists(quality_history_file):
             logger.warning(f"Quality history file not found: {quality_history_file}")
             logger.warning("Run: python execution/ado_quality_metrics.py")
             raise FileNotFoundError(f"Quality history not found: {quality_history_file}")
 
-        with open(quality_history_file, 'r', encoding='utf-8') as f:
+        with open(quality_history_file, encoding="utf-8") as f:
             data = json.load(f)
 
         # Get latest week's data
-        if not data.get('weeks') or len(data['weeks']) == 0:
+        if not data.get("weeks") or len(data["weeks"]) == 0:
             raise ValueError("No weeks data found in quality_history.json")
 
-        latest_week = data['weeks'][-1]
+        latest_week = data["weeks"][-1]
 
         # Sum open_bugs_count across all projects
-        total_bugs = sum(p['open_bugs_count'] for p in latest_week['projects'])
+        total_bugs = sum(p["open_bugs_count"] for p in latest_week["projects"])
 
         logger.info(f"Current ADO bugs (from quality_history.json): {total_bugs}")
         logger.info(f"  Week: {latest_week['week_date']}")
@@ -102,25 +100,25 @@ def query_current_armorcode_vulns() -> int:
     - Aggregates across all tracked products
     """
     try:
-        security_history_file = '.tmp/observatory/security_history.json'
+        security_history_file = ".tmp/observatory/security_history.json"
 
         if not os.path.exists(security_history_file):
             logger.warning(f"Security history file not found: {security_history_file}")
             logger.warning("Run: python execution/armorcode_enhanced_metrics.py")
             raise FileNotFoundError(f"Security history not found: {security_history_file}")
 
-        with open(security_history_file, 'r', encoding='utf-8') as f:
+        with open(security_history_file, encoding="utf-8") as f:
             data = json.load(f)
 
         # Get latest week's data
-        if not data.get('weeks') or len(data['weeks']) == 0:
+        if not data.get("weeks") or len(data["weeks"]) == 0:
             raise ValueError("No weeks data found in security_history.json")
 
-        latest_week = data['weeks'][-1]
-        metrics = latest_week['metrics']
+        latest_week = data["weeks"][-1]
+        metrics = latest_week["metrics"]
 
         # Get total HIGH + CRITICAL vulnerabilities
-        total_vulns = metrics['current_total']
+        total_vulns = metrics["current_total"]
 
         logger.info(f"Current ArmorCode vulnerabilities (from security_history.json): {total_vulns}")
         logger.info(f"  Week: {latest_week['week_date']}")
@@ -136,10 +134,10 @@ def query_current_armorcode_vulns() -> int:
 
 def load_last_run_state() -> dict:
     """Load last run state for calculating net burn"""
-    last_run_file = '.tmp/target_dashboard_last_run.json'
+    last_run_file = ".tmp/target_dashboard_last_run.json"
 
     if os.path.exists(last_run_file):
-        with open(last_run_file, 'r', encoding='utf-8') as f:
+        with open(last_run_file, encoding="utf-8") as f:
             return json.load(f)
 
     return None
@@ -147,23 +145,18 @@ def load_last_run_state() -> dict:
 
 def save_current_state(security_count: int, bugs_count: int):
     """Save current state as last run for next comparison"""
-    last_run_file = '.tmp/target_dashboard_last_run.json'
-    os.makedirs('.tmp', exist_ok=True)
+    last_run_file = ".tmp/target_dashboard_last_run.json"
+    os.makedirs(".tmp", exist_ok=True)
 
-    state = {
-        'timestamp': datetime.now().isoformat(),
-        'security_vulnerabilities': security_count,
-        'bugs': bugs_count
-    }
+    state = {"timestamp": datetime.now().isoformat(), "security_vulnerabilities": security_count, "bugs": bugs_count}
 
-    with open(last_run_file, 'w', encoding='utf-8') as f:
+    with open(last_run_file, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
 
     logger.info(f"Saved current state to {last_run_file}")
 
 
-def calculate_metrics(baseline_count: int, target_count: int, current_count: int,
-                     weeks_to_target: int) -> dict:
+def calculate_metrics(baseline_count: int, target_count: int, current_count: int, weeks_to_target: int) -> dict:
     """Calculate progress metrics for target dashboard
 
     Focuses on fixed baseline → target tracking:
@@ -178,7 +171,7 @@ def calculate_metrics(baseline_count: int, target_count: int, current_count: int
     progress_pct = (progress_from_baseline / total_reduction_needed * 100) if total_reduction_needed > 0 else 0
 
     # Days/weeks remaining to target date
-    target_date = datetime.strptime('2026-06-30', '%Y-%m-%d')
+    target_date = datetime.strptime("2026-06-30", "%Y-%m-%d")
     today = datetime.now()
     days_remaining = (target_date - today).days
     weeks_remaining = days_remaining / 7
@@ -191,30 +184,30 @@ def calculate_metrics(baseline_count: int, target_count: int, current_count: int
 
     # Status determination based on progress percentage
     if progress_pct >= 100:
-        status = 'TARGET MET'
-        status_color = '#10b981'  # Green
+        status = "TARGET MET"
+        status_color = "#10b981"  # Green
     elif progress_pct >= 70:
-        status = 'ON TRACK'
-        status_color = '#10b981'  # Green
+        status = "ON TRACK"
+        status_color = "#10b981"  # Green
     elif progress_pct >= 40:
-        status = 'BEHIND SCHEDULE'
-        status_color = '#f59e0b'  # Amber
+        status = "BEHIND SCHEDULE"
+        status_color = "#f59e0b"  # Amber
     else:
-        status = 'AT RISK'
-        status_color = '#ef4444'  # Red
+        status = "AT RISK"
+        status_color = "#ef4444"  # Red
 
     return {
-        'baseline_count': baseline_count,
-        'current_count': current_count,
-        'target_count': target_count,
-        'progress_from_baseline': progress_from_baseline,
-        'progress_pct': round(progress_pct, 1),
-        'days_remaining': days_remaining,
-        'weeks_remaining': round(weeks_remaining, 1),
-        'required_weekly_burn': round(required_weekly_burn, 2),
-        'status': status,
-        'status_color': status_color,
-        'remaining_to_target': remaining_to_target
+        "baseline_count": baseline_count,
+        "current_count": current_count,
+        "target_count": target_count,
+        "progress_from_baseline": progress_from_baseline,
+        "progress_pct": round(progress_pct, 1),
+        "days_remaining": days_remaining,
+        "weeks_remaining": round(weeks_remaining, 1),
+        "required_weekly_burn": round(required_weekly_burn, 2),
+        "status": status,
+        "status_color": status_color,
+        "remaining_to_target": remaining_to_target,
     }
 
 
@@ -225,11 +218,11 @@ def generate_html(security_metrics: dict, bugs_metrics: dict) -> str:
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#1e40af',
-        header_gradient_end='#1e3a8a',
+        header_gradient_start="#1e40af",
+        header_gradient_end="#1e3a8a",
         include_table_scroll=True,
         include_expandable_rows=False,
-        include_glossary=False
+        include_glossary=False,
     )
 
     html = f"""<!DOCTYPE html>
@@ -567,17 +560,18 @@ def generate_html(security_metrics: dict, bugs_metrics: dict) -> str:
 def main():
     """Main execution"""
     try:
-        parser = argparse.ArgumentParser(description='Generate 70% reduction target dashboard')
-        parser.add_argument('--output-file', default='.tmp/observatory/dashboards/target_dashboard.html',
-                          help='Output HTML file path')
+        parser = argparse.ArgumentParser(description="Generate 70% reduction target dashboard")
+        parser.add_argument(
+            "--output-file", default=".tmp/observatory/dashboards/target_dashboard.html", help="Output HTML file path"
+        )
         args = parser.parse_args()
 
         logger.info("Starting target dashboard generation")
-        logger.info("="*70)
+        logger.info("=" * 70)
 
         # Load baselines
-        security_baseline = load_baseline('data/armorcode_baseline.json', 'ArmorCode Security')
-        bugs_baseline = load_baseline('data/baseline.json', 'ADO Bugs')
+        security_baseline = load_baseline("data/armorcode_baseline.json", "ArmorCode Security")
+        bugs_baseline = load_baseline("data/baseline.json", "ADO Bugs")
 
         # Query current state
         logger.info("Querying current state...")
@@ -587,17 +581,17 @@ def main():
         # Calculate metrics
         logger.info("Calculating metrics...")
         security_metrics = calculate_metrics(
-            baseline_count=security_baseline['total_vulnerabilities'],
-            target_count=security_baseline['target_vulnerabilities'],
+            baseline_count=security_baseline["total_vulnerabilities"],
+            target_count=security_baseline["target_vulnerabilities"],
             current_count=current_security,
-            weeks_to_target=security_baseline['weeks_to_target']
+            weeks_to_target=security_baseline["weeks_to_target"],
         )
 
         bugs_metrics = calculate_metrics(
-            baseline_count=bugs_baseline['open_count'],
-            target_count=bugs_baseline['target_count'],
+            baseline_count=bugs_baseline["open_count"],
+            target_count=bugs_baseline["target_count"],
             current_count=current_bugs,
-            weeks_to_target=bugs_baseline['weeks_to_target']
+            weeks_to_target=bugs_baseline["weeks_to_target"],
         )
 
         # Generate HTML
@@ -606,22 +600,22 @@ def main():
 
         # Save dashboard
         os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
-        with open(args.output_file, 'w', encoding='utf-8') as f:
+        with open(args.output_file, "w", encoding="utf-8") as f:
             f.write(html)
 
-        logger.info("="*70)
-        logger.info(f"Dashboard generated successfully!")
+        logger.info("=" * 70)
+        logger.info("Dashboard generated successfully!")
         logger.info(f"Output: {args.output_file}")
-        logger.info("="*70)
+        logger.info("=" * 70)
 
         # Print summary
         print(f"\n{'='*70}")
-        print(f"70% REDUCTION TARGET DASHBOARD")
+        print("70% REDUCTION TARGET DASHBOARD")
         print(f"{'='*70}")
-        print(f"\nSecurity Vulnerabilities:")
+        print("\nSecurity Vulnerabilities:")
         print(f"  Current: {current_security} ({security_metrics['progress_pct']}% progress)")
         print(f"  Status: {security_metrics['status']}")
-        print(f"\nBugs:")
+        print("\nBugs:")
         print(f"  Current: {current_bugs} ({bugs_metrics['progress_pct']}% progress)")
         print(f"  Status: {bugs_metrics['status']}")
         print(f"\nDashboard: {args.output_file}")
@@ -635,5 +629,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

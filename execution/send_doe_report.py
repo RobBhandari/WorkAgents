@@ -11,20 +11,22 @@ Usage:
     python send_doe_report.py --report-file custom_report.json
 """
 
-from execution.core import get_config
-import os
-import sys
 import argparse
-import logging
 import json
+import logging
+import os
 import smtplib
 import subprocess
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import sys
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from security_utils import PathValidator, ValidationError
+
+from execution.core import get_config
 
 # Load environment variables from .env file
 load_dotenv()
@@ -32,11 +34,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/send_doe_report_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -44,11 +46,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_RECIPIENT = "robin.bhandari@theaccessgroup.com"
 
 # Status colors for HTML
-STATUS_COLORS = {
-    'GREEN': '#28a745',
-    'AMBER': '#ffc107',
-    'RED': '#dc3545'
-}
+STATUS_COLORS = {"GREEN": "#28a745", "AMBER": "#ffc107", "RED": "#dc3545"}
 
 
 def load_latest_report() -> dict:
@@ -62,20 +60,19 @@ def load_latest_report() -> dict:
         FileNotFoundError: If tracking file doesn't exist
         ValueError: If tracking data is invalid
     """
-    tracking_file = '.tmp/weekly_tracking.json'
+    tracking_file = ".tmp/weekly_tracking.json"
 
     if not os.path.exists(tracking_file):
         raise FileNotFoundError(
-            f"Weekly tracking not found: {tracking_file}\n"
-            f"Please run: python execution/ado_doe_tracker.py"
+            f"Weekly tracking not found: {tracking_file}\n" f"Please run: python execution/ado_doe_tracker.py"
         )
 
     logger.info(f"Loading weekly tracking from {tracking_file}")
 
-    with open(tracking_file, 'r', encoding='utf-8') as f:
+    with open(tracking_file, encoding="utf-8") as f:
         tracking = json.load(f)
 
-    weeks = tracking.get('weeks', [])
+    weeks = tracking.get("weeks", [])
     if not weeks:
         raise ValueError("No weekly data found in tracking file")
 
@@ -96,17 +93,16 @@ def load_baseline() -> dict:
     Raises:
         FileNotFoundError: If baseline file doesn't exist
     """
-    baseline_file = '.tmp/baseline.json'
+    baseline_file = ".tmp/baseline.json"
 
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(
-            f"Baseline not found: {baseline_file}\n"
-            f"Please run: python execution/ado_baseline.py"
+            f"Baseline not found: {baseline_file}\n" f"Please run: python execution/ado_baseline.py"
         )
 
     logger.info(f"Loading baseline from {baseline_file}")
 
-    with open(baseline_file, 'r', encoding='utf-8') as f:
+    with open(baseline_file, encoding="utf-8") as f:
         baseline = json.load(f)
 
     return baseline
@@ -123,11 +119,11 @@ def format_email_body_text(report: dict, baseline: dict) -> str:
     Returns:
         str: Plain text email body
     """
-    status_emoji = '🟢' if report['status'] == 'GREEN' else ('🟠' if report['status'] == 'AMBER' else '🔴')
-    weeks_remaining = baseline['weeks_to_target'] - report['week_number']
+    status_emoji = "🟢" if report["status"] == "GREEN" else ("🟠" if report["status"] == "AMBER" else "🔴")
+    weeks_remaining = baseline["weeks_to_target"] - report["week_number"]
     delta_text = f"({abs(report['delta'])} bugs {'behind' if report['delta'] > 0 else 'ahead'} schedule)"
 
-    required_burn = report.get('required_burn', baseline['required_weekly_burn'])
+    required_burn = report.get("required_burn", baseline["required_weekly_burn"])
 
     body = f"""Week {report['week_number']} Bug Position - ALCM
 
@@ -162,36 +158,36 @@ def format_email_body_html(report: dict, baseline: dict) -> str:
 
     try:
         # Calculate derived values
-        status = report['status']
+        status = report["status"]
         status_color = STATUS_COLORS[status]
-        weeks_remaining = baseline['weeks_to_target'] - report['week_number']
-        net_burn_color = '#28a745' if report['net_burn'] > 0 else '#dc3545'
+        weeks_remaining = baseline["weeks_to_target"] - report["week_number"]
+        net_burn_color = "#28a745" if report["net_burn"] > 0 else "#dc3545"
         delta_text = f"{abs(report['delta'])} bugs {'behind' if report['delta'] > 0 else 'ahead'} schedule"
-        required_burn = report.get('required_burn', baseline['required_weekly_burn'])
+        required_burn = report.get("required_burn", baseline["required_weekly_burn"])
 
         # Setup Jinja2 environment with auto-escaping (XSS prevention)
-        template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
+        template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
         env = Environment(
             loader=FileSystemLoader(template_dir),
-            autoescape=select_autoescape(['html', 'xml']),  # CRITICAL: Auto-escape for XSS prevention
+            autoescape=select_autoescape(["html", "xml"]),  # CRITICAL: Auto-escape for XSS prevention
             trim_blocks=True,
-            lstrip_blocks=True
+            lstrip_blocks=True,
         )
 
         # Prepare template context
         context = {
-            'report': report,
-            'baseline': baseline,
-            'status': status,
-            'status_color': status_color,
-            'weeks_remaining': weeks_remaining,
-            'net_burn_color': net_burn_color,
-            'delta_text': delta_text,
-            'required_burn': required_burn
+            "report": report,
+            "baseline": baseline,
+            "status": status,
+            "status_color": status_color,
+            "weeks_remaining": weeks_remaining,
+            "net_burn_color": net_burn_color,
+            "delta_text": delta_text,
+            "required_burn": required_burn,
         }
 
         # Render template (Jinja2 auto-escapes all variables)
-        template = env.get_template('bug_position_email.html')
+        template = env.get_template("bug_position_email.html")
         html = template.render(**context)
 
         logger.info("Email HTML generated successfully with Jinja2")
@@ -223,17 +219,11 @@ def send_email(recipient: str, subject: str, body_text: str, body_html: str, dry
     smtp_port = int(get_config().get("SMTP_PORT"))
 
     # Validate configuration
-    if not sender_email or sender_email == 'your_email@gmail.com':
-        raise ValueError(
-            "EMAIL_ADDRESS not configured in .env file.\n"
-            "Please set your Gmail address"
-        )
+    if not sender_email or sender_email == "your_email@gmail.com":
+        raise ValueError("EMAIL_ADDRESS not configured in .env file.\n" "Please set your Gmail address")
 
-    if not sender_password or sender_password == 'your_app_password_here':
-        raise ValueError(
-            "EMAIL_PASSWORD not configured in .env file.\n"
-            "Please create a Gmail App Password"
-        )
+    if not sender_password or sender_password == "your_app_password_here":
+        raise ValueError("EMAIL_PASSWORD not configured in .env file.\n" "Please create a Gmail App Password")
 
     if dry_run:
         logger.info("DRY RUN - Email not sent")
@@ -250,14 +240,14 @@ def send_email(recipient: str, subject: str, body_text: str, body_html: str, dry
 
     try:
         # Create message
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = f"Bug Position - ALCM <{sender_email}>"
-        msg['To'] = recipient
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"Bug Position - ALCM <{sender_email}>"
+        msg["To"] = recipient
 
         # Attach both plain text and HTML versions
-        part1 = MIMEText(body_text, 'plain')
-        part2 = MIMEText(body_html, 'html')
+        part1 = MIMEText(body_text, "plain")
+        part2 = MIMEText(body_html, "html")
         msg.attach(part1)
         msg.attach(part2)
 
@@ -287,12 +277,7 @@ def check_and_create_scheduled_task() -> bool:
 
     # Check if task already exists
     try:
-        result = subprocess.run(
-            ['schtasks', '/query', '/tn', task_name],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
+        result = subprocess.run(["schtasks", "/query", "/tn", task_name], capture_output=True, text=True, timeout=5)
 
         if result.returncode == 0:
             logger.info(f"Scheduled task '{task_name}' already exists")
@@ -331,28 +316,40 @@ def check_and_create_scheduled_task() -> bool:
     # SECURITY: Execute batch file directly (no cmd.exe wrapper to prevent injection)
     # Note: The batch file itself should handle logging to {safe_log_file}
     try:
-        result = subprocess.run([
-            'schtasks', '/create',
-            '/tn', task_name,
-            '/tr', safe_batch_file,  # SECURE: Direct execution, no cmd.exe wrapper
-            '/sc', 'weekly',
-            '/d', 'FRI',
-            '/st', '07:00',
-            '/f'
-        ], capture_output=True, text=True, timeout=10, shell=False)  # CRITICAL: shell=False
+        result = subprocess.run(
+            [
+                "schtasks",
+                "/create",
+                "/tn",
+                task_name,
+                "/tr",
+                safe_batch_file,  # SECURE: Direct execution, no cmd.exe wrapper
+                "/sc",
+                "weekly",
+                "/d",
+                "FRI",
+                "/st",
+                "07:00",
+                "/f",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            shell=False,
+        )  # CRITICAL: shell=False
 
         if result.returncode == 0:
-            logger.info(f"[OK] Scheduled task created successfully!")
+            logger.info("[OK] Scheduled task created successfully!")
             print(f"\n{'='*60}")
-            print(f"[OK] AUTO-SCHEDULED: Weekly email every Friday at 7:00 AM")
+            print("[OK] AUTO-SCHEDULED: Weekly email every Friday at 7:00 AM")
             print(f"{'='*60}")
             print(f"Task name: {task_name}")
-            print(f"Schedule: Every Friday at 7:00 AM")
+            print("Schedule: Every Friday at 7:00 AM")
             print(f"Batch file: {safe_batch_file}")
             print(f"Logs: {safe_log_file}")
-            print(f"\nTo view: taskschd.msc")
-            print(f"To test now: schtasks /run /tn \"{task_name}\"")
-            print(f"To remove: schtasks /delete /tn \"{task_name}\" /f")
+            print("\nTo view: taskschd.msc")
+            print(f'To test now: schtasks /run /tn "{task_name}"')
+            print(f'To remove: schtasks /delete /tn "{task_name}" /f')
             print(f"{'='*60}\n")
             return True
         else:
@@ -360,11 +357,11 @@ def check_and_create_scheduled_task() -> bool:
             if "access is denied" in error_msg.lower():
                 logger.warning("Admin rights required to create scheduled task")
                 print(f"\n{'='*60}")
-                print(f"⚠ AUTO-SCHEDULE REQUIRES ADMIN RIGHTS")
+                print("⚠ AUTO-SCHEDULE REQUIRES ADMIN RIGHTS")
                 print(f"{'='*60}")
-                print(f"To enable Friday 7am automated emails, run as Administrator:")
+                print("To enable Friday 7am automated emails, run as Administrator:")
                 print(f"  cd {script_dir}")
-                print(f"  schedule_doe_report.bat")
+                print("  schedule_doe_report.bat")
                 print(f"{'='*60}\n")
             else:
                 logger.warning(f"Failed to create scheduled task: {error_msg}")
@@ -382,38 +379,27 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Send DOE bug tracking report via email'
-    )
+    parser = argparse.ArgumentParser(description="Send DOE bug tracking report via email")
 
-    parser.add_argument(
-        '--recipient',
-        help=f'Email recipient (default: {DEFAULT_RECIPIENT})'
-    )
+    parser.add_argument("--recipient", help=f"Email recipient (default: {DEFAULT_RECIPIENT})")
 
-    parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Print email without sending'
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Print email without sending")
 
-    parser.add_argument(
-        '--report-file',
-        help='Load report from custom file (default: use latest from weekly tracking)'
-    )
+    parser.add_argument("--report-file", help="Load report from custom file (default: use latest from weekly tracking)")
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
     try:
         # Fix encoding for Windows console
         import io
-        if sys.stdout.encoding != 'utf-8':
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+        if sys.stdout.encoding != "utf-8":
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
         # Parse command-line arguments
         args = parse_arguments()
@@ -427,7 +413,7 @@ if __name__ == '__main__':
         # Load report data
         if args.report_file:
             logger.info(f"Loading report from {args.report_file}")
-            with open(args.report_file, 'r', encoding='utf-8') as f:
+            with open(args.report_file, encoding="utf-8") as f:
                 report = json.load(f)
         else:
             report = load_latest_report()
@@ -438,13 +424,7 @@ if __name__ == '__main__':
         body_html = format_email_body_html(report, baseline)
 
         # Send email
-        send_email(
-            recipient=recipient,
-            subject=subject,
-            body_text=body_text,
-            body_html=body_html,
-            dry_run=args.dry_run
-        )
+        send_email(recipient=recipient, subject=subject, body_text=body_text, body_html=body_html, dry_run=args.dry_run)
 
         if not args.dry_run:
             print(f"\n✓ DOE report sent successfully to {recipient}")

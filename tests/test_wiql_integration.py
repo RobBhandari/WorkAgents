@@ -9,7 +9,7 @@ import sys
 import os
 
 # Add parent directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from execution.security_utils import WIQLValidator, ValidationError
 
@@ -54,7 +54,7 @@ def test_build_safe_wiql_basic():
     query = WIQLValidator.build_safe_wiql(
         "WHERE [System.TeamProject] = '{project}' AND [System.WorkItemType] = '{work_type}'",
         project="Test Project",
-        work_type="Bug"
+        work_type="Bug",
     )
 
     assert "Test Project" in query
@@ -69,10 +69,7 @@ def test_build_safe_wiql_blocks_injection_in_params():
     """Test that build_safe_wiql validates parameters"""
 
     with pytest.raises(ValidationError):
-        WIQLValidator.build_safe_wiql(
-            "WHERE [System.TeamProject] = '{project}'",
-            project="'; DROP TABLE--"
-        )
+        WIQLValidator.build_safe_wiql("WHERE [System.TeamProject] = '{project}'", project="'; DROP TABLE--")
     print("  [PASS] Blocked injection in parameter")
 
 
@@ -94,7 +91,7 @@ def test_date_validation():
     print("  [PASS] Date validation works correctly")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("WIQL Integration Tests")
     print("=" * 60)
 

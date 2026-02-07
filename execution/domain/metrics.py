@@ -6,9 +6,8 @@ Provides foundation classes for all metric types:
     - TrendData: Time series data with helper methods
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List
 
 
 @dataclass
@@ -23,8 +22,9 @@ class MetricSnapshot:
         timestamp: When this metric was captured
         project: Optional project identifier (for multi-project metrics)
     """
+
     timestamp: datetime
-    project: Optional[str] = None
+    project: str | None = None
 
     def __post_init__(self) -> None:
         """Validate timestamp is a datetime object"""
@@ -54,19 +54,19 @@ class TrendData:
         print(f"Change: {trend.week_over_week_change()}")
         print(f"Improving: {trend.is_improving()}")
     """
-    values: List[float]
-    timestamps: List[datetime]
-    label: Optional[str] = None
+
+    values: list[float]
+    timestamps: list[datetime]
+    label: str | None = None
 
     def __post_init__(self) -> None:
         """Validate that values and timestamps have same length"""
         if len(self.values) != len(self.timestamps):
             raise ValueError(
-                f"values and timestamps must have same length: "
-                f"{len(self.values)} != {len(self.timestamps)}"
+                f"values and timestamps must have same length: " f"{len(self.values)} != {len(self.timestamps)}"
             )
 
-    def latest(self) -> Optional[float]:
+    def latest(self) -> float | None:
         """
         Get the most recent value.
 
@@ -75,7 +75,7 @@ class TrendData:
         """
         return self.values[-1] if self.values else None
 
-    def earliest(self) -> Optional[float]:
+    def earliest(self) -> float | None:
         """
         Get the earliest value.
 
@@ -84,7 +84,7 @@ class TrendData:
         """
         return self.values[0] if self.values else None
 
-    def week_over_week_change(self) -> Optional[float]:
+    def week_over_week_change(self) -> float | None:
         """
         Calculate week-over-week change (absolute difference).
 
@@ -95,7 +95,7 @@ class TrendData:
             return None
         return self.values[-1] - self.values[-2]
 
-    def week_over_week_percent_change(self) -> Optional[float]:
+    def week_over_week_percent_change(self) -> float | None:
         """
         Calculate week-over-week percent change.
 
@@ -113,7 +113,7 @@ class TrendData:
         latest = self.values[-1]
         return ((latest - previous) / previous) * 100
 
-    def total_change(self) -> Optional[float]:
+    def total_change(self) -> float | None:
         """
         Calculate total change from first to last value.
 
@@ -124,7 +124,7 @@ class TrendData:
             return None
         return self.values[-1] - self.values[0]
 
-    def is_improving(self, lower_is_better: bool = True) -> Optional[bool]:
+    def is_improving(self, lower_is_better: bool = True) -> bool | None:
         """
         Check if trend is improving.
 
@@ -144,7 +144,7 @@ class TrendData:
         else:
             return change > 0  # Increasing is good
 
-    def average(self) -> Optional[float]:
+    def average(self) -> float | None:
         """
         Calculate average value across all data points.
 
@@ -155,7 +155,7 @@ class TrendData:
             return None
         return sum(self.values) / len(self.values)
 
-    def get_range(self, n: int = 4) -> 'TrendData':
+    def get_range(self, n: int = 4) -> "TrendData":
         """
         Get last N data points.
 
@@ -168,8 +168,4 @@ class TrendData:
         if n >= len(self.values):
             return self
 
-        return TrendData(
-            values=self.values[-n:],
-            timestamps=self.timestamps[-n:],
-            label=self.label
-        )
+        return TrendData(values=self.values[-n:], timestamps=self.timestamps[-n:], label=self.label)

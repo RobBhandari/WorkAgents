@@ -14,10 +14,9 @@ Usage:
     python execution/migrate_to_secure_http.py            # Apply changes
 """
 
-import os
+import argparse
 import re
 import sys
-import argparse
 from pathlib import Path
 
 
@@ -33,47 +32,47 @@ def migrate_file(file_path: Path, dry_run: bool = False) -> tuple[bool, str]:
         tuple: (was_modified, status_message)
     """
     # Skip http_client.py itself
-    if file_path.name == 'http_client.py':
+    if file_path.name == "http_client.py":
         return False, "SKIP (http_client.py itself)"
 
     # Skip this migration script
-    if file_path.name == 'migrate_to_secure_http.py':
+    if file_path.name == "migrate_to_secure_http.py":
         return False, "SKIP (migration script)"
 
     try:
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
         original_content = content
         modified = False
 
         # Check if file uses requests methods
-        if not re.search(r'requests\.(get|post|put|delete|patch)\(', content):
+        if not re.search(r"requests\.(get|post|put|delete|patch)\(", content):
             return False, "SKIP (no requests calls)"
 
         # Check if already migrated
-        if 'from http_client import' in content or 'from .http_client import' in content:
+        if "from http_client import" in content or "from .http_client import" in content:
             return False, "SKIP (already migrated)"
 
         # Step 1: Add import after other imports
         # Find the last import statement
-        import_pattern = re.compile(r'^(from .+ import .+|import .+)$', re.MULTILINE)
+        import_pattern = re.compile(r"^(from .+ import .+|import .+)$", re.MULTILINE)
         imports = list(import_pattern.finditer(content))
 
         if imports:
             last_import_end = imports[-1].end()
             # Check if 'import requests' exists
-            if 'import requests' in content:
+            if "import requests" in content:
                 # Add our import after the last import
-                new_import = '\nfrom http_client import get, post, put, delete, patch'
+                new_import = "\nfrom http_client import get, post, put, delete, patch"
                 content = content[:last_import_end] + new_import + content[last_import_end:]
                 modified = True
 
         # Step 2: Replace requests.METHOD( with METHOD(
         replacements = [
-            (r'\brequests\.get\(', 'get('),
-            (r'\brequests\.post\(', 'post('),
-            (r'\brequests\.put\(', 'put('),
-            (r'\brequests\.delete\(', 'delete('),
-            (r'\brequests\.patch\(', 'patch('),
+            (r"\brequests\.get\(", "get("),
+            (r"\brequests\.post\(", "post("),
+            (r"\brequests\.put\(", "put("),
+            (r"\brequests\.delete\(", "delete("),
+            (r"\brequests\.patch\(", "patch("),
         ]
 
         for pattern, replacement in replacements:
@@ -84,7 +83,7 @@ def migrate_file(file_path: Path, dry_run: bool = False) -> tuple[bool, str]:
         # Only write if changes were made
         if modified and content != original_content:
             if not dry_run:
-                file_path.write_text(content, encoding='utf-8')
+                file_path.write_text(content, encoding="utf-8")
             return True, "MIGRATED"
         else:
             return False, "SKIP (no changes needed)"
@@ -95,18 +94,12 @@ def migrate_file(file_path: Path, dry_run: bool = False) -> tuple[bool, str]:
 
 def main():
     """Main migration function."""
-    parser = argparse.ArgumentParser(
-        description='Migrate files to use secure HTTP client'
-    )
-    parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Show what would be changed without modifying files'
-    )
+    parser = argparse.ArgumentParser(description="Migrate files to use secure HTTP client")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would be changed without modifying files")
     args = parser.parse_args()
 
     execution_dir = Path(__file__).parent
-    py_files = list(execution_dir.glob('*.py'))
+    py_files = list(execution_dir.glob("*.py"))
 
     print("Secure HTTP Client Migration")
     print("=" * 60)
@@ -134,7 +127,7 @@ def main():
             skipped_count += 1
 
     print("=" * 60)
-    print(f"Summary:")
+    print("Summary:")
     print(f"  Migrated: {migrated_count} files")
     print(f"  Skipped:  {skipped_count} files")
     print(f"  Errors:   {error_count} files")
@@ -147,5 +140,5 @@ def main():
     return 0 if error_count == 0 else 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

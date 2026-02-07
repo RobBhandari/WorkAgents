@@ -26,13 +26,14 @@ Raises:
 
 import os
 import re
-from typing import Optional
 from dataclasses import dataclass
+
 from dotenv import load_dotenv
 
 
 class ConfigurationError(Exception):
     """Raised when configuration is missing or invalid."""
+
     pass
 
 
@@ -41,9 +42,10 @@ class AzureDevOpsConfig:
     """
     Validated Azure DevOps configuration.
     """
+
     organization_url: str
     pat: str
-    project: Optional[str] = None
+    project: str | None = None
 
     def __post_init__(self):
         """Validate configuration after initialization."""
@@ -60,38 +62,28 @@ class AzureDevOpsConfig:
         if not self.organization_url:
             raise ConfigurationError("ADO_ORGANIZATION_URL is required")
 
-        if not self.organization_url.startswith('https://'):
-            raise ConfigurationError(
-                f"ADO_ORGANIZATION_URL must use HTTPS: {self.organization_url}"
-            )
+        if not self.organization_url.startswith("https://"):
+            raise ConfigurationError(f"ADO_ORGANIZATION_URL must use HTTPS: {self.organization_url}")
 
-        if not ('dev.azure.com' in self.organization_url or 'visualstudio.com' in self.organization_url):
-            raise ConfigurationError(
-                f"ADO_ORGANIZATION_URL must be a valid Azure DevOps URL: {self.organization_url}"
-            )
+        if not ("dev.azure.com" in self.organization_url or "visualstudio.com" in self.organization_url):
+            raise ConfigurationError(f"ADO_ORGANIZATION_URL must be a valid Azure DevOps URL: {self.organization_url}")
 
         # Validate PAT
         if not self.pat:
             raise ConfigurationError("ADO_PAT is required")
 
         if len(self.pat) < 20:
-            raise ConfigurationError(
-                f"ADO_PAT appears invalid (too short: {len(self.pat)} chars, expected ≥20)"
-            )
+            raise ConfigurationError(f"ADO_PAT appears invalid (too short: {len(self.pat)} chars, expected ≥20)")
 
         # Check for placeholder values
-        placeholders = ['your_pat', 'your_token', 'example', 'placeholder', 'xxx', 'replace_me']
+        placeholders = ["your_pat", "your_token", "example", "placeholder", "xxx", "replace_me"]
         if any(placeholder in self.pat.lower() for placeholder in placeholders):
-            raise ConfigurationError(
-                "ADO_PAT contains a placeholder value - please set a real Personal Access Token"
-            )
+            raise ConfigurationError("ADO_PAT contains a placeholder value - please set a real Personal Access Token")
 
         # Validate project if provided
         if self.project:
-            if not re.match(r'^[a-zA-Z0-9 _\-\.]+$', self.project):
-                raise ConfigurationError(
-                    f"ADO_PROJECT contains invalid characters: {self.project}"
-                )
+            if not re.match(r"^[a-zA-Z0-9 _\-\.]+$", self.project):
+                raise ConfigurationError(f"ADO_PROJECT contains invalid characters: {self.project}")
 
 
 @dataclass
@@ -99,6 +91,7 @@ class ArmorCodeConfig:
     """
     Validated ArmorCode configuration.
     """
+
     api_key: str
     base_url: str
 
@@ -118,20 +111,16 @@ class ArmorCodeConfig:
             raise ConfigurationError("ARMORCODE_API_KEY is required")
 
         # Check for UUID format (ArmorCode uses UUIDs)
-        uuid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        uuid_pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
         if not re.match(uuid_pattern, self.api_key.lower()):
-            raise ConfigurationError(
-                f"ARMORCODE_API_KEY must be a valid UUID format"
-            )
+            raise ConfigurationError("ARMORCODE_API_KEY must be a valid UUID format")
 
         # Validate base URL
         if not self.base_url:
             raise ConfigurationError("ARMORCODE_BASE_URL is required")
 
-        if not self.base_url.startswith('https://'):
-            raise ConfigurationError(
-                f"ARMORCODE_BASE_URL must use HTTPS: {self.base_url}"
-            )
+        if not self.base_url.startswith("https://"):
+            raise ConfigurationError(f"ARMORCODE_BASE_URL must use HTTPS: {self.base_url}")
 
 
 @dataclass
@@ -139,6 +128,7 @@ class EmailConfig:
     """
     Validated email configuration (Gmail SMTP).
     """
+
     sender_email: str
     sender_password: str
     smtp_server: str = "smtp.gmail.com"
@@ -160,27 +150,21 @@ class EmailConfig:
             raise ConfigurationError("EMAIL_SENDER is required")
 
         # Basic email format validation
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(email_pattern, self.sender_email):
-            raise ConfigurationError(
-                f"EMAIL_SENDER must be a valid email address: {self.sender_email}"
-            )
+            raise ConfigurationError(f"EMAIL_SENDER must be a valid email address: {self.sender_email}")
 
         # Validate password
         if not self.sender_password:
             raise ConfigurationError("EMAIL_PASSWORD is required")
 
         if len(self.sender_password) < 8:
-            raise ConfigurationError(
-                "EMAIL_PASSWORD appears invalid (too short)"
-            )
+            raise ConfigurationError("EMAIL_PASSWORD appears invalid (too short)")
 
         # Check for placeholders
-        placeholders = ['your_password', 'password', 'example', 'xxx']
+        placeholders = ["your_password", "password", "example", "xxx"]
         if any(placeholder in self.sender_password.lower() for placeholder in placeholders):
-            raise ConfigurationError(
-                "EMAIL_PASSWORD contains a placeholder value"
-            )
+            raise ConfigurationError("EMAIL_PASSWORD contains a placeholder value")
 
 
 @dataclass
@@ -188,6 +172,7 @@ class MicrosoftTeamsConfig:
     """
     Validated Microsoft Teams bot configuration.
     """
+
     app_id: str
     app_password: str
 
@@ -206,20 +191,16 @@ class MicrosoftTeamsConfig:
         if not self.app_id:
             raise ConfigurationError("MICROSOFT_APP_ID is required")
 
-        guid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        guid_pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
         if not re.match(guid_pattern, self.app_id.lower()):
-            raise ConfigurationError(
-                "MICROSOFT_APP_ID must be a valid GUID"
-            )
+            raise ConfigurationError("MICROSOFT_APP_ID must be a valid GUID")
 
         # Validate app password
         if not self.app_password:
             raise ConfigurationError("MICROSOFT_APP_PASSWORD is required")
 
         if len(self.app_password) < 10:
-            raise ConfigurationError(
-                "MICROSOFT_APP_PASSWORD appears invalid (too short)"
-            )
+            raise ConfigurationError("MICROSOFT_APP_PASSWORD appears invalid (too short)")
 
 
 class SecureConfig:
@@ -234,7 +215,7 @@ class SecureConfig:
         """Initialize configuration (loads .env file)."""
         load_dotenv()
 
-    def get_ado_config(self, project: Optional[str] = None) -> AzureDevOpsConfig:
+    def get_ado_config(self, project: str | None = None) -> AzureDevOpsConfig:
         """
         Get validated Azure DevOps configuration.
 
@@ -247,15 +228,11 @@ class SecureConfig:
         Raises:
             ConfigurationError: If configuration is missing or invalid
         """
-        organization_url = os.getenv('ADO_ORGANIZATION_URL')
-        pat = os.getenv('ADO_PAT')
-        project = project or os.getenv('ADO_PROJECT')
+        organization_url = os.getenv("ADO_ORGANIZATION_URL")
+        pat = os.getenv("ADO_PAT")
+        project = project or os.getenv("ADO_PROJECT")
 
-        return AzureDevOpsConfig(
-            organization_url=organization_url or '',
-            pat=pat or '',
-            project=project
-        )
+        return AzureDevOpsConfig(organization_url=organization_url or "", pat=pat or "", project=project)
 
     def get_armorcode_config(self) -> ArmorCodeConfig:
         """
@@ -267,13 +244,10 @@ class SecureConfig:
         Raises:
             ConfigurationError: If configuration is missing or invalid
         """
-        api_key = os.getenv('ARMORCODE_API_KEY')
-        base_url = os.getenv('ARMORCODE_BASE_URL', 'https://api.armorcode.com')
+        api_key = os.getenv("ARMORCODE_API_KEY")
+        base_url = os.getenv("ARMORCODE_BASE_URL", "https://api.armorcode.com")
 
-        return ArmorCodeConfig(
-            api_key=api_key or '',
-            base_url=base_url
-        )
+        return ArmorCodeConfig(api_key=api_key or "", base_url=base_url)
 
     def get_email_config(self) -> EmailConfig:
         """
@@ -285,13 +259,10 @@ class SecureConfig:
         Raises:
             ConfigurationError: If configuration is missing or invalid
         """
-        sender_email = os.getenv('EMAIL_SENDER')
-        sender_password = os.getenv('EMAIL_PASSWORD')
+        sender_email = os.getenv("EMAIL_SENDER")
+        sender_password = os.getenv("EMAIL_PASSWORD")
 
-        return EmailConfig(
-            sender_email=sender_email or '',
-            sender_password=sender_password or ''
-        )
+        return EmailConfig(sender_email=sender_email or "", sender_password=sender_password or "")
 
     def get_teams_config(self) -> MicrosoftTeamsConfig:
         """
@@ -303,17 +274,15 @@ class SecureConfig:
         Raises:
             ConfigurationError: If configuration is missing or invalid
         """
-        app_id = os.getenv('MICROSOFT_APP_ID')
-        app_password = os.getenv('MICROSOFT_APP_PASSWORD')
+        app_id = os.getenv("MICROSOFT_APP_ID")
+        app_password = os.getenv("MICROSOFT_APP_PASSWORD")
 
-        return MicrosoftTeamsConfig(
-            app_id=app_id or '',
-            app_password=app_password or ''
-        )
+        return MicrosoftTeamsConfig(app_id=app_id or "", app_password=app_password or "")
 
 
 # Convenience function for getting configuration
 _config_instance = None
+
 
 def get_config() -> SecureConfig:
     """
@@ -348,20 +317,20 @@ def validate_config_on_startup(required_services: list[str]) -> None:
     config = get_config()
 
     for service in required_services:
-        if service == 'ado':
+        if service == "ado":
             config.get_ado_config()  # Raises if invalid
-        elif service == 'armorcode':
+        elif service == "armorcode":
             config.get_armorcode_config()  # Raises if invalid
-        elif service == 'email':
+        elif service == "email":
             config.get_email_config()  # Raises if invalid
-        elif service == 'teams':
+        elif service == "teams":
             config.get_teams_config()  # Raises if invalid
         else:
             raise ValueError(f"Unknown service: {service}")
 
 
 # Self-test when run directly
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Secure Configuration - Self Test")
     print("=" * 60)
 

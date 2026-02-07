@@ -1,0 +1,248 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Executive Summary{% endblock %}
+{% block meta_description %}Executive health dashboard - Director Observatory{% endblock %}
+
+{% block header_title %}Director Observatory{% endblock %}
+{% block header_subtitle %}Executive Summary - Engineering Health{% endblock %}
+{% block footer_context %}Executive Summary Dashboard{% endblock %}
+
+{% block content %}
+<!-- Target Progress Section -->
+{% if target_progress %}
+<div class="section">
+    <h2>70% Reduction Target</h2>
+    <div class="card">
+        <div class="progress-summary">
+            <div class="progress-label">Overall Progress</div>
+            <div class="progress-bar-large">
+                <div class="progress-fill {% if target_progress.overall >= 75 %}progress-good{% elif target_progress.overall >= 50 %}progress-ok{% else %}progress-warning{% endif %}"
+                     style="width: {{ target_progress.overall }}%">
+                </div>
+            </div>
+            <div class="progress-value-large">{{ target_progress.overall|format_percent }}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Key Metrics Grid -->
+<div class="section">
+    <h2>Key Metrics</h2>
+    <div class="summary-grid">
+        {% for card in metric_cards %}
+        {{ card|safe }}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Attention Items -->
+{% if attention_items %}
+<div class="section">
+    <h2>Items Requiring Attention</h2>
+    <div class="card">
+        {% for item in attention_items %}
+        <div class="attention-item {% if item.severity == 'high' %}rag-red{% elif item.severity == 'medium' %}rag-amber{% else %}rag-green{% endif %}">
+            <div class="attention-header">
+                <span class="attention-category">{{ item.category }}</span>
+                <span class="attention-severity">{{ item.severity|upper }}</span>
+            </div>
+            <div class="attention-message">{{ item.message }}</div>
+            {% if item.action %}
+            <div class="attention-action">→ {{ item.action }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Trends Section -->
+{% if trends %}
+<div class="section">
+    <h2>4-Week Trends</h2>
+    <div class="trends-grid">
+        {% for trend in trends %}
+        <div class="trend-card">
+            <div class="trend-title">{{ trend.title }}</div>
+            <div class="trend-sparkline">
+                {{ trend.sparkline|safe }}
+            </div>
+            <div class="trend-summary">
+                <span class="trend-current">{{ trend.current }}</span>
+                <span class="trend-change {{ trend.change_class }}">
+                    {{ trend.change_text }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Health Status by Area -->
+<div class="section">
+    <h2>Health Status by Area</h2>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Area</th>
+                    <th>Status</th>
+                    <th>Key Metric</th>
+                    <th>Trend</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for area in health_areas %}
+                <tr>
+                    <td><strong>{{ area.name }}</strong></td>
+                    <td>
+                        <span class="status-badge status-{{ area.status_class }}">
+                            {{ area.status }}
+                        </span>
+                    </td>
+                    <td>{{ area.key_metric }}</td>
+                    <td>{{ area.trend|safe }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Custom CSS for executive dashboard -->
+<style>
+.progress-summary {
+    text-align: center;
+    padding: 20px;
+}
+
+.progress-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.progress-bar-large {
+    height: 40px;
+    background: var(--bg-tertiary);
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress-value-large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.attention-item {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.attention-item.rag-red {
+    border-left-color: var(--color-rag-red);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.attention-item.rag-amber {
+    border-left-color: var(--color-rag-amber);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.attention-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.attention-category {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.attention-severity {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg-tertiary);
+}
+
+.attention-message {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.attention-action {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.trends-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.trend-card {
+    background: var(--bg-tertiary);
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.trend-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.trend-sparkline {
+    margin: 12px 0;
+}
+
+.trend-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.trend-current {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.trend-change {
+    font-size: 0.9rem;
+}
+
+.trend-change.positive {
+    color: var(--color-rag-green);
+}
+
+.trend-change.negative {
+    color: var(--color-rag-red);
+}
+
+.trend-change.neutral {
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}

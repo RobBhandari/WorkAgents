@@ -9,7 +9,7 @@ Represents flow metrics for tracking development velocity:
 """
 
 from dataclasses import dataclass
-from typing import Optional
+
 from .metrics import MetricSnapshot
 
 
@@ -56,22 +56,23 @@ class FlowMetrics(MetricSnapshot):
         if metrics.has_flow_issues():
             print("Flow issues detected!")
     """
+
     # Lead time metrics (created -> closed)
-    lead_time_p50: Optional[float] = None
-    lead_time_p85: Optional[float] = None
-    lead_time_p95: Optional[float] = None
+    lead_time_p50: float | None = None
+    lead_time_p85: float | None = None
+    lead_time_p95: float | None = None
 
     # Cycle time metrics (first active -> closed)
-    cycle_time_p50: Optional[float] = None
-    cycle_time_p85: Optional[float] = None
-    cycle_time_p95: Optional[float] = None
+    cycle_time_p50: float | None = None
+    cycle_time_p85: float | None = None
+    cycle_time_p95: float | None = None
 
     # WIP and aging
     wip_count: int = 0
     aging_items: int = 0
 
     # Throughput (completed items in period)
-    throughput: Optional[int] = None
+    throughput: int | None = None
 
     @property
     def has_lead_time_data(self) -> bool:
@@ -83,7 +84,7 @@ class FlowMetrics(MetricSnapshot):
         """Check if cycle time metrics are available"""
         return self.cycle_time_p50 is not None
 
-    def lead_time_variability(self) -> Optional[float]:
+    def lead_time_variability(self) -> float | None:
         """
         Calculate lead time variability (P95 / P50).
 
@@ -98,7 +99,7 @@ class FlowMetrics(MetricSnapshot):
 
         return self.lead_time_p95 / self.lead_time_p50
 
-    def cycle_time_variability(self) -> Optional[float]:
+    def cycle_time_variability(self) -> float | None:
         """
         Calculate cycle time variability (P95 / P50).
 
@@ -123,7 +124,7 @@ class FlowMetrics(MetricSnapshot):
         variability = self.lead_time_variability()
         return variability is not None and variability > threshold
 
-    def aging_percentage(self) -> Optional[float]:
+    def aging_percentage(self) -> float | None:
         """
         Calculate percentage of WIP that is aging.
 

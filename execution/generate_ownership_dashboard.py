@@ -7,10 +7,9 @@ Uses modern "mint" design with Chart.js for visualizations.
 """
 
 import json
-import sys
 import os
+import sys
 from datetime import datetime
-from pathlib import Path
 
 # Import mobile-responsive framework
 try:
@@ -19,10 +18,11 @@ except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
 
 # Set UTF-8 encoding for Windows
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 
 def calculate_ownership_status(unassigned_pct):
@@ -68,11 +68,11 @@ def get_work_type_rag_status(unassigned_pct: float) -> tuple:
     - Red (Action Needed): > 50% unassigned
     """
     if unassigned_pct < 25:
-        return 'rag-green', '#10b981', 'Good'
+        return "rag-green", "#10b981", "Good"
     elif unassigned_pct < 50:
-        return 'rag-amber', '#f59e0b', 'Caution'
+        return "rag-amber", "#f59e0b", "Caution"
     else:
-        return 'rag-red', '#ef4444', 'Action Needed'
+        return "rag-red", "#ef4444", "Action Needed"
 
 
 def generate_ownership_drilldown_html(project):
@@ -80,52 +80,52 @@ def generate_ownership_drilldown_html(project):
     html = '<div class="detail-content">'
 
     # Section 1: Assignment Distribution (Top Assignees)
-    top_assignees = project['assignment_distribution'].get('top_assignees', [])
-    load_imbalance = project['assignment_distribution'].get('load_imbalance_ratio')
+    top_assignees = project["assignment_distribution"].get("top_assignees", [])
+    load_imbalance = project["assignment_distribution"].get("load_imbalance_ratio")
 
     if top_assignees:
         # Filter out "Unassigned" from the list
-        assigned_only = [(name, count) for name, count in top_assignees if name != 'Unassigned']
+        assigned_only = [(name, count) for name, count in top_assignees if name != "Unassigned"]
 
         if assigned_only:
             html += '<div class="detail-section">'
-            html += '<h4>Work Distribution by Assignee</h4>'
+            html += "<h4>Work Distribution by Assignee</h4>"
             html += '<div class="detail-grid">'
 
             for name, count in assigned_only[:8]:  # Show max 8
-                html += f'''<div class="detail-metric">
+                html += f"""<div class="detail-metric">
                     <div class="detail-metric-label">{name}</div>
                     <div class="detail-metric-value">{count} items</div>
-                </div>'''
+                </div>"""
 
-            html += '</div>'
+            html += "</div>"
 
             if load_imbalance:
                 html += f'<p style="margin-top: 12px; color: #6b7280; font-size: 0.9rem;"><strong>Load Imbalance Ratio:</strong> {load_imbalance:.1f}:1 (max vs min workload)</p>'
 
-            html += '</div>'
+            html += "</div>"
 
     # Section 2: Work Type Breakdown
-    work_type_seg = project.get('work_type_segmentation', {})
+    work_type_seg = project.get("work_type_segmentation", {})
     if work_type_seg:
         html += '<div class="detail-section">'
-        html += '<h4>Ownership by Work Type</h4>'
+        html += "<h4>Ownership by Work Type</h4>"
         html += '<div class="detail-grid">'
 
         # Show Bug, Story, Task
-        for wtype in ['Bug', 'User Story', 'Task']:
+        for wtype in ["Bug", "User Story", "Task"]:
             if wtype in work_type_seg:
                 data = work_type_seg[wtype]
-                total = data.get('total', 0)
-                unassigned = data.get('unassigned', 0)
-                unassigned_pct = data.get('unassigned_pct', 0)
+                total = data.get("total", 0)
+                unassigned = data.get("unassigned", 0)
+                unassigned_pct = data.get("unassigned_pct", 0)
 
                 if total > 0:
                     # Get RAG status for this work type
                     rag_class, rag_color, rag_status = get_work_type_rag_status(unassigned_pct)
 
                     assigned = total - unassigned
-                    html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+                    html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
                         <div class="detail-metric-label">{wtype}</div>
                         <div class="detail-metric-value">
                             {total} total<br>
@@ -133,56 +133,56 @@ def generate_ownership_drilldown_html(project):
                             <span style="color: {rag_color}; font-size: 0.85rem;">{unassigned} unassigned ({unassigned_pct:.0f}%)</span>
                         </div>
                         <div class="detail-metric-status" style="color: {rag_color};">{rag_status}</div>
-                    </div>'''
+                    </div>"""
 
-        html += '</div></div>'
+        html += "</div></div>"
 
     # Section 3: Area Unassigned Statistics (HARD DATA - NO CLASSIFICATION)
-    area_stats = project.get('area_unassigned_stats', {})
-    areas = area_stats.get('areas', [])
+    area_stats = project.get("area_unassigned_stats", {})
+    areas = area_stats.get("areas", [])
 
     if areas:
         html += '<div class="detail-section">'
-        html += '<h4>Area Unassigned Statistics</h4>'
+        html += "<h4>Area Unassigned Statistics</h4>"
         html += '<p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Top areas by unassigned percentage (all areas shown, no filtering)</p>'
         html += '<ul class="detail-list">'
 
         for area in areas[:10]:  # Show top 10 by unassigned %
-            area_path = area.get('area_path', 'Unknown')
-            unassigned_pct = area.get('unassigned_pct', 0)
-            total = area.get('total_items', 0)
-            unassigned = area.get('unassigned_items', 0)
-            html += f'''<li>
+            area_path = area.get("area_path", "Unknown")
+            unassigned_pct = area.get("unassigned_pct", 0)
+            total = area.get("total_items", 0)
+            unassigned = area.get("unassigned_items", 0)
+            html += f"""<li>
                 <strong>{area_path}</strong>
                 <em>({unassigned_pct:.1f}% unassigned • {unassigned}/{total} items)</em>
-            </li>'''
+            </li>"""
 
-        html += '</ul></div>'
+        html += "</ul></div>"
 
     # If no data at all
     if not (top_assignees or areas):
         html += '<div class="no-data">No detailed metrics available for this project</div>'
 
-    html += '</div>'
+    html += "</div>"
     return html
 
 
 def load_ownership_data():
     """Load ownership metrics from history file"""
-    with open('.tmp/observatory/ownership_history.json', 'r', encoding='utf-8') as f:
+    with open(".tmp/observatory/ownership_history.json", encoding="utf-8") as f:
         data = json.load(f)
-    return data['weeks'][-1]  # Most recent week
+    return data["weeks"][-1]  # Most recent week
 
 
 def generate_html(ownership_data):
     """Generate self-contained HTML dashboard"""
 
     # Extract project data
-    projects = ownership_data['projects']
+    projects = ownership_data["projects"]
 
     # Calculate portfolio stats
-    total_unassigned = sum(p['unassigned']['unassigned_count'] for p in projects)
-    total_all_items = sum(p['total_items_analyzed'] for p in projects)
+    total_unassigned = sum(p["unassigned"]["unassigned_count"] for p in projects)
+    total_all_items = sum(p["total_items_analyzed"] for p in projects)
     avg_unassigned_pct = (total_unassigned / total_all_items * 100) if total_all_items > 0 else 0
 
     # Status determination (HARD DATA ONLY - based on unassigned percentage)
@@ -198,14 +198,14 @@ def generate_html(ownership_data):
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#3b82f6',
-        header_gradient_end='#2563eb',
+        header_gradient_start="#3b82f6",
+        header_gradient_end="#2563eb",
         include_table_scroll=True,
         include_expandable_rows=True,
-        include_glossary=True
+        include_glossary=True,
     )
 
-    html = f'''<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -419,70 +419,70 @@ def generate_html(ownership_data):
                         </tr>
                     </thead>
                     <tbody>
-'''
+"""
 
     # Add project rows with expandable drill-down
     # First, prepare projects with their status for sorting
     projects_with_status = []
     for project in projects:
-        unassigned_pct = project['unassigned']['unassigned_pct']
-        unassigned_count = project['unassigned']['unassigned_count']
-        total = project['total_items_analyzed']
-        assignee_count = project['assignment_distribution']['assignee_count']
+        unassigned_pct = project["unassigned"]["unassigned_pct"]
+        unassigned_count = project["unassigned"]["unassigned_count"]
+        total = project["total_items_analyzed"]
+        assignee_count = project["assignment_distribution"]["assignee_count"]
 
         # Extract developer active days
-        dev_active_days = project.get('developer_active_days', {})
-        avg_active_days = dev_active_days.get('avg_active_days', None)
-        sample_size = dev_active_days.get('sample_size', 0)
+        dev_active_days = project.get("developer_active_days", {})
+        avg_active_days = dev_active_days.get("avg_active_days", None)
+        sample_size = dev_active_days.get("sample_size", 0)
 
         # Determine status based on ownership metrics (HARD DATA ONLY)
-        row_status, status_tooltip, status_priority = calculate_ownership_status(
-            unassigned_pct=unassigned_pct
-        )
+        row_status, status_tooltip, status_priority = calculate_ownership_status(unassigned_pct=unassigned_pct)
 
         # Generate drill-down content
         drilldown_html = generate_ownership_drilldown_html(project)
 
-        projects_with_status.append({
-            'project': project,
-            'unassigned_pct': unassigned_pct,
-            'unassigned_count': unassigned_count,
-            'total': total,
-            'assignee_count': assignee_count,
-            'avg_active_days': avg_active_days,
-            'sample_size': sample_size,
-            'row_status': row_status,
-            'status_tooltip': status_tooltip,
-            'status_priority': status_priority,
-            'drilldown_html': drilldown_html
-        })
+        projects_with_status.append(
+            {
+                "project": project,
+                "unassigned_pct": unassigned_pct,
+                "unassigned_count": unassigned_count,
+                "total": total,
+                "assignee_count": assignee_count,
+                "avg_active_days": avg_active_days,
+                "sample_size": sample_size,
+                "row_status": row_status,
+                "status_tooltip": status_tooltip,
+                "status_priority": status_priority,
+                "drilldown_html": drilldown_html,
+            }
+        )
 
     # Sort by status priority (Red->Amber->Green), then by unassigned percentage descending
-    projects_with_status.sort(key=lambda x: (x['status_priority'], -x['unassigned_pct']))
+    projects_with_status.sort(key=lambda x: (x["status_priority"], -x["unassigned_pct"]))
 
     # Now render the sorted projects
     for idx, proj_data in enumerate(projects_with_status):
-        project = proj_data['project']
-        unassigned_pct = proj_data['unassigned_pct']
-        unassigned_count = proj_data['unassigned_count']
-        total = proj_data['total']
-        assignee_count = proj_data['assignee_count']
-        avg_active_days = proj_data['avg_active_days']
-        sample_size = proj_data['sample_size']
-        row_status = proj_data['row_status']
-        status_tooltip = proj_data['status_tooltip']
-        drilldown_html = proj_data['drilldown_html']
+        project = proj_data["project"]
+        unassigned_pct = proj_data["unassigned_pct"]
+        unassigned_count = proj_data["unassigned_count"]
+        total = proj_data["total"]
+        assignee_count = proj_data["assignee_count"]
+        avg_active_days = proj_data["avg_active_days"]
+        sample_size = proj_data["sample_size"]
+        row_status = proj_data["row_status"]
+        status_tooltip = proj_data["status_tooltip"]
+        drilldown_html = proj_data["drilldown_html"]
 
         # Format active days display
         if avg_active_days is not None:
-            active_days_display = f'{avg_active_days:.1f}'
-            active_days_title = f'{sample_size} developers tracked over 90 days'
+            active_days_display = f"{avg_active_days:.1f}"
+            active_days_title = f"{sample_size} developers tracked over 90 days"
         else:
-            active_days_display = 'N/A'
-            active_days_title = 'No commit data available'
+            active_days_display = "N/A"
+            active_days_title = "No commit data available"
 
         # Main data row (clickable)
-        html += f'''                    <tr class="data-row" onclick="toggleDetail('ownership-detail-{idx}', this)">
+        html += f"""                    <tr class="data-row" onclick="toggleDetail('ownership-detail-{idx}', this)">
                         <td><strong>{project['project_name']}</strong></td>
                         <td>{total:,}</td>
                         <td>{unassigned_count:,}</td>
@@ -496,9 +496,9 @@ def generate_html(ownership_data):
                             {drilldown_html}
                         </td>
                     </tr>
-'''
+"""
 
-    html += f'''                </tbody>
+    html += f"""                </tbody>
                 </table>
             </div>
         </div>
@@ -609,7 +609,7 @@ def generate_html(ownership_data):
     </script>
 </body>
 </html>
-'''
+"""
     return html
 
 
@@ -631,12 +631,12 @@ def main():
     html = generate_html(ownership_data)
 
     # Save to file
-    output_file = '.tmp/observatory/dashboards/ownership_dashboard.html'
+    output_file = ".tmp/observatory/dashboards/ownership_dashboard.html"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\n[SUCCESS] Dashboard generated!")
+    print("\n[SUCCESS] Dashboard generated!")
     print(f"  Location: {output_file}")
     print(f"  Size: {len(html):,} bytes")
     print(f"\nOpen in browser: start {output_file}")

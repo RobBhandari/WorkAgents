@@ -5,20 +5,18 @@ Sends emails from Office365/Microsoft 365 accounts using Microsoft Graph API
 with OAuth 2.0 authentication (modern auth, no password required).
 """
 
-from execution.core import get_config
+import argparse
+import base64
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
-import base64
 from datetime import datetime
-from typing import List, Optional
-from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
-from http_client import get, post, put, delete, patch
+from http_client import post
+
+from execution.core import get_config
 
 # Load environment variables
 load_dotenv()
@@ -26,17 +24,17 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/email_graph_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
 # Microsoft Graph API endpoints
-GRAPH_API_ENDPOINT = 'https://graph.microsoft.com/v1.0'
-TOKEN_ENDPOINT = 'https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token'
+GRAPH_API_ENDPOINT = "https://graph.microsoft.com/v1.0"
+TOKEN_ENDPOINT = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
 
 
 def get_access_token(tenant_id: str, client_id: str, client_secret: str) -> str:
@@ -59,10 +57,10 @@ def get_access_token(tenant_id: str, client_id: str, client_secret: str) -> str:
     token_url = TOKEN_ENDPOINT.format(tenant_id=tenant_id)
 
     data = {
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'scope': 'https://graph.microsoft.com/.default',
-        'grant_type': 'client_credentials'
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "scope": "https://graph.microsoft.com/.default",
+        "grant_type": "client_credentials",
     }
 
     try:
@@ -70,7 +68,7 @@ def get_access_token(tenant_id: str, client_id: str, client_secret: str) -> str:
         response.raise_for_status()
 
         token_data = response.json()
-        access_token = token_data.get('access_token')
+        access_token = token_data.get("access_token")
 
         if not access_token:
             raise RuntimeError("No access token in response")
@@ -98,10 +96,10 @@ def send_email_graph(
     subject: str,
     body: str,
     access_token: str,
-    attachments: Optional[List[str]] = None,
+    attachments: list[str] | None = None,
     html: bool = False,
-    cc: Optional[List[str]] = None,
-    bcc: Optional[List[str]] = None
+    cc: list[str] | None = None,
+    bcc: list[str] | None = None,
 ) -> bool:
     """
     Send an email via Microsoft Graph API.
@@ -127,34 +125,25 @@ def send_email_graph(
 
     # Build email message
     message = {
-        'message': {
-            'subject': subject,
-            'body': {
-                'contentType': 'HTML' if html else 'Text',
-                'content': body
-            },
-            'toRecipients': [
-                {'emailAddress': {'address': to_email}}
-            ]
+        "message": {
+            "subject": subject,
+            "body": {"contentType": "HTML" if html else "Text", "content": body},
+            "toRecipients": [{"emailAddress": {"address": to_email}}],
         },
-        'saveToSentItems': 'true'
+        "saveToSentItems": "true",
     }
 
     # Add CC recipients
     if cc:
-        message['message']['ccRecipients'] = [
-            {'emailAddress': {'address': addr}} for addr in cc
-        ]
+        message["message"]["ccRecipients"] = [{"emailAddress": {"address": addr}} for addr in cc]
 
     # Add BCC recipients
     if bcc:
-        message['message']['bccRecipients'] = [
-            {'emailAddress': {'address': addr}} for addr in bcc
-        ]
+        message["message"]["bccRecipients"] = [{"emailAddress": {"address": addr}} for addr in bcc]
 
     # Add attachments
     if attachments:
-        message['message']['attachments'] = []
+        message["message"]["attachments"] = []
         for file_path in attachments:
             if not os.path.exists(file_path):
                 logger.warning(f"Attachment not found: {file_path}")
@@ -168,36 +157,30 @@ def send_email_graph(
                 logger.warning(f"File {file_path} is larger than 4MB, skipping (use upload session for large files)")
                 continue
 
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 file_content = f.read()
-                file_base64 = base64.b64encode(file_content).decode('utf-8')
+                file_base64 = base64.b64encode(file_content).decode("utf-8")
 
-            message['message']['attachments'].append({
-                '@odata.type': '#microsoft.graph.fileAttachment',
-                'name': os.path.basename(file_path),
-                'contentType': 'application/octet-stream',
-                'contentBytes': file_base64
-            })
+            message["message"]["attachments"].append(
+                {
+                    "@odata.type": "#microsoft.graph.fileAttachment",
+                    "name": os.path.basename(file_path),
+                    "contentType": "application/octet-stream",
+                    "contentBytes": file_base64,
+                }
+            )
 
     # Send email via Graph API
-    send_url = f'{GRAPH_API_ENDPOINT}/users/{from_email}/sendMail'
+    send_url = f"{GRAPH_API_ENDPOINT}/users/{from_email}/sendMail"
 
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
-    }
+    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 
     max_retries = 3
     for attempt in range(max_retries):
         try:
             logger.info(f"Sending email via Graph API (attempt {attempt + 1})...")
 
-            response = post(
-                send_url,
-                headers=headers,
-                json=message,
-                timeout=60
-            )
+            response = post(send_url, headers=headers, json=message, timeout=60)
 
             response.raise_for_status()
 
@@ -206,14 +189,15 @@ def send_email_graph(
 
         except requests.exceptions.HTTPError as e:
             error_details = e.response.json() if e.response else {}
-            error_code = error_details.get('error', {}).get('code', '')
+            error_code = error_details.get("error", {}).get("code", "")
 
             # Handle throttling
-            if e.response.status_code == 429 or error_code == 'TooManyRequests':
+            if e.response.status_code == 429 or error_code == "TooManyRequests":
                 if attempt < max_retries - 1:
-                    retry_after = int(e.response.headers.get('Retry-After', 5))
+                    retry_after = int(e.response.headers.get("Retry-After", 5))
                     logger.warning(f"Rate limited. Retrying after {retry_after} seconds...")
                     import time
+
                     time.sleep(retry_after)
                     continue
 
@@ -233,79 +217,37 @@ def send_email_graph(
 
 def parse_arguments():
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Send an email via Microsoft Graph API'
-    )
+    parser = argparse.ArgumentParser(description="Send an email via Microsoft Graph API")
 
-    parser.add_argument(
-        'to_email',
-        type=str,
-        help='Recipient email address'
-    )
+    parser.add_argument("to_email", type=str, help="Recipient email address")
 
-    parser.add_argument(
-        '--subject',
-        type=str,
-        required=True,
-        help='Email subject'
-    )
+    parser.add_argument("--subject", type=str, required=True, help="Email subject")
 
-    parser.add_argument(
-        '--body',
-        type=str,
-        help='Email body text (or use --body-file)'
-    )
+    parser.add_argument("--body", type=str, help="Email body text (or use --body-file)")
 
-    parser.add_argument(
-        '--body-file',
-        type=str,
-        help='Path to file containing email body'
-    )
+    parser.add_argument("--body-file", type=str, help="Path to file containing email body")
 
-    parser.add_argument(
-        '--html',
-        action='store_true',
-        help='Body is HTML format'
-    )
+    parser.add_argument("--html", action="store_true", help="Body is HTML format")
 
-    parser.add_argument(
-        '--attachments',
-        type=str,
-        nargs='+',
-        help='Files to attach'
-    )
+    parser.add_argument("--attachments", type=str, nargs="+", help="Files to attach")
 
-    parser.add_argument(
-        '--from-email',
-        type=str,
-        help='Sender email (default: from .env EMAIL_ADDRESS)'
-    )
+    parser.add_argument("--from-email", type=str, help="Sender email (default: from .env EMAIL_ADDRESS)")
 
-    parser.add_argument(
-        '--cc',
-        type=str,
-        nargs='+',
-        help='CC recipients'
-    )
+    parser.add_argument("--cc", type=str, nargs="+", help="CC recipients")
 
-    parser.add_argument(
-        '--bcc',
-        type=str,
-        nargs='+',
-        help='BCC recipients'
-    )
+    parser.add_argument("--bcc", type=str, nargs="+", help="BCC recipients")
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Entry point when script is run from command line."""
     try:
         # Parse arguments
         args = parse_arguments()
 
         # Ensure .tmp directory exists
-        os.makedirs('.tmp', exist_ok=True)
+        os.makedirs(".tmp", exist_ok=True)
 
         # Get Azure AD credentials
         tenant_id = get_config().get("AZURE_TENANT_ID")
@@ -321,15 +263,13 @@ if __name__ == '__main__':
             )
 
         if not from_email:
-            raise RuntimeError(
-                "Sender email not specified. Set EMAIL_ADDRESS in .env or use --from-email"
-            )
+            raise RuntimeError("Sender email not specified. Set EMAIL_ADDRESS in .env or use --from-email")
 
         # Get body content
         if args.body:
             body = args.body
         elif args.body_file:
-            with open(args.body_file, 'r', encoding='utf-8') as f:
+            with open(args.body_file, encoding="utf-8") as f:
                 body = f.read()
         else:
             raise ValueError("Either --body or --body-file must be provided")
@@ -347,7 +287,7 @@ if __name__ == '__main__':
             attachments=args.attachments,
             html=args.html,
             cc=args.cc,
-            bcc=args.bcc
+            bcc=args.bcc,
         )
 
         if success:

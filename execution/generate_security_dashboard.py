@@ -18,8 +18,8 @@ Changelog:
     - Original: Monolithic 1833-line script with inline HTML generation
 """
 
-import warnings
 import sys
+import warnings
 from pathlib import Path
 
 # Show deprecation warning
@@ -30,10 +30,9 @@ warnings.warn(
     "Please update your code to use:\n"
     "    from execution.dashboards.security import generate_security_dashboard\n"
     "\n"
-    "This wrapper will be removed in v3.0\n"
-    + "=" * 70,
+    "This wrapper will be removed in v3.0\n" + "=" * 70,
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 # Import new implementation
@@ -58,7 +57,7 @@ def main():
     print()
 
     # Call new implementation with same default path
-    output_path = Path('.tmp/observatory/dashboards/security.html')
+    output_path = Path(".tmp/observatory/dashboards/security.html")
 
     try:
         html = _new_implementation(output_path)
@@ -73,9 +72,10 @@ def main():
     except Exception as e:
         print(f"\n[ERROR] Unexpected error: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

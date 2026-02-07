@@ -12,23 +12,23 @@ HARD DATA ONLY - No assumptions, no thresholds, no classifications.
 Read-only operation - does not modify any existing data.
 """
 
-from execution.core import get_config
-import os
 import json
-import sys
+import os
 import random
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import List, Dict, Optional
 import statistics
+import sys
+from datetime import datetime, timedelta
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
-from msrest.authentication import BasicAuthentication
 from azure.devops.v7_1.git.models import GitPullRequestSearchCriteria
 
 # Load environment variables
 from dotenv import load_dotenv
+from msrest.authentication import BasicAuthentication
+
+from execution.core import get_config
+
 load_dotenv()
 
 
@@ -40,12 +40,12 @@ def get_ado_connection():
     if not organization_url or not pat:
         raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
 
-    credentials = BasicAuthentication('', pat)
+    credentials = BasicAuthentication("", pat)
     connection = Connection(base_url=organization_url, creds=credentials)
     return connection
 
 
-def query_pull_requests(git_client, project_name: str, repo_id: str, days: int = 90) -> List[Dict]:
+def query_pull_requests(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:
     """
     Query recent completed pull requests.
 
@@ -59,29 +59,29 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
         List of PR data
     """
     try:
-        search_criteria = GitPullRequestSearchCriteria(status='completed')
+        search_criteria = GitPullRequestSearchCriteria(status="completed")
 
-        prs = git_client.get_pull_requests(
-            repository_id=repo_id,
-            project=project_name,
-            search_criteria=search_criteria
-        )
+        prs = git_client.get_pull_requests(repository_id=repo_id, project=project_name, search_criteria=search_criteria)
 
         pr_data = []
-        cutoff_date = datetime.now(prs[0].creation_date.tzinfo if prs and prs[0].creation_date else None) - timedelta(days=days)
+        cutoff_date = datetime.now(prs[0].creation_date.tzinfo if prs and prs[0].creation_date else None) - timedelta(
+            days=days
+        )
 
         for pr in prs:
             if pr.creation_date < cutoff_date:
                 continue
 
-            pr_data.append({
-                'pr_id': pr.pull_request_id,
-                'title': pr.title,
-                'created_date': pr.creation_date.isoformat() if pr.creation_date else None,
-                'closed_date': pr.closed_date.isoformat() if pr.closed_date else None,
-                'created_by': pr.created_by.display_name if pr.created_by else 'Unknown',
-                'repository_id': repo_id
-            })
+            pr_data.append(
+                {
+                    "pr_id": pr.pull_request_id,
+                    "title": pr.title,
+                    "created_date": pr.creation_date.isoformat() if pr.creation_date else None,
+                    "closed_date": pr.closed_date.isoformat() if pr.closed_date else None,
+                    "created_by": pr.created_by.display_name if pr.created_by else "Unknown",
+                    "repository_id": repo_id,
+                }
+            )
 
         return pr_data
 
@@ -90,7 +90,7 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
         return []
 
 
-def calculate_pr_review_time(git_client, project_name: str, prs: List[Dict]) -> Dict:
+def calculate_pr_review_time(git_client, project_name: str, prs: list[dict]) -> dict:
     """
     Calculate PR review time - creation to first review comment.
 
@@ -111,15 +111,13 @@ def calculate_pr_review_time(git_client, project_name: str, prs: List[Dict]) -> 
         try:
             # Get PR threads (comments)
             threads = git_client.get_threads(
-                repository_id=pr['repository_id'],
-                pull_request_id=pr['pr_id'],
-                project=project_name
+                repository_id=pr["repository_id"], pull_request_id=pr["pr_id"], project=project_name
             )
 
             if not threads:
                 continue
 
-            pr_created = datetime.fromisoformat(pr['created_date'].replace('Z', '+00:00'))
+            pr_created = datetime.fromisoformat(pr["created_date"].replace("Z", "+00:00"))
 
             # Find first comment timestamp
             first_comment_time = None
@@ -141,16 +139,11 @@ def calculate_pr_review_time(git_client, project_name: str, prs: List[Dict]) -> 
                 if review_hours > 0:  # Only positive times
                     review_times.append(review_hours)
 
-        except Exception as e:
+        except Exception:
             continue
 
     if not review_times:
-        return {
-            'sample_size': 0,
-            'median_hours': None,
-            'p85_hours': None,
-            'p95_hours': None
-        }
+        return {"sample_size": 0, "median_hours": None, "p85_hours": None, "p95_hours": None}
 
     # Calculate percentiles
     sorted_times = sorted(review_times)
@@ -161,14 +154,14 @@ def calculate_pr_review_time(git_client, project_name: str, prs: List[Dict]) -> 
         return data[min(index, n - 1)]
 
     return {
-        'sample_size': n,
-        'median_hours': round(statistics.median(review_times), 1),
-        'p85_hours': round(percentile(sorted_times, 85), 1),
-        'p95_hours': round(percentile(sorted_times, 95), 1)
+        "sample_size": n,
+        "median_hours": round(statistics.median(review_times), 1),
+        "p85_hours": round(percentile(sorted_times, 85), 1),
+        "p95_hours": round(percentile(sorted_times, 95), 1),
     }
 
 
-def calculate_pr_merge_time(prs: List[Dict]) -> Dict:
+def calculate_pr_merge_time(prs: list[dict]) -> dict:
     """
     Calculate PR merge time - creation to merge.
 
@@ -183,11 +176,11 @@ def calculate_pr_merge_time(prs: List[Dict]) -> Dict:
     merge_times = []
 
     for pr in prs:
-        if not pr['created_date'] or not pr['closed_date']:
+        if not pr["created_date"] or not pr["closed_date"]:
             continue
 
-        created = datetime.fromisoformat(pr['created_date'].replace('Z', '+00:00'))
-        closed = datetime.fromisoformat(pr['closed_date'].replace('Z', '+00:00'))
+        created = datetime.fromisoformat(pr["created_date"].replace("Z", "+00:00"))
+        closed = datetime.fromisoformat(pr["closed_date"].replace("Z", "+00:00"))
 
         merge_delta = closed - created
         merge_hours = merge_delta.total_seconds() / 3600
@@ -196,12 +189,7 @@ def calculate_pr_merge_time(prs: List[Dict]) -> Dict:
             merge_times.append(merge_hours)
 
     if not merge_times:
-        return {
-            'sample_size': 0,
-            'median_hours': None,
-            'p85_hours': None,
-            'p95_hours': None
-        }
+        return {"sample_size": 0, "median_hours": None, "p85_hours": None, "p95_hours": None}
 
     # Calculate percentiles
     sorted_times = sorted(merge_times)
@@ -212,14 +200,14 @@ def calculate_pr_merge_time(prs: List[Dict]) -> Dict:
         return data[min(index, n - 1)]
 
     return {
-        'sample_size': n,
-        'median_hours': round(statistics.median(merge_times), 1),
-        'p85_hours': round(percentile(sorted_times, 85), 1),
-        'p95_hours': round(percentile(sorted_times, 95), 1)
+        "sample_size": n,
+        "median_hours": round(statistics.median(merge_times), 1),
+        "p85_hours": round(percentile(sorted_times, 85), 1),
+        "p95_hours": round(percentile(sorted_times, 95), 1),
     }
 
 
-def calculate_review_iteration_count(git_client, project_name: str, prs: List[Dict]) -> Dict:
+def calculate_review_iteration_count(git_client, project_name: str, prs: list[dict]) -> dict:
     """
     Calculate review iteration count - number of PR iterations.
 
@@ -239,32 +227,26 @@ def calculate_review_iteration_count(git_client, project_name: str, prs: List[Di
     for pr in random.sample(prs, min(10, len(prs))):
         try:
             iterations = git_client.get_pull_request_iterations(
-                repository_id=pr['repository_id'],
-                pull_request_id=pr['pr_id'],
-                project=project_name
+                repository_id=pr["repository_id"], pull_request_id=pr["pr_id"], project=project_name
             )
 
             if iterations:
                 iteration_counts.append(len(iterations))
 
-        except Exception as e:
+        except Exception:
             continue
 
     if not iteration_counts:
-        return {
-            'sample_size': 0,
-            'median_iterations': None,
-            'max_iterations': None
-        }
+        return {"sample_size": 0, "median_iterations": None, "max_iterations": None}
 
     return {
-        'sample_size': len(iteration_counts),
-        'median_iterations': round(statistics.median(iteration_counts), 1),
-        'max_iterations': max(iteration_counts)
+        "sample_size": len(iteration_counts),
+        "median_iterations": round(statistics.median(iteration_counts), 1),
+        "max_iterations": max(iteration_counts),
     }
 
 
-def calculate_pr_size_loc(git_client, project_name: str, prs: List[Dict]) -> Dict:
+def calculate_pr_size_loc(git_client, project_name: str, prs: list[dict]) -> dict:
     """
     Calculate PR size in lines of code (LOC).
 
@@ -285,9 +267,7 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: List[Dict]) -> Dic
         try:
             # Get PR commits
             commits = git_client.get_pull_request_commits(
-                repository_id=pr['repository_id'],
-                pull_request_id=pr['pr_id'],
-                project=project_name
+                repository_id=pr["repository_id"], pull_request_id=pr["pr_id"], project=project_name
             )
 
             if not commits:
@@ -297,16 +277,16 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: List[Dict]) -> Dic
             # Avoids expensive get_changes() API calls that don't provide line counts anyway
             pr_sizes.append(len(commits))
 
-        except Exception as e:
+        except Exception:
             continue
 
     if not pr_sizes:
         return {
-            'sample_size': 0,
-            'median_commits': None,
-            'p85_commits': None,
-            'p95_commits': None,
-            'note': 'Measuring by commit count (LOC requires diff parsing)'
+            "sample_size": 0,
+            "median_commits": None,
+            "p85_commits": None,
+            "p95_commits": None,
+            "note": "Measuring by commit count (LOC requires diff parsing)",
         }
 
     # Calculate percentiles
@@ -318,15 +298,15 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: List[Dict]) -> Dic
         return data[min(index, n - 1)]
 
     return {
-        'sample_size': n,
-        'median_commits': round(statistics.median(pr_sizes), 1),
-        'p85_commits': round(percentile(sorted_sizes, 85), 1),
-        'p95_commits': round(percentile(sorted_sizes, 95), 1),
-        'note': 'Measuring by commit count (LOC requires diff parsing)'
+        "sample_size": n,
+        "median_commits": round(statistics.median(pr_sizes), 1),
+        "p85_commits": round(percentile(sorted_sizes, 85), 1),
+        "p95_commits": round(percentile(sorted_sizes, 95), 1),
+        "note": "Measuring by commit count (LOC requires diff parsing)",
     }
 
 
-def collect_collaboration_metrics_for_project(connection, project: Dict, config: Dict) -> Dict:
+def collect_collaboration_metrics_for_project(connection, project: dict, config: dict) -> dict:
     """
     Collect all collaboration metrics for a single project.
 
@@ -338,11 +318,11 @@ def collect_collaboration_metrics_for_project(connection, project: Dict, config:
     Returns:
         Collaboration metrics dictionary for the project
     """
-    project_name = project['project_name']
-    project_key = project['project_key']
+    project_name = project["project_name"]
+    project_key = project["project_key"]
 
     # Get the actual ADO project name
-    ado_project_name = project.get('ado_project_name', project_name)
+    ado_project_name = project.get("ado_project_name", project_name)
 
     print(f"\n  Collecting collaboration metrics for: {project_name}")
 
@@ -363,7 +343,7 @@ def collect_collaboration_metrics_for_project(connection, project: Dict, config:
         print(f"    Analyzing repo: {repo.name}")
 
         try:
-            prs = query_pull_requests(git_client, ado_project_name, repo.id, days=config.get('lookback_days', 90))
+            prs = query_pull_requests(git_client, ado_project_name, repo.id, days=config.get("lookback_days", 90))
             all_prs.extend(prs)
             print(f"      Found {len(prs)} completed PRs")
         except Exception as e:
@@ -371,16 +351,16 @@ def collect_collaboration_metrics_for_project(connection, project: Dict, config:
             continue
 
     if not all_prs:
-        print(f"    [WARNING] No PRs found - skipping collaboration metrics")
+        print("    [WARNING] No PRs found - skipping collaboration metrics")
         return {
-            'project_key': project_key,
-            'project_name': project_name,
-            'pr_review_time': {'sample_size': 0},
-            'pr_merge_time': {'sample_size': 0},
-            'review_iteration_count': {'sample_size': 0},
-            'pr_size': {'sample_size': 0},
-            'total_prs_analyzed': 0,
-            'collected_at': datetime.now().isoformat()
+            "project_key": project_key,
+            "project_name": project_name,
+            "pr_review_time": {"sample_size": 0},
+            "pr_merge_time": {"sample_size": 0},
+            "review_iteration_count": {"sample_size": 0},
+            "pr_size": {"sample_size": 0},
+            "total_prs_analyzed": 0,
+            "collected_at": datetime.now().isoformat(),
         }
 
     # Calculate metrics - ALL HARD DATA
@@ -395,19 +375,19 @@ def collect_collaboration_metrics_for_project(connection, project: Dict, config:
     print(f"    PR Size: {pr_size['median_commits']} commits (median)")
 
     return {
-        'project_key': project_key,
-        'project_name': project_name,
-        'pr_review_time': pr_review_time,
-        'pr_merge_time': pr_merge_time,
-        'review_iteration_count': review_iterations,
-        'pr_size': pr_size,
-        'total_prs_analyzed': len(all_prs),
-        'repository_count': len(repos),
-        'collected_at': datetime.now().isoformat()
+        "project_key": project_key,
+        "project_name": project_name,
+        "pr_review_time": pr_review_time,
+        "pr_merge_time": pr_merge_time,
+        "review_iteration_count": review_iterations,
+        "pr_size": pr_size,
+        "total_prs_analyzed": len(all_prs),
+        "repository_count": len(repos),
+        "collected_at": datetime.now().isoformat(),
     }
 
 
-def save_collaboration_metrics(metrics: Dict, output_file: str = ".tmp/observatory/collaboration_history.json"):
+def save_collaboration_metrics(metrics: dict, output_file: str = ".tmp/observatory/collaboration_history.json"):
     """
     Save collaboration metrics to history file.
 
@@ -417,15 +397,15 @@ def save_collaboration_metrics(metrics: Dict, output_file: str = ".tmp/observato
     from utils_atomic_json import atomic_json_save, load_json_with_recovery
 
     # Validate that we have actual data before saving
-    projects = metrics.get('projects', [])
+    projects = metrics.get("projects", [])
 
     if not projects:
         print("\n[SKIPPED] No project data to save - collection may have failed")
         return False
 
     # Check if this looks like a failed collection (all zeros)
-    total_prs = sum(p.get('total_prs_analyzed', 0) for p in projects)
-    total_repos = sum(p.get('repository_count', 0) for p in projects)
+    total_prs = sum(p.get("total_prs_analyzed", 0) for p in projects)
+    total_repos = sum(p.get("repository_count", 0) for p in projects)
 
     if total_prs == 0 and total_repos == 0:
         print("\n[SKIPPED] All projects returned zero collaboration data - likely a collection failure")
@@ -438,15 +418,15 @@ def save_collaboration_metrics(metrics: Dict, output_file: str = ".tmp/observato
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
     # Add validation if structure check exists
-    if not isinstance(history, dict) or 'weeks' not in history:
+    if not isinstance(history, dict) or "weeks" not in history:
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
     # Add new week entry
-    history['weeks'].append(metrics)
+    history["weeks"].append(metrics)
 
     # Keep only last 52 weeks (12 months) for quarter/annual analysis
-    history['weeks'] = history['weeks'][-52:]
+    history["weeks"] = history["weeks"][-52:]
 
     # Save updated history
     try:
@@ -461,24 +441,23 @@ def save_collaboration_metrics(metrics: Dict, output_file: str = ".tmp/observato
 
 if __name__ == "__main__":
     # Set UTF-8 encoding for Windows console
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("Director Observatory - Collaboration Metrics Collector\n")
     print("=" * 60)
 
     # Configuration
-    config = {
-        'lookback_days': 90
-    }
+    config = {"lookback_days": 90}
 
     # Load discovered projects
     try:
-        with open(".tmp/observatory/ado_structure.json", 'r', encoding='utf-8') as f:
+        with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
             discovery_data = json.load(f)
-        projects = discovery_data['projects']
+        projects = discovery_data["projects"]
         print(f"Loaded {len(projects)} projects from discovery")
     except FileNotFoundError:
         print("[ERROR] Project discovery file not found.")
@@ -509,10 +488,10 @@ if __name__ == "__main__":
 
     # Save results
     week_metrics = {
-        'week_date': datetime.now().strftime('%Y-%m-%d'),
-        'week_number': datetime.now().isocalendar()[1],
-        'projects': project_metrics,
-        'config': config
+        "week_date": datetime.now().strftime("%Y-%m-%d"),
+        "week_number": datetime.now().isocalendar()[1],
+        "projects": project_metrics,
+        "config": config,
     }
 
     save_collaboration_metrics(week_metrics)
@@ -522,7 +501,7 @@ if __name__ == "__main__":
     print("Collaboration Metrics Collection Summary:")
     print(f"  Projects processed: {len(project_metrics)}")
 
-    total_prs = sum(p['total_prs_analyzed'] for p in project_metrics)
+    total_prs = sum(p["total_prs_analyzed"] for p in project_metrics)
     print(f"  Total PRs analyzed: {total_prs}")
 
     print("\nCollaboration metrics collection complete!")

@@ -4,15 +4,8 @@ Chart components for dashboards
 Provides reusable chart HTML generators (sparklines, trends).
 """
 
-from typing import List, Optional
 
-
-def sparkline(
-    values: List[float],
-    width: int = 100,
-    height: int = 30,
-    color: str = "currentColor"
-) -> str:
+def sparkline(values: list[float], width: int = 100, height: int = 30, color: str = "currentColor") -> str:
     """
     Generate an inline SVG sparkline chart.
 
@@ -45,7 +38,7 @@ def sparkline(
 
     polyline = " ".join(points)
 
-    return f'''
+    return f"""
     <svg class="sparkline" width="{width}" height="{height}"
          viewBox="0 0 {width} {height}"
          xmlns="http://www.w3.org/2000/svg">
@@ -54,7 +47,7 @@ def sparkline(
                   stroke="{color}"
                   stroke-width="1.5"/>
     </svg>
-    '''
+    """
 
 
 def trend_indicator(change: float, show_value: bool = True) -> str:
@@ -90,11 +83,7 @@ def trend_indicator(change: float, show_value: bool = True) -> str:
     return f'<span class="trend-indicator {css_class}">{arrow}{value_text}</span>'
 
 
-def percentage_bar(
-    percentage: float,
-    label: str = "",
-    show_value: bool = True
-) -> str:
+def percentage_bar(percentage: float, label: str = "", show_value: bool = True) -> str:
     """
     Generate a horizontal percentage bar.
 
@@ -123,10 +112,10 @@ def percentage_bar(
     else:
         color_class = "progress-critical"
 
-    label_html = f'<span class="progress-label">{label}</span>' if label else ''
-    value_html = f'<span class="progress-value">{pct:.1f}%</span>' if show_value else ''
+    label_html = f'<span class="progress-label">{label}</span>' if label else ""
+    value_html = f'<span class="progress-value">{pct:.1f}%</span>' if show_value else ""
 
-    return f'''
+    return f"""
     <div class="progress-container">
         {label_html}
         <div class="progress-bar">
@@ -134,14 +123,10 @@ def percentage_bar(
         </div>
         {value_html}
     </div>
-    '''
+    """
 
 
-def mini_chart(
-    values: List[float],
-    labels: Optional[List[str]] = None,
-    chart_type: str = "bar"
-) -> str:
+def mini_chart(values: list[float], labels: list[str] | None = None, chart_type: str = "bar") -> str:
     """
     Generate a mini chart (bar or line) using SVG.
 
@@ -195,10 +180,10 @@ def mini_chart(
         polyline = " ".join(points)
         content = f'<polyline points="{polyline}" fill="none" stroke="currentColor" stroke-width="2"/>'
 
-    return f'''
+    return f"""
     <svg class="mini-chart" width="{width}" height="{height}"
          viewBox="0 0 {width} {height}"
          xmlns="http://www.w3.org/2000/svg">
         {content}
     </svg>
-    '''
+    """

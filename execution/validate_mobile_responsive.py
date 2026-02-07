@@ -24,20 +24,23 @@ def check_dashboard_file(filepath):
     """
     if not os.path.exists(filepath):
         return {
-            'file_exists': False,
-            'uses_framework': False,
-            'has_table_wrapper': False,
-            'viewport_meta': False,
+            "file_exists": False,
+            "uses_framework": False,
+            "has_table_wrapper": False,
+            "viewport_meta": False,
         }
 
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, encoding="utf-8") as f:
         content = f.read()
 
     checks = {
-        'file_exists': True,
-        'uses_framework': 'from execution.dashboard_framework import' in content or 'import dashboard_framework' in content,
-        'has_table_wrapper': '.table-wrapper' in content or '<div class="table-wrapper">' in content or 'class="table-wrapper"' in content,
-        'viewport_meta': 'width=device-width' in content,
+        "file_exists": True,
+        "uses_framework": "from execution.dashboard_framework import" in content
+        or "import dashboard_framework" in content,
+        "has_table_wrapper": ".table-wrapper" in content
+        or '<div class="table-wrapper">' in content
+        or 'class="table-wrapper"' in content,
+        "viewport_meta": "width=device-width" in content,
     }
 
     return checks
@@ -46,17 +49,17 @@ def check_dashboard_file(filepath):
 def main():
     """Main validation function"""
     dashboard_files = [
-        'execution/generate_quality_dashboard.py',
-        'execution/generate_flow_dashboard.py',
-        'execution/generate_ownership_dashboard.py',
-        'execution/generate_risk_dashboard.py',
-        'execution/generate_deployment_dashboard.py',
-        'execution/generate_collaboration_dashboard.py',
-        'execution/generate_security_dashboard.py',
-        'execution/generate_target_dashboard.py',
-        'execution/generate_trends_dashboard.py',
-        'execution/generate_executive_summary.py',
-        'execution/usage_tables_report.py',
+        "execution/generate_quality_dashboard.py",
+        "execution/generate_flow_dashboard.py",
+        "execution/generate_ownership_dashboard.py",
+        "execution/generate_risk_dashboard.py",
+        "execution/generate_deployment_dashboard.py",
+        "execution/generate_collaboration_dashboard.py",
+        "execution/generate_security_dashboard.py",
+        "execution/generate_target_dashboard.py",
+        "execution/generate_trends_dashboard.py",
+        "execution/generate_executive_summary.py",
+        "execution/usage_tables_report.py",
     ]
 
     print("=" * 70)
@@ -101,5 +104,5 @@ def main():
     return 0 if passed_dashboards == total_dashboards else 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

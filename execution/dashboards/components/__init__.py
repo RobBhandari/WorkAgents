@@ -15,13 +15,13 @@ Usage:
 """
 
 from .cards import metric_card, summary_card
-from .tables import data_table
 from .charts import sparkline, trend_indicator
+from .tables import data_table
 
 __all__ = [
-    'metric_card',
-    'summary_card',
-    'data_table',
-    'sparkline',
-    'trend_indicator',
+    "metric_card",
+    "summary_card",
+    "data_table",
+    "sparkline",
+    "trend_indicator",
 ]

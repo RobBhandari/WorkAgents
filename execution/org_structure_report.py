@@ -5,14 +5,12 @@ Reads an Excel file and generates a modern HTML report showing
 manager-employee relationships, grouped by manager.
 """
 
-import os
-import sys
 import argparse
 import logging
-from datetime import datetime
-from typing import Dict, List
-from pathlib import Path
+import os
+import sys
 from collections import defaultdict
+from datetime import datetime
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -23,11 +21,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/org_report_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -289,10 +287,10 @@ def read_excel_file(file_path: str, name_column: str, manager_column: str) -> pd
 
     try:
         # Try reading the file
-        if file_path.endswith('.xlsx'):
-            df = pd.read_excel(file_path, engine='openpyxl')
-        elif file_path.endswith('.xls'):
-            df = pd.read_excel(file_path, engine='xlrd')
+        if file_path.endswith(".xlsx"):
+            df = pd.read_excel(file_path, engine="openpyxl")
+        elif file_path.endswith(".xls"):
+            df = pd.read_excel(file_path, engine="xlrd")
         else:
             df = pd.read_excel(file_path)
 
@@ -302,14 +300,12 @@ def read_excel_file(file_path: str, name_column: str, manager_column: str) -> pd
         # Check if required columns exist
         if name_column not in df.columns:
             raise RuntimeError(
-                f"Column '{name_column}' not found in Excel file.\n"
-                f"Available columns: {list(df.columns)}"
+                f"Column '{name_column}' not found in Excel file.\n" f"Available columns: {list(df.columns)}"
             )
 
         if manager_column not in df.columns:
             raise RuntimeError(
-                f"Column '{manager_column}' not found in Excel file.\n"
-                f"Available columns: {list(df.columns)}"
+                f"Column '{manager_column}' not found in Excel file.\n" f"Available columns: {list(df.columns)}"
             )
 
         # Extract relevant columns
@@ -321,8 +317,8 @@ def read_excel_file(file_path: str, name_column: str, manager_column: str) -> pd
 
         # Remove rows where name is NaN or 'nan'
         df = df[df[name_column].notna()]
-        df = df[df[name_column] != 'nan']
-        df = df[df[name_column] != '']
+        df = df[df[name_column] != "nan"]
+        df = df[df[name_column] != ""]
 
         logger.info(f"Cleaned data: {len(df)} valid rows")
 
@@ -334,7 +330,7 @@ def read_excel_file(file_path: str, name_column: str, manager_column: str) -> pd
         raise RuntimeError(f"Error reading Excel file: {e}") from e
 
 
-def group_by_manager(df: pd.DataFrame, name_column: str, manager_column: str) -> Dict[str, List[str]]:
+def group_by_manager(df: pd.DataFrame, name_column: str, manager_column: str) -> dict[str, list[str]]:
     """
     Group employees by their manager.
 
@@ -355,7 +351,7 @@ def group_by_manager(df: pd.DataFrame, name_column: str, manager_column: str) ->
         manager = row[manager_column]
 
         # Handle missing managers
-        if pd.isna(manager) or manager == 'nan' or manager == '':
+        if pd.isna(manager) or manager == "nan" or manager == "":
             manager = "No Manager Assigned"
 
         manager_groups[manager].append(name)
@@ -369,7 +365,7 @@ def group_by_manager(df: pd.DataFrame, name_column: str, manager_column: str) ->
     return dict(manager_groups)
 
 
-def generate_html(manager_groups: Dict[str, List[str]], title: str = "Organization Structure") -> str:
+def generate_html(manager_groups: dict[str, list[str]], title: str = "Organization Structure") -> str:
     """
     Generate HTML report from manager-employee groups.
 
@@ -399,10 +395,7 @@ def generate_html(manager_groups: Dict[str, List[str]], title: str = "Organizati
         employee_count = len(employees)
 
         # Generate employee HTML
-        employees_html = "\n".join([
-            EMPLOYEE_TEMPLATE.format(name=name)
-            for name in employees
-        ])
+        employees_html = "\n".join([EMPLOYEE_TEMPLATE.format(name=name) for name in employees])
 
         # Determine icon and style
         if manager == "No Manager Assigned":
@@ -419,7 +412,7 @@ def generate_html(manager_groups: Dict[str, List[str]], title: str = "Organizati
             plural="s" if employee_count != 1 else "",
             employees=employees_html,
             icon=icon,
-            no_manager_class=no_manager_class
+            no_manager_class=no_manager_class,
         )
 
         manager_sections.append(manager_section)
@@ -430,7 +423,7 @@ def generate_html(manager_groups: Dict[str, List[str]], title: str = "Organizati
         date=datetime.now().strftime("%B %d, %Y at %I:%M %p"),
         total_managers=total_managers,
         total_employees=total_employees,
-        manager_sections="\n".join(manager_sections)
+        manager_sections="\n".join(manager_sections),
     )
 
     logger.info("HTML generation complete")
@@ -440,61 +433,42 @@ def generate_html(manager_groups: Dict[str, List[str]], title: str = "Organizati
 
 def parse_arguments():
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Generate organization structure HTML report from Excel'
+    parser = argparse.ArgumentParser(description="Generate organization structure HTML report from Excel")
+
+    parser.add_argument("file_path", type=str, help="Path to Excel file")
+
+    parser.add_argument(
+        "--name-column", type=str, default="Name", help='Name of column containing employee names (default: "Name")'
     )
 
     parser.add_argument(
-        'file_path',
+        "--manager-column",
         type=str,
-        help='Path to Excel file'
+        default="Reports To",
+        help='Name of column containing manager names (default: "Reports To")',
     )
 
     parser.add_argument(
-        '--name-column',
-        type=str,
-        default='Name',
-        help='Name of column containing employee names (default: "Name")'
+        "--output", type=str, default=None, help="Output HTML file path (default: .tmp/org_report_[timestamp].html)"
     )
 
     parser.add_argument(
-        '--manager-column',
-        type=str,
-        default='Reports To',
-        help='Name of column containing manager names (default: "Reports To")'
+        "--title", type=str, default="Organization Structure", help='Report title (default: "Organization Structure")'
     )
 
-    parser.add_argument(
-        '--output',
-        type=str,
-        default=None,
-        help='Output HTML file path (default: .tmp/org_report_[timestamp].html)'
-    )
-
-    parser.add_argument(
-        '--title',
-        type=str,
-        default='Organization Structure',
-        help='Report title (default: "Organization Structure")'
-    )
-
-    parser.add_argument(
-        '--open',
-        action='store_true',
-        help='Open the HTML file in browser after generation'
-    )
+    parser.add_argument("--open", action="store_true", help="Open the HTML file in browser after generation")
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Entry point when script is run from command line."""
     try:
         # Parse arguments
         args = parse_arguments()
 
         # Ensure .tmp directory exists
-        os.makedirs('.tmp', exist_ok=True)
+        os.makedirs(".tmp", exist_ok=True)
 
         # Read Excel file
         df = read_excel_file(args.file_path, args.name_column, args.manager_column)
@@ -513,18 +487,19 @@ if __name__ == '__main__':
             output_file = f".tmp/org_report_{timestamp}.html"
 
         # Save HTML
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(html)
 
         logger.info(f"Report saved to: {output_file}")
-        print(f"\n✅ Success! HTML report generated:")
+        print("\n✅ Success! HTML report generated:")
         print(f"   📄 {os.path.abspath(output_file)}")
 
         # Open in browser if requested
         if args.open:
             import webbrowser
-            webbrowser.open(f'file://{os.path.abspath(output_file)}')
-            print(f"   🌐 Opened in browser")
+
+            webbrowser.open(f"file://{os.path.abspath(output_file)}")
+            print("   🌐 Opened in browser")
 
         sys.exit(0)
 

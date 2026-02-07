@@ -20,10 +20,11 @@ except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
 
 # Set UTF-8 encoding for Windows
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 
 def load_deployment_data():
@@ -35,7 +36,7 @@ def load_deployment_data():
         print("Run: python execution/ado_deployment_metrics.py")
         sys.exit(1)
 
-    with open(history_file, 'r', encoding='utf-8') as f:
+    with open(history_file, encoding="utf-8") as f:
         data = json.load(f)
 
     return data
@@ -49,43 +50,45 @@ def generate_deployment_dashboard():
     # Load data
     data = load_deployment_data()
 
-    if not data.get('weeks'):
+    if not data.get("weeks"):
         print("[ERROR] No deployment data found in history")
         sys.exit(1)
 
     # Get latest week data
-    latest_week = data['weeks'][-1]
-    projects = latest_week.get('projects', [])
+    latest_week = data["weeks"][-1]
+    projects = latest_week.get("projects", [])
 
     print(f"  Found {len(projects)} projects with deployment data")
 
     # Generate project rows HTML
     project_rows_html = ""
 
-    for project in sorted(projects, key=lambda p: p.get('deployment_frequency', {}).get('deployments_per_week', 0), reverse=True):
-        proj_name = project['project_name']
+    for project in sorted(
+        projects, key=lambda p: p.get("deployment_frequency", {}).get("deployments_per_week", 0), reverse=True
+    ):
+        proj_name = project["project_name"]
 
         # Deployment Frequency
-        deploy_freq = project.get('deployment_frequency', {})
-        deploys_per_week = deploy_freq.get('deployments_per_week', 0)
-        total_successful = deploy_freq.get('total_successful_builds', 0)
+        deploy_freq = project.get("deployment_frequency", {})
+        deploys_per_week = deploy_freq.get("deployments_per_week", 0)
+        total_successful = deploy_freq.get("total_successful_builds", 0)
 
         # Build Success Rate
-        success_rate = project.get('build_success_rate', {})
-        success_pct = success_rate.get('success_rate_pct', 0)
-        total_builds = success_rate.get('total_builds', 0)
-        succeeded = success_rate.get('succeeded', 0)
-        failed = success_rate.get('failed', 0)
+        success_rate = project.get("build_success_rate", {})
+        success_pct = success_rate.get("success_rate_pct", 0)
+        total_builds = success_rate.get("total_builds", 0)
+        succeeded = success_rate.get("succeeded", 0)
+        failed = success_rate.get("failed", 0)
 
         # Build Duration
-        duration = project.get('build_duration', {})
-        median_duration = duration.get('median_minutes', 0) or 0
-        p85_duration = duration.get('p85_minutes', 0) or 0
+        duration = project.get("build_duration", {})
+        median_duration = duration.get("median_minutes", 0) or 0
+        p85_duration = duration.get("p85_minutes", 0) or 0
 
         # Lead Time for Changes
-        lead_time = project.get('lead_time_for_changes', {})
-        median_lead_time = lead_time.get('median_hours', 0) or 0
-        p85_lead_time = lead_time.get('p85_hours', 0) or 0
+        lead_time = project.get("lead_time_for_changes", {})
+        median_lead_time = lead_time.get("median_hours", 0) or 0
+        p85_lead_time = lead_time.get("p85_hours", 0) or 0
 
         # Format values
         deploys_display = f"{deploys_per_week:.1f}/week"
@@ -108,7 +111,7 @@ def generate_deployment_dashboard():
         elif total_builds == 0 or deploys_per_week == 0:
             status_display = "○ Inactive"
             status_class = "status-inactive"
-            status_tooltip = f"Inactive: No deployments in 90 days"
+            status_tooltip = "Inactive: No deployments in 90 days"
         else:
             status_display = "● Action Needed"
             status_class = "status-action"
@@ -126,20 +129,20 @@ def generate_deployment_dashboard():
         """
 
     # Calculate totals
-    total_builds_all = sum(p['build_success_rate']['total_builds'] for p in projects)
-    total_successful_all = sum(p['deployment_frequency']['total_successful_builds'] for p in projects)
+    total_builds_all = sum(p["build_success_rate"]["total_builds"] for p in projects)
+    total_successful_all = sum(p["deployment_frequency"]["total_successful_builds"] for p in projects)
     overall_success_rate = (total_successful_all / total_builds_all * 100) if total_builds_all > 0 else 0
 
     # Get collection date
-    collection_date = latest_week.get('week_date', 'Unknown')
+    collection_date = latest_week.get("week_date", "Unknown")
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#667eea',
-        header_gradient_end='#764ba2',
+        header_gradient_start="#667eea",
+        header_gradient_end="#764ba2",
         include_table_scroll=True,
         include_expandable_rows=False,
-        include_glossary=True
+        include_glossary=True,
     )
 
     # Generate HTML
@@ -408,7 +411,7 @@ def generate_deployment_dashboard():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     output_file = output_dir / "deployment_dashboard.html"
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
     print(f"[SUCCESS] Deployment dashboard generated: {output_file}")
@@ -428,5 +431,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n[ERROR] Failed to generate dashboard: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

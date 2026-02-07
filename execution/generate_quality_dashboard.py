@@ -7,10 +7,9 @@ Uses modern "mint" design with Chart.js for visualizations.
 """
 
 import json
-import sys
 import os
+import sys
 from datetime import datetime
-from pathlib import Path
 
 # Import mobile-responsive framework
 try:
@@ -19,10 +18,11 @@ except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
 
 # Set UTF-8 encoding for Windows
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 
 def calculate_composite_status(mttr, median_age):
@@ -47,10 +47,10 @@ def calculate_composite_status(mttr, median_age):
     # Check MTTR
     if mttr is not None:
         if mttr > 14:
-            issues.append('poor')
+            issues.append("poor")
             metric_details.append(f"MTTR {mttr:.1f} days (poor - target <7)")
         elif mttr > 7:
-            issues.append('caution')
+            issues.append("caution")
             metric_details.append(f"MTTR {mttr:.1f} days (caution - target <7)")
         else:
             metric_details.append(f"MTTR {mttr:.1f} days (good)")
@@ -58,10 +58,10 @@ def calculate_composite_status(mttr, median_age):
     # Check Median Bug Age
     if median_age is not None:
         if median_age > 60:
-            issues.append('poor')
+            issues.append("poor")
             metric_details.append(f"Median bug age {median_age:.0f} days (poor - target <30)")
         elif median_age > 30:
-            issues.append('caution')
+            issues.append("caution")
             metric_details.append(f"Median bug age {median_age:.0f} days (caution - target <30)")
         else:
             metric_details.append(f"Median bug age {median_age:.0f} days (good)")
@@ -70,15 +70,15 @@ def calculate_composite_status(mttr, median_age):
     tooltip = "\n".join(metric_details)
 
     # Determine overall status
-    if 'poor' in issues and len([i for i in issues if i == 'poor']) >= 2:
+    if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
         # Both metrics poor = Action Needed
         status_html = '<span style="color: #ef4444;">● Action Needed</span>'
         priority = 0
-    elif 'poor' in issues:
+    elif "poor" in issues:
         # One poor metric = Caution
         status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
         priority = 1
-    elif 'caution' in issues:
+    elif "caution" in issues:
         # Some caution metrics = Caution
         status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
         priority = 1
@@ -103,42 +103,42 @@ def get_metric_rag_status(metric_name: str, value: float) -> tuple:
     - MTTR P95: Good < 21, Caution 21-45, Poor > 45 days
     """
     if value is None:
-        return 'rag-unknown', '#6b7280', 'No Data'
+        return "rag-unknown", "#6b7280", "No Data"
 
-    if metric_name == 'Bug Age P85':
+    if metric_name == "Bug Age P85":
         if value < 60:
-            return 'rag-green', '#10b981', 'Good'
+            return "rag-green", "#10b981", "Good"
         elif value < 180:
-            return 'rag-amber', '#f59e0b', 'Caution'
+            return "rag-amber", "#f59e0b", "Caution"
         else:
-            return 'rag-red', '#ef4444', 'Action Needed'
+            return "rag-red", "#ef4444", "Action Needed"
 
-    elif metric_name == 'Bug Age P95':
+    elif metric_name == "Bug Age P95":
         if value < 90:
-            return 'rag-green', '#10b981', 'Good'
+            return "rag-green", "#10b981", "Good"
         elif value < 365:
-            return 'rag-amber', '#f59e0b', 'Caution'
+            return "rag-amber", "#f59e0b", "Caution"
         else:
-            return 'rag-red', '#ef4444', 'Action Needed'
+            return "rag-red", "#ef4444", "Action Needed"
 
-    elif metric_name == 'MTTR P85':
+    elif metric_name == "MTTR P85":
         if value < 14:
-            return 'rag-green', '#10b981', 'Good'
+            return "rag-green", "#10b981", "Good"
         elif value < 30:
-            return 'rag-amber', '#f59e0b', 'Caution'
+            return "rag-amber", "#f59e0b", "Caution"
         else:
-            return 'rag-red', '#ef4444', 'Action Needed'
+            return "rag-red", "#ef4444", "Action Needed"
 
-    elif metric_name == 'MTTR P95':
+    elif metric_name == "MTTR P95":
         if value < 21:
-            return 'rag-green', '#10b981', 'Good'
+            return "rag-green", "#10b981", "Good"
         elif value < 45:
-            return 'rag-amber', '#f59e0b', 'Caution'
+            return "rag-amber", "#f59e0b", "Caution"
         else:
-            return 'rag-red', '#ef4444', 'Action Needed'
+            return "rag-red", "#ef4444", "Action Needed"
 
     # Default - no RAG status
-    return 'rag-unknown', '#6b7280', 'Unknown'
+    return "rag-unknown", "#6b7280", "Unknown"
 
 
 def get_distribution_bucket_rag_status(bucket_type: str, bucket_name: str) -> tuple:
@@ -152,24 +152,24 @@ def get_distribution_bucket_rag_status(bucket_type: str, bucket_name: str) -> tu
     - Middle time buckets = Caution (Amber)
     - Later time buckets (slower fixes, older bugs) = Action Needed (Red)
     """
-    if bucket_type == 'bug_age':
-        if bucket_name in ['0-7_days', '8-30_days']:
-            return 'rag-green', '#10b981'
-        elif bucket_name == '31-90_days':
-            return 'rag-amber', '#f59e0b'
-        elif bucket_name == '90+_days':
-            return 'rag-red', '#ef4444'
+    if bucket_type == "bug_age":
+        if bucket_name in ["0-7_days", "8-30_days"]:
+            return "rag-green", "#10b981"
+        elif bucket_name == "31-90_days":
+            return "rag-amber", "#f59e0b"
+        elif bucket_name == "90+_days":
+            return "rag-red", "#ef4444"
 
-    elif bucket_type == 'mttr':
-        if bucket_name in ['0-1_days', '1-7_days']:
-            return 'rag-green', '#10b981'
-        elif bucket_name == '7-30_days':
-            return 'rag-amber', '#f59e0b'
-        elif bucket_name == '30+_days':
-            return 'rag-red', '#ef4444'
+    elif bucket_type == "mttr":
+        if bucket_name in ["0-1_days", "1-7_days"]:
+            return "rag-green", "#10b981"
+        elif bucket_name == "7-30_days":
+            return "rag-amber", "#f59e0b"
+        elif bucket_name == "30+_days":
+            return "rag-red", "#ef4444"
 
     # Default
-    return 'rag-unknown', '#6b7280'
+    return "rag-unknown", "#6b7280"
 
 
 def generate_quality_drilldown_html(project):
@@ -177,135 +177,135 @@ def generate_quality_drilldown_html(project):
     html = '<div class="detail-content">'
 
     # Section 1: Additional Metrics (P85, P95)
-    bug_age = project['bug_age_distribution']
-    mttr_data = project.get('mttr', {})
+    bug_age = project["bug_age_distribution"]
+    mttr_data = project.get("mttr", {})
 
-    if bug_age.get('p85_age_days') or bug_age.get('p95_age_days') or mttr_data.get('p85_mttr_days'):
+    if bug_age.get("p85_age_days") or bug_age.get("p95_age_days") or mttr_data.get("p85_mttr_days"):
         html += '<div class="detail-section">'
-        html += '<h4>Detailed Metrics</h4>'
+        html += "<h4>Detailed Metrics</h4>"
         html += '<div class="detail-grid">'
 
-        if bug_age.get('p85_age_days'):
-            rag_class, rag_color, rag_status = get_metric_rag_status('Bug Age P85', bug_age['p85_age_days'])
-            html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        if bug_age.get("p85_age_days"):
+            rag_class, rag_color, rag_status = get_metric_rag_status("Bug Age P85", bug_age["p85_age_days"])
+            html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
                 <div class="detail-metric-label">Bug Age P85</div>
                 <div class="detail-metric-value">{bug_age['p85_age_days']:.1f} days</div>
                 <div class="detail-metric-status" style="color: {rag_color};">{rag_status}</div>
-            </div>'''
+            </div>"""
 
-        if bug_age.get('p95_age_days'):
-            rag_class, rag_color, rag_status = get_metric_rag_status('Bug Age P95', bug_age['p95_age_days'])
-            html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        if bug_age.get("p95_age_days"):
+            rag_class, rag_color, rag_status = get_metric_rag_status("Bug Age P95", bug_age["p95_age_days"])
+            html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
                 <div class="detail-metric-label">Bug Age P95</div>
                 <div class="detail-metric-value">{bug_age['p95_age_days']:.1f} days</div>
                 <div class="detail-metric-status" style="color: {rag_color};">{rag_status}</div>
-            </div>'''
+            </div>"""
 
-        if mttr_data.get('p85_mttr_days'):
-            rag_class, rag_color, rag_status = get_metric_rag_status('MTTR P85', mttr_data['p85_mttr_days'])
-            html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        if mttr_data.get("p85_mttr_days"):
+            rag_class, rag_color, rag_status = get_metric_rag_status("MTTR P85", mttr_data["p85_mttr_days"])
+            html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
                 <div class="detail-metric-label">MTTR P85</div>
                 <div class="detail-metric-value">{mttr_data['p85_mttr_days']:.1f} days</div>
                 <div class="detail-metric-status" style="color: {rag_color};">{rag_status}</div>
-            </div>'''
+            </div>"""
 
-        if mttr_data.get('p95_mttr_days'):
-            rag_class, rag_color, rag_status = get_metric_rag_status('MTTR P95', mttr_data['p95_mttr_days'])
-            html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        if mttr_data.get("p95_mttr_days"):
+            rag_class, rag_color, rag_status = get_metric_rag_status("MTTR P95", mttr_data["p95_mttr_days"])
+            html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
                 <div class="detail-metric-label">MTTR P95</div>
                 <div class="detail-metric-value">{mttr_data['p95_mttr_days']:.1f} days</div>
                 <div class="detail-metric-status" style="color: {rag_color};">{rag_status}</div>
-            </div>'''
+            </div>"""
 
-        html += '</div></div>'
+        html += "</div></div>"
 
     # Section 2: Bug Age Distribution
-    if bug_age.get('ages_distribution'):
-        ages_dist = bug_age['ages_distribution']
+    if bug_age.get("ages_distribution"):
+        ages_dist = bug_age["ages_distribution"]
         html += '<div class="detail-section">'
-        html += '<h4>Bug Age Distribution</h4>'
+        html += "<h4>Bug Age Distribution</h4>"
         html += '<div class="detail-grid">'
 
         # 0-7 Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('bug_age', '0-7_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "0-7_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">0-7 Days</div>
             <div class="detail-metric-value">{ages_dist.get('0-7_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
         # 8-30 Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('bug_age', '8-30_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "8-30_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">8-30 Days</div>
             <div class="detail-metric-value">{ages_dist.get('8-30_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
         # 31-90 Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('bug_age', '31-90_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "31-90_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">31-90 Days</div>
             <div class="detail-metric-value">{ages_dist.get('31-90_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
         # 90+ Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('bug_age', '90+_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "90+_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">90+ Days</div>
             <div class="detail-metric-value">{ages_dist.get('90+_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
-        html += '</div></div>'
+        html += "</div></div>"
 
     # Section 3: MTTR Distribution
-    if mttr_data.get('mttr_distribution'):
-        mttr_dist = mttr_data['mttr_distribution']
+    if mttr_data.get("mttr_distribution"):
+        mttr_dist = mttr_data["mttr_distribution"]
         html += '<div class="detail-section">'
-        html += '<h4>MTTR Distribution</h4>'
+        html += "<h4>MTTR Distribution</h4>"
         html += '<div class="detail-grid">'
 
         # 0-1 Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('mttr', '0-1_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "0-1_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">0-1 Days</div>
             <div class="detail-metric-value">{mttr_dist.get('0-1_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
         # 1-7 Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('mttr', '1-7_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "1-7_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">1-7 Days</div>
             <div class="detail-metric-value">{mttr_dist.get('1-7_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
         # 7-30 Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('mttr', '7-30_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "7-30_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">7-30 Days</div>
             <div class="detail-metric-value">{mttr_dist.get('7-30_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
         # 30+ Days
-        rag_class, rag_color = get_distribution_bucket_rag_status('mttr', '30+_days')
-        html += f'''<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
+        rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "30+_days")
+        html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
             <div class="detail-metric-label">30+ Days</div>
             <div class="detail-metric-value">{mttr_dist.get('30+_days', 0)} bugs</div>
-        </div>'''
+        </div>"""
 
-        html += '</div></div>'
+        html += "</div></div>"
 
     # If no data at all
-    if not (bug_age.get('ages_distribution') or mttr_data.get('mttr_distribution')):
+    if not (bug_age.get("ages_distribution") or mttr_data.get("mttr_distribution")):
         html += '<div class="no-data">No detailed metrics available for this project</div>'
 
-    html += '</div>'
+    html += "</div>"
     return html
 
 
 def load_quality_data():
     """Load quality metrics from history file"""
-    with open('.tmp/observatory/quality_history.json', 'r', encoding='utf-8') as f:
+    with open(".tmp/observatory/quality_history.json", encoding="utf-8") as f:
         data = json.load(f)
-    return data['weeks'][-1]  # Most recent week
+    return data["weeks"][-1]  # Most recent week
 
 
 def generate_html(quality_data):
@@ -313,29 +313,32 @@ def generate_html(quality_data):
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#8b5cf6',
-        header_gradient_end='#7c3aed',
+        header_gradient_start="#8b5cf6",
+        header_gradient_end="#7c3aed",
         include_table_scroll=True,
         include_expandable_rows=True,  # Quality dashboard has expandable rows
-        include_glossary=True
+        include_glossary=True,
     )
 
     # Extract data for charts - HARD DATA ONLY
-    projects = quality_data['projects']
-    project_names = [p['project_name'] for p in projects]
-    median_bug_ages = [p['bug_age_distribution']['median_age_days'] if p['bug_age_distribution']['median_age_days'] else 0 for p in projects]
-    mttr_days = [p.get('mttr', {}).get('mttr_days', 0) if p.get('mttr', {}).get('mttr_days') else 0 for p in projects]
+    projects = quality_data["projects"]
+    project_names = [p["project_name"] for p in projects]
+    median_bug_ages = [
+        p["bug_age_distribution"]["median_age_days"] if p["bug_age_distribution"]["median_age_days"] else 0
+        for p in projects
+    ]
+    mttr_days = [p.get("mttr", {}).get("mttr_days", 0) if p.get("mttr", {}).get("mttr_days") else 0 for p in projects]
 
     # Calculate portfolio stats
-    total_bugs = sum(p['total_bugs_analyzed'] for p in projects)
-    total_open = sum(p['open_bugs_count'] for p in projects)
+    total_bugs = sum(p["total_bugs_analyzed"] for p in projects)
+    total_open = sum(p["open_bugs_count"] for p in projects)
 
     # Calculate excluded security bugs (if available)
-    total_excluded = sum(p.get('excluded_security_bugs', {}).get('total', 0) for p in projects)
-    total_excluded_open = sum(p.get('excluded_security_bugs', {}).get('open', 0) for p in projects)
+    total_excluded = sum(p.get("excluded_security_bugs", {}).get("total", 0) for p in projects)
+    total_excluded_open = sum(p.get("excluded_security_bugs", {}).get("open", 0) for p in projects)
 
     # Calculate average MTTR across projects
-    mttr_values = [p.get('mttr', {}).get('mttr_days') for p in projects if p.get('mttr', {}).get('mttr_days')]
+    mttr_values = [p.get("mttr", {}).get("mttr_days") for p in projects if p.get("mttr", {}).get("mttr_days")]
     avg_mttr = (sum(mttr_values) / len(mttr_values)) if mttr_values else 0
 
     # Status determination based on MTTR
@@ -349,7 +352,7 @@ def generate_html(quality_data):
         status_color = "#f87171"  # Red
         status_text = "ACTION NEEDED"
 
-    html = f'''<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -829,21 +832,18 @@ def generate_html(quality_data):
                         </tr>
                     </thead>
                     <tbody>
-'''
+"""
 
     # Add project rows with expandable drill-down
     # First, prepare projects with their status for sorting
     projects_with_status = []
     for project in projects:
-        median_age = project['bug_age_distribution']['median_age_days']
-        open_bugs = project['open_bugs_count']
-        mttr = project.get('mttr', {}).get('mttr_days')
+        median_age = project["bug_age_distribution"]["median_age_days"]
+        open_bugs = project["open_bugs_count"]
+        mttr = project.get("mttr", {}).get("mttr_days")
 
         # Determine composite status based on HARD DATA metrics only
-        row_status, status_tooltip, status_priority = calculate_composite_status(
-            mttr=mttr,
-            median_age=median_age
-        )
+        row_status, status_tooltip, status_priority = calculate_composite_status(mttr=mttr, median_age=median_age)
 
         median_age_str = f"{median_age:.0f} days" if median_age else "N/A"
         mttr_str = f"{mttr:.1f} days" if mttr else "N/A"
@@ -851,32 +851,34 @@ def generate_html(quality_data):
         # Generate drill-down content
         drilldown_html = generate_quality_drilldown_html(project)
 
-        projects_with_status.append({
-            'project': project,
-            'median_age_str': median_age_str,
-            'mttr_str': mttr_str,
-            'open_bugs': open_bugs,
-            'row_status': row_status,
-            'status_tooltip': status_tooltip,
-            'status_priority': status_priority,
-            'drilldown_html': drilldown_html
-        })
+        projects_with_status.append(
+            {
+                "project": project,
+                "median_age_str": median_age_str,
+                "mttr_str": mttr_str,
+                "open_bugs": open_bugs,
+                "row_status": row_status,
+                "status_tooltip": status_tooltip,
+                "status_priority": status_priority,
+                "drilldown_html": drilldown_html,
+            }
+        )
 
     # Sort by status priority (Red->Amber->Green), then by MTTR descending
-    projects_with_status.sort(key=lambda x: (x['status_priority'], -x['open_bugs']))
+    projects_with_status.sort(key=lambda x: (x["status_priority"], -x["open_bugs"]))
 
     # Now render the sorted projects
     for idx, proj_data in enumerate(projects_with_status):
-        project = proj_data['project']
-        median_age_str = proj_data['median_age_str']
-        mttr_str = proj_data['mttr_str']
-        open_bugs = proj_data['open_bugs']
-        row_status = proj_data['row_status']
-        status_tooltip = proj_data['status_tooltip']
-        drilldown_html = proj_data['drilldown_html']
+        project = proj_data["project"]
+        median_age_str = proj_data["median_age_str"]
+        mttr_str = proj_data["mttr_str"]
+        open_bugs = proj_data["open_bugs"]
+        row_status = proj_data["row_status"]
+        status_tooltip = proj_data["status_tooltip"]
+        drilldown_html = proj_data["drilldown_html"]
 
         # Main data row (clickable)
-        html += f'''                    <tr class="data-row" onclick="toggleDetail('quality-detail-{idx}', this)">
+        html += f"""                    <tr class="data-row" onclick="toggleDetail('quality-detail-{idx}', this)">
                         <td><strong>{project['project_name']}</strong></td>
                         <td>{mttr_str}</td>
                         <td>{median_age_str}</td>
@@ -888,9 +890,9 @@ def generate_html(quality_data):
                             {drilldown_html}
                         </td>
                     </tr>
-'''
+"""
 
-    html += f'''                </tbody>
+    html += f"""                </tbody>
                 </table>
             </div>
         </div>
@@ -1030,7 +1032,7 @@ def generate_html(quality_data):
     </script>
 </body>
 </html>
-'''
+"""
     return html
 
 
@@ -1052,12 +1054,12 @@ def main():
     html = generate_html(quality_data)
 
     # Save to file
-    output_file = '.tmp/observatory/dashboards/quality_dashboard.html'
+    output_file = ".tmp/observatory/dashboards/quality_dashboard.html"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\n[SUCCESS] Dashboard generated!")
+    print("\n[SUCCESS] Dashboard generated!")
     print(f"  Location: {output_file}")
     print(f"  Size: {len(html):,} bytes")
     print(f"\nOpen in browser: start {output_file}")

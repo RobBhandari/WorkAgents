@@ -6,15 +6,13 @@ Discovers ADO projects from existing baseline files.
 Does not modify any existing files - read-only operation.
 """
 
-import json
 import glob
+import json
 import os
-from pathlib import Path
-from typing import List, Dict, Optional
 from datetime import datetime
 
 
-def discover_projects(baseline_dir: str = "data") -> List[Dict]:
+def discover_projects(baseline_dir: str = "data") -> list[dict]:
     """
     Discover projects from baseline files.
 
@@ -36,27 +34,29 @@ def discover_projects(baseline_dir: str = "data") -> List[Dict]:
 
     for baseline_file in sorted(baseline_files):
         try:
-            with open(baseline_file, 'r', encoding='utf-8') as f:
+            with open(baseline_file, encoding="utf-8") as f:
                 baseline_data = json.load(f)
 
             # Extract project key from filename
             # baseline_Access_Legal_Case_Management.json -> Access_Legal_Case_Management
             filename = os.path.basename(baseline_file)
-            project_key = filename.replace('baseline_', '').replace('.json', '')
+            project_key = filename.replace("baseline_", "").replace(".json", "")
 
             # Build project metadata
             project = {
                 "project_key": project_key,
-                "project_name": baseline_data.get("project", project_key.replace('_', ' ')),
+                "project_name": baseline_data.get("project", project_key.replace("_", " ")),
                 "organization": baseline_data.get("organization", ""),
                 "baseline_file": baseline_file,
                 "baseline_date": baseline_data.get("baseline_date"),
                 "baseline_count": baseline_data.get("open_count", 0),
-                "discovered_at": datetime.now().isoformat()
+                "discovered_at": datetime.now().isoformat(),
             }
 
             projects.append(project)
-            print(f"  ✓ {project['project_name']}: {project['baseline_count']} bugs (baseline: {project['baseline_date']})")
+            print(
+                f"  ✓ {project['project_name']}: {project['baseline_count']} bugs (baseline: {project['baseline_date']})"
+            )
 
         except Exception as e:
             print(f"  ✗ Error reading {baseline_file}: {e}")
@@ -65,7 +65,7 @@ def discover_projects(baseline_dir: str = "data") -> List[Dict]:
     return projects
 
 
-def save_discovery_results(projects: List[Dict], output_file: str = ".tmp/observatory/ado_structure.json"):
+def save_discovery_results(projects: list[dict], output_file: str = ".tmp/observatory/ado_structure.json"):
     """
     Save discovered projects to JSON file.
 
@@ -76,20 +76,16 @@ def save_discovery_results(projects: List[Dict], output_file: str = ".tmp/observ
     # Ensure directory exists
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    discovery_data = {
-        "discovered_at": datetime.now().isoformat(),
-        "project_count": len(projects),
-        "projects": projects
-    }
+    discovery_data = {"discovered_at": datetime.now().isoformat(), "project_count": len(projects), "projects": projects}
 
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(discovery_data, f, indent=2, ensure_ascii=False)
 
     print(f"\n[SAVED] Saved discovery results to: {output_file}")
     return discovery_data
 
 
-def load_discovered_projects(discovery_file: str = ".tmp/observatory/ado_structure.json") -> List[Dict]:
+def load_discovered_projects(discovery_file: str = ".tmp/observatory/ado_structure.json") -> list[dict]:
     """
     Load previously discovered projects.
 
@@ -102,7 +98,7 @@ def load_discovered_projects(discovery_file: str = ".tmp/observatory/ado_structu
     if not os.path.exists(discovery_file):
         return []
 
-    with open(discovery_file, 'r', encoding='utf-8') as f:
+    with open(discovery_file, encoding="utf-8") as f:
         discovery_data = json.load(f)
 
     return discovery_data.get("projects", [])
@@ -111,10 +107,12 @@ def load_discovered_projects(discovery_file: str = ".tmp/observatory/ado_structu
 if __name__ == "__main__":
     # Set UTF-8 encoding for Windows console
     import sys
-    if sys.platform == 'win32':
+
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("Director Observatory - Project Discovery\n")
     print("=" * 60)
@@ -131,9 +129,9 @@ if __name__ == "__main__":
 
     # Summary
     print("\n" + "=" * 60)
-    print(f"Discovery Summary:")
+    print("Discovery Summary:")
     print(f"   Projects found: {len(projects)}")
-    print(f"   Organizations: {len(set(p['organization'] for p in projects))}")
+    print(f"   Organizations: {len({p['organization'] for p in projects})}")
     print(f"   Total baseline bugs: {sum(p['baseline_count'] for p in projects)}")
 
     print("\nProject discovery complete!")

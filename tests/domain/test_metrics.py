@@ -38,12 +38,7 @@ class TestTrendData:
     def test_trend_data_creation(self):
         """Test creating TrendData"""
         values = [50.0, 45.0, 42.0, 38.0]
-        timestamps = [
-            datetime(2026, 1, 1),
-            datetime(2026, 1, 8),
-            datetime(2026, 1, 15),
-            datetime(2026, 1, 22)
-        ]
+        timestamps = [datetime(2026, 1, 1), datetime(2026, 1, 8), datetime(2026, 1, 15), datetime(2026, 1, 22)]
         trend = TrendData(values=values, timestamps=timestamps, label="Open Bugs")
 
         assert trend.values == values

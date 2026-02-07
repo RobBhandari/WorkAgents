@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Engineering Metrics Dashboard{% endblock %}">
+    <title>{% block title %}Dashboard{% endblock %} - Director Observatory</title>
+
+    <!-- Framework CSS (from dashboard_framework.py) -->
+    {{ framework_css|safe }}
+
+    <!-- Dashboard-specific CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Theme toggle button -->
+    <div class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-label">Dark</span>
+    </div>
+
+    <!-- Header section -->
+    <div class="container">
+        <div class="header">
+            {% block header %}
+            <h1>{% block header_title %}Dashboard{% endblock %}</h1>
+            <p class="subtitle">{% block header_subtitle %}Engineering Metrics{% endblock %}</p>
+            <p>{% block header_metadata %}Generated: {{ generation_date }}{% endblock %}</p>
+            {% endblock %}
+        </div>
+
+        <!-- Main content area -->
+        <main>
+            {% block content %}
+            <!-- Dashboard content goes here -->
+            {% endblock %}
+        </main>
+
+        <!-- Footer section -->
+        <footer class="footer">
+            {% block footer %}
+            <p>Director Observatory • {% block footer_context %}Metrics Dashboard{% endblock %}</p>
+            <p>Last updated: {{ generation_date }}</p>
+            {% endblock %}
+        </footer>
+    </div>
+
+    <!-- Framework JavaScript (from dashboard_framework.py) -->
+    {{ framework_js|safe }}
+
+    <!-- Dashboard-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

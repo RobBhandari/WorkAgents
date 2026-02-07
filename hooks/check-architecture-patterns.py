@@ -31,6 +31,10 @@ def check_html_in_strings(file_path: Path) -> List[ArchitectureViolation]:
     """Detect HTML generation with f-strings (should use templates)"""
     violations = []
 
+    # Component files are ALLOWED to generate HTML fragments
+    if 'components' in str(file_path):
+        return violations
+
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
         lines = content.split('\n')

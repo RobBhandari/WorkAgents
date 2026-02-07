@@ -7,8 +7,7 @@ Shows Devin AI vs Human PR contributions
 import json
 import os
 import sys
-from datetime import datetime
-from pathlib import Path
+
 
 def load_devin_analysis():
     """Load Devin analysis from JSON file"""
@@ -19,7 +18,7 @@ def load_devin_analysis():
         print("Run: py execution/analyze_devin_prs.py")
         return None
 
-    with open(analysis_file, 'r', encoding='utf-8') as f:
+    with open(analysis_file, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -30,7 +29,7 @@ def load_risk_metrics():
     if not os.path.exists(risk_file):
         return None
 
-    with open(risk_file, 'r', encoding='utf-8') as f:
+    with open(risk_file, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -38,16 +37,16 @@ def get_author_stats(risk_data):
     """Calculate author contribution statistics"""
     from collections import defaultdict
 
-    if not risk_data or 'weeks' not in risk_data:
+    if not risk_data or "weeks" not in risk_data:
         return {}
 
-    latest_week = risk_data['weeks'][-1]
+    latest_week = risk_data["weeks"][-1]
     author_stats = defaultdict(int)
 
-    for project in latest_week.get('projects', []):
-        raw_prs = project.get('raw_prs', [])
+    for project in latest_week.get("projects", []):
+        raw_prs = project.get("raw_prs", [])
         for pr in raw_prs:
-            author = pr.get('created_by', 'Unknown')
+            author = pr.get("created_by", "Unknown")
             author_stats[author] += 1
 
     return dict(author_stats)
@@ -57,21 +56,21 @@ def get_project_stats(risk_data):
     """Calculate per-project Devin contribution stats"""
     from collections import defaultdict
 
-    if not risk_data or 'weeks' not in risk_data:
+    if not risk_data or "weeks" not in risk_data:
         return {}
 
-    latest_week = risk_data['weeks'][-1]
-    project_stats = defaultdict(lambda: {'total': 0, 'devin': 0})
+    latest_week = risk_data["weeks"][-1]
+    project_stats = defaultdict(lambda: {"total": 0, "devin": 0})
 
-    for project in latest_week.get('projects', []):
-        project_name = project['project_name']
-        raw_prs = project.get('raw_prs', [])
+    for project in latest_week.get("projects", []):
+        project_name = project["project_name"]
+        raw_prs = project.get("raw_prs", [])
 
         for pr in raw_prs:
-            project_stats[project_name]['total'] += 1
-            author = pr.get('created_by', '').lower()
-            if 'devin' in author:
-                project_stats[project_name]['devin'] += 1
+            project_stats[project_name]["total"] += 1
+            author = pr.get("created_by", "").lower()
+            if "devin" in author:
+                project_stats[project_name]["devin"] += 1
 
     return dict(project_stats)
 
@@ -79,11 +78,11 @@ def get_project_stats(risk_data):
 def generate_dashboard_html(analysis, author_stats, project_stats):
     """Generate the AI contributions dashboard HTML"""
 
-    summary = analysis['summary']
-    total_prs = summary['total_prs']
-    devin_prs = summary['devin_prs']
-    human_prs = summary['human_prs']
-    devin_pct = summary['devin_percentage']
+    summary = analysis["summary"]
+    total_prs = summary["total_prs"]
+    devin_prs = summary["devin_prs"]
+    human_prs = summary["human_prs"]
+    devin_pct = summary["devin_percentage"]
 
     # Top 10 authors for chart
     top_authors = sorted(author_stats.items(), key=lambda x: x[1], reverse=True)[:10]
@@ -92,19 +91,21 @@ def generate_dashboard_html(analysis, author_stats, project_stats):
 
     # Project stats for chart
     project_items = []
-    for project, stats in sorted(project_stats.items(), key=lambda x: x[1]['total'], reverse=True):
-        if stats['total'] > 0:
-            project_items.append({
-                'name': project,
-                'total': stats['total'],
-                'devin': stats['devin'],
-                'human': stats['total'] - stats['devin'],
-                'devin_pct': round(stats['devin'] / stats['total'] * 100, 1)
-            })
+    for project, stats in sorted(project_stats.items(), key=lambda x: x[1]["total"], reverse=True):
+        if stats["total"] > 0:
+            project_items.append(
+                {
+                    "name": project,
+                    "total": stats["total"],
+                    "devin": stats["devin"],
+                    "human": stats["total"] - stats["devin"],
+                    "devin_pct": round(stats["devin"] / stats["total"] * 100, 1),
+                }
+            )
 
     # Recent Devin PRs table rows
     recent_prs_html = ""
-    for pr in analysis.get('devin_prs', [])[:15]:  # Show 15 most recent
+    for pr in analysis.get("devin_prs", [])[:15]:  # Show 15 most recent
         recent_prs_html += f"""
             <tr>
                 <td>#{pr['pr_id']}</td>
@@ -116,7 +117,7 @@ def generate_dashboard_html(analysis, author_stats, project_stats):
             </tr>
         """
 
-    html = f'''<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -657,7 +658,7 @@ def generate_dashboard_html(analysis, author_stats, project_stats):
     </script>
 </body>
 </html>
-'''
+"""
 
     return html
 
@@ -666,10 +667,10 @@ def save_dashboard(html, output_file=".tmp/observatory/dashboards/ai_contributio
     """Save the dashboard HTML"""
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\n[SUCCESS] AI Contributions Dashboard generated!")
+    print("\n[SUCCESS] AI Contributions Dashboard generated!")
     print(f"  Location: {output_file}")
     print(f"  Size: {len(html):,} bytes")
     print(f"\nOpen in browser: start {output_file}")
@@ -677,10 +678,11 @@ def save_dashboard(html, output_file=".tmp/observatory/dashboards/ai_contributio
 
 if __name__ == "__main__":
     # Set UTF-8 encoding for Windows
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("AI Contributions Dashboard Generator")
     print("=" * 60)

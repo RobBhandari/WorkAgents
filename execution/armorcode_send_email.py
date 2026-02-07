@@ -4,25 +4,24 @@ ArmorCode Email Delivery - Send HTML Report via Email
 Sends the generated HTML report to configured recipients.
 """
 
-from execution.core import get_config
-import os
-import sys
-import logging
-import smtplib
 import glob
+import logging
+import os
+import smtplib
+import sys
 from datetime import datetime
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from dotenv import load_dotenv
+
+from execution.core import get_config
 
 # Load environment variables
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -40,17 +39,17 @@ def send_email(html_file, recipients):
         raise ValueError("EMAIL_ADDRESS and EMAIL_PASSWORD must be set in .env")
 
     # Read HTML content
-    with open(html_file, 'r', encoding='utf-8') as f:
+    with open(html_file, encoding="utf-8") as f:
         html_content = f.read()
 
     # Create message
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = f'ArmorCode Security Report - {datetime.now().strftime("%B %d, %Y")}'
-    msg['From'] = f'ArmorCode Report <{email_address}>'
-    msg['To'] = ', '.join(recipients) if isinstance(recipients, list) else recipients
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = f'ArmorCode Security Report - {datetime.now().strftime("%B %d, %Y")}'
+    msg["From"] = f"ArmorCode Report <{email_address}>"
+    msg["To"] = ", ".join(recipients) if isinstance(recipients, list) else recipients
 
     # Attach HTML content
-    html_part = MIMEText(html_content, 'html')
+    html_part = MIMEText(html_content, "html")
     msg.attach(html_part)
 
     # Send email
@@ -80,10 +79,10 @@ def main():
             logger.error("ARMORCODE_EMAIL_RECIPIENTS not set in .env")
             sys.exit(1)
 
-        recipients = [r.strip() for r in recipients_str.split(',') if r.strip()]
+        recipients = [r.strip() for r in recipients_str.split(",") if r.strip()]
 
         # Find most recent report file
-        report_files = glob.glob('.tmp/armorcode_report_*.html')
+        report_files = glob.glob(".tmp/armorcode_report_*.html")
 
         if not report_files:
             logger.error("No report files found. Run armorcode_generate_report.py first.")
@@ -96,14 +95,14 @@ def main():
         # Send email
         send_email(latest_report, recipients)
 
-        logger.info("="*70)
+        logger.info("=" * 70)
         logger.info("Email delivery complete!")
-        logger.info("="*70)
+        logger.info("=" * 70)
 
     except Exception as e:
         logger.error(f"Error: {e}", exc_info=True)
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

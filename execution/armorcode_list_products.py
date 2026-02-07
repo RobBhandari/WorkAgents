@@ -10,15 +10,17 @@ Usage:
     python armorcode_list_products.py --output-file custom_products.json
 """
 
-from execution.core import get_config
+import argparse
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
 from datetime import datetime
+
 from dotenv import load_dotenv
-from http_client import get, post, put, delete, patch
+from http_client import get
+
+from execution.core import get_config
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,11 +28,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/armorcode_list_products_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -59,17 +61,12 @@ def list_products(api_key: str, base_url: str) -> dict:
 
         # Common ArmorCode API endpoints for products
         # Try multiple potential endpoints
-        product_endpoints = [
-            '/api/v1/products',
-            '/api/products',
-            '/v1/products',
-            '/products'
-        ]
+        product_endpoints = ["/api/v1/products", "/api/products", "/v1/products", "/products"]
 
         headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
         }
 
         products = None
@@ -110,12 +107,7 @@ def list_products(api_key: str, base_url: str) -> dict:
 
         if not products:
             logger.warning("No products found in ArmorCode")
-            return {
-                "status": "success",
-                "product_count": 0,
-                "products": [],
-                "queried_at": datetime.now().isoformat()
-            }
+            return {"status": "success", "product_count": 0, "products": [], "queried_at": datetime.now().isoformat()}
 
         # Process products into a standardized format
         product_list = []
@@ -123,19 +115,19 @@ def list_products(api_key: str, base_url: str) -> dict:
             for product in products:
                 # Extract key fields (adjust based on actual API response)
                 product_data = {
-                    "id": product.get('id') or product.get('product_id'),
-                    "name": product.get('name') or product.get('product_name'),
-                    "description": product.get('description', ''),
-                    "environment": product.get('environment', ''),
-                    "hierarchy": product.get('hierarchy', ''),
+                    "id": product.get("id") or product.get("product_id"),
+                    "name": product.get("name") or product.get("product_name"),
+                    "description": product.get("description", ""),
+                    "environment": product.get("environment", ""),
+                    "hierarchy": product.get("hierarchy", ""),
                 }
                 product_list.append(product_data)
         elif isinstance(products, dict):
             # If response is a dict with products nested
-            if 'products' in products:
-                product_list = products['products']
-            elif 'data' in products:
-                product_list = products['data']
+            if "products" in products:
+                product_list = products["products"]
+            elif "data" in products:
+                product_list = products["data"]
 
         logger.info(f"Found {len(product_list)} products")
 
@@ -144,7 +136,7 @@ def list_products(api_key: str, base_url: str) -> dict:
             "product_count": len(product_list),
             "products": product_list,
             "queried_at": datetime.now().isoformat(),
-            "base_url": base_url
+            "base_url": base_url,
         }
 
         return result
@@ -175,13 +167,13 @@ def format_products_table(products: list) -> str:
 
     for i, product in enumerate(products, 1):
         output.append(f"{i}. {product.get('name', 'N/A')}")
-        if product.get('id'):
+        if product.get("id"):
             output.append(f"   ID: {product['id']}")
-        if product.get('environment'):
+        if product.get("environment"):
             output.append(f"   Environment: {product['environment']}")
-        if product.get('hierarchy'):
+        if product.get("hierarchy"):
             output.append(f"   Hierarchy: {product['hierarchy']}")
-        if product.get('description'):
+        if product.get("description"):
             output.append(f"   Description: {product['description']}")
         output.append("")
 
@@ -199,28 +191,23 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='List all products/hierarchies from ArmorCode platform'
+    parser = argparse.ArgumentParser(description="List all products/hierarchies from ArmorCode platform")
+
+    parser.add_argument(
+        "--output-format", choices=["table", "json"], default="table", help="Output format (default: table)"
     )
 
     parser.add_argument(
-        '--output-format',
-        choices=['table', 'json'],
-        default='table',
-        help='Output format (default: table)'
-    )
-
-    parser.add_argument(
-        '--output-file',
+        "--output-file",
         type=str,
-        default='.tmp/armorcode_products.json',
-        help='Path to output JSON file (default: .tmp/armorcode_products.json)'
+        default=".tmp/armorcode_products.json",
+        help="Path to output JSON file (default: .tmp/armorcode_products.json)",
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -233,7 +220,7 @@ if __name__ == '__main__':
         base_url = get_config().get_armorcode_config().base_url
 
         # Validate environment variables
-        if not api_key or api_key == 'your_armorcode_api_key_here':
+        if not api_key or api_key == "your_armorcode_api_key_here":
             raise RuntimeError(
                 "ARMORCODE_API_KEY not configured in .env file.\n"
                 "Please obtain an API key from ArmorCode:\n"
@@ -248,16 +235,16 @@ if __name__ == '__main__':
         result = list_products(api_key=api_key, base_url=base_url)
 
         # Output results
-        if args.output_format == 'json':
+        if args.output_format == "json":
             output = json.dumps(result, indent=2)
             print(output)
         else:
-            output = format_products_table(result['products'])
+            output = format_products_table(result["products"])
             print(output)
 
         # Save JSON output to file
-        os.makedirs('.tmp', exist_ok=True)
-        with open(args.output_file, 'w', encoding='utf-8') as f:
+        os.makedirs(".tmp", exist_ok=True)
+        with open(args.output_file, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
 
         logger.info(f"Products saved to {args.output_file}")

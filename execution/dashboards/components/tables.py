@@ -4,15 +4,13 @@ Table components for dashboards
 Provides reusable data table HTML generators.
 """
 
-from typing import List, Optional
-
 
 def data_table(
-    headers: List[str],
-    rows: List[List[str]],
+    headers: list[str],
+    rows: list[list[str]],
     table_id: str = "dataTable",
     sortable: bool = False,
-    wrap_in_div: bool = True
+    wrap_in_div: bool = True,
 ) -> str:
     """
     Generate a data table HTML component.
@@ -46,7 +44,7 @@ def data_table(
         cells_html = "".join(f"<td>{cell}</td>" for cell in row)
         rows_html.append(f"<tr>{cells_html}</tr>")
 
-    table_html = f'''
+    table_html = f"""
     <table id="{table_id}" class="data-table {sortable_class}">
         <thead>
             <tr>{headers_html}</tr>
@@ -55,7 +53,7 @@ def data_table(
             {"".join(rows_html)}
         </tbody>
     </table>
-    '''
+    """
 
     if wrap_in_div:
         return f'<div class="table-wrapper">{table_html}</div>'
@@ -63,10 +61,7 @@ def data_table(
         return table_html
 
 
-def expandable_row_table(
-    headers: List[str],
-    rows: List[dict]
-) -> str:
+def expandable_row_table(headers: list[str], rows: list[dict]) -> str:
     """
     Generate a table with expandable detail rows.
 
@@ -93,18 +88,16 @@ def expandable_row_table(
     """
     headers_html = "".join(f"<th>{header}</th>" for header in headers)
 
-    rows_html: List[str] = []
+    rows_html: list[str] = []
     for row in rows:
-        row_id = row.get('id', f"row_{len(rows_html)}")
-        cells = row.get('cells', [])
-        details = row.get('details', '')
+        row_id = row.get("id", f"row_{len(rows_html)}")
+        cells = row.get("cells", [])
+        details = row.get("details", "")
 
         # Main data row (clickable)
         cells_html = "".join(f"<td>{cell}</td>" for cell in cells)
         rows_html.append(
-            f'<tr class="data-row" onclick="toggleDetail(\'detail-{row_id}\', this)">'
-            f'{cells_html}'
-            f'</tr>'
+            f'<tr class="data-row" onclick="toggleDetail(\'detail-{row_id}\', this)">' f"{cells_html}" f"</tr>"
         )
 
         # Detail row (hidden by default)
@@ -112,11 +105,11 @@ def expandable_row_table(
             f'<tr id="detail-{row_id}" class="detail-row">'
             f'<td colspan="{len(headers)}">'
             f'<div class="detail-content">{details}</div>'
-            f'</td>'
-            f'</tr>'
+            f"</td>"
+            f"</tr>"
         )
 
-    return f'''
+    return f"""
     <div class="table-wrapper">
         <table class="data-table expandable">
             <thead>
@@ -127,10 +120,10 @@ def expandable_row_table(
             </tbody>
         </table>
     </div>
-    '''
+    """
 
 
-def summary_table(data: List[dict]) -> str:
+def summary_table(data: list[dict]) -> str:
     """
     Generate a simple two-column summary table (label + value).
 
@@ -149,19 +142,16 @@ def summary_table(data: List[dict]) -> str:
     """
     rows_html = []
     for item in data:
-        label = item.get('label', '')
-        value = item.get('value', '')
+        label = item.get("label", "")
+        value = item.get("value", "")
         rows_html.append(
-            f'<tr>'
-            f'<td class="summary-label">{label}</td>'
-            f'<td class="summary-value">{value}</td>'
-            f'</tr>'
+            f"<tr>" f'<td class="summary-label">{label}</td>' f'<td class="summary-value">{value}</td>' f"</tr>"
         )
 
-    return f'''
+    return f"""
     <table class="summary-table">
         <tbody>
             {"".join(rows_html)}
         </tbody>
     </table>
-    '''
+    """

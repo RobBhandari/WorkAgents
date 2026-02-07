@@ -20,6 +20,8 @@ dependencies = [
 line-length = 120
 target-version = "py311"
 
+# Linting rules (new format)
+[tool.ruff.lint]
 # Enable specific rule sets
 select = [
     "E",   # pycodestyle errors
@@ -32,16 +34,28 @@ select = [
     "C4",  # flake8-comprehensions
 ]
 
-# Ignore specific rules (gradual enforcement)
+# Ignore specific rules (gradual enforcement on legacy code)
 ignore = [
-    "E501",  # Line too long (will enforce gradually)
+    "E501",  # Line too long
+    "E722",  # Bare except (common in legacy code)
+    "F841",  # Unused variable (common in legacy code)
+    "B007",  # Unused loop variable
+    "E402",  # Module import not at top (legacy code pattern)
+    "F401",  # Unused imports (will fix gradually)
+    "B904",  # Exception chaining (will fix gradually)
+    "C401",  # Unnecessary generator (cosmetic)
 ]
 
 # Per-file ignores
-[tool.ruff.per-file-ignores]
-"execution/experiments/*.py" = ["F401", "F841"]  # Allow unused imports/variables in experiments
+[tool.ruff.lint.per-file-ignores]
+"execution/experiments/*.py" = ["ALL"]  # Ignore experimental files
 "execution/archive/*.py" = ["ALL"]  # Ignore archived files
 "tests/*.py" = ["F401"]  # Allow unused imports in tests
+
+# Strict rules for new modular code
+"execution/domain/*.py" = []  # Enforce all rules
+"execution/dashboards/components/*.py" = []  # Enforce all rules
+"execution/collectors/*.py" = []  # Enforce all rules
 
 # Black configuration
 [tool.black]

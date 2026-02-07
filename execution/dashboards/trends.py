@@ -19,23 +19,22 @@ Usage:
 """
 
 import json
+from datetime import datetime
 from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 # Import infrastructure and components
 try:
-    from ..domain.metrics import TrendData
+    from ..dashboard_framework import get_dashboard_framework
     from ..dashboards.components.charts import sparkline
     from ..dashboards.renderer import render_dashboard
-    from ..dashboard_framework import get_dashboard_framework
+    from ..domain.metrics import TrendData
 except ImportError:
     import sys
+
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from domain.metrics import TrendData  # type: ignore[no-redef]
+    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
     from dashboards.components.charts import sparkline  # type: ignore[no-redef]
     from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
 
 
 class TrendsDashboardGenerator:
@@ -54,13 +53,13 @@ class TrendsDashboardGenerator:
             weeks: Number of weeks of history to show (default: 12)
         """
         self.weeks = weeks
-        self.quality_file = Path('.tmp/observatory/quality_history.json')
-        self.security_file = Path('.tmp/observatory/security_history.json')
-        self.flow_file = Path('.tmp/observatory/flow_history.json')
-        self.baseline_bugs_file = Path('data/baseline.json')
-        self.baseline_vulns_file = Path('data/armorcode_baseline.json')
+        self.quality_file = Path(".tmp/observatory/quality_history.json")
+        self.security_file = Path(".tmp/observatory/security_history.json")
+        self.flow_file = Path(".tmp/observatory/flow_history.json")
+        self.baseline_bugs_file = Path("data/baseline.json")
+        self.baseline_vulns_file = Path("data/armorcode_baseline.json")
 
-    def generate(self, output_path: Optional[Path] = None) -> str:
+    def generate(self, output_path: Path | None = None) -> str:
         """
         Generate trends dashboard HTML.
 
@@ -87,57 +86,54 @@ class TrendsDashboardGenerator:
         # Step 4: Render dashboard
         print("[4/4] Rendering trends dashboard...")
         context = self._build_context(forecast, trend_metrics, historical_data)
-        html = render_dashboard('dashboards/trends_dashboard.html', context)
+        html = render_dashboard("dashboards/trends_dashboard.html", context)
 
         # Write to file if specified
         if output_path:
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_text(html, encoding='utf-8')
+            output_path.write_text(html, encoding="utf-8")
             print(f"[SUCCESS] Dashboard written to: {output_path}")
 
         print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
         return html
 
-    def _load_all_history(self) -> Dict:
+    def _load_all_history(self) -> dict:
         """Load historical data from all sources"""
         return {
-            'quality': self._load_history_file(self.quality_file),
-            'security': self._load_history_file(self.security_file),
-            'flow': self._load_history_file(self.flow_file),
+            "quality": self._load_history_file(self.quality_file),
+            "security": self._load_history_file(self.security_file),
+            "flow": self._load_history_file(self.flow_file),
         }
 
-    def _load_history_file(self, file_path: Path) -> Optional[Dict]:
+    def _load_history_file(self, file_path: Path) -> dict | None:
         """Load a single history JSON file"""
         if not file_path.exists():
             print(f"  [WARNING] {file_path.name}: Not found")
             return None
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 data = json.load(f)
 
-            weeks = data.get('weeks', [])
+            weeks = data.get("weeks", [])
             if not weeks:
                 print(f"  [WARNING] {file_path.name}: No weeks data")
                 return None
 
             # Get last N weeks
-            weeks_subset = weeks[-self.weeks:] if len(weeks) > self.weeks else weeks
+            weeks_subset = weeks[-self.weeks :] if len(weeks) > self.weeks else weeks
             print(f"  [OK] {file_path.name}: {len(weeks_subset)} weeks loaded")
 
-            return {
-                'weeks': weeks_subset,
-                'all_weeks': weeks
-            }
+            return {"weeks": weeks_subset, "all_weeks": weeks}
 
         except Exception as e:
             print(f"  [ERROR] {file_path.name}: {e}")
             return None
 
-    def _calculate_forecast(self, historical_data: Dict) -> Optional[Dict]:
+    def _calculate_forecast(self, historical_data: dict) -> dict | None:
         """Calculate 70% reduction forecast"""
-        quality = historical_data.get('quality')
-        security = historical_data.get('security')
+        quality = historical_data.get("quality")
+        security = historical_data.get("security")
 
         if not quality or not security:
             return None
@@ -148,21 +144,21 @@ class TrendsDashboardGenerator:
 
         if self.baseline_bugs_file.exists():
             with open(self.baseline_bugs_file) as f:
-                baseline_bugs = json.load(f).get('open_count', 0)
+                baseline_bugs = json.load(f).get("open_count", 0)
 
         if self.baseline_vulns_file.exists():
             with open(self.baseline_vulns_file) as f:
-                baseline_vulns = json.load(f).get('total_vulnerabilities', 0)
+                baseline_vulns = json.load(f).get("total_vulnerabilities", 0)
 
         if baseline_bugs == 0 or baseline_vulns == 0:
             return None
 
         # Get current counts from latest week
-        latest_quality = quality['weeks'][-1]
-        latest_security = security['weeks'][-1]
+        latest_quality = quality["weeks"][-1]
+        latest_security = security["weeks"][-1]
 
-        current_bugs = sum(p.get('open_bugs_count', 0) for p in latest_quality.get('projects', []))
-        current_vulns = latest_security.get('metrics', {}).get('current_total', 0)
+        current_bugs = sum(p.get("open_bugs_count", 0) for p in latest_quality.get("projects", []))
+        current_vulns = latest_security.get("metrics", {}).get("current_total", 0)
 
         # Calculate targets (30% of baseline = 70% reduction)
         target_bugs = round(baseline_bugs * 0.3)
@@ -196,14 +192,14 @@ class TrendsDashboardGenerator:
             message = f"Urgent: Need to accelerate. Current rate {burn_rate}/week, need {required_rate}/week."
 
         return {
-            'title': '70% Reduction Target',
-            'status': status,
-            'status_class': status_class,
-            'progress': overall_progress,
-            'weeks_remaining': weeks_remaining,
-            'burn_rate': burn_rate,
-            'required_rate': required_rate,
-            'message': message
+            "title": "70% Reduction Target",
+            "status": status,
+            "status_class": status_class,
+            "progress": overall_progress,
+            "weeks_remaining": weeks_remaining,
+            "burn_rate": burn_rate,
+            "required_rate": required_rate,
+            "message": message,
         }
 
     def _calc_progress(self, baseline: int, current: int, target: int) -> float:
@@ -215,22 +211,22 @@ class TrendsDashboardGenerator:
         progress = (reduction_achieved / reduction_needed) * 100
         return max(0, min(100, progress))
 
-    def _calculate_burn_rate(self, historical_data: Dict) -> int:
+    def _calculate_burn_rate(self, historical_data: dict) -> int:
         """Calculate average burn rate (items reduced per week) over last 4 weeks"""
-        quality = historical_data.get('quality')
-        if not quality or len(quality['weeks']) < 2:
+        quality = historical_data.get("quality")
+        if not quality or len(quality["weeks"]) < 2:
             return 0
 
         # Compare last 4 weeks
-        recent_weeks = quality['weeks'][-4:]
+        recent_weeks = quality["weeks"][-4:]
         if len(recent_weeks) < 2:
             return 0
 
         first_week = recent_weeks[0]
         last_week = recent_weeks[-1]
 
-        first_count = sum(p.get('open_bugs_count', 0) for p in first_week.get('projects', []))
-        last_count = sum(p.get('open_bugs_count', 0) for p in last_week.get('projects', []))
+        first_count = sum(p.get("open_bugs_count", 0) for p in first_week.get("projects", []))
+        last_count = sum(p.get("open_bugs_count", 0) for p in last_week.get("projects", []))
 
         reduction = first_count - last_count
         weeks_span = len(recent_weeks)
@@ -238,141 +234,122 @@ class TrendsDashboardGenerator:
 
         return max(0, burn_rate)  # Return 0 if increasing
 
-    def _build_trend_metrics(self, historical_data: Dict) -> List[Dict]:
+    def _build_trend_metrics(self, historical_data: dict) -> list[dict]:
         """Build trend metrics with sparklines"""
         metrics = []
 
-        quality = historical_data.get('quality')
-        security = historical_data.get('security')
-        flow = historical_data.get('flow')
+        quality = historical_data.get("quality")
+        security = historical_data.get("security")
+        flow = historical_data.get("flow")
 
         # Metric 1: Open Bugs
         if quality:
             values = []
-            for week in quality['weeks']:
-                total = sum(p.get('open_bugs_count', 0) for p in week.get('projects', []))
+            for week in quality["weeks"]:
+                total = sum(p.get("open_bugs_count", 0) for p in week.get("projects", []))
                 values.append(float(total))
 
             if values:
-                metrics.append(self._create_metric_card(
-                    title="Open Bugs",
-                    values=values,
-                    lower_is_better=True
-                ))
+                metrics.append(self._create_metric_card(title="Open Bugs", values=values, lower_is_better=True))
 
         # Metric 2: Critical Vulnerabilities
         if security:
             values = []
-            for week in security['weeks']:
-                critical = week.get('metrics', {}).get('critical', 0)
+            for week in security["weeks"]:
+                critical = week.get("metrics", {}).get("critical", 0)
                 values.append(float(critical))
 
             if values:
-                metrics.append(self._create_metric_card(
-                    title="Critical Vulnerabilities",
-                    values=values,
-                    lower_is_better=True
-                ))
+                metrics.append(
+                    self._create_metric_card(title="Critical Vulnerabilities", values=values, lower_is_better=True)
+                )
 
         # Metric 3: High Vulnerabilities
         if security:
             values = []
-            for week in security['weeks']:
-                high = week.get('metrics', {}).get('high', 0)
+            for week in security["weeks"]:
+                high = week.get("metrics", {}).get("high", 0)
                 values.append(float(high))
 
             if values:
-                metrics.append(self._create_metric_card(
-                    title="High Vulnerabilities",
-                    values=values,
-                    lower_is_better=True
-                ))
+                metrics.append(
+                    self._create_metric_card(title="High Vulnerabilities", values=values, lower_is_better=True)
+                )
 
         # Metric 4: Total Vulnerabilities
         if security:
             values = []
-            for week in security['weeks']:
-                total = week.get('metrics', {}).get('current_total', 0)
+            for week in security["weeks"]:
+                total = week.get("metrics", {}).get("current_total", 0)
                 values.append(float(total))
 
             if values:
-                metrics.append(self._create_metric_card(
-                    title="Total Vulnerabilities",
-                    values=values,
-                    lower_is_better=True
-                ))
+                metrics.append(
+                    self._create_metric_card(title="Total Vulnerabilities", values=values, lower_is_better=True)
+                )
 
         # Metric 5: Lead Time P50
         if flow:
             values = []
-            for week in flow['weeks']:
+            for week in flow["weeks"]:
                 # Aggregate across projects
-                projects = week.get('projects', [])
-                lead_times = [p.get('lead_time_p50', 0) for p in projects if p.get('lead_time_p50')]
+                projects = week.get("projects", [])
+                lead_times = [p.get("lead_time_p50", 0) for p in projects if p.get("lead_time_p50")]
                 avg_lead = sum(lead_times) / len(lead_times) if lead_times else 0
                 values.append(float(avg_lead))
 
             if values and any(v > 0 for v in values):
-                metrics.append(self._create_metric_card(
-                    title="Avg Lead Time (P50)",
-                    values=values,
-                    lower_is_better=True,
-                    format_as="days"
-                ))
+                metrics.append(
+                    self._create_metric_card(
+                        title="Avg Lead Time (P50)", values=values, lower_is_better=True, format_as="days"
+                    )
+                )
 
         # Metric 6: Bugs Created
         if quality:
             values = []
-            for week in quality['weeks']:
-                total = sum(p.get('created_last_week', 0) for p in week.get('projects', []))
+            for week in quality["weeks"]:
+                total = sum(p.get("created_last_week", 0) for p in week.get("projects", []))
                 values.append(float(total))
 
             if values:
-                metrics.append(self._create_metric_card(
-                    title="Bugs Created",
-                    values=values,
-                    lower_is_better=True
-                ))
+                metrics.append(self._create_metric_card(title="Bugs Created", values=values, lower_is_better=True))
 
         # Metric 7: Bugs Closed
         if quality:
             values = []
-            for week in quality['weeks']:
-                total = sum(p.get('closed_last_week', 0) for p in week.get('projects', []))
+            for week in quality["weeks"]:
+                total = sum(p.get("closed_last_week", 0) for p in week.get("projects", []))
                 values.append(float(total))
 
             if values:
-                metrics.append(self._create_metric_card(
-                    title="Bugs Closed",
-                    values=values,
-                    lower_is_better=False  # Higher is better!
-                ))
+                metrics.append(
+                    self._create_metric_card(
+                        title="Bugs Closed", values=values, lower_is_better=False  # Higher is better!
+                    )
+                )
 
         # Metric 8: Net Change
         if quality:
             values = []
-            for week in quality['weeks']:
-                closed = sum(p.get('closed_last_week', 0) for p in week.get('projects', []))
-                created = sum(p.get('created_last_week', 0) for p in week.get('projects', []))
+            for week in quality["weeks"]:
+                closed = sum(p.get("closed_last_week", 0) for p in week.get("projects", []))
+                created = sum(p.get("created_last_week", 0) for p in week.get("projects", []))
                 net = closed - created
                 values.append(float(net))
 
             if values:
-                metrics.append(self._create_metric_card(
-                    title="Net Change",
-                    values=values,
-                    lower_is_better=False  # Negative (closed > created) is good
-                ))
+                metrics.append(
+                    self._create_metric_card(
+                        title="Net Change", values=values, lower_is_better=False  # Negative (closed > created) is good
+                    )
+                )
 
         return [m for m in metrics if m is not None]
 
     def _create_metric_card(
-        self,
-        title: str,
-        values: List[float],
-        lower_is_better: bool = True,
-        format_as: str = "number"
-    ) -> Optional[Dict]:
+        self, title: str, values: list[float], lower_is_better: bool = True, format_as: str = "number"
+    ) -> dict | None:
         """Create a metric card with sparkline"""
         if not values or len(values) < 2:
             return None
@@ -411,62 +388,53 @@ class TrendsDashboardGenerator:
         sparkline_html = sparkline(values, width=200, height=60)
 
         return {
-            'title': title,
-            'current_value': current_str,
-            'sparkline': sparkline_html,
-            'change_class': change_class,
-            'trend_arrow': trend_arrow,
-            'change_text': change_text,
-            'weeks': len(values)
+            "title": title,
+            "current_value": current_str,
+            "sparkline": sparkline_html,
+            "change_class": change_class,
+            "trend_arrow": trend_arrow,
+            "change_text": change_text,
+            "weeks": len(values),
         }
 
-    def _build_context(
-        self,
-        forecast: Optional[Dict],
-        trend_metrics: List[Dict],
-        historical_data: Dict
-    ) -> Dict:
+    def _build_context(self, forecast: dict | None, trend_metrics: list[dict], historical_data: dict) -> dict:
         """Build template context"""
         # Get framework
         framework_css, framework_js = get_dashboard_framework(
-            header_gradient_start='#f59e0b',
-            header_gradient_end='#d97706',
-            include_table_scroll=False
+            header_gradient_start="#f59e0b", header_gradient_end="#d97706", include_table_scroll=False
         )
 
         # Build data status
         data_status = []
         for name, data in historical_data.items():
-            data_status.append({
-                'name': name.capitalize(),
-                'loaded': data is not None,
-                'weeks': len(data['weeks']) if data else 0
-            })
+            data_status.append(
+                {"name": name.capitalize(), "loaded": data is not None, "weeks": len(data["weeks"]) if data else 0}
+            )
 
         return {
-            'framework_css': framework_css,
-            'framework_js': framework_js,
-            'generation_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'forecast': forecast,
-            'trend_metrics': trend_metrics,
-            'data_status': data_status
+            "framework_css": framework_css,
+            "framework_js": framework_js,
+            "generation_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "forecast": forecast,
+            "trend_metrics": trend_metrics,
+            "data_status": data_status,
         }
 
 
 # Convenience function
-def generate_trends_dashboard(output_path: Optional[Path] = None, weeks: int = 12) -> str:
+def generate_trends_dashboard(output_path: Path | None = None, weeks: int = 12) -> str:
     """Generate trends dashboard"""
     generator = TrendsDashboardGenerator(weeks=weeks)
     return generator.generate(output_path)
 
 
 # Self-test
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Trends Dashboard Generator - Self Test")
     print("=" * 60)
 
     try:
-        output_path = Path('.tmp/observatory/dashboards/trends.html')
+        output_path = Path(".tmp/observatory/dashboards/trends.html")
         html = generate_trends_dashboard(output_path)
 
         print("\n" + "=" * 60)
@@ -477,4 +445,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"\n[ERROR] {e}")
         import traceback
+
         traceback.print_exc()

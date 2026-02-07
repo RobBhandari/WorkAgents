@@ -7,12 +7,11 @@ Prevents corruption by ensuring files are never left in a half-written state.
 
 import json
 import os
-import tempfile
 import shutil
-from typing import Dict
+import tempfile
 
 
-def atomic_json_save(data: Dict, output_file: str) -> bool:
+def atomic_json_save(data: dict, output_file: str) -> bool:
     """
     Save JSON data to file using atomic write operations.
 
@@ -32,19 +31,15 @@ def atomic_json_save(data: Dict, output_file: str) -> bool:
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Create temp file in same directory (for atomic move)
-    temp_fd, temp_path = tempfile.mkstemp(
-        suffix='.json',
-        dir=os.path.dirname(output_file),
-        text=True
-    )
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".json", dir=os.path.dirname(output_file), text=True)
 
     try:
         # Write to temp file with UTF-8 encoding
-        with os.fdopen(temp_fd, 'w', encoding='utf-8') as f:
+        with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         # Verify the temp file is valid JSON before moving
-        with open(temp_path, 'r', encoding='utf-8') as f:
+        with open(temp_path, encoding="utf-8") as f:
             json.load(f)  # This will raise JSONDecodeError if invalid
 
         # Atomic move (rename is atomic on most filesystems)
@@ -58,7 +53,7 @@ def atomic_json_save(data: Dict, output_file: str) -> bool:
         raise e
 
 
-def load_json_with_recovery(file_path: str, default_value: Dict = None) -> Dict:
+def load_json_with_recovery(file_path: str, default_value: dict = None) -> dict:
     """
     Load JSON file with automatic recovery from corruption.
 
@@ -79,7 +74,7 @@ def load_json_with_recovery(file_path: str, default_value: Dict = None) -> Dict:
         return default_value
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
         return data
 

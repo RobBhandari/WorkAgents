@@ -20,7 +20,6 @@ Security Features:
 """
 
 import requests
-from typing import Any, Optional
 
 
 class SecureHTTPClient:
@@ -48,10 +47,10 @@ class SecureHTTPClient:
             - Prevents insecure HTTP requests
         """
         # CRITICAL: Force SSL verification (prevent man-in-the-middle attacks)
-        kwargs.setdefault('verify', True)
+        kwargs.setdefault("verify", True)
 
         # Set default timeout (prevent hanging connections)
-        kwargs.setdefault('timeout', SecureHTTPClient.DEFAULT_TIMEOUT)
+        kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
 
         return requests.get(url, **kwargs)
 
@@ -73,10 +72,10 @@ class SecureHTTPClient:
             - Prevents insecure HTTP requests
         """
         # CRITICAL: Force SSL verification (prevent man-in-the-middle attacks)
-        kwargs.setdefault('verify', True)
+        kwargs.setdefault("verify", True)
 
         # Set default timeout (prevent hanging connections)
-        kwargs.setdefault('timeout', SecureHTTPClient.DEFAULT_TIMEOUT)
+        kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
 
         return requests.post(url, **kwargs)
 
@@ -96,8 +95,8 @@ class SecureHTTPClient:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
         """
-        kwargs.setdefault('verify', True)
-        kwargs.setdefault('timeout', SecureHTTPClient.DEFAULT_TIMEOUT)
+        kwargs.setdefault("verify", True)
+        kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
         return requests.put(url, **kwargs)
 
     @staticmethod
@@ -116,8 +115,8 @@ class SecureHTTPClient:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
         """
-        kwargs.setdefault('verify', True)
-        kwargs.setdefault('timeout', SecureHTTPClient.DEFAULT_TIMEOUT)
+        kwargs.setdefault("verify", True)
+        kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
         return requests.delete(url, **kwargs)
 
     @staticmethod
@@ -136,8 +135,8 @@ class SecureHTTPClient:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
         """
-        kwargs.setdefault('verify', True)
-        kwargs.setdefault('timeout', SecureHTTPClient.DEFAULT_TIMEOUT)
+        kwargs.setdefault("verify", True)
+        kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
         return requests.patch(url, **kwargs)
 
 
@@ -150,7 +149,7 @@ patch = SecureHTTPClient.patch
 
 
 # Self-test when run directly
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
     print("Secure HTTP Client - Self Test")
@@ -159,8 +158,8 @@ if __name__ == '__main__':
     # Test 1: Verify SSL is enforced
     print("\n[TEST 1] Verify SSL enforcement")
     try:
-        response = get('https://httpbin.org/get')
-        print(f"  [PASS] SSL-verified GET request succeeded")
+        response = get("https://httpbin.org/get")
+        print("  [PASS] SSL-verified GET request succeeded")
         print(f"  Status: {response.status_code}")
     except Exception as e:
         print(f"  [FAIL] SSL-verified request failed: {e}")
@@ -169,11 +168,12 @@ if __name__ == '__main__':
     # Test 2: Verify timeout is set
     print("\n[TEST 2] Verify timeout is set")
     import unittest.mock as mock
-    with mock.patch('requests.get') as mock_get:
-        get('https://example.com')
+
+    with mock.patch("requests.get") as mock_get:
+        get("https://example.com")
         call_kwargs = mock_get.call_args[1]
-        if call_kwargs.get('verify') is True and call_kwargs.get('timeout') == 30:
-            print(f"  [PASS] verify=True and timeout=30 enforced")
+        if call_kwargs.get("verify") is True and call_kwargs.get("timeout") == 30:
+            print("  [PASS] verify=True and timeout=30 enforced")
         else:
             print(f"  [FAIL] Security parameters not enforced: {call_kwargs}")
             sys.exit(1)
@@ -181,8 +181,8 @@ if __name__ == '__main__':
     # Test 3: Verify POST works
     print("\n[TEST 3] Verify POST method")
     try:
-        response = post('https://httpbin.org/post', json={'test': 'data'})
-        print(f"  [PASS] SSL-verified POST request succeeded")
+        response = post("https://httpbin.org/post", json={"test": "data"})
+        print("  [PASS] SSL-verified POST request succeeded")
         print(f"  Status: {response.status_code}")
     except Exception as e:
         print(f"  [FAIL] POST request failed: {e}")

@@ -13,13 +13,12 @@ Usage:
     python execution/usage_tables_report.py --open
 """
 
+import argparse
+import html as html_module
+import logging
 import os
 import sys
-import argparse
-import logging
-import html as html_module
 from datetime import datetime
-from typing import Tuple
 from pathlib import Path
 
 import pandas as pd
@@ -37,11 +36,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/usage_tables_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -70,11 +69,11 @@ def read_excel_usage_data(file_path: str) -> pd.DataFrame:
         # Detect file type and read accordingly
         file_ext = Path(file_path).suffix.lower()
 
-        if file_ext == '.csv':
+        if file_ext == ".csv":
             df = pd.read_csv(file_path)
             logger.info(f"Successfully read CSV file with {len(df)} rows")
-        elif file_ext in ['.xlsx', '.xls']:
-            df = pd.read_excel(file_path, engine='openpyxl')
+        elif file_ext in [".xlsx", ".xls"]:
+            df = pd.read_excel(file_path, engine="openpyxl")
             logger.info(f"Successfully read Excel file with {len(df)} rows")
         else:
             raise ValueError(f"Unsupported file type: {file_ext}. Please use .csv, .xlsx, or .xls")
@@ -87,70 +86,62 @@ def read_excel_usage_data(file_path: str) -> pd.DataFrame:
 
     # Validate required columns (check for variations)
     required_columns = {
-        'Name': 'Name',
-        'Software Company': 'Software Company',
-        'Claude Access': None,  # Will find the right variant
-        'Claude 30 day usage': 'Claude 30 day usage',
-        'Devin_30d': 'Devin_30d'
+        "Name": "Name",
+        "Software Company": "Software Company",
+        "Claude Access": None,  # Will find the right variant
+        "Claude 30 day usage": "Claude 30 day usage",
+        "Devin_30d": "Devin_30d",
     }
 
     # Find Claude Access column (with or without space before ?)
     claude_access_col = None
     for col in df.columns:
-        if col in ['Claude Access?', 'Claude Access ?']:
+        if col in ["Claude Access?", "Claude Access ?"]:
             claude_access_col = col
             break
 
     if not claude_access_col:
         raise ValueError(
-            f"Missing 'Claude Access?' or 'Claude Access ?' column\n"
-            f"Available columns: {list(df.columns)}"
+            f"Missing 'Claude Access?' or 'Claude Access ?' column\n" f"Available columns: {list(df.columns)}"
         )
 
     # Find Devin Access column (with or without space before ?)
     devin_access_col = None
     for col in df.columns:
-        if col in ['Devin Access?', 'Devin Access ?']:
+        if col in ["Devin Access?", "Devin Access ?"]:
             devin_access_col = col
             break
 
     if not devin_access_col:
         raise ValueError(
-            f"Missing 'Devin Access?' or 'Devin Access ?' column\n"
-            f"Available columns: {list(df.columns)}"
+            f"Missing 'Devin Access?' or 'Devin Access ?' column\n" f"Available columns: {list(df.columns)}"
         )
 
     # Verify other required columns exist
     missing = []
-    for req_col in ['Name', 'Software Company', 'Claude 30 day usage', 'Devin_30d']:
+    for req_col in ["Name", "Software Company", "Claude 30 day usage", "Devin_30d"]:
         if req_col not in df.columns:
             missing.append(req_col)
 
     if missing:
-        raise ValueError(
-            f"Missing required columns: {missing}\n"
-            f"Available columns: {list(df.columns)}"
-        )
+        raise ValueError(f"Missing required columns: {missing}\n" f"Available columns: {list(df.columns)}")
 
     # Standardize the access column names
-    df = df.rename(columns={
-        claude_access_col: 'Claude Access',
-        devin_access_col: 'Devin Access'
-    })
+    df = df.rename(columns={claude_access_col: "Claude Access", devin_access_col: "Devin Access"})
     logger.info(f"Using column '{claude_access_col}' for Claude Access")
     logger.info(f"Using column '{devin_access_col}' for Devin Access")
 
     # Clean data
     # Strip whitespace from string columns
-    for col in ['Name', 'Software Company', 'Claude Access', 'Devin Access']:
+    for col in ["Name", "Software Company", "Claude Access", "Devin Access"]:
         if col in df.columns:
             df[col] = df[col].astype(str).str.strip()
 
     # Handle missing usage values (treat as 0)
-    df['Claude 30 day usage'] = pd.to_numeric(df['Claude 30 day usage'], errors='coerce').fillna(0)
-    df['Devin_30d'] = pd.to_numeric(df['Devin_30d'], errors='coerce').fillna(0)
+    df["Claude 30 day usage"] = pd.to_numeric(df["Claude 30 day usage"], errors="coerce").fillna(0)
+    df["Devin_30d"] = pd.to_numeric(df["Devin_30d"], errors="coerce").fillna(0)
 
-    logger.info(f"Data cleaned successfully")
+    logger.info("Data cleaned successfully")
     return df
 
 
@@ -170,7 +161,7 @@ def filter_lgl_users(df: pd.DataFrame) -> pd.DataFrame:
     logger.info("Filtering for Software Company = 'LGL'")
 
     # Filter for LGL (case-insensitive)
-    filtered_df = df[df['Software Company'].str.upper() == 'LGL'].copy()
+    filtered_df = df[df["Software Company"].str.upper() == "LGL"].copy()
 
     if len(filtered_df) == 0:
         raise ValueError("No LGL users found in dataset")
@@ -190,16 +181,18 @@ def prepare_claude_data(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame sorted by Claude usage (descending)
     """
     # Select relevant columns
-    claude_df = df[['Name', 'Job Title', 'Claude Access', 'Claude 30 day usage']].copy()
+    claude_df = df[["Name", "Job Title", "Claude Access", "Claude 30 day usage"]].copy()
 
     # Sort by usage (descending)
-    claude_df = claude_df.sort_values('Claude 30 day usage', ascending=False)
+    claude_df = claude_df.sort_values("Claude 30 day usage", ascending=False)
 
     # Reset index
     claude_df = claude_df.reset_index(drop=True)
 
     logger.info(f"Prepared Claude table with {len(claude_df)} users")
-    logger.info(f"Claude usage range: {claude_df['Claude 30 day usage'].min():.0f} - {claude_df['Claude 30 day usage'].max():.0f}")
+    logger.info(
+        f"Claude usage range: {claude_df['Claude 30 day usage'].min():.0f} - {claude_df['Claude 30 day usage'].max():.0f}"
+    )
 
     return claude_df
 
@@ -215,10 +208,10 @@ def prepare_devin_data(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame sorted by Devin usage (descending)
     """
     # Select relevant columns
-    devin_df = df[['Name', 'Job Title', 'Devin Access', 'Devin_30d']].copy()
+    devin_df = df[["Name", "Job Title", "Devin Access", "Devin_30d"]].copy()
 
     # Sort by usage (descending)
-    devin_df = devin_df.sort_values('Devin_30d', ascending=False)
+    devin_df = devin_df.sort_values("Devin_30d", ascending=False)
 
     # Reset index
     devin_df = devin_df.reset_index(drop=True)
@@ -229,7 +222,7 @@ def prepare_devin_data(df: pd.DataFrame) -> pd.DataFrame:
     return devin_df
 
 
-def get_usage_heatmap_color(usage: float) -> Tuple[str, str, str]:
+def get_usage_heatmap_color(usage: float) -> tuple[str, str, str]:
     """
     Determine heatmap color based on usage value.
 
@@ -246,13 +239,13 @@ def get_usage_heatmap_color(usage: float) -> Tuple[str, str, str]:
     """
     if usage >= 100:
         # High - Green
-        return '#d1fae5', '#065f46', 'high'
+        return "#d1fae5", "#065f46", "high"
     elif usage >= 20:
         # Medium - Amber
-        return '#fef3c7', '#92400e', 'medium'
+        return "#fef3c7", "#92400e", "medium"
     else:
         # Low - Red
-        return '#fee2e2', '#991b1b', 'low'
+        return "#fee2e2", "#991b1b", "low"
 
 
 def generate_table_html(df: pd.DataFrame, table_id: str, title: str, usage_column: str, access_column: str) -> str:
@@ -286,8 +279,8 @@ def generate_table_html(df: pd.DataFrame, table_id: str, title: str, usage_colum
 
     # Generate rows
     for _, row in df.iterrows():
-        name = html_module.escape(str(row['Name']))
-        job_title = html_module.escape(str(row['Job Title']))
+        name = html_module.escape(str(row["Name"]))
+        job_title = html_module.escape(str(row["Job Title"]))
         access = str(row[access_column]).strip()
         usage = float(row[usage_column])
 
@@ -296,9 +289,9 @@ def generate_table_html(df: pd.DataFrame, table_id: str, title: str, usage_colum
 
         # Access badge (handle both text and numeric values)
         # Treat NaN, empty, or 0 as "No"
-        if access.upper() in ['YES', '1', '1.0']:
+        if access.upper() in ["YES", "1", "1.0"]:
             access_badge = '<span class="badge badge-success">Yes</span>'
-        elif access.upper() in ['NO', '0', '0.0', 'NAN', 'NONE', '']:
+        elif access.upper() in ["NO", "0", "0.0", "NAN", "NONE", ""]:
             access_badge = '<span class="badge badge-secondary">No</span>'
         else:
             access_badge = '<span class="badge badge-secondary">No</span>'
@@ -340,39 +333,31 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 
     # Calculate statistics
     total_users = len(claude_df)
-    claude_users = len(claude_df[claude_df['Claude 30 day usage'] > 0])
-    devin_users = len(devin_df[devin_df['Devin_30d'] > 0])
-    avg_claude_usage = claude_df['Claude 30 day usage'].mean()
-    avg_devin_usage = devin_df['Devin_30d'].mean()
+    claude_users = len(claude_df[claude_df["Claude 30 day usage"] > 0])
+    devin_users = len(devin_df[devin_df["Devin_30d"] > 0])
+    avg_claude_usage = claude_df["Claude 30 day usage"].mean()
+    avg_devin_usage = devin_df["Devin_30d"].mean()
 
     # Generate report date
-    report_date = datetime.now().strftime('%B %d, %Y at %I:%M %p')
+    report_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
 
     # Generate Claude table HTML
     claude_table_html = generate_table_html(
-        claude_df,
-        'claudeTable',
-        'Claude Usage (Last 30 Days)',
-        'Claude 30 day usage',
-        'Claude Access'
+        claude_df, "claudeTable", "Claude Usage (Last 30 Days)", "Claude 30 day usage", "Claude Access"
     )
 
     # Generate Devin table HTML
     devin_table_html = generate_table_html(
-        devin_df,
-        'devinTable',
-        'Devin Usage (Last 30 Days)',
-        'Devin_30d',
-        'Devin Access'
+        devin_df, "devinTable", "Devin Usage (Last 30 Days)", "Devin_30d", "Devin Access"
     )
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#667eea',
-        header_gradient_end='#764ba2',
+        header_gradient_start="#667eea",
+        header_gradient_end="#764ba2",
         include_table_scroll=True,
         include_expandable_rows=False,
-        include_glossary=False
+        include_glossary=False,
     )
 
     # Complete HTML document
@@ -814,17 +799,17 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 </html>"""
 
     # Write HTML file
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
     logger.info(f"HTML report created successfully: {output_file}")
 
     # Also save a copy as "latest" in dashboards directory for trends dashboard linking
-    latest_file = Path('.tmp/observatory/dashboards/usage_tables_latest.html')
+    latest_file = Path(".tmp/observatory/dashboards/usage_tables_latest.html")
     try:
         # Ensure dashboards directory exists
         latest_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(latest_file, 'w', encoding='utf-8') as f:
+        with open(latest_file, "w", encoding="utf-8") as f:
             f.write(html)
         logger.info(f"Latest copy saved to: {latest_file}")
     except Exception as e:
@@ -840,27 +825,21 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Generate LGL AI Tools usage tables report from hardcoded CSV file'
-    )
+    parser = argparse.ArgumentParser(description="Generate LGL AI Tools usage tables report from hardcoded CSV file")
 
     parser.add_argument(
-        '--output-file',
+        "--output-file",
         type=str,
         default=f'.tmp/usage_tables_{datetime.now().strftime("%Y%m%d_%H%M%S")}.html',
-        help='Path to output HTML file (default: .tmp/usage_tables_[timestamp].html)'
+        help="Path to output HTML file (default: .tmp/usage_tables_[timestamp].html)",
     )
 
-    parser.add_argument(
-        '--open',
-        action='store_true',
-        help='Open HTML report in browser after generation'
-    )
+    parser.add_argument("--open", action="store_true", help="Open HTML report in browser after generation")
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -869,7 +848,7 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Ensure .tmp directory exists
-        os.makedirs('.tmp', exist_ok=True)
+        os.makedirs(".tmp", exist_ok=True)
 
         # Use git-tracked CSV file in data directory
         file_path = "data/ai_usage_data.csv"
@@ -888,27 +867,24 @@ if __name__ == '__main__':
         devin_df = prepare_devin_data(lgl_df)
 
         # Step 5: Generate HTML report
-        output_file = generate_html_report(
-            claude_df=claude_df,
-            devin_df=devin_df,
-            output_file=args.output_file
-        )
+        output_file = generate_html_report(claude_df=claude_df, devin_df=devin_df, output_file=args.output_file)
 
         print(f"\n{'='*70}")
-        print(f"SUCCESS: LGL AI Tools Usage Report Generated")
+        print("SUCCESS: LGL AI Tools Usage Report Generated")
         print(f"{'='*70}")
         print(f"Output file: {output_file}")
-        print(f"\nStatistics:")
+        print("\nStatistics:")
         print(f"  • Total LGL Users: {len(lgl_df)}")
         print(f"  • Claude Active Users: {len(claude_df[claude_df['Claude 30 day usage'] > 0])}")
         print(f"  • Devin Active Users: {len(devin_df[devin_df['Devin_30d'] > 0])}")
-        print(f"\nOpen this file in your web browser to view the interactive report.")
+        print("\nOpen this file in your web browser to view the interactive report.")
         print(f"{'='*70}\n")
 
         # Open in browser if requested
         if args.open:
             import webbrowser
-            webbrowser.open(f'file://{os.path.abspath(output_file)}')
+
+            webbrowser.open(f"file://{os.path.abspath(output_file)}")
             logger.info("Opened report in browser")
 
         # Exit with success code

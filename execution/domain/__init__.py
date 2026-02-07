@@ -16,24 +16,21 @@ Usage:
 """
 
 # Import domain models for convenient access
+from .flow import FlowMetrics
 from .metrics import MetricSnapshot, TrendData
 from .quality import Bug, QualityMetrics
-from .security import Vulnerability, SecurityMetrics
-from .flow import FlowMetrics
+from .security import SecurityMetrics, Vulnerability
 
 __all__ = [
     # Base classes
-    'MetricSnapshot',
-    'TrendData',
-
+    "MetricSnapshot",
+    "TrendData",
     # Quality domain
-    'Bug',
-    'QualityMetrics',
-
+    "Bug",
+    "QualityMetrics",
     # Security domain
-    'Vulnerability',
-    'SecurityMetrics',
-
+    "Vulnerability",
+    "SecurityMetrics",
     # Flow domain
-    'FlowMetrics',
+    "FlowMetrics",
 ]
