@@ -25,7 +25,7 @@ from azure.devops.v7_1.work_item_tracking import Wiql
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
-from execution.core import get_config
+from execution.secure_config import get_config
 
 load_dotenv()
 
@@ -91,8 +91,9 @@ def filter_security_bugs(bugs: list[dict]) -> tuple:
 
 def get_ado_connection():
     """Get ADO connection using credentials from .env"""
-    organization_url = get_config().get("ADO_ORGANIZATION_URL")
-    pat = get_config().get_ado_config().pat
+    ado_config = get_config().get_ado_config()
+    organization_url = ado_config.organization_url
+    pat = ado_config.pat
 
     if not organization_url or not pat:
         raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
@@ -103,7 +104,7 @@ def get_ado_connection():
 
 
 def query_work_items_by_type(
-    wit_client, project_name: str, work_type: str, lookback_days: int = 90, area_path_filter: str = None
+    wit_client, project_name: str, work_type: str, lookback_days: int = 90, area_path_filter: str | None = None
 ) -> dict:
     """
     Query work items for a specific work type (Bug, User Story, or Task).
@@ -242,7 +243,7 @@ def query_work_items_by_type(
 
 
 def query_work_items_for_flow(
-    wit_client, project_name: str, lookback_days: int = 90, area_path_filter: str = None
+    wit_client, project_name: str, lookback_days: int = 90, area_path_filter: str | None = None
 ) -> dict:
     """
     Query work items for flow metrics, segmented by work type.
@@ -302,10 +303,14 @@ def calculate_lead_time(closed_items: list[dict]) -> dict:
             except Exception:
                 continue
 
+    p50 = calculate_percentile(lead_times, 50)
+    p85 = calculate_percentile(lead_times, 85)
+    p95 = calculate_percentile(lead_times, 95)
+
     return {
-        "p50": round(calculate_percentile(lead_times, 50), 1) if lead_times else None,
-        "p85": round(calculate_percentile(lead_times, 85), 1) if lead_times else None,
-        "p95": round(calculate_percentile(lead_times, 95), 1) if lead_times else None,
+        "p50": round(p50, 1) if p50 is not None else None,
+        "p85": round(p85, 1) if p85 is not None else None,
+        "p95": round(p95, 1) if p95 is not None else None,
         "sample_size": len(lead_times),
         "raw_values": lead_times[:10],  # Keep first 10 for debugging
     }
@@ -356,19 +361,27 @@ def calculate_dual_metrics(closed_items: list[dict], cleanup_threshold_days: int
                 continue
 
     # Calculate operational metrics
+    op_p50 = calculate_percentile(operational_lead_times, 50)
+    op_p85 = calculate_percentile(operational_lead_times, 85)
+    op_p95 = calculate_percentile(operational_lead_times, 95)
+
     operational_metrics = {
-        "p50": round(calculate_percentile(operational_lead_times, 50), 1) if operational_lead_times else None,
-        "p85": round(calculate_percentile(operational_lead_times, 85), 1) if operational_lead_times else None,
-        "p95": round(calculate_percentile(operational_lead_times, 95), 1) if operational_lead_times else None,
+        "p50": round(op_p50, 1) if op_p50 is not None else None,
+        "p85": round(op_p85, 1) if op_p85 is not None else None,
+        "p95": round(op_p95, 1) if op_p95 is not None else None,
         "closed_count": len(operational_items),
         "sample_size": len(operational_lead_times),
     }
 
     # Calculate cleanup metrics
+    cl_p50 = calculate_percentile(cleanup_lead_times, 50)
+    cl_p85 = calculate_percentile(cleanup_lead_times, 85)
+    cl_p95 = calculate_percentile(cleanup_lead_times, 95)
+
     cleanup_metrics = {
-        "p50": round(calculate_percentile(cleanup_lead_times, 50), 1) if cleanup_lead_times else None,
-        "p85": round(calculate_percentile(cleanup_lead_times, 85), 1) if cleanup_lead_times else None,
-        "p95": round(calculate_percentile(cleanup_lead_times, 95), 1) if cleanup_lead_times else None,
+        "p50": round(cl_p50, 1) if cl_p50 is not None else None,
+        "p85": round(cl_p85, 1) if cl_p85 is not None else None,
+        "p95": round(cl_p95, 1) if cl_p95 is not None else None,
         "closed_count": len(cleanup_items),
         "sample_size": len(cleanup_lead_times),
         "avg_age_years": (

@@ -73,7 +73,8 @@ class AsyncADOCollector:
         from execution.ado_quality_metrics import collect_quality_metrics_for_project
 
         # Run blocking SDK calls in thread pool
-        return await self._run_in_thread(collect_quality_metrics_for_project, connection, project, config)
+        result: dict = await self._run_in_thread(collect_quality_metrics_for_project, connection, project, config)
+        return result
 
     async def collect_flow_metrics_for_project(self, connection, project: dict, config: dict) -> dict:
         """
@@ -120,7 +121,7 @@ class AsyncADOCollector:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Combine results
-        work_items = {}
+        work_items: dict[str, dict[str, object]] = {}
         for work_type, result in zip(work_types, results, strict=False):
             if isinstance(result, Exception):
                 logger.error(f"Failed to query {work_type} for {project_name}: {result}")
@@ -131,21 +132,45 @@ class AsyncADOCollector:
                     "open_count": 0,
                     "closed_count": 0,
                 }
-            else:
+            elif isinstance(result, dict):
                 work_items[work_type] = result
+            else:
+                logger.error(f"Unexpected result type for {work_type}: {type(result)}")
+                work_items[work_type] = {
+                    "work_type": work_type,
+                    "open_items": [],
+                    "closed_items": [],
+                    "open_count": 0,
+                    "closed_count": 0,
+                }
 
         # Calculate metrics for each work type (synchronous - just data processing)
         work_type_metrics = {}
         for work_type, data in work_items.items():
+            open_items = data.get("open_items", [])
+            closed_items = data.get("closed_items", [])
+            open_count = data.get("open_count", 0)
+            closed_count = data.get("closed_count", 0)
+
+            # Type narrowing: ensure we have lists
+            if not isinstance(open_items, list):
+                open_items = []
+            if not isinstance(closed_items, list):
+                closed_items = []
+            if not isinstance(open_count, int):
+                open_count = 0
+            if not isinstance(closed_count, int):
+                closed_count = 0
+
             work_type_metrics[work_type] = {
-                "open_count": data["open_count"],
-                "closed_count_90d": data["closed_count"],
-                "wip": data["open_count"],
-                "lead_time": calculate_lead_time(data["closed_items"]),
-                "dual_metrics": calculate_dual_metrics(data["closed_items"]),
-                "aging_items": calculate_aging_items(data["open_items"], config.get("aging_threshold_days", 30)),
-                "throughput": calculate_throughput(data["closed_items"], lookback_days),
-                "cycle_time_variance": calculate_cycle_time_variance(data["closed_items"]),
+                "open_count": open_count,
+                "closed_count_90d": closed_count,
+                "wip": open_count,
+                "lead_time": calculate_lead_time(closed_items),
+                "dual_metrics": calculate_dual_metrics(closed_items),
+                "aging_items": calculate_aging_items(open_items, config.get("aging_threshold_days", 30)),
+                "throughput": calculate_throughput(closed_items, lookback_days),
+                "cycle_time_variance": calculate_cycle_time_variance(closed_items),
             }
 
         return {
@@ -184,14 +209,17 @@ class AsyncADOCollector:
         duration = (datetime.now() - start).total_seconds()
 
         # Filter out exceptions
-        metrics = []
+        metrics: list[dict] = []
         errors = 0
         for project, result in zip(projects, results, strict=False):
             if isinstance(result, Exception):
                 logger.error(f"Failed to collect {collector_type} metrics for {project['project_name']}: {result}")
                 errors += 1
-            else:
+            elif isinstance(result, dict):
                 metrics.append(result)
+            else:
+                logger.error(f"Unexpected result type for {project['project_name']}: {type(result)}")
+                errors += 1
 
         logger.info(
             f"Collected {collector_type} metrics for {len(metrics)} projects in {duration:.2f}s "

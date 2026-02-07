@@ -19,7 +19,8 @@ import sys
 from datetime import datetime
 
 from execution.async_http_client import AsyncSecureHTTPClient
-from execution.core import get_config, get_logger
+from execution.core import get_logger
+from execution.secure_config import get_config
 
 logger = get_logger(__name__)
 
@@ -85,7 +86,8 @@ class AsyncArmorCodeCollector:
                 self.graphql_url, headers=self._get_headers(), json={"query": query}, timeout=60
             )
             response.raise_for_status()
-            return response.json()
+            data: dict = response.json()
+            return data
         except Exception as e:
             logger.error(f"Failed to fetch page {page} for product {product_id}: {e}")
             return {"errors": [str(e)]}
@@ -115,7 +117,7 @@ class AsyncArmorCodeCollector:
             return []
 
         findings_data = first_page.get("data", {}).get("findings", {})
-        all_findings = findings_data.get("findings", [])
+        all_findings: list[dict] = findings_data.get("findings", [])
         page_info = findings_data.get("pageInfo", {})
 
         # If no more pages, return early
@@ -143,7 +145,7 @@ class AsyncArmorCodeCollector:
                 logger.warning(f"Page fetch failed for product {product_id}: {result}")
                 continue
 
-            if "data" in result and "findings" in result["data"]:
+            if isinstance(result, dict) and "data" in result and "findings" in result["data"]:
                 page_findings = result["data"]["findings"].get("findings", [])
                 all_findings.extend(page_findings)
 
@@ -223,14 +225,15 @@ class AsyncArmorCodeCollector:
                             continue
 
                         try:
-                            data = result.json()
-                            if "data" in data and "products" in data["data"]:
-                                page_result = data["data"]["products"]
-                                products = page_result.get("products", [])
-                                all_products.extend(products)
+                            if hasattr(result, 'json'):
+                                data = result.json()
+                                if "data" in data and "products" in data["data"]:
+                                    page_result = data["data"]["products"]
+                                    products = page_result.get("products", [])
+                                    all_products.extend(products)
 
-                                if not page_result.get("pageInfo", {}).get("hasNext", False):
-                                    break
+                                    if not page_result.get("pageInfo", {}).get("hasNext", False):
+                                        break
                         except Exception as e:
                             logger.warning(f"Failed to parse product response: {e}")
         except Exception as e:
@@ -263,14 +266,15 @@ class AsyncArmorCodeCollector:
             duration = (datetime.now() - start).total_seconds()
 
             # Combine all findings
-            all_findings = []
+            all_findings: list[dict] = []
             errors = 0
             for result in results:
                 if isinstance(result, Exception):
                     logger.error(f"Product fetch failed: {result}")
                     errors += 1
                     continue
-                all_findings.extend(result)
+                if isinstance(result, list):
+                    all_findings.extend(result)
 
             logger.info(
                 f"Collected {len(all_findings)} findings in {duration:.2f}s "

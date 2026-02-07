@@ -58,9 +58,9 @@ class AsyncSecureHTTPClient:
         )
         self.timeout = httpx.Timeout(timeout)
         self.http2 = http2
-        self.client = None
+        self.client: httpx.AsyncClient | None = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "AsyncSecureHTTPClient":
         """Context manager entry - create async client"""
         self.client = httpx.AsyncClient(
             limits=self.limits,
