@@ -125,7 +125,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install setuptools wheel  # Required for editable installs
+          pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install pytest pytest-cov
           pip install -e .  # Install package for test imports

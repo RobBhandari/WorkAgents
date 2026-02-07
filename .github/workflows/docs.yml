@@ -38,7 +38,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install setuptools wheel  # Required for editable installs
+          pip install --upgrade pip setuptools wheel
           pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
           pip install -r requirements.txt
           pip install -e .  # Install package in editable mode for autodoc imports
