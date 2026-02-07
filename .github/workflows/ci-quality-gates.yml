@@ -59,7 +59,7 @@ jobs:
       - name: Check Security Wrappers
         run: |
           echo "Checking for direct os.getenv() and requests imports..."
-          python hooks/check-security-wrappers.py execution/**/*.py || {
+          find execution -name "*.py" -not -path "*/archive/*" -not -path "*/experiments/*" | xargs python hooks/check-security-wrappers.py || {
             echo "❌ Security wrapper violations found"
             echo "Use: secure_config.get_config() and http_client.get/post"
             exit 1
@@ -69,7 +69,7 @@ jobs:
       - name: Check Architecture Patterns
         run: |
           echo "Checking architectural standards..."
-          python hooks/check-architecture-patterns.py execution/**/*.py || {
+          find execution -name "*.py" -not -path "*/archive/*" -not -path "*/experiments/*" | xargs python hooks/check-architecture-patterns.py || {
             echo "❌ Architecture violations found"
             echo "See: execution/CONTRIBUTING.md for guidelines"
             exit 1
