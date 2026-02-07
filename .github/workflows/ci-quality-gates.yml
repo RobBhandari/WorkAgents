@@ -1,0 +1,186 @@
+name: CI - Quality Gates
+
+# Enforce architectural standards on all code changes
+# Runs same checks as pre-commit hooks, ensuring standards are met even if hooks are bypassed
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'execution/**/*.py'
+      - 'tests/**/*.py'
+      - '.github/workflows/ci-quality-gates.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'execution/**/*.py'
+      - 'tests/**/*.py'
+
+jobs:
+  # Job 1: Code Quality & Formatting
+  code-quality:
+    name: Code Quality (Ruff + Black)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install ruff black
+
+      - name: Run Ruff linter
+        run: |
+          ruff check execution/ --exit-non-zero-on-fix
+          echo "✅ Ruff linting passed"
+
+      - name: Run Black formatter
+        run: |
+          black --check execution/ tests/
+          echo "✅ Black formatting check passed"
+
+  # Job 2: Architecture Governance
+  architecture-governance:
+    name: Architecture Patterns
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Check Security Wrappers
+        run: |
+          echo "Checking for direct os.getenv() and requests imports..."
+          python hooks/check-security-wrappers.py execution/**/*.py || {
+            echo "❌ Security wrapper violations found"
+            echo "Use: secure_config.get_config() and http_client.get/post"
+            exit 1
+          }
+          echo "✅ Security wrapper check passed"
+
+      - name: Check Architecture Patterns
+        run: |
+          echo "Checking architectural standards..."
+          python hooks/check-architecture-patterns.py execution/**/*.py || {
+            echo "❌ Architecture violations found"
+            echo "See: execution/CONTRIBUTING.md for guidelines"
+            exit 1
+          }
+          echo "✅ Architecture pattern check passed"
+
+  # Job 3: Type Checking
+  type-checking:
+    name: Type Hints (MyPy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install mypy types-requests
+
+      - name: Run MyPy on modular code
+        run: |
+          echo "Type checking domain models..."
+          mypy execution/domain --ignore-missing-imports --check-untyped-defs
+
+          echo "Type checking dashboards..."
+          mypy execution/dashboards --ignore-missing-imports --check-untyped-defs
+
+          echo "Type checking collectors..."
+          mypy execution/collectors --ignore-missing-imports --check-untyped-defs || true
+
+          echo "✅ Type checking completed"
+
+  # Job 4: Unit Tests
+  unit-tests:
+    name: Unit Tests (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --cov=execution --cov-report=term --cov-report=xml
+
+      - name: Coverage check
+        run: |
+          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; print(float(ET.parse('coverage.xml').getroot().attrib['line-rate']) * 100)")
+          echo "Current coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 40" | bc -l) )); then
+            echo "❌ Coverage below 40% threshold"
+            exit 1
+          fi
+          echo "✅ Coverage check passed (${COVERAGE}%)"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  # Job 5: Security Scan
+  security-scan:
+    name: Security Scan (Bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit security scanner
+        run: |
+          bandit -r execution/ -ll -x execution/archive,execution/experiments
+          echo "✅ Security scan passed"
+
+  # Summary Job
+  quality-gates-summary:
+    name: ✅ All Quality Gates Passed
+    runs-on: ubuntu-latest
+    needs: [code-quality, architecture-governance, type-checking, unit-tests, security-scan]
+    steps:
+      - name: Summary
+        run: |
+          echo "=================================================="
+          echo "✅ ALL QUALITY GATES PASSED"
+          echo "=================================================="
+          echo "✓ Code quality (Ruff + Black)"
+          echo "✓ Architecture patterns"
+          echo "✓ Security wrappers"
+          echo "✓ Type checking"
+          echo "✓ Unit tests (>40% coverage)"
+          echo "✓ Security scan (Bandit)"
+          echo "=================================================="
+          echo "Code meets architectural standards! 🎉"

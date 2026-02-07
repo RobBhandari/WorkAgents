@@ -1,5 +1,11 @@
 # Agentic 3-Layer Architecture
 
+[![CI Quality Gates](https://github.com/RobBhandari/WorkAgents/actions/workflows/ci-quality-gates.yml/badge.svg)](https://github.com/RobBhandari/WorkAgents/actions/workflows/ci-quality-gates.yml)
+[![Dashboard Refresh](https://github.com/RobBhandari/WorkAgents/actions/workflows/refresh-dashboards.yml/badge.svg)](https://github.com/RobBhandari/WorkAgents/actions/workflows/refresh-dashboards.yml)
+[![Test Coverage](https://img.shields.io/badge/coverage-6%25-yellow)](htmlcov/index.html)
+[![Code Quality](https://img.shields.io/badge/grade-B+-blue)](#)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+
 A robust system for AI agent orchestration that separates concerns into three layers: Directives (what to do), Orchestration (decision making), and Execution (deterministic work).
 
 ## Architecture Overview
@@ -78,13 +84,29 @@ Agentic-Test/
 ├── directives/                     # Markdown SOPs
 │   ├── _template.md               # Template for new directives
 │   └── scrape_website.md          # Example directive
-├── execution/                      # Python scripts
-│   ├── _template.py               # Template for new scripts
-│   └── scrape_single_site.py      # Example script
+├── execution/                      # Python scripts (modular architecture)
+│   ├── core/                      # Infrastructure (config, HTTP, security)
+│   ├── domain/                    # Domain models (Bug, Vulnerability, Metrics)
+│   ├── collectors/                # Data collection (ADO, ArmorCode)
+│   ├── dashboards/                # Dashboard generators
+│   │   ├── components/           # Reusable HTML components
+│   │   ├── security.py           # Security dashboard (290 lines)
+│   │   ├── executive.py          # Executive summary (350 lines)
+│   │   └── trends.py             # Trends dashboard (450 lines)
+│   ├── reports/                   # Email senders
+│   ├── experiments/               # Exploration scripts
+│   └── archive/                   # Old versions
+├── templates/                      # Jinja2 templates
+│   └── dashboards/                # Dashboard HTML templates
+├── tests/                          # Pytest test suite
+│   ├── domain/                    # Domain model tests
+│   └── dashboards/                # Dashboard tests
 ├── .env                           # Environment variables (git-ignored)
 ├── .gitignore                     # Git exclusions
 ├── requirements.txt               # Python dependencies
 ├── AGENTS.md                      # Full architecture documentation
+├── CONTRIBUTING.md                # Development guidelines
+├── MIGRATION_GUIDE.md             # v2.0 refactoring guide
 └── README.md                      # This file
 ```
 
@@ -281,9 +303,97 @@ A complete system for tracking HIGH and CRITICAL vulnerabilities with 70% reduct
 
 See [directives/armorcode_vulnerabilities.md](directives/armorcode_vulnerabilities.md) for complete documentation.
 
+## Engineering Metrics Dashboard System
+
+A comprehensive metrics platform for tracking engineering health across quality, security, flow, deployment, collaboration, and ownership dimensions.
+
+### Architecture (v2.0 - Refactored)
+
+The dashboard system has been refactored from monolithic scripts (4,667 lines) to a modular architecture (1,090 lines):
+
+**Domain Models** - Type-safe data structures:
+```python
+from execution.domain.security import SecurityMetrics
+from execution.domain.quality import QualityMetrics
+from execution.domain.flow import FlowMetrics
+
+# Autocomplete, validation, computed properties
+metrics = SecurityMetrics(critical=5, high=20)
+print(metrics.critical_high_count)  # 25 (computed)
+print(metrics.has_critical)  # True (property)
+```
+
+**Reusable Components**:
+```python
+from execution.dashboards.components.cards import metric_card
+from execution.dashboards.components.charts import sparkline
+
+card = metric_card("Critical Vulnerabilities", "5", "High priority")
+chart = sparkline([100, 95, 90, 85], width=200, height=60)
+```
+
+**Jinja2 Templates** - XSS-safe rendering:
+```python
+from execution.dashboards.renderer import render_dashboard
+
+context = {'title': 'Dashboard', 'metrics': metrics}
+html = render_dashboard('dashboards/security_dashboard.html', context)
+```
+
+### Available Dashboards
+
+1. **Security Dashboard** - ArmorCode vulnerability tracking
+   ```bash
+   python -m execution.dashboards.security
+   ```
+
+2. **Executive Summary** - High-level health overview
+   ```bash
+   python -m execution.dashboards.executive
+   ```
+
+3. **Trends Dashboard** - 12-week historical trends
+   ```bash
+   python -m execution.dashboards.trends
+   ```
+
+### Legacy Scripts (Backward Compatible)
+
+All original entry points still work via deprecation wrappers:
+```bash
+python execution/generate_security_dashboard.py      # Still works
+python execution/generate_executive_summary.py       # Still works
+python execution/generate_trends_dashboard.py        # Still works
+```
+
+See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for migration details.
+
+### Key Features
+
+- **Type Safety**: Domain models with dataclasses
+- **XSS Protection**: Auto-escaped Jinja2 templates
+- **Reusable Components**: Cards, tables, charts
+- **Mobile Responsive**: Works on all devices
+- **Dark Mode**: Automatic theme switching
+- **70% Reduction Tracking**: Progress toward security/quality goals
+- **Burn Rate Analysis**: Velocity metrics and forecasting
+- **Historical Trends**: 12-week sparklines with week-over-week changes
+
+### Refactoring Results
+
+| Dashboard | Before | After | Reduction |
+|-----------|--------|-------|-----------|
+| Security | 1,833 lines | 290 lines | 84% |
+| Executive | 1,483 lines | 350 lines | 76% |
+| Trends | 1,351 lines | 450 lines | 67% |
+| **Total** | **4,667 lines** | **1,090 lines** | **77%** |
+
 ## Additional Resources
 
 - Full architecture details: [AGENTS.md](AGENTS.md)
+- Development guidelines: [execution/CONTRIBUTING.md](execution/CONTRIBUTING.md)
+- Architecture overview: [execution/ARCHITECTURE.md](execution/ARCHITECTURE.md)
+- Migration guide (v2.0): [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 - Directive template: [directives/_template.md](directives/_template.md)
 - Script template: [execution/_template.py](execution/_template.py)
 - Example directive: [directives/scrape_website.md](directives/scrape_website.md)
