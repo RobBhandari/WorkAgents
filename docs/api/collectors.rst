@@ -6,18 +6,18 @@ Collectors fetch data from external sources and transform it into domain models.
 Azure DevOps Collectors
 ------------------------
 
-Quality Metrics Collector
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Quality Metrics Loader
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: execution.collectors.ado_quality_metrics
+.. automodule:: execution.collectors.ado_quality_loader
    :members:
    :undoc-members:
    :show-inheritance:
 
-Flow Metrics Collector
-~~~~~~~~~~~~~~~~~~~~~~~
+Flow Metrics Loader
+~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: execution.collectors.ado_flow_metrics
+.. automodule:: execution.collectors.ado_flow_loader
    :members:
    :undoc-members:
    :show-inheritance:
