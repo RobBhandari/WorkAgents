@@ -4,9 +4,11 @@ Tests for security domain models
 Tests Vulnerability and SecurityMetrics classes.
 """
 
-import pytest
 from datetime import datetime
-from execution.domain.security import Vulnerability, SecurityMetrics
+
+import pytest
+
+from execution.domain.security import SecurityMetrics, Vulnerability
 
 
 class TestVulnerability:

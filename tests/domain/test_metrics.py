@@ -2,8 +2,10 @@
 Tests for base metrics domain models
 """
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
 from execution.domain.metrics import MetricSnapshot, TrendData
 
 

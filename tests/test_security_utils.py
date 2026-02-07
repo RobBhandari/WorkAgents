@@ -8,19 +8,20 @@ Run with:
     pytest tests/test_security_utils.py -v
 """
 
-import pytest
 import os
 import sys
+
+import pytest
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from execution.security_utils import (
-    WIQLValidator,
+    CommandValidator,
     HTMLSanitizer,
     PathValidator,
-    CommandValidator,
     ValidationError,
+    WIQLValidator,
     safe_html,
     safe_wiql,
 )

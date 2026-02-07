@@ -213,25 +213,31 @@ def send_slack_notification(message: str, severity: str = "info", context: dict[
     }
 
     # Build Slack message payload
+    fields = [
+        {"title": "Environment", "value": _observability_config.environment, "short": True},
+        {"title": "Timestamp", "value": datetime.now().isoformat(), "short": True},
+    ]
+
+    # Add context fields
+    if context:
+        for key, value in context.items():
+            fields.append({"title": key, "value": str(value), "short": True})
+
     payload = {
         "text": f"*{severity.upper()}*: {message}",
         "attachments": [
             {
                 "color": colors.get(severity, "#808080"),
-                "fields": [
-                    {"title": "Environment", "value": _observability_config.environment, "short": True},
-                    {"title": "Timestamp", "value": datetime.now().isoformat(), "short": True},
-                ],
+                "fields": fields,
             }
         ],
     }
 
-    # Add context fields
-    if context:
-        for key, value in context.items():
-            payload["attachments"][0]["fields"].append({"title": key, "value": str(value), "short": True})
-
     # Send to Slack
+    if not _observability_config.slack_webhook_url:
+        logger.error("Slack webhook URL not configured")
+        return False
+
     try:
         import requests
 

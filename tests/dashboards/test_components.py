@@ -5,9 +5,10 @@ Tests card, table, and chart component generators.
 """
 
 import pytest
-from execution.dashboards.components.cards import metric_card, summary_card, rag_status_badge
-from execution.dashboards.components.tables import data_table, summary_table
+
+from execution.dashboards.components.cards import metric_card, rag_status_badge, summary_card
 from execution.dashboards.components.charts import sparkline, trend_indicator
+from execution.dashboards.components.tables import data_table, summary_table
 
 
 class TestCards:

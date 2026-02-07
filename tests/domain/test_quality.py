@@ -4,8 +4,10 @@ Tests for quality domain models
 Tests Bug and QualityMetrics classes.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from execution.domain.quality import Bug, QualityMetrics
 
 

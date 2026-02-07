@@ -4,10 +4,11 @@ Pytest configuration and shared fixtures
 Provides common test fixtures for domain models, components, and integrations.
 """
 
-import pytest
-from pathlib import Path
 import sys
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 # Add execution directory to path for imports
 execution_dir = Path(__file__).parent.parent / "execution"
@@ -130,8 +131,9 @@ def sample_flow_metrics(sample_timestamp):
 @pytest.fixture
 def sample_trend_data(sample_timestamp):
     """Provide sample TrendData"""
-    from domain.metrics import TrendData
     from datetime import timedelta
+
+    from domain.metrics import TrendData
 
     return TrendData(
         values=[50.0, 45.0, 42.0, 38.0],

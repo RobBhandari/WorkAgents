@@ -2,8 +2,10 @@
 Tests for flow domain models
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from execution.domain.flow import FlowMetrics
 
 
