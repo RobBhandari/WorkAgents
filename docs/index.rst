@@ -115,6 +115,7 @@ Documentation
 
    guides/getting-started
    guides/configuration
+   guides/logging
    guides/development
 
 .. toctree::

@@ -12,12 +12,17 @@ Usage:
     metrics_by_product = loader.load_latest_metrics()
 
     for product_name, metrics in metrics_by_product.items():
-        print(f"{product_name}: {metrics.critical_high_count} critical/high")
+        logger.info("Product metrics", extra={"product": product_name, "critical_high": metrics.critical_high_count})
 """
 
 import json
 from datetime import datetime
 from pathlib import Path
+
+# Structured logging
+from execution.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 # Import domain models
 try:
@@ -88,8 +93,10 @@ class ArmorCodeLoader:
         metrics = latest_week.get("metrics", {})
         product_breakdown = metrics.get("product_breakdown", {})
 
-        print(f"[INFO] Loading security data for week ending: {week_ending}")
-        print(f"[INFO] Found {len(product_breakdown)} products")
+        logger.info(
+            "Loading security data",
+            extra={"week_ending": week_ending, "product_count": len(product_breakdown)},
+        )
 
         # Convert to SecurityMetrics domain models
         metrics_by_product = {}
@@ -165,46 +172,57 @@ def load_security_metrics(history_file: Path | None = None) -> dict[str, Securit
 
 # Self-test when run directly
 if __name__ == "__main__":
-    print("ArmorCode Loader - Self Test")
-    print("=" * 60)
+    from execution.core.logging_config import setup_logging
+
+    # Setup human-readable logging for self-test
+    setup_logging(level="INFO", json_output=False)
+
+    logger.info("ArmorCode Loader - Self Test")
+    logger.info("=" * 60)
 
     try:
         loader = ArmorCodeLoader()
-        print(f"\n[TEST] Loading from: {loader.history_file}")
+        logger.info("Loading from history file", extra={"file_path": str(loader.history_file)})
 
         # Test loading latest metrics
         metrics = loader.load_latest_metrics()
-        print(f"[OK] Loaded {len(metrics)} products")
+        logger.info("Metrics loaded", extra={"product_count": len(metrics)})
 
         # Show summary
         total_vulns = sum(m.total_vulnerabilities for m in metrics.values())
         total_critical = sum(m.critical for m in metrics.values())
         total_high = sum(m.high for m in metrics.values())
 
-        print("\n[SUMMARY]")
-        print(f"  Total vulnerabilities: {total_vulns}")
-        print(f"  Critical: {total_critical}")
-        print(f"  High: {total_high}")
-        print(f"  Critical+High: {total_critical + total_high}")
+        logger.info(
+            "Security metrics summary",
+            extra={
+                "total_vulnerabilities": total_vulns,
+                "critical": total_critical,
+                "high": total_high,
+                "critical_high": total_critical + total_high,
+            },
+        )
 
         # Show products with critical vulnerabilities
         critical_products = [name for name, m in metrics.items() if m.has_critical]
         if critical_products:
-            print("\n[ALERT] Products with critical vulnerabilities:")
-            for product in critical_products:
-                m = metrics[product]
-                print(f"  - {product}: {m.critical} critical, {m.high} high")
+            logger.warning(
+                f"Found {len(critical_products)} products with critical vulnerabilities",
+                extra={
+                    "critical_product_count": len(critical_products),
+                    "critical_products": [
+                        {"name": product, "critical": metrics[product].critical, "high": metrics[product].high}
+                        for product in critical_products
+                    ],
+                },
+            )
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] ArmorCode loader working correctly!")
+        logger.info("=" * 60)
+        logger.info("ArmorCode loader working correctly!")
 
     except FileNotFoundError as e:
-        print(f"\n[ERROR] {e}")
-        print("\n[INFO] Run this first:")
-        print("  python execution/armorcode_weekly_query.py")
+        logger.error("Security history file not found", extra={"error": str(e)})
+        logger.info("Run this first: python execution/armorcode_weekly_query.py")
 
     except Exception as e:
-        print(f"\n[ERROR] Unexpected error: {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Unexpected error during self-test", exc_info=True, extra={"error": str(e)})
