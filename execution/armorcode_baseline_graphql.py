@@ -13,6 +13,7 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 import requests
+from http_client import get, post, put, delete, patch
 
 # Load environment variables
 load_dotenv()
@@ -58,7 +59,7 @@ def get_product_ids(api_key, base_url, product_names):
         """
 
         try:
-            response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+            response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
 
             if response.status_code == 200:
                 data = response.json()
@@ -133,7 +134,7 @@ def fetch_findings_for_product_graphql(api_key, base_url, product_id, product_na
         """
 
         try:
-            response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+            response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
 
             if response.status_code == 200:
                 data = response.json()

@@ -23,6 +23,7 @@ from pathlib import Path
 
 # Load environment variables
 from dotenv import load_dotenv
+from http_client import get, post, put, delete, patch
 load_dotenv()
 
 
@@ -72,7 +73,7 @@ def get_product_names_to_ids(product_names: List[str]) -> Dict[str, str]:
         """
 
         try:
-            response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+            response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
             if response.status_code == 200:
                 data = response.json()
                 if 'data' in data and 'products' in data['data']:
@@ -186,7 +187,7 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: List[str])
                 }}
                 """
 
-                response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+                response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
                 response.raise_for_status()
 
                 data = response.json()
@@ -278,7 +279,7 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: List[str], 
                 }}
                 """
 
-                response = requests.post(graphql_url, headers=headers, json={'query': query}, timeout=60)
+                response = post(graphql_url, headers=headers, json={'query': query}, timeout=60)
                 response.raise_for_status()
 
                 data = response.json()

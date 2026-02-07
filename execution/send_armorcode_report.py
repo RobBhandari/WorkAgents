@@ -19,6 +19,7 @@ import json
 import base64
 from datetime import datetime
 from dotenv import load_dotenv
+from http_client import get, post, put, delete, patch
 
 # Load environment variables
 load_dotenv()
@@ -94,7 +95,7 @@ def send_email_graph(tenant_id: str, client_id: str, client_secret: str,
             'scope': 'https://graph.microsoft.com/.default'
         }
 
-        token_response = requests.post(token_url, data=token_data, timeout=30)
+        token_response = post(token_url, data=token_data, timeout=30)
         token_response.raise_for_status()
         access_token = token_response.json()['access_token']
 
@@ -142,7 +143,7 @@ def send_email_graph(tenant_id: str, client_id: str, client_secret: str,
 
         logger.info(f"Sending email to {len(recipients)} recipient(s)")
 
-        send_response = requests.post(send_url, headers=headers, json=message, timeout=30)
+        send_response = post(send_url, headers=headers, json=message, timeout=30)
         send_response.raise_for_status()
 
         logger.info("Email sent successfully")

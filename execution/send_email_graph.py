@@ -17,6 +17,7 @@ from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
+from http_client import get, post, put, delete, patch
 
 # Load environment variables
 load_dotenv()
@@ -64,7 +65,7 @@ def get_access_token(tenant_id: str, client_id: str, client_secret: str) -> str:
     }
 
     try:
-        response = requests.post(token_url, data=data, timeout=30)
+        response = post(token_url, data=data, timeout=30)
         response.raise_for_status()
 
         token_data = response.json()
@@ -190,7 +191,7 @@ def send_email_graph(
         try:
             logger.info(f"Sending email via Graph API (attempt {attempt + 1})...")
 
-            response = requests.post(
+            response = post(
                 send_url,
                 headers=headers,
                 json=message,

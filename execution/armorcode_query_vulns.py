@@ -17,6 +17,7 @@ import logging
 import json
 from datetime import datetime
 from dotenv import load_dotenv
+from http_client import get, post, put, delete, patch
 
 # Load environment variables from .env file
 load_dotenv()
@@ -156,7 +157,7 @@ def query_current_vulnerabilities(api_key: str, base_url: str, environment: str,
                 url = f"{base_url.rstrip('/')}{endpoint}"
                 logger.info(f"Trying endpoint: {url}")
 
-                response = requests.get(url, headers=headers, params=params, timeout=60)
+                response = get(url, headers=headers, params=params, timeout=60)
 
                 if response.status_code == 200:
                     vulnerabilities = response.json()
