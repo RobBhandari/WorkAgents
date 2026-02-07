@@ -89,7 +89,8 @@ def render_dashboard(template_name: str, context: dict[str, Any], inject_default
     else:
         final_context = context
 
-    return template.render(**final_context)
+    rendered: str = template.render(**final_context)
+    return rendered
 
 
 # Custom Jinja2 filters
