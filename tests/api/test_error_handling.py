@@ -27,6 +27,7 @@ def auth():
 # 404 Not Found Tests
 # ============================================================
 
+
 class TestNotFoundErrors:
     """Tests for 404 Not Found responses."""
 
@@ -37,10 +38,7 @@ class TestNotFoundErrors:
 
     def test_nonexistent_product_returns_404(self, client, auth):
         """Request for non-existent product should return 404."""
-        response = client.get(
-            "/api/v1/metrics/security/product/NonExistentProduct123",
-            auth=auth
-        )
+        response = client.get("/api/v1/metrics/security/product/NonExistentProduct123", auth=auth)
 
         # Should be 404 unless product actually exists
         # (might also be 404 for data not found)
@@ -67,6 +65,7 @@ class TestNotFoundErrors:
 # 500 Internal Server Error Tests
 # ============================================================
 
+
 class TestInternalServerErrors:
     """Tests for 500 Internal Server Error responses."""
 
@@ -92,35 +91,27 @@ class TestInternalServerErrors:
 # Validation Error Tests (422)
 # ============================================================
 
+
 class TestValidationErrors:
     """Tests for 422 Unprocessable Entity (validation errors)."""
 
     def test_invalid_weeks_parameter_type(self, client, auth):
         """Invalid weeks parameter type should return validation error."""
-        response = client.get(
-            "/api/v1/metrics/quality/history?weeks=invalid",
-            auth=auth
-        )
+        response = client.get("/api/v1/metrics/quality/history?weeks=invalid", auth=auth)
 
         # FastAPI should return 422 for type validation errors
         assert response.status_code == 422
 
     def test_negative_weeks_parameter(self, client, auth):
         """Negative weeks parameter should be handled."""
-        response = client.get(
-            "/api/v1/metrics/quality/history?weeks=-5",
-            auth=auth
-        )
+        response = client.get("/api/v1/metrics/quality/history?weeks=-5", auth=auth)
 
         # Could be 422 (validation error) or 200 (handled gracefully)
         assert response.status_code in [200, 404, 422]
 
     def test_validation_error_response_structure(self, client, auth):
         """Validation errors should have proper structure."""
-        response = client.get(
-            "/api/v1/metrics/quality/history?weeks=invalid",
-            auth=auth
-        )
+        response = client.get("/api/v1/metrics/quality/history?weeks=invalid", auth=auth)
 
         if response.status_code == 422:
             data = response.json()
@@ -130,6 +121,7 @@ class TestValidationErrors:
 # ============================================================
 # Error Message Format Tests
 # ============================================================
+
 
 class TestErrorMessageFormats:
     """Tests for consistent error message formatting."""
@@ -178,6 +170,7 @@ class TestErrorMessageFormats:
 # Data Not Found Tests
 # ============================================================
 
+
 class TestDataNotFound:
     """Tests for cases where data files don't exist."""
 
@@ -188,6 +181,7 @@ class TestDataNotFound:
 
         def mock_path_constructor(path_str):
             from pathlib import Path
+
             if "quality_history" in str(path_str):
                 return fake_path
             return Path(path_str)
@@ -209,6 +203,7 @@ class TestDataNotFound:
 
         def mock_path_constructor(path_str):
             from pathlib import Path
+
             if "security_history" in str(path_str):
                 return fake_path
             return Path(path_str)
@@ -236,6 +231,7 @@ class TestDataNotFound:
 # Method Not Allowed Tests (405)
 # ============================================================
 
+
 class TestMethodNotAllowed:
     """Tests for 405 Method Not Allowed responses."""
 
@@ -262,6 +258,7 @@ class TestMethodNotAllowed:
 # Malformed Request Tests
 # ============================================================
 
+
 class TestMalformedRequests:
     """Tests for handling malformed requests."""
 
@@ -269,10 +266,7 @@ class TestMalformedRequests:
         """Invalid JSON in request body should be handled."""
         # Most endpoints are GET, but test POST if it exists
         response = client.post(
-            "/api/v1/nonexistent",
-            auth=auth,
-            data="invalid json{{{",
-            headers={"Content-Type": "application/json"}
+            "/api/v1/nonexistent", auth=auth, data="invalid json{{{", headers={"Content-Type": "application/json"}
         )
 
         # Should return 404 (endpoint doesn't exist) or 422 (invalid JSON)
@@ -291,6 +285,7 @@ class TestMalformedRequests:
 # ============================================================
 # CORS and Headers Tests
 # ============================================================
+
 
 class TestCorsAndHeaders:
     """Tests for CORS and response headers."""
@@ -313,6 +308,7 @@ class TestCorsAndHeaders:
 # ============================================================
 # Error Recovery Tests
 # ============================================================
+
 
 class TestErrorRecovery:
     """Tests for recovery from error conditions."""
@@ -337,6 +333,7 @@ class TestErrorRecovery:
 # ============================================================
 # Rate Limiting Tests (if implemented)
 # ============================================================
+
 
 class TestRateLimiting:
     """Tests for rate limiting (if implemented)."""

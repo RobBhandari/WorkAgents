@@ -23,6 +23,7 @@ def client():
 # Basic Authentication Tests
 # ============================================================
 
+
 class TestBasicAuthentication:
     """Tests for HTTP Basic authentication."""
 
@@ -33,47 +34,32 @@ class TestBasicAuthentication:
 
     def test_valid_credentials_accepted(self, client):
         """Valid credentials should be accepted."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("admin", "changeme")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("admin", "changeme"))
 
         # Either 200 (success) or 404 (data not found, but auth worked)
         assert response.status_code in [200, 404]
 
     def test_invalid_username_rejected(self, client):
         """Invalid username should be rejected."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("wrong_user", "changeme")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("wrong_user", "changeme"))
 
         assert response.status_code == 401
 
     def test_invalid_password_rejected(self, client):
         """Invalid password should be rejected."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("admin", "wrong_password")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("admin", "wrong_password"))
 
         assert response.status_code == 401
 
     def test_empty_credentials_rejected(self, client):
         """Empty credentials should be rejected."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("", "")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("", ""))
 
         assert response.status_code == 401
 
     def test_malformed_auth_header(self, client):
         """Malformed authorization header should be rejected."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            headers={"Authorization": "Basic invalid_base64"}
-        )
+        response = client.get("/api/v1/metrics/quality/latest", headers={"Authorization": "Basic invalid_base64"})
 
         # Should return 401 or 422 (malformed request)
         assert response.status_code in [401, 422]
@@ -82,6 +68,7 @@ class TestBasicAuthentication:
 # ============================================================
 # Authentication Response Tests
 # ============================================================
+
 
 class TestAuthenticationResponses:
     """Tests for authentication error responses."""
@@ -109,6 +96,7 @@ class TestAuthenticationResponses:
 # Authentication Across Endpoints Tests
 # ============================================================
 
+
 class TestAuthenticationAcrossEndpoints:
     """Tests that all protected endpoints require authentication."""
 
@@ -120,7 +108,7 @@ class TestAuthenticationAcrossEndpoints:
             "/api/v1/metrics/security/latest",
             "/api/v1/metrics/security/product/test",
             "/api/v1/metrics/flow/latest",
-            "/api/v1/dashboards/list"
+            "/api/v1/dashboards/list",
         ]
 
         for endpoint in protected_endpoints:
@@ -136,6 +124,7 @@ class TestAuthenticationAcrossEndpoints:
 # ============================================================
 # Credential Timing Attack Prevention Tests
 # ============================================================
+
 
 class TestCredentialTimingSafety:
     """Tests for timing attack prevention in credential comparison."""
@@ -167,33 +156,25 @@ class TestCredentialTimingSafety:
 # Multiple Authentication Attempts Tests
 # ============================================================
 
+
 class TestMultipleAuthenticationAttempts:
     """Tests for handling multiple authentication attempts."""
 
     def test_multiple_failed_attempts_still_return_401(self, client):
         """Multiple failed attempts should consistently return 401."""
         for _ in range(5):
-            response = client.get(
-                "/api/v1/metrics/quality/latest",
-                auth=("wrong_user", "wrong_password")
-            )
+            response = client.get("/api/v1/metrics/quality/latest", auth=("wrong_user", "wrong_password"))
 
             assert response.status_code == 401
 
     def test_failed_then_successful_auth(self, client):
         """Failed auth followed by successful auth should work."""
         # First attempt fails
-        response1 = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("wrong_user", "wrong_password")
-        )
+        response1 = client.get("/api/v1/metrics/quality/latest", auth=("wrong_user", "wrong_password"))
         assert response1.status_code == 401
 
         # Second attempt succeeds
-        response2 = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("admin", "changeme")
-        )
+        response2 = client.get("/api/v1/metrics/quality/latest", auth=("admin", "changeme"))
         assert response2.status_code in [200, 404]  # 404 if data doesn't exist
 
 
@@ -201,25 +182,20 @@ class TestMultipleAuthenticationAttempts:
 # Case Sensitivity Tests
 # ============================================================
 
+
 class TestAuthenticationCaseSensitivity:
     """Tests for case sensitivity in credentials."""
 
     def test_username_case_sensitive(self, client):
         """Username should be case-sensitive."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("ADMIN", "changeme")  # Uppercase username
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("ADMIN", "changeme"))  # Uppercase username
 
         # Should fail if case-sensitive (expected behavior)
         assert response.status_code == 401
 
     def test_password_case_sensitive(self, client):
         """Password should be case-sensitive."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("admin", "CHANGEME")  # Uppercase password
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("admin", "CHANGEME"))  # Uppercase password
 
         # Should fail if case-sensitive (expected behavior)
         assert response.status_code == 401
@@ -229,6 +205,7 @@ class TestAuthenticationCaseSensitivity:
 # Special Characters in Credentials Tests
 # ============================================================
 
+
 class TestSpecialCharactersInCredentials:
     """Tests for handling special characters in credentials."""
 
@@ -236,20 +213,14 @@ class TestSpecialCharactersInCredentials:
         """Special characters in password should be handled correctly."""
         # This tests that the auth encoding/decoding works properly
         # Even though these aren't the real credentials, the auth mechanism should handle them
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("admin", "p@ssw0rd!@#$%")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("admin", "p@ssw0rd!@#$%"))
 
         # Will fail because wrong password, but should not crash
         assert response.status_code == 401
 
     def test_colon_in_password(self, client):
         """Colon in password should be handled correctly (tricky for Basic auth)."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("admin", "pass:word")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("admin", "pass:word"))
 
         # Will fail because wrong password, but should not crash
         assert response.status_code == 401
@@ -259,16 +230,14 @@ class TestSpecialCharactersInCredentials:
 # Authentication Logging Tests
 # ============================================================
 
+
 class TestAuthenticationLogging:
     """Tests that authentication attempts are logged properly."""
 
     def test_successful_auth_logs_username(self, client, caplog):
         """Successful authentication should log username."""
         # Note: This test may not work if logging isn't set up in test environment
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("admin", "changeme")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("admin", "changeme"))
 
         # If successful (200 or 404 for missing data)
         if response.status_code in [200, 404]:
@@ -278,10 +247,7 @@ class TestAuthenticationLogging:
 
     def test_failed_auth_logs_attempt(self, client, caplog):
         """Failed authentication should log the attempt."""
-        response = client.get(
-            "/api/v1/metrics/quality/latest",
-            auth=("wrong_user", "wrong_password")
-        )
+        response = client.get("/api/v1/metrics/quality/latest", auth=("wrong_user", "wrong_password"))
 
         assert response.status_code == 401
         # Failed attempts should be logged for security monitoring

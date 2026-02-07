@@ -4,13 +4,12 @@ ADO Quality Metrics Loader
 Loads quality metrics from history file for API consumption.
 """
 
+import json
 from datetime import datetime
 from pathlib import Path
-import json
-from typing import Dict
 
-from execution.domain.quality import QualityMetrics
 from execution.core import get_logger
+from execution.domain.quality import QualityMetrics
 
 logger = get_logger(__name__)
 
@@ -43,7 +42,7 @@ class ADOQualityLoader:
             raise FileNotFoundError(f"Quality history not found: {self.history_file}")
 
         try:
-            with open(self.history_file, 'r', encoding='utf-8') as f:
+            with open(self.history_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             if not data.get("weeks"):
@@ -55,10 +54,7 @@ class ADOQualityLoader:
 
             logger.info(
                 "Loaded latest quality metrics",
-                extra={
-                    "week_ending": latest_week.get("week_ending"),
-                    "open_bugs": metrics_data.get("open_bugs", 0)
-                }
+                extra={"week_ending": latest_week.get("week_ending"), "open_bugs": metrics_data.get("open_bugs", 0)},
             )
 
             return QualityMetrics(
@@ -66,8 +62,8 @@ class ADOQualityLoader:
                 project=data.get("project", "Unknown"),
                 open_bugs=metrics_data.get("open_bugs", 0),
                 closed_this_week=metrics_data.get("closed_this_week", 0),
+                created_this_week=metrics_data.get("created_this_week", 0),
                 net_change=metrics_data.get("net_change", 0),
-                closure_rate=metrics_data.get("closure_rate", 0.0),
                 p1_count=metrics_data.get("p1_count", 0),
                 p2_count=metrics_data.get("p2_count", 0),
             )
@@ -103,7 +99,7 @@ if __name__ == "__main__":
                 "closed_this_week": metrics.closed_this_week,
                 "net_change": metrics.net_change,
                 "closure_rate": metrics.closure_rate,
-            }
+            },
         )
 
         logger.info("=" * 60)

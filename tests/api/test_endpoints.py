@@ -44,8 +44,8 @@ def mock_quality_history(tmp_path):
                     "net_change": -5,
                     "closure_rate": 75.0,
                     "p1_count": 5,
-                    "p2_count": 20
-                }
+                    "p2_count": 20,
+                },
             },
             {
                 "week_ending": "2026-02-07T00:00:00",
@@ -55,13 +55,13 @@ def mock_quality_history(tmp_path):
                     "net_change": -10,
                     "closure_rate": 80.0,
                     "p1_count": 4,
-                    "p2_count": 18
-                }
-            }
-        ]
+                    "p2_count": 18,
+                },
+            },
+        ],
     }
 
-    with open(quality_file, 'w', encoding='utf-8') as f:
+    with open(quality_file, "w", encoding="utf-8") as f:
         json.dump(quality_data, f)
 
     return observatory_dir
@@ -85,14 +85,14 @@ def mock_security_history(tmp_path):
                     "product_breakdown": {
                         "Product A": {"total": 145, "critical": 3, "high": 18},
                         "Product B": {"total": 98, "critical": 0, "high": 12},
-                        "Product C": {"total": 234, "critical": 5, "high": 31}
-                    }
-                }
+                        "Product C": {"total": 234, "critical": 5, "high": 31},
+                    },
+                },
             }
         ]
     }
 
-    with open(security_file, 'w', encoding='utf-8') as f:
+    with open(security_file, "w", encoding="utf-8") as f:
         json.dump(security_data, f)
 
     return observatory_dir
@@ -117,13 +117,13 @@ def mock_flow_history(tmp_path):
                     "lead_time_p50": 5.8,
                     "lead_time_p85": 12.4,
                     "lead_time_p95": 22.1,
-                    "work_items_completed": 145
-                }
+                    "work_items_completed": 145,
+                },
             }
-        ]
+        ],
     }
 
-    with open(flow_file, 'w', encoding='utf-8') as f:
+    with open(flow_file, "w", encoding="utf-8") as f:
         json.dump(flow_data, f)
 
     return observatory_dir
@@ -132,6 +132,7 @@ def mock_flow_history(tmp_path):
 # ============================================================
 # Health Check Tests
 # ============================================================
+
 
 class TestHealthEndpoint:
     """Tests for /health endpoint."""
@@ -179,6 +180,7 @@ class TestHealthEndpoint:
 # Quality Metrics Tests
 # ============================================================
 
+
 class TestQualityMetricsEndpoints:
     """Tests for /api/v1/metrics/quality/* endpoints."""
 
@@ -192,7 +194,7 @@ class TestQualityMetricsEndpoints:
         # Mock the history file path
         monkeypatch.setattr(
             "execution.collectors.ado_quality_loader.Path",
-            lambda x: mock_quality_history / "quality_history.json" if "quality_history" in x else Path(x)
+            lambda x: mock_quality_history / "quality_history.json" if "quality_history" in x else Path(x),
         )
 
         response = client.get("/api/v1/metrics/quality/latest", auth=auth)
@@ -257,6 +259,7 @@ class TestQualityMetricsEndpoints:
 # Security Metrics Tests
 # ============================================================
 
+
 class TestSecurityMetricsEndpoints:
     """Tests for /api/v1/metrics/security/* endpoints."""
 
@@ -313,6 +316,7 @@ class TestSecurityMetricsEndpoints:
 # Flow Metrics Tests
 # ============================================================
 
+
 class TestFlowMetricsEndpoints:
     """Tests for /api/v1/metrics/flow/* endpoints."""
 
@@ -354,6 +358,7 @@ class TestFlowMetricsEndpoints:
 # Dashboard Endpoints Tests
 # ============================================================
 
+
 class TestDashboardEndpoints:
     """Tests for /api/v1/dashboards/* endpoints."""
 
@@ -394,6 +399,7 @@ class TestDashboardEndpoints:
 # ============================================================
 # ML Predictions Tests
 # ============================================================
+
 
 class TestMLPredictionsEndpoints:
     """Tests for /api/v1/predictions/* endpoints."""
@@ -504,6 +510,7 @@ class TestMLPredictionsEndpoints:
 # Response Format Tests
 # ============================================================
 
+
 class TestResponseFormats:
     """Tests for response format consistency."""
 
@@ -514,7 +521,7 @@ class TestResponseFormats:
             "/api/v1/metrics/quality/latest",
             "/api/v1/metrics/security/latest",
             "/api/v1/metrics/flow/latest",
-            "/api/v1/dashboards/list"
+            "/api/v1/dashboards/list",
         ]
 
         for endpoint in endpoints:

@@ -81,7 +81,9 @@ class AsyncArmorCodeCollector:
         """
 
         try:
-            response = await client.post(self.graphql_url, headers=self._get_headers(), json={"query": query}, timeout=60)
+            response = await client.post(
+                self.graphql_url, headers=self._get_headers(), json={"query": query}, timeout=60
+            )
             response.raise_for_status()
             return response.json()
         except Exception as e:
@@ -179,7 +181,9 @@ class AsyncArmorCodeCollector:
         """
 
         try:
-            response = await client.post(self.graphql_url, headers=self._get_headers(), json={"query": query}, timeout=60)
+            response = await client.post(
+                self.graphql_url, headers=self._get_headers(), json={"query": query}, timeout=60
+            )
             data = response.json()
 
             if "data" in data and "products" in data["data"]:
@@ -206,7 +210,9 @@ class AsyncArmorCodeCollector:
                         }}
                         """
                         tasks.append(
-                            client.post(self.graphql_url, headers=self._get_headers(), json={"query": query_page}, timeout=60)
+                            client.post(
+                                self.graphql_url, headers=self._get_headers(), json={"query": query_page}, timeout=60
+                            )
                         )
 
                     results = await asyncio.gather(*tasks, return_exceptions=True)

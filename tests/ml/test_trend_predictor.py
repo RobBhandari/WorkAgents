@@ -35,21 +35,21 @@ def mock_quality_history_ml(tmp_path):
                         "project_key": "Test_Project",
                         "project_name": "Test Project",
                         "open_bugs_count": 100 + (i * 2) + ((-1) ** i * 5),  # Trend + noise
-                        "total_bugs_analyzed": 50
+                        "total_bugs_analyzed": 50,
                     },
                     {
                         "project_key": "Another_Project",
                         "project_name": "Another Project",
                         "open_bugs_count": 50,
-                        "total_bugs_analyzed": 25
-                    }
-                ]
+                        "total_bugs_analyzed": 25,
+                    },
+                ],
             }
             for i in range(1, 11)
         ]
     }
 
-    with open(quality_file, 'w', encoding='utf-8') as f:
+    with open(quality_file, "w", encoding="utf-8") as f:
         json.dump(quality_data, f)
 
     return quality_file
@@ -76,15 +76,15 @@ def mock_quality_history_with_anomaly(tmp_path):
                         "project_key": "Spike_Project",
                         "project_name": "Spike Project",
                         "open_bugs_count": bug_counts[i - 1],
-                        "total_bugs_analyzed": 50
+                        "total_bugs_analyzed": 50,
                     }
-                ]
+                ],
             }
             for i in range(1, 11)
         ]
     }
 
-    with open(quality_file, 'w', encoding='utf-8') as f:
+    with open(quality_file, "w", encoding="utf-8") as f:
         json.dump(quality_data, f)
 
     return quality_file
@@ -109,10 +109,12 @@ class TestTrendPredictor:
 
     def test_predict_trends_success(self, mock_quality_history_ml, monkeypatch):
         """Test successful trend prediction."""
+
         # Monkeypatch to use test file
         def mock_init(self, history_file=None):
             self.history_file = mock_quality_history_ml
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)
@@ -138,10 +140,12 @@ class TestTrendPredictor:
 
     def test_predict_trends_with_anomaly_detection(self, mock_quality_history_with_anomaly, monkeypatch):
         """Test anomaly detection in historical data."""
+
         # Monkeypatch to use test file
         def mock_init(self, history_file=None):
             self.history_file = mock_quality_history_with_anomaly
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)
@@ -173,19 +177,18 @@ class TestTrendPredictor:
                 {
                     "week_date": "2026-01-01",
                     "week_number": 1,
-                    "projects": [
-                        {"project_key": "Minimal_Project", "open_bugs_count": 50}
-                    ]
+                    "projects": [{"project_key": "Minimal_Project", "open_bugs_count": 50}],
                 }
             ]
         }
 
-        with open(quality_file, 'w', encoding='utf-8') as f:
+        with open(quality_file, "w", encoding="utf-8") as f:
             json.dump(quality_data, f)
 
         def mock_init(self, history_file=None):
             self.history_file = quality_file
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)
@@ -197,9 +200,11 @@ class TestTrendPredictor:
 
     def test_predict_trends_project_not_found(self, mock_quality_history_ml, monkeypatch):
         """Test error when project doesn't exist."""
+
         def mock_init(self, history_file=None):
             self.history_file = mock_quality_history_ml
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)
@@ -229,20 +234,19 @@ class TestTrendPredictor:
                 {
                     "week_date": f"2026-01-{i:02d}",
                     "week_number": i,
-                    "projects": [
-                        {"project_key": "Increasing_Project", "open_bugs_count": 50 + (i * 10)}
-                    ]
+                    "projects": [{"project_key": "Increasing_Project", "open_bugs_count": 50 + (i * 10)}],
                 }
                 for i in range(1, 8)
             ]
         }
 
-        with open(quality_file, 'w', encoding='utf-8') as f:
+        with open(quality_file, "w", encoding="utf-8") as f:
             json.dump(quality_data, f)
 
         def mock_init(self, history_file=None):
             self.history_file = quality_file
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)
@@ -264,20 +268,19 @@ class TestTrendPredictor:
                 {
                     "week_date": f"2026-01-{i:02d}",
                     "week_number": i,
-                    "projects": [
-                        {"project_key": "Decreasing_Project", "open_bugs_count": 200 - (i * 10)}
-                    ]
+                    "projects": [{"project_key": "Decreasing_Project", "open_bugs_count": 200 - (i * 10)}],
                 }
                 for i in range(1, 8)
             ]
         }
 
-        with open(quality_file, 'w', encoding='utf-8') as f:
+        with open(quality_file, "w", encoding="utf-8") as f:
             json.dump(quality_data, f)
 
         def mock_init(self, history_file=None):
             self.history_file = quality_file
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)
@@ -299,20 +302,19 @@ class TestTrendPredictor:
                 {
                     "week_date": f"2026-01-{i:02d}",
                     "week_number": i,
-                    "projects": [
-                        {"project_key": "Stable_Project", "open_bugs_count": 100 + ((-1) ** i * 2)}
-                    ]
+                    "projects": [{"project_key": "Stable_Project", "open_bugs_count": 100 + ((-1) ** i * 2)}],
                 }
                 for i in range(1, 8)
             ]
         }
 
-        with open(quality_file, 'w', encoding='utf-8') as f:
+        with open(quality_file, "w", encoding="utf-8") as f:
             json.dump(quality_data, f)
 
         def mock_init(self, history_file=None):
             self.history_file = quality_file
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)
@@ -324,9 +326,11 @@ class TestTrendPredictor:
 
     def test_predictions_are_non_negative(self, mock_quality_history_ml, monkeypatch):
         """Test that predictions never return negative bug counts."""
+
         def mock_init(self, history_file=None):
             self.history_file = mock_quality_history_ml
             from sklearn.linear_model import LinearRegression
+
             self.model = LinearRegression()
 
         monkeypatch.setattr(TrendPredictor, "__init__", mock_init)

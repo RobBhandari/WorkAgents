@@ -121,7 +121,7 @@ class AsyncADOCollector:
 
         # Combine results
         work_items = {}
-        for work_type, result in zip(work_types, results):
+        for work_type, result in zip(work_types, results, strict=False):
             if isinstance(result, Exception):
                 logger.error(f"Failed to query {work_type} for {project_name}: {result}")
                 work_items[work_type] = {
@@ -186,7 +186,7 @@ class AsyncADOCollector:
         # Filter out exceptions
         metrics = []
         errors = 0
-        for project, result in zip(projects, results):
+        for project, result in zip(projects, results, strict=False):
             if isinstance(result, Exception):
                 logger.error(f"Failed to collect {collector_type} metrics for {project['project_name']}: {result}")
                 errors += 1
@@ -200,7 +200,7 @@ class AsyncADOCollector:
 
         return metrics
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Shutdown thread pool executor"""
         self.executor.shutdown(wait=True)
 

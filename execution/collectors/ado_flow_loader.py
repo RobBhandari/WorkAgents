@@ -4,12 +4,12 @@ ADO Flow Metrics Loader
 Loads flow metrics (cycle time, lead time) from history file for API consumption.
 """
 
+import json
 from datetime import datetime
 from pathlib import Path
-import json
 
-from execution.domain.flow import FlowMetrics
 from execution.core import get_logger
+from execution.domain.flow import FlowMetrics
 
 logger = get_logger(__name__)
 
@@ -42,7 +42,7 @@ class ADOFlowLoader:
             raise FileNotFoundError(f"Flow history not found: {self.history_file}")
 
         try:
-            with open(self.history_file, 'r', encoding='utf-8') as f:
+            with open(self.history_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             if not data.get("weeks"):
@@ -56,8 +56,8 @@ class ADOFlowLoader:
                 "Loaded latest flow metrics",
                 extra={
                     "week_ending": latest_week.get("week_ending"),
-                    "cycle_time_p50": metrics_data.get("cycle_time_p50")
-                }
+                    "cycle_time_p50": metrics_data.get("cycle_time_p50"),
+                },
             )
 
             return FlowMetrics(
@@ -69,7 +69,7 @@ class ADOFlowLoader:
                 lead_time_p50=metrics_data.get("lead_time_p50", 0.0),
                 lead_time_p85=metrics_data.get("lead_time_p85", 0.0),
                 lead_time_p95=metrics_data.get("lead_time_p95", 0.0),
-                work_items_completed=metrics_data.get("work_items_completed", 0),
+                throughput=metrics_data.get("throughput", 0),
             )
 
         except json.JSONDecodeError as e:
@@ -102,8 +102,8 @@ if __name__ == "__main__":
                 "cycle_time_p50": metrics.cycle_time_p50,
                 "cycle_time_p85": metrics.cycle_time_p85,
                 "lead_time_p50": metrics.lead_time_p50,
-                "work_items_completed": metrics.work_items_completed,
-            }
+                "throughput": metrics.throughput,
+            },
         )
 
         logger.info("=" * 60)
