@@ -24,6 +24,11 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import JSONResponse
 
 from execution.core import get_logger, setup_logging, setup_observability
+from execution.api.middleware import (
+    RateLimitMiddleware,
+    RequestIDMiddleware,
+    CacheControlMiddleware,
+)
 
 # Initialize logging and observability
 setup_logging(level="INFO", json_output=False)
@@ -40,11 +45,18 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="Engineering Metrics Platform API",
-        description="Programmatic access to quality, security, and flow metrics",
+        description="Programmatic access to quality, security, and flow metrics with ML predictions",
         version="2.0.0",
         docs_url="/docs",
         redoc_url="/redoc",
     )
+
+    # Add middleware (order matters - last added is executed first)
+    app.add_middleware(CacheControlMiddleware)      # Cache headers (innermost)
+    app.add_middleware(RequestIDMiddleware)          # Request tracking
+    app.add_middleware(RateLimitMiddleware,          # Rate limiting (outermost)
+                       requests_per_minute=60,
+                       requests_per_hour=1000)
 
     @app.on_event("startup")
     async def startup_event():
@@ -387,6 +399,96 @@ def create_app() -> FastAPI:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to load metrics: {str(e)}"
+            )
+
+    # ============================================================
+    # ML Predictions Endpoints
+    # ============================================================
+
+    @app.get("/api/v1/predictions/quality/{project_key}", tags=["ML Predictions"])
+    async def predict_quality_trends(
+        project_key: str,
+        weeks_ahead: int = 4,
+        username: str = Depends(verify_credentials)
+    ):
+        """
+        Predict bug trends using machine learning.
+
+        Args:
+            project_key: Project identifier (e.g., "One_Office")
+            weeks_ahead: Number of weeks to predict (1-8, default: 4)
+
+        Returns:
+            Predictions, anomalies, and trend analysis
+        """
+        from execution.ml import TrendPredictor
+
+        # Validate input
+        if weeks_ahead < 1 or weeks_ahead > 8:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="weeks_ahead must be between 1 and 8"
+            )
+
+        try:
+            predictor = TrendPredictor()
+            analysis = predictor.predict_trends(project_key, weeks_ahead=weeks_ahead)
+
+            logger.info(
+                "Quality predictions generated",
+                extra={
+                    "username": username,
+                    "project": project_key,
+                    "weeks_ahead": weeks_ahead,
+                    "trend": analysis.trend_direction
+                }
+            )
+
+            return {
+                "project_key": analysis.project_key,
+                "current_bug_count": analysis.current_count,
+                "trend_direction": analysis.trend_direction,
+                "model_r2_score": round(analysis.model_r2_score, 3),
+                "prediction_date": analysis.prediction_date,
+                "predictions": [
+                    {
+                        "week_ending": pred.week_ending,
+                        "predicted_count": pred.predicted_count,
+                        "confidence_interval": {
+                            "lower": pred.confidence_interval[0],
+                            "upper": pred.confidence_interval[1]
+                        },
+                        "anomaly_expected": pred.is_anomaly_expected
+                    }
+                    for pred in analysis.predictions
+                ],
+                "historical_anomalies": analysis.anomalies_detected
+            }
+        except FileNotFoundError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Quality history data not found. Run collectors first."
+            )
+        except ValueError as e:
+            if "No data found for project" in str(e):
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Project '{project_key}' not found in quality history"
+                )
+            elif "Insufficient data" in str(e):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=str(e)
+                )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Prediction failed: {str(e)}"
+            )
+        except Exception as e:
+            logger.error("Failed to generate predictions", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Prediction failed: {str(e)}"
             )
 
     # ============================================================
