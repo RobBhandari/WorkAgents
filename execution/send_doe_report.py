@@ -23,6 +23,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from security_utils import PathValidator, ValidationError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -307,26 +308,47 @@ def check_and_create_scheduled_task() -> bool:
     batch_file = os.path.join(script_dir, "run_weekly_doe_report.bat")
     log_file = os.path.join(os.path.dirname(script_dir), ".tmp", "scheduled_doe_report.log")
 
+    # SECURITY: Validate file paths to prevent command injection
+    try:
+        # Validate batch file path (must be in script directory)
+        safe_batch_file = PathValidator.validate_safe_path(script_dir, batch_file)
+
+        # Validate log file path (must be in .tmp directory)
+        tmp_dir = os.path.join(os.path.dirname(script_dir), ".tmp")
+        os.makedirs(tmp_dir, exist_ok=True)  # Ensure .tmp exists
+        safe_log_file = PathValidator.validate_safe_path(tmp_dir, log_file)
+
+        logger.info(f"Validated batch file: {safe_batch_file}")
+        logger.info(f"Validated log file: {safe_log_file}")
+
+    except ValidationError as e:
+        logger.error(f"Path validation failed: {e}")
+        print(f"\n[SECURITY ERROR] Invalid file paths detected: {e}")
+        return False
+
     # Create the scheduled task
+    # SECURITY: Execute batch file directly (no cmd.exe wrapper to prevent injection)
+    # Note: The batch file itself should handle logging to {safe_log_file}
     try:
         result = subprocess.run([
             'schtasks', '/create',
             '/tn', task_name,
-            '/tr', f'cmd.exe /c "{batch_file}" >> "{log_file}" 2>&1',
+            '/tr', safe_batch_file,  # SECURE: Direct execution, no cmd.exe wrapper
             '/sc', 'weekly',
             '/d', 'FRI',
             '/st', '07:00',
             '/f'
-        ], capture_output=True, text=True, timeout=10)
+        ], capture_output=True, text=True, timeout=10, shell=False)  # CRITICAL: shell=False
 
         if result.returncode == 0:
-            logger.info(f"✓ Scheduled task created successfully!")
+            logger.info(f"[OK] Scheduled task created successfully!")
             print(f"\n{'='*60}")
-            print(f"✓ AUTO-SCHEDULED: Weekly email every Friday at 7:00 AM")
+            print(f"[OK] AUTO-SCHEDULED: Weekly email every Friday at 7:00 AM")
             print(f"{'='*60}")
             print(f"Task name: {task_name}")
             print(f"Schedule: Every Friday at 7:00 AM")
-            print(f"Logs: {log_file}")
+            print(f"Batch file: {safe_batch_file}")
+            print(f"Logs: {safe_log_file}")
             print(f"\nTo view: taskschd.msc")
             print(f"To test now: schtasks /run /tn \"{task_name}\"")
             print(f"To remove: schtasks /delete /tn \"{task_name}\" /f")
