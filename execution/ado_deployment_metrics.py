@@ -26,15 +26,16 @@ from azure.devops.connection import Connection
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
-from execution.core import get_config
+from execution.secure_config import get_config
 
 load_dotenv()
 
 
 def get_ado_connection():
     """Get ADO connection using credentials from .env"""
-    organization_url = get_config().get("ADO_ORGANIZATION_URL")
-    pat = get_config().get_ado_config().pat
+    ado_config = get_config().get_ado_config()
+    organization_url = ado_config.organization_url
+    pat = ado_config.pat
 
     if not organization_url or not pat:
         raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
