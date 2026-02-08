@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import tempfile
+from typing import Any
 
 
 def atomic_json_save(data: dict, output_file: str) -> bool:
@@ -53,7 +54,7 @@ def atomic_json_save(data: dict, output_file: str) -> bool:
         raise e
 
 
-def load_json_with_recovery(file_path: str, default_value: dict = None) -> dict:
+def load_json_with_recovery(file_path: str, default_value: dict[Any, Any] | None = None) -> dict[Any, Any]:
     """
     Load JSON file with automatic recovery from corruption.
 
@@ -75,7 +76,7 @@ def load_json_with_recovery(file_path: str, default_value: dict = None) -> dict:
 
     try:
         with open(file_path, encoding="utf-8") as f:
-            data = json.load(f)
+            data: dict[Any, Any] = json.load(f)
         return data
 
     except json.JSONDecodeError as e:
