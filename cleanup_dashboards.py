@@ -11,6 +11,7 @@ OLD_FILES = [
     'executive_summary.html',
     'trends_dashboard.html',
     'ai_contributions.html',
+    'security_dashboard.html',  # Old name, now uses security.html
 ]
 
 # ML Prototypes (decide whether to keep or remove)
