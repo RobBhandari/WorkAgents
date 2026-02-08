@@ -64,7 +64,7 @@ def generate_deployment_dashboard(output_path: Path | None = None) -> str:
 
     # Step 1: Load data
     print("[1/4] Loading deployment data...")
-    metrics_list, collection_date = _load_deployment_data()
+    metrics_list, raw_projects, collection_date = _load_deployment_data()
     print(f"      Loaded {len(metrics_list)} projects")
 
     # Step 2: Calculate summary statistics
@@ -73,7 +73,7 @@ def generate_deployment_dashboard(output_path: Path | None = None) -> str:
 
     # Step 3: Prepare template context
     print("[3/4] Preparing dashboard components...")
-    context = _build_context(metrics_list, summary_stats, collection_date)
+    context = _build_context(metrics_list, raw_projects, summary_stats, collection_date)
 
     # Step 4: Render template
     print("[4/4] Rendering HTML template...")
@@ -89,12 +89,12 @@ def generate_deployment_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_deployment_data() -> tuple[list[DeploymentMetrics], str]:
+def _load_deployment_data() -> tuple[list[DeploymentMetrics], list[dict], str]:
     """
     Load deployment metrics from history file.
 
     Returns:
-        Tuple of (metrics_list, collection_date)
+        Tuple of (metrics_list, raw_project_data, collection_date)
 
     Raises:
         FileNotFoundError: If deployment_history.json doesn't exist
@@ -120,7 +120,7 @@ def _load_deployment_data() -> tuple[list[DeploymentMetrics], str]:
     # Convert to domain models
     metrics_list = [from_json(project) for project in projects]
 
-    return metrics_list, collection_date
+    return metrics_list, projects, collection_date
 
 
 def _calculate_summary(metrics_list: list[DeploymentMetrics]) -> dict:
@@ -145,12 +145,13 @@ def _calculate_summary(metrics_list: list[DeploymentMetrics]) -> dict:
     }
 
 
-def _build_context(metrics_list: list[DeploymentMetrics], summary_stats: dict, collection_date: str) -> dict:
+def _build_context(metrics_list: list[DeploymentMetrics], raw_projects: list[dict], summary_stats: dict, collection_date: str) -> dict:
     """
     Build template context with all dashboard data.
 
     Args:
         metrics_list: List of project metrics
+        raw_projects: Raw project data with pipeline details
         summary_stats: Calculated summary statistics
         collection_date: Data collection date
 
@@ -162,7 +163,7 @@ def _build_context(metrics_list: list[DeploymentMetrics], summary_stats: dict, c
         header_gradient_start="#667eea",
         header_gradient_end="#764ba2",
         include_table_scroll=True,
-        include_expandable_rows=False,
+        include_expandable_rows=True,
         include_glossary=True,
     )
 
@@ -170,7 +171,7 @@ def _build_context(metrics_list: list[DeploymentMetrics], summary_stats: dict, c
     summary_cards = _build_summary_cards(summary_stats)
 
     # Build project rows
-    projects = _build_project_rows(metrics_list)
+    projects = _build_project_rows(metrics_list, raw_projects)
 
     # Build context
     context = {
@@ -227,17 +228,68 @@ def _build_summary_cards(summary_stats: dict) -> list[str]:
     return cards
 
 
-def _build_project_rows(metrics_list: list[DeploymentMetrics]) -> list[dict]:
+def _build_pipeline_children(raw_project: dict) -> list[dict]:
+    """
+    Build child rows showing per-pipeline build statistics.
+
+    Args:
+        raw_project: Raw project data with pipeline breakdowns
+
+    Returns:
+        List of pipeline detail dictionaries with build breakdown
+    """
+    children = []
+
+    # Get pipeline build success data
+    success_rate = raw_project.get("build_success_rate", {})
+    success_by_pipeline = success_rate.get("by_pipeline", {})
+
+    # Build child row for each pipeline
+    for pipeline_name in sorted(success_by_pipeline.keys()):
+        # Get build statistics
+        pipeline_stats = success_by_pipeline[pipeline_name]
+        succeeded = pipeline_stats.get("succeeded", 0)
+        failed = pipeline_stats.get("failed", 0)
+        canceled = pipeline_stats.get("canceled", 0)
+        partially_succeeded = pipeline_stats.get("partiallySucceeded", 0)
+
+        # Calculate total builds and success rate
+        total_builds = succeeded + failed + canceled + partially_succeeded
+        if total_builds > 0:
+            success_rate_pct = (succeeded / total_builds) * 100
+        else:
+            success_rate_pct = 0.0
+
+        child = {
+            "pipeline_name": pipeline_name,
+            "total_builds": total_builds,
+            "succeeded": succeeded,
+            "failed": failed,
+            "canceled": canceled,
+            "partially_succeeded": partially_succeeded,
+            "success_rate_pct": success_rate_pct,
+        }
+
+        children.append(child)
+
+    return children
+
+
+def _build_project_rows(metrics_list: list[DeploymentMetrics], raw_projects: list[dict]) -> list[dict]:
     """
     Build project table rows with deployment metrics.
 
     Args:
         metrics_list: List of project metrics
+        raw_projects: Raw project data with pipeline details
 
     Returns:
         List of project dictionaries for template
     """
     rows = []
+
+    # Create a lookup map for raw project data by project name
+    raw_project_map = {p["project_name"]: p for p in raw_projects}
 
     # Sort by deployment frequency (descending)
     sorted_metrics = sorted(metrics_list, key=lambda m: m.deployment_frequency.deployments_per_week, reverse=True)
@@ -281,6 +333,10 @@ def _build_project_rows(metrics_list: list[DeploymentMetrics]) -> list[dict]:
             status_display = "● Action Needed"
             status_tooltip = f"Action Needed: {success_pct:.1f}% success rate, {deploys_per_week:.1f} deploys/week"
 
+        # Get pipeline-level details for child rows
+        raw_project = raw_project_map.get(metrics.project_name, {})
+        children = _build_pipeline_children(raw_project)
+
         row = {
             "name": metrics.project_name,
             "deploys_display": deploys_display,
@@ -294,6 +350,7 @@ def _build_project_rows(metrics_list: list[DeploymentMetrics]) -> list[dict]:
             "status_display": status_display,
             "status_tooltip": status_tooltip,
             "status_class": metrics.status_class,
+            "children": children,  # Add child records for expand
         }
 
         rows.append(row)

@@ -94,6 +94,119 @@
         color: var(--text-secondary);
         font-weight: 600;
     }
+
+    /* Expandable row styling */
+    .parent-row.expandable {
+        cursor: pointer;
+    }
+
+    .parent-row.expandable:hover {
+        background-color: var(--hover-bg, rgba(102, 126, 234, 0.05));
+    }
+
+    .expand-icon {
+        display: inline-block;
+        width: 16px;
+        margin-right: 8px;
+        transition: transform 0.2s ease;
+        color: var(--text-secondary);
+    }
+
+    .parent-row.expanded .expand-icon {
+        transform: rotate(90deg);
+    }
+
+    .detail-row {
+        background-color: var(--bg-secondary);
+    }
+
+    .detail-cell {
+        padding: 0 !important;
+    }
+
+    .pipeline-details {
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+        border-left: 3px solid #667eea;
+    }
+
+    .pipeline-details-title {
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0 0 12px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .pipeline-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        overflow: hidden;
+        font-size: 0.9em;
+    }
+
+    .pipeline-table thead {
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .pipeline-table th {
+        padding: 10px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.85em;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .pipeline-table tbody tr {
+        border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.05));
+    }
+
+    .pipeline-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .pipeline-table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .pipeline-table td {
+        padding: 10px 12px;
+        color: var(--text-primary);
+    }
+
+    .pipeline-table .pipeline-name {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .pipeline-table .success-count {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .pipeline-table .failed-count {
+        color: #ef4444;
+        font-weight: 600;
+    }
+
+    .pipeline-table .canceled-count {
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .pipeline-table .success-rate {
+        font-weight: 600;
+    }
+
+    /* Override framework's ::before chevron since we're using our own expand-icon */
+    tbody tr.parent-row.expandable td:first-child::before {
+        content: none !important;
+    }
 </style>
 {% endblock %}
 
@@ -125,8 +238,14 @@
             </thead>
             <tbody>
             {% for project in projects %}
-                <tr class="data-row">
-                    <td><strong>{{ project.name }}</strong></td>
+                <tr class="data-row parent-row{% if project.children %} expandable{% endif %}"
+                    {% if project.children %}onclick="toggleRow(this)"{% endif %}>
+                    <td>
+                        {% if project.children %}
+                        <span class="expand-icon">▶</span>
+                        {% endif %}
+                        <strong>{{ project.name }}</strong>
+                    </td>
                     <td title="{{ project.deploys_tooltip }}">{{ project.deploys_display }}</td>
                     <td title="{{ project.success_tooltip }}">{{ project.success_display }}</td>
                     <td title="{{ project.duration_tooltip }}">{{ project.duration_display }}</td>
@@ -137,6 +256,39 @@
                         </span>
                     </td>
                 </tr>
+                {% if project.children %}
+                    <tr class="detail-row" style="display: none;">
+                        <td colspan="6" class="detail-cell">
+                            <div class="pipeline-details">
+                                <h4 class="pipeline-details-title">Pipeline Build Statistics</h4>
+                                <table class="pipeline-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Pipeline</th>
+                                            <th>Total Builds</th>
+                                            <th>Succeeded</th>
+                                            <th>Failed</th>
+                                            <th>Canceled</th>
+                                            <th>Success Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for child in project.children %}
+                                        <tr>
+                                            <td class="pipeline-name">{{ child.pipeline_name }}</td>
+                                            <td>{{ child.total_builds }}</td>
+                                            <td class="success-count">{{ child.succeeded }}</td>
+                                            <td class="failed-count">{{ child.failed }}</td>
+                                            <td class="canceled-count">{{ child.canceled }}</td>
+                                            <td class="success-rate">{{ child.success_rate_pct|round(1) }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>
@@ -144,6 +296,26 @@
 </div>
 
 <!-- Glossary -->
+<script>
+// Custom toggleRow function for expandable pipeline details
+function toggleRow(row) {
+    const isExpanded = row.classList.contains('expanded');
+
+    // Toggle expanded class on parent row (for icon rotation)
+    row.classList.toggle('expanded');
+
+    // Find the detail row (next sibling)
+    const detailRow = row.nextElementSibling;
+    if (detailRow && detailRow.classList.contains('detail-row')) {
+        if (isExpanded) {
+            detailRow.style.display = 'none';
+        } else {
+            detailRow.style.display = 'table-row';
+        }
+    }
+}
+</script>
+
 {% if show_glossary %}
 <div class="glossary">
     <div class="glossary-header" onclick="toggleGlossary()">
