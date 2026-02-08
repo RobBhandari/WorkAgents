@@ -1,23 +1,37 @@
 #!/usr/bin/env python3
 """
-Quality Dashboard Generator
+Quality Dashboard Generator (DEPRECATED)
 
-Creates a beautiful, self-contained HTML dashboard for quality metrics.
-Uses modern "mint" design with Chart.js for visualizations.
+⚠️ DEPRECATED: This module is deprecated and will be removed in a future version.
+Please use execution.dashboards.quality.generate_quality_dashboard() instead.
+
+This file now serves as a thin wrapper around the new modular implementation
+for backward compatibility.
+
+Old usage (deprecated):
+    from execution.generate_quality_dashboard import generate_html, load_quality_data
+    data = load_quality_data()
+    html = generate_html(data)
+
+New usage (recommended):
+    from execution.dashboards.quality import generate_quality_dashboard
+    from pathlib import Path
+
+    html = generate_quality_dashboard(Path('.tmp/observatory/dashboards/quality_dashboard.html'))
 """
 
 import json
 import os
 import sys
+import warnings
 from datetime import datetime
+from pathlib import Path
 
-# Import mobile-responsive framework
+# Import the new modular implementation
 try:
-    from execution.dashboard_framework import get_dashboard_framework
-    from execution.template_engine import render_template
+    from execution.dashboards.quality import generate_quality_dashboard as _generate_quality_dashboard_new
 except ModuleNotFoundError:
-    from dashboard_framework import get_dashboard_framework
-    from template_engine import render_template
+    from dashboards.quality import generate_quality_dashboard as _generate_quality_dashboard_new  # type: ignore[no-redef]
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":
@@ -29,153 +43,74 @@ if sys.platform == "win32":
 
 def calculate_composite_status(mttr, median_age):
     """
-    Calculate composite quality status based on HARD DATA metrics only.
-    Returns tuple: (status_html, tooltip_text, priority)
+    ⚠️ DEPRECATED: Use execution.dashboards.quality._calculate_composite_status() instead.
 
-    Priority is used for sorting: 0 = Action Needed (Red), 1 = Caution (Amber), 2 = Good (Green)
-
-    Status determination:
-    - Good: All metrics meet target thresholds
-    - Caution: One or more metrics need attention but not critical
-    - Action Needed: Multiple metrics miss targets or any critical threshold exceeded
-
-    Thresholds:
-    - MTTR: Good < 7 days, Caution 7-14 days, Poor > 14 days
-    - Median Bug Age: Good < 30 days, Caution 30-60 days, Poor > 60 days
+    This is a compatibility wrapper that will be removed in a future version.
     """
-    issues = []
-    metric_details = []
+    warnings.warn(
+        "calculate_composite_status() is deprecated. "
+        "Use execution.dashboards.quality._calculate_composite_status() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from execution.dashboards.quality import _calculate_composite_status
 
-    # Check MTTR
-    if mttr is not None:
-        if mttr > 14:
-            issues.append("poor")
-            metric_details.append(f"MTTR {mttr:.1f} days (poor - target <7)")
-        elif mttr > 7:
-            issues.append("caution")
-            metric_details.append(f"MTTR {mttr:.1f} days (caution - target <7)")
-        else:
-            metric_details.append(f"MTTR {mttr:.1f} days (good)")
-
-    # Check Median Bug Age
-    if median_age is not None:
-        if median_age > 60:
-            issues.append("poor")
-            metric_details.append(f"Median bug age {median_age:.0f} days (poor - target <30)")
-        elif median_age > 30:
-            issues.append("caution")
-            metric_details.append(f"Median bug age {median_age:.0f} days (caution - target <30)")
-        else:
-            metric_details.append(f"Median bug age {median_age:.0f} days (good)")
-
-    # Build tooltip text
-    tooltip = "\n".join(metric_details)
-
-    # Determine overall status
-    if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
-        # Both metrics poor = Action Needed
-        status_html = '<span style="color: #ef4444;">● Action Needed</span>'
-        priority = 0
-    elif "poor" in issues:
-        # One poor metric = Caution
-        status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
-        priority = 1
-    elif "caution" in issues:
-        # Some caution metrics = Caution
-        status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
-        priority = 1
-    else:
-        # All metrics meet targets = Good
-        status_html = '<span style="color: #10b981;">✓ Good</span>'
-        priority = 2
-
-    return status_html, tooltip, priority
+    return _calculate_composite_status(mttr, median_age)
 
 
 def get_metric_rag_status(metric_name: str, value: float) -> tuple:
     """
-    Determine RAG status for a detailed metric.
+    ⚠️ DEPRECATED: Use execution.dashboards.quality._get_metric_rag_status() instead.
 
-    Returns: (color_class, color_hex, status_text)
-
-    Thresholds:
-    - Bug Age P85: Good < 60, Caution 60-180, Poor > 180 days
-    - Bug Age P95: Good < 90, Caution 90-365, Poor > 365 days
-    - MTTR P85: Good < 14, Caution 14-30, Poor > 30 days
-    - MTTR P95: Good < 21, Caution 21-45, Poor > 45 days
+    This is a compatibility wrapper that will be removed in a future version.
     """
-    if value is None:
-        return "rag-unknown", "#6b7280", "No Data"
+    warnings.warn(
+        "get_metric_rag_status() is deprecated. "
+        "Use execution.dashboards.quality._get_metric_rag_status() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from execution.dashboards.quality import _get_metric_rag_status
 
-    if metric_name == "Bug Age P85":
-        if value < 60:
-            return "rag-green", "#10b981", "Good"
-        elif value < 180:
-            return "rag-amber", "#f59e0b", "Caution"
-        else:
-            return "rag-red", "#ef4444", "Action Needed"
-
-    elif metric_name == "Bug Age P95":
-        if value < 90:
-            return "rag-green", "#10b981", "Good"
-        elif value < 365:
-            return "rag-amber", "#f59e0b", "Caution"
-        else:
-            return "rag-red", "#ef4444", "Action Needed"
-
-    elif metric_name == "MTTR P85":
-        if value < 14:
-            return "rag-green", "#10b981", "Good"
-        elif value < 30:
-            return "rag-amber", "#f59e0b", "Caution"
-        else:
-            return "rag-red", "#ef4444", "Action Needed"
-
-    elif metric_name == "MTTR P95":
-        if value < 21:
-            return "rag-green", "#10b981", "Good"
-        elif value < 45:
-            return "rag-amber", "#f59e0b", "Caution"
-        else:
-            return "rag-red", "#ef4444", "Action Needed"
-
-    # Default - no RAG status
-    return "rag-unknown", "#6b7280", "Unknown"
+    return _get_metric_rag_status(metric_name, value)
 
 
 def get_distribution_bucket_rag_status(bucket_type: str, bucket_name: str) -> tuple:
     """
-    Determine RAG status for distribution buckets based on the time range.
+    ⚠️ DEPRECATED: Use execution.dashboards.quality._get_distribution_bucket_rag_status() instead.
 
-    Returns: (color_class, color_hex)
-
-    Logic:
-    - Earlier time buckets (faster fixes, newer bugs) are better = Green
-    - Middle time buckets = Caution (Amber)
-    - Later time buckets (slower fixes, older bugs) = Action Needed (Red)
+    This is a compatibility wrapper that will be removed in a future version.
     """
-    if bucket_type == "bug_age":
-        if bucket_name in ["0-7_days", "8-30_days"]:
-            return "rag-green", "#10b981"
-        elif bucket_name == "31-90_days":
-            return "rag-amber", "#f59e0b"
-        elif bucket_name == "90+_days":
-            return "rag-red", "#ef4444"
+    warnings.warn(
+        "get_distribution_bucket_rag_status() is deprecated. "
+        "Use execution.dashboards.quality._get_distribution_bucket_rag_status() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from execution.dashboards.quality import _get_distribution_bucket_rag_status
 
-    elif bucket_type == "mttr":
-        if bucket_name in ["0-1_days", "1-7_days"]:
-            return "rag-green", "#10b981"
-        elif bucket_name == "7-30_days":
-            return "rag-amber", "#f59e0b"
-        elif bucket_name == "30+_days":
-            return "rag-red", "#ef4444"
-
-    # Default
-    return "rag-unknown", "#6b7280"
+    return _get_distribution_bucket_rag_status(bucket_type, bucket_name)
 
 
 def generate_quality_drilldown_html(project):
-    """Generate drill-down detail content HTML for a project"""
+    """
+    ⚠️ DEPRECATED: Use execution.dashboards.quality._generate_drilldown_html() instead.
+
+    This is a compatibility wrapper that will be removed in a future version.
+    """
+    warnings.warn(
+        "generate_quality_drilldown_html() is deprecated. "
+        "Use execution.dashboards.quality._generate_drilldown_html() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from execution.dashboards.quality import _generate_drilldown_html
+
+    return _generate_drilldown_html(project)
+
+
+def _generate_quality_drilldown_html_legacy(project):
+    """Legacy implementation - kept for reference only"""
     html = '<div class="detail-content">'
 
     # Section 1: Additional Metrics (P85, P95)
@@ -340,14 +275,47 @@ def generate_quality_drilldown_html(project):
 
 
 def load_quality_data():
-    """Load quality metrics from history file"""
-    with open(".tmp/observatory/quality_history.json", encoding="utf-8") as f:
-        data = json.load(f)
-    return data["weeks"][-1]  # Most recent week
+    """
+    ⚠️ DEPRECATED: Use execution.dashboards.quality._load_quality_data() instead.
+
+    This is a compatibility wrapper that will be removed in a future version.
+    """
+    warnings.warn(
+        "load_quality_data() is deprecated. "
+        "Use execution.dashboards.quality._load_quality_data() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from execution.dashboards.quality import _load_quality_data
+
+    return _load_quality_data()
 
 
 def generate_html(quality_data):
-    """Generate self-contained HTML dashboard"""
+    """
+    ⚠️ DEPRECATED: Use execution.dashboards.quality.generate_quality_dashboard() instead.
+
+    This is a compatibility wrapper that delegates to the new modular implementation.
+    The new version generates HTML directly from the history file instead of requiring
+    pre-loaded data.
+    """
+    warnings.warn(
+        "generate_html() is deprecated. "
+        "Use execution.dashboards.quality.generate_quality_dashboard() instead. "
+        "The new API loads data internally and returns the HTML string.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+    # Call the new implementation
+    # Note: The new implementation loads data internally, so we ignore the passed data
+    return _generate_quality_dashboard_new()
+
+
+def _generate_html_legacy(quality_data):
+    """Legacy implementation - kept for reference only"""
+    from execution.dashboard_framework import get_dashboard_framework
+    from execution.template_engine import render_template
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
@@ -1073,40 +1041,72 @@ def generate_html(quality_data):
 
 
 def main():
-    print("Quality Dashboard Generator\n")
-    print("=" * 60)
+    """
+    Main entry point (DEPRECATED).
 
-    # Load data
+    ⚠️ This script is deprecated. Use the new modular implementation instead:
+
+        python -m execution.dashboards.quality
+
+    Or in code:
+
+        from execution.dashboards.quality import generate_quality_dashboard
+        html = generate_quality_dashboard(Path('.tmp/observatory/dashboards/quality_dashboard.html'))
+    """
+    print("=" * 80)
+    print("⚠️  WARNING: This script is DEPRECATED")
+    print("=" * 80)
+    print()
+    print("This file (generate_quality_dashboard.py) is deprecated and will be removed")
+    print("in a future version. Please use the new modular implementation instead:")
+    print()
+    print("  New location: execution/dashboards/quality.py (~280 lines, 75% reduction!)")
+    print("  Template: templates/dashboards/quality_dashboard.html")
+    print()
+    print("Usage:")
+    print("  python -m execution.dashboards.quality")
+    print()
+    print("Or in code:")
+    print("  from execution.dashboards.quality import generate_quality_dashboard")
+    print("  from pathlib import Path")
+    print("  html = generate_quality_dashboard(")
+    print("      Path('.tmp/observatory/dashboards/quality_dashboard.html')")
+    print("  )")
+    print()
+    print("=" * 80)
+    print()
+
+    # Still run the new implementation for backward compatibility
+    print("Running new implementation for backward compatibility...\n")
+
     try:
-        quality_data = load_quality_data()
-        print(f"Loaded quality metrics for Week {quality_data['week_number']} ({quality_data['week_date']})")
+        output_file = Path(".tmp/observatory/dashboards/quality_dashboard.html")
+        html = _generate_quality_dashboard_new(output_file)
+
+        print("\n[SUCCESS] Dashboard generated using NEW implementation!")
+        print(f"  Location: {output_file}")
+        print(f"  Size: {len(html):,} bytes")
+        print(f"\nOpen in browser: start {output_file}")
+        print("\nFeatures:")
+        print("  ✓ Modern design with purple accents")
+        print("  ✓ HARD DATA ONLY - no speculation")
+        print("  ✓ MTTR tracking (actual field calculations)")
+        print("  ✓ Bug age distribution (actual time open)")
+        print("  ✓ Self-contained (works offline)")
+        print("  ✓ Print-friendly CSS")
+        print("  ✓ Dark/Light mode toggle")
+        print("  ✓ Jinja2 templates (XSS-safe)")
+        print("  ✓ Modular code structure")
+
     except FileNotFoundError:
         print("[ERROR] No quality metrics found.")
-        print("Run: python execution/ado_quality_metrics.py")
+        print("Run: python execution/collectors/ado_quality_metrics.py")
         return
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        import traceback
 
-    # Generate HTML
-    print("Generating dashboard...")
-    html = generate_html(quality_data)
-
-    # Save to file
-    output_file = ".tmp/observatory/dashboards/quality_dashboard.html"
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(html)
-
-    print("\n[SUCCESS] Dashboard generated!")
-    print(f"  Location: {output_file}")
-    print(f"  Size: {len(html):,} bytes")
-    print(f"\nOpen in browser: start {output_file}")
-    print("\nFeatures:")
-    print("  ✓ Modern design with purple accents")
-    print("  ✓ HARD DATA ONLY - no speculation")
-    print("  ✓ MTTR tracking (actual field calculations)")
-    print("  ✓ Bug age distribution (actual time open)")
-    print("  ✓ Self-contained (works offline)")
-    print("  ✓ Print-friendly CSS")
-    print("  ✓ Dark/Light mode toggle")
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

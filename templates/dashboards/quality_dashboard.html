@@ -1,0 +1,462 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Quality Dashboard{% endblock %}
+{% block meta_description %}Bug quality metrics and fix effectiveness - Director Observatory{% endblock %}
+
+{% block header_title %}Quality Dashboard{% endblock %}
+{% block header_subtitle %}Bug Quality & Fix Effectiveness{% endblock %}
+{% block header_metadata %}Week {{ week_number }} • {{ week_date }} • Generated {{ generation_date }}{% endblock %}
+{% block footer_context %}Quality Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard-specific styles for Quality Dashboard */
+    .executive-summary {
+        background: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px var(--shadow);
+        transition: background-color 0.3s ease;
+    }
+
+    @media (min-width: 768px) {
+        .executive-summary {
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: white;
+        margin-bottom: 16px;
+    }
+
+    @media (min-width: 768px) {
+        .status-badge {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+        align-items: start;
+    }
+
+    .summary-card {
+        background: var(--bg-tertiary);
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid #8b5cf6;
+        transition: background-color 0.3s ease;
+    }
+
+    .summary-card .label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+
+    .summary-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .summary-card .unit {
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+        margin-left: 4px;
+    }
+
+    .summary-card .explanation {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 8px;
+        line-height: 1.4;
+    }
+
+    /* Expandable Row Styles */
+    tbody tr.data-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    tbody tr.data-row:hover {
+        background: var(--bg-tertiary);
+    }
+
+    tbody tr.data-row td:first-child {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    tbody tr.data-row td:first-child::before {
+        content: '▶';
+        position: absolute;
+        left: 12px;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        transition: transform 0.3s ease;
+    }
+
+    tbody tr.data-row.expanded td:first-child::before {
+        transform: rotate(90deg);
+    }
+
+    tr.detail-row {
+        display: none;
+    }
+
+    tr.detail-row.show {
+        display: table-row;
+    }
+
+    tr.detail-row td {
+        padding: 0;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .detail-content {
+        padding: 20px;
+        background: var(--bg-tertiary);
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+        }
+        to {
+            opacity: 1;
+            max-height: 1000px;
+        }
+    }
+
+    .detail-content h4 {
+        font-size: 1rem;
+        margin: 0 0 12px 0;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+    }
+
+    .detail-section {
+        margin-bottom: 16px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 12px 0;
+    }
+
+    .detail-metric {
+        background: var(--bg-secondary);
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 3px solid #8b5cf6;
+    }
+
+    .detail-metric-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .detail-metric-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .detail-metric-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 6px;
+    }
+
+    .detail-metric.rag-green {
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .detail-metric.rag-amber {
+        background: rgba(245, 158, 11, 0.05);
+    }
+
+    .detail-metric.rag-red {
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .no-data {
+        color: var(--text-secondary);
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    .glossary {
+        background: var(--bg-tertiary);
+        padding: 0;
+        border-radius: 12px;
+        margin-top: 30px;
+        transition: background-color 0.3s ease;
+        overflow: hidden;
+    }
+
+    .glossary-header {
+        padding: 20px 30px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        user-select: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .glossary-header:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    [data-theme="light"] .glossary-header:hover {
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    .glossary-header h3 {
+        font-size: 1.2rem;
+        margin: 0;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .glossary-toggle {
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        transition: transform 0.3s ease;
+    }
+
+    .glossary-toggle.expanded {
+        transform: rotate(180deg);
+    }
+
+    .glossary-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+        padding: 0 30px;
+    }
+
+    .glossary-content.expanded {
+        max-height: 5000px;
+        padding: 0 30px 30px 30px;
+    }
+
+    .glossary-item {
+        margin-bottom: 15px;
+    }
+
+    .glossary-term {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .glossary-definition {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .glossary-definition ul {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+
+    .glossary-definition li {
+        margin: 5px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Executive Summary -->
+<div class="executive-summary">
+    <div class="status-badge" style="background: {{ status_color }};">{{ status_text }}</div>
+    <h2 style="margin-bottom: 10px;">Executive Summary</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+        Quality metrics across {{ project_count }} projects. These metrics show how effectively we fix bugs and prevent quality issues.
+    </p>
+
+    <div class="summary-grid">
+        {% for card in summary_cards %}
+        {{ card|safe }}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Project Comparison Table -->
+<div class="card">
+    <h2>Project Quality Metrics</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>MTTR</th>
+                    <th>Median Bug Age</th>
+                    <th>Open Bugs</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for project in projects %}
+                <tr class="data-row" onclick="toggleDetail('detail-{{ loop.index }}', this)">
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.mttr_str }}</td>
+                    <td>{{ project.median_age_str }}</td>
+                    <td>{{ project.open_bugs }}</td>
+                    <td title="{{ project.status_tooltip }}">{{ project.status|safe }}</td>
+                </tr>
+                <tr id="detail-{{ loop.index }}" class="detail-row">
+                    <td colspan="5">
+                        {{ project.details_html|safe }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Glossary -->
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>📖 What These Metrics Mean</h3>
+        <span class="glossary-toggle" id="glossary-toggle">▼</span>
+    </div>
+    <div class="glossary-content" id="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">MTTR (Mean Time To Repair)</div>
+            <div class="glossary-definition">
+                Average time (in days) from when a bug is created to when it's closed.
+                This measures how quickly your team resolves bugs. Lower MTTR means faster bug resolution.
+                Calculated as: (Bug Closed Date - Bug Created Date) averaged across all closed bugs.
+                <br><strong>Target:</strong> Keep below 7 days for most bugs
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Bug Age (Median)</div>
+            <div class="glossary-definition">
+                The middle value of how long bugs stay open before being fixed.
+                Calculated from actual System.CreatedDate → Now for all open bugs.
+                Older bugs suggest capacity constraints or prioritization issues.
+                <br><strong>Target:</strong> Depends on severity - critical bugs should be fixed quickly
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Percentile Metrics (P85, P95)</div>
+            <div class="glossary-definition">
+                While median shows the middle value, percentiles reveal how your worst-performing bugs are doing.
+                <strong>P85</strong> means 85% of bugs are at or below this value, while <strong>P95</strong> means 95% are at or below.
+                These metrics help identify tail-end problems that median alone might hide.
+                <br><br>
+                <strong>Bug Age P85:</strong> Shows how long your slowest 15% of bugs have been sitting open.
+                <ul>
+                    <li><strong style="color: #10b981;">✓ &lt; 60 days:</strong> Most bugs are being addressed in a reasonable timeframe</li>
+                    <li><strong style="color: #f59e0b;">⚠ 60-180 days:</strong> A significant portion of bugs are aging - review prioritization and capacity</li>
+                    <li><strong style="color: #ef4444;">● &gt; 180 days:</strong> Many bugs are stale (6+ months) - likely indicates backlog neglect or insufficient capacity</li>
+                </ul>
+                <br>
+                <strong>Bug Age P95:</strong> Reveals your absolute worst-case bug aging - the oldest 5% that need attention.
+                <ul>
+                    <li><strong style="color: #10b981;">✓ &lt; 90 days:</strong> Even your oldest bugs are relatively fresh</li>
+                    <li><strong style="color: #f59e0b;">⚠ 90-365 days:</strong> Your oldest bugs are approaching or exceeding 1 year - consider triage or closure</li>
+                    <li><strong style="color: #ef4444;">● &gt; 365 days:</strong> Significant technical debt accumulation - oldest bugs are ancient and may no longer be relevant</li>
+                </ul>
+                <br>
+                <strong>MTTR P85:</strong> Shows how long it takes to fix your slower-to-resolve bugs (not just the easy ones).
+                <ul>
+                    <li><strong style="color: #10b981;">✓ &lt; 14 days:</strong> Most bugs are fixed within 2 weeks - healthy fix velocity</li>
+                    <li><strong style="color: #f59e0b;">⚠ 14-30 days:</strong> Slower bugs take 2-4 weeks to fix - may indicate complexity or resource constraints</li>
+                    <li><strong style="color: #ef4444;">● &gt; 30 days:</strong> Many bugs take over a month to fix - investigate root causes (complexity, prioritization, capacity)</li>
+                </ul>
+                <br>
+                <strong>MTTR P95:</strong> Captures your most difficult or delayed bug fixes.
+                <ul>
+                    <li><strong style="color: #10b981;">✓ &lt; 21 days:</strong> Even complex bugs get resolved within 3 weeks</li>
+                    <li><strong style="color: #f59e0b;">⚠ 21-45 days:</strong> Hardest bugs take 3-6 weeks - monitor for patterns (specific areas, types, teams)</li>
+                    <li><strong style="color: #ef4444;">● &gt; 45 days:</strong> Worst-case fixes take over 6 weeks - likely indicates systematic issues with complex bugs</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Distribution Bucket Colors</div>
+            <div class="glossary-definition">
+                Both Bug Age and MTTR distribution buckets are color-coded to show which time ranges represent healthy vs. problematic performance.
+                The border color indicates the inherent quality of having bugs in that time bucket.
+                <br><br>
+                <strong>Bug Age Distribution:</strong>
+                <ul>
+                    <li><strong style="color: #10b981;">Green (0-30 days):</strong> Fresh bugs that are being actively worked - this is healthy</li>
+                    <li><strong style="color: #f59e0b;">Amber (31-90 days):</strong> Bugs aging into medium-term backlog - watch for accumulation</li>
+                    <li><strong style="color: #ef4444;">Red (90+ days):</strong> Stale bugs accumulating technical debt - these need attention</li>
+                </ul>
+                <strong>What to look for:</strong> You want most bugs in the green buckets. High counts in red buckets (90+ days) indicate backlog accumulation and potential technical debt.
+                <br><br>
+                <strong>MTTR Distribution:</strong>
+                <ul>
+                    <li><strong style="color: #10b981;">Green (0-7 days):</strong> Fast bug fixes - excellent resolution speed</li>
+                    <li><strong style="color: #f59e0b;">Amber (7-30 days):</strong> Moderate fix time - acceptable but watch for trends</li>
+                    <li><strong style="color: #ef4444;">Red (30+ days):</strong> Slow fixes - investigate causes (complexity, capacity, prioritization)</li>
+                </ul>
+                <strong>What to look for:</strong> Healthy projects have most bugs in green buckets (quick fixes). High counts in red buckets suggest systematic delays in bug resolution.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Overall Status</div>
+            <div class="glossary-definition">
+                The status indicator for each project is calculated by evaluating quality metrics together.
+                <br><br>
+                <strong>Status Determination:</strong>
+                <ul>
+                    <li><strong style="color: #10b981;">✓ Good:</strong> All metrics meet target thresholds</li>
+                    <li><strong style="color: #f59e0b;">⚠ Caution:</strong> One metric needs attention</li>
+                    <li><strong style="color: #ef4444;">● Action Needed:</strong> Multiple metrics miss targets</li>
+                </ul>
+                <br>
+                <strong>Thresholds Used:</strong>
+                <ul>
+                    <li><strong>MTTR:</strong> Good &lt; 7 days | Caution 7-14 days | Poor &gt; 14 days</li>
+                    <li><strong>Median Bug Age:</strong> Good &lt; 30 days | Caution 30-60 days | Poor &gt; 60 days</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
