@@ -4,9 +4,11 @@ Refresh all Observatory dashboards
 Runs all metrics collectors and dashboard generators in sequence
 """
 
+import os
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
 
 
 def run_script(script_path, description):
@@ -16,7 +18,12 @@ def run_script(script_path, description):
     print(f"{'='*60}")
 
     try:
-        result = subprocess.run([sys.executable, script_path], capture_output=False, text=True, check=False)
+        # Set PYTHONPATH to include project root for proper imports
+        env = os.environ.copy()
+        project_root = Path(__file__).parent.parent.absolute()
+        env['PYTHONPATH'] = str(project_root)
+
+        result = subprocess.run([sys.executable, script_path], capture_output=False, text=True, check=False, env=env)
 
         if result.returncode == 0:
             print(f"[OK] {description} - SUCCESS")
@@ -47,8 +54,13 @@ def main():
     print("Expected duration: 30-90 seconds (vs 3-7 minutes sequential)")
     print()
 
+    # Set PYTHONPATH for metrics collection
+    env = os.environ.copy()
+    project_root = Path(__file__).parent.parent.absolute()
+    env['PYTHONPATH'] = str(project_root)
+
     result = subprocess.run(
-        [sys.executable, "execution/collect_all_metrics.py"], capture_output=False, text=True, check=False
+        [sys.executable, "execution/collect_all_metrics.py"], capture_output=False, text=True, check=False, env=env
     )
 
     if result.returncode == 0:
