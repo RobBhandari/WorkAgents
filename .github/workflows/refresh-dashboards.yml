@@ -55,7 +55,9 @@ jobs:
 
       - name: Collect ${{ matrix.collector.name }}
         id: collect
-        run: python execution/${{ matrix.collector.script }}
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python execution/${{ matrix.collector.script }}
         continue-on-error: true
 
       - name: Upload metrics artifacts
@@ -120,12 +122,15 @@ jobs:
 
       - name: Verify metrics data available
         run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           echo "📊 Validating metrics history files..."
           python execution/validate_metrics_data.py || echo "⚠️ Some metrics files are invalid or missing"
         continue-on-error: true
 
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
-        run: python execution/${{ matrix.dashboard.script }}
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python execution/${{ matrix.dashboard.script }}
         continue-on-error: true
 
       - name: Upload dashboard artifact
