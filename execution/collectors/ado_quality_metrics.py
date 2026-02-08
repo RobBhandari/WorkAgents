@@ -26,23 +26,11 @@ from azure.devops.v7_1.work_item_tracking import Wiql
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
+from execution.collectors.ado_connection import get_ado_connection
+from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.secure_config import get_config
 
 load_dotenv()
-
-
-def get_ado_connection():
-    """Get ADO connection using credentials from .env"""
-    ado_config = get_config().get_ado_config()
-    organization_url = ado_config.organization_url
-    pat = ado_config.pat
-
-    if not organization_url or not pat:
-        raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
-
-    credentials = BasicAuthentication("", pat)
-    connection = Connection(base_url=organization_url, creds=credentials)
-    return connection
 
 
 def query_bugs_for_quality(
@@ -183,43 +171,6 @@ def query_bugs_for_quality(
 # Cannot reliably distinguish customer-found bugs from internally-found production bugs.
 
 
-def filter_security_bugs(bugs: list[dict]) -> tuple:
-    """
-    Filter out security bugs created by ArmorCode to avoid double-counting.
-
-    These bugs are already tracked in the Security Dashboard, so we exclude them
-    from quality metrics to prevent inflating bug counts.
-
-    Excludes bugs if:
-    - Created by ArmorCode (creator name contains 'armorcode')
-    - Tagged with ArmorCode (tags contain 'armorcode')
-
-    Returns:
-        tuple: (filtered_bugs, excluded_count)
-    """
-    filtered = []
-    excluded = 0
-
-    for bug in bugs:
-        created_by = bug.get("System.CreatedBy", {})
-        tags = bug.get("System.Tags", "")
-
-        # Extract creator name
-        if isinstance(created_by, dict):
-            creator_name = created_by.get("displayName", "").lower()
-        else:
-            creator_name = str(created_by).lower()
-
-        # Extract tags (handle as string, typically semicolon-separated)
-        tags_str = str(tags).lower() if tags else ""
-
-        # Exclude bugs created by ArmorCode OR tagged with armorcode
-        if "armorcode" in creator_name or "armorcode" in tags_str:
-            excluded += 1
-        else:
-            filtered.append(bug)
-
-    return filtered, excluded
 
 
 def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:

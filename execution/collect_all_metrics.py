@@ -142,7 +142,7 @@ class AsyncMetricsOrchestrator:
         async def collect_ado_quality():
             import json
 
-            from execution.ado_quality_metrics import get_ado_connection, save_quality_metrics
+            from execution.collectors.ado_quality_metrics import get_ado_connection, save_quality_metrics
             from execution.collectors.async_ado_collector import AsyncADOCollector
 
             with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
@@ -174,7 +174,7 @@ class AsyncMetricsOrchestrator:
         async def collect_ado_flow():
             import json
 
-            from execution.ado_flow_metrics import get_ado_connection, save_flow_metrics
+            from execution.collectors.ado_flow_metrics import get_ado_connection, save_flow_metrics
             from execution.collectors.async_ado_collector import AsyncADOCollector
 
             with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:

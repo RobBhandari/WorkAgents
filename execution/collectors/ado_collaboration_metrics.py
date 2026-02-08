@@ -27,23 +27,10 @@ from azure.devops.v7_1.git.models import GitPullRequestSearchCriteria
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
+from execution.collectors.ado_connection import get_ado_connection
 from execution.secure_config import get_config
 
 load_dotenv()
-
-
-def get_ado_connection():
-    """Get ADO connection using credentials from .env"""
-    ado_config = get_config().get_ado_config()
-    organization_url = ado_config.organization_url
-    pat = ado_config.pat
-
-    if not organization_url or not pat:
-        raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
-
-    credentials = BasicAuthentication("", pat)
-    connection = Connection(base_url=organization_url, creds=credentials)
-    return connection
 
 
 def query_pull_requests(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:

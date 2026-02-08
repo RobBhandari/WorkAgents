@@ -107,7 +107,7 @@ class CollectorBenchmark:
 
         # ADO Quality async
         async def collect_ado_quality():
-            from execution.ado_quality_metrics import get_ado_connection, save_quality_metrics
+            from execution.collectors.ado_quality_metrics import get_ado_connection, save_quality_metrics
 
             with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
                 projects = json.load(f)["projects"]
@@ -135,7 +135,7 @@ class CollectorBenchmark:
 
         # ADO Flow async
         async def collect_ado_flow():
-            from execution.ado_flow_metrics import get_ado_connection, save_flow_metrics
+            from execution.collectors.ado_flow_metrics import get_ado_connection, save_flow_metrics
 
             with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
                 projects = json.load(f)["projects"]

@@ -70,7 +70,7 @@ class AsyncADOCollector:
         Returns:
             Quality metrics for the project
         """
-        from execution.ado_quality_metrics import collect_quality_metrics_for_project
+        from execution.collectors.ado_quality_metrics import collect_quality_metrics_for_project
 
         # Run blocking SDK calls in thread pool
         result: dict = await self._run_in_thread(collect_quality_metrics_for_project, connection, project, config)
@@ -90,7 +90,7 @@ class AsyncADOCollector:
         Returns:
             Flow metrics for the project
         """
-        from execution.ado_flow_metrics import (
+        from execution.collectors.ado_flow_metrics import (
             calculate_aging_items,
             calculate_cycle_time_variance,
             calculate_dual_metrics,
@@ -237,7 +237,7 @@ async def main_quality():
     """Async main for quality metrics"""
     import json
 
-    from execution.ado_quality_metrics import get_ado_connection, save_quality_metrics
+    from execution.collectors.ado_quality_metrics import get_ado_connection, save_quality_metrics
 
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
@@ -303,7 +303,7 @@ async def main_flow():
     """Async main for flow metrics"""
     import json
 
-    from execution.ado_flow_metrics import get_ado_connection, save_flow_metrics
+    from execution.collectors.ado_flow_metrics import get_ado_connection, save_flow_metrics
 
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":

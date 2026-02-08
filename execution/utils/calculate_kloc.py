@@ -21,14 +21,14 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-from execution.core import get_config
-
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from azure.devops.connection import Connection
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
+
+from execution.collectors.ado_connection import get_ado_connection
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":
@@ -164,17 +164,6 @@ EXCLUDE_EXTENSIONS = {
 }
 
 
-def get_ado_connection():
-    """Create connection to Azure DevOps"""
-    organization_url = get_config().get("ADO_ORGANIZATION_URL")
-    pat = get_config().get_ado_config().pat
-
-    if not organization_url or not pat:
-        raise ValueError("ADO_ORGANIZATION_URL and ADO_PAT must be set in .env file")
-
-    credentials = BasicAuthentication("", pat)
-    connection = Connection(base_url=organization_url, creds=credentials)
-    return connection
 
 
 def should_analyze_file(file_path: str) -> bool:
