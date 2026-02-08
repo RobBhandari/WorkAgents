@@ -14,7 +14,7 @@ Usage:
     from execution.dashboards.trends import generate_trends_dashboard
     from pathlib import Path
 
-    output_path = Path('.tmp/observatory/dashboards/trends.html')
+    output_path = Path('.tmp/observatory/dashboards/index.html')
     generate_trends_dashboard(output_path)
 """
 
@@ -24,7 +24,7 @@ from pathlib import Path
 
 # Import infrastructure and components
 try:
-    from ..dashboard_framework import get_dashboard_framework
+    from ..framework import get_dashboard_framework
     from ..dashboards.components.charts import sparkline
     from ..dashboards.renderer import render_dashboard
     from ..domain.metrics import TrendData
@@ -32,7 +32,7 @@ except ImportError:
     import sys
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
+    from framework import get_dashboard_framework  # type: ignore[no-redef]
     from dashboards.components.charts import sparkline  # type: ignore[no-redef]
     from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
 
@@ -423,7 +423,18 @@ class TrendsDashboardGenerator:
 
 # Convenience function
 def generate_trends_dashboard(output_path: Path | None = None, weeks: int = 12) -> str:
-    """Generate trends dashboard"""
+    """
+    Generate trends dashboard.
+
+    Args:
+        output_path: Optional output path (defaults to .tmp/observatory/dashboards/index.html)
+        weeks: Number of weeks to display (default: 12)
+
+    Returns:
+        Generated HTML string
+    """
+    if output_path is None:
+        output_path = Path('.tmp/observatory/dashboards/index.html')
     generator = TrendsDashboardGenerator(weeks=weeks)
     return generator.generate(output_path)
 
@@ -434,7 +445,7 @@ if __name__ == "__main__":
     print("=" * 60)
 
     try:
-        output_path = Path(".tmp/observatory/dashboards/trends.html")
+        output_path = Path(".tmp/observatory/dashboards/index.html")
         html = generate_trends_dashboard(output_path)
 
         print("\n" + "=" * 60)
