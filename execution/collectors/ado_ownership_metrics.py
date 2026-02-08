@@ -171,8 +171,6 @@ def calculate_work_type_segmentation(open_items: list[dict]) -> dict[str, Any]:
     Returns:
         Work type segmentation with assignment rates
     """
-    from collections import defaultdict
-
     type_totals: defaultdict[str, int] = defaultdict(int)
     type_unassigned: defaultdict[str, int] = defaultdict(int)
 
@@ -332,8 +330,6 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
     Returns:
         Developer active days metrics
     """
-    from collections import defaultdict
-
     lookback_date = datetime.now() - timedelta(days=days)
 
     try:
