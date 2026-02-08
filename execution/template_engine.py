@@ -33,11 +33,11 @@ class TemplateEngine:
         Initialize template engine.
 
         Args:
-            template_dir: Directory containing templates (default: execution/templates)
+            template_dir: Directory containing templates (default: templates/)
         """
         if template_dir is None:
-            # Default to templates directory in execution folder
-            template_dir = Path(__file__).parent / "templates"
+            # Default to templates directory at project root
+            template_dir = Path(__file__).parent.parent / "templates"
 
         self.template_dir = Path(template_dir)
 

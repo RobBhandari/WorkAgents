@@ -1,0 +1,262 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Deployment Dashboard - DORA Metrics{% endblock %}
+{% block meta_description %}DORA deployment metrics - deployment frequency, build success rate, and lead time{% endblock %}
+
+{% block header_title %}Deployment Dashboard{% endblock %}
+{% block header_subtitle %}DORA Metrics - Deployment Performance{% endblock %}
+{% block footer_context %}Deployment Dashboard • Data source: Azure DevOps{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Summary metrics grid */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .metric-card {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px var(--shadow);
+        border-left: 4px solid #667eea;
+    }
+
+    .metric-label {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+
+    .metric-value {
+        color: var(--text-primary);
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .metric-detail {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    /* Section styling */
+    .section {
+        margin-bottom: 30px;
+    }
+
+    .section h2 {
+        color: var(--text-primary);
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+    }
+
+    /* Table wrapper */
+    .table-wrapper {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px var(--shadow);
+        overflow-x: auto;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .status-good {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .status-caution {
+        color: #f59e0b;
+        font-weight: 600;
+    }
+
+    .status-action {
+        color: #ef4444;
+        font-weight: 600;
+    }
+
+    .status-inactive {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Summary metrics -->
+<div class="section">
+    <h2>Overview</h2>
+    <div class="summary-grid">
+        {% for card in summary_cards %}
+        {{ card|safe }}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Deployment metrics table -->
+<div class="section">
+    <h2>Deployment Metrics by Project</h2>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Deployment Frequency</th>
+                    <th>Build Success Rate</th>
+                    <th>Build Duration (Median)</th>
+                    <th>Lead Time (Median)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for project in projects %}
+                <tr class="data-row">
+                    <td><strong>{{ project.name }}</strong></td>
+                    <td title="{{ project.deploys_tooltip }}">{{ project.deploys_display }}</td>
+                    <td title="{{ project.success_tooltip }}">{{ project.success_display }}</td>
+                    <td title="{{ project.duration_tooltip }}">{{ project.duration_display }}</td>
+                    <td title="{{ project.lead_time_tooltip }}">{{ project.lead_time_display }}</td>
+                    <td>
+                        <span class="status-{{ project.status_class }}" title="{{ project.status_tooltip }}">
+                            {{ project.status_display }}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Glossary -->
+{% if show_glossary %}
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>📖 What These Metrics Mean</h3>
+        <span class="glossary-toggle" id="glossary-toggle">▼</span>
+    </div>
+    <div class="glossary-content" id="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">Status Indicator</div>
+            <div class="glossary-definition">
+                Overall health of the deployment pipeline based on success rate and activity:<br><br>
+                <span style="color: #10b981;">✓ <strong>Good</strong></span>: ≥90% success rate + ≥1 deploy/week<br>
+                <span style="color: #f59e0b;">⚠ <strong>Caution</strong></span>: ≥70% success rate + ≥0.5 deploys/week<br>
+                <span style="color: #ef4444;">● <strong>Action Needed</strong></span>: Low success rate or infrequent deployments<br>
+                <span style="color: #94a3b8;">○ <strong>Inactive</strong></span>: No deployments in the last 90 days
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">DORA Metrics</div>
+            <div class="glossary-definition">
+                DevOps Research and Assessment (DORA) metrics are industry-standard measures of software delivery performance.
+                These metrics help teams understand their deployment velocity, stability, and efficiency.
+                Research shows that high-performing teams excel across all four DORA metrics.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Deployment Frequency</div>
+            <div class="glossary-definition">
+                How often code is successfully deployed to production. Measured as deployments per week.
+                <strong>Higher is better</strong> - more frequent deployments indicate better agility and faster delivery of value to customers.
+                <br><br>
+                Elite performers: Multiple deployments per day<br>
+                High performers: Daily to weekly deployments<br>
+                Medium performers: Weekly to monthly deployments
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Build Success Rate</div>
+            <div class="glossary-definition">
+                Percentage of builds that complete successfully without failures.
+                <strong>Higher is better</strong> - indicates code quality, test coverage, and build stability.
+                <br><br>
+                A high success rate (>90%) suggests robust testing and quality gates.
+                Low success rates can indicate flaky tests, infrastructure issues, or code quality problems.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Build Duration (Median)</div>
+            <div class="glossary-definition">
+                The median time it takes to complete a build, measured in minutes.
+                <strong>Lower is better</strong> - faster builds mean quicker feedback for developers.
+                <br><br>
+                We show both median (typical time) and P85 (85th percentile) to account for variability.
+                Long build times can slow down development velocity and delay feedback on code changes.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Lead Time for Changes</div>
+            <div class="glossary-definition">
+                The time from when code is committed to when it's successfully deployed to production, measured in hours.
+                <strong>Lower is better</strong> - shorter lead times mean faster response to customer needs and market changes.
+                <br><br>
+                Elite performers: Less than 1 hour<br>
+                High performers: 1 day to 1 week<br>
+                Medium performers: 1 week to 1 month
+                <br><br>
+                This metric combines build time, test time, approval processes, and deployment time.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">P85 (85th Percentile)</div>
+            <div class="glossary-definition">
+                A statistical measure showing the value below which 85% of observations fall.
+                This helps filter out extreme outliers while capturing realistic upper bounds.
+                <br><br>
+                For example, if P85 build duration is 15 minutes, it means 85% of builds complete in 15 minutes or less.
+            </div>
+        </div>
+
+        <h3 style="margin-top: 30px; color: #667eea;">📊 Data Collection Details</h3>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Time Period</div>
+            <div class="glossary-definition">
+                <strong>90-day lookback period</strong> for all deployment metrics.
+                This provides enough data for meaningful statistics while remaining relevant to current performance.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Build Criteria</div>
+            <div class="glossary-definition">
+                Only completed builds (succeeded or failed) are counted.
+                Canceled or in-progress builds are excluded from metrics.
+                Deployment frequency counts only successful builds.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Why These Metrics Matter</div>
+            <div class="glossary-definition">
+                DORA metrics correlate strongly with organizational performance and business outcomes.
+                Teams that excel in these metrics deliver more value, respond faster to incidents,
+                and have higher job satisfaction. These are <strong>leading indicators</strong> of overall engineering effectiveness.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
