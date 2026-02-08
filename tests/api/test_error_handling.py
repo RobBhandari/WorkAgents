@@ -179,14 +179,16 @@ class TestDataNotFound:
         # Mock the file path to a non-existent location
         fake_path = tmp_path / "nonexistent" / "quality_history.json"
 
-        def mock_path_constructor(path_str):
-            from pathlib import Path
+        # Patch the Path constructor in the loader module
+        from pathlib import Path as RealPath
 
+        def mock_path(path_str):
             if "quality_history" in str(path_str):
                 return fake_path
-            return Path(path_str)
+            return RealPath(path_str)
 
-        monkeypatch.setattr("pathlib.Path", mock_path_constructor)
+        # Patch pathlib.Path in the loader module where it's used
+        monkeypatch.setattr("execution.collectors.ado_quality_loader.pathlib.Path", mock_path)
 
         response = client.get("/api/v1/metrics/quality/latest", auth=auth)
 
@@ -201,14 +203,16 @@ class TestDataNotFound:
         """Missing security data file should return 404."""
         fake_path = tmp_path / "nonexistent" / "security_history.json"
 
-        def mock_path_constructor(path_str):
-            from pathlib import Path
+        # Patch the Path constructor in the loader module
+        from pathlib import Path as RealPath
 
+        def mock_path(path_str):
             if "security_history" in str(path_str):
                 return fake_path
-            return Path(path_str)
+            return RealPath(path_str)
 
-        monkeypatch.setattr("pathlib.Path", mock_path_constructor)
+        # Patch pathlib.Path in the loader module where it's used
+        monkeypatch.setattr("execution.collectors.armorcode_loader.pathlib.Path", mock_path)
 
         response = client.get("/api/v1/metrics/security/latest", auth=auth)
 
