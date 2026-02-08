@@ -214,6 +214,7 @@ def should_skip_file(file_path: Path) -> bool:
         "test_",  # Test files
         "conftest.py",
         "legacy",  # Legacy code marked for future refactoring
+        "collectors/",  # Data collection ETL code - different constraints than presentation code
     ]
 
     file_str = str(file_path)
