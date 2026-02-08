@@ -105,10 +105,11 @@ def setup_observability(
     global _observability_config
 
     # Get from environment if not provided
-    import os
+    from execution.secure_config import get_config
 
-    sentry_dsn = sentry_dsn or os.getenv("SENTRY_DSN")
-    slack_webhook_url = slack_webhook_url or os.getenv("SLACK_WEBHOOK_URL")
+    config = get_config()
+    sentry_dsn = sentry_dsn or config.get_optional_env("SENTRY_DSN")
+    slack_webhook_url = slack_webhook_url or config.get_optional_env("SLACK_WEBHOOK_URL")
 
     _observability_config = ObservabilityConfig(
         sentry_dsn=sentry_dsn,
@@ -239,9 +240,9 @@ def send_slack_notification(message: str, severity: str = "info", context: dict[
         return False
 
     try:
-        import requests
+        from execution.http_client import post
 
-        response = requests.post(
+        response = post(
             _observability_config.slack_webhook_url, json=payload, headers={"Content-Type": "application/json"}
         )
 

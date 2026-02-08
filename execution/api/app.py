@@ -81,12 +81,20 @@ def create_app() -> FastAPI:
         - API keys
         - Integration with your identity provider
         """
-        import os
         import secrets
+        from execution.secure_config import get_config, ConfigurationError
 
-        # Get credentials from environment
-        correct_username = os.getenv("API_USERNAME", "admin")
-        correct_password = os.getenv("API_PASSWORD", "changeme")
+        # Get credentials from secure config
+        try:
+            api_auth = get_config().get_api_auth_config()
+            correct_username = api_auth.username
+            correct_password = api_auth.password
+        except ConfigurationError as e:
+            logger.error("API authentication not configured", extra={"error": str(e)})
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="API authentication not configured",
+            )
 
         is_correct_username = secrets.compare_digest(credentials.username, correct_username)
         is_correct_password = secrets.compare_digest(credentials.password, correct_password)

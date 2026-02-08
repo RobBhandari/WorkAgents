@@ -203,6 +203,54 @@ class MicrosoftTeamsConfig:
             raise ConfigurationError("MICROSOFT_APP_PASSWORD appears invalid (too short)")
 
 
+@dataclass
+class APIAuthConfig:
+    """
+    Validated API authentication configuration.
+    """
+
+    username: str
+    password: str
+
+    def __post_init__(self):
+        """Validate configuration after initialization."""
+        self._validate()
+
+    def _validate(self):
+        """
+        Validate API authentication configuration.
+
+        Raises:
+            ConfigurationError: If configuration is invalid
+        """
+        # Validate username
+        if not self.username:
+            raise ConfigurationError("API_USERNAME is required")
+
+        if len(self.username) < 3:
+            raise ConfigurationError("API_USERNAME appears invalid (too short)")
+
+        # Check for placeholder values
+        placeholders = ["admin", "user", "example", "placeholder", "changeme"]
+        if self.username.lower() in placeholders:
+            raise ConfigurationError(
+                f"API_USERNAME contains a placeholder value '{self.username}' - please set a real username"
+            )
+
+        # Validate password
+        if not self.password:
+            raise ConfigurationError("API_PASSWORD is required")
+
+        if len(self.password) < 8:
+            raise ConfigurationError("API_PASSWORD appears invalid (too short, minimum 8 characters)")
+
+        # Check for placeholder values
+        if self.password.lower() in placeholders:
+            raise ConfigurationError(
+                f"API_PASSWORD contains a placeholder value '{self.password}' - please set a real password"
+            )
+
+
 class SecureConfig:
     """
     Centralized secure configuration manager.
@@ -279,6 +327,37 @@ class SecureConfig:
 
         return MicrosoftTeamsConfig(app_id=app_id or "", app_password=app_password or "")
 
+    def get_api_auth_config(self) -> APIAuthConfig:
+        """
+        Get validated API authentication configuration.
+
+        Returns:
+            APIAuthConfig: Validated configuration
+
+        Raises:
+            ConfigurationError: If configuration is missing or invalid
+        """
+        username = os.getenv("API_USERNAME")
+        password = os.getenv("API_PASSWORD")
+
+        return APIAuthConfig(username=username or "", password=password or "")
+
+    def get_optional_env(self, key: str, default: str | None = None) -> str | None:
+        """
+        Get optional environment variable without validation.
+
+        Use this for optional configuration like observability settings
+        that may not be present in all environments.
+
+        Args:
+            key: Environment variable name
+            default: Default value if not set
+
+        Returns:
+            Value from environment or default
+        """
+        return os.getenv(key, default)
+
 
 # Convenience function for getting configuration
 _config_instance = None
@@ -304,7 +383,7 @@ def validate_config_on_startup(required_services: list[str]) -> None:
     Call this in your main() function to fail fast if configuration is invalid.
 
     Args:
-        required_services: List of services to validate (e.g., ['ado', 'armorcode', 'email'])
+        required_services: List of services to validate (e.g., ['ado', 'armorcode', 'email', 'api_auth'])
 
     Raises:
         ConfigurationError: If any required configuration is missing or invalid
@@ -325,6 +404,8 @@ def validate_config_on_startup(required_services: list[str]) -> None:
             config.get_email_config()  # Raises if invalid
         elif service == "teams":
             config.get_teams_config()  # Raises if invalid
+        elif service == "api_auth":
+            config.get_api_auth_config()  # Raises if invalid
         else:
             raise ValueError(f"Unknown service: {service}")
 

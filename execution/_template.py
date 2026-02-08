@@ -54,10 +54,22 @@ def main(input_param: str, optional_param: str = None) -> dict:
         if not input_param:
             raise ValueError("input_param cannot be empty")
 
-        # Step 2: Load configuration from environment
-        api_key = os.getenv("YOUR_API_KEY")
-        if not api_key:
-            raise RuntimeError("YOUR_API_KEY not found in environment variables")
+        # Step 2: Load configuration using secure_config
+        from execution.secure_config import get_config, ConfigurationError
+
+        config = get_config()
+
+        # Example: Get Azure DevOps config
+        # ado_config = config.get_ado_config()
+        # organization_url = ado_config.organization_url
+        # pat = ado_config.pat
+
+        # Example: Get ArmorCode config
+        # ac_config = config.get_armorcode_config()
+        # api_key = ac_config.api_key
+
+        # Example: Get optional environment variable
+        # custom_value = config.get_optional_env("YOUR_CUSTOM_VAR", "default_value")
 
         # Step 3: Perform main operation
         result = {
