@@ -12,6 +12,8 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
+from execution.template_engine import render_template
+
 # Load environment variables
 load_dotenv()
 
@@ -34,7 +36,7 @@ def get_status_indicator(baseline_count, current_count):
             color = "#dc3545"  # Red
 
     # Use a table cell with background color for better email compatibility
-    return f'<table cellpadding="0" cellspacing="0" style="margin: 0 auto;"><tr><td style="width: 10px; height: 40px; background: {color}; border-radius: 3px;"></td></tr></table>'
+    return render_template("components/status_indicator.html", color=color)
 
 
 def generate_html_report(data, output_file):

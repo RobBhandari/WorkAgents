@@ -287,25 +287,12 @@ def _generate_product_details(product_name: str, metrics: SecurityMetrics) -> st
     # Generate vulnerability breakdown
     breakdown_html = _generate_vulnerability_breakdown(metrics)
 
-    # Combine into two-stage layout
-    details_html = f'''
-    <div class="detail-content">
-        <!-- Stage 1: Aging Heatmap -->
-        {heatmap_html}
-
-        <!-- Stage 2: Vulnerability Breakdown (collapsible) -->
-        <div class="vuln-breakdown-section">
-            <button class="expand-btn" onclick="toggleVulnDetails(this); event.stopPropagation();">
-                Show Vulnerability Breakdown ▼
-            </button>
-            <div class="vuln-details-hidden">
-                {breakdown_html}
-            </div>
-        </div>
-    </div>
-    '''
-
-    return details_html
+    # Combine into two-stage layout using template
+    return render_template(
+        "dashboards/product_details.html",
+        heatmap_html=heatmap_html,
+        breakdown_html=breakdown_html
+    )
 
 
 def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
@@ -349,43 +336,28 @@ def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
         max(c for _, c in high_dist)
     ) if metrics.critical + metrics.high > 0 else 1
 
-    # Generate heatmap HTML
-    html = '''
-    <div class="heatmap-container">
-        <div class="heatmap-header">
-            <h4>Finding Age Distribution (Estimated)</h4>
-            <p class="heatmap-subtitle">Estimated vulnerability count by age and severity</p>
-            <p class="heatmap-note" style="font-size: 0.85em; color: var(--text-secondary); font-style: italic;">
-                Note: Distribution estimated from typical patterns. Enable individual vulnerability
-                tracking in data collection for precise aging data.
-            </p>
-        </div>
-        <div class="heatmap-grid">
-            <div class="heatmap-corner"></div>
-    '''
+    # Generate age labels
+    age_labels = [label for label, _ in age_patterns]
 
-    # Column headers
-    for label, _ in age_patterns:
-        html += render_template("components/heatmap_col_header.html", label=label)
-
-    # Critical row
-    html += '<div class="heatmap-row-header critical-header">Critical</div>'
+    # Generate cell HTML for critical row
+    critical_cells = []
     for _, count in critical_dist:
         intensity = (count / max_count) if max_count > 0 else 0
-        html += _generate_heatmap_cell(count, intensity, 'critical')
+        critical_cells.append(_generate_heatmap_cell(count, intensity, 'critical'))
 
-    # High row
-    html += '<div class="heatmap-row-header high-header">High</div>'
+    # Generate cell HTML for high row
+    high_cells = []
     for _, count in high_dist:
         intensity = (count / max_count) if max_count > 0 else 0
-        html += _generate_heatmap_cell(count, intensity, 'high')
+        high_cells.append(_generate_heatmap_cell(count, intensity, 'high'))
 
-    html += '''
-        </div>
-    </div>
-    '''
-
-    return html
+    # Render using template
+    return render_template(
+        "dashboards/aging_heatmap.html",
+        age_labels=age_labels,
+        critical_cells=critical_cells,
+        high_cells=high_cells
+    )
 
 
 def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> str:
@@ -443,84 +415,27 @@ def _generate_vulnerability_breakdown(metrics: SecurityMetrics) -> str:
     Returns:
         HTML for vulnerability breakdown
     """
-    html = '''
-    <div class="vuln-breakdown-table">
-        <h4>Vulnerability Breakdown by Severity</h4>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Severity</th>
-                    <th>Count</th>
-                    <th>Percentage</th>
-                    <th>Priority</th>
-                </tr>
-            </thead>
-            <tbody>
-    '''
-
     total = metrics.total_vulnerabilities
-    if total == 0:
-        html += '''
-                <tr><td colspan="4" style="text-align: center; padding: 20px;">No vulnerabilities found</td></tr>
-        '''
-    else:
-        # Critical
-        crit_pct = (metrics.critical / total * 100) if total > 0 else 0
-        html += f'''
-                <tr>
-                    <td><span class="severity-badge critical">Critical</span></td>
-                    <td>{metrics.critical}</td>
-                    <td>{crit_pct:.1f}%</td>
-                    <td>Immediate Action</td>
-                </tr>
-        '''
 
-        # High
-        high_pct = (metrics.high / total * 100) if total > 0 else 0
-        html += f'''
-                <tr>
-                    <td><span class="severity-badge high">High</span></td>
-                    <td>{metrics.high}</td>
-                    <td>{high_pct:.1f}%</td>
-                    <td>Fix Within 30 Days</td>
-                </tr>
-        '''
+    # Calculate percentages
+    crit_pct = f"{(metrics.critical / total * 100):.1f}" if total > 0 else "0.0"
+    high_pct = f"{(metrics.high / total * 100):.1f}" if total > 0 else "0.0"
+    med_pct = f"{(metrics.medium / total * 100):.1f}" if total > 0 else "0.0"
+    low_pct = f"{(metrics.low / total * 100):.1f}" if total > 0 else "0.0"
 
-        # Medium
-        med_pct = (metrics.medium / total * 100) if total > 0 else 0
-        html += f'''
-                <tr>
-                    <td><span class="severity-badge medium">Medium</span></td>
-                    <td>{metrics.medium}</td>
-                    <td>{med_pct:.1f}%</td>
-                    <td>Fix Within 90 Days</td>
-                </tr>
-        '''
-
-        # Low
-        low_pct = (metrics.low / total * 100) if total > 0 else 0
-        html += f'''
-                <tr>
-                    <td><span class="severity-badge low">Low</span></td>
-                    <td>{metrics.low}</td>
-                    <td>{low_pct:.1f}%</td>
-                    <td>Monitor</td>
-                </tr>
-        '''
-
-    html += '''
-            </tbody>
-        </table>
-        <div class="breakdown-note" style="margin-top: 15px; font-size: 0.9em; color: var(--text-secondary);">
-            <p><strong>Note:</strong> Individual CVE details, descriptions, and remediation steps
-            require enhanced data collection. Currently showing summary counts from ArmorCode API.</p>
-            <p>To enable detailed vulnerability tracking, update data collection to fetch and store
-            individual finding details.</p>
-        </div>
-    </div>
-    '''
-
-    return html
+    # Render using template
+    return render_template(
+        "dashboards/vulnerability_breakdown.html",
+        total=total,
+        critical_count=metrics.critical,
+        critical_pct=crit_pct,
+        high_count=metrics.high,
+        high_pct=high_pct,
+        medium_count=metrics.medium,
+        medium_pct=med_pct,
+        low_count=metrics.low,
+        low_pct=low_pct
+    )
 
 
 # Main execution for testing

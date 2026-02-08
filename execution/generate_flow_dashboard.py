@@ -82,23 +82,28 @@ def calculate_composite_flow_status(p85_lead_time, p50_lead_time):
     # Determine overall status and priority
     if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
         # Both metrics poor = Action Needed
-        status_html = '<span style="color: #ef4444;">● Action Needed</span>'
+        status_html = render_template("components/flow_status_badge.html",
+                                     color="#ef4444", icon="●", text="Action Needed")
         priority = 0
     elif "poor" in issues:
         # One poor metric = Caution
-        status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
+        status_html = render_template("components/flow_status_badge.html",
+                                     color="#f59e0b", icon="⚠", text="Caution")
         priority = 1
     elif "caution" in issues and len([i for i in issues if i == "caution"]) >= 2:
         # Both metrics caution = Caution
-        status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
+        status_html = render_template("components/flow_status_badge.html",
+                                     color="#f59e0b", icon="⚠", text="Caution")
         priority = 1
     elif "caution" in issues:
         # One caution metric = Caution
-        status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
+        status_html = render_template("components/flow_status_badge.html",
+                                     color="#f59e0b", icon="⚠", text="Caution")
         priority = 1
     else:
         # All metrics meet targets = Good
-        status_html = '<span style="color: #10b981;">✓ Good</span>'
+        status_html = render_template("components/flow_status_badge.html",
+                                     color="#10b981", icon="✓", text="Good")
         priority = 2
 
     return status_html, tooltip, priority

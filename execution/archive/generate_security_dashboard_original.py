@@ -12,7 +12,12 @@ import os
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
-from http_client import get, post, put, delete, patch
+
+# Import HTTP client
+try:
+    from execution.http_client import get, post, put, delete, patch
+except ModuleNotFoundError:
+    from http_client import get, post, put, delete, patch
 
 # Import mobile-responsive framework
 try:

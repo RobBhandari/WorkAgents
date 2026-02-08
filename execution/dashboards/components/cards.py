@@ -1,8 +1,10 @@
 """
 Card components for dashboards
 
-Provides reusable metric and summary card HTML generators.
+Provides reusable metric and summary card HTML generators using secure Jinja2 templates.
 """
+
+from execution.template_engine import render_template
 
 
 def metric_card(title: str, value: str, subtitle: str = "", trend: str = "", css_class: str = "") -> str:
@@ -28,16 +30,9 @@ def metric_card(title: str, value: str, subtitle: str = "", trend: str = "", css
             css_class="rag-green"
         )
     """
-    trend_html = f'<span class="trend">{trend}</span>' if trend else ""
-    subtitle_html = f'<div class="metric-unit">{subtitle}</div>' if subtitle else ""
-
-    return f"""
-    <div class="summary-card {css_class}">
-        <div class="metric-label">{title}</div>
-        <div class="metric-value">{value} {trend_html}</div>
-        {subtitle_html}
-    </div>
-    """
+    return render_template(
+        "components/metric_card.html", title=title, value=value, subtitle=subtitle, trend=trend, css_class=css_class
+    )
 
 
 def summary_card(title: str, value: str, css_class: str = "", subtitle: str = "") -> str:
@@ -61,15 +56,7 @@ def summary_card(title: str, value: str, css_class: str = "", subtitle: str = ""
             subtitle="Immediate attention required"
         )
     """
-    subtitle_html = f'<div class="card-subtitle">{subtitle}</div>' if subtitle else ""
-
-    return f"""
-    <div class="summary-card {css_class}">
-        <h3 class="card-title">{title}</h3>
-        <div class="card-value">{value}</div>
-        {subtitle_html}
-    </div>
-    """
+    return render_template("components/summary_card.html", title=title, value=value, css_class=css_class, subtitle=subtitle)
 
 
 def rag_status_badge(status: str) -> str:
@@ -105,7 +92,7 @@ def rag_status_badge(status: str) -> str:
     css_class = css_class_map.get(status_lower, "status-inactive")
     display_text = status.upper()
 
-    return f'<span class="status-badge {css_class}">{display_text}</span>'
+    return render_template("components/rag_status_badge.html", css_class=css_class, status_text=display_text)
 
 
 def attention_item_card(severity: str, category: str, message: str) -> str:
@@ -131,9 +118,4 @@ def attention_item_card(severity: str, category: str, message: str) -> str:
 
     css_class = severity_map.get(severity.lower(), "")
 
-    return f"""
-    <div class="attention-item {css_class}">
-        <div class="attention-category">{category}</div>
-        <div class="attention-message">{message}</div>
-    </div>
-    """
+    return render_template("components/attention_item_card.html", css_class=css_class, category=category, message=message)

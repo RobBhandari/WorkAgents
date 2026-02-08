@@ -79,38 +79,21 @@ def get_work_type_rag_status(unassigned_pct: float) -> tuple:
 
 def generate_ownership_drilldown_html(project):
     """Generate drill-down detail content HTML for a project"""
-    html = '<div class="detail-content">'
-
     # Section 1: Assignment Distribution (Top Assignees)
     top_assignees = project["assignment_distribution"].get("top_assignees", [])
     load_imbalance = project["assignment_distribution"].get("load_imbalance_ratio")
 
-    if top_assignees:
-        # Filter out "Unassigned" from the list
-        assigned_only = [(name, count) for name, count in top_assignees if name != "Unassigned"]
+    # Filter out "Unassigned" from the list
+    assigned_only = [(name, count) for name, count in top_assignees if name != "Unassigned"] if top_assignees else []
 
-        if assigned_only:
-            html += '<div class="detail-section">'
-            html += "<h4>Work Distribution by Assignee</h4>"
-            html += '<div class="detail-grid">'
-
-            for name, count in assigned_only[:8]:  # Show max 8
-                html += render_template("ownership/assignee_item.html", name=name, count=count)
-
-            html += "</div>"
-
-            if load_imbalance:
-                html += f'<p style="margin-top: 12px; color: #6b7280; font-size: 0.9rem;"><strong>Load Imbalance Ratio:</strong> {load_imbalance:.1f}:1 (max vs min workload)</p>'
-
-            html += "</div>"
+    # Format load imbalance for display
+    load_imbalance_str = f"{load_imbalance:.1f}" if load_imbalance else None
 
     # Section 2: Work Type Breakdown
     work_type_seg = project.get("work_type_segmentation", {})
-    if work_type_seg:
-        html += '<div class="detail-section">'
-        html += "<h4>Ownership by Work Type</h4>"
-        html += '<div class="detail-grid">'
+    work_type_metrics = []
 
+    if work_type_seg:
         # Show Bug, Story, Task
         for wtype in ["Bug", "User Story", "Task"]:
             if wtype in work_type_seg:
@@ -124,7 +107,7 @@ def generate_ownership_drilldown_html(project):
                     rag_class, rag_color, rag_status = get_work_type_rag_status(unassigned_pct)
 
                     assigned = total - unassigned
-                    html += render_template(
+                    metric_html = render_template(
                         "ownership/work_type_metric.html",
                         rag_class=rag_class,
                         rag_color=rag_color,
@@ -135,37 +118,30 @@ def generate_ownership_drilldown_html(project):
                         unassigned_pct=f"{unassigned_pct:.0f}",
                         rag_status=rag_status,
                     )
-
-        html += "</div></div>"
+                    work_type_metrics.append(metric_html)
 
     # Section 3: Area Unassigned Statistics (HARD DATA - NO CLASSIFICATION)
     area_stats = project.get("area_unassigned_stats", {})
-    areas = area_stats.get("areas", [])
+    raw_areas = area_stats.get("areas", [])
 
-    if areas:
-        html += '<div class="detail-section">'
-        html += "<h4>Area Unassigned Statistics</h4>"
-        html += '<p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Top areas by unassigned percentage (all areas shown, no filtering)</p>'
-        html += '<ul class="detail-list">'
+    # Format area data for template
+    areas = []
+    for area in raw_areas:
+        areas.append({
+            "area_path": area.get("area_path", "Unknown"),
+            "unassigned_pct": f"{area.get('unassigned_pct', 0):.1f}",
+            "total_items": area.get("total_items", 0),
+            "unassigned_items": area.get("unassigned_items", 0)
+        })
 
-        for area in areas[:10]:  # Show top 10 by unassigned %
-            area_path = area.get("area_path", "Unknown")
-            unassigned_pct = area.get("unassigned_pct", 0)
-            total = area.get("total_items", 0)
-            unassigned = area.get("unassigned_items", 0)
-            html += f"""<li>
-                <strong>{area_path}</strong>
-                <em>({unassigned_pct:.1f}% unassigned • {unassigned}/{total} items)</em>
-            </li>"""
-
-        html += "</ul></div>"
-
-    # If no data at all
-    if not (top_assignees or areas):
-        html += '<div class="no-data">No detailed metrics available for this project</div>'
-
-    html += "</div>"
-    return html
+    # Render using template
+    return render_template(
+        "ownership/drilldown_detail.html",
+        assigned_only=assigned_only,
+        load_imbalance=load_imbalance_str,
+        work_type_metrics=work_type_metrics,
+        areas=areas
+    )
 
 
 def load_ownership_data():

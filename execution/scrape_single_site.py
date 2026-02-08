@@ -16,12 +16,12 @@ from typing import Any
 from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 
-import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from http_client import get
+from requests.exceptions import HTTPError, Timeout
 
 from execution.core import get_config
+from execution.http_client import get
 
 # Load environment variables
 load_dotenv()
@@ -164,7 +164,7 @@ def scrape_website(url: str, selectors: dict[str, str] | None = None, respect_ro
             logger.info(f"Successfully scraped {url}")
             return result
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 429:  # Rate limited
                 wait_time = 2**attempt  # Exponential backoff
                 logger.warning(f"Rate limited. Waiting {wait_time} seconds...")
@@ -172,7 +172,7 @@ def scrape_website(url: str, selectors: dict[str, str] | None = None, respect_ro
             else:
                 raise RuntimeError(f"HTTP error: {e}") from e
 
-        except requests.exceptions.Timeout:
+        except Timeout:
             logger.warning(f"Timeout on attempt {attempt + 1}")
             if attempt == MAX_RETRIES - 1:
                 raise RuntimeError(f"Timed out after {MAX_RETRIES} attempts")

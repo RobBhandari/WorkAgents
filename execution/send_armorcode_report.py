@@ -20,9 +20,10 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
-from http_client import post
+from requests.exceptions import RequestException
 
 from execution.core import get_config
+from execution.http_client import post
 
 # Load environment variables
 load_dotenv()
@@ -92,8 +93,6 @@ def send_email_graph(
         bool: True if successful, False otherwise
     """
     try:
-        import requests
-
         logger.info("Authenticating with Microsoft Graph API")
 
         # Step 1: Get access token
@@ -153,7 +152,7 @@ def send_email_graph(
         logger.info("Email sent successfully")
         return True
 
-    except requests.exceptions.RequestException as e:
+    except RequestException as e:
         logger.error(f"HTTP request failed: {e}")
         if hasattr(e.response, "text"):
             logger.error(f"Response: {e.response.text}")

@@ -18,9 +18,10 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
-from http_client import get
+from requests.exceptions import RequestException
 
 from execution.core import get_config
+from execution.http_client import get
 
 # Load environment variables from .env file
 load_dotenv()
@@ -81,8 +82,6 @@ def create_baseline(
     logger.info(f"Creating baseline for vulnerabilities open on {baseline_date}")
 
     try:
-        import requests
-
         # Step 1: Connect to ArmorCode API
         logger.info(f"Connecting to ArmorCode API: {base_url}")
 
@@ -148,7 +147,7 @@ def create_baseline(
                     logger.warning(f"Endpoint {endpoint} returned status {response.status_code}: {response.text[:200]}")
                     continue
 
-            except requests.exceptions.RequestException as e:
+            except RequestException as e:
                 logger.debug(f"Request to {endpoint} failed: {e}")
                 continue
 

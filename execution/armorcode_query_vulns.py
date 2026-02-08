@@ -18,9 +18,10 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
-from http_client import get
+from requests.exceptions import RequestException
 
 from execution.core import get_config
+from execution.http_client import get
 
 # Load environment variables from .env file
 load_dotenv()
@@ -118,8 +119,6 @@ def query_current_vulnerabilities(api_key: str, base_url: str, environment: str,
         RuntimeError: If query fails
     """
     try:
-        import requests
-
         # Connect to ArmorCode API
         logger.info(f"Connecting to ArmorCode API: {base_url}")
 
@@ -173,7 +172,7 @@ def query_current_vulnerabilities(api_key: str, base_url: str, environment: str,
                     logger.warning(f"Endpoint {endpoint} returned status {response.status_code}")
                     continue
 
-            except requests.exceptions.RequestException as e:
+            except RequestException as e:
                 logger.debug(f"Request to {endpoint} failed: {e}")
                 continue
 

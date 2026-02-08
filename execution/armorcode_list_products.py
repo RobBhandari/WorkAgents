@@ -18,9 +18,10 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
-from http_client import get
+from requests.exceptions import RequestException
 
 from execution.core import get_config
+from execution.http_client import get
 
 # Load environment variables from .env file
 load_dotenv()
@@ -54,8 +55,6 @@ def list_products(api_key: str, base_url: str) -> dict:
     logger.info("Connecting to ArmorCode API")
 
     try:
-        import requests
-
         # Make API request to list products
         logger.info(f"Connecting to ArmorCode API: {base_url}")
 
@@ -91,7 +90,7 @@ def list_products(api_key: str, base_url: str) -> dict:
                     logger.warning(f"Endpoint {endpoint} returned status {response.status_code}")
                     continue
 
-            except requests.exceptions.RequestException as e:
+            except RequestException as e:
                 logger.debug(f"Request to {endpoint} failed: {e}")
                 continue
 

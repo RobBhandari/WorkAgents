@@ -53,90 +53,71 @@ def calculate_risk_level(commit_count):
 
 def generate_risk_drilldown_html(project):
     """Generate drill-down detail content HTML for a project"""
-    html = '<div class="detail-content">'
-
     # Section 1: Code Churn Metrics
     code_churn = project.get("code_churn", {})
     pr_dist = project.get("pr_size_distribution", {})
     repo_count = project.get("repository_count", 0)
 
-    html += '<div class="detail-section">'
-    html += "<h4>Code Activity Metrics (Last 90 Days - All Project Activity)</h4>"
+    has_commits = code_churn.get("total_commits", 0) > 0
+    has_prs = pr_dist.get("total_prs", 0) > 0
+    has_activity = has_commits or has_prs
 
-    if code_churn.get("total_commits", 0) > 0 or pr_dist.get("total_prs", 0) > 0:
-        html += '<div class="detail-grid">'
+    # Generate commit metrics HTML
+    commit_metric = ""
+    file_changes_metric = ""
+    avg_changes_metric = ""
+    if has_commits:
+        commit_metric = render_template(
+            "risk/commit_metric.html",
+            total_commits=code_churn["total_commits"],
+        )
+        file_changes_metric = render_template(
+            "risk/file_changes_metric.html",
+            total_file_changes=code_churn.get("total_file_changes", 0),
+        )
+        avg_changes_metric = render_template(
+            "risk/avg_changes_metric.html",
+            avg_changes=f"{code_churn.get('avg_changes_per_commit', 0):.1f}",
+        )
 
-        if code_churn.get("total_commits", 0) > 0:
-            html += render_template(
-                "risk/commit_metric.html",
-                total_commits=code_churn["total_commits"],
-            )
+    # Generate PR metrics HTML
+    total_prs_metric = ""
+    small_prs_metric = ""
+    large_prs_metric = ""
+    if has_prs:
+        total_prs_metric = render_template(
+            "risk/total_prs_metric.html",
+            total_prs=pr_dist["total_prs"],
+        )
+        small_prs_metric = render_template(
+            "risk/small_prs_metric.html",
+            small_prs=pr_dist.get("small_prs", 0),
+            small_pct=f"{pr_dist.get('small_pct', 0):.0f}",
+        )
+        large_prs_metric = render_template(
+            "risk/large_prs_metric.html",
+            large_prs=pr_dist.get("large_prs", 0),
+            large_pct=f"{pr_dist.get('large_pct', 0):.0f}",
+        )
 
-            html += render_template(
-                "risk/file_changes_metric.html",
-                total_file_changes=code_churn.get("total_file_changes", 0),
-            )
-
-            html += render_template(
-                "risk/avg_changes_metric.html",
-                avg_changes=f"{code_churn.get('avg_changes_per_commit', 0):.1f}",
-            )
-
-        if pr_dist.get("total_prs", 0) > 0:
-            html += render_template(
-                "risk/total_prs_metric.html",
-                total_prs=pr_dist["total_prs"],
-            )
-
-            html += render_template(
-                "risk/small_prs_metric.html",
-                small_prs=pr_dist.get("small_prs", 0),
-                small_pct=f"{pr_dist.get('small_pct', 0):.0f}",
-            )
-
-            html += render_template(
-                "risk/large_prs_metric.html",
-                large_prs=pr_dist.get("large_prs", 0),
-                large_pct=f"{pr_dist.get('large_pct', 0):.0f}",
-            )
-
-        html += "</div>"
-    else:
-        # Show message when no activity data is found
-        if repo_count > 0:
-            html += f'<p style="color: #6b7280; font-size: 0.9rem;">No commits or PRs found in last 90 days across {repo_count} repositor{"y" if repo_count == 1 else "ies"}.</p>'
-        else:
-            html += '<p style="color: #6b7280; font-size: 0.9rem;">No repository data available.</p>'
-
-    html += "</div>"
-
-    # Section 3: Hot Paths (High Churn Files)
+    # Section 2: Hot Paths (High Churn Files)
     hot_paths = code_churn.get("hot_paths", [])
-    if hot_paths:
-        html += '<div class="detail-section">'
-        html += "<h4>Hot Paths (High Churn Files)</h4>"
-        html += '<ul class="detail-list">'
-        for path_data in hot_paths[:10]:  # Show max 10
-            path = path_data.get("path", "Unknown")
-            changes = path_data.get("change_count", 0)
-            html += f"""<li>
-                <strong>{path}</strong>
-                <em>({changes} changes)</em>
-            </li>"""
-        html += "</ul></div>"
 
-    # Section 4: Repository Info
-    if repo_count > 0:
-        html += '<div class="detail-section">'
-        html += f'<p style="color: #6b7280; font-size: 0.9rem;"><strong>Repositories:</strong> {repo_count} repos tracked for this project</p>'
-        html += "</div>"
-
-    # If no data at all
-    if not (code_churn.get("total_commits", 0) > 0 or pr_dist.get("total_prs", 0) > 0):
-        html += '<div class="no-data">No detailed metrics available for this project</div>'
-
-    html += "</div>"
-    return html
+    # Render using template
+    return render_template(
+        "risk/drilldown_detail.html",
+        has_activity=has_activity,
+        has_commits=has_commits,
+        has_prs=has_prs,
+        commit_metric=commit_metric,
+        file_changes_metric=file_changes_metric,
+        avg_changes_metric=avg_changes_metric,
+        total_prs_metric=total_prs_metric,
+        small_prs_metric=small_prs_metric,
+        large_prs_metric=large_prs_metric,
+        repo_count=repo_count,
+        hot_paths=hot_paths
+    )
 
 
 def load_risk_data():

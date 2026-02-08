@@ -613,7 +613,7 @@ def generate_html(all_trends, target_progress):
             'arrow': arrow,
             'cssClass': css_class,
             'ragColor': rag_color,
-            'dashboardUrl': 'security.html'
+            'dashboardUrl': 'security_dashboard.html'
         })
 
     # 4. Open Bugs

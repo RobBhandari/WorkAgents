@@ -12,11 +12,11 @@ import os
 import sys
 from datetime import datetime
 
-import requests
 from dotenv import load_dotenv
-from http_client import post
+from requests.exceptions import HTTPError
 
 from execution.core import get_config
+from execution.http_client import post
 
 # Load environment variables
 load_dotenv()
@@ -76,7 +76,7 @@ def get_access_token(tenant_id: str, client_id: str, client_secret: str) -> str:
         logger.info("Successfully obtained access token")
         return access_token
 
-    except requests.exceptions.HTTPError as e:
+    except HTTPError as e:
         error_details = e.response.json() if e.response else {}
         raise RuntimeError(
             f"Failed to get access token: {e}\n"
@@ -187,7 +187,7 @@ def send_email_graph(
             logger.info("Email sent successfully via Graph API!")
             return True
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             error_details = e.response.json() if e.response else {}
             error_code = error_details.get("error", {}).get("code", "")
 
