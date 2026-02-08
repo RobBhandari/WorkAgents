@@ -204,10 +204,10 @@ class AsyncMetricsOrchestrator:
 
         # Sync collectors (subprocess - these run concurrently too)
         sync_collectors = [
-            ("Ownership Metrics", "execution/ado_ownership_metrics.py"),
-            ("Risk Metrics", "execution/ado_risk_metrics.py"),
-            ("Deployment Metrics (DORA)", "execution/ado_deployment_metrics.py"),
-            ("Collaboration Metrics (PR Analysis)", "execution/ado_collaboration_metrics.py"),
+            ("Ownership Metrics", "execution/collectors/ado_ownership_metrics.py"),
+            ("Risk Metrics", "execution/collectors/ado_risk_metrics.py"),
+            ("Deployment Metrics (DORA)", "execution/collectors/ado_deployment_metrics.py"),
+            ("Collaboration Metrics (PR Analysis)", "execution/collectors/ado_collaboration_metrics.py"),
         ]
 
         subprocess_tasks = [self._run_sync_collector_subprocess(name, path) for name, path in sync_collectors]

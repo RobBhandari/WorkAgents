@@ -95,8 +95,8 @@ def main():
         ("execution/generate_risk_dashboard.py", "Risk Dashboard"),
         ("execution/generate_deployment_dashboard.py", "Deployment Dashboard"),
         ("execution/generate_collaboration_dashboard.py", "Collaboration Dashboard"),
-        ("execution/archive/generate_security_dashboard_original.py", "Security Dashboard (with drill-down)"),
-        ("execution/archive/generate_trends_dashboard_original.py", "Executive Trends (index.html)"),
+        ("execution/dashboards/security_enhanced.py", "Security Dashboard (Enhanced with drill-down)"),
+        ("execution/dashboards/trends.py", "Executive Trends (index.html)"),
     ]
 
     for script, name in generators:

@@ -13,6 +13,7 @@ Read-only operation - does not modify any existing data.
 """
 
 import json
+import logging
 import os
 import statistics
 import sys
@@ -29,8 +30,74 @@ from msrest.authentication import BasicAuthentication
 from execution.collectors.ado_connection import get_ado_connection
 from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.secure_config import get_config
+from execution.utils.ado_batch_utils import batch_fetch_work_items, BatchFetchError
+from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+def _build_area_filter_clause(area_path_filter: str | None) -> str:
+    """
+    Build WIQL area path filter clause.
+
+    Args:
+        area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
+
+    Returns:
+        WIQL filter clause string
+    """
+    if not area_path_filter:
+        return ""
+
+    if area_path_filter.startswith("EXCLUDE:"):
+        path = area_path_filter.replace("EXCLUDE:", "")
+        print(f"      Excluding area path: {path}")
+        return f"AND [System.AreaPath] NOT UNDER '{path}'"
+    elif area_path_filter.startswith("INCLUDE:"):
+        path = area_path_filter.replace("INCLUDE:", "")
+        print(f"      Including only area path: {path}")
+        return f"AND [System.AreaPath] UNDER '{path}'"
+
+    return ""
+
+
+def _fetch_bug_details(wit_client, bug_ids: list[int], fields: list[str]) -> list[dict]:
+    """
+    Fetch full bug details using batch utility.
+
+    Args:
+        wit_client: Work Item Tracking client
+        bug_ids: List of bug IDs to fetch
+        fields: List of fields to retrieve
+
+    Returns:
+        List of bug field dictionaries
+
+    Raises:
+        BatchFetchError: If all batches fail
+    """
+    if not bug_ids:
+        return []
+
+    try:
+        bugs, failed_ids = batch_fetch_work_items(
+            wit_client,
+            item_ids=bug_ids,
+            fields=fields,
+            logger=logger
+        )
+
+        if failed_ids:
+            logger.warning(f"Failed to fetch {len(failed_ids)} out of {len(bug_ids)} bugs")
+
+        return bugs
+
+    except BatchFetchError as e:
+        logger.error(f"All bug fetches failed: {e}")
+        raise
 
 
 def query_bugs_for_quality(
@@ -47,22 +114,16 @@ def query_bugs_for_quality(
 
     Returns:
         Dictionary with categorized bugs
+
+    Raises:
+        Exception: If query execution fails
     """
     lookback_date = (datetime.now() - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
 
     print(f"    Querying bugs for {project_name}...")
 
     # Build area path filter clause
-    area_filter_clause = ""
-    if area_path_filter:
-        if area_path_filter.startswith("EXCLUDE:"):
-            path = area_path_filter.replace("EXCLUDE:", "")
-            area_filter_clause = f"AND [System.AreaPath] NOT UNDER '{path}'"
-            print(f"      Excluding area path: {path}")
-        elif area_path_filter.startswith("INCLUDE:"):
-            path = area_path_filter.replace("INCLUDE:", "")
-            area_filter_clause = f"AND [System.AreaPath] UNDER '{path}'"
-            print(f"      Including only area path: {path}")
+    area_filter_clause = _build_area_filter_clause(area_path_filter)
 
     # Query 1: All bugs (for overall quality assessment)
     wiql_all_bugs = Wiql(query=f"""
@@ -93,71 +154,63 @@ def query_bugs_for_quality(
         ORDER BY [System.CreatedDate] ASC
         """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
 
-    try:
-        # Execute queries
-        all_bugs_result = wit_client.query_by_wiql(wiql_all_bugs).work_items
-        open_bugs_result = wit_client.query_by_wiql(wiql_open_bugs).work_items
+    # Execute queries
+    all_bugs_result = wit_client.query_by_wiql(wiql_all_bugs).work_items
+    open_bugs_result = wit_client.query_by_wiql(wiql_open_bugs).work_items
 
-        print(f"      Found {len(all_bugs_result) if all_bugs_result else 0} total bugs (last {lookback_days} days)")
-        print(f"      Found {len(open_bugs_result) if open_bugs_result else 0} open bugs")
+    print(f"      Found {len(all_bugs_result) if all_bugs_result else 0} total bugs (last {lookback_days} days)")
+    print(f"      Found {len(open_bugs_result) if open_bugs_result else 0} open bugs")
 
-        # Fetch full bug details with batching (200 per batch)
-        all_bugs = []
-        if all_bugs_result and len(all_bugs_result) > 0:
-            all_bug_ids = [item.id for item in all_bugs_result]  # Fetch ALL bugs for accurate metrics
-            try:
-                for i in range(0, len(all_bug_ids), 200):
-                    batch_ids = all_bug_ids[i : i + 200]
-                    batch_bugs = wit_client.get_work_items(
-                        ids=batch_ids,
-                        fields=[
-                            "System.Id",
-                            "System.Title",
-                            "System.State",
-                            "System.CreatedDate",
-                            "System.WorkItemType",
-                            "Microsoft.VSTS.Common.Priority",
-                            "Microsoft.VSTS.Common.Severity",
-                            "System.Tags",
-                            "Microsoft.VSTS.Common.ClosedDate",
-                            "Microsoft.VSTS.Common.ResolvedDate",
-                            "System.CreatedBy",
-                        ],
-                        # Note: Cannot use expand='Relations' with fields parameter
-                    )
-                    all_bugs.extend([item.fields for item in batch_bugs])
-            except Exception as e:
-                print(f"      [WARNING] Error fetching all bugs: {e}")
+    # Fetch full bug details with batching
+    all_bugs = []
+    if all_bugs_result:
+        all_bug_ids = [item.id for item in all_bugs_result]
+        try:
+            all_bugs = _fetch_bug_details(
+                wit_client,
+                all_bug_ids,
+                fields=[
+                    "System.Id",
+                    "System.Title",
+                    "System.State",
+                    "System.CreatedDate",
+                    "System.WorkItemType",
+                    "Microsoft.VSTS.Common.Priority",
+                    "Microsoft.VSTS.Common.Severity",
+                    "System.Tags",
+                    "Microsoft.VSTS.Common.ClosedDate",
+                    "Microsoft.VSTS.Common.ResolvedDate",
+                    "System.CreatedBy",
+                ]
+            )
+        except BatchFetchError as e:
+            logger.warning(f"Error fetching all bugs: {e}")
+            all_bugs = []
 
-        open_bugs = []
-        if open_bugs_result and len(open_bugs_result) > 0:
-            open_bug_ids = [item.id for item in open_bugs_result]  # Fetch ALL open bugs for accurate metrics
-            try:
-                for i in range(0, len(open_bug_ids), 200):
-                    batch_ids = open_bug_ids[i : i + 200]
-                    batch_bugs = wit_client.get_work_items(
-                        ids=batch_ids,
-                        fields=[
-                            "System.Id",
-                            "System.Title",
-                            "System.State",
-                            "System.CreatedDate",
-                            "System.WorkItemType",
-                            "Microsoft.VSTS.Common.Priority",
-                            "Microsoft.VSTS.Common.Severity",
-                            "System.Tags",
-                            "System.CreatedBy",
-                        ],
-                    )
-                    open_bugs.extend([item.fields for item in batch_bugs])
-            except Exception as e:
-                print(f"      [WARNING] Error fetching open bugs: {e}")
+    open_bugs = []
+    if open_bugs_result:
+        open_bug_ids = [item.id for item in open_bugs_result]
+        try:
+            open_bugs = _fetch_bug_details(
+                wit_client,
+                open_bug_ids,
+                fields=[
+                    "System.Id",
+                    "System.Title",
+                    "System.State",
+                    "System.CreatedDate",
+                    "System.WorkItemType",
+                    "Microsoft.VSTS.Common.Priority",
+                    "Microsoft.VSTS.Common.Severity",
+                    "System.Tags",
+                    "System.CreatedBy",
+                ]
+            )
+        except BatchFetchError as e:
+            logger.warning(f"Error fetching open bugs: {e}")
+            open_bugs = []
 
-        return {"all_bugs": all_bugs, "open_bugs": open_bugs}
-
-    except Exception as e:
-        print(f"      [ERROR] Failed to query bugs: {e}")
-        return {"all_bugs": [], "open_bugs": []}
+    return {"all_bugs": all_bugs, "open_bugs": open_bugs}
 
 
 # REMOVED: calculate_reopen_rate
@@ -175,7 +228,14 @@ def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
     """
     Calculate bug age distribution: How long bugs have been open.
 
-    Returns age distribution metrics
+    Args:
+        open_bugs: List of open bug field dictionaries
+
+    Returns:
+        Age distribution metrics dictionary
+
+    Raises:
+        ValueError: If date parsing fails for all bugs
     """
     now = datetime.now(UTC)  # Make timezone-aware to match Azure DevOps dates
     ages = []
@@ -189,15 +249,15 @@ def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
                 created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
                 age_days = (now - created_dt).total_seconds() / 86400
                 ages.append(age_days)
-            except Exception as e:
+            except (ValueError, AttributeError) as e:
                 parse_errors += 1
                 # Log first few errors to help debug
                 if parse_errors <= 3:
-                    print(f"      [WARNING] Could not parse date for bug {bug.get('System.Id')}: {created} - {e}")
+                    logger.warning(f"Could not parse date for bug {bug.get('System.Id')}: {created} - {e}")
                 continue
 
     if parse_errors > 0:
-        print(f"      [WARNING] Failed to parse {parse_errors} out of {len(open_bugs)} open bug dates")
+        logger.warning(f"Failed to parse {parse_errors} out of {len(open_bugs)} open bug dates")
 
     if not ages:
         return {
@@ -208,12 +268,10 @@ def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
             "ages_distribution": {"0-7_days": 0, "8-30_days": 0, "31-90_days": 0, "90+_days": 0},
         }
 
-    sorted_ages = sorted(ages)
-
     return {
-        "median_age_days": round(sorted_ages[len(sorted_ages) // 2], 1) if ages else None,
-        "p85_age_days": round(sorted_ages[int(len(sorted_ages) * 0.85)], 1) if ages else None,
-        "p95_age_days": round(sorted_ages[int(len(sorted_ages) * 0.95)], 1) if ages else None,
+        "median_age_days": round(calculate_percentile(ages, 50), 1),
+        "p85_age_days": round(calculate_percentile(ages, 85), 1),
+        "p95_age_days": round(calculate_percentile(ages, 95), 1),
         "sample_size": len(ages),
         "ages_distribution": {
             "0-7_days": sum(1 for age in ages if age <= 7),
@@ -230,11 +288,15 @@ def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
 # Weights and formula are speculation, not based on actual business impact.
 
 
-def calculate_mttr(all_bugs: list[dict]) -> dict:
+def _parse_repair_times(all_bugs: list[dict]) -> list[float]:
     """
-    Calculate MTTR (Mean Time To Repair): Average time from bug creation to closure.
+    Parse repair times from bug data.
 
-    Returns MTTR metrics in days
+    Args:
+        all_bugs: List of bug field dictionaries
+
+    Returns:
+        List of repair times in days
     """
     repair_times = []
 
@@ -254,8 +316,24 @@ def calculate_mttr(all_bugs: list[dict]) -> dict:
                 # Filter out negative values (data quality issue)
                 if repair_time_days >= 0:
                     repair_times.append(repair_time_days)
-            except Exception:
+            except (ValueError, AttributeError) as e:
+                logger.debug(f"Could not parse dates for bug {bug.get('System.Id')}: {e}")
                 continue
+
+    return repair_times
+
+
+def calculate_mttr(all_bugs: list[dict]) -> dict:
+    """
+    Calculate MTTR (Mean Time To Repair): Average time from bug creation to closure.
+
+    Args:
+        all_bugs: List of all bug field dictionaries
+
+    Returns:
+        MTTR metrics dictionary in days
+    """
+    repair_times = _parse_repair_times(all_bugs)
 
     if not repair_times:
         return {
@@ -267,14 +345,13 @@ def calculate_mttr(all_bugs: list[dict]) -> dict:
             "mttr_distribution": {"0-1_days": 0, "1-7_days": 0, "7-30_days": 0, "30+_days": 0},
         }
 
-    sorted_times = sorted(repair_times)
     mean_mttr = sum(repair_times) / len(repair_times)
 
     return {
         "mttr_days": round(mean_mttr, 1),
-        "median_mttr_days": round(sorted_times[len(sorted_times) // 2], 1),
-        "p85_mttr_days": round(sorted_times[int(len(sorted_times) * 0.85)], 1),
-        "p95_mttr_days": round(sorted_times[int(len(sorted_times) * 0.95)], 1),
+        "median_mttr_days": round(calculate_percentile(repair_times, 50), 1),
+        "p85_mttr_days": round(calculate_percentile(repair_times, 85), 1),
+        "p95_mttr_days": round(calculate_percentile(repair_times, 95), 1),
         "sample_size": len(repair_times),
         "mttr_distribution": {
             "0-1_days": sum(1 for t in repair_times if t <= 1),
@@ -301,7 +378,7 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
         project_name: ADO project name
 
     Returns:
-        Test execution time metrics
+        Test execution time metrics dictionary
     """
     try:
         # Get recent test runs
@@ -317,29 +394,37 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
 
                     if duration_minutes > 0:
                         execution_times.append(duration_minutes)
-                except Exception:
+                except (AttributeError, TypeError) as e:
+                    logger.debug(f"Could not parse test run duration: {e}")
                     continue
 
         if not execution_times:
             return {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
 
-        sorted_times = sorted(execution_times)
-        n = len(sorted_times)
-
-        def percentile(data: list[float], p: float) -> float:
-            index = int(n * p / 100)
-            return data[min(index, n - 1)]
-
         return {
-            "sample_size": n,
-            "median_minutes": round(statistics.median(execution_times), 1),
-            "p85_minutes": round(percentile(sorted_times, 85), 1),
-            "p95_minutes": round(percentile(sorted_times, 95), 1),
+            "sample_size": len(execution_times),
+            "median_minutes": round(calculate_percentile(execution_times, 50), 1),
+            "p85_minutes": round(calculate_percentile(execution_times, 85), 1),
+            "p95_minutes": round(calculate_percentile(execution_times, 95), 1),
         }
 
     except Exception as e:
-        print(f"      [WARNING] Could not calculate test execution time: {e}")
+        logger.warning(f"Could not calculate test execution time: {e}")
         return {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
+
+
+def _print_metrics_summary(age_distribution: dict, mttr: dict, test_execution: dict) -> None:
+    """
+    Print metrics summary to console.
+
+    Args:
+        age_distribution: Bug age distribution metrics
+        mttr: MTTR metrics
+        test_execution: Test execution time metrics
+    """
+    print(f"    Median Bug Age: {age_distribution['median_age_days']} days")
+    print(f"    MTTR: {mttr['mttr_days']} days (median: {mttr['median_mttr_days']})")
+    print(f"    Test Execution Time: {test_execution['median_minutes']} minutes (median)")
 
 
 def collect_quality_metrics_for_project(connection, project: dict, config: dict) -> dict:
@@ -387,16 +472,14 @@ def collect_quality_metrics_for_project(connection, project: dict, config: dict)
     mttr = calculate_mttr(bugs["all_bugs"])
     test_execution = calculate_test_execution_time(test_client, ado_project_name)
 
-    print(f"    Median Bug Age: {age_distribution['median_age_days']} days")
-    print(f"    MTTR: {mttr['mttr_days']} days (median: {mttr['median_mttr_days']})")
-    print(f"    Test Execution Time: {test_execution['median_minutes']} minutes (median)")
+    _print_metrics_summary(age_distribution, mttr, test_execution)
 
     return {
         "project_key": project_key,
         "project_name": project_name,
         "bug_age_distribution": age_distribution,
         "mttr": mttr,
-        "test_execution_time": test_execution,  # NEW
+        "test_execution_time": test_execution,
         "total_bugs_analyzed": len(bugs["all_bugs"]),
         "open_bugs_count": len(bugs["open_bugs"]),
         "excluded_security_bugs": {"total": excluded_all, "open": excluded_open},
@@ -410,6 +493,13 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
 
     Appends to existing history or creates new file.
     Validates data before saving to prevent persisting collection failures.
+
+    Args:
+        metrics: Weekly metrics dictionary
+        output_file: Path to history file
+
+    Returns:
+        True if saved successfully, False otherwise
     """
     from execution.utils_atomic_json import atomic_json_save, load_json_with_recovery
 
@@ -417,7 +507,7 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
     projects = metrics.get("projects", [])
 
     if not projects:
-        print("\n[SKIPPED] No project data to save - collection may have failed")
+        logger.warning("No project data to save - collection may have failed")
         return False
 
     # Check if this looks like a failed collection (all zeros)
@@ -425,8 +515,8 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
     total_open = sum(p.get("open_bugs_count", 0) for p in projects)
 
     if total_bugs == 0 and total_open == 0:
-        print("\n[SKIPPED] All projects returned zero bugs - likely a collection failure")
-        print("          Not persisting this data to avoid corrupting trend history")
+        logger.warning("All projects returned zero bugs - likely a collection failure")
+        logger.warning("Not persisting this data to avoid corrupting trend history")
         return False
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -436,7 +526,7 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
 
     # Add validation if structure check exists
     if not isinstance(history, dict) or "weeks" not in history:
-        print("\n[WARNING] Existing history file has invalid structure - recreating")
+        logger.warning("Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
     # Add new week entry
@@ -448,11 +538,11 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
     # Save updated history
     try:
         atomic_json_save(history, output_file)
-        print(f"\n[SAVED] Quality metrics saved to: {output_file}")
-        print(f"        History now contains {len(history['weeks'])} week(s)")
+        logger.info(f"Quality metrics saved to: {output_file}")
+        logger.info(f"History now contains {len(history['weeks'])} week(s)")
         return True
-    except Exception as e:
-        print(f"\n[ERROR] Failed to save Quality metrics: {e}")
+    except (IOError, OSError) as e:
+        logger.error(f"Failed to save Quality metrics: {e}")
         return False
 
 
@@ -463,6 +553,12 @@ if __name__ == "__main__":
 
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     print("Director Observatory - Quality Metrics Collector\n")
     print("=" * 60)
@@ -479,9 +575,12 @@ if __name__ == "__main__":
         projects = discovery_data["projects"]
         print(f"Loaded {len(projects)} projects from discovery")
     except FileNotFoundError:
-        print("[ERROR] Project discovery file not found.")
+        logger.error("Project discovery file not found.")
         print("Run: python execution/discover_projects.py")
-        exit(1)
+        sys.exit(1)
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.error(f"Invalid discovery file format: {e}")
+        sys.exit(1)
 
     # Connect to ADO
     print("\nConnecting to Azure DevOps...")
@@ -489,8 +588,8 @@ if __name__ == "__main__":
         connection = get_ado_connection()
         print("[SUCCESS] Connected to ADO")
     except Exception as e:
-        print(f"[ERROR] Failed to connect to ADO: {e}")
-        exit(1)
+        logger.error(f"Failed to connect to ADO: {e}")
+        sys.exit(1)
 
     # Collect metrics for all projects
     print("\nCollecting quality metrics...")
@@ -502,7 +601,7 @@ if __name__ == "__main__":
             metrics = collect_quality_metrics_for_project(connection, project, config)
             project_metrics.append(metrics)
         except Exception as e:
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
+            logger.error(f"Failed to collect metrics for {project['project_name']}: {e}", exc_info=True)
             continue
 
     # Save results

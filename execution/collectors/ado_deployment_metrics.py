@@ -13,14 +13,17 @@ Read-only operation - does not modify any existing data.
 """
 
 import json
+import logging
 import os
 import statistics
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import cast
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
+from azure.devops.exceptions import AzureDevOpsServiceError
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -28,8 +31,12 @@ from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
 from execution.secure_config import get_config
+from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 def query_builds(build_client, project_name: str, days: int = 90) -> list[dict]:
@@ -76,7 +83,16 @@ def query_builds(build_client, project_name: str, days: int = 90) -> list[dict]:
 
         return build_data
 
+    except AzureDevOpsServiceError as e:
+        logger.warning(f"Azure DevOps service error querying builds for {project_name}: {e}")
+        print(f"      [WARNING] Could not query builds: {e}")
+        return []
+    except (ConnectionError, TimeoutError) as e:
+        logger.error(f"Network error querying builds for {project_name}: {e}")
+        print(f"      [WARNING] Could not query builds: {e}")
+        return []
     except Exception as e:
+        logger.error(f"Unexpected error querying builds for {project_name}: {e}", exc_info=True)
         print(f"      [WARNING] Could not query builds: {e}")
         return []
 
@@ -188,14 +204,6 @@ def calculate_build_duration(builds: list[dict]) -> dict:
 
     durations = [b["duration_minutes"] for b in builds_with_duration]
 
-    # Calculate percentiles
-    sorted_durations = sorted(durations)
-    n = len(sorted_durations)
-
-    def percentile(data: list[float], p: float) -> float:
-        index = int(n * p / 100)
-        return data[min(index, n - 1)]
-
     # By pipeline
     by_pipeline = defaultdict(list)
     for build in builds_with_duration:
@@ -210,14 +218,86 @@ def calculate_build_duration(builds: list[dict]) -> dict:
             }
 
     return {
-        "sample_size": n,
+        "sample_size": len(durations),
         "median_minutes": round(statistics.median(durations), 1),
-        "p85_minutes": round(percentile(sorted_durations, 85), 1),
-        "p95_minutes": round(percentile(sorted_durations, 95), 1),
+        "p85_minutes": round(calculate_percentile(durations, 85), 1),
+        "p95_minutes": round(calculate_percentile(durations, 95), 1),
         "min_minutes": round(min(durations), 1),
         "max_minutes": round(max(durations), 1),
         "by_pipeline": pipeline_stats,
     }
+
+
+def _get_commit_timestamp_from_build(build_client, project_name: str, build: dict) -> datetime | None:
+    """
+    Extract the latest commit timestamp from a build's changes.
+
+    Args:
+        build_client: Build client
+        project_name: ADO project name
+        build: Build data dictionary
+
+    Returns:
+        Commit timestamp if found, None otherwise
+    """
+    try:
+        if not build["finish_time"] or not build["source_version"]:
+            return None
+
+        # Get build changes (commits)
+        changes = build_client.get_build_changes(project=project_name, build_id=build["build_id"])
+
+        if not changes:
+            return None
+
+        # Get the latest commit timestamp (changes are typically ordered with latest first)
+        latest_change = changes[0]
+        if not hasattr(latest_change, "timestamp") or not latest_change.timestamp:
+            return None
+
+        return cast(datetime, latest_change.timestamp)
+
+    except AzureDevOpsServiceError as e:
+        logger.debug(f"Azure DevOps error getting changes for build {build['build_id']}: {e}")
+        return None
+    except (AttributeError, KeyError) as e:
+        logger.debug(f"Invalid build data structure for build {build.get('build_id', 'unknown')}: {e}")
+        return None
+    except Exception as e:
+        logger.warning(f"Unexpected error getting commit timestamp for build {build.get('build_id', 'unknown')}: {e}")
+        return None
+
+
+def _calculate_single_build_lead_time(commit_time: datetime, build: dict) -> float | None:
+    """
+    Calculate lead time in hours for a single build.
+
+    Args:
+        commit_time: Commit timestamp
+        build: Build data dictionary with finish_time
+
+    Returns:
+        Lead time in hours if positive, None otherwise
+    """
+    try:
+        build_finish_time = datetime.fromisoformat(build["finish_time"].replace("Z", "+00:00"))
+
+        # Make timezone-aware if needed
+        if commit_time.tzinfo is None and build_finish_time.tzinfo is not None:
+            commit_time = commit_time.replace(tzinfo=build_finish_time.tzinfo)
+
+        lead_time_delta = build_finish_time - commit_time
+        lead_time_hours = lead_time_delta.total_seconds() / 3600
+
+        # Only count positive lead times (build after commit)
+        if lead_time_hours > 0:
+            return lead_time_hours
+
+        return None
+
+    except (ValueError, KeyError, AttributeError) as e:
+        logger.debug(f"Error calculating lead time for build {build.get('build_id', 'unknown')}: {e}")
+        return None
 
 
 def calculate_lead_time_for_changes(build_client, git_client, project_name: str, builds: list[dict]) -> dict:
@@ -242,57 +322,24 @@ def calculate_lead_time_for_changes(build_client, git_client, project_name: str,
     successful_builds = [b for b in builds if b["result"] == "succeeded"][:50]
 
     for build in successful_builds:
-        try:
-            if not build["finish_time"] or not build["source_version"]:
-                continue
-
-            # Get build changes (commits)
-            changes = build_client.get_build_changes(project=project_name, build_id=build["build_id"])
-
-            if not changes:
-                continue
-
-            # Get the latest commit timestamp
-            # Changes are typically ordered with latest first
-            latest_change = changes[0]
-            if not hasattr(latest_change, "timestamp") or not latest_change.timestamp:
-                continue
-
-            # Calculate lead time
-            commit_time = latest_change.timestamp
-            build_finish_time = datetime.fromisoformat(build["finish_time"].replace("Z", "+00:00"))
-
-            # Make timezone-aware if needed
-            if commit_time.tzinfo is None and build_finish_time.tzinfo is not None:
-                commit_time = commit_time.replace(tzinfo=build_finish_time.tzinfo)
-
-            lead_time_delta = build_finish_time - commit_time
-            lead_time_hours = lead_time_delta.total_seconds() / 3600
-
-            # Only count positive lead times (build after commit)
-            if lead_time_hours > 0:
-                lead_times.append(lead_time_hours)
-
-        except Exception:
-            # Skip builds where we can't calculate lead time
+        # Get commit timestamp
+        commit_time = _get_commit_timestamp_from_build(build_client, project_name, build)
+        if not commit_time:
             continue
+
+        # Calculate lead time
+        lead_time_hours = _calculate_single_build_lead_time(commit_time, build)
+        if lead_time_hours is not None:
+            lead_times.append(lead_time_hours)
 
     if not lead_times:
         return {"sample_size": 0, "median_hours": None, "p85_hours": None, "p95_hours": None}
 
-    # Calculate percentiles
-    sorted_lead_times = sorted(lead_times)
-    n = len(sorted_lead_times)
-
-    def percentile(data: list[float], p: float) -> float:
-        index = int(n * p / 100)
-        return data[min(index, n - 1)]
-
     return {
-        "sample_size": n,
+        "sample_size": len(lead_times),
         "median_hours": round(statistics.median(lead_times), 1),
-        "p85_hours": round(percentile(sorted_lead_times, 85), 1),
-        "p95_hours": round(percentile(sorted_lead_times, 95), 1),
+        "p85_hours": round(calculate_percentile(lead_times, 85), 1),
+        "p95_hours": round(calculate_percentile(lead_times, 95), 1),
     }
 
 
@@ -323,7 +370,16 @@ def collect_deployment_metrics_for_project(connection, project: dict, config: di
     try:
         builds = query_builds(build_client, ado_project_name, days=config.get("lookback_days", 90))
         print(f"    Found {len(builds)} builds in last {config.get('lookback_days', 90)} days")
+    except AzureDevOpsServiceError as e:
+        logger.error(f"Azure DevOps error querying builds for {project_name}: {e}")
+        print(f"    [ERROR] Failed to query builds: {e}")
+        builds = []
+    except (ConnectionError, TimeoutError) as e:
+        logger.error(f"Network error querying builds for {project_name}: {e}")
+        print(f"    [ERROR] Failed to query builds: {e}")
+        builds = []
     except Exception as e:
+        logger.error(f"Unexpected error querying builds for {project_name}: {e}", exc_info=True)
         print(f"    [ERROR] Failed to query builds: {e}")
         builds = []
 
@@ -408,7 +464,12 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
         print(f"\n[SAVED] Deployment metrics saved to: {output_file}")
         print(f"        History now contains {len(history['weeks'])} week(s)")
         return True
+    except (OSError, IOError) as e:
+        logger.error(f"File I/O error saving deployment metrics to {output_file}: {e}")
+        print(f"\n[ERROR] Failed to save Deployment metrics: {e}")
+        return False
     except Exception as e:
+        logger.error(f"Unexpected error saving deployment metrics: {e}", exc_info=True)
         print(f"\n[ERROR] Failed to save Deployment metrics: {e}")
         return False
 
@@ -420,6 +481,13 @@ if __name__ == "__main__":
 
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(".tmp/observatory/deployment_metrics.log"), logging.StreamHandler()],
+    )
 
     print("Director Observatory - Deployment Metrics Collector\n")
     print("=" * 60)
@@ -443,7 +511,12 @@ if __name__ == "__main__":
     try:
         connection = get_ado_connection()
         print("[SUCCESS] Connected to ADO")
+    except (ConnectionError, TimeoutError) as e:
+        logger.error(f"Network error connecting to ADO: {e}")
+        print(f"[ERROR] Failed to connect to ADO: {e}")
+        exit(1)
     except Exception as e:
+        logger.error(f"Unexpected error connecting to ADO: {e}", exc_info=True)
         print(f"[ERROR] Failed to connect to ADO: {e}")
         exit(1)
 
@@ -456,7 +529,16 @@ if __name__ == "__main__":
         try:
             metrics = collect_deployment_metrics_for_project(connection, project, config)
             project_metrics.append(metrics)
+        except AzureDevOpsServiceError as e:
+            logger.error(f"Azure DevOps error collecting metrics for {project['project_name']}: {e}")
+            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
+            continue
+        except (ConnectionError, TimeoutError) as e:
+            logger.error(f"Network error collecting metrics for {project['project_name']}: {e}")
+            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
+            continue
         except Exception as e:
+            logger.error(f"Unexpected error collecting metrics for {project['project_name']}: {e}", exc_info=True)
             print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
 

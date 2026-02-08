@@ -12,6 +12,7 @@ Read-only operation - does not modify any existing data.
 """
 
 import json
+import logging
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -20,6 +21,7 @@ from typing import Any
 # Azure DevOps SDK
 from azure.devops.connection import Connection
 from azure.devops.v7_1.work_item_tracking import Wiql
+from azure.devops.exceptions import AzureDevOpsServiceError
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -27,36 +29,54 @@ from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
 from execution.secure_config import get_config
+from execution.utils.ado_batch_utils import batch_fetch_work_items, BatchFetchError
 
 load_dotenv()
 
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
-def query_work_items_for_ownership(wit_client, project_name: str, area_path_filter: str | None = None) -> dict:
+
+def _build_area_filter_clause(area_path_filter: str | None) -> tuple[str, str | None]:
     """
-    Query work items for ownership analysis.
+    Build WIQL area path filter clause.
+
+    Args:
+        area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
+
+    Returns:
+        Tuple of (filter_clause, log_message)
+    """
+    if not area_path_filter:
+        return "", None
+
+    if area_path_filter.startswith("EXCLUDE:"):
+        path = area_path_filter.replace("EXCLUDE:", "")
+        return f"AND [System.AreaPath] NOT UNDER '{path}'", f"Excluding area path: {path}"
+    elif area_path_filter.startswith("INCLUDE:"):
+        path = area_path_filter.replace("INCLUDE:", "")
+        return f"AND [System.AreaPath] UNDER '{path}'", f"Including only area path: {path}"
+    else:
+        logger.warning(f"Invalid area_path_filter format: {area_path_filter}")
+        return "", None
+
+
+def _execute_wiql_query(wit_client, project_name: str, area_filter_clause: str) -> list[int]:
+    """
+    Execute WIQL query for ownership analysis.
 
     Args:
         wit_client: Work Item Tracking client
         project_name: ADO project name
-        area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
+        area_filter_clause: Area path filter clause
 
     Returns:
-        Dictionary with work items
+        List of work item IDs
+
+    Raises:
+        AzureDevOpsServiceError: If query fails
     """
-    print("    Querying work items for ownership analysis...")
-
-    # Build area path filter clause
-    area_filter_clause = ""
-    if area_path_filter:
-        if area_path_filter.startswith("EXCLUDE:"):
-            path = area_path_filter.replace("EXCLUDE:", "")
-            area_filter_clause = f"AND [System.AreaPath] NOT UNDER '{path}'"
-            print(f"      Excluding area path: {path}")
-        elif area_path_filter.startswith("INCLUDE:"):
-            path = area_path_filter.replace("INCLUDE:", "")
-            area_filter_clause = f"AND [System.AreaPath] UNDER '{path}'"
-            print(f"      Including only area path: {path}")
-
     # Query: Actionable work items only (New, Active, In Progress)
     # Excludes: Resolved (functionally done), Closed, Removed
     # Focuses on: Bugs, User Stories, Tasks (not Epics/Features which are planning items)
@@ -72,46 +92,85 @@ def query_work_items_for_ownership(wit_client, project_name: str, area_path_filt
         ORDER BY [System.CreatedDate] DESC
         """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
 
-    try:
-        # Execute query
-        open_result = wit_client.query_by_wiql(wiql_open).work_items
+    result = wit_client.query_by_wiql(wiql_open).work_items
+    return [item.id for item in result] if result else []
 
-        print(f"      Found {len(open_result) if open_result else 0} actionable items")
 
-        # Fetch full work item details for ALL items
-        open_items = []
-        if open_result and len(open_result) > 0:
-            # Fetch ALL items (ADO API limit per batch is ~200, so we'll batch)
-            open_ids = [item.id for item in open_result]
+def _fetch_work_item_details(wit_client, item_ids: list[int]) -> list[dict]:
+    """
+    Fetch full work item details using batch utility.
 
-            # Batch in chunks of 200 to avoid API errors
-            for i in range(0, len(open_ids), 200):
-                batch_ids = open_ids[i : i + 200]
-                try:
-                    batch_items = wit_client.get_work_items(
-                        ids=batch_ids,
-                        fields=[
-                            "System.Id",
-                            "System.Title",
-                            "System.State",
-                            "System.CreatedDate",
-                            "System.WorkItemType",
-                            "System.AssignedTo",
-                            "System.AreaPath",
-                            "System.ChangedDate",
-                        ],
-                    )
-                    open_items.extend([item.fields for item in batch_items])
-                except Exception as e:
-                    print(f"      [WARNING] Error fetching batch {i//200 + 1}: {e}")
+    Args:
+        wit_client: Work Item Tracking client
+        item_ids: List of work item IDs
 
-        print(f"      Fetched {len(open_items)} items for analysis")
+    Returns:
+        List of work item field dictionaries
 
-        return {"open_items": open_items, "total_count": len(open_items)}  # Use actual fetched count, not query count
+    Raises:
+        BatchFetchError: If all batches fail
+    """
+    if not item_ids:
+        return []
 
-    except Exception as e:
-        print(f"      [ERROR] Failed to query work items: {e}")
-        return {"open_items": [], "total_count": 0}
+    fields = [
+        "System.Id",
+        "System.Title",
+        "System.State",
+        "System.CreatedDate",
+        "System.WorkItemType",
+        "System.AssignedTo",
+        "System.AreaPath",
+        "System.ChangedDate",
+    ]
+
+    items, failed_ids = batch_fetch_work_items(
+        wit_client,
+        item_ids,
+        fields=fields,
+        batch_size=200,
+        max_retries=3,
+        logger=logger,
+    )
+
+    if failed_ids:
+        logger.warning(f"Failed to fetch {len(failed_ids)} work items")
+
+    return items
+
+
+def query_work_items_for_ownership(wit_client, project_name: str, area_path_filter: str | None = None) -> dict:
+    """
+    Query work items for ownership analysis.
+
+    Args:
+        wit_client: Work Item Tracking client
+        project_name: ADO project name
+        area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
+
+    Returns:
+        Dictionary with work items and total count
+
+    Raises:
+        AzureDevOpsServiceError: If WIQL query fails
+        BatchFetchError: If all batch fetches fail
+    """
+    logger.info("Querying work items for ownership analysis...")
+
+    # Build area path filter
+    area_filter_clause, filter_msg = _build_area_filter_clause(area_path_filter)
+    if filter_msg:
+        logger.info(f"  {filter_msg}")
+
+    # Execute query
+    item_ids = _execute_wiql_query(wit_client, project_name, area_filter_clause)
+    logger.info(f"  Found {len(item_ids)} actionable items")
+
+    # Fetch full details
+    items = _fetch_work_item_details(wit_client, item_ids)
+    logger.info(f"  Fetched {len(items)} items for analysis")
+
+    return {"open_items": items, "total_count": len(items)}
 
 
 def calculate_unassigned_items(open_items: list[dict]) -> dict:
@@ -358,7 +417,9 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
                             developer_dates[author_name].add(commit_date)
                             total_commits += 1
 
-            except Exception:
+            except (AzureDevOpsServiceError, AttributeError) as e:
+                # Skip repos that fail (might be empty, archived, or permission issues)
+                logger.debug(f"Skipping repository {repo.name}: {e}")
                 continue
 
         # Calculate active days per developer
@@ -384,9 +445,56 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
             ),
         }
 
-    except Exception as e:
-        print(f"      [WARNING] Could not calculate developer active days: {e}")
+    except AzureDevOpsServiceError as e:
+        logger.warning(f"Could not calculate developer active days: {e}")
         return {"sample_size": 0, "total_commits": 0, "lookback_days": days, "developers": [], "avg_active_days": None}
+
+
+def _calculate_all_metrics(work_items: dict, git_client, ado_project_name: str, lookback_days: int) -> dict:
+    """
+    Calculate all ownership metrics for a project.
+
+    Args:
+        work_items: Dictionary with open_items list
+        git_client: Git client for developer activity
+        ado_project_name: ADO project name
+        lookback_days: Days to look back for developer activity
+
+    Returns:
+        Dictionary with all calculated metrics
+    """
+    open_items = work_items["open_items"]
+
+    return {
+        "unassigned": calculate_unassigned_items(open_items),
+        "distribution": calculate_assignment_distribution(open_items),
+        "area_stats": calculate_area_unassigned_stats(open_items),
+        "work_type_segmentation": calculate_work_type_segmentation(open_items),
+        "developer_activity": calculate_developer_active_days(git_client, ado_project_name, lookback_days),
+        "total_count": work_items["total_count"],
+    }
+
+
+def _log_metrics_summary(project_name: str, metrics: dict) -> None:
+    """
+    Log summary of collected metrics.
+
+    Args:
+        project_name: Project name for logging
+        metrics: Dictionary with calculated metrics
+    """
+    unassigned = metrics["unassigned"]
+    distribution = metrics["distribution"]
+    area_stats = metrics["area_stats"]
+    developer_activity = metrics["developer_activity"]
+
+    logger.info(f"  {project_name} - Unassigned: {unassigned['unassigned_count']} ({unassigned['unassigned_pct']}%)")
+    logger.info(f"  {project_name} - Assignees: {distribution['assignee_count']}")
+    logger.info(f"  {project_name} - Areas tracked: {area_stats['area_count']}")
+    logger.info(
+        f"  {project_name} - Active Developers: {developer_activity['sample_size']} "
+        f"(avg {developer_activity['avg_active_days']} days)"
+    )
 
 
 def collect_ownership_metrics_for_project(connection, project: dict, config: dict) -> dict:
@@ -400,47 +508,41 @@ def collect_ownership_metrics_for_project(connection, project: dict, config: dic
 
     Returns:
         Ownership metrics dictionary for the project
+
+    Raises:
+        AzureDevOpsServiceError: If ADO API calls fail
     """
     project_name = project["project_name"]
     project_key = project["project_key"]
-
-    # Get the actual ADO project name (may differ from display name)
     ado_project_name = project.get("ado_project_name", project_name)
-
-    # Get area path filter if specified
     area_path_filter = project.get("area_path_filter")
 
-    print(f"\n  Collecting ownership metrics for: {project_name}")
+    logger.info(f"\nCollecting ownership metrics for: {project_name}")
 
+    # Get clients
     wit_client = connection.clients.get_work_item_tracking_client()
     git_client = connection.clients.get_git_client()
 
     # Query work items
     work_items = query_work_items_for_ownership(wit_client, ado_project_name, area_path_filter)
 
-    # Calculate metrics - HARD DATA ONLY
-    unassigned = calculate_unassigned_items(work_items["open_items"])
-    distribution = calculate_assignment_distribution(work_items["open_items"])
-    area_stats = calculate_area_unassigned_stats(work_items["open_items"])
-    work_type_segmentation = calculate_work_type_segmentation(work_items["open_items"])
-    developer_activity = calculate_developer_active_days(git_client, ado_project_name, config.get("lookback_days", 90))
+    # Calculate all metrics
+    lookback_days = config.get("lookback_days", 90)
+    metrics = _calculate_all_metrics(work_items, git_client, ado_project_name, lookback_days)
 
-    print(f"    Unassigned: {unassigned['unassigned_count']} ({unassigned['unassigned_pct']}%)")
-    print(f"    Assignees: {distribution['assignee_count']}")
-    print(f"    Areas tracked: {area_stats['area_count']}")
-    print(
-        f"    Active Developers: {developer_activity['sample_size']} (avg {developer_activity['avg_active_days']} days)"
-    )
+    # Log summary
+    _log_metrics_summary(project_name, metrics)
 
+    # Return structured results
     return {
         "project_key": project_key,
         "project_name": project_name,
-        "unassigned": unassigned,
-        "assignment_distribution": distribution,
-        "area_unassigned_stats": area_stats,
-        "work_type_segmentation": work_type_segmentation,
-        "developer_active_days": developer_activity,  # NEW
-        "total_items_analyzed": work_items["total_count"],
+        "unassigned": metrics["unassigned"],
+        "assignment_distribution": metrics["distribution"],
+        "area_unassigned_stats": metrics["area_stats"],
+        "work_type_segmentation": metrics["work_type_segmentation"],
+        "developer_active_days": metrics["developer_activity"],
+        "total_items_analyzed": metrics["total_count"],
         "collected_at": datetime.now().isoformat(),
     }
 
@@ -459,7 +561,7 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
     projects = metrics.get("projects", [])
 
     if not projects:
-        print("\n[SKIPPED] No project data to save - collection may have failed")
+        logger.warning("[SKIPPED] No project data to save - collection may have failed")
         return False
 
     # Check if this looks like a failed collection (all zeros)
@@ -467,8 +569,8 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
     total_assignees = sum(p.get("assignment_distribution", {}).get("assignee_count", 0) for p in projects)
 
     if total_items == 0 and total_assignees == 0:
-        print("\n[SKIPPED] All projects returned zero ownership data - likely a collection failure")
-        print("          Not persisting this data to avoid corrupting trend history")
+        logger.warning("[SKIPPED] All projects returned zero ownership data - likely a collection failure")
+        logger.warning("          Not persisting this data to avoid corrupting trend history")
         return False
 
     # Load existing history (with automatic corruption recovery)
@@ -476,7 +578,7 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
 
     # Validate structure
     if not isinstance(history, dict) or "weeks" not in history:
-        print("\n[WARNING] Existing history file has invalid structure - recreating")
+        logger.warning("[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
     # Add new week entry
@@ -488,11 +590,11 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
     # Save using atomic write to prevent corruption
     try:
         atomic_json_save(history, output_file)
-        print(f"\n[SAVED] Ownership metrics saved to: {output_file}")
-        print(f"        History now contains {len(history['weeks'])} week(s)")
+        logger.info(f"[SAVED] Ownership metrics saved to: {output_file}")
+        logger.info(f"        History now contains {len(history['weeks'])} week(s)")
         return True
-    except Exception as e:
-        print(f"\n[ERROR] Failed to save ownership metrics: {e}")
+    except (OSError, IOError) as e:
+        logger.error(f"[ERROR] Failed to save ownership metrics: {e}")
         return False
 
 
@@ -504,8 +606,8 @@ if __name__ == "__main__":
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    print("Director Observatory - Ownership Metrics Collector\n")
-    print("=" * 60)
+    logger.info("Director Observatory - Ownership Metrics Collector\n")
+    logger.info("=" * 60)
 
     # Configuration
     config = {"lookback_days": 90}
@@ -515,32 +617,35 @@ if __name__ == "__main__":
         with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
             discovery_data = json.load(f)
         projects = discovery_data["projects"]
-        print(f"Loaded {len(projects)} projects from discovery")
+        logger.info(f"Loaded {len(projects)} projects from discovery")
     except FileNotFoundError:
-        print("[ERROR] Project discovery file not found.")
-        print("Run: python execution/discover_projects.py")
+        logger.error("[ERROR] Project discovery file not found.")
+        logger.error("Run: python execution/discover_projects.py")
+        exit(1)
+    except json.JSONDecodeError as e:
+        logger.error(f"[ERROR] Invalid JSON in discovery file: {e}")
         exit(1)
 
     # Connect to ADO
-    print("\nConnecting to Azure DevOps...")
+    logger.info("\nConnecting to Azure DevOps...")
     try:
         connection = get_ado_connection()
-        print("[SUCCESS] Connected to ADO")
-    except Exception as e:
-        print(f"[ERROR] Failed to connect to ADO: {e}")
+        logger.info("[SUCCESS] Connected to ADO")
+    except (AzureDevOpsServiceError, ValueError) as e:
+        logger.error(f"[ERROR] Failed to connect to ADO: {e}")
         exit(1)
 
     # Collect metrics for all projects
-    print("\nCollecting ownership metrics...")
-    print("=" * 60)
+    logger.info("\nCollecting ownership metrics...")
+    logger.info("=" * 60)
 
     project_metrics = []
     for project in projects:
         try:
             metrics = collect_ownership_metrics_for_project(connection, project, config)
             project_metrics.append(metrics)
-        except Exception as e:
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
+        except (AzureDevOpsServiceError, BatchFetchError) as e:
+            logger.error(f"[ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
 
     # Save results
@@ -554,17 +659,17 @@ if __name__ == "__main__":
     save_ownership_metrics(week_metrics)
 
     # Summary
-    print("\n" + "=" * 60)
-    print("Ownership Metrics Collection Summary:")
-    print(f"  Projects processed: {len(project_metrics)}")
+    logger.info("\n" + "=" * 60)
+    logger.info("Ownership Metrics Collection Summary:")
+    logger.info(f"  Projects processed: {len(project_metrics)}")
 
     total_unassigned = sum(p["unassigned"]["unassigned_count"] for p in project_metrics)
     total_items = sum(p["total_items_analyzed"] for p in project_metrics)
     overall_unassigned_pct = (total_unassigned / total_items * 100) if total_items > 0 else 0
 
-    print(f"  Total items analyzed: {total_items}")
-    print(f"  Total unassigned: {total_unassigned} ({overall_unassigned_pct:.1f}%)")
+    logger.info(f"  Total items analyzed: {total_items}")
+    logger.info(f"  Total unassigned: {total_unassigned} ({overall_unassigned_pct:.1f}%)")
 
-    print("\nOwnership metrics collection complete!")
-    print("  ✓ Only hard data - no thresholds or classifications")
-    print("\nNext step: Generate ownership dashboard")
+    logger.info("\nOwnership metrics collection complete!")
+    logger.info("  ✓ Only hard data - no thresholds or classifications")
+    logger.info("\nNext step: Generate ownership dashboard")

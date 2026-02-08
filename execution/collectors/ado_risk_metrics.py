@@ -19,15 +19,127 @@ from datetime import datetime, timedelta
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
+from azure.devops.exceptions import AzureDevOpsServiceError
 
 # Load environment variables
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
+from execution.core.logging_config import get_logger
 from execution.secure_config import get_config
 
 load_dotenv()
+
+# Configure logging
+logger = get_logger(__name__)
+
+
+def _extract_file_paths_from_changes(changes) -> list[str]:
+    """
+    Extract file paths from Git changes object.
+
+    Args:
+        changes: GitCommitChanges object from ADO API
+
+    Returns:
+        List of file paths that were changed
+    """
+    if not changes or not hasattr(changes, 'changes') or not changes.changes:
+        return []
+
+    file_paths = []
+    for change in changes.changes:
+        # Handle both dict and object representations
+        if isinstance(change, dict):
+            if "item" in change and change["item"] and "path" in change["item"]:
+                file_paths.append(change["item"]["path"])
+        elif hasattr(change, "item") and change.item and hasattr(change.item, "path"):
+            file_paths.append(change.item.path)
+
+    return file_paths
+
+
+def _build_commit_data(commit, changes: int = 0, files: list[str] | None = None) -> dict:
+    """
+    Build commit data dictionary from commit object.
+
+    Args:
+        commit: Git commit object from ADO
+        changes: Number of file changes (default 0)
+        files: List of changed file paths (default empty list)
+
+    Returns:
+        Commit data dictionary with standardized structure
+    """
+    if files is None:
+        files = []
+
+    return {
+        "commit_id": commit.commit_id,
+        "author": commit.author.name if commit.author else "Unknown",
+        "date": commit.author.date if commit.author else None,
+        "message": commit.comment,
+        "changes": changes,
+        "files": files,
+    }
+
+
+def _fetch_commit_changes(git_client, commit_id: str, repo_id: str, project_name: str) -> tuple[int, list[str]]:
+    """
+    Fetch file changes for a single commit with error handling.
+
+    Args:
+        git_client: ADO Git client
+        commit_id: Commit ID
+        repo_id: Repository ID
+        project_name: Project name
+
+    Returns:
+        Tuple of (change_count, file_paths)
+        Returns (0, []) on any error
+    """
+    try:
+        changes = git_client.get_changes(
+            commit_id=commit_id,
+            repository_id=repo_id,
+            project=project_name
+        )
+
+        change_count = len(changes.changes) if changes and changes.changes else 0
+        file_paths = _extract_file_paths_from_changes(changes)
+
+        return change_count, file_paths
+
+    except AzureDevOpsServiceError as e:
+        logger.warning(
+            "ADO API error getting changes for commit",
+            extra={
+                "commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id,
+                "repo_id": repo_id,
+                "error": str(e)
+            }
+        )
+        return 0, []
+    except (ConnectionError, TimeoutError) as e:
+        logger.warning(
+            "Network error getting changes for commit",
+            extra={
+                "commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id,
+                "error": str(e)
+            }
+        )
+        return 0, []
+    except Exception as e:
+        logger.error(
+            "Unexpected error getting changes for commit",
+            extra={
+                "commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id,
+                "error": str(e)
+            },
+            exc_info=True
+        )
+        return 0, []
 
 
 def query_recent_commits(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:
@@ -46,7 +158,6 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
     since_date = datetime.now() - timedelta(days=days)
 
     try:
-        # Azure DevOps SDK expects parameters directly, not in search_criteria dict
         from azure.devops.v7_1.git.models import GitQueryCommitsCriteria
 
         search_criteria = GitQueryCommitsCriteria(from_date=since_date.isoformat())
@@ -62,64 +173,47 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
 
         # Process ALL commits for author/date info, but only fetch file details for first 20 (performance optimization)
         for idx, commit in enumerate(commits):
-            # Fetch file details only for first 20 commits (representative sample for hot paths)
             if idx < 20:
-                try:
-                    changes = git_client.get_changes(
-                        commit_id=commit.commit_id, repository_id=repo_id, project=project_name
-                    )
-
-                    commit_data.append(
-                        {
-                            "commit_id": commit.commit_id,
-                            "author": commit.author.name if commit.author else "Unknown",
-                            "date": commit.author.date if commit.author else None,
-                            "message": commit.comment,
-                            "changes": len(changes.changes) if changes.changes else 0,
-                            "files": (
-                                [
-                                    change["item"]["path"]
-                                    for change in changes.changes
-                                    if isinstance(change, dict)
-                                    and "item" in change
-                                    and change["item"]
-                                    and "path" in change["item"]
-                                ]
-                                if changes.changes
-                                else []
-                            ),
-                        }
-                    )
-                except Exception as e:
-                    print(f"        [WARNING] Could not get changes for commit {commit.commit_id}: {e}")
-                    # Still add commit with basic info
-                    commit_data.append(
-                        {
-                            "commit_id": commit.commit_id,
-                            "author": commit.author.name if commit.author else "Unknown",
-                            "date": commit.author.date if commit.author else None,
-                            "message": commit.comment,
-                            "changes": 0,
-                            "files": [],
-                        }
-                    )
+                # Fetch detailed file changes for first 20 commits (representative sample for hot paths)
+                changes, files = _fetch_commit_changes(git_client, commit.commit_id, repo_id, project_name)
+                commit_data.append(_build_commit_data(commit, changes, files))
             else:
                 # For commits beyond first 20, only store basic info (no file details)
-                commit_data.append(
-                    {
-                        "commit_id": commit.commit_id,
-                        "author": commit.author.name if commit.author else "Unknown",
-                        "date": commit.author.date if commit.author else None,
-                        "message": commit.comment,
-                        "changes": 0,
-                        "files": [],
-                    }
-                )
+                commit_data.append(_build_commit_data(commit))
 
         return commit_data
 
+    except AzureDevOpsServiceError as e:
+        logger.warning(
+            "ADO API error querying commits",
+            extra={
+                "project": project_name,
+                "repo_id": repo_id,
+                "days": days,
+                "error": str(e)
+            }
+        )
+        return []
+    except (ConnectionError, TimeoutError) as e:
+        logger.error(
+            "Network error querying commits",
+            extra={
+                "project": project_name,
+                "repo_id": repo_id,
+                "error": str(e)
+            }
+        )
+        return []
     except Exception as e:
-        print(f"      [WARNING] Could not query commits: {e}")
+        logger.error(
+            "Unexpected error querying commits",
+            extra={
+                "project": project_name,
+                "repo_id": repo_id,
+                "error": str(e)
+            },
+            exc_info=True
+        )
         return []
 
 
@@ -165,7 +259,24 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
                     repository_id=repo_id, pull_request_id=pr.pull_request_id, project=project_name
                 )
                 commit_count = len(commits) if commits else 0
-            except:
+            except AzureDevOpsServiceError as e:
+                logger.debug(
+                    "Could not get PR commits (PR may be old/deleted)",
+                    extra={
+                        "pr_id": pr.pull_request_id,
+                        "repo_id": repo_id,
+                        "error": str(e)
+                    }
+                )
+                commit_count = 0
+            except Exception as e:
+                logger.warning(
+                    "Unexpected error getting PR commits",
+                    extra={
+                        "pr_id": pr.pull_request_id,
+                        "error": str(e)
+                    }
+                )
                 commit_count = 0
 
             pr_data.append(
@@ -185,8 +296,37 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
 
         return pr_data
 
+    except AzureDevOpsServiceError as e:
+        logger.warning(
+            "ADO API error querying PRs",
+            extra={
+                "project": project_name,
+                "repo_id": repo_id,
+                "days": days,
+                "error": str(e)
+            }
+        )
+        return []
+    except (ConnectionError, TimeoutError) as e:
+        logger.error(
+            "Network error querying PRs",
+            extra={
+                "project": project_name,
+                "repo_id": repo_id,
+                "error": str(e)
+            }
+        )
+        return []
     except Exception as e:
-        print(f"      [WARNING] Could not query PRs: {e}")
+        logger.error(
+            "Unexpected error querying PRs",
+            extra={
+                "project": project_name,
+                "repo_id": repo_id,
+                "error": str(e)
+            },
+            exc_info=True
+        )
         return []
 
 
@@ -345,6 +485,10 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     # Area path filters don't apply to Git repositories
     ado_project_name = project.get("ado_project_name", project_name)
 
+    logger.info(
+        f"Collecting risk metrics for: {project_name}",
+        extra={"project_name": project_name}
+    )
     print(f"\n  Collecting risk metrics for: {project_name}")
 
     git_client = connection.clients.get_git_client()
@@ -353,8 +497,40 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     # Get repositories
     try:
         repos = git_client.get_repositories(project=ado_project_name)
+        logger.info(f"Found {len(repos)} repositories", extra={
+            "project_name": project_name,
+            "repo_count": len(repos)
+        })
         print(f"    Found {len(repos)} repositories")
+    except AzureDevOpsServiceError as e:
+        logger.warning(
+            "ADO API error getting repositories",
+            extra={
+                "project": ado_project_name,
+                "error": str(e)
+            }
+        )
+        print(f"    [WARNING] Could not get repositories: {e}")
+        repos = []
+    except (ConnectionError, TimeoutError) as e:
+        logger.error(
+            "Network error getting repositories",
+            extra={
+                "project": ado_project_name,
+                "error": str(e)
+            }
+        )
+        print(f"    [WARNING] Could not get repositories: {e}")
+        repos = []
     except Exception as e:
+        logger.error(
+            "Unexpected error getting repositories",
+            extra={
+                "project": ado_project_name,
+                "error": str(e)
+            },
+            exc_info=True
+        )
         print(f"    [WARNING] Could not get repositories: {e}")
         repos = []
 
@@ -362,14 +538,42 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     all_commits = []
 
     for repo in repos:  # Analyze ALL repositories for complete data
+        logger.debug(f"Analyzing repo: {repo.name}", extra={
+            "repo_name": repo.name,
+            "project": project_name
+        })
         print(f"    Analyzing repo: {repo.name}")
 
         try:
             # Get commits for code churn analysis
             commits = query_recent_commits(git_client, ado_project_name, repo.id, days=config.get("lookback_days", 90))
             all_commits.extend(commits)
+            logger.debug(f"Found {len(commits)} commits", extra={
+                "repo_name": repo.name,
+                "commit_count": len(commits)
+            })
             print(f"      Found {len(commits)} commits")
+        except AzureDevOpsServiceError as e:
+            logger.warning(
+                "ADO API error analyzing repo",
+                extra={
+                    "repo_name": repo.name,
+                    "project": project_name,
+                    "error": str(e)
+                }
+            )
+            print(f"      [WARNING] Failed to analyze repo {repo.name}: {e}")
+            continue
         except Exception as e:
+            logger.error(
+                "Unexpected error analyzing repo",
+                extra={
+                    "repo_name": repo.name,
+                    "project": project_name,
+                    "error": str(e)
+                },
+                exc_info=True
+            )
             print(f"      [WARNING] Failed to analyze repo {repo.name}: {e}")
             continue
 
@@ -378,6 +582,16 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     knowledge_dist = calculate_knowledge_distribution(all_commits)
     module_coupling = calculate_module_coupling(all_commits)
 
+    logger.info(
+        "Risk metrics collected",
+        extra={
+            "project": project_name,
+            "commits": churn_analysis['total_commits'],
+            "files_touched": churn_analysis['unique_files_touched'],
+            "single_owner_files": knowledge_dist['single_owner_count'],
+            "coupled_pairs": module_coupling['total_coupled_pairs']
+        }
+    )
     print(f"    Code churn: {churn_analysis['total_commits']} commits, {churn_analysis['unique_files_touched']} files")
     print(
         f"    Knowledge: {knowledge_dist['single_owner_count']} single-owner files ({knowledge_dist['single_owner_pct']}%)"
@@ -408,6 +622,7 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
     projects = metrics.get("projects", [])
 
     if not projects:
+        logger.warning("No project data to save - collection may have failed")
         print("\n[SKIPPED] No project data to save - collection may have failed")
         return False
 
@@ -417,6 +632,15 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
     total_repos = sum(p.get("repository_count", 0) for p in projects)
 
     if total_commits == 0 and total_files == 0 and total_repos == 0:
+        logger.warning(
+            "All projects returned zero risk data - likely a collection failure",
+            extra={
+                "project_count": len(projects),
+                "total_commits": total_commits,
+                "total_files": total_files,
+                "total_repos": total_repos
+            }
+        )
         print("\n[SKIPPED] All projects returned zero risk data - likely a collection failure")
         print("          Not persisting this data to avoid corrupting trend history")
         return False
@@ -440,10 +664,35 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
     # Save updated history
     try:
         atomic_json_save(history, output_file)
+        logger.info(
+            "Risk metrics saved",
+            extra={
+                "file": output_file,
+                "week_count": len(history['weeks'])
+            }
+        )
         print(f"\n[SAVED] Risk metrics saved to: {output_file}")
         print(f"        History now contains {len(history['weeks'])} week(s)")
         return True
+    except (IOError, OSError) as e:
+        logger.error(
+            "File system error saving risk metrics",
+            extra={
+                "file": output_file,
+                "error": str(e)
+            }
+        )
+        print(f"\n[ERROR] Failed to save Risk metrics: {e}")
+        return False
     except Exception as e:
+        logger.error(
+            "Unexpected error saving risk metrics",
+            extra={
+                "file": output_file,
+                "error": str(e)
+            },
+            exc_info=True
+        )
         print(f"\n[ERROR] Failed to save Risk metrics: {e}")
         return False
 
@@ -455,6 +704,9 @@ if __name__ == "__main__":
 
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+
+    # Check for self-test mode
+    is_self_test = len(sys.argv) > 1 and sys.argv[1] == "--self-test"
 
     print("Director Observatory - Delivery Risk Metrics Collector\n")
     print("=" * 60)
@@ -477,10 +729,16 @@ if __name__ == "__main__":
     print("\nConnecting to Azure DevOps...")
     try:
         connection = get_ado_connection()
+        logger.info("Connected to ADO")
         print("[SUCCESS] Connected to ADO")
-    except Exception as e:
+    except (ConnectionError, TimeoutError) as e:
+        logger.error(f"Network error connecting to ADO: {e}")
         print(f"[ERROR] Failed to connect to ADO: {e}")
-        exit(1)
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Failed to connect to ADO: {e}", exc_info=True)
+        print(f"[ERROR] Failed to connect to ADO: {e}")
+        sys.exit(1)
 
     # Collect metrics for all projects
     print("\nCollecting delivery risk metrics...")
@@ -491,7 +749,25 @@ if __name__ == "__main__":
         try:
             metrics = collect_risk_metrics_for_project(connection, project, config)
             project_metrics.append(metrics)
+        except AzureDevOpsServiceError as e:
+            logger.error(
+                "ADO API error collecting metrics",
+                extra={
+                    "project": project['project_name'],
+                    "error": str(e)
+                }
+            )
+            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
+            continue
         except Exception as e:
+            logger.error(
+                "Unexpected error collecting metrics",
+                extra={
+                    "project": project['project_name'],
+                    "error": str(e)
+                },
+                exc_info=True
+            )
             print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
 
@@ -520,3 +796,170 @@ if __name__ == "__main__":
     print("  ✓ Only hard data - no speculation")
     print("  ✓ Code churn: Actual file change counts from commits")
     print("\nNext step: Generate risk dashboard")
+
+    # Self-test mode: verify refactored functions work correctly
+    if is_self_test:
+        print("\n" + "=" * 60)
+        print("SELF-TEST MODE: Validating Refactored Functions")
+        print("=" * 60)
+
+        if not project_metrics:
+            print("\n[SKIP] No projects collected - cannot run self-test")
+            print("       Run without --self-test flag to collect data first")
+            sys.exit(0)
+
+        # Test with real ADO data
+        git_client = connection.clients.get_git_client()
+        test_project = None
+        test_repo = None
+
+        # Find test project/repo
+        print("\nFinding test project and repository...")
+        for project in projects[:3]:  # Check first 3 projects
+            try:
+                ado_project_name = project.get("ado_project_name", project["project_name"])
+                repos = git_client.get_repositories(project=ado_project_name)
+                if repos:
+                    test_project = project
+                    test_repo = repos[0]
+                    break
+            except Exception:
+                continue
+
+        if not test_project or not test_repo:
+            print("[SKIP] No repositories found for testing")
+            sys.exit(0)
+
+        print(f"\nTest project: {test_project['project_name']}")
+        print(f"Test repo: {test_repo.name}")
+
+        # Test 1: _extract_file_paths_from_changes
+        print("\n1. Testing _extract_file_paths_from_changes()...")
+        try:
+            from azure.devops.v7_1.git.models import GitQueryCommitsCriteria
+            ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
+            search_criteria = GitQueryCommitsCriteria(from_date=(datetime.now() - timedelta(days=30)).isoformat())
+            commits = git_client.get_commits(
+                repository_id=test_repo.id,
+                project=ado_project_name,
+                search_criteria=search_criteria,
+                top=5
+            )
+
+            if commits:
+                test_commit = commits[0]
+                changes = git_client.get_changes(
+                    commit_id=test_commit.commit_id,
+                    repository_id=test_repo.id,
+                    project=ado_project_name
+                )
+
+                file_paths = _extract_file_paths_from_changes(changes)
+                print(f"   ✓ Extracted {len(file_paths)} file paths")
+                if file_paths:
+                    print(f"   ✓ Sample path: {file_paths[0]}")
+            else:
+                print("   [SKIP] No commits found in test repo")
+        except Exception as e:
+            print(f"   ✗ FAILED: {e}")
+
+        # Test 2: _fetch_commit_changes
+        print("\n2. Testing _fetch_commit_changes()...")
+        try:
+            if commits:
+                test_commit = commits[0]
+                ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
+                changes_count, files = _fetch_commit_changes(
+                    git_client,
+                    test_commit.commit_id,
+                    test_repo.id,
+                    ado_project_name
+                )
+                print(f"   ✓ Fetched {changes_count} changes, {len(files)} file paths")
+                assert isinstance(changes_count, int), "changes should be int"
+                assert isinstance(files, list), "files should be list"
+                print("   ✓ Return types correct")
+        except Exception as e:
+            print(f"   ✗ FAILED: {e}")
+
+        # Test 3: _build_commit_data
+        print("\n3. Testing _build_commit_data()...")
+        try:
+            if commits:
+                test_commit = commits[0]
+
+                # Test with files
+                commit_dict_full = _build_commit_data(test_commit, changes=5, files=["file1.py", "file2.py"])
+                assert commit_dict_full["changes"] == 5
+                assert len(commit_dict_full["files"]) == 2
+                assert "commit_id" in commit_dict_full
+                assert "author" in commit_dict_full
+                print("   ✓ Full commit data structure correct")
+
+                # Test without files
+                commit_dict_basic = _build_commit_data(test_commit)
+                assert commit_dict_basic["changes"] == 0
+                assert commit_dict_basic["files"] == []
+                print("   ✓ Basic commit data structure correct")
+        except Exception as e:
+            print(f"   ✗ FAILED: {e}")
+
+        # Test 4: query_recent_commits (integration)
+        print("\n4. Testing query_recent_commits() (integration)...")
+        try:
+            ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
+            commit_data = query_recent_commits(
+                git_client,
+                ado_project_name,
+                test_repo.id,
+                days=30
+            )
+            print(f"   ✓ Queried {len(commit_data)} commits")
+
+            if commit_data:
+                # Validate structure
+                sample = commit_data[0]
+                required_keys = ["commit_id", "author", "date", "message", "changes", "files"]
+                for key in required_keys:
+                    assert key in sample, f"Missing key: {key}"
+                print("   ✓ Commit data structure valid")
+
+                # Check that first commits have file details
+                if len(commit_data) > 0:
+                    has_files = any(c["files"] for c in commit_data[:min(20, len(commit_data))])
+                    if has_files:
+                        print("   ✓ First commits include file details")
+                    else:
+                        print("   ⚠ First commits have no file details (may be empty commits)")
+        except Exception as e:
+            print(f"   ✗ FAILED: {e}")
+
+        # Test 5: query_pull_requests (integration)
+        print("\n5. Testing query_pull_requests() (integration)...")
+        try:
+            ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
+            pr_data = query_pull_requests(
+                git_client,
+                ado_project_name,
+                test_repo.id,
+                days=30
+            )
+            print(f"   ✓ Queried {len(pr_data)} PRs")
+
+            if pr_data:
+                # Validate structure
+                sample = pr_data[0]
+                required_keys = ["pr_id", "title", "created_date", "commit_count"]
+                for key in required_keys:
+                    assert key in sample, f"Missing key: {key}"
+                print("   ✓ PR data structure valid")
+        except Exception as e:
+            print(f"   ✗ FAILED: {e}")
+
+        print("\n" + "=" * 60)
+        print("SELF-TEST COMPLETE")
+        print("=" * 60)
+        print("\nIf all tests passed (✓), refactoring is safe.")
+        print("If any tests failed (✗), investigate before proceeding.")
+
+        sys.exit(0)
