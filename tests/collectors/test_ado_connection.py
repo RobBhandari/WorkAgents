@@ -52,9 +52,7 @@ class TestGetAdoConnection:
         mock_get_config.assert_called_once()
         mock_config.get_ado_config.assert_called_once()
         mock_auth.assert_called_once_with("", "test_pat_token_123456789012345")
-        mock_connection.assert_called_once_with(
-            base_url="https://dev.azure.com/testorg", creds=mock_auth_instance
-        )
+        mock_connection.assert_called_once_with(base_url="https://dev.azure.com/testorg", creds=mock_auth_instance)
         assert result == mock_connection_instance
 
     @patch("execution.collectors.ado_connection.get_config")

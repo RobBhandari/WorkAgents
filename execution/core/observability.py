@@ -24,10 +24,11 @@ Usage:
 
 import json
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 from execution.core.logging_config import get_logger
 
@@ -411,9 +412,7 @@ def check_dashboard_availability(dashboard_path: Path) -> bool:
         )
         return False
 
-    logger.info(
-        "Dashboard available", extra={"dashboard": dashboard_path.name, "size_kb": round(size_bytes / 1024, 2)}
-    )
+    logger.info("Dashboard available", extra={"dashboard": dashboard_path.name, "size_kb": round(size_bytes / 1024, 2)})
     return True
 
 

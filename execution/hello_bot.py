@@ -22,4 +22,4 @@ if __name__ == "__main__":
     # PORT configuration - can be overridden via command line args if needed
     PORT = 8000
     print(f"Starting Hello Bot on port {PORT}")
-    web.run_app(app, host="0.0.0.0", port=PORT)
+    web.run_app(app, host="0.0.0.0", port=PORT)  # nosec B104 - Required for Azure App Service containerized deployment

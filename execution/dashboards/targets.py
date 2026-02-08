@@ -95,7 +95,7 @@ def generate_targets_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_baselines() -> dict:
+def _load_baselines() -> dict[str, dict]:
     """
     Load baseline data from JSON files.
 
@@ -126,7 +126,7 @@ def _load_baselines() -> dict:
     return {"security": security_baseline, "bugs": bugs_baseline}
 
 
-def _query_current_state() -> dict:
+def _query_current_state() -> dict[str, int]:
     """
     Query current vulnerability and bug counts from history files.
 
@@ -174,7 +174,7 @@ def _query_current_armorcode_vulns() -> int:
     metrics = latest_week["metrics"]
 
     # Get total HIGH + CRITICAL vulnerabilities
-    total_vulns = metrics["current_total"]
+    total_vulns: int = metrics["current_total"]
 
     logger.info(f"Current ArmorCode vulnerabilities: {total_vulns}")
     logger.info(f"  Week: {latest_week['week_date']}")
@@ -212,7 +212,7 @@ def _query_current_ado_bugs() -> int:
     latest_week = data["weeks"][-1]
 
     # Sum open_bugs_count across all projects
-    total_bugs = sum(p["open_bugs_count"] for p in latest_week["projects"])
+    total_bugs: int = sum(p["open_bugs_count"] for p in latest_week["projects"])
 
     logger.info(f"Current ADO bugs: {total_bugs}")
     logger.info(f"  Week: {latest_week['week_date']}")
@@ -221,7 +221,7 @@ def _query_current_ado_bugs() -> int:
     return total_bugs
 
 
-def _calculate_summary(baselines: dict, current_state: dict) -> dict:
+def _calculate_summary(baselines: dict[str, dict], current_state: dict[str, int]) -> dict[str, dict]:
     """
     Calculate progress metrics for both security and bugs.
 
@@ -251,7 +251,7 @@ def _calculate_summary(baselines: dict, current_state: dict) -> dict:
     return {"security": security_metrics, "bugs": bugs_metrics}
 
 
-def _calculate_metrics(baseline_count: int, target_count: int, current_count: int, weeks_to_target: int) -> dict:
+def _calculate_metrics(baseline_count: int, target_count: int, current_count: int, weeks_to_target: int) -> dict[str, int | float | str]:
     """
     Calculate progress metrics for target tracking.
 
@@ -316,7 +316,7 @@ def _calculate_metrics(baseline_count: int, target_count: int, current_count: in
     }
 
 
-def _build_context(summary_stats: dict) -> dict:
+def _build_context(summary_stats: dict[str, dict]) -> dict[str, str | dict | bool]:
     """
     Build template context with all dashboard data.
 
@@ -348,7 +348,7 @@ def _build_context(summary_stats: dict) -> dict:
     return context
 
 
-def _print_summary(summary_stats: dict):
+def _print_summary(summary_stats: dict[str, dict]) -> None:
     """
     Print summary statistics to console.
 

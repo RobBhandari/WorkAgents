@@ -11,13 +11,14 @@ Usage:
     python send_armorcode_report.py <html_file> --recipients email1@company.com,email2@company.com
 """
 
+import argparse
+import base64
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
-import base64
 from datetime import datetime
+
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -26,11 +27,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/send_armorcode_report_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -55,15 +56,22 @@ def load_summary_data(json_file: str = None) -> dict:
 
     logger.info(f"Loading summary data from {json_file}")
 
-    with open(json_file, 'r', encoding='utf-8') as f:
+    with open(json_file, encoding="utf-8") as f:
         data = json.load(f)
 
     return data
 
 
-def send_email_graph(tenant_id: str, client_id: str, client_secret: str,
-                     sender_email: str, recipients: list, subject: str,
-                     body: str, html_file: str) -> bool:
+def send_email_graph(
+    tenant_id: str,
+    client_id: str,
+    client_secret: str,
+    sender_email: str,
+    recipients: list,
+    subject: str,
+    body: str,
+    html_file: str,
+) -> bool:
     """
     Send email with HTML attachment using Microsoft Graph API.
 
@@ -88,24 +96,24 @@ def send_email_graph(tenant_id: str, client_id: str, client_secret: str,
         # Step 1: Get access token
         token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
         token_data = {
-            'grant_type': 'client_credentials',
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'scope': 'https://graph.microsoft.com/.default'
+            "grant_type": "client_credentials",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "scope": "https://graph.microsoft.com/.default",
         }
 
         token_response = requests.post(token_url, data=token_data, timeout=30)
         token_response.raise_for_status()
-        access_token = token_response.json()['access_token']
+        access_token = token_response.json()["access_token"]
 
         logger.info("Successfully authenticated with Graph API")
 
         # Step 2: Read HTML file
-        with open(html_file, 'rb') as f:
+        with open(html_file, "rb") as f:
             html_content = f.read()
 
         # Encode HTML file as base64
-        html_b64 = base64.b64encode(html_content).decode('utf-8')
+        html_b64 = base64.b64encode(html_content).decode("utf-8")
         html_filename = os.path.basename(html_file)
 
         logger.info(f"Prepared attachment: {html_filename} ({len(html_content)} bytes)")
@@ -116,29 +124,23 @@ def send_email_graph(tenant_id: str, client_id: str, client_secret: str,
         message = {
             "message": {
                 "subject": subject,
-                "body": {
-                    "contentType": "Text",
-                    "content": body
-                },
+                "body": {"contentType": "Text", "content": body},
                 "toRecipients": to_recipients,
                 "attachments": [
                     {
                         "@odata.type": "#microsoft.graph.fileAttachment",
                         "name": html_filename,
                         "contentType": "text/html",
-                        "contentBytes": html_b64
+                        "contentBytes": html_b64,
                     }
-                ]
+                ],
             },
-            "saveToSentItems": "true"
+            "saveToSentItems": "true",
         }
 
         # Step 4: Send email
         send_url = f"https://graph.microsoft.com/v1.0/users/{sender_email}/sendMail"
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json'
-        }
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 
         logger.info(f"Sending email to {len(recipients)} recipient(s)")
 
@@ -150,7 +152,7 @@ def send_email_graph(tenant_id: str, client_id: str, client_secret: str,
 
     except requests.exceptions.RequestException as e:
         logger.error(f"HTTP request failed: {e}")
-        if hasattr(e.response, 'text'):
+        if hasattr(e.response, "text"):
             logger.error(f"Response: {e.response.text}")
         return False
     except Exception as e:
@@ -175,10 +177,10 @@ Please see the attached HTML report for details.
 
 This is an automated report from the ArmorCode Vulnerability Tracking System."""
 
-    baseline = summary_data.get('baseline', {})
-    target = summary_data.get('target', {})
-    current = summary_data.get('current', {})
-    comparison = summary_data.get('comparison', {})
+    baseline = summary_data.get("baseline", {})
+    target = summary_data.get("target", {})
+    current = summary_data.get("current", {})
+    comparison = summary_data.get("comparison", {})
 
     body = f"""ArmorCode Vulnerability Tracking Report
 Report Date: {datetime.now().strftime('%Y-%m-%d')}
@@ -207,41 +209,29 @@ This is an automated report from the ArmorCode Vulnerability Tracking System."""
 
 def parse_arguments():
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Send ArmorCode HTML report via email'
+    parser = argparse.ArgumentParser(description="Send ArmorCode HTML report via email")
+
+    parser.add_argument("html_file", type=str, help="Path to HTML report file")
+
+    parser.add_argument(
+        "--json-summary", type=str, default=None, help="Path to JSON summary file (optional, for email body)"
     )
 
     parser.add_argument(
-        'html_file',
-        type=str,
-        help='Path to HTML report file'
-    )
-
-    parser.add_argument(
-        '--json-summary',
+        "--recipients",
         type=str,
         default=None,
-        help='Path to JSON summary file (optional, for email body)'
+        help="Comma-separated list of recipient email addresses (overrides .env)",
     )
 
     parser.add_argument(
-        '--recipients',
-        type=str,
-        default=None,
-        help='Comma-separated list of recipient email addresses (overrides .env)'
-    )
-
-    parser.add_argument(
-        '--subject',
-        type=str,
-        default=None,
-        help='Email subject (default: auto-generated from summary)'
+        "--subject", type=str, default=None, help="Email subject (default: auto-generated from summary)"
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Entry point when script is run from command line."""
     try:
         args = parse_arguments()
@@ -254,24 +244,23 @@ if __name__ == '__main__':
         summary_data = load_summary_data(args.json_summary)
 
         # Load configuration from environment
-        tenant_id = os.getenv('AZURE_TENANT_ID')
-        client_id = os.getenv('AZURE_CLIENT_ID')
-        client_secret = os.getenv('AZURE_CLIENT_SECRET')
-        sender_email = os.getenv('EMAIL_ADDRESS')
+        tenant_id = os.getenv("AZURE_TENANT_ID")
+        client_id = os.getenv("AZURE_CLIENT_ID")
+        client_secret = os.getenv("AZURE_CLIENT_SECRET")
+        sender_email = os.getenv("EMAIL_ADDRESS")
 
         # Get recipients
         if args.recipients:
             recipients_str = args.recipients
         else:
-            recipients_str = os.getenv('ARMORCODE_EMAIL_RECIPIENTS', '')
+            recipients_str = os.getenv("ARMORCODE_EMAIL_RECIPIENTS", "")
 
         if not recipients_str:
             raise RuntimeError(
-                "No recipients specified.\n"
-                "Use --recipients flag or set ARMORCODE_EMAIL_RECIPIENTS in .env file"
+                "No recipients specified.\n" "Use --recipients flag or set ARMORCODE_EMAIL_RECIPIENTS in .env file"
             )
 
-        recipients = [email.strip() for email in recipients_str.split(',') if email.strip()]
+        recipients = [email.strip() for email in recipients_str.split(",") if email.strip()]
 
         # Validate configuration
         if not all([tenant_id, client_id, client_secret]):
@@ -287,8 +276,8 @@ if __name__ == '__main__':
         if args.subject:
             subject = args.subject
         elif summary_data:
-            current_count = summary_data.get('current', {}).get('count', 'N/A')
-            progress_pct = summary_data.get('comparison', {}).get('progress_to_goal_pct', 'N/A')
+            current_count = summary_data.get("current", {}).get("count", "N/A")
+            progress_pct = summary_data.get("comparison", {}).get("progress_to_goal_pct", "N/A")
             subject = f"ArmorCode Vulnerability Report - {datetime.now().strftime('%Y-%m-%d')} - {current_count} vulns ({progress_pct}% to goal)"
         else:
             subject = f"ArmorCode Vulnerability Report - {datetime.now().strftime('%Y-%m-%d')}"
@@ -313,16 +302,16 @@ if __name__ == '__main__':
             recipients=recipients,
             subject=subject,
             body=body,
-            html_file=args.html_file
+            html_file=args.html_file,
         )
 
         if success:
-            print(f"\nEmail sent successfully!")
+            print("\nEmail sent successfully!")
             print(f"Recipients: {', '.join(recipients)}")
             print(f"Subject: {subject}")
             sys.exit(0)
         else:
-            print(f"\nFailed to send email. Check logs for details.")
+            print("\nFailed to send email. Check logs for details.")
             sys.exit(1)
 
     except Exception as e:

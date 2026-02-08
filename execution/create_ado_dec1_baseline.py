@@ -83,7 +83,7 @@ def query_bugs_as_of_date(organization_url: str, project_name: str, pat: str, as
             OR [Microsoft.VSTS.Common.ClosedDate] = ''
         )
         ORDER BY [Microsoft.VSTS.Common.Priority] ASC, [System.Id] ASC
-        """
+        """  # nosec B608 - Hardcoded project name from config, date validated by datetime.strptime
 
         logger.info("Executing WIQL query...")
         wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})

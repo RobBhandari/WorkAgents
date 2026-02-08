@@ -32,7 +32,7 @@ def test_query(as_of_date: str):
         OR [Microsoft.VSTS.Common.ClosedDate] > '{as_of_date}'
         OR [Microsoft.VSTS.Common.ClosedDate] = ''
     )
-    """
+    """  # nosec B608 - Experimental script, not production code
 
     print(f"\nTesting query for date: {as_of_date}")
     print(f"Project: {project_name}")

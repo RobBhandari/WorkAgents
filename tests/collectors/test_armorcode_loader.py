@@ -414,8 +414,10 @@ class TestConvenienceFunction:
         temp_history_file.write_text(json.dumps(security_history_complete))
 
         # Mock the default path
-        monkeypatch.setattr("execution.collectors.armorcode_loader.ArmorCodeLoader.__init__",
-                           lambda self, history_file=None: setattr(self, 'history_file', temp_history_file))
+        monkeypatch.setattr(
+            "execution.collectors.armorcode_loader.ArmorCodeLoader.__init__",
+            lambda self, history_file=None: setattr(self, "history_file", temp_history_file),
+        )
 
         metrics = load_security_metrics(history_file=temp_history_file)
 

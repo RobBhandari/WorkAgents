@@ -40,7 +40,7 @@ wiql_all = Wiql(query=f"""
       AND [System.State] <> 'Closed'
       AND [System.State] <> 'Removed'
     ORDER BY [System.AreaPath]
-    """)
+    """)  # nosec B608 - Hardcoded project name from config, not user input
 
 # Query bugs EXCLUDING OneOffice
 wiql_exclude = Wiql(query=f"""
@@ -51,7 +51,7 @@ wiql_exclude = Wiql(query=f"""
       AND [System.State] <> 'Closed'
       AND [System.State] <> 'Removed'
       AND [System.AreaPath] NOT UNDER 'Access Legal Case Management\\OneOffice and Financial Director'
-    """)
+    """)  # nosec B608 - Hardcoded project name from config, not user input
 
 # Query bugs INCLUDING ONLY OneOffice
 wiql_include = Wiql(query=f"""
@@ -62,7 +62,7 @@ wiql_include = Wiql(query=f"""
       AND [System.State] <> 'Closed'
       AND [System.State] <> 'Removed'
       AND [System.AreaPath] UNDER 'Access Legal Case Management\\OneOffice and Financial Director'
-    """)
+    """)  # nosec B608 - Hardcoded project name from config, not user input
 
 # Execute queries
 all_result = wit_client.query_by_wiql(wiql_all)

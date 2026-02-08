@@ -164,8 +164,6 @@ EXCLUDE_EXTENSIONS = {
 }
 
 
-
-
 def should_analyze_file(file_path: str) -> bool:
     """
     Determine if a file should be included in KLOC calculation.

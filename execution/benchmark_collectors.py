@@ -163,7 +163,9 @@ class CollectorBenchmark:
 
         # Run all concurrently
         logger.info("Running ArmorCode, ADO Quality, and ADO Flow concurrently...")
-        results = await asyncio.gather(collect_armorcode(), collect_ado_quality(), collect_ado_flow(), return_exceptions=True)
+        results = await asyncio.gather(
+            collect_armorcode(), collect_ado_quality(), collect_ado_flow(), return_exceptions=True
+        )
 
         duration = time.time() - start
 

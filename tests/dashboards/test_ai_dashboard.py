@@ -45,6 +45,7 @@ class TestDataLoaders:
 
         # Change to temp directory so relative paths work
         import os
+
         original_cwd = os.getcwd()
         os.chdir(tmp_path)
 
@@ -91,6 +92,7 @@ class TestDataLoaders:
 
         # Change to temp directory so relative paths work
         import os
+
         original_cwd = os.getcwd()
         os.chdir(tmp_path)
 
@@ -287,7 +289,19 @@ class TestContextBuilder:
             ],
         }
 
-        context = _build_context(analysis, {}, {}, {"total_prs": 1, "devin_prs": 1, "human_prs": 0, "devin_percentage": 100, "author_count": 1, "project_count": 1})
+        context = _build_context(
+            analysis,
+            {},
+            {},
+            {
+                "total_prs": 1,
+                "devin_prs": 1,
+                "human_prs": 0,
+                "devin_percentage": 100,
+                "author_count": 1,
+                "project_count": 1,
+            },
+        )
 
         assert len(context["recent_prs"]) == 1
         pr = context["recent_prs"][0]

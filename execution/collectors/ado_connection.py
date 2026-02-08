@@ -23,6 +23,7 @@ Usage:
 """
 
 from azure.devops.connection import Connection
+from azure.devops.v7_1.work_item_tracking import WorkItemTrackingClient
 from msrest.authentication import BasicAuthentication
 
 from execution.secure_config import get_config
@@ -54,7 +55,7 @@ def get_ado_connection() -> Connection:
     return connection
 
 
-def get_wit_client(connection: Connection | None = None):
+def get_wit_client(connection: Connection | None = None) -> WorkItemTrackingClient:
     """
     Get Work Item Tracking client.
 

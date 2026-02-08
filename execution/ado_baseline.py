@@ -126,7 +126,7 @@ def create_baseline(
 
         # Step 3: Execute WIQL query
         logger.info(f"Executing WIQL query for bugs open on {BASELINE_DATE}...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             logger.warning("No bugs found for baseline date")

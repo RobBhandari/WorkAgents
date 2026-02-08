@@ -10,12 +10,13 @@ Usage:
     python armorcode_report_to_html.py <json_file> --output-file custom_report.html
 """
 
+import argparse
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
 from datetime import datetime
+
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -24,11 +25,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/armorcode_html_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ def load_query_data(json_file: str) -> dict:
 
     logger.info(f"Loading query data from {json_file}")
 
-    with open(json_file, 'r', encoding='utf-8') as f:
+    with open(json_file, encoding="utf-8") as f:
         data = json.load(f)
 
     logger.info("Query data loaded successfully")
@@ -66,16 +67,16 @@ def load_tracking_history() -> list:
     Returns:
         list: Historical query data
     """
-    tracking_file = '.tmp/armorcode_tracking.json'
+    tracking_file = ".tmp/armorcode_tracking.json"
 
     if not os.path.exists(tracking_file):
         logger.info("No tracking history found")
         return []
 
-    with open(tracking_file, 'r', encoding='utf-8') as f:
+    with open(tracking_file, encoding="utf-8") as f:
         tracking = json.load(f)
 
-    return tracking.get('queries', [])
+    return tracking.get("queries", [])
 
 
 def generate_html_report(data: dict, tracking_history: list) -> str:
@@ -89,41 +90,41 @@ def generate_html_report(data: dict, tracking_history: list) -> str:
     Returns:
         str: HTML content
     """
-    baseline = data['baseline']
-    target = data['target']
-    current = data['current']
-    comparison = data['comparison']
-    vulnerabilities = current['vulnerabilities']
+    baseline = data["baseline"]
+    target = data["target"]
+    current = data["current"]
+    comparison = data["comparison"]
+    vulnerabilities = current["vulnerabilities"]
 
     # Count by severity
-    critical_count = sum(1 for v in vulnerabilities if v.get('severity') == 'CRITICAL')
-    high_count = sum(1 for v in vulnerabilities if v.get('severity') == 'HIGH')
+    critical_count = sum(1 for v in vulnerabilities if v.get("severity") == "CRITICAL")
+    high_count = sum(1 for v in vulnerabilities if v.get("severity") == "HIGH")
 
     # Count by product
     product_counts = {}
     for v in vulnerabilities:
-        product = v.get('product', 'Unknown')
+        product = v.get("product", "Unknown")
         product_counts[product] = product_counts.get(product, 0) + 1
 
     # Count by status
     status_counts = {}
     for v in vulnerabilities:
-        status = v.get('status', 'Unknown')
+        status = v.get("status", "Unknown")
         status_counts[status] = status_counts.get(status, 0) + 1
 
     # Extract values for template
-    baseline_date = baseline['date']
-    baseline_count = baseline['count']
-    target_date = target['date']
-    target_count = target['count']
-    target_reduction_pct = target['reduction_goal_pct']
-    current_count = current['count']
-    reduction_amount = comparison['reduction_amount']
-    reduction_pct = comparison['reduction_pct']
-    remaining_to_goal = comparison['remaining_to_goal']
-    progress_to_goal_pct = comparison['progress_to_goal_pct']
-    days_since_baseline = comparison['days_since_baseline']
-    days_to_target = comparison['days_to_target']
+    baseline_date = baseline["date"]
+    baseline_count = baseline["count"]
+    target_date = target["date"]
+    target_count = target["count"]
+    target_reduction_pct = target["reduction_goal_pct"]
+    current_count = current["count"]
+    reduction_amount = comparison["reduction_amount"]
+    reduction_pct = comparison["reduction_pct"]
+    remaining_to_goal = comparison["remaining_to_goal"]
+    progress_to_goal_pct = comparison["progress_to_goal_pct"]
+    days_since_baseline = comparison["days_since_baseline"]
+    days_to_target = comparison["days_to_target"]
 
     # Generate HTML
     html = f"""<!DOCTYPE html>
@@ -593,11 +594,11 @@ def generate_html_report(data: dict, tracking_history: list) -> str:
                 </thead>
                 <tbody>"""
 
-        baseline_count = baseline['count']
+        baseline_count = baseline["count"]
         for entry in tracking_history[-10:]:  # Show last 10 entries
-            count = entry['count']
+            count = entry["count"]
             pct_of_baseline = (count / baseline_count * 100) if baseline_count > 0 else 0
-            reduction_pct = entry.get('reduction_pct', 0)
+            reduction_pct = entry.get("reduction_pct", 0)
             bar_width = int(pct_of_baseline)
 
             html += f"""
@@ -637,12 +638,12 @@ def generate_html_report(data: dict, tracking_history: list) -> str:
             <tbody>"""
 
     # Sort vulnerabilities: Critical first, then High
-    sorted_vulns = sorted(vulnerabilities, key=lambda x: (x.get('severity') != 'CRITICAL', x.get('severity') != 'HIGH'))
+    sorted_vulns = sorted(vulnerabilities, key=lambda x: (x.get("severity") != "CRITICAL", x.get("severity") != "HIGH"))
 
     for vuln in sorted_vulns:
-        severity = vuln.get('severity', 'UNKNOWN')
-        severity_class = severity.lower() if severity in ['CRITICAL', 'HIGH'] else ''
-        cve_cwe = ', '.join(filter(None, [vuln.get('cve'), vuln.get('cwe')]))
+        severity = vuln.get("severity", "UNKNOWN")
+        severity_class = severity.lower() if severity in ["CRITICAL", "HIGH"] else ""
+        cve_cwe = ", ".join(filter(None, [vuln.get("cve"), vuln.get("cwe")]))
 
         html += f"""
                 <tr>
@@ -708,27 +709,21 @@ def generate_html_report(data: dict, tracking_history: list) -> str:
 
 def parse_arguments():
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Generate HTML report from ArmorCode query JSON'
-    )
+    parser = argparse.ArgumentParser(description="Generate HTML report from ArmorCode query JSON")
+
+    parser.add_argument("json_file", type=str, help="Path to query JSON file")
 
     parser.add_argument(
-        'json_file',
-        type=str,
-        help='Path to query JSON file'
-    )
-
-    parser.add_argument(
-        '--output-file',
+        "--output-file",
         type=str,
         default=None,
-        help='Path to output HTML file (default: .tmp/armorcode_report_[timestamp].html)'
+        help="Path to output HTML file (default: .tmp/armorcode_report_[timestamp].html)",
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Entry point when script is run from command line."""
     try:
         args = parse_arguments()
@@ -747,17 +742,17 @@ if __name__ == '__main__':
             output_file = args.output_file
         else:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = f'.tmp/armorcode_report_{timestamp}.html'
+            output_file = f".tmp/armorcode_report_{timestamp}.html"
 
         # Save HTML
-        os.makedirs('.tmp', exist_ok=True)
-        with open(output_file, 'w', encoding='utf-8') as f:
+        os.makedirs(".tmp", exist_ok=True)
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(html)
 
         logger.info(f"HTML report generated: {output_file}")
-        print(f"\nHTML report generated successfully:")
+        print("\nHTML report generated successfully:")
         print(f"  {output_file}")
-        print(f"\nOpen in browser to view the report.")
+        print("\nOpen in browser to view the report.")
 
         sys.exit(0)
 

@@ -103,8 +103,7 @@ def _load_collaboration_data() -> dict:
 
     if not history_file.exists():
         raise FileNotFoundError(
-            f"Collaboration history not found: {history_file}\n"
-            "Run: python execution/ado_collaboration_metrics.py"
+            f"Collaboration history not found: {history_file}\n" "Run: python execution/ado_collaboration_metrics.py"
         )
 
     with open(history_file, encoding="utf-8") as f:

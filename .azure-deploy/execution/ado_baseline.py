@@ -9,16 +9,16 @@ Usage:
     python ado_baseline.py --force  # Overwrite existing baseline (use with caution)
 """
 
+import argparse
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
+from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 # Load environment variables from .env file
@@ -27,11 +27,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/ado_baseline_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,9 @@ def calculate_weeks_between(start_date_str: str, end_date_str: str) -> int:
     return days // 7
 
 
-def create_baseline(organization_url: str, project_name: str, pat: str, force: bool = False, project_key: str = None) -> dict:
+def create_baseline(
+    organization_url: str, project_name: str, pat: str, force: bool = False, project_key: str = None
+) -> dict:
     """
     Create baseline snapshot of bugs open on January 1, 2026.
 
@@ -69,9 +71,9 @@ def create_baseline(organization_url: str, project_name: str, pat: str, force: b
     """
     # Use project_key for filename, or sanitize project_name
     if project_key is None:
-        project_key = project_name.replace(' ', '_').replace('-', '_')
+        project_key = project_name.replace(" ", "_").replace("-", "_")
 
-    baseline_file = f'.tmp/baseline_{project_key}.json'
+    baseline_file = f".tmp/baseline_{project_key}.json"
 
     # Check if baseline already exists
     if os.path.exists(baseline_file) and not force:
@@ -86,7 +88,7 @@ def create_baseline(organization_url: str, project_name: str, pat: str, force: b
 
     try:
         # Step 1: Authenticate with ADO
-        credentials = BasicAuthentication('', pat)
+        credentials = BasicAuthentication("", pat)
         connection = Connection(base_url=organization_url, creds=credentials)
         wit_client = connection.clients.get_work_item_tracking_client()
         logger.info("Successfully connected to Azure DevOps")
@@ -110,7 +112,7 @@ def create_baseline(organization_url: str, project_name: str, pat: str, force: b
 
         # Step 3: Execute WIQL query
         logger.info(f"Executing WIQL query for bugs open on {BASELINE_DATE}...")
-        wiql_results = wit_client.query_by_wiql(wiql={'query': wiql_query})
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
 
         if not wiql_results.work_items:
             logger.warning("No bugs found for baseline date")
@@ -126,21 +128,29 @@ def create_baseline(organization_url: str, project_name: str, pat: str, force: b
             batch_size = 200
 
             for i in range(0, len(work_item_ids), batch_size):
-                batch_ids = work_item_ids[i:i + batch_size]
-                logger.info(f"Fetching batch {i//batch_size + 1}/{(len(work_item_ids) + batch_size - 1)//batch_size} ({len(batch_ids)} items)...")
+                batch_ids = work_item_ids[i : i + batch_size]
+                logger.info(
+                    f"Fetching batch {i//batch_size + 1}/{(len(work_item_ids) + batch_size - 1)//batch_size} ({len(batch_ids)} items)..."
+                )
 
                 work_items = wit_client.get_work_items(
                     ids=batch_ids,
-                    fields=['System.Id', 'System.Title', 'System.State', 'Microsoft.VSTS.Common.Priority', 'System.CreatedDate']
+                    fields=[
+                        "System.Id",
+                        "System.Title",
+                        "System.State",
+                        "Microsoft.VSTS.Common.Priority",
+                        "System.CreatedDate",
+                    ],
                 )
 
                 for item in work_items:
                     bug_data = {
                         "id": item.id,
-                        "title": item.fields.get('System.Title', 'N/A'),
-                        "state": item.fields.get('System.State', 'N/A'),
-                        "priority": item.fields.get('Microsoft.VSTS.Common.Priority', 'N/A'),
-                        "created_date": str(item.fields.get('System.CreatedDate', ''))
+                        "title": item.fields.get("System.Title", "N/A"),
+                        "state": item.fields.get("System.State", "N/A"),
+                        "priority": item.fields.get("Microsoft.VSTS.Common.Priority", "N/A"),
+                        "created_date": str(item.fields.get("System.CreatedDate", "")),
                     }
                     bugs.append(bug_data)
 
@@ -166,12 +176,12 @@ def create_baseline(organization_url: str, project_name: str, pat: str, force: b
             "project": project_name,
             "project_key": project_key,
             "organization": organization_url,
-            "bugs": bugs
+            "bugs": bugs,
         }
 
         # Step 7: Save baseline to file
-        os.makedirs('.tmp', exist_ok=True)
-        with open(baseline_file, 'w', encoding='utf-8') as f:
+        os.makedirs(".tmp", exist_ok=True)
+        with open(baseline_file, "w", encoding="utf-8") as f:
             json.dump(baseline, f, indent=2, ensure_ascii=False)
 
         logger.info(f"Baseline created successfully: {baseline_file}")
@@ -189,32 +199,20 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Create immutable DOE baseline snapshot for January 1, 2026'
-    )
+    parser = argparse.ArgumentParser(description="Create immutable DOE baseline snapshot for January 1, 2026")
+
+    parser.add_argument("--force", action="store_true", help="Force overwrite of existing baseline (NOT RECOMMENDED)")
+
+    parser.add_argument("--project", type=str, help="ADO project name (overrides ADO_PROJECT_NAME from .env)")
 
     parser.add_argument(
-        '--force',
-        action='store_true',
-        help='Force overwrite of existing baseline (NOT RECOMMENDED)'
-    )
-
-    parser.add_argument(
-        '--project',
-        type=str,
-        help='ADO project name (overrides ADO_PROJECT_NAME from .env)'
-    )
-
-    parser.add_argument(
-        '--project-key',
-        type=str,
-        help='Project key for multi-project tracking (defaults to sanitized project name)'
+        "--project-key", type=str, help="Project key for multi-project tracking (defaults to sanitized project name)"
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -223,28 +221,24 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        organization_url = os.getenv('ADO_ORGANIZATION_URL')
-        project_name = args.project if args.project else os.getenv('ADO_PROJECT_NAME')
-        pat = os.getenv('ADO_PAT')
+        organization_url = os.getenv("ADO_ORGANIZATION_URL")
+        project_name = args.project if args.project else os.getenv("ADO_PROJECT_NAME")
+        pat = os.getenv("ADO_PAT")
 
         # Validate environment variables
-        if not organization_url or organization_url == 'your_ado_org_url_here':
+        if not organization_url or organization_url == "your_ado_org_url_here":
             raise RuntimeError(
-                "ADO_ORGANIZATION_URL not configured in .env file.\n"
-                "Please set your Azure DevOps organization URL"
+                "ADO_ORGANIZATION_URL not configured in .env file.\n" "Please set your Azure DevOps organization URL"
             )
 
-        if not project_name or project_name == 'your_project_name_here':
+        if not project_name or project_name == "your_project_name_here":
             raise RuntimeError(
                 "ADO_PROJECT_NAME not configured in .env file (or provide --project).\n"
                 "Please set your Azure DevOps project name"
             )
 
-        if not pat or pat == 'your_personal_access_token_here':
-            raise RuntimeError(
-                "ADO_PAT not configured in .env file.\n"
-                "Please create a Personal Access Token"
-            )
+        if not pat or pat == "your_personal_access_token_here":
+            raise RuntimeError("ADO_PAT not configured in .env file.\n" "Please create a Personal Access Token")
 
         # Create baseline
         baseline = create_baseline(
@@ -252,12 +246,12 @@ if __name__ == '__main__':
             project_name=project_name,
             pat=pat,
             force=args.force,
-            project_key=args.project_key
+            project_key=args.project_key,
         )
 
         # Print summary
         print(f"\n{'='*60}")
-        print(f"DOE Baseline Created")
+        print("DOE Baseline Created")
         print(f"{'='*60}")
         print(f"Baseline Date: {baseline['baseline_date']}")
         print(f"Open Bugs on {baseline['baseline_date']}: {baseline['open_count']}")
@@ -265,7 +259,7 @@ if __name__ == '__main__':
         print(f"Target Date: {baseline['target_date']}")
         print(f"Weeks to Target: {baseline['weeks_to_target']}")
         print(f"Required Weekly Burn: +{baseline['required_weekly_burn']:.2f}")
-        print(f"\nBaseline saved to: .tmp/baseline.json")
+        print("\nBaseline saved to: .tmp/baseline.json")
         print(f"{'='*60}\n")
 
         # Exit with success code

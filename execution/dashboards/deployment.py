@@ -28,6 +28,7 @@ try:
     from ..domain.deployment import DeploymentMetrics, from_json
 except ImportError:
     import sys
+
     root_path = Path(__file__).parent.parent.parent
     if str(root_path) not in sys.path:
         sys.path.insert(0, str(root_path))
@@ -102,8 +103,7 @@ def _load_deployment_data() -> tuple[list[DeploymentMetrics], str]:
 
     if not history_file.exists():
         raise FileNotFoundError(
-            f"Deployment history file not found: {history_file}\n"
-            "Run: python execution/ado_deployment_metrics.py"
+            f"Deployment history file not found: {history_file}\n" "Run: python execution/ado_deployment_metrics.py"
         )
 
     with open(history_file, encoding="utf-8") as f:
@@ -240,11 +240,7 @@ def _build_project_rows(metrics_list: list[DeploymentMetrics]) -> list[dict]:
     rows = []
 
     # Sort by deployment frequency (descending)
-    sorted_metrics = sorted(
-        metrics_list,
-        key=lambda m: m.deployment_frequency.deployments_per_week,
-        reverse=True
-    )
+    sorted_metrics = sorted(metrics_list, key=lambda m: m.deployment_frequency.deployments_per_week, reverse=True)
 
     for metrics in sorted_metrics:
         # Format display values
@@ -334,4 +330,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n[ERROR] {e}")
         import traceback
+
         traceback.print_exc()

@@ -172,7 +172,7 @@ def query_current_bugs(organization_url: str, project_name: str, pat: str) -> in
         )
 
         logger.info("Querying current open bugs...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             logger.info("No open bugs found")
@@ -209,32 +209,46 @@ def query_bugs_by_date_range(
         connection = Connection(base_url=organization_url, creds=credentials)
         wit_client = connection.clients.get_work_item_tracking_client()
 
+        # Validate inputs to prevent WIQL injection
+        safe_project = WIQLValidator.validate_project_name(project_name)
+        safe_start_date = WIQLValidator.validate_date(start_date)
+        safe_end_date = WIQLValidator.validate_date(end_date)
+
         if query_type == "created":
             # Query bugs created in date range
-            wiql_query = f"""
-            SELECT [System.Id]
-            FROM WorkItems
-            WHERE [System.TeamProject] = '{project_name}'
-            AND [System.WorkItemType] = 'Bug'
-            AND [System.CreatedDate] >= '{start_date}'
-            AND [System.CreatedDate] < '{end_date}'
-            """
+            wiql_query = WIQLValidator.build_safe_wiql(
+                """SELECT [System.Id]
+                FROM WorkItems
+                WHERE [System.TeamProject] = '{project}'
+                AND [System.WorkItemType] = '{work_type}'
+                AND [System.CreatedDate] >= '{start_date}'
+                AND [System.CreatedDate] < '{end_date}'""",
+                project=safe_project,
+                work_type="Bug",
+                start_date=safe_start_date,
+                end_date=safe_end_date,
+            )
         elif query_type == "closed":
             # Query bugs closed in date range
-            wiql_query = f"""
-            SELECT [System.Id]
-            FROM WorkItems
-            WHERE [System.TeamProject] = '{project_name}'
-            AND [System.WorkItemType] = 'Bug'
-            AND [System.State] = 'Closed'
-            AND [Microsoft.VSTS.Common.ClosedDate] >= '{start_date}'
-            AND [Microsoft.VSTS.Common.ClosedDate] < '{end_date}'
-            """
+            wiql_query = WIQLValidator.build_safe_wiql(
+                """SELECT [System.Id]
+                FROM WorkItems
+                WHERE [System.TeamProject] = '{project}'
+                AND [System.WorkItemType] = '{work_type}'
+                AND [System.State] = '{state}'
+                AND [Microsoft.VSTS.Common.ClosedDate] >= '{start_date}'
+                AND [Microsoft.VSTS.Common.ClosedDate] < '{end_date}'""",
+                project=safe_project,
+                work_type="Bug",
+                state="Closed",
+                start_date=safe_start_date,
+                end_date=safe_end_date,
+            )
         else:
             raise ValueError(f"Invalid query_type: {query_type}")
 
         logger.info(f"Querying bugs {query_type} between {start_date} and {end_date}...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             return 0

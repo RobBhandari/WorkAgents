@@ -13,7 +13,6 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Tuple
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -26,20 +25,22 @@ logger = get_logger(__name__)
 @dataclass
 class BugPrediction:
     """Single week bug count prediction."""
+
     week_ending: str
     predicted_count: int
-    confidence_interval: Tuple[int, int]  # (lower, upper)
+    confidence_interval: tuple[int, int]  # (lower, upper)
     is_anomaly_expected: bool
 
 
 @dataclass
 class TrendAnalysis:
     """Complete trend analysis with predictions and anomalies."""
+
     project_key: str
     current_count: int
     trend_direction: str  # "increasing", "decreasing", "stable"
-    predictions: List[BugPrediction]
-    anomalies_detected: List[dict]  # Historical anomalies
+    predictions: list[BugPrediction]
+    anomalies_detected: list[dict]  # Historical anomalies
     model_r2_score: float
     prediction_date: str
 
@@ -81,14 +82,14 @@ class TrendPredictor:
             raise ValueError(f"Insufficient data for prediction: need at least 3 weeks, got {len(historical_data)}")
 
         # Extract time series
-        weeks = np.array([i for i in range(len(historical_data))])
+        weeks = np.array(list(range(len(historical_data))))
         bug_counts = np.array([d["open_bugs"] for d in historical_data])
 
         # Train linear regression model
-        X = weeks.reshape(-1, 1)
+        x = weeks.reshape(-1, 1)
         y = bug_counts
-        self.model.fit(X, y)
-        r2_score = self.model.score(X, y)
+        self.model.fit(x, y)
+        r2_score = self.model.score(x, y)
 
         logger.info("Model trained", extra={"r2_score": r2_score, "samples": len(historical_data)})
 
@@ -110,11 +111,7 @@ class TrendPredictor:
 
         logger.info(
             "Trend analysis complete",
-            extra={
-                "trend_direction": trend_direction,
-                "slope": trend_slope,
-                "anomalies_found": len(anomalies)
-            }
+            extra={"trend_direction": trend_direction, "slope": trend_slope, "anomalies_found": len(anomalies)},
         )
 
         return TrendAnalysis(
@@ -124,10 +121,10 @@ class TrendPredictor:
             predictions=predictions,
             anomalies_detected=anomalies,
             model_r2_score=r2_score,
-            prediction_date=datetime.now().isoformat()
+            prediction_date=datetime.now().isoformat(),
         )
 
-    def _load_project_history(self, project_key: str) -> List[dict]:
+    def _load_project_history(self, project_key: str) -> list[dict]:
         """
         Load historical bug counts for a project.
 
@@ -139,17 +136,14 @@ class TrendPredictor:
             raise FileNotFoundError(f"Quality history not found: {self.history_file}")
 
         try:
-            with open(self.history_file, 'r', encoding='utf-8') as f:
+            with open(self.history_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             history = []
             for week in data.get("weeks", []):
                 for project in week.get("projects", []):
                     if project.get("project_key") == project_key:
-                        history.append({
-                            "week_ending": week["week_date"],
-                            "open_bugs": project["open_bugs_count"]
-                        })
+                        history.append({"week_ending": week["week_date"], "open_bugs": project["open_bugs_count"]})
                         break
 
             if not history:
@@ -162,7 +156,7 @@ class TrendPredictor:
             logger.error("Invalid JSON in history file", exc_info=True)
             raise ValueError(f"Invalid JSON: {e}")
 
-    def _detect_anomalies(self, historical_data: List[dict], bug_counts: np.ndarray) -> List[dict]:
+    def _detect_anomalies(self, historical_data: list[dict], bug_counts: np.ndarray) -> list[dict]:
         """
         Detect anomalies using z-score method.
 
@@ -181,33 +175,29 @@ class TrendPredictor:
         for i, count in enumerate(bug_counts):
             z_score = (count - mean) / std
             if abs(z_score) > 2.0:  # 2 standard deviations
-                anomalies.append({
-                    "week_ending": historical_data[i]["week_ending"],
-                    "bug_count": int(count),
-                    "z_score": float(z_score),
-                    "severity": "high" if abs(z_score) > 3.0 else "medium"
-                })
+                anomalies.append(
+                    {
+                        "week_ending": historical_data[i]["week_ending"],
+                        "bug_count": int(count),
+                        "z_score": float(z_score),
+                        "severity": "high" if abs(z_score) > 3.0 else "medium",
+                    }
+                )
 
-        logger.info(
-            "Anomaly detection complete",
-            extra={"anomalies_found": len(anomalies), "mean": mean, "std": std}
-        )
+        logger.info("Anomaly detection complete", extra={"anomalies_found": len(anomalies), "mean": mean, "std": std})
 
         return anomalies
 
     def _make_predictions(
-        self,
-        future_weeks: np.ndarray,
-        last_week_ending: str,
-        historical_counts: np.ndarray
-    ) -> List[BugPrediction]:
+        self, future_weeks: np.ndarray, last_week_ending: str, historical_counts: np.ndarray
+    ) -> list[BugPrediction]:
         """
         Make predictions for future weeks with confidence intervals.
 
         Confidence interval = prediction ± 1.96 * std_dev (95% CI)
         """
-        X_future = future_weeks.reshape(-1, 1)
-        predictions = self.model.predict(X_future)
+        x_future = future_weeks.reshape(-1, 1)
+        predictions = self.model.predict(x_future)
 
         # Calculate prediction uncertainty based on historical variance
         residuals = historical_counts - self.model.predict(np.arange(len(historical_counts)).reshape(-1, 1))
@@ -230,12 +220,14 @@ class TrendPredictor:
             # Flag as potential anomaly if prediction is >2 std from historical mean
             is_anomaly = abs(pred - mean_count) > (2 * std_dev)
 
-            results.append(BugPrediction(
-                week_ending=week_date.strftime("%Y-%m-%d"),
-                predicted_count=predicted_count,
-                confidence_interval=(lower_bound, upper_bound),
-                is_anomaly_expected=bool(is_anomaly)  # Convert numpy bool to Python bool
-            ))
+            results.append(
+                BugPrediction(
+                    week_ending=week_date.strftime("%Y-%m-%d"),
+                    predicted_count=predicted_count,
+                    confidence_interval=(lower_bound, upper_bound),
+                    is_anomaly_expected=bool(is_anomaly),  # Convert numpy bool to Python bool
+                )
+            )
 
         return results
 
@@ -254,7 +246,7 @@ if __name__ == "__main__":
         logger.info("Predictor initialized", extra={"history_file": str(predictor.history_file)})
 
         # Load history to find a project
-        with open(predictor.history_file, 'r', encoding='utf-8') as f:
+        with open(predictor.history_file, encoding="utf-8") as f:
             data = json.load(f)
 
         if data.get("weeks") and data["weeks"][0].get("projects"):
@@ -272,8 +264,8 @@ if __name__ == "__main__":
                     "trend": analysis.trend_direction,
                     "r2_score": analysis.model_r2_score,
                     "predictions": len(analysis.predictions),
-                    "anomalies": len(analysis.anomalies_detected)
-                }
+                    "anomalies": len(analysis.anomalies_detected),
+                },
             )
 
             logger.info("Predictions:")

@@ -20,16 +20,14 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-from execution.dashboards.flow import (
-    FlowDataLoader,
-    _build_context,
-    _build_project_tables,
-    _build_summary_cards,
-    _build_work_type_cards,
-    _calculate_portfolio_summary,
-    _calculate_status,
-    _format_project_row,
-    generate_flow_dashboard,
+from execution.dashboards.flow import FlowDataLoader, _build_context, generate_flow_dashboard
+from execution.dashboards.flow_helpers import (
+    build_project_tables,
+    build_summary_cards,
+    build_work_type_cards,
+    calculate_portfolio_summary,
+    calculate_status,
+    format_project_row,
 )
 
 
@@ -165,7 +163,7 @@ class TestCalculatePortfolioSummary:
 
     def test_calculate_summary_basic(self, sample_flow_data):
         """Test basic summary calculation"""
-        summary = _calculate_portfolio_summary(sample_flow_data)
+        summary = calculate_portfolio_summary(sample_flow_data)
 
         assert summary["project_count"] == 2
         assert summary["total_wip"] == 280  # 125+50+30+75
@@ -173,7 +171,7 @@ class TestCalculatePortfolioSummary:
 
     def test_calculate_summary_lead_times(self, sample_flow_data):
         """Test lead time aggregation"""
-        summary = _calculate_portfolio_summary(sample_flow_data)
+        summary = calculate_portfolio_summary(sample_flow_data)
 
         # Should have lead times from Bug, User Story, Task for project 1, and Bug for project 2
         assert len(summary["by_type"]["Bug"]["lead_times"]) == 2  # 15.2, 25.0
@@ -182,7 +180,7 @@ class TestCalculatePortfolioSummary:
 
     def test_calculate_summary_average_lead_time(self, sample_flow_data):
         """Test average lead time calculation"""
-        summary = _calculate_portfolio_summary(sample_flow_data)
+        summary = calculate_portfolio_summary(sample_flow_data)
 
         # Average of 15.2, 30.0, 12.0, 25.0 = 20.55
         expected_avg = (15.2 + 30.0 + 12.0 + 25.0) / 4
@@ -190,7 +188,7 @@ class TestCalculatePortfolioSummary:
 
     def test_calculate_summary_by_type(self, sample_flow_data):
         """Test work type breakdown"""
-        summary = _calculate_portfolio_summary(sample_flow_data)
+        summary = calculate_portfolio_summary(sample_flow_data)
 
         # Check Bug totals
         assert summary["by_type"]["Bug"]["open"] == 200  # 125 + 75
@@ -208,7 +206,7 @@ class TestCalculatePortfolioSummary:
         """Test summary with no valid lead times"""
         week_data = {"projects": [{"work_type_metrics": {"Bug": {"open_count": 10, "closed_count_90d": 5}}}]}
 
-        summary = _calculate_portfolio_summary(week_data)
+        summary = calculate_portfolio_summary(week_data)
 
         assert summary["avg_lead_time"] == 0
 
@@ -216,7 +214,7 @@ class TestCalculatePortfolioSummary:
         """Test summary with empty projects list"""
         week_data = {"projects": []}
 
-        summary = _calculate_portfolio_summary(week_data)
+        summary = calculate_portfolio_summary(week_data)
 
         assert summary["project_count"] == 0
         assert summary["total_wip"] == 0
@@ -229,7 +227,7 @@ class TestCalculateStatus:
 
     def test_status_good_all_metrics(self):
         """Test Good status when all metrics meet targets"""
-        status_html, tooltip, priority = _calculate_status(p85=50.0, p50=25.0)
+        status_html, tooltip, priority = calculate_status(p85=50.0, p50=25.0)
 
         assert "Good" in status_html
         assert "#10b981" in status_html  # Green
@@ -237,7 +235,7 @@ class TestCalculateStatus:
 
     def test_status_caution_one_metric_poor(self):
         """Test Caution status when one metric is poor"""
-        status_html, tooltip, priority = _calculate_status(p85=160.0, p50=25.0)
+        status_html, tooltip, priority = calculate_status(p85=160.0, p50=25.0)
 
         assert "Caution" in status_html
         assert "#f59e0b" in status_html  # Amber
@@ -245,7 +243,7 @@ class TestCalculateStatus:
 
     def test_status_caution_both_caution(self):
         """Test Caution status when both metrics in caution range"""
-        status_html, tooltip, priority = _calculate_status(p85=80.0, p50=50.0)
+        status_html, tooltip, priority = calculate_status(p85=80.0, p50=50.0)
 
         assert "Caution" in status_html
         assert "#f59e0b" in status_html  # Amber
@@ -253,7 +251,7 @@ class TestCalculateStatus:
 
     def test_status_action_needed_both_poor(self):
         """Test Action Needed when both metrics are poor"""
-        status_html, tooltip, priority = _calculate_status(p85=200.0, p50=100.0)
+        status_html, tooltip, priority = calculate_status(p85=200.0, p50=100.0)
 
         assert "Action Needed" in status_html
         assert "#ef4444" in status_html  # Red
@@ -261,7 +259,7 @@ class TestCalculateStatus:
 
     def test_tooltip_content(self):
         """Test tooltip contains metric details"""
-        status_html, tooltip, priority = _calculate_status(p85=80.0, p50=50.0)
+        status_html, tooltip, priority = calculate_status(p85=80.0, p50=50.0)
 
         assert "P85 Lead Time" in tooltip
         assert "80.0 days" in tooltip
@@ -271,7 +269,7 @@ class TestCalculateStatus:
 
     def test_status_with_zero_values(self):
         """Test status with zero values"""
-        status_html, tooltip, priority = _calculate_status(p85=0, p50=0)
+        status_html, tooltip, priority = calculate_status(p85=0, p50=0)
 
         # With no data, should default to Good
         assert priority == 2
@@ -281,19 +279,19 @@ class TestCalculateStatus:
 class TestBuildSummaryCards:
     """Test summary cards generation"""
 
-    def test_build_summary_cards_count(self):
+    def testbuild_summary_cards_count(self):
         """Test that 4 summary cards are generated"""
         summary_stats = {"avg_lead_time": 20.5, "total_wip": 280, "total_closed": 110, "project_count": 2}
 
-        cards = _build_summary_cards(summary_stats)
+        cards = build_summary_cards(summary_stats)
 
         assert len(cards) == 4
 
-    def test_build_summary_cards_content(self):
+    def testbuild_summary_cards_content(self):
         """Test summary card content"""
         summary_stats = {"avg_lead_time": 20.5, "total_wip": 280, "total_closed": 110, "project_count": 2}
 
-        cards = _build_summary_cards(summary_stats)
+        cards = build_summary_cards(summary_stats)
 
         # Check for key content
         assert "Average Lead Time" in cards[0]
@@ -305,11 +303,11 @@ class TestBuildSummaryCards:
         assert "Projects" in cards[3]
         assert "2" in cards[3]
 
-    def test_build_summary_cards_formatting(self):
+    def testbuild_summary_cards_formatting(self):
         """Test that cards have proper formatting"""
         summary_stats = {"avg_lead_time": 123.4, "total_wip": 1234, "total_closed": 567, "project_count": 10}
 
-        cards = _build_summary_cards(summary_stats)
+        cards = build_summary_cards(summary_stats)
 
         # Check for comma formatting
         assert "1,234" in cards[1]  # WIP card
@@ -319,7 +317,7 @@ class TestBuildSummaryCards:
 class TestBuildWorkTypeCards:
     """Test work type cards generation"""
 
-    def test_build_work_type_cards_count(self):
+    def testbuild_work_type_cards_count(self):
         """Test that 3 work type cards are generated"""
         summary_stats = {
             "by_type": {
@@ -329,11 +327,11 @@ class TestBuildWorkTypeCards:
             }
         }
 
-        cards = _build_work_type_cards(summary_stats)
+        cards = build_work_type_cards(summary_stats)
 
         assert len(cards) == 3
 
-    def test_build_work_type_cards_content(self):
+    def testbuild_work_type_cards_content(self):
         """Test work type card content"""
         summary_stats = {
             "by_type": {
@@ -343,7 +341,7 @@ class TestBuildWorkTypeCards:
             }
         }
 
-        cards = _build_work_type_cards(summary_stats)
+        cards = build_work_type_cards(summary_stats)
 
         # Check Bug card
         assert "Bugs" in cards[0]
@@ -360,7 +358,7 @@ class TestBuildWorkTypeCards:
         assert "30" in cards[2]
         assert "15" in cards[2]
 
-    def test_build_work_type_cards_colors(self):
+    def testbuild_work_type_cards_colors(self):
         """Test work type cards have color styling"""
         summary_stats = {
             "by_type": {
@@ -370,7 +368,7 @@ class TestBuildWorkTypeCards:
             }
         }
 
-        cards = _build_work_type_cards(summary_stats)
+        cards = build_work_type_cards(summary_stats)
 
         # Check for color codes
         assert "#ef4444" in cards[0]  # Bug - Red
@@ -381,10 +379,10 @@ class TestBuildWorkTypeCards:
 class TestFormatProjectRow:
     """Test project row formatting"""
 
-    def test_format_project_row_basic(self, sample_flow_data):
+    def testformat_project_row_basic(self, sample_flow_data):
         """Test basic project row formatting"""
         project = sample_flow_data["projects"][0]
-        row = _format_project_row(project, "Bug")
+        row = format_project_row(project, "Bug")
 
         assert row is not None
         assert row["name"] == "OneOffice"
@@ -395,25 +393,25 @@ class TestFormatProjectRow:
         assert row["open"] == "125"
         assert row["closed"] == "45"
 
-    def test_format_project_row_with_cleanup(self, sample_flow_data):
+    def testformat_project_row_with_cleanup(self, sample_flow_data):
         """Test project row with cleanup work"""
         project = sample_flow_data["projects"][0]
-        row = _format_project_row(project, "Bug")
+        row = format_project_row(project, "Bug")
 
-        assert row["has_cleanup"] == False  # Sample has is_cleanup_effort=False
+        assert not row["has_cleanup"]  # Sample has is_cleanup_effort=False
         assert row["cleanup_pct"] == "6.7"
 
-    def test_format_project_row_no_data(self, sample_flow_data):
+    def testformat_project_row_no_data(self, sample_flow_data):
         """Test project row with no data for work type"""
         project = sample_flow_data["projects"][1]  # API Gateway doesn't have Task data
-        row = _format_project_row(project, "Task")
+        row = format_project_row(project, "Task")
 
         assert row is None
 
-    def test_format_project_row_status(self, sample_flow_data):
+    def testformat_project_row_status(self, sample_flow_data):
         """Test project row includes status"""
         project = sample_flow_data["projects"][0]
-        row = _format_project_row(project, "Bug")
+        row = format_project_row(project, "Bug")
 
         assert "status_html" in row
         assert "status_tooltip" in row
@@ -424,17 +422,17 @@ class TestFormatProjectRow:
 class TestBuildProjectTables:
     """Test project table building"""
 
-    def test_build_project_tables_count(self, sample_flow_data):
+    def testbuild_project_tables_count(self, sample_flow_data):
         """Test that 3 work type tables are built"""
-        summary_stats = _calculate_portfolio_summary(sample_flow_data)
-        tables = _build_project_tables(sample_flow_data, summary_stats)
+        summary_stats = calculate_portfolio_summary(sample_flow_data)
+        tables = build_project_tables(sample_flow_data, summary_stats)
 
         assert len(tables) == 3
 
-    def test_build_project_tables_structure(self, sample_flow_data):
+    def testbuild_project_tables_structure(self, sample_flow_data):
         """Test project table structure"""
-        summary_stats = _calculate_portfolio_summary(sample_flow_data)
-        tables = _build_project_tables(sample_flow_data, summary_stats)
+        summary_stats = calculate_portfolio_summary(sample_flow_data)
+        tables = build_project_tables(sample_flow_data, summary_stats)
 
         for table in tables:
             assert "name" in table
@@ -444,7 +442,7 @@ class TestBuildProjectTables:
             assert "total_closed" in table
             assert "projects" in table
 
-    def test_build_project_tables_sorting(self):
+    def testbuild_project_tables_sorting(self):
         """Test projects are sorted by status priority"""
         week_data = {
             "projects": [
@@ -477,8 +475,8 @@ class TestBuildProjectTables:
             ]
         }
 
-        summary_stats = _calculate_portfolio_summary(week_data)
-        tables = _build_project_tables(week_data, summary_stats)
+        summary_stats = calculate_portfolio_summary(week_data)
+        tables = build_project_tables(week_data, summary_stats)
 
         # Bug table should have Bad Project first (lower priority = worse status)
         bug_table = tables[0]
@@ -491,7 +489,7 @@ class TestBuildContext:
 
     def test_build_context_keys(self, sample_flow_data):
         """Test that context has all required keys"""
-        summary_stats = _calculate_portfolio_summary(sample_flow_data)
+        summary_stats = calculate_portfolio_summary(sample_flow_data)
         context = _build_context(sample_flow_data, summary_stats)
 
         required_keys = [
@@ -513,7 +511,7 @@ class TestBuildContext:
 
     def test_build_context_values(self, sample_flow_data):
         """Test context values are correct"""
-        summary_stats = _calculate_portfolio_summary(sample_flow_data)
+        summary_stats = calculate_portfolio_summary(sample_flow_data)
         context = _build_context(sample_flow_data, summary_stats)
 
         assert context["week_number"] == 6
@@ -635,7 +633,7 @@ class TestEdgeCases:
         """Test handling project with incomplete metrics"""
         project = {"project_name": "Incomplete", "work_type_metrics": {"Bug": {"open_count": 10}}}
 
-        row = _format_project_row(project, "Bug")
+        row = format_project_row(project, "Bug")
 
         # Should return None only if both open and closed are 0
         # With open_count=10, it should return a row (even if closed is 0)
@@ -650,7 +648,7 @@ class TestEdgeCases:
             "work_type_metrics": {"Bug": {"open_count": 0, "closed_count_90d": 0}},
         }
 
-        row = _format_project_row(project, "Bug")
+        row = format_project_row(project, "Bug")
 
         assert row is None
 
@@ -658,7 +656,7 @@ class TestEdgeCases:
         """Test summary calculation with no projects"""
         week_data = {"projects": []}
 
-        summary = _calculate_portfolio_summary(week_data)
+        summary = calculate_portfolio_summary(week_data)
 
         assert summary["avg_lead_time"] == 0
         assert summary["total_wip"] == 0

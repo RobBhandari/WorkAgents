@@ -22,6 +22,7 @@ class DeploymentFrequency:
         lookback_days: Number of days analyzed (typically 90)
         pipeline_count: Number of pipelines with deployments
     """
+
     total_successful_builds: int
     deployments_per_week: float
     lookback_days: int
@@ -49,6 +50,7 @@ class BuildSuccessRate:
         failed: Failed builds
         success_rate_pct: Success rate percentage
     """
+
     total_builds: int
     succeeded: int
     failed: int
@@ -74,6 +76,7 @@ class BuildDuration:
         median_minutes: Median build duration in minutes
         p85_minutes: 85th percentile duration in minutes
     """
+
     median_minutes: float
     p85_minutes: float
 
@@ -92,6 +95,7 @@ class LeadTimeForChanges:
         median_hours: Median lead time in hours
         p85_hours: 85th percentile lead time in hours
     """
+
     median_hours: float
     p85_hours: float
 
@@ -149,6 +153,7 @@ class DeploymentMetrics:
         if metrics.is_healthy:
             print(f"{metrics.project_name} is healthy!")
     """
+
     project_name: str
     deployment_frequency: DeploymentFrequency
     build_success_rate: BuildSuccessRate
@@ -165,10 +170,7 @@ class DeploymentMetrics:
         Returns:
             True if deployment pipeline is healthy
         """
-        return (
-            self.build_success_rate.is_stable and
-            self.deployment_frequency.is_frequent
-        )
+        return self.build_success_rate.is_stable and self.deployment_frequency.is_frequent
 
     @property
     def needs_attention(self) -> bool:
@@ -212,12 +214,7 @@ class DeploymentMetrics:
         Returns:
             CSS class string for styling
         """
-        status_map = {
-            "Good": "good",
-            "Caution": "caution",
-            "Action Needed": "action",
-            "Inactive": "inactive"
-        }
+        status_map = {"Good": "good", "Caution": "caution", "Action Needed": "action", "Inactive": "inactive"}
         return status_map.get(self.status, "inactive")
 
 
@@ -246,7 +243,7 @@ def from_json(project_data: dict) -> DeploymentMetrics:
         total_successful_builds=deploy_freq_data.get("total_successful_builds", 0),
         deployments_per_week=deploy_freq_data.get("deployments_per_week", 0.0),
         lookback_days=deploy_freq_data.get("lookback_days", 90),
-        pipeline_count=deploy_freq_data.get("pipeline_count", 0)
+        pipeline_count=deploy_freq_data.get("pipeline_count", 0),
     )
 
     # Extract build success rate
@@ -255,21 +252,19 @@ def from_json(project_data: dict) -> DeploymentMetrics:
         total_builds=success_rate_data.get("total_builds", 0),
         succeeded=success_rate_data.get("succeeded", 0),
         failed=success_rate_data.get("failed", 0),
-        success_rate_pct=success_rate_data.get("success_rate_pct", 0.0)
+        success_rate_pct=success_rate_data.get("success_rate_pct", 0.0),
     )
 
     # Extract build duration
     duration_data = project_data.get("build_duration", {})
     build_duration = BuildDuration(
-        median_minutes=duration_data.get("median_minutes") or 0.0,
-        p85_minutes=duration_data.get("p85_minutes") or 0.0
+        median_minutes=duration_data.get("median_minutes") or 0.0, p85_minutes=duration_data.get("p85_minutes") or 0.0
     )
 
     # Extract lead time
     lead_time_data = project_data.get("lead_time_for_changes", {})
     lead_time_for_changes = LeadTimeForChanges(
-        median_hours=lead_time_data.get("median_hours") or 0.0,
-        p85_hours=lead_time_data.get("p85_hours") or 0.0
+        median_hours=lead_time_data.get("median_hours") or 0.0, p85_hours=lead_time_data.get("p85_hours") or 0.0
     )
 
     return DeploymentMetrics(
@@ -277,5 +272,5 @@ def from_json(project_data: dict) -> DeploymentMetrics:
         deployment_frequency=deployment_frequency,
         build_success_rate=build_success_rate,
         build_duration=build_duration,
-        lead_time_for_changes=lead_time_for_changes
+        lead_time_for_changes=lead_time_for_changes,
     )

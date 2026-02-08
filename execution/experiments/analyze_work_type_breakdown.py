@@ -53,7 +53,7 @@ def analyze_project_work_types(wit_client, project_name: str):
         FROM WorkItems
         WHERE [System.TeamProject] = '{project_name}'
           AND [System.State] NOT IN ('Closed', 'Removed')
-        """
+        """  # nosec B608 - Experimental script, not production code
     )
 
     # Query 2: Closed in last 90 days (Flow lead time)
@@ -64,7 +64,7 @@ def analyze_project_work_types(wit_client, project_name: str):
         WHERE [System.TeamProject] = '{project_name}'
           AND [System.State] = 'Closed'
           AND [Microsoft.VSTS.Common.ClosedDate] >= '{lookback_date}'
-        """
+        """  # nosec B608 - Experimental script, not production code
     )
 
     try:

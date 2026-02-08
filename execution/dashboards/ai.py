@@ -22,6 +22,7 @@ import json
 import os
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 # Import dependencies
 try:
@@ -90,7 +91,7 @@ def generate_ai_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_devin_analysis() -> dict:
+def _load_devin_analysis() -> dict[str, Any]:
     """
     Load Devin analysis from JSON file.
 
@@ -103,13 +104,16 @@ def _load_devin_analysis() -> dict:
     analysis_file = ".tmp/observatory/devin_analysis.json"
 
     if not os.path.exists(analysis_file):
-        raise FileNotFoundError(f"Devin analysis file not found: {analysis_file}\nRun: py execution/analyze_devin_prs.py")
+        raise FileNotFoundError(
+            f"Devin analysis file not found: {analysis_file}\nRun: py execution/analyze_devin_prs.py"
+        )
 
     with open(analysis_file, encoding="utf-8") as f:
-        return json.load(f)
+        result: dict[str, Any] = json.load(f)
+        return result
 
 
-def _load_risk_metrics() -> dict | None:
+def _load_risk_metrics() -> dict[str, Any] | None:
     """
     Load risk metrics for author stats (optional).
 
@@ -122,10 +126,11 @@ def _load_risk_metrics() -> dict | None:
         return None
 
     with open(risk_file, encoding="utf-8") as f:
-        return json.load(f)
+        result: dict[str, Any] = json.load(f)
+        return result
 
 
-def _get_author_stats(risk_data: dict | None) -> dict[str, int]:
+def _get_author_stats(risk_data: dict[str, Any] | None) -> dict[str, int]:
     """
     Calculate author contribution statistics from risk data.
 
@@ -139,7 +144,7 @@ def _get_author_stats(risk_data: dict | None) -> dict[str, int]:
         return {}
 
     latest_week = risk_data["weeks"][-1]
-    author_stats = defaultdict(int)
+    author_stats: dict[str, int] = defaultdict(int)
 
     for project in latest_week.get("projects", []):
         raw_prs = project.get("raw_prs", [])
@@ -150,7 +155,7 @@ def _get_author_stats(risk_data: dict | None) -> dict[str, int]:
     return dict(author_stats)
 
 
-def _get_project_stats(risk_data: dict | None) -> dict[str, dict]:
+def _get_project_stats(risk_data: dict[str, Any] | None) -> dict[str, dict[str, int]]:
     """
     Calculate per-project Devin contribution stats.
 
@@ -164,7 +169,7 @@ def _get_project_stats(risk_data: dict | None) -> dict[str, dict]:
         return {}
 
     latest_week = risk_data["weeks"][-1]
-    project_stats = defaultdict(lambda: {"total": 0, "devin": 0})
+    project_stats: dict[str, dict[str, int]] = defaultdict(lambda: {"total": 0, "devin": 0})
 
     for project in latest_week.get("projects", []):
         project_name = project["project_name"]
@@ -179,7 +184,7 @@ def _get_project_stats(risk_data: dict | None) -> dict[str, dict]:
     return dict(project_stats)
 
 
-def _calculate_summary(analysis: dict, author_stats: dict, project_stats: dict) -> dict:
+def _calculate_summary(analysis: dict[str, Any], author_stats: dict[str, int], project_stats: dict[str, dict[str, int]]) -> dict[str, Any]:
     """
     Calculate summary statistics for the dashboard.
 
@@ -203,7 +208,7 @@ def _calculate_summary(analysis: dict, author_stats: dict, project_stats: dict) 
     }
 
 
-def _build_context(analysis: dict, author_stats: dict, project_stats: dict, summary_stats: dict) -> dict:
+def _build_context(analysis: dict[str, Any], author_stats: dict[str, int], project_stats: dict[str, dict[str, int]], summary_stats: dict[str, Any]) -> dict[str, Any]:
     """
     Build template context with all dashboard data.
 

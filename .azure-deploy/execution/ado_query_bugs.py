@@ -10,16 +10,16 @@ Usage:
     python ado_query_bugs.py --output-file ".tmp/my_bugs.json"
 """
 
+import argparse
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
 from datetime import datetime
-from dotenv import load_dotenv
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
+from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 # Load environment variables from .env file
@@ -28,11 +28,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/ado_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
 
         # Step 2: Authenticate with ADO
         logger.info("Authenticating with Azure DevOps...")
-        credentials = BasicAuthentication('', pat)
+        credentials = BasicAuthentication("", pat)
         connection = Connection(base_url=organization_url, creds=credentials)
 
         # Step 3: Get work item tracking client
@@ -85,9 +85,7 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
 
         # Step 5: Execute WIQL query
         logger.info("Executing WIQL query for bugs...")
-        wiql_results = wit_client.query_by_wiql(
-            wiql={'query': wiql_query}
-        )
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
 
         # Step 6: Extract work item IDs
         if not wiql_results.work_items:
@@ -98,7 +96,7 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
                 "organization": organization_url,
                 "queried_at": datetime.now().isoformat(),
                 "bug_count": 0,
-                "bugs": []
+                "bugs": [],
             }
 
         work_item_ids = [item.id for item in wiql_results.work_items]
@@ -110,21 +108,22 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
         batch_size = 200
 
         for i in range(0, len(work_item_ids), batch_size):
-            batch_ids = work_item_ids[i:i + batch_size]
-            logger.info(f"Fetching batch {i//batch_size + 1}/{(len(work_item_ids) + batch_size - 1)//batch_size} ({len(batch_ids)} items)...")
+            batch_ids = work_item_ids[i : i + batch_size]
+            logger.info(
+                f"Fetching batch {i//batch_size + 1}/{(len(work_item_ids) + batch_size - 1)//batch_size} ({len(batch_ids)} items)..."
+            )
 
             work_items = wit_client.get_work_items(
-                ids=batch_ids,
-                fields=['System.Id', 'System.Title', 'System.State', 'Microsoft.VSTS.Common.Priority']
+                ids=batch_ids, fields=["System.Id", "System.Title", "System.State", "Microsoft.VSTS.Common.Priority"]
             )
 
             # Step 8: Format results for this batch
             for item in work_items:
                 bug_data = {
                     "id": item.id,
-                    "title": item.fields.get('System.Title', 'N/A'),
-                    "state": item.fields.get('System.State', 'N/A'),
-                    "priority": item.fields.get('Microsoft.VSTS.Common.Priority', 'N/A')
+                    "title": item.fields.get("System.Title", "N/A"),
+                    "state": item.fields.get("System.State", "N/A"),
+                    "priority": item.fields.get("Microsoft.VSTS.Common.Priority", "N/A"),
                 }
                 bugs.append(bug_data)
 
@@ -134,7 +133,7 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
             "organization": organization_url,
             "queried_at": datetime.now().isoformat(),
             "bug_count": len(bugs),
-            "bugs": bugs
+            "bugs": bugs,
         }
 
         logger.info(f"Successfully retrieved {len(bugs)} bugs")
@@ -172,28 +171,21 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Query Azure DevOps for outstanding bugs'
-    )
+    parser = argparse.ArgumentParser(description="Query Azure DevOps for outstanding bugs")
+
+    parser.add_argument("--project", type=str, default=None, help="Project name (overrides ADO_PROJECT_NAME from .env)")
 
     parser.add_argument(
-        '--project',
-        type=str,
-        default=None,
-        help='Project name (overrides ADO_PROJECT_NAME from .env)'
-    )
-
-    parser.add_argument(
-        '--output-file',
+        "--output-file",
         type=str,
         default=f'.tmp/ado_bugs_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json',
-        help='Path to output file (default: .tmp/ado_bugs_[timestamp].json)'
+        help="Path to output file (default: .tmp/ado_bugs_[timestamp].json)",
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -202,24 +194,24 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        organization_url = os.getenv('ADO_ORGANIZATION_URL')
-        project_name = args.project or os.getenv('ADO_PROJECT_NAME')
-        pat = os.getenv('ADO_PAT')
+        organization_url = os.getenv("ADO_ORGANIZATION_URL")
+        project_name = args.project or os.getenv("ADO_PROJECT_NAME")
+        pat = os.getenv("ADO_PAT")
 
         # Validate environment variables
-        if not organization_url or organization_url == 'your_ado_org_url_here':
+        if not organization_url or organization_url == "your_ado_org_url_here":
             raise RuntimeError(
                 "ADO_ORGANIZATION_URL not configured in .env file.\n"
                 "Please set your Azure DevOps organization URL (e.g., https://dev.azure.com/yourorg)"
             )
 
-        if not project_name or project_name == 'your_project_name_here':
+        if not project_name or project_name == "your_project_name_here":
             raise RuntimeError(
                 "ADO_PROJECT_NAME not configured in .env file.\n"
                 "Please set your Azure DevOps project name or use --project flag"
             )
 
-        if not pat or pat == 'your_personal_access_token_here':
+        if not pat or pat == "your_personal_access_token_here":
             raise RuntimeError(
                 "ADO_PAT not configured in .env file.\n"
                 "Please create a Personal Access Token at:\n"
@@ -228,24 +220,20 @@ if __name__ == '__main__':
             )
 
         # Ensure .tmp directory exists
-        os.makedirs('.tmp', exist_ok=True)
+        os.makedirs(".tmp", exist_ok=True)
 
         # Run main function
-        result = query_bugs(
-            organization_url=organization_url,
-            project_name=project_name,
-            pat=pat
-        )
+        result = query_bugs(organization_url=organization_url, project_name=project_name, pat=pat)
 
         # Save output to JSON file
-        with open(args.output_file, 'w', encoding='utf-8') as f:
+        with open(args.output_file, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
 
         logger.info(f"Results saved to {args.output_file}")
 
         # Print summary to console
         print(f"\n{'='*60}")
-        print(f"Azure DevOps Bug Query Results")
+        print("Azure DevOps Bug Query Results")
         print(f"{'='*60}")
         print(f"Project: {result['project']}")
         print(f"Organization: {result['organization']}")
@@ -253,10 +241,10 @@ if __name__ == '__main__':
         print(f"Outstanding Bugs: {result['bug_count']}")
         print(f"{'='*60}\n")
 
-        if result['bugs']:
+        if result["bugs"]:
             print(f"{'ID':<10} {'Priority':<10} {'State':<15} {'Title'}")
             print(f"{'-'*10} {'-'*10} {'-'*15} {'-'*50}")
-            for bug in result['bugs']:
+            for bug in result["bugs"]:
                 print(f"{bug['id']:<10} {str(bug['priority']):<10} {bug['state']:<15} {bug['title'][:50]}")
         else:
             print("No outstanding bugs found!")

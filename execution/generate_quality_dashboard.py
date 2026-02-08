@@ -27,11 +27,15 @@ import warnings
 from datetime import datetime
 from pathlib import Path
 
+from execution.template_engine import render_template
+
 # Import the new modular implementation
 try:
     from execution.dashboards.quality import generate_quality_dashboard as _generate_quality_dashboard_new
 except ModuleNotFoundError:
-    from dashboards.quality import generate_quality_dashboard as _generate_quality_dashboard_new  # type: ignore[no-redef]
+    from dashboards.quality import (
+        generate_quality_dashboard as _generate_quality_dashboard_new,  # type: ignore[no-redef]
+    )
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":
@@ -65,8 +69,7 @@ def get_metric_rag_status(metric_name: str, value: float) -> tuple:
     This is a compatibility wrapper that will be removed in a future version.
     """
     warnings.warn(
-        "get_metric_rag_status() is deprecated. "
-        "Use execution.dashboards.quality._get_metric_rag_status() instead.",
+        "get_metric_rag_status() is deprecated. " "Use execution.dashboards.quality._get_metric_rag_status() instead.",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -281,8 +284,7 @@ def load_quality_data():
     This is a compatibility wrapper that will be removed in a future version.
     """
     warnings.warn(
-        "load_quality_data() is deprecated. "
-        "Use execution.dashboards.quality._load_quality_data() instead.",
+        "load_quality_data() is deprecated. " "Use execution.dashboards.quality._load_quality_data() instead.",
         DeprecationWarning,
         stacklevel=2,
     )

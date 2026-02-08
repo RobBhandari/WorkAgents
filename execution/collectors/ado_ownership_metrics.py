@@ -68,7 +68,7 @@ def query_work_items_for_ownership(wit_client, project_name: str, area_path_filt
           AND [System.WorkItemType] IN ('Bug', 'User Story', 'Task')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
-        """)
+        """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
 
     try:
         # Execute query
@@ -447,7 +447,7 @@ def collect_ownership_metrics_for_project(connection, project: dict, config: dic
     }
 
 
-def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/ownership_history.json"):
+def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/ownership_history.json") -> None:
     """
     Save ownership metrics to history file using atomic writes.
 

@@ -1,13 +1,15 @@
 """Test different product filter parameters"""
+
 import os
+
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv('ARMORCODE_API_KEY')
-base_url = 'https://app.armorcode.com'
-headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+api_key = os.getenv("ARMORCODE_API_KEY")
+base_url = "https://app.armorcode.com"
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
 test_products = ["Access Legal Case Management", "Legal Bricks"]
 
@@ -24,19 +26,19 @@ for test in tests:
     print(f"\nTest: {test['name']}")
     print("-" * 60)
     try:
-        response = requests.post(f"{base_url}/api/findings", headers=headers, json=test['body'], timeout=60)
+        response = requests.post(f"{base_url}/api/findings", headers=headers, json=test["body"], timeout=60)
         data = response.json()
-        findings = data.get('data', {}).get('findings', [])
+        findings = data.get("data", {}).get("findings", [])
 
         if findings:
             products = set()
             for f in findings[:5]:  # Check first 5
-                prod = f.get('product', {})
+                prod = f.get("product", {})
                 if isinstance(prod, dict):
-                    products.add(prod.get('name', 'Unknown'))
+                    products.add(prod.get("name", "Unknown"))
             print(f"  Found {len(findings)} findings")
             print(f"  Sample products: {', '.join(list(products)[:3])}")
         else:
-            print(f"  No findings returned")
+            print("  No findings returned")
     except Exception as e:
         print(f"  Error: {e}")

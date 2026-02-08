@@ -57,7 +57,7 @@ def analyze_project_work_items(wit_client, project_name: str):
         FROM WorkItems
         WHERE [System.TeamProject] = '{project_name}'
         ORDER BY [System.CreatedDate] DESC
-        """
+        """  # nosec B608 - Experimental script, not production code
     )
 
     try:

@@ -10,12 +10,13 @@ Usage:
     python armorcode_baseline.py --force  # Overwrite existing baseline (use with caution)
 """
 
+import argparse
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
 from datetime import datetime, timedelta
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -24,18 +25,25 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/armorcode_baseline_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
 
-def create_baseline(api_key: str, base_url: str, environment: str,
-                    products: list, baseline_date: str, target_date: str,
-                    reduction_goal: float, force: bool = False) -> dict:
+def create_baseline(
+    api_key: str,
+    base_url: str,
+    environment: str,
+    products: list,
+    baseline_date: str,
+    target_date: str,
+    reduction_goal: float,
+    force: bool = False,
+) -> dict:
     """
     Create baseline snapshot of HIGH and CRITICAL vulnerabilities.
 
@@ -56,7 +64,7 @@ def create_baseline(api_key: str, base_url: str, environment: str,
         ValueError: If baseline already exists and force=False
         RuntimeError: If baseline creation fails
     """
-    baseline_file = '.tmp/armorcode_baseline.json'
+    baseline_file = ".tmp/armorcode_baseline.json"
 
     # Check if baseline already exists
     if os.path.exists(baseline_file) and not force:
@@ -76,9 +84,9 @@ def create_baseline(api_key: str, base_url: str, environment: str,
         logger.info(f"Connecting to ArmorCode API: {base_url}")
 
         headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
         }
 
         # Step 2: Build query filters for baseline date
@@ -93,7 +101,7 @@ def create_baseline(api_key: str, base_url: str, environment: str,
         request_body = {
             "severity": ["HIGH", "CRITICAL"],
             "status": ["Open", "In Progress"],
-            "limit": 10000  # Get all findings
+            "limit": 10000,  # Get all findings
         }
 
         # Add optional filters if provided
@@ -114,20 +122,17 @@ def create_baseline(api_key: str, base_url: str, environment: str,
 
             if response.status_code == 200:
                 api_response = response.json()
-                logger.info(f"Successfully fetched findings from ArmorCode API")
+                logger.info("Successfully fetched findings from ArmorCode API")
 
                 # ArmorCode API returns: {"data": {"findings": [...]}}
-                if isinstance(api_response, dict) and 'data' in api_response:
-                    vulnerabilities = api_response['data'].get('findings', [])
+                if isinstance(api_response, dict) and "data" in api_response:
+                    vulnerabilities = api_response["data"].get("findings", [])
                 else:
                     vulnerabilities = api_response if isinstance(api_response, list) else []
 
                 logger.info(f"Total findings received: {len(vulnerabilities)}")
             else:
-                raise RuntimeError(
-                    f"API request failed with status {response.status_code}:\n"
-                    f"{response.text[:500]}"
-                )
+                raise RuntimeError(f"API request failed with status {response.status_code}:\n" f"{response.text[:500]}")
 
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Network error querying ArmorCode API: {e}") from e
@@ -140,12 +145,12 @@ def create_baseline(api_key: str, base_url: str, environment: str,
         if isinstance(vulnerabilities, list):
             vulnerability_list = vulnerabilities
         elif isinstance(vulnerabilities, dict):
-            if 'vulnerabilities' in vulnerabilities:
-                vulnerability_list = vulnerabilities['vulnerabilities']
-            elif 'findings' in vulnerabilities:
-                vulnerability_list = vulnerabilities['findings']
-            elif 'data' in vulnerabilities:
-                vulnerability_list = vulnerabilities['data']
+            if "vulnerabilities" in vulnerabilities:
+                vulnerability_list = vulnerabilities["vulnerabilities"]
+            elif "findings" in vulnerabilities:
+                vulnerability_list = vulnerabilities["findings"]
+            elif "data" in vulnerabilities:
+                vulnerability_list = vulnerabilities["data"]
 
         baseline_count = len(vulnerability_list)
         logger.info(f"Found {baseline_count} vulnerabilities on {baseline_date}")
@@ -166,23 +171,27 @@ def create_baseline(api_key: str, base_url: str, environment: str,
         formatted_vulns = []
         for vuln in vulnerability_list:
             # Extract product name (ArmorCode returns product as object)
-            product = vuln.get('product')
+            product = vuln.get("product")
             if isinstance(product, dict):
-                product_name = product.get('name', 'Unknown')
+                product_name = product.get("name", "Unknown")
             else:
-                product_name = product or vuln.get('product_name', 'Unknown')
+                product_name = product or vuln.get("product_name", "Unknown")
 
             vuln_data = {
-                "id": vuln.get('id') or vuln.get('vulnerability_id') or vuln.get('finding_id'),
-                "title": vuln.get('title') or vuln.get('name'),
-                "severity": vuln.get('severity'),
+                "id": vuln.get("id") or vuln.get("vulnerability_id") or vuln.get("finding_id"),
+                "title": vuln.get("title") or vuln.get("name"),
+                "severity": vuln.get("severity"),
                 "product": product_name,
-                "asset": vuln.get('asset') or vuln.get('component'),
-                "cve": vuln.get('cve') or vuln.get('cve_id'),
-                "cwe": vuln.get('cwe') or vuln.get('cwe_id'),
-                "status": vuln.get('status'),
-                "first_seen": str(vuln.get('first_seen') or vuln.get('discovered_date') or ''),
-                "description": vuln.get('description', '')[:200] + '...' if vuln.get('description') and len(vuln.get('description', '')) > 200 else vuln.get('description', '')
+                "asset": vuln.get("asset") or vuln.get("component"),
+                "cve": vuln.get("cve") or vuln.get("cve_id"),
+                "cwe": vuln.get("cwe") or vuln.get("cwe_id"),
+                "status": vuln.get("status"),
+                "first_seen": str(vuln.get("first_seen") or vuln.get("discovered_date") or ""),
+                "description": (
+                    vuln.get("description", "")[:200] + "..."
+                    if vuln.get("description") and len(vuln.get("description", "")) > 200
+                    else vuln.get("description", "")
+                ),
             }
             formatted_vulns.append(vuln_data)
 
@@ -203,12 +212,12 @@ def create_baseline(api_key: str, base_url: str, environment: str,
             "severities": ["HIGH", "CRITICAL"],
             "products": products or [],
             "base_url": base_url,
-            "vulnerabilities": formatted_vulns
+            "vulnerabilities": formatted_vulns,
         }
 
         # Step 8: Save baseline to file
-        os.makedirs('.tmp', exist_ok=True)
-        with open(baseline_file, 'w', encoding='utf-8') as f:
+        os.makedirs(".tmp", exist_ok=True)
+        with open(baseline_file, "w", encoding="utf-8") as f:
             json.dump(baseline, f, indent=2, ensure_ascii=False)
 
         logger.info(f"Baseline created successfully: {baseline_file}")
@@ -227,19 +236,15 @@ def parse_arguments():
         Namespace: Parsed arguments
     """
     parser = argparse.ArgumentParser(
-        description='Create immutable baseline snapshot for ArmorCode vulnerability tracking'
+        description="Create immutable baseline snapshot for ArmorCode vulnerability tracking"
     )
 
-    parser.add_argument(
-        '--force',
-        action='store_true',
-        help='Force overwrite of existing baseline (NOT RECOMMENDED)'
-    )
+    parser.add_argument("--force", action="store_true", help="Force overwrite of existing baseline (NOT RECOMMENDED)")
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -248,19 +253,19 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        api_key = os.getenv('ARMORCODE_API_KEY')
-        base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
-        environment = os.getenv('ARMORCODE_ENVIRONMENT', 'PRODUCTION')
-        products_str = os.getenv('ARMORCODE_PRODUCTS', '')
-        baseline_date = os.getenv('ARMORCODE_BASELINE_DATE', '2026-01-01')
-        target_date = os.getenv('ARMORCODE_TARGET_DATE', '2026-06-30')
-        reduction_goal = float(os.getenv('ARMORCODE_REDUCTION_GOAL', '0.70'))
+        api_key = os.getenv("ARMORCODE_API_KEY")
+        base_url = os.getenv("ARMORCODE_BASE_URL", "https://app.armorcode.com")
+        environment = os.getenv("ARMORCODE_ENVIRONMENT", "PRODUCTION")
+        products_str = os.getenv("ARMORCODE_PRODUCTS", "")
+        baseline_date = os.getenv("ARMORCODE_BASELINE_DATE", "2026-01-01")
+        target_date = os.getenv("ARMORCODE_TARGET_DATE", "2026-06-30")
+        reduction_goal = float(os.getenv("ARMORCODE_REDUCTION_GOAL", "0.70"))
 
         # Parse products list
-        products = [p.strip() for p in products_str.split(',') if p.strip()] if products_str else []
+        products = [p.strip() for p in products_str.split(",") if p.strip()] if products_str else []
 
         # Validate environment variables
-        if not api_key or api_key == 'your_armorcode_api_key_here':
+        if not api_key or api_key == "your_armorcode_api_key_here":
             raise RuntimeError(
                 "ARMORCODE_API_KEY not configured in .env file.\n"
                 "Please obtain an API key from ArmorCode:\n"
@@ -287,12 +292,12 @@ if __name__ == '__main__':
             baseline_date=baseline_date,
             target_date=target_date,
             reduction_goal=reduction_goal,
-            force=args.force
+            force=args.force,
         )
 
         # Print summary
         print(f"\n{'='*70}")
-        print(f"ArmorCode Baseline Created")
+        print("ArmorCode Baseline Created")
         print(f"{'='*70}")
         print(f"Baseline Date: {baseline['baseline_date']}")
         print(f"Vulnerabilities on {baseline['baseline_date']}: {baseline['vulnerability_count']}")
@@ -302,11 +307,11 @@ if __name__ == '__main__':
         print(f"Required Weekly Reduction: {baseline['required_weekly_reduction']:.2f} vulnerabilities/week")
         print(f"\nEnvironment: {baseline['environment']}")
         print(f"Severities: {', '.join(baseline['severities'])}")
-        if baseline['products']:
+        if baseline["products"]:
             print(f"Products: {', '.join(baseline['products'])}")
         else:
-            print(f"Products: ALL")
-        print(f"\nBaseline saved to: .tmp/armorcode_baseline.json")
+            print("Products: ALL")
+        print("\nBaseline saved to: .tmp/armorcode_baseline.json")
         print(f"{'='*70}\n")
 
         # Exit with success code

@@ -20,15 +20,17 @@ import pytest
 from execution.dashboards.quality import (
     _build_context,
     _build_project_rows,
-    _build_summary_cards,
     _calculate_composite_status,
     _calculate_summary,
-    _generate_distribution_section,
     _generate_drilldown_html,
-    _get_distribution_bucket_rag_status,
     _get_metric_rag_status,
     _load_quality_data,
     generate_quality_dashboard,
+)
+from execution.dashboards.quality_legacy import (
+    build_summary_cards,
+    generate_distribution_section,
+    get_distribution_bucket_rag_status,
 )
 
 
@@ -225,7 +227,7 @@ class TestCalculateSummary:
 class TestBuildSummaryCards:
     """Test summary cards generation"""
 
-    def test_build_summary_cards_count(self):
+    def testbuild_summary_cards_count(self):
         """Test that 4 summary cards are generated"""
         summary_stats = {
             "avg_mttr": 5.5,
@@ -234,11 +236,11 @@ class TestBuildSummaryCards:
             "total_excluded": 5,
         }
 
-        cards = _build_summary_cards(summary_stats)
+        cards = build_summary_cards(summary_stats)
 
         assert len(cards) == 4
 
-    def test_build_summary_cards_mttr_content(self):
+    def testbuild_summary_cards_mttr_content(self):
         """Test MTTR card content"""
         summary_stats = {
             "avg_mttr": 5.5,
@@ -247,14 +249,14 @@ class TestBuildSummaryCards:
             "total_excluded": 5,
         }
 
-        cards = _build_summary_cards(summary_stats)
+        cards = build_summary_cards(summary_stats)
 
         # First card should be MTTR
         assert "MTTR" in cards[0]
         assert "5.5" in cards[0]
         assert "days" in cards[0]
 
-    def test_build_summary_cards_formatting(self):
+    def testbuild_summary_cards_formatting(self):
         """Test that cards have proper HTML structure"""
         summary_stats = {
             "avg_mttr": 5.5,
@@ -263,7 +265,7 @@ class TestBuildSummaryCards:
             "total_excluded": 89,
         }
 
-        cards = _build_summary_cards(summary_stats)
+        cards = build_summary_cards(summary_stats)
 
         # Check for comma formatting
         assert "1,234" in cards[1]  # Total bugs card
@@ -370,35 +372,35 @@ class TestGetDistributionBucketRagStatus:
     def test_bug_age_distribution_colors(self):
         """Test bug age distribution bucket colors"""
         # Green buckets
-        rag_class, color = _get_distribution_bucket_rag_status("bug_age", "0-7_days")
+        rag_class, color = get_distribution_bucket_rag_status("bug_age", "0-7_days")
         assert rag_class == "rag-green"
 
-        rag_class, color = _get_distribution_bucket_rag_status("bug_age", "8-30_days")
+        rag_class, color = get_distribution_bucket_rag_status("bug_age", "8-30_days")
         assert rag_class == "rag-green"
 
         # Amber bucket
-        rag_class, color = _get_distribution_bucket_rag_status("bug_age", "31-90_days")
+        rag_class, color = get_distribution_bucket_rag_status("bug_age", "31-90_days")
         assert rag_class == "rag-amber"
 
         # Red bucket
-        rag_class, color = _get_distribution_bucket_rag_status("bug_age", "90+_days")
+        rag_class, color = get_distribution_bucket_rag_status("bug_age", "90+_days")
         assert rag_class == "rag-red"
 
     def test_mttr_distribution_colors(self):
         """Test MTTR distribution bucket colors"""
         # Green buckets
-        rag_class, color = _get_distribution_bucket_rag_status("mttr", "0-1_days")
+        rag_class, color = get_distribution_bucket_rag_status("mttr", "0-1_days")
         assert rag_class == "rag-green"
 
-        rag_class, color = _get_distribution_bucket_rag_status("mttr", "1-7_days")
+        rag_class, color = get_distribution_bucket_rag_status("mttr", "1-7_days")
         assert rag_class == "rag-green"
 
         # Amber bucket
-        rag_class, color = _get_distribution_bucket_rag_status("mttr", "7-30_days")
+        rag_class, color = get_distribution_bucket_rag_status("mttr", "7-30_days")
         assert rag_class == "rag-amber"
 
         # Red bucket
-        rag_class, color = _get_distribution_bucket_rag_status("mttr", "30+_days")
+        rag_class, color = get_distribution_bucket_rag_status("mttr", "30+_days")
         assert rag_class == "rag-red"
 
 
@@ -409,7 +411,7 @@ class TestGenerateDistributionSection:
         """Test bug age distribution section HTML"""
         distribution = {"0-7_days": 10, "8-30_days": 8, "31-90_days": 5, "90+_days": 2}
 
-        html = _generate_distribution_section("Bug Age Distribution", distribution, "bug_age", "bugs")
+        html = generate_distribution_section("Bug Age Distribution", distribution, "bug_age", "bugs")
 
         assert "Bug Age Distribution" in html
         assert "0-7 Days" in html
@@ -421,7 +423,7 @@ class TestGenerateDistributionSection:
         """Test MTTR distribution section HTML"""
         distribution = {"0-1_days": 15, "1-7_days": 20, "7-30_days": 8, "30+_days": 2}
 
-        html = _generate_distribution_section("MTTR Distribution", distribution, "mttr", "bugs")
+        html = generate_distribution_section("MTTR Distribution", distribution, "mttr", "bugs")
 
         assert "MTTR Distribution" in html
         assert "0-1 Days" in html

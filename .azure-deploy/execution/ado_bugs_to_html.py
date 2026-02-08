@@ -8,12 +8,13 @@ Usage:
     python ado_bugs_to_html.py input.json --output-file report.html
 """
 
-import os
-import sys
 import argparse
 import json
 import logging
+import os
+import sys
 from datetime import datetime
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -22,11 +23,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/ado_html_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -50,15 +51,15 @@ def generate_html_report(json_file: str, output_file: str) -> str:
 
     try:
         # Step 1: Read JSON file
-        with open(json_file, 'r', encoding='utf-8') as f:
+        with open(json_file, encoding="utf-8") as f:
             data = json.load(f)
 
         # Step 2: Calculate statistics
         state_counts = {}
         priority_counts = {}
-        for bug in data['bugs']:
-            state = bug['state']
-            priority = bug.get('priority', 'N/A')
+        for bug in data["bugs"]:
+            state = bug["state"]
+            priority = bug.get("priority", "N/A")
             state_counts[state] = state_counts.get(state, 0) + 1
             priority_counts[str(priority)] = priority_counts.get(str(priority), 0) + 1
 
@@ -338,9 +339,9 @@ def generate_html_report(json_file: str, output_file: str) -> str:
                 <tbody>"""
 
         # Add bug rows
-        for bug in data['bugs']:
-            priority = bug.get('priority', 'N/A')
-            priority_class = f'badge-priority-{priority}' if priority != 'N/A' else 'badge-priority-na'
+        for bug in data["bugs"]:
+            priority = bug.get("priority", "N/A")
+            priority_class = f"badge-priority-{priority}" if priority != "N/A" else "badge-priority-na"
             state_class = f'badge-state-{bug["state"].lower()}'
 
             html += f"""
@@ -416,7 +417,7 @@ def generate_html_report(json_file: str, output_file: str) -> str:
 </html>"""
 
         # Step 4: Write HTML file
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(html)
 
         logger.info(f"HTML report created successfully: {output_file}")
@@ -440,27 +441,21 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Convert ADO bug JSON to modern HTML report'
-    )
+    parser = argparse.ArgumentParser(description="Convert ADO bug JSON to modern HTML report")
+
+    parser.add_argument("input_file", type=str, help="Path to input JSON file")
 
     parser.add_argument(
-        'input_file',
-        type=str,
-        help='Path to input JSON file'
-    )
-
-    parser.add_argument(
-        '--output-file',
+        "--output-file",
         type=str,
         default=f'.tmp/ado_bugs_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.html',
-        help='Path to output HTML file (default: .tmp/ado_bugs_report_[timestamp].html)'
+        help="Path to output HTML file (default: .tmp/ado_bugs_report_[timestamp].html)",
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -469,19 +464,16 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Ensure .tmp directory exists
-        os.makedirs('.tmp', exist_ok=True)
+        os.makedirs(".tmp", exist_ok=True)
 
         # Generate HTML report
-        output_file = generate_html_report(
-            json_file=args.input_file,
-            output_file=args.output_file
-        )
+        output_file = generate_html_report(json_file=args.input_file, output_file=args.output_file)
 
         print(f"\n{'='*60}")
-        print(f"HTML Report Generated Successfully")
+        print("HTML Report Generated Successfully")
         print(f"{'='*60}")
         print(f"Output file: {output_file}")
-        print(f"\nOpen this file in your web browser to view the interactive report.")
+        print("\nOpen this file in your web browser to view the interactive report.")
         print(f"{'='*60}\n")
 
         # Exit with success code

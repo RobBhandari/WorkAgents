@@ -21,6 +21,7 @@ Usage:
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 # Import framework and rendering
 try:
@@ -113,7 +114,8 @@ def _load_risk_data() -> dict:
         raise ValueError("No weeks data available in risk_history.json")
 
     # Return most recent week
-    return data["weeks"][-1]
+    last_week: dict[Any, Any] = data["weeks"][-1]
+    return last_week
 
 
 def _calculate_summary(projects: list[dict]) -> dict:
@@ -368,9 +370,9 @@ def _generate_drilldown_html(project: dict) -> str:
     file_changes_metric = ""
     avg_changes_metric = ""
     if has_commits:
-        total_commits = code_churn.get('total_commits', 0) or 0
-        total_file_changes = code_churn.get('total_file_changes', 0) or 0
-        avg_changes = code_churn.get('avg_changes_per_commit', 0) or 0
+        total_commits = code_churn.get("total_commits", 0) or 0
+        total_file_changes = code_churn.get("total_file_changes", 0) or 0
+        avg_changes = code_churn.get("avg_changes_per_commit", 0) or 0
 
         commit_metric = render_template(
             "dashboards/risk/metric_card.html",
@@ -393,11 +395,11 @@ def _generate_drilldown_html(project: dict) -> str:
     small_prs_metric = ""
     large_prs_metric = ""
     if has_prs:
-        total_prs = pr_dist.get('total_prs', 0) or 0
-        small_prs = pr_dist.get('small_prs', 0) or 0
-        small_pct = pr_dist.get('small_pct', 0) or 0
-        large_prs = pr_dist.get('large_prs', 0) or 0
-        large_pct = pr_dist.get('large_pct', 0) or 0
+        total_prs = pr_dist.get("total_prs", 0) or 0
+        small_prs = pr_dist.get("small_prs", 0) or 0
+        small_pct = pr_dist.get("small_pct", 0) or 0
+        large_prs = pr_dist.get("large_prs", 0) or 0
+        large_pct = pr_dist.get("large_pct", 0) or 0
 
         total_prs_metric = render_template(
             "dashboards/risk/metric_card.html",

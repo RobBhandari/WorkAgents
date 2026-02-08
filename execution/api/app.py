@@ -17,18 +17,18 @@ API Documentation:
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from execution.core import get_logger, setup_logging, setup_observability
 from execution.api.middleware import (
+    CacheControlMiddleware,
     RateLimitMiddleware,
     RequestIDMiddleware,
-    CacheControlMiddleware,
 )
+from execution.core import get_logger, setup_logging, setup_observability
 
 # Initialize logging and observability
 setup_logging(level="INFO", json_output=False)
@@ -52,11 +52,9 @@ def create_app() -> FastAPI:
     )
 
     # Add middleware (order matters - last added is executed first)
-    app.add_middleware(CacheControlMiddleware)      # Cache headers (innermost)
-    app.add_middleware(RequestIDMiddleware)          # Request tracking
-    app.add_middleware(RateLimitMiddleware,          # Rate limiting (outermost)
-                       requests_per_minute=60,
-                       requests_per_hour=1000)
+    app.add_middleware(CacheControlMiddleware)  # Cache headers (innermost)
+    app.add_middleware(RequestIDMiddleware)  # Request tracking
+    app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=1000)  # Rate limiting (outermost)
 
     @app.on_event("startup")
     async def startup_event():
@@ -72,7 +70,7 @@ def create_app() -> FastAPI:
     # Authentication
     # ============================================================
 
-    def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)) -> str:
+    def verify_credentials(credentials: Annotated[HTTPBasicCredentials, Depends(security)]) -> str:
         """
         Verify HTTP Basic authentication credentials.
 
@@ -82,7 +80,8 @@ def create_app() -> FastAPI:
         - Integration with your identity provider
         """
         import secrets
-        from execution.secure_config import get_config, ConfigurationError
+
+        from execution.secure_config import ConfigurationError, get_config
 
         # Get credentials from secure config
         try:
@@ -100,10 +99,7 @@ def create_app() -> FastAPI:
         is_correct_password = secrets.compare_digest(credentials.password, correct_password)
 
         if not (is_correct_username and is_correct_password):
-            logger.warning(
-                "Authentication failed",
-                extra={"username": credentials.username, "ip": "unknown"}
-            )
+            logger.warning("Authentication failed", extra={"username": credentials.username, "ip": "unknown"})
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials",
@@ -137,26 +133,15 @@ def create_app() -> FastAPI:
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "version": "2.0.0",
-            "data_freshness": {}
+            "data_freshness": {},
         }
 
-        for name, file_path in [
-            ("quality", quality_file),
-            ("security", security_file),
-            ("flow", flow_file)
-        ]:
+        for name, file_path in [("quality", quality_file), ("security", security_file), ("flow", flow_file)]:
             if file_path.exists():
                 is_fresh, age_hours = check_data_freshness(file_path, max_age_hours=25.0)
-                health_status["data_freshness"][name] = {
-                    "fresh": is_fresh,
-                    "age_hours": round(age_hours, 2)
-                }
+                health_status["data_freshness"][name] = {"fresh": is_fresh, "age_hours": round(age_hours, 2)}
             else:
-                health_status["data_freshness"][name] = {
-                    "fresh": False,
-                    "age_hours": None,
-                    "error": "File not found"
-                }
+                health_status["data_freshness"][name] = {"fresh": False, "age_hours": None, "error": "File not found"}
 
         # Overall health is unhealthy if any data is stale
         if any(not data.get("fresh", False) for data in health_status["data_freshness"].values()):
@@ -184,10 +169,7 @@ def create_app() -> FastAPI:
             loader = ADOQualityLoader()
             metrics = loader.load_latest_metrics()
 
-            logger.info(
-                "Quality metrics accessed",
-                extra={"username": username, "project": metrics.project}
-            )
+            logger.info("Quality metrics accessed", extra={"username": username, "project": metrics.project})
 
             return {
                 "timestamp": metrics.timestamp.isoformat(),
@@ -201,21 +183,16 @@ def create_app() -> FastAPI:
             }
         except FileNotFoundError:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Quality metrics data not found. Run collectors first."
+                status_code=status.HTTP_404_NOT_FOUND, detail="Quality metrics data not found. Run collectors first."
             )
         except Exception as e:
             logger.error("Failed to load quality metrics", exc_info=True)
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to load metrics: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to load metrics: {str(e)}"
             )
 
     @app.get("/api/v1/metrics/quality/history", tags=["Quality Metrics"])
-    async def get_quality_history(
-        weeks: int = 12,
-        username: str = Depends(verify_credentials)
-    ):
+    async def get_quality_history(weeks: int = 12, username: str = Depends(verify_credentials)):
         """
         Get historical quality metrics.
 
@@ -230,13 +207,10 @@ def create_app() -> FastAPI:
         history_file = Path(".tmp/observatory/quality_history.json")
 
         if not history_file.exists():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Quality history not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quality history not found")
 
         try:
-            with open(history_file, 'r', encoding='utf-8') as f:
+            with open(history_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             # Return last N weeks
@@ -244,18 +218,14 @@ def create_app() -> FastAPI:
 
             logger.info(
                 "Quality history accessed",
-                extra={"username": username, "weeks_requested": weeks, "weeks_returned": len(weeks_data)}
+                extra={"username": username, "weeks_requested": weeks, "weeks_returned": len(weeks_data)},
             )
 
-            return {
-                "weeks": weeks_data,
-                "count": len(weeks_data)
-            }
+            return {"weeks": weeks_data, "count": len(weeks_data)}
         except Exception as e:
             logger.error("Failed to load quality history", exc_info=True)
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to load history: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to load history: {str(e)}"
             )
 
     # ============================================================
@@ -282,8 +252,7 @@ def create_app() -> FastAPI:
             total_high = sum(m.high for m in metrics_by_product.values())
 
             logger.info(
-                "Security metrics accessed",
-                extra={"username": username, "product_count": len(metrics_by_product)}
+                "Security metrics accessed", extra={"username": username, "product_count": len(metrics_by_product)}
             )
 
             return {
@@ -300,25 +269,20 @@ def create_app() -> FastAPI:
                         "high": m.high,
                     }
                     for name, m in metrics_by_product.items()
-                ]
+                ],
             }
         except FileNotFoundError:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Security metrics data not found. Run collectors first."
+                status_code=status.HTTP_404_NOT_FOUND, detail="Security metrics data not found. Run collectors first."
             )
         except Exception as e:
             logger.error("Failed to load security metrics", exc_info=True)
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to load metrics: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to load metrics: {str(e)}"
             )
 
     @app.get("/api/v1/metrics/security/product/{product_name}", tags=["Security Metrics"])
-    async def get_product_security_metrics(
-        product_name: str,
-        username: str = Depends(verify_credentials)
-    ):
+    async def get_product_security_metrics(product_name: str, username: str = Depends(verify_credentials)):
         """
         Get security metrics for a specific product.
 
@@ -335,17 +299,11 @@ def create_app() -> FastAPI:
             metrics_by_product = loader.load_latest_metrics()
 
             if product_name not in metrics_by_product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product '{product_name}' not found"
-                )
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product '{product_name}' not found")
 
             metrics = metrics_by_product[product_name]
 
-            logger.info(
-                "Product security metrics accessed",
-                extra={"username": username, "product": product_name}
-            )
+            logger.info("Product security metrics accessed", extra={"username": username, "product": product_name})
 
             return {
                 "timestamp": metrics.timestamp.isoformat(),
@@ -359,8 +317,7 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.error("Failed to load product security metrics", exc_info=True)
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to load metrics: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to load metrics: {str(e)}"
             )
 
     # ============================================================
@@ -381,10 +338,7 @@ def create_app() -> FastAPI:
             loader = ADOFlowLoader()
             metrics = loader.load_latest_metrics()
 
-            logger.info(
-                "Flow metrics accessed",
-                extra={"username": username, "project": metrics.project}
-            )
+            logger.info("Flow metrics accessed", extra={"username": username, "project": metrics.project})
 
             return {
                 "timestamp": metrics.timestamp.isoformat(),
@@ -399,14 +353,12 @@ def create_app() -> FastAPI:
             }
         except FileNotFoundError:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Flow metrics data not found. Run collectors first."
+                status_code=status.HTTP_404_NOT_FOUND, detail="Flow metrics data not found. Run collectors first."
             )
         except Exception as e:
             logger.error("Failed to load flow metrics", exc_info=True)
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to load metrics: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to load metrics: {str(e)}"
             )
 
     # ============================================================
@@ -415,9 +367,7 @@ def create_app() -> FastAPI:
 
     @app.get("/api/v1/predictions/quality/{project_key}", tags=["ML Predictions"])
     async def predict_quality_trends(
-        project_key: str,
-        weeks_ahead: int = 4,
-        username: str = Depends(verify_credentials)
+        project_key: str, weeks_ahead: int = 4, username: str = Depends(verify_credentials)
     ):
         """
         Predict bug trends using machine learning.
@@ -433,10 +383,7 @@ def create_app() -> FastAPI:
 
         # Validate input
         if weeks_ahead < 1 or weeks_ahead > 8:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="weeks_ahead must be between 1 and 8"
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="weeks_ahead must be between 1 and 8")
 
         try:
             predictor = TrendPredictor()
@@ -448,8 +395,8 @@ def create_app() -> FastAPI:
                     "username": username,
                     "project": project_key,
                     "weeks_ahead": weeks_ahead,
-                    "trend": analysis.trend_direction
-                }
+                    "trend": analysis.trend_direction,
+                },
             )
 
             return {
@@ -464,39 +411,31 @@ def create_app() -> FastAPI:
                         "predicted_count": pred.predicted_count,
                         "confidence_interval": {
                             "lower": pred.confidence_interval[0],
-                            "upper": pred.confidence_interval[1]
+                            "upper": pred.confidence_interval[1],
                         },
-                        "anomaly_expected": pred.is_anomaly_expected
+                        "anomaly_expected": pred.is_anomaly_expected,
                     }
                     for pred in analysis.predictions
                 ],
-                "historical_anomalies": analysis.anomalies_detected
+                "historical_anomalies": analysis.anomalies_detected,
             }
         except FileNotFoundError:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Quality history data not found. Run collectors first."
+                status_code=status.HTTP_404_NOT_FOUND, detail="Quality history data not found. Run collectors first."
             )
         except ValueError as e:
             if "No data found for project" in str(e):
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Project '{project_key}' not found in quality history"
+                    detail=f"Project '{project_key}' not found in quality history",
                 )
             elif "Insufficient data" in str(e):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=str(e)
-                )
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Prediction failed: {str(e)}"
-            )
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Prediction failed: {str(e)}")
         except Exception as e:
             logger.error("Failed to generate predictions", exc_info=True)
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Prediction failed: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Prediction failed: {str(e)}"
             )
 
     # ============================================================
@@ -519,22 +458,18 @@ def create_app() -> FastAPI:
         dashboards = []
         for html_file in dashboard_dir.glob("*.html"):
             stat = html_file.stat()
-            dashboards.append({
-                "name": html_file.stem,
-                "filename": html_file.name,
-                "size_kb": round(stat.st_size / 1024, 2),
-                "last_modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
-            })
+            dashboards.append(
+                {
+                    "name": html_file.stem,
+                    "filename": html_file.name,
+                    "size_kb": round(stat.st_size / 1024, 2),
+                    "last_modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                }
+            )
 
-        logger.info(
-            "Dashboards listed",
-            extra={"username": username, "count": len(dashboards)}
-        )
+        logger.info("Dashboards listed", extra={"username": username, "count": len(dashboards)})
 
-        return {
-            "dashboards": dashboards,
-            "count": len(dashboards)
-        }
+        return {"dashboards": dashboards, "count": len(dashboards)}
 
     return app
 
@@ -554,10 +489,4 @@ if __name__ == "__main__":
     print("Health Check: http://localhost:8000/health")
     print("=" * 60)
 
-    uvicorn.run(
-        "execution.api.app:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    uvicorn.run("execution.api.app:app", host="127.0.0.1", port=8000, reload=True, log_level="info")

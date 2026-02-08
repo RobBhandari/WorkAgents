@@ -17,20 +17,20 @@ from typing import List, Tuple
 
 # Files to exclude from checks
 EXCLUDE_PATTERNS = [
-    'secure_config.py',
-    'http_client.py',
-    'security_utils.py',
-    '__init__.py',
-    'check-security-wrappers.py',
+    "secure_config.py",
+    "http_client.py",
+    "security_utils.py",
+    "__init__.py",
+    "check-security-wrappers.py",
 ]
 
 # Directories to exclude
 EXCLUDE_DIRS = [
-    'experiments',
-    'archive',
-    '.venv',
-    'tests',
-    '__pycache__',
+    "experiments",
+    "archive",
+    ".venv",
+    "tests",
+    "__pycache__",
 ]
 
 
@@ -40,7 +40,7 @@ class SecurityWrapperChecker:
     def __init__(self):
         self.violations = []
 
-    def check_file(self, file_path: str) -> List[Tuple[int, str]]:
+    def check_file(self, file_path: str) -> list[tuple[int, str]]:
         """Check a single file for violations
 
         Returns:
@@ -59,43 +59,48 @@ class SecurityWrapperChecker:
         violations = []
 
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, encoding="utf-8") as f:
                 lines = f.readlines()
         except (UnicodeDecodeError, FileNotFoundError):
             return []
 
         for line_num, line in enumerate(lines, 1):
             # Check for os.getenv() usage
-            if 'os.getenv' in line or 'os.environ.get' in line:
-                violations.append((
-                    line_num,
-                    "[X] Direct os.getenv() usage detected\n"
-                    "   -> Use: from secure_config import get_config; config = get_config()\n"
-                    f"   -> Line: {line.strip()}"
-                ))
+            if "os.getenv" in line or "os.environ.get" in line:
+                violations.append(
+                    (
+                        line_num,
+                        "[X] Direct os.getenv() usage detected\n"
+                        "   -> Use: from secure_config import get_config; config = get_config()\n"
+                        f"   -> Line: {line.strip()}",
+                    )
+                )
 
             # Check for direct requests import
-            if re.match(r'^\s*import requests\s*$', line) or \
-               re.match(r'^\s*from requests import', line):
-                violations.append((
-                    line_num,
-                    "[X] Direct requests import detected\n"
-                    "   -> Use: from http_client import get, post, put, delete, patch\n"
-                    f"   -> Line: {line.strip()}"
-                ))
+            if re.match(r"^\s*import requests\s*$", line) or re.match(r"^\s*from requests import", line):
+                violations.append(
+                    (
+                        line_num,
+                        "[X] Direct requests import detected\n"
+                        "   -> Use: from http_client import get, post, put, delete, patch\n"
+                        f"   -> Line: {line.strip()}",
+                    )
+                )
 
             # Check for potential HTML string building (warning only)
             if re.search(r'f["\'].*<(div|html|body|table|tr|td)', line):
-                violations.append((
-                    line_num,
-                    "[!]  HTML string building detected (consider Jinja2 templates)\n"
-                    "   -> Consider: Using templates/ directory with Jinja2\n"
-                    f"   -> Line: {line.strip()[:80]}..."
-                ))
+                violations.append(
+                    (
+                        line_num,
+                        "[!]  HTML string building detected (consider Jinja2 templates)\n"
+                        "   -> Consider: Using templates/ directory with Jinja2\n"
+                        f"   -> Line: {line.strip()[:80]}...",
+                    )
+                )
 
         return violations
 
-    def check_files(self, file_paths: List[str]) -> bool:
+    def check_files(self, file_paths: list[str]) -> bool:
         """Check multiple files for violations
 
         Returns:
@@ -104,7 +109,7 @@ class SecurityWrapperChecker:
         has_violations = False
 
         for file_path in file_paths:
-            if not file_path.endswith('.py'):
+            if not file_path.endswith(".py"):
                 continue
 
             violations = self.check_file(file_path)
@@ -143,5 +148,5 @@ def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

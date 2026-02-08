@@ -48,10 +48,7 @@ def main():
     print()
 
     result = subprocess.run(
-        [sys.executable, "execution/collect_all_metrics.py"],
-        capture_output=False,
-        text=True,
-        check=False
+        [sys.executable, "execution/collect_all_metrics.py"], capture_output=False, text=True, check=False
     )
 
     if result.returncode == 0:

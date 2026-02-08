@@ -26,7 +26,7 @@ def test_query(as_of_date: str, label: str):
     AND [System.WorkItemType] = 'Bug'
     AND [System.CreatedDate] <= '{as_of_date}'
     AND NOT [Microsoft.VSTS.Common.ClosedDate] <= '{as_of_date}'
-    """
+    """  # nosec B608 - Experimental script, not production code
 
     print(f"\n{label} ({as_of_date}):")
     print("-" * 70)

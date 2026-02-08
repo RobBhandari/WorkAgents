@@ -21,17 +21,18 @@ Examples:
     python tools/migrate_security_wrappers.py --all
 """
 
+import argparse
 import re
 import sys
-import argparse
-from pathlib import Path
-from typing import List, Tuple, Dict
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 
 @dataclass
 class Migration:
     """Represents a single migration change"""
+
     line_num: int
     old_code: str
     new_code: str
@@ -41,11 +42,12 @@ class Migration:
 @dataclass
 class MigrationResult:
     """Results of migrating a file"""
+
     file_path: Path
     original_content: str
     migrated_content: str
-    migrations: List[Migration]
-    needs_imports: Dict[str, List[str]]  # module -> [imports]
+    migrations: list[Migration]
+    needs_imports: dict[str, list[str]]  # module -> [imports]
 
 
 class SecurityWrapperMigrator:
@@ -53,14 +55,14 @@ class SecurityWrapperMigrator:
 
     # Environment variable mappings
     ENV_VAR_MAPPINGS = {
-        'ADO_PAT': 'get_config().get_ado_config().pat',
-        'ADO_ORG': 'get_config().get_ado_config().organization',
-        'ADO_PROJECT': 'get_config().get_ado_config().project',
-        'ARMORCODE_API_KEY': 'get_config().get_armorcode_config().api_key',
-        'ARMORCODE_BASE_URL': 'get_config().get_armorcode_config().base_url',
-        'GRAPH_CLIENT_ID': 'get_config().get_graph_config().client_id',
-        'GRAPH_CLIENT_SECRET': 'get_config().get_graph_config().client_secret',
-        'GRAPH_TENANT_ID': 'get_config().get_graph_config().tenant_id',
+        "ADO_PAT": "get_config().get_ado_config().pat",
+        "ADO_ORG": "get_config().get_ado_config().organization",
+        "ADO_PROJECT": "get_config().get_ado_config().project",
+        "ARMORCODE_API_KEY": "get_config().get_armorcode_config().api_key",
+        "ARMORCODE_BASE_URL": "get_config().get_armorcode_config().base_url",
+        "GRAPH_CLIENT_ID": "get_config().get_graph_config().client_id",
+        "GRAPH_CLIENT_SECRET": "get_config().get_graph_config().client_secret",
+        "GRAPH_TENANT_ID": "get_config().get_graph_config().tenant_id",
     }
 
     def migrate_file(self, file_path: Path, dry_run: bool = False) -> MigrationResult:
@@ -68,7 +70,7 @@ class SecurityWrapperMigrator:
         print(f"\n{'[DRY RUN] ' if dry_run else ''}Migrating: {file_path}")
 
         # Read original content
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             original_content = f.read()
 
         # Track changes
@@ -80,7 +82,7 @@ class SecurityWrapperMigrator:
         migrated_content, env_migrations = self._migrate_os_getenv(migrated_content)
         migrations.extend(env_migrations)
         if env_migrations:
-            needs_imports['secure_config'] = ['get_config']
+            needs_imports["secure_config"] = ["get_config"]
 
         # Step 2: Migrate requests imports and usage
         migrated_content, req_migrations = self._migrate_requests(migrated_content)
@@ -88,16 +90,16 @@ class SecurityWrapperMigrator:
         if req_migrations:
             # Determine which http_client functions are needed
             http_funcs = set()
-            if 'requests.get(' in original_content or 'requests.get (' in original_content:
-                http_funcs.add('get')
-            if 'requests.post(' in original_content or 'requests.post (' in original_content:
-                http_funcs.add('post')
-            if 'requests.put(' in original_content:
-                http_funcs.add('put')
-            if 'requests.delete(' in original_content:
-                http_funcs.add('delete')
+            if "requests.get(" in original_content or "requests.get (" in original_content:
+                http_funcs.add("get")
+            if "requests.post(" in original_content or "requests.post (" in original_content:
+                http_funcs.add("post")
+            if "requests.put(" in original_content:
+                http_funcs.add("put")
+            if "requests.delete(" in original_content:
+                http_funcs.add("delete")
             if http_funcs:
-                needs_imports['http_client'] = sorted(http_funcs)
+                needs_imports["http_client"] = sorted(http_funcs)
 
         # Step 3: Add necessary imports
         if needs_imports:
@@ -111,10 +113,10 @@ class SecurityWrapperMigrator:
             original_content=original_content,
             migrated_content=migrated_content,
             migrations=migrations,
-            needs_imports=needs_imports
+            needs_imports=needs_imports,
         )
 
-    def _migrate_os_getenv(self, content: str) -> Tuple[str, List[Migration]]:
+    def _migrate_os_getenv(self, content: str) -> tuple[str, list[Migration]]:
         """Migrate os.getenv() calls to secure_config"""
         migrations = []
 
@@ -133,19 +135,21 @@ class SecurityWrapperMigrator:
                 # Generic fallback
                 new_code = f'get_config().get("{var_name}")'
 
-            migrations.append(Migration(
-                line_num=0,  # Will be calculated later if needed
-                old_code=old_code,
-                new_code=new_code,
-                change_type='os.getenv'
-            ))
+            migrations.append(
+                Migration(
+                    line_num=0,  # Will be calculated later if needed
+                    old_code=old_code,
+                    new_code=new_code,
+                    change_type="os.getenv",
+                )
+            )
 
             return new_code
 
         migrated = re.sub(pattern, replace_getenv, content)
         return migrated, migrations
 
-    def _migrate_requests(self, content: str) -> Tuple[str, List[Migration]]:
+    def _migrate_requests(self, content: str) -> tuple[str, list[Migration]]:
         """Migrate requests library to http_client"""
         migrations = []
 
@@ -154,10 +158,10 @@ class SecurityWrapperMigrator:
         # etc.
 
         replacements = {
-            'requests.get(': 'get(',
-            'requests.post(': 'post(',
-            'requests.put(': 'put(',
-            'requests.delete(': 'delete(',
+            "requests.get(": "get(",
+            "requests.post(": "post(",
+            "requests.put(": "put(",
+            "requests.delete(": "delete(",
         }
 
         migrated = content
@@ -166,18 +170,13 @@ class SecurityWrapperMigrator:
                 count = migrated.count(old)
                 migrated = migrated.replace(old, new)
                 if count > 0:
-                    migrations.append(Migration(
-                        line_num=0,
-                        old_code=old,
-                        new_code=new,
-                        change_type='requests'
-                    ))
+                    migrations.append(Migration(line_num=0, old_code=old, new_code=new, change_type="requests"))
 
         return migrated, migrations
 
-    def _add_imports(self, content: str, needs_imports: Dict[str, List[str]]) -> str:
+    def _add_imports(self, content: str, needs_imports: dict[str, list[str]]) -> str:
         """Add necessary imports at the top of the file"""
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         # Find insertion point (after docstring, before first import)
         insert_index = 0
@@ -203,12 +202,12 @@ class SecurityWrapperMigrator:
                 continue
 
             # Skip comments and blank lines at the top
-            if stripped.startswith('#') or not stripped:
+            if stripped.startswith("#") or not stripped:
                 insert_index = i + 1
                 continue
 
             # Found first non-docstring, non-comment line
-            if stripped.startswith('import ') or stripped.startswith('from '):
+            if stripped.startswith("import ") or stripped.startswith("from "):
                 insert_index = i
                 break
             else:
@@ -219,15 +218,15 @@ class SecurityWrapperMigrator:
         # Build import statements
         import_lines = []
 
-        if 'secure_config' in needs_imports:
-            import_lines.append('from execution.core import get_config')
+        if "secure_config" in needs_imports:
+            import_lines.append("from execution.core import get_config")
 
-        if 'http_client' in needs_imports:
-            funcs = ', '.join(needs_imports['http_client'])
-            import_lines.append(f'from execution.core import {funcs}')
+        if "http_client" in needs_imports:
+            funcs = ", ".join(needs_imports["http_client"])
+            import_lines.append(f"from execution.core import {funcs}")
 
         # Check if imports already exist
-        existing_imports = '\n'.join(lines)
+        existing_imports = "\n".join(lines)
         new_import_lines = []
         for imp in import_lines:
             if imp not in existing_imports:
@@ -235,13 +234,13 @@ class SecurityWrapperMigrator:
 
         if new_import_lines:
             # Insert imports
-            lines.insert(insert_index, '\n'.join(new_import_lines))
+            lines.insert(insert_index, "\n".join(new_import_lines))
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _remove_unused_imports(self, migrated: str, original: str) -> str:
         """Remove import statements that are no longer needed"""
-        lines = migrated.split('\n')
+        lines = migrated.split("\n")
         new_lines = []
 
         for line in lines:
@@ -251,23 +250,23 @@ class SecurityWrapperMigrator:
             should_remove = False
 
             # Remove 'import requests' if no longer used
-            if stripped == 'import requests':
-                if 'requests.' not in migrated or migrated.count('requests.') == migrated.count('# import requests'):
+            if stripped == "import requests":
+                if "requests." not in migrated or migrated.count("requests.") == migrated.count("# import requests"):
                     should_remove = True
                     print(f"  - Removing unused: {stripped}")
 
             # Remove 'import os' if only used for getenv
-            if stripped == 'import os':
+            if stripped == "import os":
                 # Check if os is used for anything other than getenv
-                os_usage = re.findall(r'\bos\.\w+', migrated)
-                if all('os.getenv' in usage or 'os.path' in usage or 'os.makedirs' in usage for usage in os_usage):
+                os_usage = re.findall(r"\bos\.\w+", migrated)
+                if all("os.getenv" in usage or "os.path" in usage or "os.makedirs" in usage for usage in os_usage):
                     # Only used for common patterns, might still be needed
                     pass
 
             if not should_remove:
                 new_lines.append(line)
 
-        return '\n'.join(new_lines)
+        return "\n".join(new_lines)
 
     def save_migration(self, result: MigrationResult, dry_run: bool = False):
         """Save migrated file and create backup"""
@@ -276,14 +275,14 @@ class SecurityWrapperMigrator:
             return
 
         # Create backup
-        backup_path = result.file_path.with_suffix('.py.backup')
+        backup_path = result.file_path.with_suffix(".py.backup")
         if not backup_path.exists():
-            with open(backup_path, 'w', encoding='utf-8') as f:
+            with open(backup_path, "w", encoding="utf-8") as f:
                 f.write(result.original_content)
             print(f"  [OK] Backup created: {backup_path}")
 
         # Save migrated file
-        with open(result.file_path, 'w', encoding='utf-8') as f:
+        with open(result.file_path, "w", encoding="utf-8") as f:
             f.write(result.migrated_content)
         print(f"  [OK] Migrated: {result.file_path}")
 
@@ -304,33 +303,33 @@ class SecurityWrapperMigrator:
             print(f"    - {len(changes)}x {change_type}")
 
         if result.needs_imports:
-            print(f"  -> Added imports:")
+            print("  -> Added imports:")
             for module, funcs in result.needs_imports.items():
                 print(f"    - from execution.core import {', '.join(funcs)}")
 
 
-def find_files_to_migrate(pattern: str = None) -> List[Path]:
+def find_files_to_migrate(pattern: str = None) -> list[Path]:
     """Find Python files that need migration"""
-    execution_dir = Path('execution')
+    execution_dir = Path("execution")
 
     if pattern:
         files = list(execution_dir.glob(pattern))
     else:
-        files = list(execution_dir.glob('*.py'))
+        files = list(execution_dir.glob("*.py"))
 
     # Exclude certain directories
-    exclude_dirs = ['archive', 'experiments', '__pycache__']
+    exclude_dirs = ["archive", "experiments", "__pycache__"]
     files = [f for f in files if not any(excl in str(f) for excl in exclude_dirs)]
 
     return sorted(files)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Migrate code to use security wrappers')
-    parser.add_argument('files', nargs='*', help='Files to migrate (or patterns like ado_*.py)')
-    parser.add_argument('--all', action='store_true', help='Migrate all files in execution/')
-    parser.add_argument('--dry-run', action='store_true', help='Show changes without modifying files')
-    parser.add_argument('--collectors', action='store_true', help='Migrate all collector files')
+    parser = argparse.ArgumentParser(description="Migrate code to use security wrappers")
+    parser.add_argument("files", nargs="*", help="Files to migrate (or patterns like ado_*.py)")
+    parser.add_argument("--all", action="store_true", help="Migrate all files in execution/")
+    parser.add_argument("--dry-run", action="store_true", help="Show changes without modifying files")
+    parser.add_argument("--collectors", action="store_true", help="Migrate all collector files")
 
     args = parser.parse_args()
 
@@ -338,11 +337,11 @@ def main():
     if args.all:
         files = find_files_to_migrate()
     elif args.collectors:
-        files = find_files_to_migrate('ado_*.py') + find_files_to_migrate('armorcode_*.py')
+        files = find_files_to_migrate("ado_*.py") + find_files_to_migrate("armorcode_*.py")
     elif args.files:
         files = []
         for pattern in args.files:
-            if '*' in pattern:
+            if "*" in pattern:
                 files.extend(find_files_to_migrate(pattern))
             else:
                 files.append(Path(pattern))
@@ -355,7 +354,7 @@ def main():
         return 1
 
     print(f"{'='*70}")
-    print(f"Security Wrapper Migration Tool")
+    print("Security Wrapper Migration Tool")
     print(f"{'='*70}")
     print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE MIGRATION'}")
     print(f"Files to migrate: {len(files)}")
@@ -381,11 +380,12 @@ def main():
         except Exception as e:
             print(f"\n[X] Error migrating {file_path}: {e}")
             import traceback
+
             traceback.print_exc()
 
     # Print final summary
     print(f"\n{'='*70}")
-    print(f"Migration Summary")
+    print("Migration Summary")
     print(f"{'='*70}")
 
     total_changes = sum(len(r.migrations) for r in results)
@@ -396,14 +396,14 @@ def main():
     print(f"Total changes: {total_changes}")
 
     if args.dry_run:
-        print(f"\n[DRY RUN] No files were modified")
-        print(f"Run without --dry-run to apply changes")
+        print("\n[DRY RUN] No files were modified")
+        print("Run without --dry-run to apply changes")
     else:
-        print(f"\n[OK] Migration complete!")
-        print(f"Backups created with .py.backup extension")
+        print("\n[OK] Migration complete!")
+        print("Backups created with .py.backup extension")
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

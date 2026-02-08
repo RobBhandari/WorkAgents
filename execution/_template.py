@@ -55,7 +55,7 @@ def main(input_param: str, optional_param: str = None) -> dict:
             raise ValueError("input_param cannot be empty")
 
         # Step 2: Load configuration using secure_config
-        from execution.secure_config import get_config, ConfigurationError
+        from execution.secure_config import ConfigurationError, get_config
 
         config = get_config()
 

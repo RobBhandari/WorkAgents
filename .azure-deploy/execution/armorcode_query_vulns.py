@@ -10,12 +10,13 @@ Usage:
     python armorcode_query_vulns.py --output-file custom_query.json
 """
 
+import argparse
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import json
 from datetime import datetime
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -24,11 +25,11 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/armorcode_query_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -43,17 +44,16 @@ def load_baseline() -> dict:
     Raises:
         FileNotFoundError: If baseline file doesn't exist
     """
-    baseline_file = '.tmp/armorcode_baseline.json'
+    baseline_file = ".tmp/armorcode_baseline.json"
 
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(
-            f"Baseline not found: {baseline_file}\n"
-            f"Please run: python execution/armorcode_baseline.py"
+            f"Baseline not found: {baseline_file}\n" f"Please run: python execution/armorcode_baseline.py"
         )
 
     logger.info(f"Loading baseline from {baseline_file}")
 
-    with open(baseline_file, 'r', encoding='utf-8') as f:
+    with open(baseline_file, encoding="utf-8") as f:
         baseline = json.load(f)
 
     logger.info(f"Baseline loaded: {baseline['vulnerability_count']} vulnerabilities on {baseline['baseline_date']}")
@@ -67,7 +67,7 @@ def load_tracking_history() -> dict:
     Returns:
         dict: Tracking history (or empty structure if file doesn't exist)
     """
-    tracking_file = '.tmp/armorcode_tracking.json'
+    tracking_file = ".tmp/armorcode_tracking.json"
 
     if not os.path.exists(tracking_file):
         logger.info("No previous tracking data found, starting fresh")
@@ -75,7 +75,7 @@ def load_tracking_history() -> dict:
 
     logger.info(f"Loading tracking history from {tracking_file}")
 
-    with open(tracking_file, 'r', encoding='utf-8') as f:
+    with open(tracking_file, encoding="utf-8") as f:
         tracking = json.load(f)
 
     logger.info(f"Loaded {len(tracking.get('queries', []))} previous queries")
@@ -89,10 +89,10 @@ def save_tracking_history(tracking: dict):
     Args:
         tracking: Tracking data
     """
-    tracking_file = '.tmp/armorcode_tracking.json'
-    os.makedirs('.tmp', exist_ok=True)
+    tracking_file = ".tmp/armorcode_tracking.json"
+    os.makedirs(".tmp", exist_ok=True)
 
-    with open(tracking_file, 'w', encoding='utf-8') as f:
+    with open(tracking_file, "w", encoding="utf-8") as f:
         json.dump(tracking, f, indent=2, ensure_ascii=False)
 
     logger.info(f"Tracking history saved to {tracking_file}")
@@ -121,17 +121,13 @@ def query_current_vulnerabilities(api_key: str, base_url: str, environment: str,
         logger.info(f"Connecting to ArmorCode API: {base_url}")
 
         headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
         }
 
         # Build request body (ArmorCode API uses POST with JSON body)
-        request_body = {
-            "severity": ["HIGH", "CRITICAL"],
-            "status": ["Open", "In Progress"],
-            "limit": 10000
-        }
+        request_body = {"severity": ["HIGH", "CRITICAL"], "status": ["Open", "In Progress"], "limit": 10000}
 
         if products:
             request_body["products"] = products
@@ -150,20 +146,17 @@ def query_current_vulnerabilities(api_key: str, base_url: str, environment: str,
 
             if response.status_code == 200:
                 api_response = response.json()
-                logger.info(f"Successfully fetched findings from ArmorCode API")
+                logger.info("Successfully fetched findings from ArmorCode API")
 
                 # ArmorCode API returns: {"data": {"findings": [...]}}
-                if isinstance(api_response, dict) and 'data' in api_response:
-                    vulnerabilities = api_response['data'].get('findings', [])
+                if isinstance(api_response, dict) and "data" in api_response:
+                    vulnerabilities = api_response["data"].get("findings", [])
                 else:
                     vulnerabilities = api_response if isinstance(api_response, list) else []
 
                 logger.info(f"Total findings received: {len(vulnerabilities)}")
             else:
-                raise RuntimeError(
-                    f"API request failed with status {response.status_code}:\n"
-                    f"{response.text[:500]}"
-                )
+                raise RuntimeError(f"API request failed with status {response.status_code}:\n" f"{response.text[:500]}")
 
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Network error querying ArmorCode API: {e}") from e
@@ -176,12 +169,12 @@ def query_current_vulnerabilities(api_key: str, base_url: str, environment: str,
         if isinstance(vulnerabilities, list):
             vulnerability_list = vulnerabilities
         elif isinstance(vulnerabilities, dict):
-            if 'vulnerabilities' in vulnerabilities:
-                vulnerability_list = vulnerabilities['vulnerabilities']
-            elif 'findings' in vulnerabilities:
-                vulnerability_list = vulnerabilities['findings']
-            elif 'data' in vulnerabilities:
-                vulnerability_list = vulnerabilities['data']
+            if "vulnerabilities" in vulnerabilities:
+                vulnerability_list = vulnerabilities["vulnerabilities"]
+            elif "findings" in vulnerabilities:
+                vulnerability_list = vulnerabilities["findings"]
+            elif "data" in vulnerabilities:
+                vulnerability_list = vulnerabilities["data"]
 
         logger.info(f"Found {len(vulnerability_list)} current vulnerabilities")
 
@@ -189,25 +182,25 @@ def query_current_vulnerabilities(api_key: str, base_url: str, environment: str,
         formatted_vulns = []
         for vuln in vulnerability_list:
             # Extract product name (ArmorCode returns product as object)
-            product = vuln.get('product')
+            product = vuln.get("product")
             if isinstance(product, dict):
-                product_name = product.get('name', 'Unknown')
+                product_name = product.get("name", "Unknown")
             else:
-                product_name = product or vuln.get('product_name', 'Unknown')
+                product_name = product or vuln.get("product_name", "Unknown")
 
             vuln_data = {
-                "id": vuln.get('id') or vuln.get('vulnerability_id') or vuln.get('finding_id'),
-                "title": vuln.get('title') or vuln.get('name'),
-                "severity": vuln.get('severity'),
+                "id": vuln.get("id") or vuln.get("vulnerability_id") or vuln.get("finding_id"),
+                "title": vuln.get("title") or vuln.get("name"),
+                "severity": vuln.get("severity"),
                 "product": product_name,
-                "asset": vuln.get('asset') or vuln.get('component'),
-                "cve": vuln.get('cve') or vuln.get('cve_id'),
-                "cwe": vuln.get('cwe') or vuln.get('cwe_id'),
-                "status": vuln.get('status'),
-                "first_seen": str(vuln.get('first_seen') or vuln.get('discovered_date') or ''),
-                "last_seen": str(vuln.get('last_seen') or vuln.get('last_updated') or ''),
-                "description": vuln.get('description', ''),
-                "remediation": vuln.get('remediation') or vuln.get('recommendation', '')
+                "asset": vuln.get("asset") or vuln.get("component"),
+                "cve": vuln.get("cve") or vuln.get("cve_id"),
+                "cwe": vuln.get("cwe") or vuln.get("cwe_id"),
+                "status": vuln.get("status"),
+                "first_seen": str(vuln.get("first_seen") or vuln.get("discovered_date") or ""),
+                "last_seen": str(vuln.get("last_seen") or vuln.get("last_updated") or ""),
+                "description": vuln.get("description", ""),
+                "remediation": vuln.get("remediation") or vuln.get("recommendation", ""),
             }
             formatted_vulns.append(vuln_data)
 
@@ -229,8 +222,8 @@ def calculate_comparison(baseline: dict, current_vulns: list) -> dict:
     Returns:
         dict: Comparison metrics
     """
-    baseline_count = baseline['vulnerability_count']
-    target_count = baseline['target_count']
+    baseline_count = baseline["vulnerability_count"]
+    target_count = baseline["target_count"]
     current_count = len(current_vulns)
 
     # Calculate reduction metrics
@@ -243,8 +236,8 @@ def calculate_comparison(baseline: dict, current_vulns: list) -> dict:
     progress_to_goal_pct = (reduction_amount / total_reduction_needed * 100) if total_reduction_needed > 0 else 0
 
     # Calculate days since baseline and to target
-    baseline_date = datetime.strptime(baseline['baseline_date'], "%Y-%m-%d")
-    target_date = datetime.strptime(baseline['target_date'], "%Y-%m-%d")
+    baseline_date = datetime.strptime(baseline["baseline_date"], "%Y-%m-%d")
+    target_date = datetime.strptime(baseline["target_date"], "%Y-%m-%d")
     today = datetime.now()
 
     days_since_baseline = (today - baseline_date).days
@@ -256,7 +249,7 @@ def calculate_comparison(baseline: dict, current_vulns: list) -> dict:
         "remaining_to_goal": remaining_to_goal,
         "progress_to_goal_pct": round(progress_to_goal_pct, 1),
         "days_since_baseline": days_since_baseline,
-        "days_to_target": days_to_target
+        "days_to_target": days_to_target,
     }
 
     return comparison
@@ -290,22 +283,16 @@ def query_and_compare(api_key: str, base_url: str, environment: str, products: l
     # Build result
     result = {
         "queried_at": datetime.now().isoformat(),
-        "baseline": {
-            "date": baseline['baseline_date'],
-            "count": baseline['vulnerability_count']
-        },
+        "baseline": {"date": baseline["baseline_date"], "count": baseline["vulnerability_count"]},
         "target": {
-            "date": baseline['target_date'],
-            "count": baseline['target_count'],
-            "reduction_goal_pct": baseline['reduction_goal_pct']
+            "date": baseline["target_date"],
+            "count": baseline["target_count"],
+            "reduction_goal_pct": baseline["reduction_goal_pct"],
         },
-        "current": {
-            "count": len(current_vulns),
-            "vulnerabilities": current_vulns
-        },
+        "current": {"count": len(current_vulns), "vulnerabilities": current_vulns},
         "comparison": comparison,
         "environment": environment,
-        "products": products or []
+        "products": products or [],
     }
 
     # Append to tracking history
@@ -313,11 +300,11 @@ def query_and_compare(api_key: str, base_url: str, environment: str, products: l
         "date": datetime.now().strftime("%Y-%m-%d"),
         "timestamp": datetime.now().isoformat(),
         "count": len(current_vulns),
-        "reduction_pct": comparison['reduction_pct'],
-        "progress_to_goal_pct": comparison['progress_to_goal_pct']
+        "reduction_pct": comparison["reduction_pct"],
+        "progress_to_goal_pct": comparison["progress_to_goal_pct"],
     }
 
-    tracking['queries'].append(tracking_entry)
+    tracking["queries"].append(tracking_entry)
     save_tracking_history(tracking)
 
     return result
@@ -330,28 +317,23 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(
-        description='Query current ArmorCode vulnerabilities and compare to baseline'
+    parser = argparse.ArgumentParser(description="Query current ArmorCode vulnerabilities and compare to baseline")
+
+    parser.add_argument(
+        "--output-format", choices=["summary", "json"], default="summary", help="Output format (default: summary)"
     )
 
     parser.add_argument(
-        '--output-format',
-        choices=['summary', 'json'],
-        default='summary',
-        help='Output format (default: summary)'
-    )
-
-    parser.add_argument(
-        '--output-file',
+        "--output-file",
         type=str,
         default=None,
-        help='Path to output JSON file (default: .tmp/armorcode_query_[timestamp].json)'
+        help="Path to output JSON file (default: .tmp/armorcode_query_[timestamp].json)",
     )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Entry point when script is run from command line.
     """
@@ -360,47 +342,45 @@ if __name__ == '__main__':
         args = parse_arguments()
 
         # Load configuration from environment
-        api_key = os.getenv('ARMORCODE_API_KEY')
-        base_url = os.getenv('ARMORCODE_BASE_URL', 'https://app.armorcode.com')
-        environment = os.getenv('ARMORCODE_ENVIRONMENT', 'PRODUCTION')
-        products_str = os.getenv('ARMORCODE_PRODUCTS', '')
+        api_key = os.getenv("ARMORCODE_API_KEY")
+        base_url = os.getenv("ARMORCODE_BASE_URL", "https://app.armorcode.com")
+        environment = os.getenv("ARMORCODE_ENVIRONMENT", "PRODUCTION")
+        products_str = os.getenv("ARMORCODE_PRODUCTS", "")
 
         # Parse products list
-        products = [p.strip() for p in products_str.split(',') if p.strip()] if products_str else []
+        products = [p.strip() for p in products_str.split(",") if p.strip()] if products_str else []
 
         # Validate environment variables
-        if not api_key or api_key == 'your_armorcode_api_key_here':
+        if not api_key or api_key == "your_armorcode_api_key_here":
             raise RuntimeError(
-                "ARMORCODE_API_KEY not configured in .env file.\n"
-                "Please obtain an API key and add to .env file"
+                "ARMORCODE_API_KEY not configured in .env file.\n" "Please obtain an API key and add to .env file"
             )
 
         # Query and compare
-        result = query_and_compare(
-            api_key=api_key,
-            base_url=base_url,
-            environment=environment,
-            products=products
-        )
+        result = query_and_compare(api_key=api_key, base_url=base_url, environment=environment, products=products)
 
         # Output results
-        if args.output_format == 'json':
+        if args.output_format == "json":
             output = json.dumps(result, indent=2)
             print(output)
         else:
             # Print summary
             print(f"\n{'='*70}")
-            print(f"ArmorCode Vulnerability Tracking")
+            print("ArmorCode Vulnerability Tracking")
             print(f"{'='*70}")
             print(f"Query Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"\nBaseline ({result['baseline']['date']}):     {result['baseline']['count']:>3} vulnerabilities")
-            print(f"Target ({result['target']['reduction_goal_pct']}% reduction):        {result['target']['count']:>3} vulnerabilities")
+            print(
+                f"Target ({result['target']['reduction_goal_pct']}% reduction):        {result['target']['count']:>3} vulnerabilities"
+            )
             print(f"Current:                           {result['current']['count']:>3} vulnerabilities")
-            print(f"\nProgress:")
-            print(f"  Reduced: {result['comparison']['reduction_amount']:>3} vulnerabilities ({result['comparison']['reduction_pct']:>5.1f}%)")
+            print("\nProgress:")
+            print(
+                f"  Reduced: {result['comparison']['reduction_amount']:>3} vulnerabilities ({result['comparison']['reduction_pct']:>5.1f}%)"
+            )
             print(f"  Remaining to goal: {result['comparison']['remaining_to_goal']:>3} vulnerabilities")
             print(f"  Progress to goal: {result['comparison']['progress_to_goal_pct']:>5.1f}%")
-            print(f"\nTimeline:")
+            print("\nTimeline:")
             print(f"  Days since baseline: {result['comparison']['days_since_baseline']}")
             print(f"  Days to target: {result['comparison']['days_to_target']}")
             print(f"{'='*70}\n")
@@ -410,10 +390,10 @@ if __name__ == '__main__':
             output_file = args.output_file
         else:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = f'.tmp/armorcode_query_{timestamp}.json'
+            output_file = f".tmp/armorcode_query_{timestamp}.json"
 
-        os.makedirs('.tmp', exist_ok=True)
-        with open(output_file, 'w', encoding='utf-8') as f:
+        os.makedirs(".tmp", exist_ok=True)
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
 
         logger.info(f"Query results saved to {output_file}")

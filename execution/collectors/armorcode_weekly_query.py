@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def load_baseline(baseline_file=".tmp/armorcode_baseline.json"):
+def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict:
     """Load baseline data from file."""
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(f"Baseline file not found: {baseline_file}")
@@ -39,7 +39,7 @@ def load_baseline(baseline_file=".tmp/armorcode_baseline.json"):
     return baseline
 
 
-def get_product_ids(api_key, base_url, product_names):
+def get_product_ids(api_key: str, base_url: str, product_names: list[str]) -> list[dict]:
     """Get product IDs for the specified product names via GraphQL."""
     logger.info("Fetching product IDs...")
 
@@ -95,7 +95,7 @@ def get_product_ids(api_key, base_url, product_names):
     return product_data
 
 
-def fetch_current_findings(api_key, base_url, product_id, product_name):
+def fetch_current_findings(api_key: str, base_url: str, product_id: str, product_name: str) -> list[dict]:
     """Fetch current HIGH+CRITICAL findings with OPEN+CONFIRMED status."""
 
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
@@ -166,7 +166,7 @@ def fetch_current_findings(api_key, base_url, product_id, product_name):
     return findings
 
 
-def query_current_state(baseline):
+def query_current_state(baseline: dict) -> dict:
     """Query current vulnerability counts for all products in baseline."""
     api_key = get_config().get_armorcode_config().api_key
     base_url = get_config().get_armorcode_config().base_url
@@ -234,7 +234,7 @@ def query_current_state(baseline):
     }
 
 
-def calculate_progress(baseline, current):
+def calculate_progress(baseline: dict, current: dict) -> dict:
     """Calculate progress metrics comparing current state to baseline."""
     baseline_total = baseline.get("total_vulnerabilities", 0)
     current_total = current.get("total_vulnerabilities", 0)
@@ -293,7 +293,7 @@ def calculate_progress(baseline, current):
     return progress
 
 
-def main():
+def main() -> dict:
     """Main execution."""
     try:
         # Load baseline

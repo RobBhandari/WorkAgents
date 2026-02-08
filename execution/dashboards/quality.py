@@ -7,7 +7,10 @@ Generates quality metrics dashboard using:
     - Jinja2 templates (XSS-safe)
 
 This replaces the original 1113-line generate_quality_dashboard.py with a
-clean, maintainable implementation of ~280 lines.
+clean, maintainable implementation split across quality.py and quality_legacy.py.
+
+Note: Legacy HTML generation functions are in quality_legacy.py and should be
+migrated to Jinja2 templates in the future.
 
 Usage:
     from execution.dashboards.quality import generate_quality_dashboard
@@ -20,18 +23,21 @@ Usage:
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 # Import infrastructure
 try:
     from ..dashboard_framework import get_dashboard_framework
     from ..dashboards.renderer import render_dashboard
     from ..template_engine import render_template
+    from .quality_legacy import build_summary_cards, generate_distribution_section
 except ImportError:
     import sys
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
     from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
+    from quality_legacy import build_summary_cards, generate_distribution_section  # type: ignore[no-redef]
     from template_engine import render_template  # type: ignore[no-redef]
 
 
@@ -87,7 +93,7 @@ def generate_quality_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_quality_data() -> dict:
+def _load_quality_data() -> dict[str, Any]:
     """
     Load quality metrics from history file.
 
@@ -102,16 +108,17 @@ def _load_quality_data() -> dict:
         raise FileNotFoundError(f"Quality history not found: {history_file}")
 
     with open(history_file, encoding="utf-8") as f:
-        data = json.load(f)
+        data: dict[str, Any] = json.load(f)
 
     if not data.get("weeks"):
         raise ValueError("No weeks data in quality history")
 
     # Return most recent week
-    return data["weeks"][-1]
+    result: dict[str, Any] = data["weeks"][-1]
+    return result
 
 
-def _calculate_summary(projects: list[dict]) -> dict:
+def _calculate_summary(projects: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Calculate summary statistics across all projects.
 
@@ -152,7 +159,7 @@ def _calculate_summary(projects: list[dict]) -> dict:
     }
 
 
-def _build_context(quality_data: dict, summary_stats: dict) -> dict:
+def _build_context(quality_data: dict[str, Any], summary_stats: dict[str, Any]) -> dict[str, Any]:
     """
     Build template context with all dashboard data.
 
@@ -173,7 +180,7 @@ def _build_context(quality_data: dict, summary_stats: dict) -> dict:
     )
 
     # Build summary cards
-    summary_cards = _build_summary_cards(summary_stats)
+    summary_cards = build_summary_cards(summary_stats)
 
     # Build project rows with drill-down
     projects = _build_project_rows(quality_data["projects"])
@@ -195,58 +202,9 @@ def _build_context(quality_data: dict, summary_stats: dict) -> dict:
     return context
 
 
-def _build_summary_cards(summary_stats: dict) -> list[str]:
-    """
-    Build summary metric cards HTML.
-
-    Args:
-        summary_stats: Summary statistics dictionary
-
-    Returns:
-        List of HTML strings for metric cards
-    """
-    cards = []
-
-    # MTTR Card
-    cards.append(
-        f"""<div class="summary-card">
-            <div class="label">MTTR (Mean Time To Repair)</div>
-            <div class="value">{summary_stats['avg_mttr']:.1f}<span class="unit">days</span></div>
-            <div class="explanation">Average time from bug creation to closure</div>
-        </div>"""
-    )
-
-    # Total Bugs Card
-    cards.append(
-        f"""<div class="summary-card" style="border-left-color: #3b82f6;">
-            <div class="label">Total Bugs Analyzed</div>
-            <div class="value">{summary_stats['total_bugs']:,}</div>
-            <div class="explanation">Bugs analyzed in last 90 days</div>
-        </div>"""
-    )
-
-    # Open Bugs Card
-    cards.append(
-        f"""<div class="summary-card" style="border-left-color: #f59e0b;">
-            <div class="label">Open Bugs</div>
-            <div class="value">{summary_stats['total_open']:,}</div>
-            <div class="explanation">Currently open bugs across all projects</div>
-        </div>"""
-    )
-
-    # Security Bugs Excluded Card
-    cards.append(
-        f"""<div class="summary-card" style="border-left-color: #10b981;">
-            <div class="label">Security Bugs Excluded</div>
-            <div class="value">{summary_stats['total_excluded']:,}</div>
-            <div class="explanation">ArmorCode bugs excluded to prevent double-counting</div>
-        </div>"""
-    )
-
-    return cards
 
 
-def _build_project_rows(projects: list[dict]) -> list[dict]:
+def _build_project_rows(projects: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Build project table rows with expandable drill-down details.
 
@@ -349,7 +307,7 @@ def _calculate_composite_status(mttr: float | None, median_age: float | None) ->
     return status_html, tooltip, priority
 
 
-def _generate_drilldown_html(project: dict) -> str:
+def _generate_drilldown_html(project: dict[str, Any]) -> str:
     """
     Generate drill-down detail content HTML for a project.
 
@@ -418,13 +376,11 @@ def _generate_drilldown_html(project: dict) -> str:
 
     # Section 2: Bug Age Distribution
     if bug_age.get("ages_distribution"):
-        html += _generate_distribution_section(
-            "Bug Age Distribution", bug_age["ages_distribution"], "bug_age", "bugs"
-        )
+        html += generate_distribution_section("Bug Age Distribution", bug_age["ages_distribution"], "bug_age", "bugs")
 
     # Section 3: MTTR Distribution
     if mttr_data.get("mttr_distribution"):
-        html += _generate_distribution_section("MTTR Distribution", mttr_data["mttr_distribution"], "mttr", "bugs")
+        html += generate_distribution_section("MTTR Distribution", mttr_data["mttr_distribution"], "mttr", "bugs")
 
     # If no data at all
     if not (bug_age.get("ages_distribution") or mttr_data.get("mttr_distribution")):
@@ -434,31 +390,6 @@ def _generate_drilldown_html(project: dict) -> str:
     return html
 
 
-def _generate_distribution_section(title: str, distribution: dict, bucket_type: str, unit: str) -> str:
-    """Generate a distribution section with colored buckets."""
-    html = '<div class="detail-section">'
-    html += f"<h4>{title}</h4>"
-    html += '<div class="detail-grid">'
-
-    # Define bucket names based on type
-    if bucket_type == "bug_age":
-        buckets = [("0-7 Days", "0-7_days"), ("8-30 Days", "8-30_days"), ("31-90 Days", "31-90_days"), ("90+ Days", "90+_days")]
-    else:  # mttr
-        buckets = [("0-1 Days", "0-1_days"), ("1-7 Days", "1-7_days"), ("7-30 Days", "7-30_days"), ("30+ Days", "30+_days")]
-
-    for label, key in buckets:
-        count = distribution.get(key, 0)
-        rag_class, rag_color = _get_distribution_bucket_rag_status(bucket_type, key)
-        html += render_template(
-            "dashboards/detail_metric.html",
-            rag_class=rag_class,
-            rag_color=rag_color,
-            label=label,
-            value=f"{count} {unit}",
-        )
-
-    html += "</div></div>"
-    return html
 
 
 def _get_metric_rag_status(metric_name: str, value: float) -> tuple[str, str, str]:
@@ -471,10 +402,26 @@ def _get_metric_rag_status(metric_name: str, value: float) -> tuple[str, str, st
         return "rag-unknown", "#6b7280", "No Data"
 
     thresholds = {
-        "Bug Age P85": [(60, "rag-green", "Good"), (180, "rag-amber", "Caution"), (float("inf"), "rag-red", "Action Needed")],
-        "Bug Age P95": [(90, "rag-green", "Good"), (365, "rag-amber", "Caution"), (float("inf"), "rag-red", "Action Needed")],
-        "MTTR P85": [(14, "rag-green", "Good"), (30, "rag-amber", "Caution"), (float("inf"), "rag-red", "Action Needed")],
-        "MTTR P95": [(21, "rag-green", "Good"), (45, "rag-amber", "Caution"), (float("inf"), "rag-red", "Action Needed")],
+        "Bug Age P85": [
+            (60, "rag-green", "Good"),
+            (180, "rag-amber", "Caution"),
+            (float("inf"), "rag-red", "Action Needed"),
+        ],
+        "Bug Age P95": [
+            (90, "rag-green", "Good"),
+            (365, "rag-amber", "Caution"),
+            (float("inf"), "rag-red", "Action Needed"),
+        ],
+        "MTTR P85": [
+            (14, "rag-green", "Good"),
+            (30, "rag-amber", "Caution"),
+            (float("inf"), "rag-red", "Action Needed"),
+        ],
+        "MTTR P95": [
+            (21, "rag-green", "Good"),
+            (45, "rag-amber", "Caution"),
+            (float("inf"), "rag-red", "Action Needed"),
+        ],
     }
 
     colors = {"rag-green": "#10b981", "rag-amber": "#f59e0b", "rag-red": "#ef4444"}
@@ -486,29 +433,6 @@ def _get_metric_rag_status(metric_name: str, value: float) -> tuple[str, str, st
     return "rag-unknown", "#6b7280", "Unknown"
 
 
-def _get_distribution_bucket_rag_status(bucket_type: str, bucket_name: str) -> tuple[str, str]:
-    """
-    Determine RAG status for distribution buckets.
-
-    Returns: (color_class, color_hex)
-    """
-    if bucket_type == "bug_age":
-        if bucket_name in ["0-7_days", "8-30_days"]:
-            return "rag-green", "#10b981"
-        elif bucket_name == "31-90_days":
-            return "rag-amber", "#f59e0b"
-        elif bucket_name == "90+_days":
-            return "rag-red", "#ef4444"
-    elif bucket_type == "mttr":
-        if bucket_name in ["0-1_days", "1-7_days"]:
-            return "rag-green", "#10b981"
-        elif bucket_name == "7-30_days":
-            return "rag-amber", "#f59e0b"
-        elif bucket_name == "30+_days":
-            return "rag-red", "#ef4444"
-
-    # Default
-    return "rag-unknown", "#6b7280"
 
 
 # Main execution for testing

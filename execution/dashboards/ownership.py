@@ -21,6 +21,7 @@ Usage:
 import json
 import os
 from pathlib import Path
+from typing import Any
 
 # Import dependencies
 try:
@@ -88,7 +89,7 @@ def generate_ownership_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_ownership_data() -> dict:
+def _load_ownership_data() -> dict[str, Any]:
     """
     Load ownership metrics from history file.
 
@@ -101,15 +102,18 @@ def _load_ownership_data() -> dict:
     history_file = ".tmp/observatory/ownership_history.json"
 
     if not os.path.exists(history_file):
-        raise FileNotFoundError(f"Ownership history file not found: {history_file}\nRun: python execution/ado_ownership_metrics.py")
+        raise FileNotFoundError(
+            f"Ownership history file not found: {history_file}\nRun: python execution/ado_ownership_metrics.py"
+        )
 
     with open(history_file, encoding="utf-8") as f:
-        data = json.load(f)
+        data: dict[str, Any] = json.load(f)
 
-    return data["weeks"][-1]  # Most recent week
+    result: dict[str, Any] = data["weeks"][-1]  # Most recent week
+    return result
 
 
-def _calculate_summary(ownership_data: dict) -> dict:
+def _calculate_summary(ownership_data: dict[str, Any]) -> dict[str, Any]:
     """
     Calculate summary statistics across all projects.
 
@@ -147,7 +151,7 @@ def _calculate_summary(ownership_data: dict) -> dict:
     }
 
 
-def _build_context(ownership_data: dict, summary_stats: dict) -> dict:
+def _build_context(ownership_data: dict[str, Any], summary_stats: dict[str, Any]) -> dict[str, Any]:
     """
     Build template context with all dashboard data.
 
@@ -183,7 +187,7 @@ def _build_context(ownership_data: dict, summary_stats: dict) -> dict:
     return context
 
 
-def _build_project_rows(projects: list[dict]) -> list[dict]:
+def _build_project_rows(projects: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Build project table rows with expandable drill-down details.
 
@@ -235,7 +239,7 @@ def _build_project_rows(projects: list[dict]) -> list[dict]:
     return projects_with_status
 
 
-def _calculate_ownership_status(unassigned_pct: float) -> dict:
+def _calculate_ownership_status(unassigned_pct: float) -> dict[str, str | int]:
     """
     Calculate ownership status based on unassigned percentage.
 
@@ -260,7 +264,7 @@ def _calculate_ownership_status(unassigned_pct: float) -> dict:
     return {"status_html": status_html, "tooltip": tooltip, "priority": priority}
 
 
-def _generate_ownership_drilldown_html(project: dict) -> str:
+def _generate_ownership_drilldown_html(project: dict[str, Any]) -> str:
     """
     Generate drill-down detail content HTML for a project.
 
@@ -330,7 +334,7 @@ def _generate_ownership_drilldown_html(project: dict) -> str:
     )
 
 
-def _get_work_type_rag_status(unassigned_pct: float) -> dict:
+def _get_work_type_rag_status(unassigned_pct: float) -> dict[str, str]:
     """
     Determine RAG status for work type cards based on unassigned percentage.
 

@@ -5,16 +5,16 @@ Sends emails via SMTP with optional HTML content and attachments.
 Supports Gmail, Outlook, and other SMTP servers.
 """
 
-import os
-import sys
 import argparse
 import logging
+import os
 import smtplib
+import sys
 from datetime import datetime
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
 from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from pathlib import Path
 from typing import List, Optional
 
@@ -26,19 +26,19 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(f'.tmp/email_{datetime.now().strftime("%Y%m%d")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
 # SMTP Configuration
 SMTP_SERVERS = {
-    'gmail': ('smtp.gmail.com', 587),
-    'outlook': ('smtp.office365.com', 587),
-    'office365': ('smtp.office365.com', 587),
+    "gmail": ("smtp.gmail.com", 587),
+    "outlook": ("smtp.office365.com", 587),
+    "office365": ("smtp.office365.com", 587),
 }
 
 
@@ -46,14 +46,14 @@ def send_email(
     to_email: str,
     subject: str,
     body: str,
-    from_email: Optional[str] = None,
-    from_password: Optional[str] = None,
-    smtp_server: Optional[str] = None,
-    smtp_port: Optional[int] = None,
-    attachments: Optional[List[str]] = None,
+    from_email: str | None = None,
+    from_password: str | None = None,
+    smtp_server: str | None = None,
+    smtp_port: int | None = None,
+    attachments: list[str] | None = None,
     html: bool = False,
-    cc: Optional[List[str]] = None,
-    bcc: Optional[List[str]] = None
+    cc: list[str] | None = None,
+    bcc: list[str] | None = None,
 ) -> bool:
     """
     Send an email via SMTP.
@@ -80,8 +80,8 @@ def send_email(
     logger.info(f"Preparing to send email to {to_email}")
 
     # Get email credentials from environment or parameters
-    from_email = from_email or os.getenv('EMAIL_ADDRESS')
-    from_password = from_password or os.getenv('EMAIL_PASSWORD')
+    from_email = from_email or os.getenv("EMAIL_ADDRESS")
+    from_password = from_password or os.getenv("EMAIL_PASSWORD")
 
     if not from_email or not from_password:
         raise RuntimeError(
@@ -92,38 +92,37 @@ def send_email(
 
     # Auto-detect SMTP server if not provided
     if not smtp_server:
-        smtp_server = os.getenv('SMTP_SERVER')
+        smtp_server = os.getenv("SMTP_SERVER")
         if not smtp_server:
             # Try to detect from email domain
-            domain = from_email.split('@')[1].lower()
-            if 'gmail' in domain:
-                smtp_server, smtp_port = SMTP_SERVERS['gmail']
-            elif 'outlook' in domain or 'office365' in domain or 'hotmail' in domain:
-                smtp_server, smtp_port = SMTP_SERVERS['outlook']
+            domain = from_email.split("@")[1].lower()
+            if "gmail" in domain:
+                smtp_server, smtp_port = SMTP_SERVERS["gmail"]
+            elif "outlook" in domain or "office365" in domain or "hotmail" in domain:
+                smtp_server, smtp_port = SMTP_SERVERS["outlook"]
             else:
                 raise RuntimeError(
-                    f"Could not auto-detect SMTP server for {domain}.\n"
-                    "Please set SMTP_SERVER and SMTP_PORT in .env"
+                    f"Could not auto-detect SMTP server for {domain}.\n" "Please set SMTP_SERVER and SMTP_PORT in .env"
                 )
             logger.info(f"Auto-detected SMTP: {smtp_server}:{smtp_port}")
 
-    smtp_port = smtp_port or int(os.getenv('SMTP_PORT', '587'))
+    smtp_port = smtp_port or int(os.getenv("SMTP_PORT", "587"))
 
     # Create message
-    msg = MIMEMultipart('alternative')
-    msg['From'] = from_email
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    msg['Date'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S %z')
+    msg = MIMEMultipart("alternative")
+    msg["From"] = from_email
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg["Date"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
 
     if cc:
-        msg['Cc'] = ', '.join(cc)
+        msg["Cc"] = ", ".join(cc)
 
     # Attach body
     if html:
-        msg.attach(MIMEText(body, 'html'))
+        msg.attach(MIMEText(body, "html"))
     else:
-        msg.attach(MIMEText(body, 'plain'))
+        msg.attach(MIMEText(body, "plain"))
 
     # Attach files
     if attachments:
@@ -133,14 +132,11 @@ def send_email(
                 continue
 
             logger.info(f"Attaching file: {file_path}")
-            with open(file_path, 'rb') as f:
-                part = MIMEBase('application', 'octet-stream')
+            with open(file_path, "rb") as f:
+                part = MIMEBase("application", "octet-stream")
                 part.set_payload(f.read())
                 encoders.encode_base64(part)
-                part.add_header(
-                    'Content-Disposition',
-                    f'attachment; filename= {os.path.basename(file_path)}'
-                )
+                part.add_header("Content-Disposition", f"attachment; filename= {os.path.basename(file_path)}")
                 msg.attach(part)
 
     # Build recipient list
@@ -192,85 +188,43 @@ def send_email(
 
 def parse_arguments():
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Send an email via SMTP'
-    )
+    parser = argparse.ArgumentParser(description="Send an email via SMTP")
 
-    parser.add_argument(
-        'to_email',
-        type=str,
-        help='Recipient email address'
-    )
+    parser.add_argument("to_email", type=str, help="Recipient email address")
 
-    parser.add_argument(
-        '--subject',
-        type=str,
-        required=True,
-        help='Email subject'
-    )
+    parser.add_argument("--subject", type=str, required=True, help="Email subject")
 
-    parser.add_argument(
-        '--body',
-        type=str,
-        help='Email body text (or use --body-file)'
-    )
+    parser.add_argument("--body", type=str, help="Email body text (or use --body-file)")
 
-    parser.add_argument(
-        '--body-file',
-        type=str,
-        help='Path to file containing email body'
-    )
+    parser.add_argument("--body-file", type=str, help="Path to file containing email body")
 
-    parser.add_argument(
-        '--html',
-        action='store_true',
-        help='Body is HTML format'
-    )
+    parser.add_argument("--html", action="store_true", help="Body is HTML format")
 
-    parser.add_argument(
-        '--attachments',
-        type=str,
-        nargs='+',
-        help='Files to attach'
-    )
+    parser.add_argument("--attachments", type=str, nargs="+", help="Files to attach")
 
-    parser.add_argument(
-        '--from-email',
-        type=str,
-        help='Sender email (default: from .env EMAIL_ADDRESS)'
-    )
+    parser.add_argument("--from-email", type=str, help="Sender email (default: from .env EMAIL_ADDRESS)")
 
-    parser.add_argument(
-        '--cc',
-        type=str,
-        nargs='+',
-        help='CC recipients'
-    )
+    parser.add_argument("--cc", type=str, nargs="+", help="CC recipients")
 
-    parser.add_argument(
-        '--bcc',
-        type=str,
-        nargs='+',
-        help='BCC recipients'
-    )
+    parser.add_argument("--bcc", type=str, nargs="+", help="BCC recipients")
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Entry point when script is run from command line."""
     try:
         # Parse arguments
         args = parse_arguments()
 
         # Ensure .tmp directory exists
-        os.makedirs('.tmp', exist_ok=True)
+        os.makedirs(".tmp", exist_ok=True)
 
         # Get body content
         if args.body:
             body = args.body
         elif args.body_file:
-            with open(args.body_file, 'r', encoding='utf-8') as f:
+            with open(args.body_file, encoding="utf-8") as f:
                 body = f.read()
         else:
             raise ValueError("Either --body or --body-file must be provided")
@@ -284,7 +238,7 @@ if __name__ == '__main__':
             attachments=args.attachments,
             html=args.html,
             cc=args.cc,
-            bcc=args.bcc
+            bcc=args.bcc,
         )
 
         if success:

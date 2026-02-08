@@ -39,7 +39,7 @@ wiql = Wiql(query=f"""
       AND [System.WorkItemType] = 'Bug'
       AND [System.State] <> 'Removed'
     ORDER BY [System.CreatedDate] DESC
-    """)
+    """)  # nosec B608 - Hardcoded project name from config, not user input
 
 result = wit_client.query_by_wiql(wiql)
 print(f"Found {len(result.work_items)} bugs\n")

@@ -8,24 +8,25 @@ from pathlib import Path
 
 # Files to remove (old/deprecated)
 OLD_FILES = [
-    'executive_summary.html',
-    'trends_dashboard.html',
-    'ai_contributions.html',
-    'security.html',  # NEW refactored version (missing functionality)
+    "executive_summary.html",
+    "trends_dashboard.html",
+    "ai_contributions.html",
+    "security.html",  # NEW refactored version (missing functionality)
 ]
 
 # ML Prototypes (decide whether to keep or remove)
 PROTOTYPE_FILES = [
-    'correlation_prototype.html',
-    'forecast_prototype.html',
-    'health_scorecard_prototype.html',
-    'trends_prototype.html',
+    "correlation_prototype.html",
+    "forecast_prototype.html",
+    "health_scorecard_prototype.html",
+    "trends_prototype.html",
 ]
+
 
 def cleanup_dashboards():
     """Remove old dashboard files"""
 
-    dashboard_dir = Path('.tmp/observatory/dashboards')
+    dashboard_dir = Path(".tmp/observatory/dashboards")
 
     if not dashboard_dir.exists():
         print(f"[ERROR] Directory not found: {dashboard_dir}")
@@ -51,11 +52,11 @@ def cleanup_dashboards():
             size_kb = file_path.stat().st_size / 1024
             print(f"  [?] {filename} ({size_kb:.1f} KB)")
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Cleanup complete!")
     print("\nTo remove ML prototypes, delete them manually or run:")
     print("  rm .tmp/observatory/dashboards/*_prototype.html")
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":

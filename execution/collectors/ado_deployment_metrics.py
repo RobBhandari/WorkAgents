@@ -192,7 +192,7 @@ def calculate_build_duration(builds: list[dict]) -> dict:
     sorted_durations = sorted(durations)
     n = len(sorted_durations)
 
-    def percentile(data, p):
+    def percentile(data: list[float], p: float) -> float:
         index = int(n * p / 100)
         return data[min(index, n - 1)]
 
@@ -284,7 +284,7 @@ def calculate_lead_time_for_changes(build_client, git_client, project_name: str,
     sorted_lead_times = sorted(lead_times)
     n = len(sorted_lead_times)
 
-    def percentile(data, p):
+    def percentile(data: list[float], p: float) -> float:
         index = int(n * p / 100)
         return data[min(index, n - 1)]
 
@@ -361,7 +361,7 @@ def collect_deployment_metrics_for_project(connection, project: dict, config: di
     }
 
 
-def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/deployment_history.json"):
+def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/deployment_history.json") -> None:
     """
     Save deployment metrics to history file.
 

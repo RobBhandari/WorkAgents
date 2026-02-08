@@ -38,7 +38,11 @@ class TestDataLoaders:
                             "project_name": "TestProject",
                             "total_items_analyzed": 100,
                             "unassigned": {"unassigned_count": 20, "unassigned_pct": 20.0},
-                            "assignment_distribution": {"assignee_count": 5, "top_assignees": [], "load_imbalance_ratio": 2.0},
+                            "assignment_distribution": {
+                                "assignee_count": 5,
+                                "top_assignees": [],
+                                "load_imbalance_ratio": 2.0,
+                            },
                         }
                     ],
                 }
@@ -53,6 +57,7 @@ class TestDataLoaders:
 
         # Change to temp directory so relative paths work
         import os
+
         original_cwd = os.getcwd()
         os.chdir(tmp_path)
 
@@ -248,13 +253,9 @@ class TestDrilldownHtml:
                 "top_assignees": [("Alice", 30), ("Bob", 20), ("Unassigned", 10)],
                 "load_imbalance_ratio": 2.5,
             },
-            "work_type_segmentation": {
-                "Bug": {"total": 50, "unassigned": 10, "unassigned_pct": 20.0}
-            },
+            "work_type_segmentation": {"Bug": {"total": 50, "unassigned": 10, "unassigned_pct": 20.0}},
             "area_unassigned_stats": {
-                "areas": [
-                    {"area_path": "Area1", "total_items": 100, "unassigned_items": 20, "unassigned_pct": 20.0}
-                ]
+                "areas": [{"area_path": "Area1", "total_items": 100, "unassigned_items": 20, "unassigned_pct": 20.0}]
             },
         }
 

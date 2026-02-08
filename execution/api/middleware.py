@@ -10,8 +10,8 @@ Middleware for FastAPI application to handle:
 import time
 import uuid
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Callable
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
@@ -26,6 +26,7 @@ logger = get_logger(__name__)
 # Rate Limiting Middleware
 # ============================================================
 
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """
     Rate limiting middleware to prevent API abuse.
@@ -37,12 +38,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         - requests_per_hour: Maximum requests per hour per IP
     """
 
-    def __init__(
-        self,
-        app,
-        requests_per_minute: int = 60,
-        requests_per_hour: int = 1000
-    ):
+    def __init__(self, app, requests_per_minute: int = 60, requests_per_hour: int = 1000):
         super().__init__(app)
         self.requests_per_minute = requests_per_minute
         self.requests_per_hour = requests_per_hour
@@ -64,22 +60,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         is_allowed, reason = self._check_rate_limit(client_ip)
 
         if not is_allowed:
-            logger.warning(
-                "Rate limit exceeded",
-                extra={
-                    "ip": client_ip,
-                    "path": request.url.path,
-                    "reason": reason
-                }
-            )
+            logger.warning("Rate limit exceeded", extra={"ip": client_ip, "path": request.url.path, "reason": reason})
 
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                content={
-                    "detail": f"Rate limit exceeded: {reason}",
-                    "retry_after": 60  # seconds
-                },
-                headers={"Retry-After": "60"}
+                content={"detail": f"Rate limit exceeded: {reason}", "retry_after": 60},  # seconds
+                headers={"Retry-After": "60"},
             )
 
         # Record request
@@ -109,15 +95,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         minute_ago = now - timedelta(minutes=1)
         hour_ago = now - timedelta(hours=1)
 
-        requests_last_minute = sum(
-            count for timestamp, count in requests
-            if timestamp >= minute_ago
-        )
+        requests_last_minute = sum(count for timestamp, count in requests if timestamp >= minute_ago)
 
-        requests_last_hour = sum(
-            count for timestamp, count in requests
-            if timestamp >= hour_ago
-        )
+        requests_last_hour = sum(count for timestamp, count in requests if timestamp >= hour_ago)
 
         # Check limits
         if requests_last_minute >= self.requests_per_minute:
@@ -135,9 +115,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Clean old entries (keep last hour only)
         self.request_counts[client_ip] = [
-            (timestamp, count)
-            for timestamp, count in self.request_counts[client_ip]
-            if timestamp >= hour_ago
+            (timestamp, count) for timestamp, count in self.request_counts[client_ip] if timestamp >= hour_ago
         ]
 
         # Add new request
@@ -149,8 +127,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         minute_ago = now - timedelta(minutes=1)
 
         requests_last_minute = sum(
-            count for timestamp, count in self.request_counts[client_ip]
-            if timestamp >= minute_ago
+            count for timestamp, count in self.request_counts[client_ip] if timestamp >= minute_ago
         )
 
         return max(0, self.requests_per_minute - requests_last_minute)
@@ -159,6 +136,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 # ============================================================
 # Request ID Middleware
 # ============================================================
+
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """
@@ -183,8 +161,8 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
                 "request_id": request_id,
                 "method": request.method,
                 "path": request.url.path,
-                "client_ip": request.client.host if request.client else "unknown"
-            }
+                "client_ip": request.client.host if request.client else "unknown",
+            },
         )
 
         # Process request
@@ -198,11 +176,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
         # Log response
         logger.info(
             "API response",
-            extra={
-                "request_id": request_id,
-                "status_code": response.status_code,
-                "duration_ms": round(duration_ms, 2)
-            }
+            extra={"request_id": request_id, "status_code": response.status_code, "duration_ms": round(duration_ms, 2)},
         )
 
         return response
@@ -211,6 +185,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 # ============================================================
 # Cache Control Middleware
 # ============================================================
+
 
 class CacheControlMiddleware(BaseHTTPMiddleware):
     """
@@ -280,6 +255,7 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
 # ============================================================
 # CORS Middleware (Optional)
 # ============================================================
+
 
 def add_cors_middleware(app):
     """

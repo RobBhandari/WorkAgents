@@ -76,7 +76,7 @@ def query_bugs_for_quality(
           AND [System.CreatedDate] >= '{lookback_date}'
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
-        """)
+        """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
 
     # Query 2: Currently open bugs (for aging analysis)
     wiql_open_bugs = Wiql(query=f"""
@@ -91,7 +91,7 @@ def query_bugs_for_quality(
           AND ([Microsoft.VSTS.Common.Triage] <> 'Rejected' OR [Microsoft.VSTS.Common.Triage] = '')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] ASC
-        """)
+        """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
 
     try:
         # Execute queries
@@ -169,8 +169,6 @@ def query_bugs_for_quality(
 # REMOVED: calculate_escaped_defects
 # Reason: Pure speculation based on keyword matching. No field tracks who actually found the bug.
 # Cannot reliably distinguish customer-found bugs from internally-found production bugs.
-
-
 
 
 def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
@@ -328,7 +326,7 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
         sorted_times = sorted(execution_times)
         n = len(sorted_times)
 
-        def percentile(data, p):
+        def percentile(data: list[float], p: float) -> float:
             index = int(n * p / 100)
             return data[min(index, n - 1)]
 
@@ -406,7 +404,7 @@ def collect_quality_metrics_for_project(connection, project: dict, config: dict)
     }
 
 
-def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/quality_history.json"):
+def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/quality_history.json") -> None:
     """
     Save quality metrics to history file.
 

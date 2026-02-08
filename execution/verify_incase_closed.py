@@ -31,7 +31,7 @@ wiql = Wiql(query=f"""
       AND [System.State] = 'Closed'
       AND [Microsoft.VSTS.Common.ClosedDate] >= '{lookback_date}'
     ORDER BY [Microsoft.VSTS.Common.ClosedDate] DESC
-    """)
+    """)  # nosec B608 - Hardcoded project name from config, not user input
 
 result = wit_client.query_by_wiql(wiql).work_items
 total_count = len(result) if result else 0

@@ -53,9 +53,7 @@ class AsyncSecureHTTPClient:
             timeout: Default timeout in seconds (default: 30)
             http2: Enable HTTP/2 support (default: True)
         """
-        self.limits = httpx.Limits(
-            max_connections=max_connections, max_keepalive_connections=max_keepalive_connections
-        )
+        self.limits = httpx.Limits(max_connections=max_connections, max_keepalive_connections=max_keepalive_connections)
         self.timeout = httpx.Timeout(timeout)
         self.http2 = http2
         self.client: httpx.AsyncClient | None = None
@@ -185,7 +183,7 @@ if __name__ == "__main__":
         try:
             async with AsyncSecureHTTPClient() as client:
                 response = await client.get("https://httpbin.org/get")
-                print(f"  [PASS] SSL-verified async GET succeeded")
+                print("  [PASS] SSL-verified async GET succeeded")
                 print(f"  Status: {response.status_code}")
                 print(f"  HTTP Version: {response.http_version}")
         except Exception as e:
@@ -197,7 +195,7 @@ if __name__ == "__main__":
         try:
             async with AsyncSecureHTTPClient() as client:
                 response = await client.post("https://httpbin.org/post", json={"test": "data"})
-                print(f"  [PASS] SSL-verified async POST succeeded")
+                print("  [PASS] SSL-verified async POST succeeded")
                 print(f"  Status: {response.status_code}")
         except Exception as e:
             print(f"  [FAIL] Async POST failed: {e}")

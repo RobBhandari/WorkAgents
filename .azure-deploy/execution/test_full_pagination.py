@@ -1,17 +1,16 @@
 """Test fetching all pages from ArmorCode API"""
+
 import os
+
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv('ARMORCODE_API_KEY')
-base_url = 'https://app.armorcode.com'
+api_key = os.getenv("ARMORCODE_API_KEY")
+base_url = "https://app.armorcode.com"
 
-headers = {
-    'Authorization': f'Bearer {api_key}',
-    'Content-Type': 'application/json'
-}
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
 all_findings = []
 after_key = None
@@ -28,16 +27,11 @@ while page < max_pages:
     if after_key:
         body["afterKey"] = after_key
 
-    response = requests.post(
-        f"{base_url}/api/findings",
-        headers=headers,
-        json=body,
-        timeout=60
-    )
+    response = requests.post(f"{base_url}/api/findings", headers=headers, json=body, timeout=60)
     data = response.json()
 
-    findings = data.get('data', {}).get('findings', [])
-    after_key = data.get('data', {}).get('afterKey')
+    findings = data.get("data", {}).get("findings", [])
+    after_key = data.get("data", {}).get("afterKey")
 
     all_findings.extend(findings)
 
@@ -53,11 +47,11 @@ print(f"TOTAL HIGH + CRITICAL FINDINGS: {len(all_findings)}")
 # Count by product
 product_counts = {}
 for f in all_findings:
-    product = f.get('product', {})
+    product = f.get("product", {})
     if isinstance(product, dict):
-        product_name = product.get('name', 'Unknown')
+        product_name = product.get("name", "Unknown")
     else:
-        product_name = str(product) if product else 'Unknown'
+        product_name = str(product) if product else "Unknown"
 
     product_counts[product_name] = product_counts.get(product_name, 0) + 1
 

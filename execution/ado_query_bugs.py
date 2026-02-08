@@ -96,7 +96,7 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
 
         # Step 5: Execute WIQL query
         logger.info("Executing WIQL query for bugs...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         # Step 6: Extract work item IDs
         if not wiql_results.work_items:

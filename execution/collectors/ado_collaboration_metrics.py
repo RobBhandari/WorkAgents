@@ -137,7 +137,7 @@ def calculate_pr_review_time(git_client, project_name: str, prs: list[dict]) -> 
     sorted_times = sorted(review_times)
     n = len(sorted_times)
 
-    def percentile(data, p):
+    def percentile(data: list[float], p: float) -> float:
         index = int(n * p / 100)
         return data[min(index, n - 1)]
 
@@ -183,7 +183,7 @@ def calculate_pr_merge_time(prs: list[dict]) -> dict:
     sorted_times = sorted(merge_times)
     n = len(sorted_times)
 
-    def percentile(data, p):
+    def percentile(data: list[float], p: float) -> float:
         index = int(n * p / 100)
         return data[min(index, n - 1)]
 
@@ -281,7 +281,7 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: list[dict]) -> dic
     sorted_sizes = sorted(pr_sizes)
     n = len(sorted_sizes)
 
-    def percentile(data, p):
+    def percentile(data: list[float], p: float) -> float:
         index = int(n * p / 100)
         return data[min(index, n - 1)]
 
@@ -375,7 +375,7 @@ def collect_collaboration_metrics_for_project(connection, project: dict, config:
     }
 
 
-def save_collaboration_metrics(metrics: dict, output_file: str = ".tmp/observatory/collaboration_history.json"):
+def save_collaboration_metrics(metrics: dict, output_file: str = ".tmp/observatory/collaboration_history.json") -> None:
     """
     Save collaboration metrics to history file.
 

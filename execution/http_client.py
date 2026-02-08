@@ -52,7 +52,7 @@ class SecureHTTPClient:
         # Set default timeout (prevent hanging connections)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
 
-        return requests.get(url, **kwargs)
+        return requests.get(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 53
 
     @staticmethod
     def post(url: str, **kwargs) -> requests.Response:
@@ -77,7 +77,7 @@ class SecureHTTPClient:
         # Set default timeout (prevent hanging connections)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
 
-        return requests.post(url, **kwargs)
+        return requests.post(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 78
 
     @staticmethod
     def put(url: str, **kwargs) -> requests.Response:
@@ -97,7 +97,7 @@ class SecureHTTPClient:
         """
         kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.put(url, **kwargs)
+        return requests.put(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 99
 
     @staticmethod
     def delete(url: str, **kwargs) -> requests.Response:
@@ -117,7 +117,7 @@ class SecureHTTPClient:
         """
         kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.delete(url, **kwargs)
+        return requests.delete(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 119
 
     @staticmethod
     def patch(url: str, **kwargs) -> requests.Response:
@@ -137,7 +137,7 @@ class SecureHTTPClient:
         """
         kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.patch(url, **kwargs)
+        return requests.patch(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 139
 
 
 # Convenience functions (can be imported directly)

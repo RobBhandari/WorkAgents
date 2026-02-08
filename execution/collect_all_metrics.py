@@ -249,7 +249,9 @@ class AsyncMetricsOrchestrator:
             "total_duration_seconds": total_duration,
             "successful": successful,
             "failed": failed,
-            "results": [{"name": name, "success": success, "duration": duration} for name, success, duration in results],
+            "results": [
+                {"name": name, "success": success, "duration": duration} for name, success, duration in results
+            ],
         }
 
 

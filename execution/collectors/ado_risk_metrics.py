@@ -395,7 +395,7 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     }
 
 
-def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json"):
+def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json") -> None:
     """
     Save risk metrics to history file.
 

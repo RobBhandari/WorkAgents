@@ -23,7 +23,7 @@ FROM WorkItems
 WHERE [System.TeamProject] = '{project_name}'
 AND [System.WorkItemType] = 'Bug'
 AND [System.State] <> 'Closed'
-"""
+"""  # nosec B608 - Experimental script, not production code
 
 print("Query: Current non-closed bugs")
 print("-" * 70)

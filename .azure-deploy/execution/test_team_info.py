@@ -1,38 +1,37 @@
 """Check team information in findings and test team filtering"""
-import os
-import requests
+
 import json
+import os
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv('ARMORCODE_API_KEY')
-base_url = 'https://app.armorcode.com'
-headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+api_key = os.getenv("ARMORCODE_API_KEY")
+base_url = "https://app.armorcode.com"
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
-print("="*70)
+print("=" * 70)
 print("CHECKING TEAM INFORMATION")
-print("="*70)
+print("=" * 70)
 
 # Test 1: Get sample finding and check team field
 print("\n1. Check team field in current findings")
-print("-"*70)
+print("-" * 70)
 
-request_body = {
-    "severity": ["HIGH", "CRITICAL"],
-    "status": ["Open", "In Progress"]
-}
+request_body = {"severity": ["HIGH", "CRITICAL"], "status": ["Open", "In Progress"]}
 
 response = requests.post(f"{base_url}/api/findings", headers=headers, json=request_body, timeout=60)
 data = response.json()
 
-if 'data' in data:
-    findings = data['data'].get('findings', [])
+if "data" in data:
+    findings = data["data"].get("findings", [])
     if findings:
         # Get first finding
         sample = findings[0]
 
-        print(f"Sample finding structure:")
+        print("Sample finding structure:")
         print(f"  Product: {sample.get('product', {}).get('name', 'N/A')}")
         print(f"  Team: {sample.get('team')}")
         print(f"  Owner: {sample.get('owner')}")
@@ -40,10 +39,10 @@ if 'data' in data:
         # Check all unique teams
         teams = set()
         for f in findings:
-            team = f.get('team')
+            team = f.get("team")
             if team:
                 if isinstance(team, dict):
-                    teams.add(team.get('name', 'Unknown'))
+                    teams.add(team.get("name", "Unknown"))
                 else:
                     teams.add(str(team))
 
@@ -53,7 +52,7 @@ if 'data' in data:
 
 # Test 2: Try different team filter parameters
 print("\n\n2. Test team-based filtering")
-print("-"*70)
+print("-" * 70)
 
 # Try with team parameter
 team_tests = [
@@ -71,19 +70,19 @@ for i, test_body in enumerate(team_tests, 1):
         response = requests.post(f"{base_url}/api/findings", headers=headers, json=test_body, timeout=60)
         data = response.json()
 
-        if 'data' in data and 'findings' in data['data']:
-            findings = data['data'].get('findings', [])
+        if "data" in data and "findings" in data["data"]:
+            findings = data["data"].get("findings", [])
             products = set()
             for f in findings:
-                prod = f.get('product', {})
+                prod = f.get("product", {})
                 if isinstance(prod, dict):
-                    products.add(prod.get('name', 'Unknown'))
+                    products.add(prod.get("name", "Unknown"))
 
             print(f"  Result: {len(findings)} findings, {len(products)} products")
             if len(products) != 3:  # Different from our baseline
                 print(f"  [!] DIFFERENT! Products: {sorted(products)}")
             else:
-                print(f"  Same 3 products as before")
+                print("  Same 3 products as before")
         else:
             print(f"  Error or no data: {str(data)[:200]}")
     except Exception as e:
@@ -91,13 +90,13 @@ for i, test_body in enumerate(team_tests, 1):
 
 # Test 3: Try with organization/hierarchy headers
 print("\n\n3. Test with organization/hierarchy headers")
-print("-"*70)
+print("-" * 70)
 
 header_tests = [
-    {'X-Team': 'legal'},
-    {'X-Hierarchy': 'Development Director - Legal BU'},
-    {'X-Organization': 'The Access Group'},
-    {'X-Business-Unit': 'Legal BU'},
+    {"X-Team": "legal"},
+    {"X-Hierarchy": "Development Director - Legal BU"},
+    {"X-Organization": "The Access Group"},
+    {"X-Business-Unit": "Legal BU"},
 ]
 
 for i, extra_headers in enumerate(header_tests, 1):
@@ -106,31 +105,28 @@ for i, extra_headers in enumerate(header_tests, 1):
 
     try:
         response = requests.post(
-            f"{base_url}/api/findings",
-            headers=test_headers,
-            json={"severity": ["HIGH", "CRITICAL"]},
-            timeout=60
+            f"{base_url}/api/findings", headers=test_headers, json={"severity": ["HIGH", "CRITICAL"]}, timeout=60
         )
         data = response.json()
 
-        if 'data' in data and 'findings' in data['data']:
-            findings = data['data'].get('findings', [])
+        if "data" in data and "findings" in data["data"]:
+            findings = data["data"].get("findings", [])
             products = set()
             for f in findings:
-                prod = f.get('product', {})
+                prod = f.get("product", {})
                 if isinstance(prod, dict):
-                    products.add(prod.get('name', 'Unknown'))
+                    products.add(prod.get("name", "Unknown"))
 
             print(f"  Result: {len(findings)} findings, {len(products)} products")
             if len(products) != 3:
                 print(f"  [!] DIFFERENT! Products: {sorted(products)}")
             else:
-                print(f"  Same 3 products as before")
+                print("  Same 3 products as before")
         else:
-            print(f"  Error or no data")
+            print("  Error or no data")
     except Exception as e:
         print(f"  Exception: {e}")
 
-print("\n" + "="*70)
+print("\n" + "=" * 70)
 print("Team Investigation Complete")
-print("="*70)
+print("=" * 70)

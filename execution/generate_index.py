@@ -20,12 +20,12 @@ def generate_index_html():
 
     if trends_file.exists():
         shutil.copy2(trends_file, index_file)
-        print(f"✅ Generated index.html from trends.html")
+        print("✅ Generated index.html from trends.html")
         print(f"   Source: {trends_file}")
         print(f"   Target: {index_file}")
     else:
         print(f"⚠️  trends.html not found at {trends_file}")
-        print(f"   Skipping index.html generation")
+        print("   Skipping index.html generation")
         return 1
 
     return 0
