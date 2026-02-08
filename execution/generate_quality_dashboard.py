@@ -14,8 +14,10 @@ from datetime import datetime
 # Import mobile-responsive framework
 try:
     from execution.dashboard_framework import get_dashboard_framework
+    from execution.template_engine import render_template
 except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
+    from template_engine import render_template
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":

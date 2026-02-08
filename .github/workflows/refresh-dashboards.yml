@@ -58,7 +58,6 @@ jobs:
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           python execution/${{ matrix.collector.script }}
-        continue-on-error: true
 
       - name: Upload metrics artifacts
         uses: actions/upload-artifact@v4
@@ -123,14 +122,12 @@ jobs:
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           echo "📊 Validating metrics history files..."
-          python execution/validate_metrics_data.py || echo "⚠️ Some metrics files are invalid or missing"
-        continue-on-error: true
+          python execution/validate_metrics_data.py
 
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           python execution/${{ matrix.dashboard.script }}
-        continue-on-error: true
 
       - name: Upload dashboard artifact
         uses: actions/upload-artifact@v4
@@ -229,7 +226,6 @@ jobs:
 
           print(f'\n✅ {len(valid_files)} valid history files ready to commit')
           "
-        continue-on-error: true
 
       - name: Commit History Files to Git
         run: |
@@ -237,7 +233,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           # Only add valid JSON files (validation passed above)
-          git add -f .tmp/observatory/*_history.json 2>/dev/null || true
+          git add -f .tmp/observatory/*_history.json
 
           if ! git diff --staged --quiet; then
             echo "📝 Committing history files..."
@@ -247,4 +243,3 @@ jobs:
           else
             echo "ℹ️  No changes to commit"
           fi
-        continue-on-error: true
