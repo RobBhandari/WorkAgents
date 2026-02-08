@@ -14,7 +14,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from http_client import post
 
-from execution.core import get_config
+from execution.core.secure_config import get_config
 
 # Load environment variables
 load_dotenv()
@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict:
+def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict[str, any]:
     """Load baseline data from file."""
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(f"Baseline file not found: {baseline_file}")
@@ -252,7 +252,10 @@ def calculate_progress(baseline: dict, current: dict) -> dict:
     progress_towards_goal = (change / target_reduction * 100) if target_reduction > 0 else 0
 
     # Days tracking
-    baseline_date = datetime.fromisoformat(baseline.get("created_at"))
+    created_at = baseline.get("created_at")
+    if not created_at:
+        raise ValueError("Baseline missing 'created_at' field")
+    baseline_date = datetime.fromisoformat(created_at)
     current_date = datetime.now()
     days_tracking = (current_date - baseline_date).days
 
@@ -293,7 +296,7 @@ def calculate_progress(baseline: dict, current: dict) -> dict:
     return progress
 
 
-def main() -> dict:
+def main() -> dict[str, Any]:
     """Main execution."""
     try:
         # Load baseline

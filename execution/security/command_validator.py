@@ -64,7 +64,7 @@ class CommandValidator:
         return arg
 
     @staticmethod
-    def validate_command_path(command_path: str, allowed_commands: list[str] = None) -> str:
+    def validate_command_path(command_path: str, allowed_commands: list[str] | None = None) -> str:
         """
         Validate command executable path.
 

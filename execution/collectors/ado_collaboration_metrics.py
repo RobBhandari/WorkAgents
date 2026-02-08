@@ -375,7 +375,7 @@ def collect_collaboration_metrics_for_project(connection, project: dict, config:
     }
 
 
-def save_collaboration_metrics(metrics: dict, output_file: str = ".tmp/observatory/collaboration_history.json") -> None:
+def save_collaboration_metrics(metrics: dict, output_file: str = ".tmp/observatory/collaboration_history.json") -> bool:
     """
     Save collaboration metrics to history file.
 

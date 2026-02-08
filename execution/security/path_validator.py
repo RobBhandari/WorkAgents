@@ -22,7 +22,7 @@ class PathValidator:
     """
 
     @staticmethod
-    def validate_filename(filename: str, allowed_extensions: list[str] = None) -> str:
+    def validate_filename(filename: str, allowed_extensions: list[str] | None = None) -> str:
         """
         Validate filename to prevent path traversal.
 

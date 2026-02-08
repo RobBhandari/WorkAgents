@@ -98,7 +98,7 @@ def calculate_deployment_frequency(builds: list[dict], lookback_days: int = 90) 
     successful_builds = [b for b in builds if b["result"] == "succeeded"]
 
     # Count by pipeline
-    by_pipeline = defaultdict(int)
+    by_pipeline: defaultdict[str, int] = defaultdict(int)
     for build in successful_builds:
         pipeline = build["definition_name"]
         by_pipeline[pipeline] += 1
@@ -131,8 +131,8 @@ def calculate_build_success_rate(builds: list[dict]) -> dict:
         Build success rate metrics
     """
     # Count by result
-    by_result = defaultdict(int)
-    by_pipeline = defaultdict(lambda: defaultdict(int))
+    by_result: defaultdict[str, int] = defaultdict(int)
+    by_pipeline: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
 
     for build in builds:
         result = build["result"]
@@ -361,7 +361,7 @@ def collect_deployment_metrics_for_project(connection, project: dict, config: di
     }
 
 
-def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/deployment_history.json") -> None:
+def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/deployment_history.json") -> bool:
     """
     Save deployment metrics to history file.
 

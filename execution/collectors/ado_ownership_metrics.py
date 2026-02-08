@@ -29,7 +29,7 @@ from execution.secure_config import get_config
 load_dotenv()
 
 
-def query_work_items_for_ownership(wit_client, project_name: str, area_path_filter: str = None) -> dict:
+def query_work_items_for_ownership(wit_client, project_name: str, area_path_filter: str | None = None) -> dict:
     """
     Query work items for ownership analysis.
 
@@ -171,8 +171,8 @@ def calculate_work_type_segmentation(open_items: list[dict]) -> dict:
     """
     from collections import defaultdict
 
-    type_totals = defaultdict(int)
-    type_unassigned = defaultdict(int)
+    type_totals: defaultdict[str, int] = defaultdict(int)
+    type_unassigned: defaultdict[str, int] = defaultdict(int)
 
     for item in open_items:
         work_type = item.get("System.WorkItemType", "Unknown")
@@ -447,7 +447,7 @@ def collect_ownership_metrics_for_project(connection, project: dict, config: dic
     }
 
 
-def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/ownership_history.json") -> None:
+def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/ownership_history.json") -> bool:
     """
     Save ownership metrics to history file using atomic writes.
 

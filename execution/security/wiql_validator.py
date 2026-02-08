@@ -257,8 +257,8 @@ class WIQLValidator:
 
         # Validate date components are valid
         try:
-            year, month, day = date_str.split("-")
-            year, month, day = int(year), int(month), int(day)
+            year_str, month_str, day_str = date_str.split("-")
+            year, month, day = int(year_str), int(month_str), int(day_str)
 
             if not (1900 <= year <= 2100):
                 raise ValidationError(f"Year out of range: {year} (must be 1900-2100)")

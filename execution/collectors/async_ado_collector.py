@@ -90,13 +90,13 @@ class AsyncADOCollector:
         Returns:
             Flow metrics for the project
         """
-        from execution.collectors.ado_flow_metrics import (
+        from execution.collectors.flow_metrics_queries import query_work_items_by_type
+        from execution.collectors.flow_metrics_calculations import (
             calculate_aging_items,
             calculate_cycle_time_variance,
             calculate_dual_metrics,
             calculate_lead_time,
             calculate_throughput,
-            query_work_items_by_type,
         )
 
         project_name = project["project_name"]

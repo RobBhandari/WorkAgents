@@ -404,7 +404,7 @@ def collect_quality_metrics_for_project(connection, project: dict, config: dict)
     }
 
 
-def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/quality_history.json") -> None:
+def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/quality_history.json") -> bool:
     """
     Save quality metrics to history file.
 

@@ -206,7 +206,7 @@ def analyze_code_churn(commits: list[dict]) -> dict:
     Returns:
         Churn analysis
     """
-    file_change_counts = Counter()
+    file_change_counts: Counter[str] = Counter()
     total_changes = 0
 
     for commit in commits:
@@ -296,7 +296,7 @@ def calculate_module_coupling(commits: list[dict]) -> dict:
     """
     from itertools import combinations
 
-    file_pair_counts = defaultdict(int)
+    file_pair_counts: defaultdict[tuple[str, str], int] = defaultdict(int)
 
     for commit in commits:
         files = commit.get("files", [])
@@ -395,7 +395,7 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     }
 
 
-def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json") -> None:
+def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json") -> bool:
     """
     Save risk metrics to history file.
 
