@@ -16,8 +16,10 @@ from datetime import datetime
 # Import mobile-responsive framework
 try:
     from execution.dashboard_framework import get_dashboard_framework
+    from execution.template_engine import render_template
 except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
+    from template_engine import render_template
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":
@@ -65,36 +67,38 @@ def generate_risk_drilldown_html(project):
         html += '<div class="detail-grid">'
 
         if code_churn.get("total_commits", 0) > 0:
-            html += f"""<div class="detail-metric">
-                <div class="detail-metric-label">Total Commits</div>
-                <div class="detail-metric-value">{code_churn['total_commits']}</div>
-            </div>"""
+            html += render_template(
+                "risk/commit_metric.html",
+                total_commits=code_churn["total_commits"],
+            )
 
-            html += f"""<div class="detail-metric">
-                <div class="detail-metric-label">Files Changed</div>
-                <div class="detail-metric-value">{code_churn.get('total_file_changes', 0)}</div>
-            </div>"""
+            html += render_template(
+                "risk/file_changes_metric.html",
+                total_file_changes=code_churn.get("total_file_changes", 0),
+            )
 
-            html += f"""<div class="detail-metric">
-                <div class="detail-metric-label">Avg Changes/Commit</div>
-                <div class="detail-metric-value">{code_churn.get('avg_changes_per_commit', 0):.1f}</div>
-            </div>"""
+            html += render_template(
+                "risk/avg_changes_metric.html",
+                avg_changes=f"{code_churn.get('avg_changes_per_commit', 0):.1f}",
+            )
 
         if pr_dist.get("total_prs", 0) > 0:
-            html += f"""<div class="detail-metric">
-                <div class="detail-metric-label">Total PRs</div>
-                <div class="detail-metric-value">{pr_dist['total_prs']}</div>
-            </div>"""
+            html += render_template(
+                "risk/total_prs_metric.html",
+                total_prs=pr_dist["total_prs"],
+            )
 
-            html += f"""<div class="detail-metric">
-                <div class="detail-metric-label">Small PRs</div>
-                <div class="detail-metric-value">{pr_dist.get('small_prs', 0)} ({pr_dist.get('small_pct', 0):.0f}%)</div>
-            </div>"""
+            html += render_template(
+                "risk/small_prs_metric.html",
+                small_prs=pr_dist.get("small_prs", 0),
+                small_pct=f"{pr_dist.get('small_pct', 0):.0f}",
+            )
 
-            html += f"""<div class="detail-metric">
-                <div class="detail-metric-label">Large PRs</div>
-                <div class="detail-metric-value">{pr_dist.get('large_prs', 0)} ({pr_dist.get('large_pct', 0):.0f}%)</div>
-            </div>"""
+            html += render_template(
+                "risk/large_prs_metric.html",
+                large_prs=pr_dist.get("large_prs", 0),
+                large_pct=f"{pr_dist.get('large_pct', 0):.0f}",
+            )
 
         html += "</div>"
     else:
@@ -422,20 +426,20 @@ def generate_html(risk_data):
         )
 
         # Main data row (clickable)
-        html += f"""                    <tr class="data-row" onclick="toggleDetail('risk-detail-{idx}', this)">
-                        <td><strong>{project['project_name']}</strong></td>
-                        <td>{commits}</td>
-                        <td>{files}</td>
-                        <td title="{knowledge_title}">{knowledge_display}</td>
-                        <td title="{coupling_title}">{coupling_display}</td>
-                        <td title="{activity_tooltip}">{activity_level}</td>
-                    </tr>
-                    <tr class="detail-row" id="risk-detail-{idx}">
-                        <td colspan="6">
-                            {drilldown_html}
-                        </td>
-                    </tr>
-"""
+        html += render_template(
+            "risk/project_row.html",
+            idx=idx,
+            project_name=project["project_name"],
+            commits=commits,
+            files=files,
+            knowledge_title=knowledge_title,
+            knowledge_display=knowledge_display,
+            coupling_title=coupling_title,
+            coupling_display=coupling_display,
+            activity_tooltip=activity_tooltip,
+            activity_level=activity_level,
+            drilldown_html=drilldown_html,
+        )
 
     html += f"""                </tbody>
                 </table>

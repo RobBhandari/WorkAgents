@@ -14,8 +14,10 @@ from datetime import datetime
 # Import mobile-responsive framework
 try:
     from execution.dashboard_framework import get_dashboard_framework
+    from execution.template_engine import render_template
 except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
+    from template_engine import render_template
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":
@@ -93,10 +95,7 @@ def generate_ownership_drilldown_html(project):
             html += '<div class="detail-grid">'
 
             for name, count in assigned_only[:8]:  # Show max 8
-                html += f"""<div class="detail-metric">
-                    <div class="detail-metric-label">{name}</div>
-                    <div class="detail-metric-value">{count} items</div>
-                </div>"""
+                html += render_template("ownership/assignee_item.html", name=name, count=count)
 
             html += "</div>"
 
@@ -125,15 +124,17 @@ def generate_ownership_drilldown_html(project):
                     rag_class, rag_color, rag_status = get_work_type_rag_status(unassigned_pct)
 
                     assigned = total - unassigned
-                    html += f"""<div class="detail-metric {rag_class}" style="border-left-color: {rag_color};">
-                        <div class="detail-metric-label">{wtype}</div>
-                        <div class="detail-metric-value">
-                            {total} total<br>
-                            <span style="font-size: 0.85rem; color: var(--text-secondary);">{assigned} assigned</span> |
-                            <span style="color: {rag_color}; font-size: 0.85rem;">{unassigned} unassigned ({unassigned_pct:.0f}%)</span>
-                        </div>
-                        <div class="detail-metric-status" style="color: {rag_color};">{rag_status}</div>
-                    </div>"""
+                    html += render_template(
+                        "ownership/work_type_metric.html",
+                        rag_class=rag_class,
+                        rag_color=rag_color,
+                        wtype=wtype,
+                        total=total,
+                        assigned=assigned,
+                        unassigned=unassigned,
+                        unassigned_pct=f"{unassigned_pct:.0f}",
+                        rag_status=rag_status,
+                    )
 
         html += "</div></div>"
 
@@ -482,21 +483,20 @@ def generate_html(ownership_data):
             active_days_title = "No commit data available"
 
         # Main data row (clickable)
-        html += f"""                    <tr class="data-row" onclick="toggleDetail('ownership-detail-{idx}', this)">
-                        <td><strong>{project['project_name']}</strong></td>
-                        <td>{total:,}</td>
-                        <td>{unassigned_count:,}</td>
-                        <td>{unassigned_pct:.1f}%</td>
-                        <td>{assignee_count}</td>
-                        <td title="{active_days_title}">{active_days_display}</td>
-                        <td title="{status_tooltip}">{row_status}</td>
-                    </tr>
-                    <tr class="detail-row" id="ownership-detail-{idx}">
-                        <td colspan="7">
-                            {drilldown_html}
-                        </td>
-                    </tr>
-"""
+        html += render_template(
+            "ownership/project_row.html",
+            idx=idx,
+            project_name=project["project_name"],
+            total=f"{total:,}",
+            unassigned_count=f"{unassigned_count:,}",
+            unassigned_pct=f"{unassigned_pct:.1f}",
+            assignee_count=assignee_count,
+            active_days_title=active_days_title,
+            active_days_display=active_days_display,
+            status_tooltip=status_tooltip,
+            row_status=row_status,
+            drilldown_html=drilldown_html,
+        )
 
     html += f"""                </tbody>
                 </table>
