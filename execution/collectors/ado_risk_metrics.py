@@ -402,7 +402,7 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
     Appends to existing history or creates new file.
     Validates data before saving to prevent persisting collection failures.
     """
-    from utils_atomic_json import atomic_json_save, load_json_with_recovery
+    from execution.utils_atomic_json import atomic_json_save, load_json_with_recovery
 
     # Validate that we have actual data before saving
     projects = metrics.get("projects", [])
