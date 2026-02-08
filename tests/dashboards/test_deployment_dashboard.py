@@ -120,6 +120,13 @@ def sample_metrics_list(sample_deployment_data):
     return [from_json(project) for project in latest_week["projects"]]
 
 
+@pytest.fixture
+def sample_raw_projects(sample_deployment_data):
+    """Get raw project data for testing"""
+    latest_week = sample_deployment_data["weeks"][-1]
+    return latest_week["projects"]
+
+
 class TestLoadDeploymentData:
     """Test _load_deployment_data function"""
 
@@ -127,11 +134,13 @@ class TestLoadDeploymentData:
         """Test successful loading of deployment data"""
         with patch("builtins.open", mock_open(read_data=json.dumps(sample_deployment_data))):
             with patch("pathlib.Path.exists", return_value=True):
-                metrics_list, collection_date = _load_deployment_data()
+                metrics_list, raw_projects, collection_date = _load_deployment_data()
 
                 assert len(metrics_list) == 3
+                assert len(raw_projects) == 3
                 assert collection_date == "2026-02-06"
                 assert isinstance(metrics_list[0], DeploymentMetrics)
+                assert isinstance(raw_projects[0], dict)
 
     def test_load_deployment_data_file_not_found(self):
         """Test FileNotFoundError when history file doesn't exist"""
@@ -262,18 +271,18 @@ class TestBuildSummaryCards:
 class TestBuildProjectRows:
     """Test _build_project_rows function"""
 
-    def test_build_project_rows_sorted(self, sample_metrics_list):
+    def test_build_project_rows_sorted(self, sample_metrics_list, sample_raw_projects):
         """Test project rows are sorted by deployment frequency"""
-        rows = _build_project_rows(sample_metrics_list)
+        rows = _build_project_rows(sample_metrics_list, sample_raw_projects)
 
         # Should be sorted by deployments per week (descending)
         assert rows[0]["name"] == "OneOffice"  # 7.7/week
         assert rows[1]["name"] == "API Gateway"  # 3.8/week
         assert rows[2]["name"] == "Inactive Project"  # 0.0/week
 
-    def test_build_project_rows_display_values(self, sample_metrics_list):
+    def test_build_project_rows_display_values(self, sample_metrics_list, sample_raw_projects):
         """Test project row display values"""
-        rows = _build_project_rows(sample_metrics_list)
+        rows = _build_project_rows(sample_metrics_list, sample_raw_projects)
 
         # Check first project (OneOffice)
         first_row = rows[0]
@@ -282,9 +291,9 @@ class TestBuildProjectRows:
         assert first_row["duration_display"] == "8.5m"
         assert first_row["lead_time_display"] == "2.5h"
 
-    def test_build_project_rows_tooltips(self, sample_metrics_list):
+    def test_build_project_rows_tooltips(self, sample_metrics_list, sample_raw_projects):
         """Test project row tooltips"""
-        rows = _build_project_rows(sample_metrics_list)
+        rows = _build_project_rows(sample_metrics_list, sample_raw_projects)
 
         # Check tooltips
         first_row = rows[0]
@@ -293,27 +302,27 @@ class TestBuildProjectRows:
         assert "P85: 12.3m" in first_row["duration_tooltip"]
         assert "P85: 6.0h" in first_row["lead_time_tooltip"]
 
-    def test_build_project_rows_status_good(self, sample_metrics_list):
+    def test_build_project_rows_status_good(self, sample_metrics_list, sample_raw_projects):
         """Test status for healthy project (Good)"""
-        rows = _build_project_rows(sample_metrics_list)
+        rows = _build_project_rows(sample_metrics_list, sample_raw_projects)
 
         # OneOffice: 90.9% success rate, 7.7 deploys/week
         first_row = rows[0]
         assert first_row["status_display"] == "✓ Good"
         assert first_row["status_class"] == "good"
 
-    def test_build_project_rows_status_caution(self, sample_metrics_list):
+    def test_build_project_rows_status_caution(self, sample_metrics_list, sample_raw_projects):
         """Test status for caution project"""
-        rows = _build_project_rows(sample_metrics_list)
+        rows = _build_project_rows(sample_metrics_list, sample_raw_projects)
 
         # API Gateway: 71.4% success rate, 3.8 deploys/week
         second_row = rows[1]
         assert second_row["status_display"] == "⚠ Caution"
         assert second_row["status_class"] == "caution"
 
-    def test_build_project_rows_status_inactive(self, sample_metrics_list):
+    def test_build_project_rows_status_inactive(self, sample_metrics_list, sample_raw_projects):
         """Test status for inactive project"""
-        rows = _build_project_rows(sample_metrics_list)
+        rows = _build_project_rows(sample_metrics_list, sample_raw_projects)
 
         # Inactive Project: 0 deploys
         third_row = rows[2]
@@ -324,10 +333,10 @@ class TestBuildProjectRows:
 class TestBuildContext:
     """Test _build_context function"""
 
-    def test_build_context_structure(self, sample_metrics_list):
+    def test_build_context_structure(self, sample_metrics_list, sample_raw_projects):
         """Test context dictionary structure"""
         summary_stats = _calculate_summary(sample_metrics_list)
-        context = _build_context(sample_metrics_list, summary_stats, "2026-02-06")
+        context = _build_context(sample_metrics_list, sample_raw_projects, summary_stats, "2026-02-06")
 
         # Check required keys
         assert "framework_css" in context
@@ -337,26 +346,26 @@ class TestBuildContext:
         assert "projects" in context
         assert "show_glossary" in context
 
-    def test_build_context_generation_date(self, sample_metrics_list):
+    def test_build_context_generation_date(self, sample_metrics_list, sample_raw_projects):
         """Test generation date formatting"""
         summary_stats = _calculate_summary(sample_metrics_list)
-        context = _build_context(sample_metrics_list, summary_stats, "2026-02-06")
+        context = _build_context(sample_metrics_list, sample_raw_projects, summary_stats, "2026-02-06")
 
         assert "2026-02-06" in context["generation_date"]
         assert "Generated" in context["generation_date"]
 
-    def test_build_context_summary_cards(self, sample_metrics_list):
+    def test_build_context_summary_cards(self, sample_metrics_list, sample_raw_projects):
         """Test summary cards in context"""
         summary_stats = _calculate_summary(sample_metrics_list)
-        context = _build_context(sample_metrics_list, summary_stats, "2026-02-06")
+        context = _build_context(sample_metrics_list, sample_raw_projects, summary_stats, "2026-02-06")
 
         assert len(context["summary_cards"]) == 3
         assert isinstance(context["summary_cards"][0], str)
 
-    def test_build_context_projects(self, sample_metrics_list):
+    def test_build_context_projects(self, sample_metrics_list, sample_raw_projects):
         """Test projects list in context"""
         summary_stats = _calculate_summary(sample_metrics_list)
-        context = _build_context(sample_metrics_list, summary_stats, "2026-02-06")
+        context = _build_context(sample_metrics_list, sample_raw_projects, summary_stats, "2026-02-06")
 
         assert len(context["projects"]) == 3
         assert isinstance(context["projects"][0], dict)
@@ -367,10 +376,10 @@ class TestGenerateDeploymentDashboard:
 
     @patch("execution.dashboards.deployment.render_dashboard")
     @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_success(self, mock_load, mock_render, sample_metrics_list):
+    def test_generate_deployment_dashboard_success(self, mock_load, mock_render, sample_metrics_list, sample_raw_projects):
         """Test successful dashboard generation"""
         # Setup mocks
-        mock_load.return_value = (sample_metrics_list, "2026-02-06")
+        mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
         mock_render.return_value = "<html>Test Dashboard</html>"
 
         # Generate dashboard
@@ -386,11 +395,11 @@ class TestGenerateDeploymentDashboard:
     @patch("execution.dashboards.deployment.render_dashboard")
     @patch("execution.dashboards.deployment._load_deployment_data")
     def test_generate_deployment_dashboard_with_output_path(
-        self, mock_load, mock_render, sample_metrics_list, tmp_path
+        self, mock_load, mock_render, sample_metrics_list, sample_raw_projects, tmp_path
     ):
         """Test dashboard generation with output file"""
         # Setup mocks
-        mock_load.return_value = (sample_metrics_list, "2026-02-06")
+        mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
         mock_render.return_value = "<html>Test Dashboard</html>"
 
         # Generate dashboard with output path
@@ -413,10 +422,10 @@ class TestGenerateDeploymentDashboard:
 
     @patch("execution.dashboards.deployment.render_dashboard")
     @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_output_format(self, mock_load, mock_render, sample_metrics_list):
+    def test_generate_deployment_dashboard_output_format(self, mock_load, mock_render, sample_metrics_list, sample_raw_projects):
         """Test dashboard output contains expected content"""
         # Setup mocks
-        mock_load.return_value = (sample_metrics_list, "2026-02-06")
+        mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
         mock_render.return_value = """
         <html>
             <h1>Deployment Dashboard</h1>
