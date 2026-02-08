@@ -4,7 +4,7 @@
         <h4>Work Distribution by Assignee</h4>
         <div class="detail-grid">
             {% for name, count in assigned_only[:8] %}
-            {{ render_template("ownership/assignee_item.html", name=name, count=count)|safe }}
+            {% include "ownership/assignee_item.html" %}
             {% endfor %}
         </div>
         {% if load_imbalance %}
