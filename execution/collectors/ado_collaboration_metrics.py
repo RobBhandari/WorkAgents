@@ -277,8 +277,8 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: list[dict]) -> dic
             "note": "Measuring by commit count (LOC requires diff parsing)",
         }
 
-    # Calculate percentiles
-    sorted_sizes = sorted(pr_sizes)
+    # Calculate percentiles (convert to float for percentile function)
+    sorted_sizes = sorted([float(x) for x in pr_sizes])
     n = len(sorted_sizes)
 
     def percentile(data: list[float], p: float) -> float:

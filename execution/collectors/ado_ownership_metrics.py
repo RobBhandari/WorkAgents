@@ -13,7 +13,9 @@ Read-only operation - does not modify any existing data.
 
 import json
 import sys
+from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import Any
 
 # Azure DevOps SDK
 from azure.devops.connection import Connection
@@ -157,7 +159,7 @@ def calculate_unassigned_items(open_items: list[dict]) -> dict:
     }
 
 
-def calculate_work_type_segmentation(open_items: list[dict]) -> dict:
+def calculate_work_type_segmentation(open_items: list[dict]) -> dict[str, Any]:
     """
     Calculate detailed work type breakdown with assignment rates.
 
@@ -185,7 +187,7 @@ def calculate_work_type_segmentation(open_items: list[dict]) -> dict:
             type_unassigned[work_type] += 1
 
     # Build segmentation for primary work types
-    segmentation = {}
+    segmentation: dict[str, dict[str, Any]] = {}
     primary_types = ["Bug", "User Story", "Task"]
 
     for wtype in primary_types:

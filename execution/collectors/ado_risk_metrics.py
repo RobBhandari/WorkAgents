@@ -315,8 +315,8 @@ def calculate_module_coupling(commits: list[dict]) -> dict:
         if count >= 3  # Only pairs that changed together 3+ times
     ]
 
-    # Sort by co-change count
-    coupled_pairs.sort(key=lambda x: int(x["co_change_count"]), reverse=True)
+    # Sort by co-change count (count is already int from defaultdict)
+    coupled_pairs.sort(key=lambda x: x["co_change_count"], reverse=True)  # type: ignore[arg-type, return-value]
 
     return {
         "total_coupled_pairs": len(coupled_pairs),

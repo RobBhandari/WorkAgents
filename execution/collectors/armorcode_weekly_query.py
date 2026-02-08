@@ -31,7 +31,7 @@ def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict[s
         raise FileNotFoundError(f"Baseline file not found: {baseline_file}")
 
     with open(baseline_file) as f:
-        baseline = json.load(f)
+        baseline: dict[str, Any] = json.load(f)
 
     logger.info(f"Loaded baseline from {baseline_file}")
     logger.info(f"Baseline date: {baseline.get('baseline_date')}")
