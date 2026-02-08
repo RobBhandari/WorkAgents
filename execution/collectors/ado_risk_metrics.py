@@ -316,7 +316,7 @@ def calculate_module_coupling(commits: list[dict]) -> dict:
     ]
 
     # Sort by co-change count
-    coupled_pairs.sort(key=lambda x: x["co_change_count"], reverse=True)
+    coupled_pairs.sort(key=lambda x: int(x["co_change_count"]), reverse=True)
 
     return {
         "total_coupled_pairs": len(coupled_pairs),

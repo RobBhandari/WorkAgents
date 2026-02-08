@@ -211,7 +211,7 @@ def calculate_work_type_segmentation(open_items: list[dict]) -> dict:
         "unassigned": other_unassigned,
         "assigned": other_total - other_unassigned,
         "unassigned_pct": round(other_unassigned_pct, 1),
-        "types_included": other_types,
+        "types_included": ", ".join(other_types),  # Convert list to string
     }
 
     return segmentation

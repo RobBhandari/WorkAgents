@@ -288,8 +288,8 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: list[dict]) -> dic
     return {
         "sample_size": n,
         "median_commits": round(statistics.median(pr_sizes), 1),
-        "p85_commits": round(percentile(sorted_sizes, 85), 1),
-        "p95_commits": round(percentile(sorted_sizes, 95), 1),
+        "p85_commits": round(percentile(sorted_sizes, 85.0), 1),
+        "p95_commits": round(percentile(sorted_sizes, 95.0), 1),
         "note": "Measuring by commit count (LOC requires diff parsing)",
     }
 

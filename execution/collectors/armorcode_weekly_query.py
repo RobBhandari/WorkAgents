@@ -10,6 +10,7 @@ import logging
 import os
 import sys
 from datetime import datetime
+from typing import Any
 
 from dotenv import load_dotenv
 from http_client import post
@@ -24,7 +25,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict[str, any]:
+def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict[str, Any]:
     """Load baseline data from file."""
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(f"Baseline file not found: {baseline_file}")
