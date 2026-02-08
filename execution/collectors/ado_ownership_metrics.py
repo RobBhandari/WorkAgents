@@ -18,18 +18,15 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any
 
-# Azure DevOps SDK
 from azure.devops.connection import Connection
-from azure.devops.v7_1.work_item_tracking import Wiql
 from azure.devops.exceptions import AzureDevOpsServiceError
-
-# Load environment variables
+from azure.devops.v7_1.work_item_tracking import Wiql
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
 from execution.secure_config import get_config
-from execution.utils.ado_batch_utils import batch_fetch_work_items, BatchFetchError
+from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
 
 load_dotenv()
 
@@ -593,7 +590,7 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
         logger.info(f"[SAVED] Ownership metrics saved to: {output_file}")
         logger.info(f"        History now contains {len(history['weeks'])} week(s)")
         return True
-    except (OSError, IOError) as e:
+    except OSError as e:
         logger.error(f"[ERROR] Failed to save ownership metrics: {e}")
         return False
 

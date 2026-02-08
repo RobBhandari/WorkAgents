@@ -495,7 +495,7 @@ def save_collaboration_metrics(metrics: dict, output_file: str = ".tmp/observato
 
 
 # Self-test for refactored utilities
-def run_self_test():
+def run_self_test() -> None:
     """
     Self-test to verify backward compatibility after refactoring.
     Tests helper functions and percentile calculations.

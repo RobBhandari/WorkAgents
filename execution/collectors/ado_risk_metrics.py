@@ -674,7 +674,7 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
         print(f"\n[SAVED] Risk metrics saved to: {output_file}")
         print(f"        History now contains {len(history['weeks'])} week(s)")
         return True
-    except (IOError, OSError) as e:
+    except OSError as e:
         logger.error(
             "File system error saving risk metrics",
             extra={

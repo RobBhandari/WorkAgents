@@ -19,18 +19,15 @@ import statistics
 import sys
 from datetime import UTC, datetime, timedelta
 
-# Azure DevOps SDK
 from azure.devops.connection import Connection
 from azure.devops.v7_1.work_item_tracking import Wiql
-
-# Load environment variables
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
 from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.secure_config import get_config
-from execution.utils.ado_batch_utils import batch_fetch_work_items, BatchFetchError
+from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
 from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
@@ -541,7 +538,7 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
         logger.info(f"Quality metrics saved to: {output_file}")
         logger.info(f"History now contains {len(history['weeks'])} week(s)")
         return True
-    except (IOError, OSError) as e:
+    except OSError as e:
         logger.error(f"Failed to save Quality metrics: {e}")
         return False
 

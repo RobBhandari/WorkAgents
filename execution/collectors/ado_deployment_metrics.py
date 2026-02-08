@@ -464,7 +464,7 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
         print(f"\n[SAVED] Deployment metrics saved to: {output_file}")
         print(f"        History now contains {len(history['weeks'])} week(s)")
         return True
-    except (OSError, IOError) as e:
+    except OSError as e:
         logger.error(f"File I/O error saving deployment metrics to {output_file}: {e}")
         print(f"\n[ERROR] Failed to save Deployment metrics: {e}")
         return False
