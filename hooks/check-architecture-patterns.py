@@ -207,17 +207,18 @@ def check_template_usage(file_path: Path) -> list[ArchitectureViolation]:
 def should_skip_file(file_path: Path) -> bool:
     """Determine if file should be skipped"""
     skip_patterns = [
-        "archive/",
-        "experiments/",
+        "archive",
+        "experiments",
         "__pycache__",
         ".pyc",
         "test_",  # Test files
         "conftest.py",
         "legacy",  # Legacy code marked for future refactoring
-        "collectors/",  # Data collection ETL code - different constraints than presentation code
+        "collectors",  # Data collection ETL code - different constraints than presentation code
     ]
 
-    file_str = str(file_path)
+    # Normalize path to use forward slashes for consistent matching across platforms
+    file_str = str(file_path).replace("\\", "/")
     return any(pattern in file_str for pattern in skip_patterns)
 
 
