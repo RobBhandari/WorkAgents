@@ -83,11 +83,10 @@ jobs:
           - { name: 'Collaboration', script: 'generate_collaboration_dashboard.py' }
           - { name: 'Security', script: 'generate_security_dashboard.py' }
           - { name: 'Target', script: 'generate_target_dashboard.py' }
-          - { name: 'Trends', script: 'generate_trends_dashboard.py' }
-          - { name: 'Executive Summary', script: 'generate_executive_summary.py' }
+          - { name: 'Executive Trends (index)', script: 'archive/generate_trends_dashboard_original.py' }
           - { name: 'AI Usage Report', script: 'usage_tables_report.py' }
       fail-fast: false   # Continue even if one fails
-      max-parallel: 11   # Run all 11 dashboards at once
+      max-parallel: 10   # Run all 10 dashboards at once
 
     steps:
       - name: Checkout repository
@@ -169,11 +168,6 @@ jobs:
           echo "📦 Deployment package contents:"
           ls -la .tmp/observatory/dashboards/ || echo "No dashboards found"
           ls -la .tmp/observatory/*.json || echo "No data files found"
-
-      - name: Generate index.html landing page
-        run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          python execution/generate_index.py
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
