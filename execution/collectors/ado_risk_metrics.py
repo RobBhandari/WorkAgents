@@ -45,7 +45,7 @@ def _extract_file_paths_from_changes(changes) -> list[str]:
     Returns:
         List of file paths that were changed
     """
-    if not changes or not hasattr(changes, 'changes') or not changes.changes:
+    if not changes or not hasattr(changes, "changes") or not changes.changes:
         return []
 
     file_paths = []
@@ -100,11 +100,7 @@ def _fetch_commit_changes(git_client, commit_id: str, repo_id: str, project_name
         Returns (0, []) on any error
     """
     try:
-        changes = git_client.get_changes(
-            commit_id=commit_id,
-            repository_id=repo_id,
-            project=project_name
-        )
+        changes = git_client.get_changes(commit_id=commit_id, repository_id=repo_id, project=project_name)
 
         change_count = len(changes.changes) if changes and changes.changes else 0
         file_paths = _extract_file_paths_from_changes(changes)
@@ -117,27 +113,21 @@ def _fetch_commit_changes(git_client, commit_id: str, repo_id: str, project_name
             extra={
                 "commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id,
                 "repo_id": repo_id,
-                "error": str(e)
-            }
+                "error": str(e),
+            },
         )
         return 0, []
     except (ConnectionError, TimeoutError) as e:
         logger.warning(
             "Network error getting changes for commit",
-            extra={
-                "commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id,
-                "error": str(e)
-            }
+            extra={"commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id, "error": str(e)},
         )
         return 0, []
     except Exception as e:
         logger.error(
             "Unexpected error getting changes for commit",
-            extra={
-                "commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id,
-                "error": str(e)
-            },
-            exc_info=True
+            extra={"commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id, "error": str(e)},
+            exc_info=True,
         )
         return 0, []
 
@@ -186,33 +176,19 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
     except AzureDevOpsServiceError as e:
         logger.warning(
             "ADO API error querying commits",
-            extra={
-                "project": project_name,
-                "repo_id": repo_id,
-                "days": days,
-                "error": str(e)
-            }
+            extra={"project": project_name, "repo_id": repo_id, "days": days, "error": str(e)},
         )
         return []
     except (ConnectionError, TimeoutError) as e:
         logger.error(
-            "Network error querying commits",
-            extra={
-                "project": project_name,
-                "repo_id": repo_id,
-                "error": str(e)
-            }
+            "Network error querying commits", extra={"project": project_name, "repo_id": repo_id, "error": str(e)}
         )
         return []
     except Exception as e:
         logger.error(
             "Unexpected error querying commits",
-            extra={
-                "project": project_name,
-                "repo_id": repo_id,
-                "error": str(e)
-            },
-            exc_info=True
+            extra={"project": project_name, "repo_id": repo_id, "error": str(e)},
+            exc_info=True,
         )
         return []
 
@@ -262,20 +238,12 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
             except AzureDevOpsServiceError as e:
                 logger.debug(
                     "Could not get PR commits (PR may be old/deleted)",
-                    extra={
-                        "pr_id": pr.pull_request_id,
-                        "repo_id": repo_id,
-                        "error": str(e)
-                    }
+                    extra={"pr_id": pr.pull_request_id, "repo_id": repo_id, "error": str(e)},
                 )
                 commit_count = 0
             except Exception as e:
                 logger.warning(
-                    "Unexpected error getting PR commits",
-                    extra={
-                        "pr_id": pr.pull_request_id,
-                        "error": str(e)
-                    }
+                    "Unexpected error getting PR commits", extra={"pr_id": pr.pull_request_id, "error": str(e)}
                 )
                 commit_count = 0
 
@@ -299,33 +267,17 @@ def query_pull_requests(git_client, project_name: str, repo_id: str, days: int =
     except AzureDevOpsServiceError as e:
         logger.warning(
             "ADO API error querying PRs",
-            extra={
-                "project": project_name,
-                "repo_id": repo_id,
-                "days": days,
-                "error": str(e)
-            }
+            extra={"project": project_name, "repo_id": repo_id, "days": days, "error": str(e)},
         )
         return []
     except (ConnectionError, TimeoutError) as e:
-        logger.error(
-            "Network error querying PRs",
-            extra={
-                "project": project_name,
-                "repo_id": repo_id,
-                "error": str(e)
-            }
-        )
+        logger.error("Network error querying PRs", extra={"project": project_name, "repo_id": repo_id, "error": str(e)})
         return []
     except Exception as e:
         logger.error(
             "Unexpected error querying PRs",
-            extra={
-                "project": project_name,
-                "repo_id": repo_id,
-                "error": str(e)
-            },
-            exc_info=True
+            extra={"project": project_name, "repo_id": repo_id, "error": str(e)},
+            exc_info=True,
         )
         return []
 
@@ -485,10 +437,7 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     # Area path filters don't apply to Git repositories
     ado_project_name = project.get("ado_project_name", project_name)
 
-    logger.info(
-        f"Collecting risk metrics for: {project_name}",
-        extra={"project_name": project_name}
-    )
+    logger.info(f"Collecting risk metrics for: {project_name}", extra={"project_name": project_name})
     print(f"\n  Collecting risk metrics for: {project_name}")
 
     git_client = connection.clients.get_git_client()
@@ -497,39 +446,19 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     # Get repositories
     try:
         repos = git_client.get_repositories(project=ado_project_name)
-        logger.info(f"Found {len(repos)} repositories", extra={
-            "project_name": project_name,
-            "repo_count": len(repos)
-        })
+        logger.info(f"Found {len(repos)} repositories", extra={"project_name": project_name, "repo_count": len(repos)})
         print(f"    Found {len(repos)} repositories")
     except AzureDevOpsServiceError as e:
-        logger.warning(
-            "ADO API error getting repositories",
-            extra={
-                "project": ado_project_name,
-                "error": str(e)
-            }
-        )
+        logger.warning("ADO API error getting repositories", extra={"project": ado_project_name, "error": str(e)})
         print(f"    [WARNING] Could not get repositories: {e}")
         repos = []
     except (ConnectionError, TimeoutError) as e:
-        logger.error(
-            "Network error getting repositories",
-            extra={
-                "project": ado_project_name,
-                "error": str(e)
-            }
-        )
+        logger.error("Network error getting repositories", extra={"project": ado_project_name, "error": str(e)})
         print(f"    [WARNING] Could not get repositories: {e}")
         repos = []
     except Exception as e:
         logger.error(
-            "Unexpected error getting repositories",
-            extra={
-                "project": ado_project_name,
-                "error": str(e)
-            },
-            exc_info=True
+            "Unexpected error getting repositories", extra={"project": ado_project_name, "error": str(e)}, exc_info=True
         )
         print(f"    [WARNING] Could not get repositories: {e}")
         repos = []
@@ -538,41 +467,26 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
     all_commits = []
 
     for repo in repos:  # Analyze ALL repositories for complete data
-        logger.debug(f"Analyzing repo: {repo.name}", extra={
-            "repo_name": repo.name,
-            "project": project_name
-        })
+        logger.debug(f"Analyzing repo: {repo.name}", extra={"repo_name": repo.name, "project": project_name})
         print(f"    Analyzing repo: {repo.name}")
 
         try:
             # Get commits for code churn analysis
             commits = query_recent_commits(git_client, ado_project_name, repo.id, days=config.get("lookback_days", 90))
             all_commits.extend(commits)
-            logger.debug(f"Found {len(commits)} commits", extra={
-                "repo_name": repo.name,
-                "commit_count": len(commits)
-            })
+            logger.debug(f"Found {len(commits)} commits", extra={"repo_name": repo.name, "commit_count": len(commits)})
             print(f"      Found {len(commits)} commits")
         except AzureDevOpsServiceError as e:
             logger.warning(
-                "ADO API error analyzing repo",
-                extra={
-                    "repo_name": repo.name,
-                    "project": project_name,
-                    "error": str(e)
-                }
+                "ADO API error analyzing repo", extra={"repo_name": repo.name, "project": project_name, "error": str(e)}
             )
             print(f"      [WARNING] Failed to analyze repo {repo.name}: {e}")
             continue
         except Exception as e:
             logger.error(
                 "Unexpected error analyzing repo",
-                extra={
-                    "repo_name": repo.name,
-                    "project": project_name,
-                    "error": str(e)
-                },
-                exc_info=True
+                extra={"repo_name": repo.name, "project": project_name, "error": str(e)},
+                exc_info=True,
             )
             print(f"      [WARNING] Failed to analyze repo {repo.name}: {e}")
             continue
@@ -586,11 +500,11 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
         "Risk metrics collected",
         extra={
             "project": project_name,
-            "commits": churn_analysis['total_commits'],
-            "files_touched": churn_analysis['unique_files_touched'],
-            "single_owner_files": knowledge_dist['single_owner_count'],
-            "coupled_pairs": module_coupling['total_coupled_pairs']
-        }
+            "commits": churn_analysis["total_commits"],
+            "files_touched": churn_analysis["unique_files_touched"],
+            "single_owner_files": knowledge_dist["single_owner_count"],
+            "coupled_pairs": module_coupling["total_coupled_pairs"],
+        },
     )
     print(f"    Code churn: {churn_analysis['total_commits']} commits, {churn_analysis['unique_files_touched']} files")
     print(
@@ -638,8 +552,8 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
                 "project_count": len(projects),
                 "total_commits": total_commits,
                 "total_files": total_files,
-                "total_repos": total_repos
-            }
+                "total_repos": total_repos,
+            },
         )
         print("\n[SKIPPED] All projects returned zero risk data - likely a collection failure")
         print("          Not persisting this data to avoid corrupting trend history")
@@ -664,34 +578,17 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
     # Save updated history
     try:
         atomic_json_save(history, output_file)
-        logger.info(
-            "Risk metrics saved",
-            extra={
-                "file": output_file,
-                "week_count": len(history['weeks'])
-            }
-        )
+        logger.info("Risk metrics saved", extra={"file": output_file, "week_count": len(history["weeks"])})
         print(f"\n[SAVED] Risk metrics saved to: {output_file}")
         print(f"        History now contains {len(history['weeks'])} week(s)")
         return True
     except OSError as e:
-        logger.error(
-            "File system error saving risk metrics",
-            extra={
-                "file": output_file,
-                "error": str(e)
-            }
-        )
+        logger.error("File system error saving risk metrics", extra={"file": output_file, "error": str(e)})
         print(f"\n[ERROR] Failed to save Risk metrics: {e}")
         return False
     except Exception as e:
         logger.error(
-            "Unexpected error saving risk metrics",
-            extra={
-                "file": output_file,
-                "error": str(e)
-            },
-            exc_info=True
+            "Unexpected error saving risk metrics", extra={"file": output_file, "error": str(e)}, exc_info=True
         )
         print(f"\n[ERROR] Failed to save Risk metrics: {e}")
         return False
@@ -751,22 +648,15 @@ if __name__ == "__main__":
             project_metrics.append(metrics)
         except AzureDevOpsServiceError as e:
             logger.error(
-                "ADO API error collecting metrics",
-                extra={
-                    "project": project['project_name'],
-                    "error": str(e)
-                }
+                "ADO API error collecting metrics", extra={"project": project["project_name"], "error": str(e)}
             )
             print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
         except Exception as e:
             logger.error(
                 "Unexpected error collecting metrics",
-                extra={
-                    "project": project['project_name'],
-                    "error": str(e)
-                },
-                exc_info=True
+                extra={"project": project["project_name"], "error": str(e)},
+                exc_info=True,
             )
             print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
@@ -837,21 +727,17 @@ if __name__ == "__main__":
         print("\n1. Testing _extract_file_paths_from_changes()...")
         try:
             from azure.devops.v7_1.git.models import GitQueryCommitsCriteria
+
             ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
             search_criteria = GitQueryCommitsCriteria(from_date=(datetime.now() - timedelta(days=30)).isoformat())
             commits = git_client.get_commits(
-                repository_id=test_repo.id,
-                project=ado_project_name,
-                search_criteria=search_criteria,
-                top=5
+                repository_id=test_repo.id, project=ado_project_name, search_criteria=search_criteria, top=5
             )
 
             if commits:
                 test_commit = commits[0]
                 changes = git_client.get_changes(
-                    commit_id=test_commit.commit_id,
-                    repository_id=test_repo.id,
-                    project=ado_project_name
+                    commit_id=test_commit.commit_id, repository_id=test_repo.id, project=ado_project_name
                 )
 
                 file_paths = _extract_file_paths_from_changes(changes)
@@ -870,10 +756,7 @@ if __name__ == "__main__":
                 test_commit = commits[0]
                 ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
                 changes_count, files = _fetch_commit_changes(
-                    git_client,
-                    test_commit.commit_id,
-                    test_repo.id,
-                    ado_project_name
+                    git_client, test_commit.commit_id, test_repo.id, ado_project_name
                 )
                 print(f"   ✓ Fetched {changes_count} changes, {len(files)} file paths")
                 assert isinstance(changes_count, int), "changes should be int"
@@ -908,12 +791,7 @@ if __name__ == "__main__":
         print("\n4. Testing query_recent_commits() (integration)...")
         try:
             ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
-            commit_data = query_recent_commits(
-                git_client,
-                ado_project_name,
-                test_repo.id,
-                days=30
-            )
+            commit_data = query_recent_commits(git_client, ado_project_name, test_repo.id, days=30)
             print(f"   ✓ Queried {len(commit_data)} commits")
 
             if commit_data:
@@ -926,7 +804,7 @@ if __name__ == "__main__":
 
                 # Check that first commits have file details
                 if len(commit_data) > 0:
-                    has_files = any(c["files"] for c in commit_data[:min(20, len(commit_data))])
+                    has_files = any(c["files"] for c in commit_data[: min(20, len(commit_data))])
                     if has_files:
                         print("   ✓ First commits include file details")
                     else:
@@ -938,12 +816,7 @@ if __name__ == "__main__":
         print("\n5. Testing query_pull_requests() (integration)...")
         try:
             ado_project_name = test_project.get("ado_project_name", test_project["project_name"])
-            pr_data = query_pull_requests(
-                git_client,
-                ado_project_name,
-                test_repo.id,
-                days=30
-            )
+            pr_data = query_pull_requests(git_client, ado_project_name, test_repo.id, days=30)
             print(f"   ✓ Queried {len(pr_data)} PRs")
 
             if pr_data:

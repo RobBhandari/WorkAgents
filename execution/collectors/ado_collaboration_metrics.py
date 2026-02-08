@@ -675,5 +675,3 @@ if __name__ == "__main__":
     print("  ✓ Review Iteration Count: ADO-tracked iterations")
     print("  ✓ PR Size: Actual commit counts")
     print("\nNext step: Generate collaboration dashboard")
-
-

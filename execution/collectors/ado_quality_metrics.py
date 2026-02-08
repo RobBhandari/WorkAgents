@@ -80,12 +80,7 @@ def _fetch_bug_details(wit_client, bug_ids: list[int], fields: list[str]) -> lis
         return []
 
     try:
-        bugs, failed_ids = batch_fetch_work_items(
-            wit_client,
-            item_ids=bug_ids,
-            fields=fields,
-            logger=logger
-        )
+        bugs, failed_ids = batch_fetch_work_items(wit_client, item_ids=bug_ids, fields=fields, logger=logger)
 
         if failed_ids:
             logger.warning(f"Failed to fetch {len(failed_ids)} out of {len(bug_ids)} bugs")
@@ -178,7 +173,7 @@ def query_bugs_for_quality(
                     "Microsoft.VSTS.Common.ClosedDate",
                     "Microsoft.VSTS.Common.ResolvedDate",
                     "System.CreatedBy",
-                ]
+                ],
             )
         except BatchFetchError as e:
             logger.warning(f"Error fetching all bugs: {e}")
@@ -201,7 +196,7 @@ def query_bugs_for_quality(
                     "Microsoft.VSTS.Common.Severity",
                     "System.Tags",
                     "System.CreatedBy",
-                ]
+                ],
             )
         except BatchFetchError as e:
             logger.warning(f"Error fetching open bugs: {e}")
@@ -552,10 +547,7 @@ if __name__ == "__main__":
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     print("Director Observatory - Quality Metrics Collector\n")
     print("=" * 60)

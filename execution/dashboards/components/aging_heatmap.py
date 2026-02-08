@@ -289,8 +289,7 @@ if __name__ == "__main__":
     # Write test HTML
     test_file = ".tmp/test_heatmap.html"
     with open(test_file, "w", encoding="utf-8") as f:
-        f.write(
-            f"""<!DOCTYPE html>
+        f.write(f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -310,8 +309,7 @@ if __name__ == "__main__":
     <h1>Aging Heatmap Component Test</h1>
     {heatmap_html}
 </body>
-</html>"""
-        )
+</html>""")
 
     print(f"\n[SUCCESS] Test HTML written to: {test_file}")
     print("Open in browser to view heatmap")
