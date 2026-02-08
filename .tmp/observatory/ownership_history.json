@@ -36236,6 +36236,2795 @@
       "config": {
         "lookback_days": 90
       }
+    },
+    {
+      "week_date": "2026-02-08",
+      "week_number": 6,
+      "projects": [
+        {
+          "project_key": "Access_Legal_Case_Management",
+          "project_name": "Access Legal Case Management",
+          "unassigned": {
+            "unassigned_count": 746,
+            "total_items": 1583,
+            "unassigned_pct": 47.1,
+            "items": [
+              {
+                "id": 1898085,
+                "title": "Complete Excel Export",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-10-19T10:04:59.87Z"
+              },
+              {
+                "id": 1901075,
+                "title": "Replace TripleDES with AES-256 for stronger encryption",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management",
+                "created_date": "2025-10-21T11:01:38.22Z"
+              },
+              {
+                "id": 1901774,
+                "title": "Hague & dixon - Recover unchecked in documents",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Bugs",
+                "created_date": "2025-10-21T15:35:09.89Z"
+              },
+              {
+                "id": 1912567,
+                "title": "Selecting Disbursements to write off in bill request ALCM/One Office - 67972563",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Bugs",
+                "created_date": "2025-10-28T16:46:53.86Z"
+              },
+              {
+                "id": 1918231,
+                "title": "Manchester City Council - External emails send with uncharged ticked shows time entry but incorrect units",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Bugs",
+                "created_date": "2025-10-31T16:23:15.87Z"
+              },
+              {
+                "id": 1921891,
+                "title": "US 1.1.1: E-Chit CRUD API Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:58:06.72Z"
+              },
+              {
+                "id": 1921892,
+                "title": "US 1.1.2: E-Chit Authorization Workflow E2E Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:58:10.78Z"
+              },
+              {
+                "id": 1921893,
+                "title": "US 1.2.1: Legal Aid Rate Files API Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:58:14.897Z"
+              },
+              {
+                "id": 1921894,
+                "title": "US 1.2.2: LGFS Complete Workflow Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:58:18.773Z"
+              },
+              {
+                "id": 1921895,
+                "title": "US 1.2.3: AGFS Complete Workflow Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:58:22.753Z"
+              },
+              {
+                "id": 1921899,
+                "title": "US 1.3.1: Document Lifecycle API Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:59:07.863Z"
+              },
+              {
+                "id": 1921901,
+                "title": "US 1.3.2: Document Bundling E2E Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:59:11.963Z"
+              },
+              {
+                "id": 1921902,
+                "title": "US 1.4.1: Billing Request API Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:59:15.973Z"
+              },
+              {
+                "id": 1921903,
+                "title": "US 1.4.2: Invoice Generation E2E Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:59:20.193Z"
+              },
+              {
+                "id": 1921904,
+                "title": "US 1.5.1: Time Entry API Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:59:24.113Z"
+              },
+              {
+                "id": 1921905,
+                "title": "US 1.5.2: Time Recording Variations E2E Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "created_date": "2025-11-04T11:59:27.907Z"
+              },
+              {
+                "id": 1921980,
+                "title": "[SE] (Silent send command) no longer works in ALCM",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Bugs",
+                "created_date": "2025-11-04T12:29:53.013Z"
+              },
+              {
+                "id": 1928967,
+                "title": "Neves - users unable to use ALCM since EVO move via Ipad or Iphone - will load ALCM then reopen another tab",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Bugs",
+                "created_date": "2025-11-06T16:03:25.31Z"
+              },
+              {
+                "id": 1939287,
+                "title": "Print preview shows spacing in words, when printed it will print with the spaces.",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\Bugs",
+                "created_date": "2025-11-12T16:32:47.237Z"
+              },
+              {
+                "id": 1939595,
+                "title": "Manual Test: Basic Meeting Cancellation - Verify COM Error Fix",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management",
+                "created_date": "2025-11-12T21:39:06.02Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 149,
+              "features": 422,
+              "tasks": 175
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 72,
+            "top_assignees": [
+              [
+                "Unassigned",
+                746
+              ],
+              [
+                "Gayani Nimalka <GNimalka@dpssoftware.onmicrosoft.com>",
+                128
+              ],
+              [
+                "Suren Gamage",
+                90
+              ],
+              [
+                "Damith Premarathne",
+                35
+              ],
+              [
+                "Niranga DeZoysa",
+                33
+              ],
+              [
+                "Linda Brook",
+                32
+              ],
+              [
+                "Dilantha Perera",
+                30
+              ],
+              [
+                "Lushan Don Fransiskuge Don",
+                29
+              ],
+              [
+                "Nimasha Soyza",
+                25
+              ],
+              [
+                "Mohammed Yunus",
+                25
+              ]
+            ],
+            "load_imbalance_ratio": 746.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 17,
+            "areas": [
+              {
+                "area_path": "Access Legal Case Management\\Xperate",
+                "total_items": 4,
+                "unassigned_items": 4,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal Case Management\\Feature Squad\\Services",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal Case Management\\Bugs",
+                "total_items": 125,
+                "unassigned_items": 122,
+                "unassigned_pct": 97.6
+              },
+              {
+                "area_path": "Access Legal Case Management\\SaaS Squad",
+                "total_items": 32,
+                "unassigned_items": 26,
+                "unassigned_pct": 81.2
+              },
+              {
+                "area_path": "Access Legal Case Management\\Cipher Squad",
+                "total_items": 16,
+                "unassigned_items": 12,
+                "unassigned_pct": 75.0
+              },
+              {
+                "area_path": "Access Legal Case Management\\Workspace Squad",
+                "total_items": 188,
+                "unassigned_items": 119,
+                "unassigned_pct": 63.3
+              },
+              {
+                "area_path": "Access Legal Case Management\\Feature Squad\\Bugs",
+                "total_items": 67,
+                "unassigned_items": 34,
+                "unassigned_pct": 50.7
+              },
+              {
+                "area_path": "Access Legal Case Management",
+                "total_items": 639,
+                "unassigned_items": 260,
+                "unassigned_pct": 40.7
+              },
+              {
+                "area_path": "Access Legal Case Management\\Feature Squad",
+                "total_items": 206,
+                "unassigned_items": 82,
+                "unassigned_pct": 39.8
+              },
+              {
+                "area_path": "Access Legal Case Management\\Task Force\\Bugs",
+                "total_items": 13,
+                "unassigned_items": 5,
+                "unassigned_pct": 38.5
+              },
+              {
+                "area_path": "Access Legal Case Management\\Triage",
+                "total_items": 21,
+                "unassigned_items": 8,
+                "unassigned_pct": 38.1
+              },
+              {
+                "area_path": "Access Legal Case Management\\Task Force",
+                "total_items": 118,
+                "unassigned_items": 43,
+                "unassigned_pct": 36.4
+              },
+              {
+                "area_path": "Access Legal Case Management\\Elsa Squad",
+                "total_items": 77,
+                "unassigned_items": 28,
+                "unassigned_pct": 36.4
+              },
+              {
+                "area_path": "Access Legal Case Management\\Cipher Squad\\Evo",
+                "total_items": 6,
+                "unassigned_items": 2,
+                "unassigned_pct": 33.3
+              },
+              {
+                "area_path": "Access Legal Case Management\\IWS",
+                "total_items": 60,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              },
+              {
+                "area_path": "Access Legal Case Management\\All Engineers",
+                "total_items": 1,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              },
+              {
+                "area_path": "Access Legal Case Management\\DevOps Squad",
+                "total_items": 9,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 176,
+              "unassigned": 149,
+              "assigned": 27,
+              "unassigned_pct": 84.7
+            },
+            "User Story": {
+              "total": 867,
+              "unassigned": 422,
+              "assigned": 445,
+              "unassigned_pct": 48.7
+            },
+            "Task": {
+              "total": 540,
+              "unassigned": 175,
+              "assigned": 365,
+              "unassigned_pct": 32.4
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 17,
+            "total_commits": 1080,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin AI",
+                "active_days": 47,
+                "commits": 47
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 31,
+                "commits": 31
+              },
+              {
+                "developer": "Rahul Garg",
+                "active_days": 11,
+                "commits": 11
+              },
+              {
+                "developer": "Mohamed Zufry",
+                "active_days": 8,
+                "commits": 8
+              },
+              {
+                "developer": "M Zufry",
+                "active_days": 6,
+                "commits": 6
+              },
+              {
+                "developer": "Nimasha Soyza",
+                "active_days": 6,
+                "commits": 6
+              },
+              {
+                "developer": "Lushan Don Fransiskuge Don",
+                "active_days": 5,
+                "commits": 5
+              },
+              {
+                "developer": "Kanishka Hewapathirana",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "Dilantha Perera",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "tgabrielc",
+                "active_days": 3,
+                "commits": 3
+              },
+              {
+                "developer": "Lushan jayanath",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "Suren Gamage",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "K Hewapathirana",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "Damith Premarathne",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "Nuwan Madusanka",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Lakmal Siyambalage",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Chathurika Rathnayaka Mudiyanselage",
+                "active_days": 1,
+                "commits": 1
+              }
+            ],
+            "avg_active_days": 8.0
+          },
+          "total_items_analyzed": 1583,
+          "collected_at": "2026-02-08T15:19:16.999656"
+        },
+        {
+          "project_key": "One_Office",
+          "project_name": "One Office",
+          "unassigned": {
+            "unassigned_count": 214,
+            "total_items": 267,
+            "unassigned_pct": 80.1,
+            "items": [
+              {
+                "id": 1484768,
+                "title": "Authentication Feature Switch (Config Tool)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2024-12-16T15:40:59.863Z"
+              },
+              {
+                "id": 1484771,
+                "title": "SDK Integration",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2024-12-16T15:41:09.583Z"
+              },
+              {
+                "id": 1484772,
+                "title": "Acceptance Tests",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2024-12-16T15:41:21.99Z"
+              },
+              {
+                "id": 1484774,
+                "title": "Documentation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2024-12-16T15:41:31.85Z"
+              },
+              {
+                "id": 1494963,
+                "title": "**P3 7 Sign & Share signature shift",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2024-12-24T15:47:41.143Z"
+              },
+              {
+                "id": 1506907,
+                "title": "**BL10 DPS Oneoffice - Levenes - Int32 parse error when downloading Official Injury Claims list",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-01-09T09:01:09.61Z"
+              },
+              {
+                "id": 1519169,
+                "title": "Prospect CRM Integration FY25 Q3: Extending the ALCM Matters API to provide the necessary endpoints to financial data AF:1467977",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-01-17T12:25:56.767Z"
+              },
+              {
+                "id": 1519170,
+                "title": "Prospect CRM Integration FY25 Q3: Extending the ALCM Matters API to provide the necessary endpoints to financial data DEV:1467977",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-01-17T12:25:56.933Z"
+              },
+              {
+                "id": 1519171,
+                "title": "Prospect CRM Integration FY25 Q3: Extending the ALCM Matters API to provide the necessary endpoints to financial data TEST:1467977",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-01-17T12:25:57.143Z"
+              },
+              {
+                "id": 1527458,
+                "title": "**P3 8 Echit - Receipt Type field doesn’t seem to work as expected",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-01-24T16:11:49.22Z"
+              },
+              {
+                "id": 1562315,
+                "title": "**P3 9 Bill to Word (Save as Word File) - Conversion formatting issues - 66908089",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-02-20T14:16:22.127Z"
+              },
+              {
+                "id": 1634569,
+                "title": "Risk Field - DPS Reports - Client Listing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-04-07T15:34:37.457Z"
+              },
+              {
+                "id": 1634574,
+                "title": "Risk Field - DPS Report - Matter Listing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-04-07T15:37:26.427Z"
+              },
+              {
+                "id": 1659987,
+                "title": "Multiple email attach - date not set",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-04-30T10:05:53.647Z"
+              },
+              {
+                "id": 1662470,
+                "title": "**BL16 Purpose Codes - not shown on Echit Print out IF Supplier is included",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-05-02T08:05:59.283Z"
+              },
+              {
+                "id": 1672783,
+                "title": "Purpose Codes - Allocating Purpose Codes to Imported EChits",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-05-12T12:27:20.52Z"
+              },
+              {
+                "id": 1674319,
+                "title": "DATA ISSUE **Wolferstans - Control Inspect Balances - Firm Invoices differences - 65901948",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-05-13T12:11:34.483Z"
+              },
+              {
+                "id": 1678662,
+                "title": "Token Management",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:15:16.523Z"
+              },
+              {
+                "id": 1678664,
+                "title": "Security Improvements",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:15:37.763Z"
+              },
+              {
+                "id": 1678665,
+                "title": "Authentication Flow",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:15:58.123Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 60,
+              "features": 91,
+              "tasks": 63
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 11,
+            "top_assignees": [
+              [
+                "Unassigned",
+                214
+              ],
+              [
+                "Mark Perry",
+                15
+              ],
+              [
+                "Mark Parker",
+                11
+              ],
+              [
+                "Sam Ridgwell",
+                11
+              ],
+              [
+                "Jan Hyde",
+                5
+              ],
+              [
+                "Michele Lines",
+                3
+              ],
+              [
+                "Nimasha Soyza",
+                2
+              ],
+              [
+                "Shazzad Miah",
+                2
+              ],
+              [
+                "Rich Stoddart",
+                1
+              ],
+              [
+                "Kim Williams",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 214.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 3,
+            "areas": [
+              {
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Bugs",
+                "total_items": 65,
+                "unassigned_items": 59,
+                "unassigned_pct": 90.8
+              },
+              {
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director",
+                "total_items": 201,
+                "unassigned_items": 155,
+                "unassigned_pct": 77.1
+              },
+              {
+                "area_path": "Access Legal Case Management\\OneOffice and Financial Director\\Backlog\\Bucket List",
+                "total_items": 1,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 66,
+              "unassigned": 60,
+              "assigned": 6,
+              "unassigned_pct": 90.9
+            },
+            "User Story": {
+              "total": 107,
+              "unassigned": 91,
+              "assigned": 16,
+              "unassigned_pct": 85.0
+            },
+            "Task": {
+              "total": 94,
+              "unassigned": 63,
+              "assigned": 31,
+              "unassigned_pct": 67.0
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 17,
+            "total_commits": 1080,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin AI",
+                "active_days": 47,
+                "commits": 47
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 31,
+                "commits": 31
+              },
+              {
+                "developer": "Rahul Garg",
+                "active_days": 11,
+                "commits": 11
+              },
+              {
+                "developer": "Mohamed Zufry",
+                "active_days": 8,
+                "commits": 8
+              },
+              {
+                "developer": "M Zufry",
+                "active_days": 6,
+                "commits": 6
+              },
+              {
+                "developer": "Nimasha Soyza",
+                "active_days": 6,
+                "commits": 6
+              },
+              {
+                "developer": "Lushan Don Fransiskuge Don",
+                "active_days": 5,
+                "commits": 5
+              },
+              {
+                "developer": "Kanishka Hewapathirana",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "Dilantha Perera",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "tgabrielc",
+                "active_days": 3,
+                "commits": 3
+              },
+              {
+                "developer": "Lushan jayanath",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "Suren Gamage",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "K Hewapathirana",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "Damith Premarathne",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "Nuwan Madusanka",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Lakmal Siyambalage",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Chathurika Rathnayaka Mudiyanselage",
+                "active_days": 1,
+                "commits": 1
+              }
+            ],
+            "avg_active_days": 8.0
+          },
+          "total_items_analyzed": 267,
+          "collected_at": "2026-02-08T15:19:28.127702"
+        },
+        {
+          "project_key": "LawFusion",
+          "project_name": "Access LawFusion",
+          "unassigned": {
+            "unassigned_count": 209,
+            "total_items": 244,
+            "unassigned_pct": 85.7,
+            "items": [
+              {
+                "id": 2691,
+                "title": "Pre-prod test case-tracker on .NET Core API",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-02-07T12:04:00.307Z"
+              },
+              {
+                "id": 2781,
+                "title": "Time And Expense Manager - Remove Duplicate Project",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-02-10T12:33:40.983Z"
+              },
+              {
+                "id": 2801,
+                "title": "Generate the QR code",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-02-10T16:33:21.197Z"
+              },
+              {
+                "id": 2802,
+                "title": "Create Confluence Page For Admin Login Workflow",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-02-10T16:38:28.883Z"
+              },
+              {
+                "id": 2806,
+                "title": "2FA Service",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-02-10T17:00:34.693Z"
+              },
+              {
+                "id": 2807,
+                "title": "Modify existing login provider that uses 2FA",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-02-10T17:02:07.123Z"
+              },
+              {
+                "id": 3447,
+                "title": "Nominal Maintenance - Delete Nominal Account",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-03-08T16:13:58.217Z"
+              },
+              {
+                "id": 3502,
+                "title": "Job Story - Automate Build For Setup Year",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-03-09T18:19:58.19Z"
+              },
+              {
+                "id": 3717,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-03-18T18:30:27.36Z"
+              },
+              {
+                "id": 3718,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-03-18T18:31:23.483Z"
+              },
+              {
+                "id": 4052,
+                "title": "sls00122.exe - Investigate How This Program Is Used",
+                "type": "Task",
+                "state": "Active",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-03-30T13:01:19.947Z"
+              },
+              {
+                "id": 4218,
+                "title": "Alter Legal Fusion Desktop Application Login Code",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-04-05T12:11:17.727Z"
+              },
+              {
+                "id": 4233,
+                "title": "Pre-production Testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-04-05T20:05:24.657Z"
+              },
+              {
+                "id": 4574,
+                "title": "Call each endpoint via swagger/postman and make code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-04-21T16:00:02.337Z"
+              },
+              {
+                "id": 4575,
+                "title": "Test endpoints within pre-production",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-04-21T16:00:20.6Z"
+              },
+              {
+                "id": 5180,
+                "title": "Acquire Icon from UX team",
+                "type": "Task",
+                "state": "Active",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-05-05T09:22:05.243Z"
+              },
+              {
+                "id": 5183,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-05-05T09:24:19.13Z"
+              },
+              {
+                "id": 5184,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-05-05T09:24:24.62Z"
+              },
+              {
+                "id": 5185,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-05-05T09:24:49.677Z"
+              },
+              {
+                "id": 5186,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LawFusion",
+                "created_date": "2022-05-05T09:24:57.343Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 11,
+              "features": 61,
+              "tasks": 137
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 9,
+            "top_assignees": [
+              [
+                "Unassigned",
+                209
+              ],
+              [
+                "Luke Hirst",
+                9
+              ],
+              [
+                "Rich Stoddart",
+                7
+              ],
+              [
+                "Mark Parker",
+                6
+              ],
+              [
+                "James Sprangle",
+                4
+              ],
+              [
+                "Stefan Ivanoiu",
+                4
+              ],
+              [
+                "Jan Hyde",
+                2
+              ],
+              [
+                "Lawrence Paine",
+                1
+              ],
+              [
+                "Adam Lonsdale",
+                1
+              ],
+              [
+                "Danielle Park",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 209.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 5,
+            "areas": [
+              {
+                "area_path": "Access LawFusion\\Bugs\\Support Team",
+                "total_items": 3,
+                "unassigned_items": 3,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access LawFusion\\Bugs\\Armorcode",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access LawFusion\\Bugs\\Product and Engineering",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access LawFusion\\Triage",
+                "total_items": 24,
+                "unassigned_items": 23,
+                "unassigned_pct": 95.8
+              },
+              {
+                "area_path": "Access LawFusion",
+                "total_items": 215,
+                "unassigned_items": 181,
+                "unassigned_pct": 84.2
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 11,
+              "unassigned": 11,
+              "assigned": 0,
+              "unassigned_pct": 100.0
+            },
+            "User Story": {
+              "total": 66,
+              "unassigned": 61,
+              "assigned": 5,
+              "unassigned_pct": 92.4
+            },
+            "Task": {
+              "total": 167,
+              "unassigned": 137,
+              "assigned": 30,
+              "unassigned_pct": 82.0
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 2,
+            "total_commits": 103,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 8,
+                "commits": 8
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 8,
+                "commits": 8
+              }
+            ],
+            "avg_active_days": 8.0
+          },
+          "total_items_analyzed": 244,
+          "collected_at": "2026-02-08T15:19:32.665579"
+        },
+        {
+          "project_key": "Learning_Content_Legal",
+          "project_name": "Learning Content Legal",
+          "unassigned": {
+            "unassigned_count": 685,
+            "total_items": 971,
+            "unassigned_pct": 70.5,
+            "items": [
+              {
+                "id": 1988797,
+                "title": "01 COFA Define Research",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988798,
+                "title": "Research/Prepare for SME kick off (LD)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988799,
+                "title": "Kick Off and Content Scoping Workshop with SME (LD,Lead,MMP,SME)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988800,
+                "title": "02 COFA Define Outline",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988801,
+                "title": "Create Course Outline v0.1",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988802,
+                "title": "03 COFA Define MMP Kick Off",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988803,
+                "title": "Concept ideas generation (MMP)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988804,
+                "title": "04 COFA Define QA1 Outline Review",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988805,
+                "title": "Peer Review Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988806,
+                "title": "05 COFA Define QA1 Outline SME Review",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988807,
+                "title": "SME Review",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988808,
+                "title": "06 COFA Define QA1 Outline Amends",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988809,
+                "title": "Create Course Outline v1.0 (LD Sign off)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988810,
+                "title": "Lead Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988811,
+                "title": "MMP or DD Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988813,
+                "title": "Source Contributors/Actors and Location",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988814,
+                "title": "08 COFA Define MMP Approve Contributors",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988815,
+                "title": "Briefing Contributors/Actors and Final Confirmation (MMP/Lead/LD)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988816,
+                "title": "LD/Lead Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988817,
+                "title": "Set up suppliers",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Learning Content Legal",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 0,
+              "features": 87,
+              "tasks": 598
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 12,
+            "top_assignees": [
+              [
+                "Unassigned",
+                685
+              ],
+              [
+                "Doug Cush",
+                47
+              ],
+              [
+                "Patrick Herald",
+                45
+              ],
+              [
+                "Joe Watson",
+                45
+              ],
+              [
+                "Sian Riley",
+                39
+              ],
+              [
+                "Jack Moore",
+                34
+              ],
+              [
+                "Louise Hodkiss",
+                33
+              ],
+              [
+                "Almina Robinson",
+                21
+              ],
+              [
+                "Brian Rogers",
+                10
+              ],
+              [
+                "Nathan Ashton",
+                5
+              ]
+            ],
+            "load_imbalance_ratio": 685.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 1,
+            "areas": [
+              {
+                "area_path": "Learning Content Legal",
+                "total_items": 971,
+                "unassigned_items": 685,
+                "unassigned_pct": 70.5
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0
+            },
+            "User Story": {
+              "total": 139,
+              "unassigned": 87,
+              "assigned": 52,
+              "unassigned_pct": 62.6
+            },
+            "Task": {
+              "total": 832,
+              "unassigned": 598,
+              "assigned": 234,
+              "unassigned_pct": 71.9
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 0,
+            "total_commits": 0,
+            "lookback_days": 90,
+            "developers": [],
+            "avg_active_days": null
+          },
+          "total_items_analyzed": 971,
+          "collected_at": "2026-02-08T15:19:34.705536"
+        },
+        {
+          "project_key": "LegalBricks",
+          "project_name": "Access LegalBricks",
+          "unassigned": {
+            "unassigned_count": 179,
+            "total_items": 276,
+            "unassigned_pct": 64.9,
+            "items": [
+              {
+                "id": 50173,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Bufonite",
+                "created_date": "2023-01-10T09:22:14.8Z"
+              },
+              {
+                "id": 66774,
+                "title": "LA - AP1 - Adding additional title numbers (document registration)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-01-24T15:04:48.053Z"
+              },
+              {
+                "id": 66775,
+                "title": "LA - AP1 - Removing title numbers (document registation)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-01-24T15:06:12.863Z"
+              },
+              {
+                "id": 87522,
+                "title": "Update Web SDK",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-02-20T16:51:32.893Z"
+              },
+              {
+                "id": 87524,
+                "title": "Implement Web SDK event recording",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-02-20T16:51:50.03Z"
+              },
+              {
+                "id": 87526,
+                "title": "Install FE New Relic agent",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-02-20T16:52:10.647Z"
+              },
+              {
+                "id": 87529,
+                "title": "Investigate cause with new information from previous tasks",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-02-20T16:52:25.21Z"
+              },
+              {
+                "id": 92580,
+                "title": "Add event time to all CMS notifications",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access LegalBricks",
+                "created_date": "2023-02-23T16:32:09.053Z"
+              },
+              {
+                "id": 93130,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Bufonite",
+                "created_date": "2023-02-24T10:53:10.027Z"
+              },
+              {
+                "id": 119352,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Bufonite",
+                "created_date": "2023-03-13T15:57:18.243Z"
+              },
+              {
+                "id": 125496,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Websites\\Solicitor Portal",
+                "created_date": "2023-03-21T16:57:19.017Z"
+              },
+              {
+                "id": 125498,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Websites\\Solicitor Portal",
+                "created_date": "2023-03-21T16:57:19.137Z"
+              },
+              {
+                "id": 144281,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Bufonite",
+                "created_date": "2023-03-31T11:31:53.333Z"
+              },
+              {
+                "id": 179831,
+                "title": "kane test",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks",
+                "created_date": "2023-04-18T10:50:00.713Z"
+              },
+              {
+                "id": 179845,
+                "title": "Use provider's sandbox if possible, otherwise setup canned responses",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks",
+                "created_date": "2023-04-18T10:54:16.43Z"
+              },
+              {
+                "id": 203024,
+                "title": "LA - AP1 - Adding additional applications and documentation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-05-10T10:43:48.99Z"
+              },
+              {
+                "id": 203028,
+                "title": "LA - AP1 - Removing an application",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Onyx",
+                "created_date": "2023-05-10T10:44:23.257Z"
+              },
+              {
+                "id": 203825,
+                "title": "update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks",
+                "created_date": "2023-05-10T17:27:36.03Z"
+              },
+              {
+                "id": 212160,
+                "title": "QA",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Websites\\Solicitor Portal",
+                "created_date": "2023-05-16T08:07:52.377Z"
+              },
+              {
+                "id": 212161,
+                "title": "Fix",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access LegalBricks\\Websites\\Solicitor Portal",
+                "created_date": "2023-05-16T08:07:54.563Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 4,
+              "features": 75,
+              "tasks": 100
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 16,
+            "top_assignees": [
+              [
+                "Unassigned",
+                179
+              ],
+              [
+                "Liam Cox",
+                20
+              ],
+              [
+                "Patrick Ivan",
+                12
+              ],
+              [
+                "Joseph Smith",
+                11
+              ],
+              [
+                "Craig Freeman",
+                9
+              ],
+              [
+                "James Matthews",
+                8
+              ],
+              [
+                "George Atodiresei",
+                8
+              ],
+              [
+                "Nikko Liceralde",
+                8
+              ],
+              [
+                "James Harris",
+                6
+              ],
+              [
+                "Leanne Atkinson",
+                3
+              ]
+            ],
+            "load_imbalance_ratio": 179.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 11,
+            "areas": [
+              {
+                "area_path": "Access LegalBricks\\Websites\\API",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access LegalBricks\\Onyx",
+                "total_items": 31,
+                "unassigned_items": 25,
+                "unassigned_pct": 80.6
+              },
+              {
+                "area_path": "Access LegalBricks\\Bufonite",
+                "total_items": 42,
+                "unassigned_items": 32,
+                "unassigned_pct": 76.2
+              },
+              {
+                "area_path": "Access LegalBricks\\Integrations\\CMS Integrations",
+                "total_items": 11,
+                "unassigned_items": 8,
+                "unassigned_pct": 72.7
+              },
+              {
+                "area_path": "Access LegalBricks\\Websites\\Solicitor Portal",
+                "total_items": 13,
+                "unassigned_items": 9,
+                "unassigned_pct": 69.2
+              },
+              {
+                "area_path": "Access LegalBricks",
+                "total_items": 129,
+                "unassigned_items": 89,
+                "unassigned_pct": 69.0
+              },
+              {
+                "area_path": "Access LegalBricks\\Obsidian",
+                "total_items": 3,
+                "unassigned_items": 2,
+                "unassigned_pct": 66.7
+              },
+              {
+                "area_path": "Access LegalBricks\\Support Team",
+                "total_items": 8,
+                "unassigned_items": 5,
+                "unassigned_pct": 62.5
+              },
+              {
+                "area_path": "Access LegalBricks\\Services",
+                "total_items": 16,
+                "unassigned_items": 7,
+                "unassigned_pct": 43.8
+              },
+              {
+                "area_path": "Access LegalBricks\\Websites\\Admin Portal",
+                "total_items": 18,
+                "unassigned_items": 1,
+                "unassigned_pct": 5.6
+              },
+              {
+                "area_path": "Access LegalBricks\\Services\\Biometrics",
+                "total_items": 4,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 8,
+              "unassigned": 4,
+              "assigned": 4,
+              "unassigned_pct": 50.0
+            },
+            "User Story": {
+              "total": 99,
+              "unassigned": 75,
+              "assigned": 24,
+              "unassigned_pct": 75.8
+            },
+            "Task": {
+              "total": 169,
+              "unassigned": 100,
+              "assigned": 69,
+              "unassigned_pct": 59.2
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 13,
+            "total_commits": 316,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "James Harris",
+                "active_days": 13,
+                "commits": 13
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 12,
+                "commits": 12
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 10,
+                "commits": 10
+              },
+              {
+                "developer": "Patrick Ivan",
+                "active_days": 5,
+                "commits": 5
+              },
+              {
+                "developer": "Paul Cox",
+                "active_days": 3,
+                "commits": 3
+              },
+              {
+                "developer": "Automation Tester",
+                "active_days": 3,
+                "commits": 3
+              },
+              {
+                "developer": "Michael Ashford",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "George Atodiresei",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "David Coolledge-Meese",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Liviu Bichescu",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Asif Durrani",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Antoniu Prata",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "Andreea Rad",
+                "active_days": 1,
+                "commits": 1
+              }
+            ],
+            "avg_active_days": 4.2
+          },
+          "total_items_analyzed": 276,
+          "collected_at": "2026-02-08T15:19:42.629420"
+        },
+        {
+          "project_key": "Legal_Compliance",
+          "project_name": "Access Legal Compliance",
+          "unassigned": {
+            "unassigned_count": 53,
+            "total_items": 72,
+            "unassigned_pct": 73.6,
+            "items": [
+              {
+                "id": 203330,
+                "title": "ADE Integration - Add Complaint Types Data View - ACOM-195",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2023-05-10T13:03:26.45Z"
+              },
+              {
+                "id": 203341,
+                "title": "Fletcher Day - Audits Questions Report - Answer charts tab displaying the wrong data - ACOM-176",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2023-05-10T13:09:14.853Z"
+              },
+              {
+                "id": 203346,
+                "title": "Diversity Site - Ability to destroy client data - ACOM-129",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2023-05-10T13:09:59.9Z"
+              },
+              {
+                "id": 203347,
+                "title": "Pentest Report R2326: 2021: Uploaded Files Not Virus Scanned",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2023-05-10T13:10:19.977Z"
+              },
+              {
+                "id": 294210,
+                "title": "Pentest 2023: Uploaded File not Scanned for Malware",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2023-06-28T08:15:11.157Z"
+              },
+              {
+                "id": 319883,
+                "title": "Dynamic Query for Task List View",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2023-07-12T09:44:39.98Z"
+              },
+              {
+                "id": 1012896,
+                "title": "Deploy Copilot API to Preprod Environment AF:1012884",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-06-04T09:19:16.87Z"
+              },
+              {
+                "id": 1012897,
+                "title": "Deploy Copilot API to Preprod Environment DEV:1012884",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-06-04T09:19:17.077Z"
+              },
+              {
+                "id": 1012898,
+                "title": "Deploy Copilot API to Preprod Environment TEST:1012884",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-06-04T09:19:17.277Z"
+              },
+              {
+                "id": 1301540,
+                "title": "Automate - Delete Module Record - User does not have Task(s) in Feed",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-08-26T07:01:35.773Z"
+              },
+              {
+                "id": 1301542,
+                "title": "Automate - Complete Task - User does not have Task in Feed",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-08-26T07:02:46.28Z"
+              },
+              {
+                "id": 1345429,
+                "title": "Add Notes to Data Exports",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-09-12T16:28:38.673Z"
+              },
+              {
+                "id": 1376160,
+                "title": "Convert Textarea Fields to Richtext Editor",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-09-30T07:52:09.783Z"
+              },
+              {
+                "id": 1440258,
+                "title": "Internal Admin users unable to adjust passwords",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-11-12T20:07:09.77Z"
+              },
+              {
+                "id": 1440790,
+                "title": "Give/Remove access to [module] for [user]",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-11-13T10:38:42.097Z"
+              },
+              {
+                "id": 1440795,
+                "title": "Reassign [tasks] from [User A] to [User B]",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-11-13T10:39:54.047Z"
+              },
+              {
+                "id": 1441743,
+                "title": "How many [complaints] or [type] are there?",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-11-13T19:31:36.4Z"
+              },
+              {
+                "id": 1441744,
+                "title": "How many [records] for [entity] in [timescale] exist?",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-11-13T19:38:25.04Z"
+              },
+              {
+                "id": 1481627,
+                "title": "CoPilot | Search Update | Client Feedback",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-12-12T17:27:36.183Z"
+              },
+              {
+                "id": 1481629,
+                "title": "CoPilot | Search Update | Data Access Requests",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Compliance",
+                "created_date": "2024-12-12T17:33:24.107Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 8,
+              "features": 38,
+              "tasks": 7
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 2,
+            "top_assignees": [
+              [
+                "Unassigned",
+                53
+              ],
+              [
+                "Norbert Sentes",
+                18
+              ],
+              [
+                "Lushan Don Fransiskuge Don",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 53.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 1,
+            "areas": [
+              {
+                "area_path": "Access Legal Compliance",
+                "total_items": 72,
+                "unassigned_items": 53,
+                "unassigned_pct": 73.6
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 12,
+              "unassigned": 8,
+              "assigned": 4,
+              "unassigned_pct": 66.7
+            },
+            "User Story": {
+              "total": 47,
+              "unassigned": 38,
+              "assigned": 9,
+              "unassigned_pct": 80.9
+            },
+            "Task": {
+              "total": 13,
+              "unassigned": 7,
+              "assigned": 6,
+              "unassigned_pct": 53.8
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 3,
+            "total_commits": 100,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 6,
+                "commits": 6
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 6,
+                "commits": 6
+              },
+              {
+                "developer": "Norbert.Sentes",
+                "active_days": 5,
+                "commits": 5
+              }
+            ],
+            "avg_active_days": 5.7
+          },
+          "total_items_analyzed": 72,
+          "collected_at": "2026-02-08T15:19:43.870534"
+        },
+        {
+          "project_key": "Legal_InCase",
+          "project_name": "Access Legal InCase",
+          "unassigned": {
+            "unassigned_count": 89,
+            "total_items": 166,
+            "unassigned_pct": 53.6,
+            "items": [
+              {
+                "id": 1585040,
+                "title": "[MAIN-200] Preparing a release",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase\\Web Admin",
+                "created_date": "2023-10-02T15:59:45.803Z"
+              },
+              {
+                "id": 1773232,
+                "title": "Messages Endpoint returns 500 when no messages",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Access Legal InCase\\Triage",
+                "created_date": "2025-07-21T15:06:25.187Z"
+              },
+              {
+                "id": 1794939,
+                "title": "Tidy old PHP code",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-06T07:09:32.723Z"
+              },
+              {
+                "id": 1807902,
+                "title": "Test Support Case",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase\\inCase Support Team",
+                "created_date": "2025-08-15T13:21:50.463Z"
+              },
+              {
+                "id": 1810791,
+                "title": "Prevent Unintended AWS S3 Usage in Unit and Feature Tests",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-19T10:14:11.827Z"
+              },
+              {
+                "id": 1810818,
+                "title": "Fake S3 Storage in all test folders other than Integration",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-19T10:28:31.483Z"
+              },
+              {
+                "id": 1810830,
+                "title": "Write Integration Tests for AWS S3 Connectivity",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-19T10:31:58.44Z"
+              },
+              {
+                "id": 1814811,
+                "title": "Improve Logging Quality and Relevance",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-21T14:07:05.96Z"
+              },
+              {
+                "id": 1814825,
+                "title": "Analyze and Filter Optimizely Logs",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-21T14:17:28.36Z"
+              },
+              {
+                "id": 1814839,
+                "title": "Resolve PHP Warning for Dynamic Property Creation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-21T14:25:29.96Z"
+              },
+              {
+                "id": 1815360,
+                "title": "Improve Static Analysis Workflow with Qodana",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T06:57:04.033Z"
+              },
+              {
+                "id": 1815383,
+                "title": "Add Qodana Baseline File for API",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T07:16:11.653Z"
+              },
+              {
+                "id": 1815390,
+                "title": "Implement Qodana for Android Project",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T07:18:25.8Z"
+              },
+              {
+                "id": 1815868,
+                "title": "Maintain Up-to-Date Testing Tools for API",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T09:56:52.74Z"
+              },
+              {
+                "id": 1815875,
+                "title": "[API] Upgrade Pest to Version 4",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T09:58:15.743Z"
+              },
+              {
+                "id": 1815983,
+                "title": "Fix Incorrect Checkbox Rendering on Android",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T10:38:45.873Z"
+              },
+              {
+                "id": 1815988,
+                "title": "Fix Checkbox UI on Android",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T10:42:10.553Z"
+              },
+              {
+                "id": 1816554,
+                "title": "Improve API Test Pipeline performance",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T15:22:54.017Z"
+              },
+              {
+                "id": 1816557,
+                "title": "[API] Shard the pest test suite",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T15:24:30.53Z"
+              },
+              {
+                "id": 1816559,
+                "title": "Investigate with the team running ADO about getting more powerful agents",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal InCase",
+                "created_date": "2025-08-22T15:27:46.693Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 11,
+              "features": 26,
+              "tasks": 52
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 7,
+            "top_assignees": [
+              [
+                "Unassigned",
+                89
+              ],
+              [
+                "Andrei Croitoru Rusan",
+                38
+              ],
+              [
+                "Ben Keenan",
+                20
+              ],
+              [
+                "Danny Booth",
+                8
+              ],
+              [
+                "Samuel Kwao",
+                5
+              ],
+              [
+                "Jac Martin",
+                3
+              ],
+              [
+                "Ned Ashley",
+                2
+              ],
+              [
+                "Devin Azure DevOps Integration",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 89.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 7,
+            "areas": [
+              {
+                "area_path": "Access Legal InCase\\Web Admin",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal InCase\\Triage",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal InCase\\New App Requests",
+                "total_items": 6,
+                "unassigned_items": 6,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal InCase\\inCase Support Team",
+                "total_items": 18,
+                "unassigned_items": 12,
+                "unassigned_pct": 66.7
+              },
+              {
+                "area_path": "Access Legal InCase",
+                "total_items": 118,
+                "unassigned_items": 61,
+                "unassigned_pct": 51.7
+              },
+              {
+                "area_path": "Access Legal InCase\\Feature Requests",
+                "total_items": 16,
+                "unassigned_items": 6,
+                "unassigned_pct": 37.5
+              },
+              {
+                "area_path": "Access Legal InCase\\Support Requests",
+                "total_items": 6,
+                "unassigned_items": 2,
+                "unassigned_pct": 33.3
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 15,
+              "unassigned": 11,
+              "assigned": 4,
+              "unassigned_pct": 73.3
+            },
+            "User Story": {
+              "total": 55,
+              "unassigned": 26,
+              "assigned": 29,
+              "unassigned_pct": 47.3
+            },
+            "Task": {
+              "total": 96,
+              "unassigned": 52,
+              "assigned": 44,
+              "unassigned_pct": 54.2
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 9,
+            "total_commits": 702,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 32,
+                "commits": 32
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 32,
+                "commits": 32
+              },
+              {
+                "developer": "Ben Keenan",
+                "active_days": 27,
+                "commits": 27
+              },
+              {
+                "developer": "ben",
+                "active_days": 20,
+                "commits": 20
+              },
+              {
+                "developer": "Andrei CroitoruRusan",
+                "active_days": 13,
+                "commits": 13
+              },
+              {
+                "developer": "Andrei Croitoru Rusan",
+                "active_days": 12,
+                "commits": 12
+              },
+              {
+                "developer": "Ned Ashley",
+                "active_days": 7,
+                "commits": 7
+              },
+              {
+                "developer": "jac.martin@theaccessgroup.com",
+                "active_days": 5,
+                "commits": 5
+              },
+              {
+                "developer": "Jac Martin",
+                "active_days": 2,
+                "commits": 2
+              }
+            ],
+            "avg_active_days": 16.7
+          },
+          "total_items_analyzed": 166,
+          "collected_at": "2026-02-08T15:19:47.870129"
+        },
+        {
+          "project_key": "Legal_Proclaim",
+          "project_name": "Access Legal Proclaim",
+          "unassigned": {
+            "unassigned_count": 756,
+            "total_items": 1142,
+            "unassigned_pct": 66.2,
+            "items": [
+              {
+                "id": 1919487,
+                "title": "Touchpoint Site Gateway URL validation blocks updating from legacy WSDL endpoint to modern SOAP endpoint",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T11:31:59.5Z"
+              },
+              {
+                "id": 1920462,
+                "title": "Investigate Feed Integration Requirements",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:41:20.923Z"
+              },
+              {
+                "id": 1920464,
+                "title": "Implement Feed Data Sync for v3.5",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:41:45.823Z"
+              },
+              {
+                "id": 1920466,
+                "title": "Create Feed UI Components in v3.5",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:42:05.733Z"
+              },
+              {
+                "id": 1920467,
+                "title": "Add Human-Readable Field Descriptions",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:42:32.1Z"
+              },
+              {
+                "id": 1920468,
+                "title": "Replace Extra Info Column with Field Description",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:42:46.25Z"
+              },
+              {
+                "id": 1920469,
+                "title": "Create CDM Endpoint Management UI",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:43:21.85Z"
+              },
+              {
+                "id": 1920471,
+                "title": "Implement Field Export Functionality",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:43:40.01Z"
+              },
+              {
+                "id": 1920472,
+                "title": "Implement Field Import Functionality",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:44:15.12Z"
+              },
+              {
+                "id": 1920478,
+                "title": "Create Upgrade One-off for CDM Import",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:45:51.25Z"
+              },
+              {
+                "id": 1920479,
+                "title": "Test Copilot Natural Language Queries",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:46:05.2Z"
+              },
+              {
+                "id": 1920490,
+                "title": "Test Copilot Query Performance",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-03T15:48:17.35Z"
+              },
+              {
+                "id": 1922485,
+                "title": "HF41000 - Check all uses of set-wait-state(“general”) and forms",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-04T15:25:21.783Z"
+              },
+              {
+                "id": 1922510,
+                "title": "Dev",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-04T15:33:03.73Z"
+              },
+              {
+                "id": 1924360,
+                "title": "Add EnableProvisioning flag with environment-specific values",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-05T14:25:43.037Z"
+              },
+              {
+                "id": 1924362,
+                "title": "Wrap provisioning logic in feature flag check",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-05T14:25:55.19Z"
+              },
+              {
+                "id": 1924365,
+                "title": "Write unit tests for flag on/off scenarios",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-05T14:26:07.53Z"
+              },
+              {
+                "id": 1924366,
+                "title": "Document flag configuration and rollout plan",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-05T14:26:22.197Z"
+              },
+              {
+                "id": 1924409,
+                "title": "Create IDataEngineProvisioner interface",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-05T14:35:12.01Z"
+              },
+              {
+                "id": 1924412,
+                "title": "Create IAnalyticsProvisioner interface",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "created_date": "2025-11-05T14:35:23.657Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 12,
+              "features": 391,
+              "tasks": 353
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 24,
+            "top_assignees": [
+              [
+                "Unassigned",
+                756
+              ],
+              [
+                "Nicola Roberts",
+                116
+              ],
+              [
+                "Linda Brook",
+                84
+              ],
+              [
+                "Ivan Barker",
+                55
+              ],
+              [
+                "Tim Barlow",
+                23
+              ],
+              [
+                "Alex Barr",
+                19
+              ],
+              [
+                "Barbara Davies",
+                18
+              ],
+              [
+                "Simon Gudgin",
+                10
+              ],
+              [
+                "Nicky Jayia",
+                10
+              ],
+              [
+                "Mark Simmons",
+                7
+              ]
+            ],
+            "load_imbalance_ratio": 756.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 10,
+            "areas": [
+              {
+                "area_path": "Access Legal Proclaim\\QA-Team",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal Proclaim\\POT Go",
+                "total_items": 3,
+                "unassigned_items": 3,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal Proclaim\\LB Connect - Proclaim",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Access Legal Proclaim\\Review",
+                "total_items": 160,
+                "unassigned_items": 158,
+                "unassigned_pct": 98.8
+              },
+              {
+                "area_path": "Access Legal Proclaim\\Proclaim Chevin",
+                "total_items": 41,
+                "unassigned_items": 40,
+                "unassigned_pct": 97.6
+              },
+              {
+                "area_path": "Access Legal Proclaim\\Proclaim VPN Testing",
+                "total_items": 32,
+                "unassigned_items": 30,
+                "unassigned_pct": 93.8
+              },
+              {
+                "area_path": "Access Legal Proclaim\\Triage",
+                "total_items": 9,
+                "unassigned_items": 8,
+                "unassigned_pct": 88.9
+              },
+              {
+                "area_path": "Access Legal Proclaim\\CMSCentral",
+                "total_items": 56,
+                "unassigned_items": 49,
+                "unassigned_pct": 87.5
+              },
+              {
+                "area_path": "Access Legal Proclaim\\Proclaim Features",
+                "total_items": 486,
+                "unassigned_items": 402,
+                "unassigned_pct": 82.7
+              },
+              {
+                "area_path": "Access Legal Proclaim\\IWS",
+                "total_items": 353,
+                "unassigned_items": 64,
+                "unassigned_pct": 18.1
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 18,
+              "unassigned": 12,
+              "assigned": 6,
+              "unassigned_pct": 66.7
+            },
+            "User Story": {
+              "total": 532,
+              "unassigned": 391,
+              "assigned": 141,
+              "unassigned_pct": 73.5
+            },
+            "Task": {
+              "total": 592,
+              "unassigned": 353,
+              "assigned": 239,
+              "unassigned_pct": 59.6
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": []
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 14,
+            "total_commits": 296,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "David Robinson",
+                "active_days": 14,
+                "commits": 14
+              },
+              {
+                "developer": "Barbara Davies",
+                "active_days": 12,
+                "commits": 12
+              },
+              {
+                "developer": "Daniel Wood",
+                "active_days": 11,
+                "commits": 11
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 8,
+                "commits": 8
+              },
+              {
+                "developer": "Simon Earnshaw",
+                "active_days": 6,
+                "commits": 6
+              },
+              {
+                "developer": "Bryan Trolley",
+                "active_days": 5,
+                "commits": 5
+              },
+              {
+                "developer": "Alex Barr",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "TrillBe",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "Paula Hayden",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "Stuart Kenyon",
+                "active_days": 4,
+                "commits": 4
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 3,
+                "commits": 3
+              },
+              {
+                "developer": "PaulaHayden",
+                "active_days": 2,
+                "commits": 2
+              },
+              {
+                "developer": "Mark Hillyard",
+                "active_days": 1,
+                "commits": 1
+              },
+              {
+                "developer": "StuartK",
+                "active_days": 1,
+                "commits": 1
+              }
+            ],
+            "avg_active_days": 5.6
+          },
+          "total_items_analyzed": 1142,
+          "collected_at": "2026-02-08T15:19:53.132333"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
     }
   ]
 }
