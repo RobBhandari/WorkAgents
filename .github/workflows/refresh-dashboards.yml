@@ -19,12 +19,12 @@ jobs:
       matrix:
         collector:
           - { name: 'Discover Projects', script: 'discover_projects.py', outputs: 'ado_structure.json' }
-          - { name: 'Quality Metrics', script: 'ado_quality_metrics.py', outputs: 'quality_history.json' }
-          - { name: 'Flow Metrics', script: 'ado_flow_metrics.py', outputs: 'flow_history.json' }
-          - { name: 'Ownership Metrics', script: 'ado_ownership_metrics.py', outputs: 'ownership_history.json' }
-          - { name: 'Risk Metrics', script: 'ado_risk_metrics.py', outputs: 'risk_history.json' }
-          - { name: 'Deployment Metrics', script: 'ado_deployment_metrics.py', outputs: 'deployment_history.json' }
-          - { name: 'Collaboration Metrics', script: 'ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
+          - { name: 'Quality Metrics', script: 'collectors/ado_quality_metrics.py', outputs: 'quality_history.json' }
+          - { name: 'Flow Metrics', script: 'collectors/ado_flow_metrics.py', outputs: 'flow_history.json' }
+          - { name: 'Ownership Metrics', script: 'collectors/ado_ownership_metrics.py', outputs: 'ownership_history.json' }
+          - { name: 'Risk Metrics', script: 'collectors/ado_risk_metrics.py', outputs: 'risk_history.json' }
+          - { name: 'Deployment Metrics', script: 'collectors/ado_deployment_metrics.py', outputs: 'deployment_history.json' }
+          - { name: 'Collaboration Metrics', script: 'collectors/ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
           - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
       fail-fast: false  # Continue even if one fails
       max-parallel: 8   # Run all 8 collectors at once
@@ -83,7 +83,7 @@ jobs:
           - { name: 'Security (with drill-down)', script: 'archive/generate_security_dashboard_original.py' }
           - { name: 'Target', script: 'generate_target_dashboard.py' }
           - { name: 'Executive Trends (index)', script: 'archive/generate_trends_dashboard_original.py' }
-          - { name: 'AI Usage Report', script: 'usage_tables_report.py' }
+          - { name: 'AI Usage Report', script: 'reports/usage_tables_report.py' }
       fail-fast: false   # Continue even if one fails
       max-parallel: 10   # Run all 10 dashboards at once
 
