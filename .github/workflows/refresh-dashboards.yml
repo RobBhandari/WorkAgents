@@ -113,7 +113,7 @@ jobs:
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
 
       - name: Download all metrics artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: metrics-*
           path: .tmp/observatory/
@@ -150,14 +150,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download all dashboard artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: dashboard-*
           path: .tmp/observatory/dashboards/
           merge-multiple: true
 
       - name: Download all metrics artifacts (for data files)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: metrics-*
           path: .tmp/observatory/
