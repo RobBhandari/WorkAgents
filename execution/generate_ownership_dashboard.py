@@ -127,12 +127,14 @@ def generate_ownership_drilldown_html(project):
     # Format area data for template
     areas = []
     for area in raw_areas:
-        areas.append({
-            "area_path": area.get("area_path", "Unknown"),
-            "unassigned_pct": f"{area.get('unassigned_pct', 0):.1f}",
-            "total_items": area.get("total_items", 0),
-            "unassigned_items": area.get("unassigned_items", 0)
-        })
+        areas.append(
+            {
+                "area_path": area.get("area_path", "Unknown"),
+                "unassigned_pct": f"{area.get('unassigned_pct', 0):.1f}",
+                "total_items": area.get("total_items", 0),
+                "unassigned_items": area.get("unassigned_items", 0),
+            }
+        )
 
     # Render using template
     return render_template(
@@ -140,7 +142,7 @@ def generate_ownership_drilldown_html(project):
         assigned_only=assigned_only,
         load_imbalance=load_imbalance_str,
         work_type_metrics=work_type_metrics,
-        areas=areas
+        areas=areas,
     )
 
 

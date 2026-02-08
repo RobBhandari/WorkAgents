@@ -187,19 +187,47 @@ def generate_quality_drilldown_html(project):
 
         if bug_age.get("p85_age_days"):
             rag_class, rag_color, rag_status = get_metric_rag_status("Bug Age P85", bug_age["p85_age_days"])
-            html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="Bug Age P85", value={bug_age['p85_age_days']:.1f} days, status=rag_status)
+            html += render_template(
+                "dashboards/detail_metric.html",
+                rag_class=rag_class,
+                rag_color=rag_color,
+                label="Bug Age P85",
+                value=f"{bug_age['p85_age_days']:.1f} days",
+                status=rag_status,
+            )
 
         if bug_age.get("p95_age_days"):
             rag_class, rag_color, rag_status = get_metric_rag_status("Bug Age P95", bug_age["p95_age_days"])
-            html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="Bug Age P95", value={bug_age['p95_age_days']:.1f} days, status=rag_status)
+            html += render_template(
+                "dashboards/detail_metric.html",
+                rag_class=rag_class,
+                rag_color=rag_color,
+                label="Bug Age P95",
+                value=f"{bug_age['p95_age_days']:.1f} days",
+                status=rag_status,
+            )
 
         if mttr_data.get("p85_mttr_days"):
             rag_class, rag_color, rag_status = get_metric_rag_status("MTTR P85", mttr_data["p85_mttr_days"])
-            html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="MTTR P85", value={mttr_data['p85_mttr_days']:.1f} days, status=rag_status)
+            html += render_template(
+                "dashboards/detail_metric.html",
+                rag_class=rag_class,
+                rag_color=rag_color,
+                label="MTTR P85",
+                value=f"{mttr_data['p85_mttr_days']:.1f} days",
+                status=rag_status,
+            )
 
         if mttr_data.get("p95_mttr_days"):
             rag_class, rag_color, rag_status = get_metric_rag_status("MTTR P95", mttr_data["p95_mttr_days"])
-            html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="MTTR P95", value={mttr_data['p95_mttr_days']:.1f} days, status=rag_status)
+            html += render_template(
+                "dashboards/detail_metric.html",
+                rag_class=rag_class,
+                rag_color=rag_color,
+                label="MTTR P95",
+                value=f"{mttr_data['p95_mttr_days']:.1f} days",
+                status=rag_status,
+            )
 
         html += "</div></div>"
 
@@ -212,19 +240,43 @@ def generate_quality_drilldown_html(project):
 
         # 0-7 Days
         rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "0-7_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="0-7 Days", value={ages_dist.get('0-7_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="0-7 Days",
+            value=f"{ages_dist.get('0-7_days', 0)} bugs",
+        )
 
         # 8-30 Days
         rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "8-30_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="8-30 Days", value={ages_dist.get('8-30_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="8-30 Days",
+            value=f"{ages_dist.get('8-30_days', 0)} bugs",
+        )
 
         # 31-90 Days
         rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "31-90_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="31-90 Days", value={ages_dist.get('31-90_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="31-90 Days",
+            value=f"{ages_dist.get('31-90_days', 0)} bugs",
+        )
 
         # 90+ Days
         rag_class, rag_color = get_distribution_bucket_rag_status("bug_age", "90+_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="90+ Days", value={ages_dist.get('90+_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="90+ Days",
+            value=f"{ages_dist.get('90+_days', 0)} bugs",
+        )
 
         html += "</div></div>"
 
@@ -237,19 +289,43 @@ def generate_quality_drilldown_html(project):
 
         # 0-1 Days
         rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "0-1_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="0-1 Days", value={mttr_dist.get('0-1_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="0-1 Days",
+            value=f"{mttr_dist.get('0-1_days', 0)} bugs",
+        )
 
         # 1-7 Days
         rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "1-7_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="1-7 Days", value={mttr_dist.get('1-7_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="1-7 Days",
+            value=f"{mttr_dist.get('1-7_days', 0)} bugs",
+        )
 
         # 7-30 Days
         rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "7-30_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="7-30 Days", value={mttr_dist.get('7-30_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="7-30 Days",
+            value=f"{mttr_dist.get('7-30_days', 0)} bugs",
+        )
 
         # 30+ Days
         rag_class, rag_color = get_distribution_bucket_rag_status("mttr", "30+_days")
-        html += render_template("dashboards/detail_metric.html", rag_class=rag_class, rag_color=rag_color, label="30+ Days", value={mttr_dist.get('30+_days', 0)} bugs)
+        html += render_template(
+            "dashboards/detail_metric.html",
+            rag_class=rag_class,
+            rag_color=rag_color,
+            label="30+ Days",
+            value=f"{mttr_dist.get('30+_days', 0)} bugs",
+        )
 
         html += "</div></div>"
 
@@ -838,10 +914,17 @@ def generate_html(quality_data):
         drilldown_html = proj_data["drilldown_html"]
 
         # Main data row (clickable)
-        html += render_template("dashboards/quality_detail_rows.html", idx=idx, project_name=project["project_name"], mttr_str=mttr_str, median_age_str=median_age_str, open_bugs=open_bugs, status_tooltip=status_tooltip, row_status=row_status, drilldown_html=drilldown_html)
-                        </td>
-                    </tr>
-"""
+        html += render_template(
+            "dashboards/quality_detail_rows.html",
+            idx=idx,
+            project_name=project["project_name"],
+            mttr_str=mttr_str,
+            median_age_str=median_age_str,
+            open_bugs=open_bugs,
+            status_tooltip=status_tooltip,
+            row_status=row_status,
+            drilldown_html=drilldown_html,
+        )
 
     html += f"""                </tbody>
                 </table>

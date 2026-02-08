@@ -12,11 +12,11 @@ from pathlib import Path
 def generate_index_html():
     """Copy trends.html to index.html."""
 
-    dashboards_dir = Path('.tmp/observatory/dashboards')
+    dashboards_dir = Path(".tmp/observatory/dashboards")
     dashboards_dir.mkdir(parents=True, exist_ok=True)
 
-    trends_file = dashboards_dir / 'trends.html'
-    index_file = dashboards_dir / 'index.html'
+    trends_file = dashboards_dir / "trends.html"
+    index_file = dashboards_dir / "index.html"
 
     if trends_file.exists():
         shutil.copy2(trends_file, index_file)

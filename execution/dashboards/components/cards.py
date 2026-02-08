@@ -56,7 +56,9 @@ def summary_card(title: str, value: str, css_class: str = "", subtitle: str = ""
             subtitle="Immediate attention required"
         )
     """
-    return render_template("components/summary_card.html", title=title, value=value, css_class=css_class, subtitle=subtitle)
+    return render_template(
+        "components/summary_card.html", title=title, value=value, css_class=css_class, subtitle=subtitle
+    )
 
 
 def rag_status_badge(status: str) -> str:
@@ -118,4 +120,6 @@ def attention_item_card(severity: str, category: str, message: str) -> str:
 
     css_class = severity_map.get(severity.lower(), "")
 
-    return render_template("components/attention_item_card.html", css_class=css_class, category=category, message=message)
+    return render_template(
+        "components/attention_item_card.html", css_class=css_class, category=category, message=message
+    )

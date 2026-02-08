@@ -288,11 +288,7 @@ def _generate_product_details(product_name: str, metrics: SecurityMetrics) -> st
     breakdown_html = _generate_vulnerability_breakdown(metrics)
 
     # Combine into two-stage layout using template
-    return render_template(
-        "dashboards/product_details.html",
-        heatmap_html=heatmap_html,
-        breakdown_html=breakdown_html
-    )
+    return render_template("dashboards/product_details.html", heatmap_html=heatmap_html, breakdown_html=breakdown_html)
 
 
 def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
@@ -311,11 +307,11 @@ def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
     # Typical age distribution pattern (based on industry averages)
     # These percentages can be adjusted based on organization patterns
     age_patterns = [
-        ("0-7", 0.15),    # 15% very recent
-        ("8-14", 0.20),   # 20% recent
+        ("0-7", 0.15),  # 15% very recent
+        ("8-14", 0.20),  # 20% recent
         ("15-30", 0.30),  # 30% this month
         ("31-90", 0.25),  # 25% 1-3 months
-        ("90+", 0.10),    # 10% stale
+        ("90+", 0.10),  # 10% stale
     ]
 
     # Calculate estimated counts for critical
@@ -331,10 +327,11 @@ def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
         high_dist.append((label, count))
 
     # Find max for intensity scaling
-    max_count = max(
-        max(c for _, c in critical_dist),
-        max(c for _, c in high_dist)
-    ) if metrics.critical + metrics.high > 0 else 1
+    max_count = (
+        max(max(c for _, c in critical_dist), max(c for _, c in high_dist))
+        if metrics.critical + metrics.high > 0
+        else 1
+    )
 
     # Generate age labels
     age_labels = [label for label, _ in age_patterns]
@@ -343,20 +340,17 @@ def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
     critical_cells = []
     for _, count in critical_dist:
         intensity = (count / max_count) if max_count > 0 else 0
-        critical_cells.append(_generate_heatmap_cell(count, intensity, 'critical'))
+        critical_cells.append(_generate_heatmap_cell(count, intensity, "critical"))
 
     # Generate cell HTML for high row
     high_cells = []
     for _, count in high_dist:
         intensity = (count / max_count) if max_count > 0 else 0
-        high_cells.append(_generate_heatmap_cell(count, intensity, 'high'))
+        high_cells.append(_generate_heatmap_cell(count, intensity, "high"))
 
     # Render using template
     return render_template(
-        "dashboards/aging_heatmap.html",
-        age_labels=age_labels,
-        critical_cells=critical_cells,
-        high_cells=high_cells
+        "dashboards/aging_heatmap.html", age_labels=age_labels, critical_cells=critical_cells, high_cells=high_cells
     )
 
 
@@ -373,35 +367,32 @@ def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> 
         HTML for cell
     """
     if count == 0:
-        bg_color = 'rgba(148, 163, 184, 0.1)'
-        text_color = 'var(--text-secondary)'
-        display_value = ''
+        bg_color = "rgba(148, 163, 184, 0.1)"
+        text_color = "var(--text-secondary)"
+        display_value = ""
     else:
-        if severity_type == 'critical':
+        if severity_type == "critical":
             # Red scale for critical
             if intensity < 0.3:
-                bg_color = f'rgba(239, 68, 68, {0.3 + intensity * 0.3})'
+                bg_color = f"rgba(239, 68, 68, {0.3 + intensity * 0.3})"
             elif intensity < 0.7:
-                bg_color = f'rgba(239, 68, 68, {0.6 + intensity * 0.2})'
+                bg_color = f"rgba(239, 68, 68, {0.6 + intensity * 0.2})"
             else:
-                bg_color = f'rgba(220, 38, 38, {0.8 + intensity * 0.2})'
+                bg_color = f"rgba(220, 38, 38, {0.8 + intensity * 0.2})"
         else:
             # Orange scale for high
             if intensity < 0.3:
-                bg_color = f'rgba(251, 146, 60, {0.3 + intensity * 0.3})'
+                bg_color = f"rgba(251, 146, 60, {0.3 + intensity * 0.3})"
             elif intensity < 0.7:
-                bg_color = f'rgba(249, 115, 22, {0.6 + intensity * 0.2})'
+                bg_color = f"rgba(249, 115, 22, {0.6 + intensity * 0.2})"
             else:
-                bg_color = f'rgba(234, 88, 12, {0.8 + intensity * 0.2})'
+                bg_color = f"rgba(234, 88, 12, {0.8 + intensity * 0.2})"
 
-        text_color = '#ffffff'
+        text_color = "#ffffff"
         display_value = str(count)
 
     return render_template(
-        "components/heatmap_cell.html",
-        bg_color=bg_color,
-        text_color=text_color,
-        display_value=display_value
+        "components/heatmap_cell.html", bg_color=bg_color, text_color=text_color, display_value=display_value
     )
 
 
@@ -434,7 +425,7 @@ def _generate_vulnerability_breakdown(metrics: SecurityMetrics) -> str:
         medium_count=metrics.medium,
         medium_pct=med_pct,
         low_count=metrics.low,
-        low_pct=low_pct
+        low_pct=low_pct,
     )
 
 

@@ -82,28 +82,25 @@ def calculate_composite_flow_status(p85_lead_time, p50_lead_time):
     # Determine overall status and priority
     if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
         # Both metrics poor = Action Needed
-        status_html = render_template("components/flow_status_badge.html",
-                                     color="#ef4444", icon="●", text="Action Needed")
+        status_html = render_template(
+            "components/flow_status_badge.html", color="#ef4444", icon="●", text="Action Needed"
+        )
         priority = 0
     elif "poor" in issues:
         # One poor metric = Caution
-        status_html = render_template("components/flow_status_badge.html",
-                                     color="#f59e0b", icon="⚠", text="Caution")
+        status_html = render_template("components/flow_status_badge.html", color="#f59e0b", icon="⚠", text="Caution")
         priority = 1
     elif "caution" in issues and len([i for i in issues if i == "caution"]) >= 2:
         # Both metrics caution = Caution
-        status_html = render_template("components/flow_status_badge.html",
-                                     color="#f59e0b", icon="⚠", text="Caution")
+        status_html = render_template("components/flow_status_badge.html", color="#f59e0b", icon="⚠", text="Caution")
         priority = 1
     elif "caution" in issues:
         # One caution metric = Caution
-        status_html = render_template("components/flow_status_badge.html",
-                                     color="#f59e0b", icon="⚠", text="Caution")
+        status_html = render_template("components/flow_status_badge.html", color="#f59e0b", icon="⚠", text="Caution")
         priority = 1
     else:
         # All metrics meet targets = Good
-        status_html = render_template("components/flow_status_badge.html",
-                                     color="#10b981", icon="✓", text="Good")
+        status_html = render_template("components/flow_status_badge.html", color="#10b981", icon="✓", text="Good")
         priority = 2
 
     return status_html, tooltip, priority
@@ -666,7 +663,7 @@ def generate_html(flow_data):
 
             html += render_template(
                 "dashboards/flow_project_row.html",
-                project_name=project['project_name'],
+                project_name=project["project_name"],
                 has_cleanup=has_cleanup and operational_metrics,
                 cleanup_pct=cleanup_pct,
                 p85=f"{p85:.1f}",
@@ -682,7 +679,7 @@ def generate_html(flow_data):
                 cleanup_closed=cleanup_closed,
                 status_tooltip=status_tooltip,
                 row_status=row_status,
-                operational_metrics=operational_metrics
+                operational_metrics=operational_metrics,
             )
 
         html += """                </tbody>

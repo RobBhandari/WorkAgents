@@ -116,7 +116,7 @@ def generate_risk_drilldown_html(project):
         small_prs_metric=small_prs_metric,
         large_prs_metric=large_prs_metric,
         repo_count=repo_count,
-        hot_paths=hot_paths
+        hot_paths=hot_paths,
     )
 
 
