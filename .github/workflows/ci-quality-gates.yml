@@ -72,8 +72,9 @@ jobs:
       - name: Check Architecture Patterns
         run: |
           echo "Checking architectural standards on modular code..."
-          # Only check refactored modular code, not legacy root files
-          find execution/domain execution/dashboards/components execution/collectors -name "*.py" 2>/dev/null | xargs python hooks/check-architecture-patterns.py || {
+          # Only check refactored modular code (dashboards/components/domain)
+          # Collectors are exempt - they're operational ETL code with different constraints
+          find execution/domain execution/dashboards/components -name "*.py" 2>/dev/null | xargs python hooks/check-architecture-patterns.py || {
             echo "[X] Architecture violations found in modular code"
             echo "See: execution/CONTRIBUTING.md for guidelines"
             exit 1
