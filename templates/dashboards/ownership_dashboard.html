@@ -1,0 +1,344 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Ownership Dashboard{% endblock %}
+{% block meta_description %}Work assignment and distribution metrics - Director Observatory{% endblock %}
+
+{% block header_title %}Ownership Dashboard{% endblock %}
+{% block header_subtitle %}Work Assignment & Distribution{% endblock %}
+{% block header_metadata %}Week {{ week_number }} • {{ week_date }} • Generated {{ generation_date }}{% endblock %}
+{% block footer_context %}Ownership Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Executive Summary */
+    .executive-summary {
+        background: var(--bg-secondary);
+        padding: 24px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px var(--shadow);
+        transition: background-color 0.3s ease;
+    }
+
+    .status-badge {
+        background: {{ summary_stats.status_color }};
+        color: white;
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+    }
+
+    .executive-summary h2 {
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+    .executive-summary p {
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .summary-card {
+        background: var(--bg-card);
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .summary-card .label {
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .summary-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .summary-card .unit {
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
+
+    .summary-card .explanation {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 8px;
+    }
+
+    /* Detail content styles for expandable rows */
+    .detail-section {
+        margin-bottom: 16px;
+    }
+
+    .detail-section h4 {
+        color: var(--text-primary);
+        margin-bottom: 12px;
+        font-size: 1rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 12px 0;
+    }
+
+    .detail-metric {
+        background: var(--bg-secondary);
+        padding: 12px;
+        border-radius: 6px;
+    }
+
+    .detail-metric-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .detail-metric-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .detail-metric-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 6px;
+    }
+
+    .detail-list {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0;
+    }
+
+    .detail-list li {
+        padding: 8px;
+        background: var(--bg-secondary);
+        margin-bottom: 6px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        border-left: 2px solid #3b82f6;
+    }
+
+    .no-data {
+        color: var(--text-secondary);
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    .detail-table {
+        width: 100%;
+        margin-top: 10px;
+        font-size: 0.85rem;
+    }
+
+    .detail-table th {
+        padding: 8px;
+        font-size: 0.75rem;
+        background: var(--bg-tertiary);
+        text-align: left;
+    }
+
+    .detail-table td {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .detail-table tbody tr:hover {
+        background: var(--bg-tertiary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Executive Summary -->
+<div class="executive-summary">
+    <div class="status-badge">{{ summary_stats.status_text }}</div>
+    <h2 style="margin-bottom: 10px;">Executive Summary</h2>
+    <p>
+        Ownership metrics across {{ summary_stats.project_count }} projects. These metrics show how well work is assigned and distributed across teams.
+    </p>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="label">Unassigned Rate</div>
+            <div class="value">{{ summary_stats.avg_unassigned_pct|format_percent }}<span class="unit">%</span></div>
+            <div class="explanation">Percentage of work without an assigned owner</div>
+        </div>
+
+        <div class="summary-card" style="border-left-color: #ef4444;">
+            <div class="label">Total Unassigned</div>
+            <div class="value">{{ summary_stats.total_unassigned|format_number }}<span class="unit">items</span></div>
+            <div class="explanation">Work items that need owners</div>
+        </div>
+
+        <div class="summary-card" style="border-left-color: #3b82f6;">
+            <div class="label">Unassigned %</div>
+            <div class="value">{{ summary_stats.avg_unassigned_pct|format_percent }}<span class="unit">%</span></div>
+            <div class="explanation">Average across all projects</div>
+        </div>
+
+        <div class="summary-card" style="border-left-color: #10b981;">
+            <div class="label">Total Work Items</div>
+            <div class="value">{{ summary_stats.total_all_items|format_number }}</div>
+            <div class="explanation">All open items analyzed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Comparison Table -->
+<div class="section">
+    <h2>Project Ownership Metrics</h2>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Total Items</th>
+                    <th>Unassigned</th>
+                    <th>Unassigned %</th>
+                    <th>Assignees</th>
+                    <th>Avg Active Days</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in project_rows %}
+                <tr class="data-row clickable"
+                    onclick="toggleDetail('detail-{{ loop.index }}', this)"
+                    title="{{ row.status_tooltip }}">
+                    <td>{{ row.project_name }}</td>
+                    <td>{{ row.total|format_number }}</td>
+                    <td>{{ row.unassigned_count|format_number }}</td>
+                    <td>{{ row.unassigned_pct|format_percent }}%</td>
+                    <td>{{ row.assignee_count }}</td>
+                    <td {% if row.avg_active_days is not none %}title="{{ row.sample_size }} developers tracked over 90 days"{% else %}title="No commit data available"{% endif %}>
+                        {% if row.avg_active_days is not none %}
+                            {{ "%.1f"|format(row.avg_active_days) }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ row.status_html|safe }}</td>
+                </tr>
+                <tr id="detail-{{ loop.index }}" class="detail-row">
+                    <td colspan="7">
+                        <div class="detail-content">
+                            {{ row.drilldown_html|safe }}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Glossary -->
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>📖 What These Metrics Mean</h3>
+        <span class="glossary-toggle" id="glossary-toggle">▼</span>
+    </div>
+    <div class="glossary-content" id="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">Unassigned Items</div>
+            <div class="glossary-definition">
+                Work items without an assigned owner. These are at risk of being forgotten or delayed.
+                Every work item should have a clear owner responsible for moving it forward.
+                <br><strong>Target:</strong> Keep below 10%
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Work Type Status Indicators</div>
+            <div class="glossary-definition">
+                Each work type card (Bug, User Story, Task) shows a status indicator based on the percentage of unassigned items.
+                The border color and background tint show at a glance whether ownership is well-distributed or needs attention.
+                <br><br>
+                <strong>Status Based on Unassigned Percentage:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><strong style="color: #10b981;">✓ Good (&lt; 25% unassigned):</strong> Most work has clear ownership - healthy assignment pattern</li>
+                    <li><strong style="color: #f59e0b;">⚠ Caution (25-50% unassigned):</strong> Significant work lacks ownership - review assignment process and capacity</li>
+                    <li><strong style="color: #ef4444;">● Action Needed (&gt; 50% unassigned):</strong> Majority of work is unassigned - immediate attention needed for capacity planning or triage</li>
+                </ul>
+                <strong>What to look for:</strong> Green cards indicate healthy ownership. Red cards suggest that work is piling up without owners, which can lead to delayed delivery and unclear accountability.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Area Unassigned Statistics</div>
+            <div class="glossary-definition">
+                Shows unassigned work percentage by area path with no arbitrary classifications.
+                Simply displays which areas have the highest percentage of unassigned work, allowing you to see patterns.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Assignees</div>
+            <div class="glossary-definition">
+                Number of unique team members with assigned work in a project.
+                More assignees suggests broader team engagement.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Avg Active Days</div>
+            <div class="glossary-definition">
+                The average number of days per developer with commit activity in the last 90 days.
+                This measures developer engagement frequency. Calculated by counting the unique days each developer
+                made commits, then averaging across all developers in the project.
+                <br><br>
+                <strong>Example:</strong> If Developer A committed on 20 unique days and Developer B on 10 unique days,
+                the average is 15 days. Higher values indicate more consistent developer engagement.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Load Imbalance</div>
+            <div class="glossary-definition">
+                Ratio of maximum to minimum workload across assignees.
+                High ratios (e.g., 5:1) suggest some team members are overloaded while others are underutilized.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Overall Status</div>
+            <div class="glossary-definition">
+                Status is based on unassigned work percentage.
+                <br><br>
+                <strong>Status Categories:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><strong style="color: #10b981;">✓ Low Unassigned:</strong> Less than 25% of work unassigned</li>
+                    <li><strong style="color: #f59e0b;">⚠ Medium Unassigned:</strong> 25-50% of work unassigned</li>
+                    <li><strong style="color: #ef4444;">● High Unassigned:</strong> More than 50% of work unassigned</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
