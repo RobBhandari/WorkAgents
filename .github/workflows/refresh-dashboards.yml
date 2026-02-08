@@ -170,6 +170,11 @@ jobs:
           ls -la .tmp/observatory/dashboards/ || echo "No dashboards found"
           ls -la .tmp/observatory/*.json || echo "No data files found"
 
+      - name: Generate index.html landing page
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python execution/generate_index.py
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:

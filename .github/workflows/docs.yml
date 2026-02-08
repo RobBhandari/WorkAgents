@@ -40,7 +40,8 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel
           pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
-          pip install -r requirements.txt
+          # Install only runtime dependencies needed for autodoc (not the package itself)
+          pip install python-dotenv requests httpx jinja2 pandas beautifulsoup4 lxml azure-devops google-api-python-client
 
       - name: Build documentation
         run: |
