@@ -14,8 +14,10 @@ from datetime import datetime
 # Import mobile-responsive framework
 try:
     from execution.dashboard_framework import get_dashboard_framework
+    from execution.template_engine import render_template
 except ModuleNotFoundError:
     from dashboard_framework import get_dashboard_framework
+    from template_engine import render_template
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":
@@ -642,38 +644,41 @@ def generate_html(flow_data):
             operational_metrics = proj_data["operational_metrics"]
 
             # Main data row - show operational metrics if cleanup detected
+            # Prepare context for template
+            op_p85 = ""
+            op_p50 = ""
+            op_closed = ""
+            cleanup_closed = ""
+            cleanup_pct = 0
+
             if has_cleanup and operational_metrics:
                 # Show operational metrics with cleanup indicator
-                op_p85 = operational_metrics.get("p85", 0)
-                op_p50 = operational_metrics.get("p50", 0)
-                op_closed = operational_metrics.get("closed_count", 0)
-                cleanup_closed = dual_metrics.get("cleanup", {}).get("closed_count", 0)
-                cleanup_pct = dual_metrics.get("indicators", {}).get("cleanup_percentage", 0)
+                op_p85 = f"{operational_metrics.get('p85', 0):.1f}"
+                op_p50 = f"{operational_metrics.get('p50', 0):.1f}"
+                op_closed = f"{operational_metrics.get('closed_count', 0):,}"
+                cleanup_closed = f"{dual_metrics.get('cleanup', {}).get('closed_count', 0):,}"
+                cleanup_pct = f"{dual_metrics.get('indicators', {}).get('cleanup_percentage', 0):.0f}"
 
-                html += f"""                    <tr>
-                        <td><strong>{project['project_name']}</strong> <span style="color: #f59e0b;" title="{cleanup_pct:.0f}% of closures are cleanup work (>1 year old)">⚠️ Cleanup</span></td>
-                        <td><strong>{op_p85:.1f} days</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(Total: {p85:.1f})</span></td>
-                        <td><strong>{op_p50:.1f} days</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(Total: {p50:.1f})</span></td>
-                        <td title="{closed_count:,} closed in 90 days">{throughput_per_week:.1f}/wk</td>
-                        <td title="Mean: {std_dev_days:.0f} days">{coefficient_of_variation:.1f}% CV</td>
-                        <td>{open_count:,}</td>
-                        <td><strong>{op_closed:,}</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(+{cleanup_closed:,} cleanup)</span></td>
-                        <td title="{status_tooltip} (based on operational metrics)">{row_status}</td>
-                    </tr>
-"""
-            else:
-                # Standard row without cleanup
-                html += f"""                    <tr>
-                        <td><strong>{project['project_name']}</strong></td>
-                        <td>{p85:.1f} days</td>
-                        <td>{p50:.1f} days</td>
-                        <td title="{closed_count:,} closed in 90 days">{throughput_per_week:.1f}/wk</td>
-                        <td title="Mean: {std_dev_days:.0f} days">{coefficient_of_variation:.1f}% CV</td>
-                        <td>{open_count:,}</td>
-                        <td>{closed_count:,}</td>
-                        <td title="{status_tooltip}">{row_status}</td>
-                    </tr>
-"""
+            html += render_template(
+                "dashboards/flow_project_row.html",
+                project_name=project['project_name'],
+                has_cleanup=has_cleanup and operational_metrics,
+                cleanup_pct=cleanup_pct,
+                p85=f"{p85:.1f}",
+                p50=f"{p50:.1f}",
+                op_p85=op_p85,
+                op_p50=op_p50,
+                closed_count=f"{closed_count:,}",
+                throughput_per_week=f"{throughput_per_week:.1f}",
+                std_dev_days=f"{std_dev_days:.0f}",
+                coefficient_of_variation=f"{coefficient_of_variation:.1f}",
+                open_count=f"{open_count:,}",
+                op_closed=op_closed,
+                cleanup_closed=cleanup_closed,
+                status_tooltip=status_tooltip,
+                row_status=row_status,
+                operational_metrics=operational_metrics
+            )
 
         html += """                </tbody>
                 </table>
