@@ -28,7 +28,7 @@ class TemplateEngine:
     Centralized template engine with security features.
     """
 
-    def __init__(self, template_dir: Path | str = None):
+    def __init__(self, template_dir: Path | str | None = None):
         """
         Initialize template engine.
 
@@ -64,7 +64,8 @@ class TemplateEngine:
             html = engine.render('card.html', title="Metrics", value=100)
         """
         template = self.env.get_template(template_name)
-        return template.render(**context)
+        result: str = template.render(**context)
+        return result
 
 
 # Global template engine instance
