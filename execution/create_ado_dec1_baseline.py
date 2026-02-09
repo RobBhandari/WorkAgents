@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.core import get_config
+from execution.security import WIQLValidator
 
 # Load environment variables
 load_dotenv()
@@ -66,24 +67,31 @@ def query_bugs_as_of_date(organization_url: str, project_name: str, pat: str, as
 
         logger.info("Successfully connected to Azure DevOps")
 
+        # Validate inputs to prevent WIQL injection
+        safe_project = WIQLValidator.validate_project_name(project_name)
+        safe_as_of_date = WIQLValidator.validate_date_iso8601(as_of_date)
+
         # Build WIQL query for bugs that existed on the baseline date
         # Include bugs that were:
         # 1. Created on or before baseline date
         # 2. Either still open OR closed after baseline date
-        wiql_query = f"""
-        SELECT [System.Id], [System.Title], [System.State],
+        wiql_query = WIQLValidator.build_safe_wiql(
+            """SELECT [System.Id], [System.Title], [System.State],
                [Microsoft.VSTS.Common.Priority], [System.CreatedDate], [Microsoft.VSTS.Common.ClosedDate]
-        FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
-        AND [System.WorkItemType] = 'Bug'
-        AND [System.CreatedDate] <= '{as_of_date}'
-        AND (
-            [System.State] <> 'Closed'
-            OR [Microsoft.VSTS.Common.ClosedDate] > '{as_of_date}'
-            OR [Microsoft.VSTS.Common.ClosedDate] = ''
+            FROM WorkItems
+            WHERE [System.TeamProject] = '{project}'
+            AND [System.WorkItemType] = '{work_type}'
+            AND [System.CreatedDate] <= '{as_of_date}'
+            AND (
+                [System.State] <> 'Closed'
+                OR [Microsoft.VSTS.Common.ClosedDate] > '{as_of_date}'
+                OR [Microsoft.VSTS.Common.ClosedDate] = ''
+            )
+            ORDER BY [Microsoft.VSTS.Common.Priority] ASC, [System.Id] ASC""",
+            project=safe_project,
+            work_type="Bug",
+            as_of_date=safe_as_of_date,
         )
-        ORDER BY [Microsoft.VSTS.Common.Priority] ASC, [System.Id] ASC
-        """  # nosec B608 - Hardcoded project name from config, date validated by datetime.strptime
 
         logger.info("Executing WIQL query...")
         wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})

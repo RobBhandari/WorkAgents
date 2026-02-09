@@ -26,6 +26,7 @@ from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
 from execution.secure_config import get_config
+from execution.security import WIQLValidator
 from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
 
 load_dotenv()
@@ -50,10 +51,14 @@ def _build_area_filter_clause(area_path_filter: str | None) -> tuple[str, str | 
 
     if area_path_filter.startswith("EXCLUDE:"):
         path = area_path_filter.replace("EXCLUDE:", "")
-        return f"AND [System.AreaPath] NOT UNDER '{path}'", f"Excluding area path: {path}"
+        # Validate area path to prevent injection
+        safe_path = WIQLValidator.validate_area_path(path)
+        return f"AND [System.AreaPath] NOT UNDER '{safe_path}'", f"Excluding area path: {safe_path}"
     elif area_path_filter.startswith("INCLUDE:"):
         path = area_path_filter.replace("INCLUDE:", "")
-        return f"AND [System.AreaPath] UNDER '{path}'", f"Including only area path: {path}"
+        # Validate area path to prevent injection
+        safe_path = WIQLValidator.validate_area_path(path)
+        return f"AND [System.AreaPath] UNDER '{safe_path}'", f"Including only area path: {safe_path}"
     else:
         logger.warning(f"Invalid area_path_filter format: {area_path_filter}")
         return "", None
@@ -66,7 +71,7 @@ def _execute_wiql_query(wit_client, project_name: str, area_filter_clause: str) 
     Args:
         wit_client: Work Item Tracking client
         project_name: ADO project name
-        area_filter_clause: Area path filter clause
+        area_filter_clause: Area path filter clause (already validated)
 
     Returns:
         List of work item IDs
@@ -74,21 +79,24 @@ def _execute_wiql_query(wit_client, project_name: str, area_filter_clause: str) 
     Raises:
         AzureDevOpsServiceError: If query fails
     """
+    # Validate project name to prevent WIQL injection
+    safe_project = WIQLValidator.validate_project_name(project_name)
+
     # Query: Actionable work items only (New, Active, In Progress)
     # Excludes: Resolved (functionally done), Closed, Removed
     # Focuses on: Bugs, User Stories, Tasks (not Epics/Features which are planning items)
-    wiql_open = Wiql(query=f"""
-        SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
+    wiql_query = f"""SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
                [System.WorkItemType], [System.AssignedTo], [System.AreaPath],
                [System.ChangedDate]
         FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
+        WHERE [System.TeamProject] = '{safe_project}'
           AND [System.State] IN ('New', 'Active', 'In Progress', 'Committed')
           AND [System.WorkItemType] IN ('Bug', 'User Story', 'Task')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
-        """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
+        """  # nosec B608 - project_name validated by WIQLValidator, area_filter_clause validated in _build_area_filter_clause
 
+    wiql_open = Wiql(query=wiql_query)
     result = wit_client.query_by_wiql(wiql_open).work_items
     return [item.id for item in result] if result else []
 

@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.core import get_config
+from execution.security import WIQLValidator
 
 # Load environment variables
 load_dotenv()
@@ -32,37 +33,47 @@ print("[SUCCESS] Connected\n")
 project_name = "Access Legal Case Management"
 print(f"Querying ALL open bugs from: {project_name}\n")
 
-wiql_all = Wiql(query=f"""
-    SELECT [System.Id], [System.Title], [System.AreaPath], [System.State]
-    FROM WorkItems
-    WHERE [System.TeamProject] = '{project_name}'
-      AND [System.WorkItemType] = 'Bug'
-      AND [System.State] <> 'Closed'
-      AND [System.State] <> 'Removed'
-    ORDER BY [System.AreaPath]
-    """)  # nosec B608 - Hardcoded project name from config, not user input
+# Validate project name to ensure secure query construction
+safe_project = WIQLValidator.validate_project_name(project_name)
+safe_area_path = WIQLValidator.validate_area_path("Access Legal Case Management\\OneOffice and Financial Director")
+
+wiql_all = Wiql(
+    query=WIQLValidator.build_safe_wiql(
+        """SELECT [System.Id], [System.Title], [System.AreaPath], [System.State]
+        FROM WorkItems
+        WHERE [System.TeamProject] = '{project}'
+          AND [System.WorkItemType] = '{work_type}'
+          AND [System.State] <> 'Closed'
+          AND [System.State] <> 'Removed'
+        ORDER BY [System.AreaPath]""",
+        project=safe_project,
+        work_type="Bug",
+    )
+)
 
 # Query bugs EXCLUDING OneOffice
-wiql_exclude = Wiql(query=f"""
-    SELECT [System.Id]
+wiql_exclude = Wiql(
+    query=f"""SELECT [System.Id]
     FROM WorkItems
-    WHERE [System.TeamProject] = '{project_name}'
+    WHERE [System.TeamProject] = '{safe_project}'
       AND [System.WorkItemType] = 'Bug'
       AND [System.State] <> 'Closed'
       AND [System.State] <> 'Removed'
-      AND [System.AreaPath] NOT UNDER 'Access Legal Case Management\\OneOffice and Financial Director'
-    """)  # nosec B608 - Hardcoded project name from config, not user input
+      AND [System.AreaPath] NOT UNDER '{safe_area_path}'
+    """  # nosec B608 - Input validated by WIQLValidator
+)
 
 # Query bugs INCLUDING ONLY OneOffice
-wiql_include = Wiql(query=f"""
-    SELECT [System.Id]
+wiql_include = Wiql(
+    query=f"""SELECT [System.Id]
     FROM WorkItems
-    WHERE [System.TeamProject] = '{project_name}'
+    WHERE [System.TeamProject] = '{safe_project}'
       AND [System.WorkItemType] = 'Bug'
       AND [System.State] <> 'Closed'
       AND [System.State] <> 'Removed'
-      AND [System.AreaPath] UNDER 'Access Legal Case Management\\OneOffice and Financial Director'
-    """)  # nosec B608 - Hardcoded project name from config, not user input
+      AND [System.AreaPath] UNDER '{safe_area_path}'
+    """  # nosec B608 - Input validated by WIQLValidator
+)
 
 # Execute queries
 all_result = wit_client.query_by_wiql(wiql_all)

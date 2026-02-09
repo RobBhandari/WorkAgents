@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.core import get_config
+from execution.security import WIQLValidator
 
 # Load environment variables
 load_dotenv()
@@ -32,14 +33,21 @@ print("[SUCCESS] Connected\n")
 project_name = "Access Legal Case Management"
 print(f"Querying bugs from: {project_name}")
 
-wiql = Wiql(query=f"""
-    SELECT [System.Id], [System.Title], [System.CreatedBy], [System.CreatedDate], [System.Tags]
-    FROM WorkItems
-    WHERE [System.TeamProject] = '{project_name}'
-      AND [System.WorkItemType] = 'Bug'
-      AND [System.State] <> 'Removed'
-    ORDER BY [System.CreatedDate] DESC
-    """)  # nosec B608 - Hardcoded project name from config, not user input
+# Validate project name to ensure secure query construction
+safe_project = WIQLValidator.validate_project_name(project_name)
+
+wiql = Wiql(
+    query=WIQLValidator.build_safe_wiql(
+        """SELECT [System.Id], [System.Title], [System.CreatedBy], [System.CreatedDate], [System.Tags]
+        FROM WorkItems
+        WHERE [System.TeamProject] = '{project}'
+          AND [System.WorkItemType] = '{work_type}'
+          AND [System.State] <> 'Removed'
+        ORDER BY [System.CreatedDate] DESC""",
+        project=safe_project,
+        work_type="Bug",
+    )
+)
 
 result = wit_client.query_by_wiql(wiql)
 print(f"Found {len(result.work_items)} bugs\n")

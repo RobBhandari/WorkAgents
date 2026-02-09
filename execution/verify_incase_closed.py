@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.core import get_config
+from execution.security import WIQLValidator
 
 load_dotenv()
 
@@ -23,15 +24,25 @@ wit_client = connection.clients.get_work_item_tracking_client()
 lookback_date = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
 project_name = "Access Legal InCase"
 
-wiql = Wiql(query=f"""
-    SELECT [System.Id], [Microsoft.VSTS.Common.ClosedDate]
-    FROM WorkItems
-    WHERE [System.TeamProject] = '{project_name}'
-      AND [System.WorkItemType] = 'Bug'
-      AND [System.State] = 'Closed'
-      AND [Microsoft.VSTS.Common.ClosedDate] >= '{lookback_date}'
-    ORDER BY [Microsoft.VSTS.Common.ClosedDate] DESC
-    """)  # nosec B608 - Hardcoded project name from config, not user input
+# Validate inputs to prevent WIQL injection
+safe_project = WIQLValidator.validate_project_name(project_name)
+safe_lookback_date = WIQLValidator.validate_date_iso8601(lookback_date)
+
+wiql = Wiql(
+    query=WIQLValidator.build_safe_wiql(
+        """SELECT [System.Id], [Microsoft.VSTS.Common.ClosedDate]
+        FROM WorkItems
+        WHERE [System.TeamProject] = '{project}'
+          AND [System.WorkItemType] = '{work_type}'
+          AND [System.State] = '{state}'
+          AND [Microsoft.VSTS.Common.ClosedDate] >= '{lookback_date}'
+        ORDER BY [Microsoft.VSTS.Common.ClosedDate] DESC""",
+        project=safe_project,
+        work_type="Bug",
+        state="Closed",
+        lookback_date=safe_lookback_date,
+    )
+)
 
 result = wit_client.query_by_wiql(wiql).work_items
 total_count = len(result) if result else 0

@@ -27,6 +27,7 @@ from msrest.authentication import BasicAuthentication
 from execution.collectors.ado_connection import get_ado_connection
 from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.secure_config import get_config
+from execution.security import WIQLValidator
 from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
 from execution.utils.statistics import calculate_percentile
 
@@ -51,12 +52,16 @@ def _build_area_filter_clause(area_path_filter: str | None) -> str:
 
     if area_path_filter.startswith("EXCLUDE:"):
         path = area_path_filter.replace("EXCLUDE:", "")
-        print(f"      Excluding area path: {path}")
-        return f"AND [System.AreaPath] NOT UNDER '{path}'"
+        # Validate area path to prevent injection
+        safe_path = WIQLValidator.validate_area_path(path)
+        print(f"      Excluding area path: {safe_path}")
+        return f"AND [System.AreaPath] NOT UNDER '{safe_path}'"
     elif area_path_filter.startswith("INCLUDE:"):
         path = area_path_filter.replace("INCLUDE:", "")
-        print(f"      Including only area path: {path}")
-        return f"AND [System.AreaPath] UNDER '{path}'"
+        # Validate area path to prevent injection
+        safe_path = WIQLValidator.validate_area_path(path)
+        print(f"      Including only area path: {safe_path}")
+        return f"AND [System.AreaPath] UNDER '{safe_path}'"
 
     return ""
 
@@ -114,37 +119,41 @@ def query_bugs_for_quality(
 
     print(f"    Querying bugs for {project_name}...")
 
-    # Build area path filter clause
+    # Validate inputs to prevent WIQL injection
+    safe_project = WIQLValidator.validate_project_name(project_name)
+    safe_lookback_date = WIQLValidator.validate_date_iso8601(lookback_date)
+
+    # Build area path filter clause (validates area paths internally)
     area_filter_clause = _build_area_filter_clause(area_path_filter)
 
     # Query 1: All bugs (for overall quality assessment)
-    wiql_all_bugs = Wiql(query=f"""
-        SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
+    wiql_all_bugs_query = f"""SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
                [System.WorkItemType], [Microsoft.VSTS.Common.Priority],
                [Microsoft.VSTS.Common.Severity], [System.Tags],
                [Microsoft.VSTS.Common.ClosedDate], [Microsoft.VSTS.Common.ResolvedDate]
         FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
+        WHERE [System.TeamProject] = '{safe_project}'
           AND [System.WorkItemType] = 'Bug'
-          AND [System.CreatedDate] >= '{lookback_date}'
+          AND [System.CreatedDate] >= '{safe_lookback_date}'
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
-        """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
+        """  # nosec B608 - Inputs validated by WIQLValidator
+    wiql_all_bugs = Wiql(query=wiql_all_bugs_query)
 
     # Query 2: Currently open bugs (for aging analysis)
-    wiql_open_bugs = Wiql(query=f"""
-        SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
+    wiql_open_bugs_query = f"""SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
                [System.WorkItemType], [Microsoft.VSTS.Common.Priority],
                [Microsoft.VSTS.Common.Severity], [System.Tags]
         FROM WorkItems
-        WHERE [System.TeamProject] = '{project_name}'
+        WHERE [System.TeamProject] = '{safe_project}'
           AND [System.WorkItemType] = 'Bug'
           AND [System.State] <> 'Closed'
           AND [System.State] <> 'Removed'
           AND ([Microsoft.VSTS.Common.Triage] <> 'Rejected' OR [Microsoft.VSTS.Common.Triage] = '')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] ASC
-        """)  # nosec B608 - project_name from trusted config, area_filter_clause validated upstream
+        """  # nosec B608 - Inputs validated by WIQLValidator
+    wiql_open_bugs = Wiql(query=wiql_open_bugs_query)
 
     # Execute queries
     all_bugs_result = wit_client.query_by_wiql(wiql_all_bugs).work_items
