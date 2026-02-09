@@ -1,0 +1,33 @@
+<tr>
+    <td>
+        <strong>{{ project_name }}</strong>
+        {% if has_cleanup %}
+        <span style="color: #f59e0b;" title="{{ cleanup_pct }}% of closures are cleanup work (>1 year old)">⚠️ Cleanup</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if has_cleanup and operational_metrics %}
+        <strong>{{ op_p85 }} days</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(Total: {{ p85 }})</span>
+        {% else %}
+        {{ p85 }} days
+        {% endif %}
+    </td>
+    <td>
+        {% if has_cleanup and operational_metrics %}
+        <strong>{{ op_p50 }} days</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(Total: {{ p50 }})</span>
+        {% else %}
+        {{ p50 }} days
+        {% endif %}
+    </td>
+    <td title="{{ closed_count }} closed in 90 days">{{ throughput_per_week }}/wk</td>
+    <td title="Mean: {{ std_dev_days }} days">{{ coefficient_of_variation }}% CV</td>
+    <td>{{ open_count }}</td>
+    <td>
+        {% if has_cleanup and operational_metrics %}
+        <strong>{{ op_closed }}</strong><br><span style="font-size: 0.8em; color: #94a3b8;">(+{{ cleanup_closed }} cleanup)</span>
+        {% else %}
+        {{ closed_count }}
+        {% endif %}
+    </td>
+    <td title="{{ status_tooltip }}{% if has_cleanup and operational_metrics %} (based on operational metrics){% endif %}">{{ row_status }}</td>
+</tr>

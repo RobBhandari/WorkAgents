@@ -1,0 +1,14 @@
+<tr class="data-row" onclick="toggleDetail('ownership-detail-{{ idx }}', this)">
+    <td><strong>{{ project_name }}</strong></td>
+    <td>{{ total }}</td>
+    <td>{{ unassigned_count }}</td>
+    <td>{{ unassigned_pct }}%</td>
+    <td>{{ assignee_count }}</td>
+    <td title="{{ active_days_title }}">{{ active_days_display }}</td>
+    <td title="{{ status_tooltip }}">{{ row_status|safe }}</td>
+</tr>
+<tr class="detail-row" id="ownership-detail-{{ idx }}">
+    <td colspan="7">
+        {{ drilldown_html|safe }}
+    </td>
+</tr>

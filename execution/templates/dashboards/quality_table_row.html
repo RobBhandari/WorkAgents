@@ -1,0 +1,9 @@
+<tr class="data-row" onclick="toggleDetail('quality-{{ project_key }}', this)">
+    <td><strong>{{ project_name }}</strong></td>
+    <td>{{ open_bugs }}</td>
+    <td class="{{ trend_class }}">{{ net_change }}</td>
+    <td class="{{ closure_rate_class }}">{{ closure_rate }}%</td>
+    <td class="{{ p1_class }}">{{ p1_count }}</td>
+    <td class="{{ p2_class }}">{{ p2_count }}</td>
+    <td>{{ status_badge|safe }}</td>
+</tr>

@@ -1,0 +1,128 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Director Observatory - Dashboard Hub{% endblock %}
+{% block header_title %}Director Observatory{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>📊 Dashboard Hub</h2>
+    <p class="subtitle">Select a dashboard to view detailed metrics and insights</p>
+    <p class="last-updated">Last updated: {{ timestamp }}</p>
+</div>
+
+<div class="dashboard-grid">
+    {% for dashboard in dashboards %}
+    <a href="{{ dashboard.filename }}" class="dashboard-card {{ dashboard.status_class }}">
+        <div class="dashboard-icon">{{ dashboard.icon }}</div>
+        <h3>{{ dashboard.title }}</h3>
+        <p class="dashboard-description">{{ dashboard.description }}</p>
+        {% if dashboard.status %}
+        <div class="dashboard-status {{ dashboard.status_class }}">
+            {{ dashboard.status }}
+        </div>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+
+<style>
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.dashboard-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.last-updated {
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.dashboard-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: var(--accent);
+}
+
+.dashboard-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.dashboard-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.dashboard-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: auto;
+}
+
+.dashboard-status.status-good {
+    background: var(--status-good-bg);
+    color: var(--status-good-text);
+}
+
+.dashboard-status.status-caution {
+    background: var(--status-caution-bg);
+    color: var(--status-caution-text);
+}
+
+.dashboard-status.status-action {
+    background: var(--status-action-bg);
+    color: var(--status-action-text);
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-header h2 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,12 @@
+<tr class="data-row" onclick="toggleDetail('quality-detail-{{ idx }}', this)">
+    <td><strong>{{ project_name }}</strong></td>
+    <td>{{ mttr_str }}</td>
+    <td>{{ median_age_str }}</td>
+    <td>{{ open_bugs }}</td>
+    <td title="{{ status_tooltip }}">{{ row_status }}</td>
+</tr>
+<tr class="detail-row" id="quality-detail-{{ idx }}">
+    <td colspan="5">
+        {{ drilldown_html|safe }}
+    </td>
+</tr>

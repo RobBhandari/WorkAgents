@@ -1,0 +1,7 @@
+<div class="detail-metric {{ rag_class }}">
+    <div class="detail-metric-label">{{ label }}</div>
+    <div class="detail-metric-value">{{ value }}</div>
+    {% if status %}
+    <div class="detail-metric-status" style="color: {{ rag_color }};">{{ status }}</div>
+    {% endif %}
+</div>

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Azure DevOps Bug Report - {{ project_name }}{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🐛 Azure DevOps Bug Report</h1>
+    <p><strong>{{ project_name }}</strong></p>
+    <p>{{ bug_count }} open bugs | Generated: {{ generated_at }}</p>
+</div>
+
+<div class="content">
+    <!-- Statistics Cards -->
+    <div class="stats">
+        <div class="stat-card">
+            <h3>{{ bug_count }}</h3>
+            <p>Total Bugs</p>
+        </div>
+
+        {% for state, count in state_counts.items() %}
+        <div class="stat-card">
+            <h3>{{ count }}</h3>
+            <p>{{ state }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Search Box -->
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="searchBox" onkeyup="filterTable()"
+               placeholder="🔍 Search bugs..."
+               style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+    </div>
+
+    <!-- Bugs Table -->
+    <div class="table-container">
+        <table id="bugTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)" style="cursor: pointer;">ID ↕</th>
+                    <th onclick="sortTable(1)" style="cursor: pointer;">Priority ↕</th>
+                    <th onclick="sortTable(2)" style="cursor: pointer;">State ↕</th>
+                    <th onclick="sortTable(3)" style="cursor: pointer;">Title ↕</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bug in bugs %}
+                <tr>
+                    <td><span class="bug-id">#{{ bug.id }}</span></td>
+                    <td>
+                        {% set priority = bug.priority if bug.priority is defined else 'N/A' %}
+                        {% if priority == 'N/A' %}
+                            <span class="badge badge-priority-na">{{ priority }}</span>
+                        {% else %}
+                            <span class="badge badge-priority-{{ priority }}">{{ priority }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-state-{{ bug.state|lower }}">{{ bug.state }}</span>
+                    </td>
+                    <td>{{ bug.title }}</td>  {# AUTO-ESCAPED by Jinja2! #}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Table filtering
+    function filterTable() {
+        const input = document.getElementById('searchBox');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('bugTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const row = tr[i];
+            const text = row.textContent || row.innerText;
+
+            if (text.toLowerCase().indexOf(filter) > -1) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+
+    // Table sorting
+    function sortTable(columnIndex) {
+        const table = document.getElementById('bugTable');
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+
+        const sortedRows = rows.sort((a, b) => {
+            const aValue = a.cells[columnIndex].textContent.trim();
+            const bValue = b.cells[columnIndex].textContent.trim();
+
+            // Try numeric sort for ID and Priority columns
+            if (columnIndex === 0 || columnIndex === 1) {
+                const aNum = parseInt(aValue.replace(/[^0-9]/g, ''));
+                const bNum = parseInt(bValue.replace(/[^0-9]/g, ''));
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return aNum - bNum;
+                }
+            }
+
+            // String sort
+            return aValue.localeCompare(bValue);
+        });
+
+        // Re-append sorted rows
+        sortedRows.forEach(row => tbody.appendChild(row));
+    }
+</script>
+{% endblock %}
