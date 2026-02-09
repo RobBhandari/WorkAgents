@@ -9,7 +9,7 @@ This directory stores operational metrics and usage data. **All files in this di
 - **Status**: **GITIGNORED** - Contains sensitive employee information (names, job titles, usage data)
 - **Location**: Keep this file locally, do NOT commit to git
 - **Update Frequency**: Weekly (as needed)
-- **Purpose**: Tracks Claude and Devin usage for LGL users
+- **Purpose**: Tracks Claude and Devin usage for team users
 
 ### Usage Pattern
 
@@ -24,7 +24,7 @@ python execution/reports/usage_tables_report.py --file data/ai_usage_data.csv --
 See `data/ai_usage_data_example.csv` for the required column structure. Your CSV must contain:
 - `Name` - User name
 - `Job Title` - User's job title
-- `Software Company` - Company/division (report filters for 'LGL')
+- `Software Company` - Company/division identifier
 - `Claude Access?` or `Claude Access ` - Access status (Yes/No)
 - `Claude 30 day usage` - Usage count for last 30 days
 - `Devin Access?` or `Devin Access ` - Access status (Yes/No)
