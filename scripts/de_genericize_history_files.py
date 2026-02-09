@@ -91,35 +91,35 @@ def de_genericize_history_file(file_path: Path) -> bool:
         # Report
         total_replacements = sum(stats.values())
         if total_replacements > 0:
-            print(f"✅ {file_path.name}: {total_replacements} de-genericizations")
+            print(f"[OK] {file_path.name}: {total_replacements} de-genericizations")
             for generic, count in sorted(stats.items()):
-                print(f"   {generic} → {REVERSE_MAPPING[generic]}: {count}x")
+                print(f"   {generic} -> {REVERSE_MAPPING[generic]}: {count}x")
         else:
-            print(f"ℹ️  {file_path.name}: No generic names found (already real names)")
+            print(f"[INFO]  {file_path.name}: No generic names found (already real names)")
 
         return True
 
     except Exception as e:
-        print(f"❌ Error processing {file_path.name}: {e}")
+        print(f"[ERROR] Error processing {file_path.name}: {e}")
         return False
 
 
 def main():
     """De-genericize all history files in .tmp/observatory/."""
-    print("🔓 De-Genericizing History Files (Generic → Real Names)")
+    print("De-Genericizing History Files (Generic -> Real Names)")
     print("=" * 70)
 
     history_dir = Path(".tmp/observatory")
 
     if not history_dir.exists():
-        print(f"❌ Directory not found: {history_dir}")
+        print(f"[ERROR] Directory not found: {history_dir}")
         sys.exit(1)
 
     # Find all history JSON files
     history_files = list(history_dir.glob("*_history.json"))
 
     if not history_files:
-        print(f"⚠️  No history files found in {history_dir}")
+        print(f"[WARN]  No history files found in {history_dir}")
         sys.exit(0)
 
     print(f"Found {len(history_files)} history files to de-genericize\n")
@@ -130,9 +130,9 @@ def main():
             success_count += 1
 
     print("\n" + "=" * 70)
-    print(f"✅ De-genericization complete: {success_count}/{len(history_files)} files processed")
-    print("🔒 History files now contain REAL product names for Azure deployment")
-    print("📝 These will be genericized again before committing to git")
+    print(f"[OK] De-genericization complete: {success_count}/{len(history_files)} files processed")
+    print("[LOCK] History files now contain REAL product names for Azure deployment")
+    print("[NOTE] These will be genericized again before committing to git")
 
 
 if __name__ == "__main__":
