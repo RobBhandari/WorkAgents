@@ -37,7 +37,7 @@ def load_history_file(file_path):
             return None
 
         # Load and parse JSON
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -45,11 +45,11 @@ def load_history_file(file_path):
             print(f"  ⚠️ {filename}: Invalid data structure (not a dictionary)")
             return None
 
-        if 'weeks' not in data:
+        if "weeks" not in data:
             print(f"  ⚠️ {filename}: Missing 'weeks' key")
             return None
 
-        weeks = data.get('weeks', [])
+        weeks = data.get("weeks", [])
         if not weeks:
             print(f"  ⚠️ {filename}: No weeks data found")
             return None
@@ -73,18 +73,18 @@ def load_baseline_data():
     baselines = {}
 
     # Load ArmorCode baseline
-    armorcode_file = 'data/armorcode_baseline.json'
+    armorcode_file = "data/armorcode_baseline.json"
     if os.path.exists(armorcode_file):
-        with open(armorcode_file, encoding='utf-8') as f:
+        with open(armorcode_file, encoding="utf-8") as f:
             data = json.load(f)
-            baselines['security'] = data.get('total_vulnerabilities', 0)
+            baselines["security"] = data.get("total_vulnerabilities", 0)
 
     # Load ADO bugs baseline
-    ado_file = 'data/baseline.json'
+    ado_file = "data/baseline.json"
     if os.path.exists(ado_file):
-        with open(ado_file, encoding='utf-8') as f:
+        with open(ado_file, encoding="utf-8") as f:
             data = json.load(f)
-            baselines['bugs'] = data.get('open_count', 0)  # Field is 'open_count' not 'total_bugs'
+            baselines["bugs"] = data.get("open_count", 0)  # Field is 'open_count' not 'total_bugs'
 
     return baselines
 
@@ -94,48 +94,54 @@ def calculate_target_progress():
     baselines = load_baseline_data()
 
     # Get current counts from latest data
-    quality_data = load_history_file('.tmp/observatory/quality_history.json')
-    security_data = load_history_file('.tmp/observatory/security_history.json')
+    quality_data = load_history_file(".tmp/observatory/quality_history.json")
+    security_data = load_history_file(".tmp/observatory/security_history.json")
 
     if not quality_data or not security_data:
         return None
 
     # Current bugs (latest week)
-    latest_quality = quality_data['weeks'][-1]
-    current_bugs = sum(p.get('open_bugs_count', 0) for p in latest_quality.get('projects', []))
+    latest_quality = quality_data["weeks"][-1]
+    current_bugs = sum(p.get("open_bugs_count", 0) for p in latest_quality.get("projects", []))
 
     # Current security vulns (latest week)
-    latest_security = security_data['weeks'][-1]
-    current_vulns = latest_security.get('metrics', {}).get('current_total', 0)
+    latest_security = security_data["weeks"][-1]
+    current_vulns = latest_security.get("metrics", {}).get("current_total", 0)
 
     # Calculate progress
-    baseline_bugs = baselines.get('bugs', 0)
-    baseline_vulns = baselines.get('security', 0)
+    baseline_bugs = baselines.get("bugs", 0)
+    baseline_vulns = baselines.get("security", 0)
 
     target_bugs = round(baseline_bugs * 0.3)  # 70% reduction = 30% remaining (round to match target dashboard)
     target_vulns = round(baseline_vulns * 0.3)
 
     # Progress calculation
-    bugs_progress = ((baseline_bugs - current_bugs) / (baseline_bugs - target_bugs) * 100) if baseline_bugs > target_bugs else 0
-    vulns_progress = ((baseline_vulns - current_vulns) / (baseline_vulns - target_vulns) * 100) if baseline_vulns > target_vulns else 0
+    bugs_progress = (
+        ((baseline_bugs - current_bugs) / (baseline_bugs - target_bugs) * 100) if baseline_bugs > target_bugs else 0
+    )
+    vulns_progress = (
+        ((baseline_vulns - current_vulns) / (baseline_vulns - target_vulns) * 100)
+        if baseline_vulns > target_vulns
+        else 0
+    )
 
     # Overall progress (average)
     overall_progress = (bugs_progress + vulns_progress) / 2
 
     # Weeks to target (June 30, 2026)
-    target_date = datetime.strptime('2026-06-30', '%Y-%m-%d')
+    target_date = datetime.strptime("2026-06-30", "%Y-%m-%d")
     today = datetime.now()
     weeks_remaining = max(0, (target_date - today).days / 7)
 
     # Burn rate analysis (4-week average) - SEPARATE for bugs and vulns
-    if len(quality_data['weeks']) >= 5 and len(security_data['weeks']) >= 5:
+    if len(quality_data["weeks"]) >= 5 and len(security_data["weeks"]) >= 5:
         # Bugs 4 weeks ago
-        bugs_4wk_ago = sum(p.get('open_bugs_count', 0) for p in quality_data['weeks'][-5].get('projects', []))
+        bugs_4wk_ago = sum(p.get("open_bugs_count", 0) for p in quality_data["weeks"][-5].get("projects", []))
         bugs_burned_4wk = bugs_4wk_ago - current_bugs
         actual_bugs_burn_rate = bugs_burned_4wk / 4
 
         # Vulns 4 weeks ago
-        vulns_4wk_ago = security_data['weeks'][-5].get('metrics', {}).get('current_total', 0)
+        vulns_4wk_ago = security_data["weeks"][-5].get("metrics", {}).get("current_total", 0)
         vulns_burned_4wk = vulns_4wk_ago - current_vulns
         actual_vulns_burn_rate = vulns_burned_4wk / 4
     else:
@@ -150,14 +156,14 @@ def calculate_target_progress():
 
     # Trajectory
     if overall_progress >= 70:
-        trajectory = 'On Track'
-        trajectory_color = '#10b981'
+        trajectory = "On Track"
+        trajectory_color = "#10b981"
     elif overall_progress >= 40:
-        trajectory = 'Behind'
-        trajectory_color = '#f59e0b'
+        trajectory = "Behind"
+        trajectory_color = "#f59e0b"
     else:
-        trajectory = 'Behind'
-        trajectory_color = '#ef4444'
+        trajectory = "Behind"
+        trajectory_color = "#ef4444"
 
     # Forecast message - check if BOTH are going backwards
     bugs_going_backwards = actual_bugs_burn_rate <= 0
@@ -185,95 +191,106 @@ def calculate_target_progress():
     vulns_trend = []
     progress_trend = []
 
-    for i in range(len(quality_data['weeks'])):
-        week_bugs = sum(p.get('open_bugs_count', 0) for p in quality_data['weeks'][i].get('projects', []))
+    for i in range(len(quality_data["weeks"])):
+        week_bugs = sum(p.get("open_bugs_count", 0) for p in quality_data["weeks"][i].get("projects", []))
         bugs_trend.append(week_bugs)
 
-        if i < len(security_data['weeks']):
-            week_vulns = security_data['weeks'][i].get('metrics', {}).get('current_total', 0)
+        if i < len(security_data["weeks"]):
+            week_vulns = security_data["weeks"][i].get("metrics", {}).get("current_total", 0)
             vulns_trend.append(week_vulns)
 
             # Calculate progress for this week
-            week_bugs_progress = ((baseline_bugs - week_bugs) / (baseline_bugs - target_bugs) * 100) if baseline_bugs > target_bugs else 0
-            week_vulns_progress = ((baseline_vulns - week_vulns) / (baseline_vulns - target_vulns) * 100) if baseline_vulns > target_vulns else 0
+            week_bugs_progress = (
+                ((baseline_bugs - week_bugs) / (baseline_bugs - target_bugs) * 100)
+                if baseline_bugs > target_bugs
+                else 0
+            )
+            week_vulns_progress = (
+                ((baseline_vulns - week_vulns) / (baseline_vulns - target_vulns) * 100)
+                if baseline_vulns > target_vulns
+                else 0
+            )
             week_progress = (week_bugs_progress + week_vulns_progress) / 2
             progress_trend.append(round(week_progress, 1))
 
     return {
-        'current': round(overall_progress, 1),
-        'previous': progress_trend[-2] if len(progress_trend) > 1 else round(overall_progress, 1),
-        'trend_data': progress_trend,
-        'unit': '% progress',
-        'forecast': {
-            'trajectory': trajectory,
-            'trajectory_color': trajectory_color,
-            'weeks_to_target': round(weeks_remaining, 1),
-            'required_bugs_burn': round(required_bugs_burn_rate, 2),
-            'required_vulns_burn': round(required_vulns_burn_rate, 2),
-            'actual_bugs_burn': round(actual_bugs_burn_rate, 2),
-            'actual_vulns_burn': round(actual_vulns_burn_rate, 2),
-            'forecast_msg': forecast_msg
-        }
+        "current": round(overall_progress, 1),
+        "previous": progress_trend[-2] if len(progress_trend) > 1 else round(overall_progress, 1),
+        "trend_data": progress_trend,
+        "unit": "% progress",
+        "forecast": {
+            "trajectory": trajectory,
+            "trajectory_color": trajectory_color,
+            "weeks_to_target": round(weeks_remaining, 1),
+            "required_bugs_burn": round(required_bugs_burn_rate, 2),
+            "required_vulns_burn": round(required_vulns_burn_rate, 2),
+            "actual_bugs_burn": round(actual_bugs_burn_rate, 2),
+            "actual_vulns_burn": round(actual_vulns_burn_rate, 2),
+            "forecast_msg": forecast_msg,
+        },
     }
 
 
 def extract_trends_from_quality():
     """Extract bug and MTTR trends from quality_history.json"""
-    data = load_history_file('.tmp/observatory/quality_history.json')
-    if not data or not data.get('weeks'):
+    data = load_history_file(".tmp/observatory/quality_history.json")
+    if not data or not data.get("weeks"):
         return None
 
-    weeks = data['weeks']
+    weeks = data["weeks"]
     total_bugs_trend = []
     mttr_trend = []
 
     for week in weeks:
         # Sum open bugs across all projects
-        total_bugs = sum(p.get('open_bugs_count', 0) for p in week.get('projects', []))
+        total_bugs = sum(p.get("open_bugs_count", 0) for p in week.get("projects", []))
         total_bugs_trend.append(total_bugs)
 
         # Average MTTR across projects
-        mttr_values = [p.get('mttr', {}).get('mttr_days') for p in week.get('projects', [])
-                      if p.get('mttr', {}).get('mttr_days') is not None]
+        mttr_values = [
+            p.get("mttr", {}).get("mttr_days")
+            for p in week.get("projects", [])
+            if p.get("mttr", {}).get("mttr_days") is not None
+        ]
         avg_mttr = sum(mttr_values) / len(mttr_values) if mttr_values else 0
         mttr_trend.append(round(avg_mttr, 1))
 
     return {
-        'bugs': {
-            'current': total_bugs_trend[-1] if total_bugs_trend else 0,
-            'previous': total_bugs_trend[-2] if len(total_bugs_trend) > 1 else 0,
-            'trend_data': total_bugs_trend,
-            'unit': 'bugs'
+        "bugs": {
+            "current": total_bugs_trend[-1] if total_bugs_trend else 0,
+            "previous": total_bugs_trend[-2] if len(total_bugs_trend) > 1 else 0,
+            "trend_data": total_bugs_trend,
+            "unit": "bugs",
         },
-        'mttr': {
-            'current': mttr_trend[-1] if mttr_trend else 0,
-            'previous': mttr_trend[-2] if len(mttr_trend) > 1 else 0,
-            'trend_data': mttr_trend,
-            'unit': 'days'
-        }
+        "mttr": {
+            "current": mttr_trend[-1] if mttr_trend else 0,
+            "previous": mttr_trend[-2] if len(mttr_trend) > 1 else 0,
+            "trend_data": mttr_trend,
+            "unit": "days",
+        },
     }
 
 
 def extract_trends_from_security():
     """Extract security trends from security_history.json"""
-    data = load_history_file('.tmp/observatory/security_history.json')
-    if not data or not data.get('weeks'):
+    data = load_history_file(".tmp/observatory/security_history.json")
+    if not data or not data.get("weeks"):
         return None
 
-    weeks = data['weeks']
+    weeks = data["weeks"]
     vuln_trend = []
 
     for week in weeks:
-        metrics = week.get('metrics', {})
-        total = metrics.get('current_total', 0)
+        metrics = week.get("metrics", {})
+        total = metrics.get("current_total", 0)
         vuln_trend.append(total)
 
     return {
-        'vulnerabilities': {
-            'current': vuln_trend[-1] if vuln_trend else 0,
-            'previous': vuln_trend[-2] if len(vuln_trend) > 1 else 0,
-            'trend_data': vuln_trend,
-            'unit': 'vulns'
+        "vulnerabilities": {
+            "current": vuln_trend[-1] if vuln_trend else 0,
+            "previous": vuln_trend[-2] if len(vuln_trend) > 1 else 0,
+            "trend_data": vuln_trend,
+            "unit": "vulns",
         }
     }
 
@@ -284,52 +301,52 @@ def extract_trends_from_flow():
     Uses median across all work types with operational metrics when cleanup is detected.
     Matches executive summary calculation for consistency.
     """
-    data = load_history_file('.tmp/observatory/flow_history.json')
-    if not data or not data.get('weeks'):
+    data = load_history_file(".tmp/observatory/flow_history.json")
+    if not data or not data.get("weeks"):
         return None
 
-    weeks = data['weeks']
+    weeks = data["weeks"]
     lead_time_trend = []
 
     for week in weeks:
-        projects = week.get('projects', [])
+        projects = week.get("projects", [])
 
         # Collect lead times across all work types (matches exec summary logic)
         lead_times = []
         for proj in projects:
             # Check if project has work_type_metrics
-            if 'work_type_metrics' in proj:
+            if "work_type_metrics" in proj:
                 # Aggregate across ALL work types
-                for work_type, metrics in proj.get('work_type_metrics', {}).items():
-                    dual_metrics = metrics.get('dual_metrics', {})
-                    has_cleanup = dual_metrics.get('indicators', {}).get('is_cleanup_effort', False)
+                for work_type, metrics in proj.get("work_type_metrics", {}).items():
+                    dual_metrics = metrics.get("dual_metrics", {})
+                    has_cleanup = dual_metrics.get("indicators", {}).get("is_cleanup_effort", False)
 
                     if has_cleanup:
                         # Use operational metrics for accurate performance view
-                        operational = dual_metrics.get('operational', {})
-                        op_p85 = operational.get('p85')
+                        operational = dual_metrics.get("operational", {})
+                        op_p85 = operational.get("p85")
                         if op_p85:
                             lead_times.append(op_p85)
                     else:
                         # Use standard lead time
-                        lead_time = metrics.get('lead_time', {})
-                        if lead_time.get('p85'):
-                            lead_times.append(lead_time['p85'])
+                        lead_time = metrics.get("lead_time", {})
+                        if lead_time.get("p85"):
+                            lead_times.append(lead_time["p85"])
             else:
                 # Legacy data format
-                if proj.get('lead_time', {}).get('p85'):
-                    lead_times.append(proj['lead_time']['p85'])
+                if proj.get("lead_time", {}).get("p85"):
+                    lead_times.append(proj["lead_time"]["p85"])
 
         # Use median (not mean) to handle outliers
         avg_lead_time = median(lead_times) if lead_times else 0
         lead_time_trend.append(round(avg_lead_time, 1))
 
     return {
-        'lead_time': {
-            'current': lead_time_trend[-1] if lead_time_trend else 0,
-            'previous': lead_time_trend[-2] if len(lead_time_trend) > 1 else 0,
-            'trend_data': lead_time_trend,
-            'unit': 'days'
+        "lead_time": {
+            "current": lead_time_trend[-1] if lead_time_trend else 0,
+            "previous": lead_time_trend[-2] if len(lead_time_trend) > 1 else 0,
+            "trend_data": lead_time_trend,
+            "unit": "days",
         }
     }
 
@@ -340,28 +357,28 @@ def extract_trends_from_deployment():
     Uses weighted average (total successful / total builds) for accuracy.
     Matches executive summary calculation for consistency.
     """
-    data = load_history_file('.tmp/observatory/deployment_history.json')
-    if not data or not data.get('weeks'):
+    data = load_history_file(".tmp/observatory/deployment_history.json")
+    if not data or not data.get("weeks"):
         return None
 
-    weeks = data['weeks']
+    weeks = data["weeks"]
     build_success_trend = []
 
     for week in weeks:
-        projects = week.get('projects', [])
+        projects = week.get("projects", [])
 
         # Weighted average: total successful builds / total builds (matches exec summary)
-        total_builds = sum(p.get('build_success_rate', {}).get('total_builds', 0) for p in projects)
-        total_successful = sum(p.get('build_success_rate', {}).get('succeeded', 0) for p in projects)
+        total_builds = sum(p.get("build_success_rate", {}).get("total_builds", 0) for p in projects)
+        total_successful = sum(p.get("build_success_rate", {}).get("succeeded", 0) for p in projects)
         weighted_success_rate = (total_successful / total_builds * 100) if total_builds > 0 else 0
         build_success_trend.append(round(weighted_success_rate, 1))
 
     return {
-        'build_success': {
-            'current': build_success_trend[-1] if build_success_trend else 0,
-            'previous': build_success_trend[-2] if len(build_success_trend) > 1 else 0,
-            'trend_data': build_success_trend,
-            'unit': '%'
+        "build_success": {
+            "current": build_success_trend[-1] if build_success_trend else 0,
+            "previous": build_success_trend[-2] if len(build_success_trend) > 1 else 0,
+            "trend_data": build_success_trend,
+            "unit": "%",
         }
     }
 
@@ -372,56 +389,59 @@ def extract_trends_from_collaboration():
     Uses median of project medians for robustness to outliers.
     Matches executive summary calculation for consistency.
     """
-    data = load_history_file('.tmp/observatory/collaboration_history.json')
-    if not data or not data.get('weeks'):
+    data = load_history_file(".tmp/observatory/collaboration_history.json")
+    if not data or not data.get("weeks"):
         return None
 
-    weeks = data['weeks']
+    weeks = data["weeks"]
     pr_merge_trend = []
 
     for week in weeks:
-        projects = week.get('projects', [])
+        projects = week.get("projects", [])
 
         # Median PR merge time across projects (robust to outliers)
-        merge_times = [p.get('pr_merge_time', {}).get('median_hours') for p in projects
-                      if p.get('pr_merge_time', {}).get('median_hours') is not None]
+        merge_times = [
+            p.get("pr_merge_time", {}).get("median_hours")
+            for p in projects
+            if p.get("pr_merge_time", {}).get("median_hours") is not None
+        ]
         avg_merge_time = median(merge_times) if merge_times else 0
         pr_merge_trend.append(round(avg_merge_time, 1))
 
     return {
-        'pr_merge_time': {
-            'current': pr_merge_trend[-1] if pr_merge_trend else 0,
-            'previous': pr_merge_trend[-2] if len(pr_merge_trend) > 1 else 0,
-            'trend_data': pr_merge_trend,
-            'unit': 'hours'
+        "pr_merge_time": {
+            "current": pr_merge_trend[-1] if pr_merge_trend else 0,
+            "previous": pr_merge_trend[-2] if len(pr_merge_trend) > 1 else 0,
+            "trend_data": pr_merge_trend,
+            "unit": "hours",
         }
     }
 
 
 def extract_trends_from_ownership():
     """Extract ownership trends from ownership_history.json"""
-    data = load_history_file('.tmp/observatory/ownership_history.json')
-    if not data or not data.get('weeks'):
+    data = load_history_file(".tmp/observatory/ownership_history.json")
+    if not data or not data.get("weeks"):
         return None
 
-    weeks = data['weeks']
+    weeks = data["weeks"]
     unassigned_trend = []
 
     for week in weeks:
-        projects = week.get('projects', [])
+        projects = week.get("projects", [])
 
         # Weighted average: total unassigned / total items (consistent with Ownership Dashboard)
-        total_items = sum(p.get('unassigned', {}).get('total_items', 0) for p in projects)
-        total_unassigned = sum(p.get('unassigned', {}).get('unassigned_count', 0) for p in projects)
+        total_items = sum(p.get("unassigned", {}).get("total_items", 0) for p in projects)
+        total_unassigned = sum(p.get("unassigned", {}).get("unassigned_count", 0) for p in projects)
         weighted_unassigned = (total_unassigned / total_items * 100) if total_items > 0 else 0
         unassigned_trend.append(round(weighted_unassigned, 1))
 
     return {
-        'work_unassigned': {
-            'current': unassigned_trend[-1] if unassigned_trend else 0,
-            'previous': unassigned_trend[-2] if len(unassigned_trend) > 1 else 0,
-            'trend_data': unassigned_trend,
-            'unit': '%'
+        "work_unassigned": {
+            "current": unassigned_trend[-1] if unassigned_trend else 0,
+            "previous": unassigned_trend[-2] if len(unassigned_trend) > 1 else 0,
+            "trend_data": unassigned_trend,
+            "unit": "%",
         }
     }
 
@@ -432,49 +452,49 @@ def extract_trends_from_risk():
     Tracks commit activity over time as indicator of delivery risk.
     Matches executive summary calculation for consistency.
     """
-    data = load_history_file('.tmp/observatory/risk_history.json')
-    if not data or not data.get('weeks'):
+    data = load_history_file(".tmp/observatory/risk_history.json")
+    if not data or not data.get("weeks"):
         return None
 
-    weeks = data['weeks']
+    weeks = data["weeks"]
     commits_trend = []
 
     for week in weeks:
-        projects = week.get('projects', [])
+        projects = week.get("projects", [])
 
         # Total commits across all projects
-        total_commits = sum(p.get('code_churn', {}).get('total_commits', 0) for p in projects)
+        total_commits = sum(p.get("code_churn", {}).get("total_commits", 0) for p in projects)
         commits_trend.append(total_commits)
 
     return {
-        'total_commits': {
-            'current': commits_trend[-1] if commits_trend else 0,
-            'previous': commits_trend[-2] if len(commits_trend) > 1 else 0,
-            'trend_data': commits_trend,
-            'unit': 'commits'
+        "total_commits": {
+            "current": commits_trend[-1] if commits_trend else 0,
+            "previous": commits_trend[-2] if len(commits_trend) > 1 else 0,
+            "trend_data": commits_trend,
+            "unit": "commits",
         }
     }
 
 
-def get_trend_indicator(current, previous, good_direction='down'):
+def get_trend_indicator(current, previous, good_direction="down"):
     """Get trend indicator (↑↓→) and color"""
     change = current - previous
 
     if abs(change) < 0.5:
-        return ('→', 'trend-stable', change)
+        return ("→", "trend-stable", change)
 
     is_increasing = change > 0
 
-    if good_direction == 'down':
+    if good_direction == "down":
         if is_increasing:
-            return ('↑', 'trend-up', change)  # Red (bad)
+            return ("↑", "trend-up", change)  # Red (bad)
         else:
-            return ('↓', 'trend-down', change)  # Green (good)
+            return ("↓", "trend-down", change)  # Green (good)
     else:  # good_direction == 'up'
         if is_increasing:
-            return ('↑', 'trend-down', change)  # Green (good)
+            return ("↑", "trend-down", change)  # Green (good)
         else:
-            return ('↓', 'trend-up', change)  # Red (bad)
+            return ("↓", "trend-up", change)  # Red (bad)
 
 
 def get_rag_color(value, metric_type):
@@ -581,204 +601,222 @@ def generate_html(all_trends, target_progress):
 
     # 1. Target Progress
     if target_progress:
-        arrow, css_class, change = get_trend_indicator(target_progress['current'], target_progress['previous'], 'up')
-        rag_color = get_rag_color(target_progress['current'], 'target_progress')
-        metrics_js.append({
-            'id': 'target',
-            'icon': '🎯',
-            'title': '70% Reduction Target',
-            'description': 'Track progress toward 70% reduction goals for security vulnerabilities and bugs. Combined progress from Dec 1, 2025 baseline through June 30, 2026.',
-            'current': target_progress['current'],
-            'unit': target_progress['unit'],
-            'change': round(change, 1),
-            'changeLabel': 'vs last week',
-            'data': target_progress['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'target_dashboard.html'
-        })
+        arrow, css_class, change = get_trend_indicator(target_progress["current"], target_progress["previous"], "up")
+        rag_color = get_rag_color(target_progress["current"], "target_progress")
+        metrics_js.append(
+            {
+                "id": "target",
+                "icon": "🎯",
+                "title": "70% Reduction Target",
+                "description": "Track progress toward 70% reduction goals for security vulnerabilities and bugs. Combined progress from Dec 1, 2025 baseline through June 30, 2026.",
+                "current": target_progress["current"],
+                "unit": target_progress["unit"],
+                "change": round(change, 1),
+                "changeLabel": "vs last week",
+                "data": target_progress["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "target_dashboard.html",
+            }
+        )
 
     # 2. AI Usage Tracker (Static launcher - no trend data)
-    metrics_js.append({
-        'id': 'ai-usage',
-        'icon': '🤖',
-        'title': 'AI Usage Tracker',
-        'description': 'Monitor Claude and Devin usage across LGL team members. Track adoption and activity patterns.',
-        'current': '',
-        'unit': '',
-        'change': '',
-        'changeLabel': '',
-        'data': [],  # Empty array - no sparkline needed for launcher
-        'arrow': '',
-        'cssClass': 'trend-stable',
-        'ragColor': '#6366f1',
-        'dashboardUrl': 'usage_tables_latest.html'
-    })
+    metrics_js.append(
+        {
+            "id": "ai-usage",
+            "icon": "🤖",
+            "title": "AI Usage Tracker",
+            "description": "Monitor Claude and Devin usage across team members. Track adoption and activity patterns.",
+            "current": "",
+            "unit": "",
+            "change": "",
+            "changeLabel": "",
+            "data": [],  # Empty array - no sparkline needed for launcher
+            "arrow": "",
+            "cssClass": "trend-stable",
+            "ragColor": "#6366f1",
+            "dashboardUrl": "usage_tables_latest.html",
+        }
+    )
 
     # 3. Security Vulnerabilities
-    security = all_trends.get('security', {})
+    security = all_trends.get("security", {})
     if security:
-        vulns = security.get('vulnerabilities', {})
-        arrow, css_class, change = get_trend_indicator(vulns['current'], vulns['previous'], 'down')
-        rag_color = get_rag_color(vulns['current'], 'total_vulns')
-        metrics_js.append({
-            'id': 'security',
-            'icon': '🔒',
-            'title': 'Security Vulnerabilities',
-            'description': 'Track vulnerability trends and security debt. Translate scanner noise into engineering action.',
-            'current': vulns['current'],
-            'unit': vulns['unit'],
-            'change': change,
-            'changeLabel': 'vs last week',
-            'data': vulns['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'security_dashboard.html'
-        })
+        vulns = security.get("vulnerabilities", {})
+        arrow, css_class, change = get_trend_indicator(vulns["current"], vulns["previous"], "down")
+        rag_color = get_rag_color(vulns["current"], "total_vulns")
+        metrics_js.append(
+            {
+                "id": "security",
+                "icon": "🔒",
+                "title": "Security Vulnerabilities",
+                "description": "Track vulnerability trends and security debt. Translate scanner noise into engineering action.",
+                "current": vulns["current"],
+                "unit": vulns["unit"],
+                "change": change,
+                "changeLabel": "vs last week",
+                "data": vulns["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "security_dashboard.html",
+            }
+        )
 
     # 4. Open Bugs
-    quality = all_trends.get('quality', {})
+    quality = all_trends.get("quality", {})
     if quality:
-        bugs = quality.get('bugs', {})
-        arrow, css_class, change = get_trend_indicator(bugs['current'], bugs['previous'], 'down')
-        rag_color = get_rag_color(bugs['current'], 'bugs')
-        metrics_js.append({
-            'id': 'bugs',
-            'icon': '🐛',
-            'title': 'Open Bugs',
-            'description': 'Track bug resolution speed and open bug trends. Measure how quickly issues are fixed across teams.',
-            'current': bugs['current'],
-            'unit': bugs['unit'],
-            'change': change,
-            'changeLabel': 'vs last week',
-            'data': bugs['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'quality_dashboard.html'
-        })
+        bugs = quality.get("bugs", {})
+        arrow, css_class, change = get_trend_indicator(bugs["current"], bugs["previous"], "down")
+        rag_color = get_rag_color(bugs["current"], "bugs")
+        metrics_js.append(
+            {
+                "id": "bugs",
+                "icon": "🐛",
+                "title": "Open Bugs",
+                "description": "Track bug resolution speed and open bug trends. Measure how quickly issues are fixed across teams.",
+                "current": bugs["current"],
+                "unit": bugs["unit"],
+                "change": change,
+                "changeLabel": "vs last week",
+                "data": bugs["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "quality_dashboard.html",
+            }
+        )
 
     # 5. Lead Time
-    flow = all_trends.get('flow', {})
+    flow = all_trends.get("flow", {})
     if flow:
-        lead_time = flow.get('lead_time', {})
-        arrow, css_class, change = get_trend_indicator(lead_time['current'], lead_time['previous'], 'down')
-        rag_color = get_rag_color(lead_time['current'], 'lead_time')
-        metrics_js.append({
-            'id': 'flow',
-            'icon': '🔄',
-            'title': 'Lead Time (P85)',
-            'description': 'Measure delivery speed, work in progress, and throughput across teams. See bottlenecks before they become problems.',
-            'current': lead_time['current'],
-            'unit': lead_time['unit'],
-            'change': round(change, 1),
-            'changeLabel': 'vs last week',
-            'data': lead_time['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'flow_dashboard.html'
-        })
+        lead_time = flow.get("lead_time", {})
+        arrow, css_class, change = get_trend_indicator(lead_time["current"], lead_time["previous"], "down")
+        rag_color = get_rag_color(lead_time["current"], "lead_time")
+        metrics_js.append(
+            {
+                "id": "flow",
+                "icon": "🔄",
+                "title": "Lead Time (P85)",
+                "description": "Measure delivery speed, work in progress, and throughput across teams. See bottlenecks before they become problems.",
+                "current": lead_time["current"],
+                "unit": lead_time["unit"],
+                "change": round(change, 1),
+                "changeLabel": "vs last week",
+                "data": lead_time["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "flow_dashboard.html",
+            }
+        )
 
     # 6. Build Success Rate
-    deployment = all_trends.get('deployment', {})
+    deployment = all_trends.get("deployment", {})
     if deployment:
-        build_success = deployment.get('build_success', {})
-        arrow, css_class, change = get_trend_indicator(build_success['current'], build_success['previous'], 'up')
-        rag_color = get_rag_color(build_success['current'], 'success_rate')
-        metrics_js.append({
-            'id': 'deployment',
-            'icon': '🚀',
-            'title': 'Build Success Rate',
-            'description': 'Track deployment frequency, build success rates, and lead time for changes. Measure DevOps performance.',
-            'current': build_success['current'],
-            'unit': build_success['unit'],
-            'change': round(change, 1),
-            'changeLabel': 'vs last week',
-            'data': build_success['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'deployment_dashboard.html'
-        })
+        build_success = deployment.get("build_success", {})
+        arrow, css_class, change = get_trend_indicator(build_success["current"], build_success["previous"], "up")
+        rag_color = get_rag_color(build_success["current"], "success_rate")
+        metrics_js.append(
+            {
+                "id": "deployment",
+                "icon": "🚀",
+                "title": "Build Success Rate",
+                "description": "Track deployment frequency, build success rates, and lead time for changes. Measure DevOps performance.",
+                "current": build_success["current"],
+                "unit": build_success["unit"],
+                "change": round(change, 1),
+                "changeLabel": "vs last week",
+                "data": build_success["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "deployment_dashboard.html",
+            }
+        )
 
     # 7. PR Merge Time
-    collaboration = all_trends.get('collaboration', {})
+    collaboration = all_trends.get("collaboration", {})
     if collaboration:
-        pr_merge = collaboration.get('pr_merge_time', {})
-        arrow, css_class, change = get_trend_indicator(pr_merge['current'], pr_merge['previous'], 'down')
-        rag_color = get_rag_color(pr_merge['current'], 'merge_time')
-        metrics_js.append({
-            'id': 'collaboration',
-            'icon': '🤝',
-            'title': 'PR Merge Time',
-            'description': 'Monitor code review efficiency, PR merge times, and review iterations. Optimize team collaboration.',
-            'current': pr_merge['current'],
-            'unit': pr_merge['unit'],
-            'change': round(change, 1),
-            'changeLabel': 'vs last week',
-            'data': pr_merge['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'collaboration_dashboard.html'
-        })
+        pr_merge = collaboration.get("pr_merge_time", {})
+        arrow, css_class, change = get_trend_indicator(pr_merge["current"], pr_merge["previous"], "down")
+        rag_color = get_rag_color(pr_merge["current"], "merge_time")
+        metrics_js.append(
+            {
+                "id": "collaboration",
+                "icon": "🤝",
+                "title": "PR Merge Time",
+                "description": "Monitor code review efficiency, PR merge times, and review iterations. Optimize team collaboration.",
+                "current": pr_merge["current"],
+                "unit": pr_merge["unit"],
+                "change": round(change, 1),
+                "changeLabel": "vs last week",
+                "data": pr_merge["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "collaboration_dashboard.html",
+            }
+        )
 
     # 8. Work Unassigned
-    ownership = all_trends.get('ownership', {})
+    ownership = all_trends.get("ownership", {})
     if ownership:
-        unassigned = ownership.get('work_unassigned', {})
-        arrow, css_class, change = get_trend_indicator(unassigned['current'], unassigned['previous'], 'down')
-        rag_color = get_rag_color(unassigned['current'], 'unassigned')
-        metrics_js.append({
-            'id': 'ownership',
-            'icon': '👤',
-            'title': 'Work Unassigned',
-            'description': 'Track work assignment clarity and orphan areas. Identify ownership gaps early.',
-            'current': unassigned['current'],
-            'unit': unassigned['unit'],
-            'change': round(change, 1),
-            'changeLabel': 'vs last week',
-            'data': unassigned['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'ownership_dashboard.html'
-        })
+        unassigned = ownership.get("work_unassigned", {})
+        arrow, css_class, change = get_trend_indicator(unassigned["current"], unassigned["previous"], "down")
+        rag_color = get_rag_color(unassigned["current"], "unassigned")
+        metrics_js.append(
+            {
+                "id": "ownership",
+                "icon": "👤",
+                "title": "Work Unassigned",
+                "description": "Track work assignment clarity and orphan areas. Identify ownership gaps early.",
+                "current": unassigned["current"],
+                "unit": unassigned["unit"],
+                "change": round(change, 1),
+                "changeLabel": "vs last week",
+                "data": unassigned["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "ownership_dashboard.html",
+            }
+        )
 
     # 9. Total Commits (Risk)
-    risk = all_trends.get('risk', {})
+    risk = all_trends.get("risk", {})
     if risk:
-        commits = risk.get('total_commits', {})
-        arrow, css_class, change = get_trend_indicator(commits['current'], commits['previous'], 'stable')
-        rag_color = get_rag_color(commits['current'], 'commits')
-        metrics_js.append({
-            'id': 'risk',
-            'icon': '📊',
-            'title': 'Total Commits',
-            'description': 'Track code change activity and commit patterns. Understand delivery risk through Git metrics.',
-            'current': commits['current'],
-            'unit': commits['unit'],
-            'change': change,
-            'changeLabel': 'vs last week',
-            'data': commits['trend_data'],
-            'arrow': arrow,
-            'cssClass': css_class,
-            'ragColor': rag_color,
-            'dashboardUrl': 'risk_dashboard.html'
-        })
+        commits = risk.get("total_commits", {})
+        arrow, css_class, change = get_trend_indicator(commits["current"], commits["previous"], "stable")
+        rag_color = get_rag_color(commits["current"], "commits")
+        metrics_js.append(
+            {
+                "id": "risk",
+                "icon": "📊",
+                "title": "Total Commits",
+                "description": "Track code change activity and commit patterns. Understand delivery risk through Git metrics.",
+                "current": commits["current"],
+                "unit": commits["unit"],
+                "change": change,
+                "changeLabel": "vs last week",
+                "data": commits["trend_data"],
+                "arrow": arrow,
+                "cssClass": css_class,
+                "ragColor": rag_color,
+                "dashboardUrl": "risk_dashboard.html",
+            }
+        )
 
     metrics_json = json.dumps(metrics_js, indent=4)
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start='#667eea',
-        header_gradient_end='#764ba2',
+        header_gradient_start="#667eea",
+        header_gradient_end="#764ba2",
         include_table_scroll=True,
         include_expandable_rows=False,
-        include_glossary=False
+        include_glossary=False,
     )
 
     html = f"""<!DOCTYPE html>
@@ -1295,10 +1333,11 @@ def generate_html(all_trends, target_progress):
 def main():
     """Main dashboard generation"""
     # Set UTF-8 encoding for Windows console
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     print("=" * 70)
     print("Executive Trends Dashboard Generator")
@@ -1312,41 +1351,43 @@ def main():
     # Calculate target progress
     target_progress = calculate_target_progress()
     if target_progress:
-        print(f"✓ Target progress: {target_progress['current']}% (Forecast: {target_progress['forecast']['trajectory']})")
+        print(
+            f"✓ Target progress: {target_progress['current']}% (Forecast: {target_progress['forecast']['trajectory']})"
+        )
 
     quality = extract_trends_from_quality()
     if quality:
-        all_trends['quality'] = quality
+        all_trends["quality"] = quality
         print(f"✓ Quality metrics: {len(quality['bugs']['trend_data'])} weeks")
 
     security = extract_trends_from_security()
     if security:
-        all_trends['security'] = security
+        all_trends["security"] = security
         print(f"✓ Security metrics: {len(security['vulnerabilities']['trend_data'])} weeks")
 
     flow = extract_trends_from_flow()
     if flow:
-        all_trends['flow'] = flow
+        all_trends["flow"] = flow
         print(f"✓ Flow metrics: {len(flow['lead_time']['trend_data'])} weeks")
 
     deployment = extract_trends_from_deployment()
     if deployment:
-        all_trends['deployment'] = deployment
+        all_trends["deployment"] = deployment
         print(f"✓ Deployment metrics: {len(deployment['build_success']['trend_data'])} weeks")
 
     collaboration = extract_trends_from_collaboration()
     if collaboration:
-        all_trends['collaboration'] = collaboration
+        all_trends["collaboration"] = collaboration
         print(f"✓ Collaboration metrics: {len(collaboration['pr_merge_time']['trend_data'])} weeks")
 
     ownership = extract_trends_from_ownership()
     if ownership:
-        all_trends['ownership'] = ownership
+        all_trends["ownership"] = ownership
         print(f"✓ Ownership metrics: {len(ownership['work_unassigned']['trend_data'])} weeks")
 
     risk = extract_trends_from_risk()
     if risk:
-        all_trends['risk'] = risk
+        all_trends["risk"] = risk
         print(f"✓ Risk metrics: {len(risk['total_commits']['trend_data'])} weeks")
 
     if not all_trends:
@@ -1358,10 +1399,10 @@ def main():
     html = generate_html(all_trends, target_progress)
 
     # Save to file (as index.html - this is the landing page)
-    output_file = '.tmp/observatory/dashboards/index.html'
+    output_file = ".tmp/observatory/dashboards/index.html"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
     print(f"✓ Dashboard generated: {output_file}")

@@ -12,8 +12,8 @@ sys.path.insert(0, os.path.abspath(".."))  # Add parent directory to path
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Engineering Metrics Platform"
-copyright = "2026, The Access Group"
-author = "The Access Group"
+copyright = "2026, Engineering Team"
+author = "Engineering Team"
 
 version = "2.0"
 release = "2.0.0"
