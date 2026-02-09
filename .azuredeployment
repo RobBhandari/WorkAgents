@@ -10,9 +10,9 @@
 
 ## Required Azure Resources
 
-- Resource Group: bug-position-bot-rg
-- App Service Plan: bug-bot-plan (Free F1 tier)
-- Web App: bug-position-bot-{unique-id}
+- Resource Group: <your-resource-group>
+- App Service Plan: <your-app-service-plan> (Free F1 tier)
+- Web App: <your-web-app-name>
 
 ## Environment Variables to Configure in Azure
 
