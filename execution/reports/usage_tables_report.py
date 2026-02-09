@@ -1,17 +1,28 @@
 """
 LGL AI Tools Usage Tables Report Generator
 
-Reads a CSV/Excel file with AI usage data, filters for LGL users,
-and generates a modern, interactive HTML report with two side-by-side tables showing
-Claude and Devin usage with heatmap styling.
+Generates interactive HTML report for AI usage data with two modes:
+1. Interactive Mode (default): HTML with IMPORT CSV button for browser-based file upload
+2. CLI Mode: Direct processing with --file argument
+
+Features:
+- Filters for LGL users
+- Side-by-side Claude and Devin usage tables
+- Heatmap styling (red/amber/green)
+- Sortable columns and search functionality
+- Mobile-responsive dashboard framework
+- Client-side CSV processing (data never leaves your computer)
 
 NOTE: data/ai_usage_data.csv is gitignored (contains sensitive employee data).
-Keep this file locally and pass it via --file argument.
 
 Usage:
+    # Interactive mode (generates HTML with IMPORT button)
+    python execution/reports/usage_tables_report.py
+    python execution/reports/usage_tables_report.py --open
+
+    # CLI mode (direct processing)
     python execution/reports/usage_tables_report.py --file data/ai_usage_data.csv
-    python execution/reports/usage_tables_report.py --file mydata.xlsx --output-file report.html
-    python execution/reports/usage_tables_report.py --file data/ai_usage_data.csv --open
+    python execution/reports/usage_tables_report.py --file mydata.xlsx --open
 """
 
 import argparse
@@ -816,6 +827,586 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
     return output_file
 
 
+def generate_interactive_html(output_file: str) -> str:
+    """
+    Generate interactive HTML with CSV import capability.
+
+    When no data file is provided, this creates an HTML page with an IMPORT button
+    that allows users to upload their CSV file directly in the browser.
+    All processing happens client-side for maximum security.
+
+    Args:
+        output_file: Path to save the HTML file
+
+    Returns:
+        str: Path to generated HTML file
+    """
+    # Get mobile-responsive framework
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start="#667eea",
+        header_gradient_end="#764ba2",
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=False,
+    )
+
+    report_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
+
+    html = f"""<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGL AI Tools Usage Report - Import Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    {framework_css}
+    <style>
+        .import-button {{
+            position: fixed;
+            top: 20px;
+            right: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }}
+
+        .import-button:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }}
+
+        .import-button:active {{
+            transform: translateY(0);
+        }}
+
+        #file-input {{
+            display: none;
+        }}
+
+        .placeholder {{
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }}
+
+        .placeholder-icon {{
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }}
+
+        .placeholder h2 {{
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }}
+
+        .placeholder p {{
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }}
+
+        .hidden {{
+            display: none !important;
+        }}
+
+        /* Match existing dashboard styles */
+        .stats-card, .legend-card, .search-card, .table-card {{
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow);
+            margin-bottom: 20px;
+        }}
+
+        .stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }}
+
+        .stat-card {{
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }}
+
+        .stat-card .value {{
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }}
+
+        .stat-card .label {{
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }}
+
+        .legend-content {{
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }}
+
+        .legend-item {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+
+        .legend-box {{
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }}
+
+        .legend-green {{ background-color: #d1fae5; border: 2px solid #065f46; }}
+        .legend-amber {{ background-color: #fef3c7; border: 2px solid #92400e; }}
+        .legend-red {{ background-color: #fee2e2; border: 2px solid #991b1b; }}
+
+        .search-box {{
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }}
+
+        .search-box:focus {{
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }}
+
+        .tables-container {{
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }}
+
+        @media (min-width: 1200px) {{
+            .tables-container {{
+                grid-template-columns: 1fr 1fr;
+            }}
+        }}
+
+        .table-card h2 {{
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }}
+
+        .usage-table {{
+            width: 100%;
+            border-collapse: collapse;
+        }}
+
+        .usage-table th {{
+            background: var(--bg-tertiary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }}
+
+        .usage-table th:nth-child(3),
+        .usage-table th:nth-child(4) {{
+            text-align: center;
+        }}
+
+        .usage-table td {{
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }}
+
+        .usage-table td:nth-child(3),
+        .usage-table td:nth-child(4) {{
+            text-align: center;
+        }}
+
+        .heatmap-cell {{
+            font-weight: 700;
+            border-radius: 4px;
+        }}
+
+        .badge {{
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }}
+
+        .badge-success {{
+            background: #d1fae5;
+            color: #065f46;
+        }}
+
+        .badge-secondary {{
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }}
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-label">Light Mode</span>
+    </button>
+
+    <button class="import-button" onclick="document.getElementById('file-input').click()">
+        📥 IMPORT CSV
+    </button>
+    <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 LGL AI Tools Usage Report</h1>
+            <p class="subtitle">Software Company: LGL</p>
+            <p class="timestamp">Generated: {report_date}</p>
+        </div>
+
+        <div id="placeholder" class="placeholder">
+            <div class="placeholder-icon">📊</div>
+            <h2>No Data Loaded</h2>
+            <p>Click the <strong>IMPORT CSV</strong> button above to load your AI usage data.</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                Supported formats: CSV, Excel (.xlsx, .xls)<br>
+                All processing happens in your browser - data never leaves your computer.
+            </p>
+        </div>
+
+        <div id="content" class="hidden">
+            <div class="stats-card">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="total-users">0</div>
+                        <div class="label">Total LGL Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="claude-users">0</div>
+                        <div class="label">Claude Active Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="devin-users">0</div>
+                        <div class="label">Devin Active Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="avg-claude">0</div>
+                        <div class="label">Avg Claude Usage</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="avg-devin">0</div>
+                        <div class="label">Avg Devin Usage</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend-card">
+                <h3>📊 Usage Intensity Legend</h3>
+                <div class="legend-content">
+                    <div class="legend-item">
+                        <span class="legend-box legend-green"></span>
+                        <strong>High (≥100 uses)</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box legend-amber"></span>
+                        <strong>Medium (20-99 uses)</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box legend-red"></span>
+                        <strong>Low (&lt;20 uses)</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-card">
+                <input type="text"
+                       id="globalSearch"
+                       class="search-box"
+                       placeholder="🔍 Search..."
+                       onkeyup="filterAllTables()">
+            </div>
+
+            <div class="tables-container">
+                <div class="table-card">
+                    <h2>Claude Usage (Last 30 Days)</h2>
+                    <div class="table-wrapper">
+                        <table id="claudeTable" class="usage-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable('claudeTable', 0)">Name</th>
+                                    <th onclick="sortTable('claudeTable', 1)">Job Title</th>
+                                    <th onclick="sortTable('claudeTable', 2)">Access</th>
+                                    <th onclick="sortTable('claudeTable', 3)">Usage (30 days)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="claudeTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <h2>Devin Usage (Last 30 Days)</h2>
+                    <div class="table-wrapper">
+                        <table id="devinTable" class="usage-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable('devinTable', 0)">Name</th>
+                                    <th onclick="sortTable('devinTable', 1)">Job Title</th>
+                                    <th onclick="sortTable('devinTable', 2)">Access</th>
+                                    <th onclick="sortTable('devinTable', 3)">Usage (30 days)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devinTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {framework_js}
+    <script>
+        function handleFileUpload(event) {{
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading state
+            document.querySelector('.import-button').textContent = '⏳ Loading...';
+            document.querySelector('.import-button').disabled = true;
+
+            // Parse CSV
+            Papa.parse(file, {{
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {{
+                    processData(results.data);
+                    document.querySelector('.import-button').textContent = '✅ Data Loaded';
+                    setTimeout(() => {{
+                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
+                        document.querySelector('.import-button').disabled = false;
+                    }}, 2000);
+                }},
+                error: function(error) {{
+                    alert('Error parsing CSV: ' + error.message);
+                    document.querySelector('.import-button').textContent = '❌ Error';
+                    setTimeout(() => {{
+                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
+                        document.querySelector('.import-button').disabled = false;
+                    }}, 2000);
+                }}
+            }});
+        }}
+
+        function processData(data) {{
+            // Filter for LGL users
+            const lglData = data.filter(row =>
+                row['Software Company'] && row['Software Company'].trim().toUpperCase() === 'LGL'
+            );
+
+            if (lglData.length === 0) {{
+                alert('No LGL users found in the data!');
+                return;
+            }}
+
+            // Find the correct column names (handle variations)
+            const claudeAccessCol = Object.keys(lglData[0]).find(k =>
+                k === 'Claude Access?' || k === 'Claude Access '
+            ) || 'Claude Access?';
+
+            const devinAccessCol = Object.keys(lglData[0]).find(k =>
+                k === 'Devin Access?' || k === 'Devin Access '
+            ) || 'Devin Access?';
+
+            // Calculate statistics
+            const claudeActiveUsers = lglData.filter(row => parseFloat(row['Claude 30 day usage'] || 0) > 0).length;
+            const devinActiveUsers = lglData.filter(row => parseFloat(row['Devin_30d'] || 0) > 0).length;
+            const avgClaudeUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Claude 30 day usage'] || 0), 0) / lglData.length;
+            const avgDevinUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Devin_30d'] || 0), 0) / lglData.length;
+
+            // Update stats
+            document.getElementById('total-users').textContent = lglData.length;
+            document.getElementById('claude-users').textContent = claudeActiveUsers;
+            document.getElementById('devin-users').textContent = devinActiveUsers;
+            document.getElementById('avg-claude').textContent = Math.round(avgClaudeUsage);
+            document.getElementById('avg-devin').textContent = Math.round(avgDevinUsage);
+
+            // Sort by usage descending
+            const claudeData = [...lglData].sort((a, b) =>
+                parseFloat(b['Claude 30 day usage'] || 0) - parseFloat(a['Claude 30 day usage'] || 0)
+            );
+            const devinData = [...lglData].sort((a, b) =>
+                parseFloat(b['Devin_30d'] || 0) - parseFloat(a['Devin_30d'] || 0)
+            );
+
+            // Generate Claude table
+            const claudeTableBody = document.getElementById('claudeTableBody');
+            claudeTableBody.innerHTML = claudeData.map(row => {{
+                const usage = parseFloat(row['Claude 30 day usage'] || 0);
+                const {{ bgColor, textColor }} = getHeatmapColor(usage);
+                const access = String(row[claudeAccessCol] || '').trim().toUpperCase();
+                const accessBadge = ['YES', '1', '1.0'].includes(access)
+                    ? '<span class="badge badge-success">Yes</span>'
+                    : '<span class="badge badge-secondary">No</span>';
+
+                return `
+                    <tr>
+                        <td>${{escapeHtml(row['Name'] || '')}}</td>
+                        <td>${{escapeHtml(row['Job Title'] || '')}}</td>
+                        <td>${{accessBadge}}</td>
+                        <td class="heatmap-cell" style="background-color: ${{bgColor}}; color: ${{textColor}};" data-value="${{usage}}">
+                            ${{Math.round(usage)}}
+                        </td>
+                    </tr>
+                `;
+            }}).join('');
+
+            // Generate Devin table
+            const devinTableBody = document.getElementById('devinTableBody');
+            devinTableBody.innerHTML = devinData.map(row => {{
+                const usage = parseFloat(row['Devin_30d'] || 0);
+                const {{ bgColor, textColor }} = getHeatmapColor(usage);
+                const access = String(row[devinAccessCol] || '').trim().toUpperCase();
+                const accessBadge = ['YES', '1', '1.0'].includes(access)
+                    ? '<span class="badge badge-success">Yes</span>'
+                    : '<span class="badge badge-secondary">No</span>';
+
+                return `
+                    <tr>
+                        <td>${{escapeHtml(row['Name'] || '')}}</td>
+                        <td>${{escapeHtml(row['Job Title'] || '')}}</td>
+                        <td>${{accessBadge}}</td>
+                        <td class="heatmap-cell" style="background-color: ${{bgColor}}; color: ${{textColor}};" data-value="${{usage}}">
+                            ${{Math.round(usage)}}
+                        </td>
+                    </tr>
+                `;
+            }}).join('');
+
+            // Show content, hide placeholder
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+        }}
+
+        function getHeatmapColor(usage) {{
+            if (usage >= 100) {{
+                return {{ bgColor: '#d1fae5', textColor: '#065f46' }};
+            }} else if (usage >= 20) {{
+                return {{ bgColor: '#fef3c7', textColor: '#92400e' }};
+            }} else {{
+                return {{ bgColor: '#fee2e2', textColor: '#991b1b' }};
+            }}
+        }}
+
+        function escapeHtml(text) {{
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }}
+
+        function filterAllTables() {{
+            const input = document.getElementById('globalSearch');
+            const filter = input.value.toLowerCase();
+
+            ['claudeTable', 'devinTable'].forEach(tableId => {{
+                const table = document.getElementById(tableId);
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {{
+                    const nameCell = rows[i].cells[0];
+                    const jobTitleCell = rows[i].cells[1];
+                    const accessCell = rows[i].cells[2];
+
+                    if (nameCell && jobTitleCell && accessCell) {{
+                        const name = nameCell.textContent.toLowerCase();
+                        const jobTitle = jobTitleCell.textContent.toLowerCase();
+                        const access = accessCell.textContent.toLowerCase();
+
+                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {{
+                            rows[i].style.display = '';
+                        }} else {{
+                            rows[i].style.display = 'none';
+                        }}
+                    }}
+                }}
+            }});
+        }}
+
+        function sortTable(tableId, columnIndex) {{
+            const table = document.getElementById(tableId);
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+
+            const isNumeric = columnIndex === 3;
+
+            rows.sort((a, b) => {{
+                let aValue, bValue;
+
+                if (isNumeric) {{
+                    aValue = parseFloat(a.cells[columnIndex].getAttribute('data-value') || 0);
+                    bValue = parseFloat(b.cells[columnIndex].getAttribute('data-value') || 0);
+                    return bValue - aValue;
+                }} else {{
+                    aValue = a.cells[columnIndex].textContent.trim();
+                    bValue = b.cells[columnIndex].textContent.trim();
+                    return aValue.localeCompare(bValue);
+                }}
+            }});
+
+            if (table.dataset.lastSort === String(columnIndex)) {{
+                rows.reverse();
+                table.dataset.lastSort = '';
+            }} else {{
+                table.dataset.lastSort = String(columnIndex);
+            }}
+
+            rows.forEach(row => tbody.appendChild(row));
+        }}
+    </script>
+</body>
+</html>"""
+
+    # Write HTML file
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    logger.info(f"Interactive HTML with import capability created: {output_file}")
+
+    # Also save as latest
+    latest_file = Path(".tmp/observatory/dashboards/usage_tables_latest.html")
+    try:
+        latest_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(latest_file, "w", encoding="utf-8") as f:
+            f.write(html)
+        logger.info(f"Latest copy saved to: {latest_file}")
+    except Exception as e:
+        logger.warning(f"Failed to save latest copy: {e}")
+
+    return output_file
+
+
 def parse_arguments():
     """
     Parse command-line arguments.
@@ -828,8 +1419,8 @@ def parse_arguments():
     parser.add_argument(
         "--file",
         type=str,
-        required=True,
-        help="Path to CSV or Excel file with AI usage data (REQUIRED)",
+        required=False,
+        help="Path to CSV or Excel file with AI usage data (optional - if not provided, generates interactive HTML with import button)",
     )
 
     parser.add_argument(
@@ -854,6 +1445,33 @@ if __name__ == "__main__":
 
         # Ensure .tmp directory exists
         os.makedirs(".tmp", exist_ok=True)
+
+        # Check if file is provided
+        if not args.file:
+            # No file provided - generate interactive HTML with import button
+            logger.info("No data file provided - generating interactive HTML with import capability")
+            output_file = generate_interactive_html(args.output_file)
+
+            print(f"\n{'='*70}")
+            print("SUCCESS: Interactive AI Tools Usage Report Generated")
+            print(f"{'='*70}")
+            print(f"Output file: {output_file}")
+            print("\nTo use this report:")
+            print("  1. Open the HTML file in your web browser")
+            print("  2. Click the 'IMPORT CSV' button in the top-right corner")
+            print("  3. Select your AI usage data CSV file")
+            print("  4. View the generated tables instantly")
+            print("\nAll processing happens in your browser - data never leaves your computer!")
+            print(f"{'='*70}\n")
+
+            # Open in browser if requested
+            if args.open:
+                import webbrowser
+
+                webbrowser.open(f"file://{os.path.abspath(output_file)}")
+                logger.info("Opened report in browser")
+
+            sys.exit(0)
 
         # Use file path from command-line argument
         file_path = args.file
