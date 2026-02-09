@@ -6,7 +6,7 @@ param(
     [string]$Username,
 
     [Parameter(Mandatory=$true)]
-    [string]$Password,
+    [SecureString]$Password,
 
     [string]$AppName = "bug-bot-rb",
     [string]$ZipFile = "teams-bot-deploy.zip"
@@ -30,7 +30,9 @@ Write-Host "File size: $([math]::Round($zipSize, 2)) KB"
 Write-Host ""
 
 # Create credentials
-$base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$Username`:$Password"))
+# Convert SecureString to plain text for Basic Auth (only in memory)
+$PlainPassword = [System.Net.NetworkCredential]::new('', $Password).Password
+$base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$Username`:$PlainPassword"))
 $headers = @{
     Authorization = "Basic $base64Auth"
 }
@@ -41,13 +43,13 @@ Write-Host ""
 
 try {
     # Deploy using Invoke-RestMethod
-    $response = Invoke-RestMethod -Uri $deployUrl `
+    Invoke-RestMethod -Uri $deployUrl `
         -Method POST `
         -InFile $ZipFile `
         -Headers $headers `
         -ContentType "application/zip" `
         -TimeoutSec 300 `
-        -Verbose
+        -Verbose | Out-Null
 
     Write-Host ""
     Write-Host "=" * 60 -ForegroundColor Green
