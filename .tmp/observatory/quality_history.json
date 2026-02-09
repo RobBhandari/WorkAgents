@@ -48,7 +48,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
             "p85_age_days": 602.3,
@@ -174,7 +174,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.1,
             "p85_age_days": 23.3,
@@ -258,7 +258,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
             "p85_age_days": 122.3,
@@ -300,7 +300,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.1,
             "p85_age_days": 319.1,
@@ -393,7 +393,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
             "p85_age_days": 602.3,
@@ -519,7 +519,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.1,
             "p85_age_days": 23.4,
@@ -603,7 +603,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
             "p85_age_days": 122.4,
@@ -645,7 +645,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
             "p85_age_days": 319.1,
@@ -738,7 +738,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
             "p85_age_days": 602.3,
@@ -864,7 +864,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.1,
             "p85_age_days": 23.4,
@@ -948,7 +948,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
             "p85_age_days": 122.4,
@@ -990,7 +990,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
             "p85_age_days": 319.1,
@@ -1083,7 +1083,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
             "p85_age_days": 602.3,
@@ -1209,7 +1209,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.1,
             "p85_age_days": 23.4,
@@ -1293,7 +1293,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
             "p85_age_days": 122.4,
@@ -1335,7 +1335,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
             "p85_age_days": 319.1,
@@ -1428,7 +1428,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
             "p85_age_days": 602.4,
@@ -1554,7 +1554,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.1,
             "p85_age_days": 23.4,
@@ -1638,7 +1638,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
             "p85_age_days": 122.4,
@@ -1680,7 +1680,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
             "p85_age_days": 319.1,
@@ -1773,7 +1773,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
             "p85_age_days": 602.4,
@@ -1899,7 +1899,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.1,
             "p85_age_days": 23.4,
@@ -1983,7 +1983,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
             "p85_age_days": 122.4,
@@ -2025,7 +2025,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
             "p85_age_days": 319.1,
@@ -2118,7 +2118,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.3,
             "p85_age_days": 602.5,
@@ -2244,7 +2244,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.3,
             "p85_age_days": 23.6,
@@ -2328,7 +2328,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.6,
             "p85_age_days": 122.6,
@@ -2370,7 +2370,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.4,
             "p85_age_days": 319.3,
@@ -2463,7 +2463,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.6,
             "p85_age_days": 602.9,
@@ -2589,7 +2589,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.6,
             "p85_age_days": 23.9,
@@ -2673,7 +2673,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.9,
             "p85_age_days": 122.9,
@@ -2715,7 +2715,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.7,
             "p85_age_days": 319.6,
@@ -2808,7 +2808,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.9,
             "p85_age_days": 603.1,
@@ -2934,7 +2934,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.9,
             "p85_age_days": 24.1,
@@ -3018,7 +3018,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 66.2,
             "p85_age_days": 123.1,
@@ -3060,7 +3060,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.9,
             "p85_age_days": 319.9,
@@ -3153,7 +3153,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.9,
             "p85_age_days": 603.1,
@@ -3279,7 +3279,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.9,
             "p85_age_days": 24.2,
@@ -3363,7 +3363,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 66.2,
             "p85_age_days": 123.1,
@@ -3405,7 +3405,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.9,
             "p85_age_days": 319.9,
@@ -3498,7 +3498,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.9,
             "p85_age_days": 603.2,
@@ -3624,7 +3624,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 4.9,
             "p85_age_days": 24.2,
@@ -3708,7 +3708,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 66.2,
             "p85_age_days": 123.2,
@@ -3750,7 +3750,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 122.0,
             "p85_age_days": 319.9,
@@ -3843,7 +3843,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.0,
             "p85_age_days": 604.2,
@@ -3969,7 +3969,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.0,
             "p85_age_days": 25.2,
@@ -4053,7 +4053,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.3,
             "p85_age_days": 124.2,
@@ -4095,7 +4095,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.0,
             "p85_age_days": 321.0,
@@ -4188,7 +4188,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.0,
             "p85_age_days": 604.2,
@@ -4314,7 +4314,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.0,
             "p85_age_days": 25.3,
@@ -4398,7 +4398,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.3,
             "p85_age_days": 124.3,
@@ -4440,7 +4440,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.1,
             "p85_age_days": 321.0,
@@ -4533,7 +4533,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.0,
             "p85_age_days": 604.2,
@@ -4659,7 +4659,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.0,
             "p85_age_days": 25.3,
@@ -4743,7 +4743,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.3,
             "p85_age_days": 124.3,
@@ -4785,7 +4785,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.1,
             "p85_age_days": 321.0,
@@ -4878,7 +4878,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.2,
             "p85_age_days": 604.5,
@@ -5004,7 +5004,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.2,
             "p85_age_days": 25.5,
@@ -5088,7 +5088,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.5,
             "p85_age_days": 124.5,
@@ -5130,7 +5130,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.3,
             "p85_age_days": 321.2,
@@ -5223,7 +5223,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.2,
             "p85_age_days": 604.5,
@@ -5349,7 +5349,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.2,
             "p85_age_days": 25.5,
@@ -5433,7 +5433,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.5,
             "p85_age_days": 124.5,
@@ -5475,7 +5475,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.3,
             "p85_age_days": 321.2,
@@ -5568,7 +5568,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.3,
             "p85_age_days": 588.1,
@@ -5694,7 +5694,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 5.9,
             "p85_age_days": 14.2,
@@ -5778,7 +5778,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.6,
             "p85_age_days": 121.1,
@@ -5820,7 +5820,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.0,
             "p85_age_days": 301.7,
@@ -5913,7 +5913,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.3,
             "p85_age_days": 588.1,
@@ -6039,7 +6039,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 5.9,
             "p85_age_days": 14.2,
@@ -6123,7 +6123,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.6,
             "p85_age_days": 121.1,
@@ -6165,7 +6165,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.0,
             "p85_age_days": 301.7,
@@ -6258,7 +6258,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.4,
             "p85_age_days": 588.1,
@@ -6384,7 +6384,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.0,
             "p85_age_days": 14.2,
@@ -6468,7 +6468,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
             "p85_age_days": 121.1,
@@ -6510,7 +6510,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.1,
             "p85_age_days": 301.8,
@@ -6603,7 +6603,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.5,
             "p85_age_days": 588.2,
@@ -6729,7 +6729,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.0,
             "p85_age_days": 14.3,
@@ -6813,7 +6813,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
             "p85_age_days": 121.2,
@@ -6855,7 +6855,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.1,
             "p85_age_days": 301.8,
@@ -6948,7 +6948,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.7,
             "p85_age_days": 588.4,
@@ -7074,7 +7074,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.3,
             "p85_age_days": 14.5,
@@ -7158,7 +7158,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.0,
             "p85_age_days": 121.4,
@@ -7200,7 +7200,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.3,
             "p85_age_days": 302.0,
@@ -7293,7 +7293,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.9,
             "p85_age_days": 588.6,
@@ -7419,7 +7419,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.8,
             "p85_age_days": 17.0,
@@ -7503,7 +7503,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.1,
             "p85_age_days": 121.6,
@@ -7545,7 +7545,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.5,
             "p85_age_days": 302.2,
@@ -7722,7 +7722,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.8,
             "p85_age_days": 17.0,
@@ -7806,7 +7806,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.1,
             "p85_age_days": 121.6,
@@ -7848,7 +7848,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.5,
             "p85_age_days": 302.2,
@@ -7941,7 +7941,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.9,
             "p85_age_days": 588.6,
@@ -8067,7 +8067,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.8,
             "p85_age_days": 17.0,
@@ -8151,7 +8151,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.2,
             "p85_age_days": 121.6,
@@ -8193,7 +8193,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 81.1,
             "p85_age_days": 296.9,
@@ -8286,7 +8286,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.9,
             "p85_age_days": 588.7,
@@ -8412,7 +8412,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.9,
             "p85_age_days": 17.0,
@@ -8496,7 +8496,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.2,
             "p85_age_days": 121.6,
@@ -8538,7 +8538,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.6,
             "p85_age_days": 302.3,
@@ -8631,7 +8631,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.0,
             "p85_age_days": 588.7,
@@ -8757,7 +8757,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 6.9,
             "p85_age_days": 17.1,
@@ -8841,7 +8841,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
             "p85_age_days": 116.4,
@@ -8883,7 +8883,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.6,
             "p85_age_days": 302.3,
@@ -8976,7 +8976,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.0,
             "p85_age_days": 588.7,
@@ -9102,7 +9102,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 7.0,
             "p85_age_days": 17.1,
@@ -9186,7 +9186,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
             "p85_age_days": 116.5,
@@ -9228,7 +9228,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.6,
             "p85_age_days": 302.3,
@@ -9321,7 +9321,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.0,
             "p85_age_days": 588.8,
@@ -9447,7 +9447,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 7.0,
             "p85_age_days": 17.1,
@@ -9531,7 +9531,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
             "p85_age_days": 116.5,
@@ -9573,7 +9573,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.7,
             "p85_age_days": 302.4,
@@ -9666,7 +9666,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.1,
             "p85_age_days": 588.8,
@@ -9792,7 +9792,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 5.2,
             "p85_age_days": 14.9,
@@ -9876,7 +9876,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.8,
             "p85_age_days": 116.5,
@@ -9918,7 +9918,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.7,
             "p85_age_days": 302.4,
