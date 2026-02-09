@@ -53,6 +53,25 @@ jobs:
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
 
+      - name: Create baseline files from secrets
+        run: |
+          mkdir -p data
+          echo "📂 Creating baseline files from GitHub secrets..."
+
+          # Main ADO baseline
+          echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
+
+          # ArmorCode baseline
+          echo '${{ secrets.BASELINE_ARMORCODE }}' > data/armorcode_baseline.json
+
+          # Project-specific baselines (if configured)
+          if [ -n "${{ secrets.BASELINE_ADO_PROJECTS }}" ]; then
+            echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
+          fi
+
+          echo "✅ Baseline files created"
+          ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
+
       - name: Collect ${{ matrix.collector.name }}
         id: collect
         run: |
