@@ -211,35 +211,39 @@ jobs:
           echo "✅ Baseline files created"
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
 
-      - name: Download ALL metrics artifacts
+      - name: Download ALL metrics artifacts (REQUIRED - no fallback!)
         uses: actions/download-artifact@v4
         with:
           path: artifacts/
-        continue-on-error: true
+        continue-on-error: false
 
-      - name: Use existing history files from git
+      - name: Verify fresh metrics available
         run: |
-          echo "📂 Checking for existing history files in git..."
-          if [ -d ".tmp/observatory" ] && [ "$(ls -A .tmp/observatory/*_history.json 2>/dev/null)" ]; then
-            echo "✅ Found existing history files in git"
-            ls -la .tmp/observatory/*_history.json
-          else
-            echo "⚠️  No existing history files found in git"
+          echo "🔍 Verifying fresh metrics artifacts are available..."
+          if [ ! -d "artifacts" ] || [ -z "$(ls -A artifacts 2>/dev/null)" ]; then
+            echo "❌ ERROR: No fresh metrics artifacts found!"
+            echo "Cannot generate dashboards with real product names without fresh data."
+            echo "This prevents falling back to genericized data from git."
+            exit 1
           fi
 
-      - name: Merge artifacts into history
+          echo "✅ Fresh metrics artifacts found:"
+          ls -la artifacts/
+
+      - name: Use ONLY fresh metrics (ignore genericized git history)
         run: |
           # Create output directory
           mkdir -p .tmp/observatory
 
-          # Copy any artifacts that were successfully collected
-          if [ -d "artifacts" ]; then
-            echo "📦 Merging artifacts..."
-            find artifacts -name "*.json" -exec cp {} .tmp/observatory/ \; 2>/dev/null || true
-            echo "✅ Artifacts merged"
-          else
-            echo "⚠️  No artifacts to merge, will use existing history files"
-          fi
+          # Copy ONLY fresh artifacts with REAL product names
+          echo "📦 Using fresh metrics with REAL product names..."
+          find artifacts -name "*.json" -exec cp -v {} .tmp/observatory/ \;
+
+          echo ""
+          echo "✅ Fresh history files ready for dashboard generation:"
+          ls -lh .tmp/observatory/*.json
+          echo ""
+          echo "🔒 These contain REAL product names (will be genericized before git commit)"
 
       - name: Verify metrics data available
         id: verify
@@ -325,26 +329,31 @@ jobs:
           path: dashboard-artifacts/
           merge-multiple: true
 
-      - name: Download fresh metrics artifacts (for history commit)
+      - name: Download fresh metrics artifacts (REQUIRED for git commit)
         uses: actions/download-artifact@v4
         with:
           pattern: metrics-*
           path: metrics-artifacts/
-        continue-on-error: true
+        continue-on-error: false
 
-      - name: Merge fresh metrics into history
+      - name: Verify and merge fresh metrics
         run: |
           mkdir -p .tmp/observatory
 
-          # Copy fresh history files with REAL product names
-          if [ -d "metrics-artifacts" ]; then
-            echo "📦 Merging fresh metrics with real product names..."
-            find metrics-artifacts -name "*_history.json" -exec cp {} .tmp/observatory/ \; 2>/dev/null || true
-            echo "✅ Fresh history files ready for genericization"
-            ls -la .tmp/observatory/*_history.json 2>/dev/null || echo "⚠️  No history files found in artifacts"
-          else
-            echo "⚠️  No metrics artifacts found, will use existing history from git"
+          # Verify fresh metrics are available
+          if [ ! -d "metrics-artifacts" ] || [ -z "$(find metrics-artifacts -name '*_history.json' 2>/dev/null)" ]; then
+            echo "❌ ERROR: No fresh metrics artifacts found for git commit!"
+            echo "Cannot commit history without fresh data."
+            exit 1
           fi
+
+          # Copy fresh history files with REAL product names
+          echo "📦 Merging fresh metrics with REAL product names..."
+          find metrics-artifacts -name "*_history.json" -exec cp -v {} .tmp/observatory/ \;
+
+          echo ""
+          echo "✅ Fresh history files ready for genericization and commit:"
+          ls -lh .tmp/observatory/*_history.json
 
       - name: Prepare deployment directory
         run: |
