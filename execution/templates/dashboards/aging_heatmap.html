@@ -1,0 +1,28 @@
+<div class="heatmap-container">
+    <div class="heatmap-header">
+        <h4>Finding Age Distribution (Estimated)</h4>
+        <p class="heatmap-subtitle">Estimated vulnerability count by age and severity</p>
+        <p class="heatmap-note" style="font-size: 0.85em; color: var(--text-secondary); font-style: italic;">
+            Note: Distribution estimated from typical patterns. Enable individual vulnerability
+            tracking in data collection for precise aging data.
+        </p>
+    </div>
+    <div class="heatmap-grid">
+        <div class="heatmap-corner"></div>
+        {% for label in age_labels %}
+        {{ render_template("components/heatmap_col_header.html", label=label)|safe }}
+        {% endfor %}
+
+        <!-- Critical row -->
+        <div class="heatmap-row-header critical-header">Critical</div>
+        {% for cell in critical_cells %}
+        {{ cell|safe }}
+        {% endfor %}
+
+        <!-- High row -->
+        <div class="heatmap-row-header high-header">High</div>
+        {% for cell in high_cells %}
+        {{ cell|safe }}
+        {% endfor %}
+    </div>
+</div>

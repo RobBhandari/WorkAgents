@@ -1,0 +1,49 @@
+# Environment variable management
+python-dotenv==1.0.0
+
+# HTTP requests
+requests>=2.32.3,<3.0  # Security patches for CVE-2023-32681
+
+# Google OAuth and API client libraries
+google-auth>=2.36.0,<3.0
+google-auth-oauthlib>=1.2.0,<2.0
+google-auth-httplib2>=0.2.0,<1.0
+google-api-python-client>=2.150.0,<3.0
+
+# Web scraping (for example scripts)
+beautifulsoup4>=4.12.3,<5.0
+lxml>=5.3.0,<6.0
+
+# Data processing
+pandas>=2.2.3,<3.0
+
+# Machine Learning
+scikit-learn>=1.5.0,<2.0  # Linear regression for trend prediction
+numpy>=1.26.0,<2.0  # Numerical computing for ML
+
+# Azure DevOps integration (only beta versions available from Microsoft)
+azure-devops==7.1.0b4  # Latest available - no stable release exists yet
+
+# ArmorCode integration uses requests (no additional SDK needed)
+
+# HTML templating (XSS prevention)
+jinja2>=3.1.6,<4.0  # Auto-escaping templates for secure HTML generation
+
+# Testing and security
+pytest>=9.0.0,<10.0  # For running security tests
+
+# Observability
+sentry-sdk>=1.40.0,<2.0  # Error tracking and performance monitoring
+
+# REST API
+fastapi>=0.109.0,<1.0  # Modern async web framework
+uvicorn[standard]>=0.27.0,<1.0  # ASGI server with WebSocket support
+python-multipart>=0.0.6,<1.0  # For handling form data
+
+# Add other dependencies as needed
+
+# Testing dependencies
+httpx>=0.27.0,<1.0  # Required by FastAPI TestClient
+
+# Production server (Azure deployment)
+gunicorn>=21.0.0,<22.0  # WSGI server for production

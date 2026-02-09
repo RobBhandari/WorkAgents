@@ -1,0 +1,21 @@
+<div class="table-wrapper">
+    <table class="data-table expandable">
+        <thead>
+            <tr>
+                {% for header in headers %}<th>{{ header }}</th>{% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr class="data-row" onclick="toggleDetail('detail-{{ row.id }}', this)">
+                {% for cell in row.cells %}<td>{{ cell }}</td>{% endfor %}
+            </tr>
+            <tr id="detail-{{ row.id }}" class="detail-row">
+                <td colspan="{{ headers|length }}">
+                    <div class="detail-content">{{ row.details|safe }}</div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

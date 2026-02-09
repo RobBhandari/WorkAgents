@@ -1,0 +1,10 @@
+<table class="summary-table">
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td class="summary-label">{{ item.label }}</td>
+            <td class="summary-value">{{ item.value }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,20 @@
+{% if wrap_in_div %}<div class="table-wrapper">{% endif %}
+<table id="{{ table_id }}" class="{{ sortable_class }}">
+    <thead>
+        <tr>
+        {% for header in headers %}
+            <th>{{ header }}</th>
+        {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in rows %}
+        <tr>
+        {% for cell in row %}
+            <td>{{ cell }}</td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% if wrap_in_div %}</div>{% endif %}

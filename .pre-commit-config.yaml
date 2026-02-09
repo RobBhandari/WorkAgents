@@ -1,0 +1,85 @@
+# Pre-commit hooks configuration - ARCHITECTURAL GOVERNANCE
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+#
+# This enforces the refactored architecture patterns:
+# - Security wrappers (secure_config, http_client)
+# - Architecture patterns (templates, domain models, file size)
+# - Code quality (formatting, linting, type checking)
+
+repos:
+  # Ruff - Fast Python linter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        description: Fast Python linter (replaces flake8, isort, etc.)
+
+  # Black - Code formatter
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        description: Python code formatter
+
+  # MyPy - Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests]
+        args: [--ignore-missing-imports, --check-untyped-defs]
+        description: Static type checker for Python
+        # Only enforce on new modular code (gradual adoption)
+        files: ^execution/(domain|dashboards|collectors|core)/.*\.py$
+
+  # Custom hooks - Enforce architectural standards
+  - repo: local
+    hooks:
+      # Security wrapper enforcement
+      - id: check-security-wrappers
+        name: Check Security Wrappers
+        entry: python hooks/check-security-wrappers.py
+        language: python
+        files: \.py$
+        exclude: ^(execution/(archive|experiments)/|tests/)
+        description: |
+          Detect direct os.getenv() and requests imports.
+          USE: secure_config.get_config() and http_client.get/post instead
+        pass_filenames: true
+        verbose: true
+
+      # Architecture pattern enforcement (NEW!)
+      - id: check-architecture-patterns
+        name: Check Architecture Patterns
+        entry: python hooks/check-architecture-patterns.py
+        language: python
+        files: \.py$
+        exclude: ^(execution/(archive|experiments)/|tests/|hooks/)
+        description: |
+          Enforce architectural standards:
+          - HTML via Jinja2 templates (not f-strings)
+          - Domain models (not dicts)
+          - Files <500 lines
+          - Type hints on public functions
+        pass_filenames: true
+        verbose: true
+
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        description: Trim trailing whitespace
+      - id: end-of-file-fixer
+        description: Ensure files end with newline
+      - id: check-yaml
+        description: Check YAML syntax
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+        description: Prevent large files from being committed
+      - id: check-merge-conflict
+        description: Check for merge conflict markers

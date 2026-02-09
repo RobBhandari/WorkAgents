@@ -1,0 +1,9 @@
+<div class="detail-metric {{ rag_class }}" style="border-left-color: {{ rag_color }};">
+    <div class="detail-metric-label">{{ wtype }}</div>
+    <div class="detail-metric-value">
+        {{ total }} total<br>
+        <span style="font-size: 0.85rem; color: var(--text-secondary);">{{ assigned }} assigned</span> |
+        <span style="color: {{ rag_color }}; font-size: 0.85rem;">{{ unassigned }} unassigned ({{ unassigned_pct }}%)</span>
+    </div>
+    <div class="detail-metric-status" style="color: {{ rag_color }};">{{ rag_status }}</div>
+</div>

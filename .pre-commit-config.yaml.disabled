@@ -1,0 +1,58 @@
+# Pre-commit hooks configuration
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Ruff - Fast Python linter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        description: Fast Python linter (replaces flake8, isort, etc.)
+
+  # Black - Code formatter
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        description: Python code formatter
+
+  # MyPy - Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests]
+        args: [--ignore-missing-imports, --check-untyped-defs]
+        description: Static type checker for Python
+
+  # Custom security wrapper checks (DISABLED)
+  # - repo: local
+  #   hooks:
+  #     - id: check-security-wrappers
+  #       name: Check Security Wrappers
+  #       entry: python hooks/check-security-wrappers.py
+  #       language: python
+  #       files: \.py$
+  #       description: Detect direct os.getenv() and requests imports (should use secure_config and http_client)
+  #       pass_filenames: true
+  #       verbose: true
+
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        description: Trim trailing whitespace
+      - id: end-of-file-fixer
+        description: Ensure files end with newline
+      - id: check-yaml
+        description: Check YAML syntax
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+        description: Prevent large files from being committed
+      - id: check-merge-conflict
+        description: Check for merge conflict markers

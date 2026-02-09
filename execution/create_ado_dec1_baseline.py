@@ -1,0 +1,303 @@
+"""
+Create Azure DevOps Bugs Baseline for December 1, 2025
+
+Queries Azure DevOps for all bugs that existed on December 1, 2025
+(created before or on that date, and either still open or closed after that date).
+
+Usage:
+    python create_ado_dec1_baseline.py
+    python create_ado_dec1_baseline.py --project "MyProject"
+    python create_ado_dec1_baseline.py --all-projects
+"""
+
+import argparse
+import json
+import logging
+import os
+import sys
+from datetime import datetime
+
+# Azure DevOps SDK
+from azure.devops.connection import Connection
+from dotenv import load_dotenv
+from msrest.authentication import BasicAuthentication
+
+from execution.core import get_config
+from execution.security import WIQLValidator
+
+# Load environment variables
+load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(f'.tmp/create_dec1_baseline_{datetime.now().strftime("%Y%m%d")}.log'),
+        logging.StreamHandler(sys.stdout),
+    ],
+)
+logger = logging.getLogger(__name__)
+
+BASELINE_DATE = "2025-12-01"
+TARGET_DATE = "2026-06-30"
+REDUCTION_GOAL = 0.70
+
+
+def query_bugs_as_of_date(organization_url: str, project_name: str, pat: str, as_of_date: str) -> list:
+    """
+    Query bugs that existed as of a specific date.
+
+    Args:
+        organization_url: ADO organization URL
+        project_name: Project name
+        pat: Personal Access Token
+        as_of_date: Date to query (YYYY-MM-DD format)
+
+    Returns:
+        list: Bugs that existed on the specified date
+    """
+    logger.info(f"Querying bugs as of {as_of_date} for project: {project_name}")
+
+    try:
+        # Authenticate
+        credentials = BasicAuthentication("", pat)
+        connection = Connection(base_url=organization_url, creds=credentials)
+        wit_client = connection.clients.get_work_item_tracking_client()
+
+        logger.info("Successfully connected to Azure DevOps")
+
+        # Validate inputs to prevent WIQL injection
+        safe_project = WIQLValidator.validate_project_name(project_name)
+        safe_as_of_date = WIQLValidator.validate_date_iso8601(as_of_date)
+
+        # Build WIQL query for bugs that existed on the baseline date
+        # Include bugs that were:
+        # 1. Created on or before baseline date
+        # 2. Either still open OR closed after baseline date
+        wiql_query = WIQLValidator.build_safe_wiql(
+            """SELECT [System.Id], [System.Title], [System.State],
+               [Microsoft.VSTS.Common.Priority], [System.CreatedDate], [Microsoft.VSTS.Common.ClosedDate]
+            FROM WorkItems
+            WHERE [System.TeamProject] = '{project}'
+            AND [System.WorkItemType] = '{work_type}'
+            AND [System.CreatedDate] <= '{as_of_date}'
+            AND (
+                [System.State] <> 'Closed'
+                OR [Microsoft.VSTS.Common.ClosedDate] > '{as_of_date}'
+                OR [Microsoft.VSTS.Common.ClosedDate] = ''
+            )
+            ORDER BY [Microsoft.VSTS.Common.Priority] ASC, [System.Id] ASC""",
+            project=safe_project,
+            work_type="Bug",
+            as_of_date=safe_as_of_date,
+        )
+
+        logger.info("Executing WIQL query...")
+        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})
+
+        if not wiql_results.work_items:
+            logger.info("No bugs found for the specified date")
+            return []
+
+        work_item_ids = [item.id for item in wiql_results.work_items]
+        logger.info(f"Found {len(work_item_ids)} bugs as of {as_of_date}")
+
+        # Fetch full work item details in batches
+        bugs = []
+        batch_size = 200
+
+        for i in range(0, len(work_item_ids), batch_size):
+            batch_ids = work_item_ids[i : i + batch_size]
+            logger.info(f"Fetching batch {i//batch_size + 1}/{(len(work_item_ids) + batch_size - 1)//batch_size}...")
+
+            work_items = wit_client.get_work_items(
+                ids=batch_ids,
+                fields=[
+                    "System.Id",
+                    "System.Title",
+                    "System.State",
+                    "Microsoft.VSTS.Common.Priority",
+                    "System.CreatedDate",
+                    "Microsoft.VSTS.Common.ClosedDate",
+                ],
+            )
+
+            for item in work_items:
+                bug_data = {
+                    "id": item.id,
+                    "title": item.fields.get("System.Title", "N/A"),
+                    "state": item.fields.get("System.State", "N/A"),
+                    "priority": item.fields.get("Microsoft.VSTS.Common.Priority", "N/A"),
+                    "created_date": str(item.fields.get("System.CreatedDate", "")),
+                    "closed_date": str(item.fields.get("Microsoft.VSTS.Common.ClosedDate", "")),
+                }
+                bugs.append(bug_data)
+
+        logger.info(f"Successfully retrieved {len(bugs)} bugs")
+        return bugs
+
+    except Exception as e:
+        logger.error(f"Error querying Azure DevOps: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to query bugs: {e}") from e
+
+
+def create_baseline(
+    organization_url: str, project_name: str, pat: str, baseline_date: str, target_date: str, reduction_goal: float
+) -> dict:
+    """
+    Create baseline snapshot for a project.
+
+    Args:
+        organization_url: ADO organization URL
+        project_name: Project name
+        pat: Personal Access Token
+        baseline_date: Baseline date (YYYY-MM-DD)
+        target_date: Target date (YYYY-MM-DD)
+        reduction_goal: Reduction goal (e.g., 0.70 for 70%)
+
+    Returns:
+        dict: Baseline data
+    """
+    logger.info(f"Creating baseline for {baseline_date}")
+
+    # Query bugs
+    bugs = query_bugs_as_of_date(organization_url, project_name, pat, baseline_date)
+
+    baseline_count = len(bugs)
+    target_count = int(baseline_count * (1 - reduction_goal))
+
+    # Calculate timeline
+    baseline_dt = datetime.strptime(baseline_date, "%Y-%m-%d")
+    target_dt = datetime.strptime(target_date, "%Y-%m-%d")
+    days_to_target = (target_dt - baseline_dt).days
+    weeks_to_target = days_to_target // 7
+
+    # Calculate required weekly burn
+    required_weekly_burn = (baseline_count - target_count) / weeks_to_target if weeks_to_target > 0 else 0
+
+    # Create baseline structure
+    baseline = {
+        "baseline_date": baseline_date,
+        "baseline_week": 0,
+        "open_count": baseline_count,
+        "target_count": target_count,
+        "target_date": target_date,
+        "target_percentage": 1 - reduction_goal,
+        "weeks_to_target": weeks_to_target,
+        "required_weekly_burn": round(required_weekly_burn, 2),
+        "immutable": True,
+        "created_at": datetime.now().isoformat(),
+        "project": project_name,
+        "organization": organization_url,
+        "bugs": bugs,
+    }
+
+    logger.info(f"Baseline created: {baseline_count} bugs on {baseline_date}")
+    logger.info(f"Target: {target_count} bugs by {target_date}")
+    logger.info(f"Required weekly burn: {required_weekly_burn:.2f} bugs/week")
+
+    return baseline
+
+
+def save_baseline(baseline: dict, output_file: str):
+    """Save baseline to file."""
+    os.makedirs(os.path.dirname(output_file) if os.path.dirname(output_file) else ".", exist_ok=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(baseline, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Baseline saved to: {output_file}")
+
+
+def parse_arguments():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description="Create ADO bugs baseline for December 1, 2025")
+
+    parser.add_argument("--project", type=str, default=None, help="Project name (overrides ADO_PROJECT_NAME from .env)")
+
+    parser.add_argument(
+        "--all-projects", action="store_true", help="Create baselines for all projects listed in ADO_PROJECTS"
+    )
+
+    parser.add_argument(
+        "--output-file", type=str, default="data/baseline.json", help="Output file path (default: data/baseline.json)"
+    )
+
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    try:
+        args = parse_arguments()
+
+        # Load configuration
+        organization_url = get_config().get("ADO_ORGANIZATION_URL")
+        pat = get_config().get_ado_config().pat
+
+        # Validate environment
+        if not organization_url or organization_url == "your_ado_org_url_here":
+            raise RuntimeError("ADO_ORGANIZATION_URL not configured in .env file")
+
+        if not pat or pat == "your_personal_access_token_here":
+            raise RuntimeError("ADO_PAT not configured in .env file")
+
+        # Determine project(s)
+        if args.all_projects:
+            projects_str = get_config().get("ADO_PROJECTS")
+            projects = [p.strip() for p in projects_str.split(",") if p.strip()]
+            if not projects:
+                raise RuntimeError("No projects found in ADO_PROJECTS environment variable")
+        else:
+            project_name = args.project or get_config().get("ADO_PROJECT_NAME")
+            if not project_name or project_name == "your_project_name_here":
+                raise RuntimeError("ADO_PROJECT_NAME not configured")
+            projects = [project_name]
+
+        logger.info(f"Creating baseline for {len(projects)} project(s)")
+
+        # Create baseline for each project
+        for project in projects:
+            logger.info(f"\n{'='*70}")
+            logger.info(f"Processing project: {project}")
+            logger.info(f"{'='*70}")
+
+            baseline = create_baseline(
+                organization_url=organization_url,
+                project_name=project,
+                pat=pat,
+                baseline_date=BASELINE_DATE,
+                target_date=TARGET_DATE,
+                reduction_goal=REDUCTION_GOAL,
+            )
+
+            # Determine output file
+            if len(projects) == 1 and not args.all_projects:
+                output_file = args.output_file
+            else:
+                # For multiple projects, create separate files
+                project_key = project.replace(" ", "_")
+                output_file = f"data/baseline_{project_key}.json"
+
+            save_baseline(baseline, output_file)
+
+            # Print summary
+            print(f"\n{'='*70}")
+            print(f"Baseline Created: {project}")
+            print(f"{'='*70}")
+            print(f"Baseline Date:     {baseline['baseline_date']}")
+            print(f"Open Bugs:         {baseline['open_count']}")
+            print(f"Target Date:       {baseline['target_date']}")
+            print(f"Target Count:      {baseline['target_count']}")
+            print(f"Reduction Goal:    {int(REDUCTION_GOAL * 100)}%")
+            print(f"Weeks to Target:   {baseline['weeks_to_target']}")
+            print(f"Required Burn:     {baseline['required_weekly_burn']} bugs/week")
+            print(f"Output File:       {output_file}")
+            print(f"{'='*70}\n")
+
+        sys.exit(0)
+
+    except Exception as e:
+        logger.error(f"Script failed: {e}")
+        print(f"\nError: {e}", file=sys.stderr)
+        sys.exit(1)
