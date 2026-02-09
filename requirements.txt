@@ -33,7 +33,7 @@ jinja2>=3.1.6,<4.0  # Auto-escaping templates for secure HTML generation
 pytest>=9.0.0,<10.0  # For running security tests
 
 # Observability
-sentry-sdk>=1.40.0,<2.0  # Error tracking and performance monitoring
+sentry-sdk>=1.40.0,<3.0  # Error tracking and performance monitoring
 
 # REST API
 fastapi>=0.109.0,<1.0  # Modern async web framework
