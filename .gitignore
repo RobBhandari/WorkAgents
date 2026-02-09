@@ -17,6 +17,9 @@ execution/check_area_paths.py
 execution/check_armorcode_creator.py
 execution/verify_incase_closed.py
 
+# Claude local settings backup
+.claude/settings.local.json.bak
+
 # Environment variables and credentials
 .env
 credentials.json
