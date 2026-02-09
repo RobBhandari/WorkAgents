@@ -162,23 +162,6 @@ jobs:
           path: .tmp/observatory/
           merge-multiple: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Generate dashboard launcher (index.html)
-        run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          python -m execution.generate_dashboard_launcher
-          echo "✅ Dashboard launcher (index.html) generated with links to all dashboards"
-
       - name: Verify deployment package
         run: |
           echo "📦 Deployment package contents:"
