@@ -25,19 +25,12 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-try:
-    from ..collectors.armorcode_loader import ArmorCodeLoader
-    from ..collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.security_detail_page import generate_product_detail_page
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from collectors.armorcode_loader import ArmorCodeLoader  # type: ignore[no-redef]
-    from collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader  # type: ignore[no-redef]
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.security_detail_page import generate_product_detail_page  # type: ignore[no-redef]
+from execution.collectors.armorcode_loader import ArmorCodeLoader
+from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
+from execution.dashboards.components.cards import summary_card
+from execution.dashboards.renderer import render_dashboard
+from execution.dashboards.security_detail_page import generate_product_detail_page
+from execution.framework import get_dashboard_framework
 
 
 def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tuple[str, int]:
@@ -142,259 +135,125 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
 
 def _generate_main_dashboard_html(metrics_by_product: dict, vulns_by_product: dict) -> str:
-    """Generate main dashboard HTML with product summary table"""
+    """
+    Generate main dashboard HTML using 4-stage pipeline.
 
-    # Get framework CSS/JS
-    framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#667eea",
-        header_gradient_end="#764ba2",
-        include_table_scroll=True,
-        include_expandable_rows=False,
-        include_glossary=False,
-    )
+    Stage 1: Load Data (already done - passed as parameters)
+    Stage 2: Calculate Summary
+    Stage 3: Build Context
+    Stage 4: Render Template
+    """
+    # Stage 2: Calculate summary statistics
+    summary_stats = _calculate_summary(metrics_by_product)
 
+    # Stage 3: Build context for template
+    context = _build_context(metrics_by_product, vulns_by_product, summary_stats)
+
+    # Stage 4: Render template
+    html = render_dashboard("dashboards/security_dashboard.html", context)
+    return html
+
+
+def _calculate_summary(metrics_by_product: dict) -> dict:
+    """
+    Stage 2: Calculate summary statistics.
+
+    Args:
+        metrics_by_product: Dict of product name -> SecurityMetrics
+
+    Returns:
+        Dictionary with summary statistics
+    """
     # Calculate totals
     total_vulns = sum(m.total_vulnerabilities for m in metrics_by_product.values())
     total_critical = sum(m.critical for m in metrics_by_product.values())
     total_high = sum(m.high for m in metrics_by_product.values())
+    total_medium = sum(m.medium for m in metrics_by_product.values())
 
-    # Overall status
+    # Count products with vulnerabilities
+    products_with_vulns = sum(1 for m in metrics_by_product.values() if m.total_vulnerabilities > 0)
+
+    # Overall status determination
     if total_critical == 0 and total_high <= 10:
-        status_color = "#10b981"
-        status_text = "HEALTHY"
+        status = "good"
+        status_text = "Healthy"
     elif total_critical <= 5:
-        status_color = "#f59e0b"
-        status_text = "CAUTION"
+        status = "caution"
+        status_text = "Caution"
     else:
-        status_color = "#ef4444"
-        status_text = "ACTION NEEDED"
+        status = "action"
+        status_text = "Action Needed"
 
-    # Generate product table rows
-    product_rows = []
+    return {
+        "total_vulns": total_vulns,
+        "total_critical": total_critical,
+        "total_high": total_high,
+        "total_medium": total_medium,
+        "products_with_vulns": products_with_vulns,
+        "status": status,
+        "status_text": status_text,
+    }
+
+
+def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_stats: dict) -> dict:
+    """
+    Stage 3: Build template context.
+
+    Args:
+        metrics_by_product: Dict of product name -> SecurityMetrics
+        vulns_by_product: Dict of product name -> List of vulnerabilities
+        summary_stats: Summary statistics from _calculate_summary()
+
+    Returns:
+        Dictionary with template variables
+    """
+    # Build summary cards using component function
+    summary_cards = [
+        summary_card("Total Findings", str(summary_stats["total_vulns"])),
+        summary_card("Critical", str(summary_stats["total_critical"]), css_class="critical"),
+        summary_card("High", str(summary_stats["total_high"]), css_class="high"),
+        summary_card("Products", str(summary_stats["products_with_vulns"])),
+    ]
+
+    # Build product rows
+    products = []
     for product_name, metrics in sorted(metrics_by_product.items()):
         if metrics.total_vulnerabilities == 0:
             continue
 
-        safe_filename = _sanitize_filename(product_name)
-        detail_link = f"security_detail_{safe_filename}.html"
-
-        # Status indicator
+        # Determine status using standard status classes
         if metrics.critical >= 5:
-            status_indicator = '<span class="status-critical">⚠️ CRITICAL</span>'
+            status = "Critical"
+            status_class = "action"
         elif metrics.critical > 0:
-            status_indicator = '<span class="status-high">⚠ High Risk</span>'
+            status = "High Risk"
+            status_class = "caution"
         elif metrics.high >= 10:
-            status_indicator = '<span class="status-medium">⚠ Monitor</span>'
+            status = "Monitor"
+            status_class = "caution"
         else:
-            status_indicator = '<span class="status-ok">✓ OK</span>'
+            status = "OK"
+            status_class = "good"
 
-        # Get vulnerability count from live data
-        product_vulns = vulns_by_product.get(product_name, [])
-        vuln_count = len(product_vulns)
+        products.append(
+            {
+                "name": product_name,
+                "total": metrics.total_vulnerabilities,
+                "critical": metrics.critical,
+                "high": metrics.high,
+                "medium": metrics.medium,
+                "status": status,
+                "status_class": status_class,
+                "expandable": False,  # Security dashboard uses separate detail pages
+                "details": None,
+            }
+        )
 
-        product_rows.append(f"""
-            <tr>
-                <td class="product-name">{_escape_html(product_name)}</td>
-                <td class="count">{vuln_count}</td>
-                <td class="count critical">{metrics.critical}</td>
-                <td class="count high">{metrics.high}</td>
-                <td class="actions">
-                    <a href="{detail_link}" target="_blank" class="view-btn">View Details →</a>
-                </td>
-                <td class="status">{status_indicator}</td>
-            </tr>
-        """)
-
-    return f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Dashboard - {datetime.now().strftime('%Y-%m-%d')}</title>
-    {framework_css}
-    <style>
-        .executive-summary {{
-            background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px var(--shadow);
-        }}
-
-        .status-badge {{
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            background: {status_color};
-            color: white;
-            margin-bottom: 20px;
-        }}
-
-        .summary-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }}
-
-        .summary-card {{
-            background: var(--bg-tertiary);
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #ef4444;
-        }}
-
-        .summary-card .label {{
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }}
-
-        .summary-card .value {{
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }}
-
-        .product-name {{
-            font-weight: 600;
-            color: var(--text-primary);
-        }}
-
-        .count {{
-            text-align: center;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }}
-
-        .count.critical {{
-            color: #ef4444;
-            font-size: 1.1rem;
-        }}
-
-        .count.high {{
-            color: #f59e0b;
-            font-size: 1.1rem;
-        }}
-
-        .actions {{
-            text-align: center;
-        }}
-
-        .view-btn {{
-            display: inline-block;
-            padding: 6px 12px;
-            background: #3b82f6;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }}
-
-        .view-btn:hover {{
-            background: #2563eb;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-        }}
-
-        .status {{
-            text-align: center;
-        }}
-
-        .status-critical {{
-            color: #ef4444;
-            font-weight: 700;
-        }}
-
-        .status-high {{
-            color: #f59e0b;
-            font-weight: 600;
-        }}
-
-        .status-medium {{
-            color: #eab308;
-            font-weight: 600;
-        }}
-
-        .status-ok {{
-            color: #10b981;
-            font-weight: 600;
-        }}
-
-        .section-title {{
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }}
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <h1>🛡️ Security Dashboard</h1>
-            <p class="subtitle">Critical & High Severity Vulnerabilities - {datetime.now().strftime('%Y-%m-%d')}</p>
-        </div>
-    </div>
-
-        <!-- Executive Summary -->
-        <div class="executive-summary">
-            <div class="status-badge">{status_text}</div>
-            <h2 class="section-title">Portfolio Summary</h2>
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="label">Total Findings</div>
-                    <div class="value">{total_vulns}</div>
-                </div>
-                <div class="summary-card">
-                    <div class="label">Critical</div>
-                    <div class="value" style="color: #ef4444;">{total_critical}</div>
-                </div>
-                <div class="summary-card">
-                    <div class="label">High</div>
-                    <div class="value" style="color: #f59e0b;">{total_high}</div>
-                </div>
-                <div class="summary-card">
-                    <div class="label">Products</div>
-                    <div class="value">{len(product_rows)}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product Table -->
-        <div class="table-container">
-            <h2 class="section-title" style="padding: 20px 20px 0;">Products with Vulnerabilities</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Total</th>
-                        <th>Critical</th>
-                        <th>High</th>
-                        <th>Actions</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-{"".join(product_rows)}
-                </tbody>
-            </table>
-        </div>
-
-    <div class="footer">
-        <p>Generated by Engineering Metrics Platform | {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
-        <p>Click "View Details" to see individual vulnerabilities, aging heatmap, and export options</p>
-    </div>
-
-    {framework_js}
-</body>
-</html>"""
+    return {
+        "summary_cards": summary_cards,
+        "products": products,
+        "show_glossary": False,
+    }
 
 
 def _sanitize_filename(product_name: str) -> str:
