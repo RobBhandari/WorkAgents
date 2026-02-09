@@ -3,7 +3,7 @@
 Enhanced Security Dashboard Generator
 
 Complete security dashboard with:
-- Main summary table
+- Main summary table with VIEW buttons for drill-down
 - Individual product detail pages
 - Aging heatmap per product
 - Live ArmorCode API queries
