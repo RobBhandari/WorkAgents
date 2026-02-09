@@ -295,7 +295,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1100,
             "total_file_changes": 21028,
@@ -823,7 +823,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 9891,
@@ -1401,7 +1401,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 8039,
@@ -1690,7 +1690,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 3049,
@@ -2277,7 +2277,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
             "total_file_changes": 5236,
@@ -2736,7 +2736,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 2826,
@@ -3242,7 +3242,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -3531,7 +3531,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -4118,7 +4118,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
             "total_file_changes": 5236,
@@ -4577,7 +4577,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 2826,
@@ -5083,7 +5083,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -5372,7 +5372,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -5959,7 +5959,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
             "total_file_changes": 5236,
@@ -6418,7 +6418,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3355,
@@ -6924,7 +6924,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -7213,7 +7213,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -7800,7 +7800,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
             "total_file_changes": 5236,
@@ -8259,7 +8259,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -8765,7 +8765,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -9054,7 +9054,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -9641,7 +9641,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
             "total_file_changes": 5236,
@@ -10100,7 +10100,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -10606,7 +10606,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -10895,7 +10895,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -11482,7 +11482,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
             "total_file_changes": 5236,
@@ -11941,7 +11941,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -12447,7 +12447,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -12736,7 +12736,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -13323,7 +13323,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
             "total_file_changes": 5236,
@@ -13782,7 +13782,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -14288,7 +14288,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -14577,7 +14577,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -15164,7 +15164,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1087,
             "total_file_changes": 5222,
@@ -15623,7 +15623,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -16129,7 +16129,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -16418,7 +16418,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -17005,7 +17005,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1087,
             "total_file_changes": 5222,
@@ -17464,7 +17464,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -17970,7 +17970,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -18259,7 +18259,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -18846,7 +18846,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1087,
             "total_file_changes": 5222,
@@ -19305,7 +19305,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -19811,7 +19811,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
             "total_file_changes": 1773,
@@ -20100,7 +20100,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -20687,7 +20687,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1080,
             "total_file_changes": 5211,
@@ -21146,7 +21146,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -21652,7 +21652,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -21941,7 +21941,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -22528,7 +22528,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1080,
             "total_file_changes": 5211,
@@ -22987,7 +22987,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -23493,7 +23493,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -23782,7 +23782,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -24369,7 +24369,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1080,
             "total_file_changes": 5211,
@@ -24828,7 +24828,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -25334,7 +25334,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -25623,7 +25623,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -26210,7 +26210,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5211,
@@ -26669,7 +26669,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -27175,7 +27175,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -27464,7 +27464,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -28051,7 +28051,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5211,
@@ -28510,7 +28510,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -29016,7 +29016,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -29305,7 +29305,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -29892,7 +29892,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5211,
@@ -30351,7 +30351,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -30857,7 +30857,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -31146,7 +31146,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -31733,7 +31733,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5211,
@@ -32192,7 +32192,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -32698,7 +32698,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -32987,7 +32987,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -33574,7 +33574,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5211,
@@ -34033,7 +34033,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -34539,7 +34539,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -34828,7 +34828,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -35415,7 +35415,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5211,
@@ -35874,7 +35874,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -36380,7 +36380,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -36669,7 +36669,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -37256,7 +37256,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5286,
@@ -37715,7 +37715,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3341,
@@ -38221,7 +38221,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1763,
@@ -38510,7 +38510,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 578,
@@ -39097,7 +39097,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5519,
@@ -39578,7 +39578,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 1102,
@@ -40084,7 +40084,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1746,
@@ -40373,7 +40373,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 579,
@@ -40960,7 +40960,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5519,
@@ -41411,7 +41411,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 1106,
@@ -41917,7 +41917,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
             "total_file_changes": 1746,
@@ -42206,7 +42206,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 579,
@@ -42793,7 +42793,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5519,
@@ -43219,7 +43219,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 2438,
@@ -43725,7 +43725,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
             "total_file_changes": 1732,
@@ -44014,7 +44014,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 579,
@@ -44601,7 +44601,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5519,
@@ -45092,7 +45092,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3035,
@@ -45598,7 +45598,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
             "total_file_changes": 1716,
@@ -45887,7 +45887,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 585,
@@ -46474,7 +46474,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5528,
@@ -46965,7 +46965,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3422,
@@ -47471,7 +47471,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
             "total_file_changes": 1716,
@@ -47760,7 +47760,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 585,
@@ -48347,7 +48347,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5528,
@@ -48838,7 +48838,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 3684,
@@ -49344,7 +49344,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
             "total_file_changes": 1716,
@@ -49633,7 +49633,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 585,
@@ -50220,7 +50220,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5528,
@@ -50711,7 +50711,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 2822,
@@ -51217,7 +51217,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
             "total_file_changes": 1716,
@@ -51506,7 +51506,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 585,
@@ -52093,7 +52093,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
             "total_file_changes": 5528,
@@ -52584,7 +52584,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "code_churn": {
             "total_commits": 316,
             "total_file_changes": 1619,
@@ -53090,7 +53090,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
             "total_file_changes": 1706,
@@ -53379,7 +53379,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
             "total_file_changes": 585,

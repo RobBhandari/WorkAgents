@@ -259,7 +259,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 323,
             "lookback_days": 90,
@@ -626,7 +626,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 326,
             "lookback_days": 90,
@@ -847,7 +847,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -1001,7 +1001,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -1493,7 +1493,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -1860,7 +1860,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -2081,7 +2081,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -2235,7 +2235,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -2727,7 +2727,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -3094,7 +3094,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -3315,7 +3315,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -3469,7 +3469,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -3961,7 +3961,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -4328,7 +4328,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -4549,7 +4549,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -4703,7 +4703,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -5195,7 +5195,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -5562,7 +5562,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -5783,7 +5783,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -5937,7 +5937,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -6429,7 +6429,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -6796,7 +6796,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -7017,7 +7017,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -7171,7 +7171,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -7663,7 +7663,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -8029,7 +8029,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -8250,7 +8250,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -8404,7 +8404,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -8895,7 +8895,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 325,
             "lookback_days": 90,
@@ -9261,7 +9261,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -9482,7 +9482,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -9636,7 +9636,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -10119,7 +10119,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -10477,7 +10477,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -10698,7 +10698,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -10852,7 +10852,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -11335,7 +11335,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -11693,7 +11693,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -11914,7 +11914,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -12068,7 +12068,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -12551,7 +12551,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -12909,7 +12909,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -13130,7 +13130,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -13284,7 +13284,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -13767,7 +13767,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -14125,7 +14125,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 286,
             "lookback_days": 90,
@@ -14343,7 +14343,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -14497,7 +14497,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -14980,7 +14980,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -15338,7 +15338,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 286,
             "lookback_days": 90,
@@ -15556,7 +15556,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -15710,7 +15710,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -16193,7 +16193,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -16551,7 +16551,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 286,
             "lookback_days": 90,
@@ -16769,7 +16769,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -16923,7 +16923,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -17406,7 +17406,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -17764,7 +17764,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -17982,7 +17982,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -18136,7 +18136,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -18619,7 +18619,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -18977,7 +18977,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -19195,7 +19195,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -19349,7 +19349,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -19832,7 +19832,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -20190,7 +20190,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -20408,7 +20408,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -20562,7 +20562,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -21045,7 +21045,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -21403,7 +21403,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -21621,7 +21621,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -21775,7 +21775,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -22258,7 +22258,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -22616,7 +22616,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -22834,7 +22834,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -22988,7 +22988,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -23471,7 +23471,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -23829,7 +23829,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -24047,7 +24047,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -24201,7 +24201,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -24684,7 +24684,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -25042,7 +25042,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -25260,7 +25260,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -25414,7 +25414,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -25897,7 +25897,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -26255,7 +26255,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 278,
             "lookback_days": 90,
@@ -26473,7 +26473,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 120,
             "lookback_days": 90,
@@ -26627,7 +26627,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 102,
             "lookback_days": 90,
@@ -27111,7 +27111,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -27469,7 +27469,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 279,
             "lookback_days": 90,
@@ -27687,7 +27687,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 120,
             "lookback_days": 90,
@@ -27841,7 +27841,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 102,
             "lookback_days": 90,
@@ -28325,7 +28325,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -28683,7 +28683,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 285,
             "lookback_days": 90,
@@ -28901,7 +28901,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 119,
             "lookback_days": 90,
@@ -29055,7 +29055,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 101,
             "lookback_days": 90,
@@ -29539,7 +29539,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -29897,7 +29897,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 298,
             "lookback_days": 90,
@@ -30118,7 +30118,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -30272,7 +30272,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -30756,7 +30756,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -31114,7 +31114,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 299,
             "lookback_days": 90,
@@ -31335,7 +31335,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -31489,7 +31489,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -31974,7 +31974,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -32332,7 +32332,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 302,
             "lookback_days": 90,
@@ -32553,7 +32553,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -32707,7 +32707,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 104,
             "lookback_days": 90,
@@ -33192,7 +33192,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -33550,7 +33550,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 306,
             "lookback_days": 90,
@@ -33771,7 +33771,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -33925,7 +33925,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 104,
             "lookback_days": 90,
@@ -34410,7 +34410,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -34768,7 +34768,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "deployment_frequency": {
             "total_successful_builds": 310,
             "lookback_days": 90,
@@ -34989,7 +34989,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -35143,7 +35143,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "deployment_frequency": {
             "total_successful_builds": 104,
             "lookback_days": 90,
