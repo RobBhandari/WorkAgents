@@ -146,8 +146,8 @@ def _generate_main_dashboard_html(metrics_by_product: dict, vulns_by_product: di
 
     # Get framework CSS/JS
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#1e293b",
-        header_gradient_end="#0f172a",
+        header_gradient_start="#667eea",
+        header_gradient_end="#764ba2",
         include_table_scroll=True,
         include_expandable_rows=False,
         include_glossary=False,
