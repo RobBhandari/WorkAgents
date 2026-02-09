@@ -146,7 +146,7 @@ jobs:
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           echo "🔓 Converting Product A, B, C back to real product names..."
-          python scripts/degener icize_history_files.py || echo "⚠️  No history files to de-genericize (first run or not found)"
+          python scripts/de_genericize_history_files.py || echo "⚠️  No history files to de-genericize (first run or not found)"
           echo "✅ History files now have REAL names - collectors will append with real names"
 
       - name: Collect ${{ matrix.collector.name }}
