@@ -9,6 +9,19 @@
 
 {% block extra_css %}
 <style>
+    /* Disable expandable row styling (using VIEW buttons instead) */
+    tbody tr.data-row {
+        cursor: default !important;
+    }
+
+    tbody tr.data-row td:first-child {
+        padding-left: 16px !important; /* Remove extra padding for chevron */
+    }
+
+    tbody tr.data-row td:first-child::before {
+        content: none !important; /* Hide chevron arrow */
+    }
+
     /* View Button Styling */
     .view-btn {
         display: inline-block;
