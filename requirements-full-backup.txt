@@ -24,7 +24,7 @@ msrest==0.7.1
 # ArmorCode integration uses requests (no additional SDK needed)
 
 # Telegram bot integration (deprecated - use Teams bot instead)
-python-telegram-bot==21.0
+python-telegram-bot==22.6
 
 # Microsoft Teams bot integration
 botbuilder-core==4.15.0
