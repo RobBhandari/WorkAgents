@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGL AI Tools Usage Report - Import Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <style>
+    
+    :root {
+        /* Background Colors */
+        --bg-primary: #f9fafb;
+        --bg-secondary: #ffffff;
+        --bg-tertiary: #f9fafb;
+
+        /* Text Colors */
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+
+        /* Border and Shadow */
+        --border-color: #e5e7eb;
+        --shadow: rgba(0,0,0,0.1);
+
+        /* Brand Colors */
+        --header-gradient-start: #667eea;
+        --header-gradient-end: #764ba2;
+
+        /* RAG Status Colors */
+        --color-rag-green: #10b981;
+        --color-rag-amber: #f59e0b;
+        --color-rag-red: #ef4444;
+
+        /* Spacing Scale */
+        --spacing-xs: 8px;
+        --spacing-sm: 12px;
+        --spacing-md: 16px;
+        --spacing-lg: 24px;
+        --spacing-xl: 32px;
+    }
+
+    [data-theme="dark"] {
+        /* Dark Mode Background Colors */
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+
+        /* Dark Mode Text Colors */
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+
+        /* Dark Mode Border and Shadow */
+        --border-color: #475569;
+        --shadow: rgba(0,0,0,0.3);
+    }
+    
+    
+    /* CSS Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Body and Font Styles */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        background: var(--bg-primary);
+        padding: 12px;
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        line-height: 1.6;
+    }
+
+    /* Progressive Enhancement for Larger Screens */
+    @media (min-width: 480px) {
+        body { padding: 16px; }
+    }
+
+    @media (min-width: 768px) {
+        body { padding: 20px; }
+    }
+
+    /* Responsive Typography Scale */
+    h1 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+        margin-bottom: 8px;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+        line-height: 1.3;
+        margin-bottom: 8px;
+    }
+
+    h3 {
+        font-size: 1rem;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+
+    /* Tablet Typography */
+    @media (min-width: 768px) {
+        h1 { font-size: 2rem; }
+        h2 { font-size: 1.5rem; }
+        h3 { font-size: 1.25rem; }
+    }
+
+    /* Desktop Typography */
+    @media (min-width: 1024px) {
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 1.75rem; }
+    }
+
+    /* Paragraph Styles */
+    p {
+        margin-bottom: 12px;
+    }
+
+    /* Container */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+    
+    
+    /* Header Component */
+    .header {
+        background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    @media (min-width: 480px) {
+        .header { padding: 24px; border-radius: 10px; }
+    }
+
+    @media (min-width: 768px) {
+        .header { padding: 32px; border-radius: 12px; margin-bottom: 30px; }
+    }
+
+    @media (min-width: 1024px) {
+        .header { padding: 40px; }
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    @media (min-width: 768px) {
+        .header h1 { font-size: 2rem; }
+    }
+
+    @media (min-width: 1024px) {
+        .header h1 { font-size: 2.5rem; }
+    }
+
+    .header .subtitle,
+    .header p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 4px;
+    }
+
+    @media (min-width: 768px) {
+        .header .subtitle,
+        .header p { font-size: 1rem; }
+    }
+
+    /* Card Component */
+    .card {
+        background: var(--bg-secondary);
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px var(--shadow);
+        transition: background-color 0.3s ease;
+    }
+
+    @media (min-width: 480px) {
+        .card { padding: 20px; border-radius: 10px; }
+    }
+
+    @media (min-width: 768px) {
+        .card { padding: 24px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px var(--shadow); }
+    }
+
+    @media (min-width: 1024px) {
+        .card { padding: 30px; }
+    }
+
+    /* Section Component */
+    .section {
+        margin-bottom: 24px;
+    }
+
+    @media (min-width: 768px) {
+        .section { margin-bottom: 30px; }
+    }
+    
+    
+    /* Summary Grid */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    @media (min-width: 480px) {
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .summary-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .summary-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+    }
+
+    /* Summary Card */
+    .summary-card {
+        background: var(--bg-tertiary);
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid var(--border-color);
+        transition: background-color 0.3s ease;
+    }
+
+    /* Summary Card Components */
+    .summary-card .label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        line-height: 1.2;
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .label { font-size: 0.85rem; }
+    }
+
+    .summary-card .value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .value { font-size: 2rem; }
+    }
+
+    .summary-card .unit {
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .unit { font-size: 1.2rem; }
+    }
+
+    .summary-card .explanation {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 8px;
+        line-height: 1.4;
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .explanation { font-size: 0.85rem; }
+    }
+
+    /* Metric Label */
+    .metric-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        line-height: 1.2;
+    }
+
+    @media (min-width: 768px) {
+        .metric-label { font-size: 0.75rem; }
+    }
+
+    /* Metric Value */
+    .metric-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+    }
+
+    @media (min-width: 768px) {
+        .metric-value { font-size: 2rem; }
+    }
+
+    /* Metric Unit */
+    .metric-unit {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+
+    @media (min-width: 768px) {
+        .metric-unit { font-size: 0.875rem; }
+    }
+
+    /* RAG Status Colors */
+    .rag-green {
+        background: rgba(16, 185, 129, 0.05);
+        border-left-color: var(--color-rag-green);
+    }
+
+    .rag-amber {
+        background: rgba(245, 158, 11, 0.05);
+        border-left-color: var(--color-rag-amber);
+    }
+
+    .rag-red {
+        background: rgba(239, 68, 68, 0.05);
+        border-left-color: var(--color-rag-red);
+    }
+    
+    
+    /* Theme Toggle Button */
+    .theme-toggle {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px var(--shadow);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    @media (min-width: 768px) {
+        .theme-toggle {
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 24px;
+        }
+    }
+
+    #theme-icon {
+        font-size: 1.4rem;
+    }
+
+    #theme-label {
+        display: none;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    @media (min-width: 768px) {
+        #theme-label { display: block; }
+    }
+
+    /* Touch-Friendly Interaction */
+    @media (hover: hover) and (pointer: fine) {
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px var(--shadow);
+        }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+    }
+
+    /* Prevent Tap Highlight */
+    .theme-toggle {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    
+    /* Table Wrapper with Horizontal Scroll */
+    .table-wrapper {
+        position: relative;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+        margin-top: 16px;
+    }
+
+    .table-wrapper::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-track {
+        background: var(--bg-primary);
+        border-radius: 4px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 4px;
+    }
+
+    /* Fade Gradient Indicator */
+    .table-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 30px;
+        background: linear-gradient(to left, var(--bg-secondary), transparent);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .table-wrapper:not(.scrolled-end)::after {
+        opacity: 1;
+    }
+
+    /* Table Base Styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px; /* Force scroll on mobile */
+    }
+
+    @media (min-width: 768px) {
+        table { min-width: 100%; }
+    }
+
+    /* Table Header */
+    thead {
+        background: var(--bg-tertiary);
+    }
+
+    th {
+        padding: 12px 10px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        border-bottom: 2px solid var(--border-color);
+        min-height: 44px;
+    }
+
+    @media (min-width: 768px) {
+        th { padding: 14px 16px; font-size: 0.85rem; }
+    }
+
+    /* Table Data Cells */
+    td {
+        padding: 10px;
+        border-bottom: 1px solid var(--border-color);
+        font-variant-numeric: tabular-nums;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) {
+        td { padding: 12px 16px; font-size: 0.9rem; }
+    }
+
+    /* Touch-Friendly Row Interaction */
+    @media (hover: hover) and (pointer: fine) {
+        tbody tr:hover {
+            background: var(--bg-tertiary);
+        }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        tbody tr:active {
+            background: var(--bg-tertiary);
+        }
+    }
+
+    /* Column Min-Widths */
+    th:nth-child(1), td:nth-child(1) { min-width: 120px; }
+    th:nth-child(2), td:nth-child(2) { min-width: 150px; }
+
+    /* Text Overflow Handling */
+    td {
+        word-break: break-word;
+        max-width: 300px;
+    }
+
+    td.truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    
+    /* Glossary Collapsible Section */
+    .glossary {
+        background: var(--bg-tertiary);
+        padding: 0;
+        border-radius: 8px;
+        margin-top: 20px;
+        overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+        .glossary { border-radius: 12px; margin-top: 30px; }
+    }
+
+    .glossary-header {
+        padding: 16px 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        user-select: none;
+        transition: background-color 0.2s ease;
+        min-height: 44px;
+    }
+
+    @media (min-width: 768px) {
+        .glossary-header { padding: 20px 30px; }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .glossary-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        [data-theme="light"] .glossary-header:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+    }
+
+    .glossary-toggle {
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        transition: transform 0.3s ease;
+    }
+
+    .glossary-toggle.expanded {
+        transform: rotate(180deg);
+    }
+
+    .glossary-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+        padding: 0 20px;
+    }
+
+    @media (min-width: 768px) {
+        .glossary-content { padding: 0 30px; }
+    }
+
+    .glossary-content.expanded {
+        max-height: 5000px;
+        padding: 0 20px 20px 20px;
+    }
+
+    @media (min-width: 768px) {
+        .glossary-content.expanded { padding: 0 30px 30px 30px; }
+    }
+
+    .glossary-item {
+        margin-bottom: 12px;
+    }
+
+    .glossary-term {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+    }
+
+    @media (min-width: 768px) {
+        .glossary-term { font-size: 1rem; }
+    }
+
+    .glossary-definition {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    @media (min-width: 768px) {
+        .glossary-definition { font-size: 0.9rem; }
+    }
+
+    /* Expandable Table Rows */
+    tbody tr.data-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    tbody tr.data-row td:first-child {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    tbody tr.data-row td:first-child::before {
+        content: '▶';
+        position: absolute;
+        left: 12px;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        transition: transform 0.3s ease;
+    }
+
+    tbody tr.data-row.expanded td:first-child::before {
+        transform: rotate(90deg);
+    }
+
+    tr.detail-row {
+        display: none;
+    }
+
+    tr.detail-row.show {
+        display: table-row;
+    }
+
+    .detail-content {
+        padding: 16px;
+        background: var(--bg-tertiary);
+        animation: slideDown 0.3s ease;
+    }
+
+    @media (min-width: 768px) {
+        .detail-content { padding: 20px; }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+        }
+        to {
+            opacity: 1;
+            max-height: 1000px;
+        }
+    }
+    
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin-bottom: 12px;
+    }
+
+    @media (min-width: 768px) {
+        .status-badge { padding: 8px 16px; font-size: 0.9rem; }
+    }
+
+    .status-good { color: var(--color-rag-green); }
+    .status-caution { color: var(--color-rag-amber); }
+    .status-action { color: var(--color-rag-red); }
+    .status-inactive { color: var(--text-secondary); }
+
+    /* Badge Components */
+    .badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .badge-secondary {
+        background-color: #6b7280;
+        color: white;
+    }
+
+    /* Accessibility: Focus Visible */
+    *:focus-visible {
+        outline: 3px solid #667eea;
+        outline-offset: 2px;
+    }
+
+    /* Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        body {
+            background: white;
+            padding: 0;
+        }
+        .card {
+            box-shadow: none;
+            border: 1px solid #e5e7eb;
+            page-break-inside: avoid;
+        }
+        .theme-toggle {
+            display: none;
+        }
+        .glossary-content {
+            max-height: none !important;
+        }
+    }
+
+    /* Touch Device Optimizations */
+    @media (hover: none) and (pointer: coarse) {
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        button, a, th, .data-row {
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
+        }
+    }
+    
+    </style>
+    
+    <style>
+        .import-button {
+            position: fixed;
+            top: 20px;
+            right: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .import-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .import-button:active {
+            transform: translateY(0);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .placeholder h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .placeholder p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Match existing dashboard styles */
+        .stats-card, .legend-card, .search-card, .table-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .legend-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-green { background-color: #d1fae5; border: 2px solid #065f46; }
+        .legend-amber { background-color: #fef3c7; border: 2px solid #92400e; }
+        .legend-red { background-color: #fee2e2; border: 2px solid #991b1b; }
+
+        .search-box {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 1200px) {
+            .tables-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .table-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .usage-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .usage-table th {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .usage-table th:nth-child(3),
+        .usage-table th:nth-child(4) {
+            text-align: center;
+        }
+
+        .usage-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .usage-table td:nth-child(3),
+        .usage-table td:nth-child(4) {
+            text-align: center;
+        }
+
+        .heatmap-cell {
+            font-weight: 700;
+            border-radius: 4px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-label">Light Mode</span>
+    </button>
+
+    <button class="import-button" onclick="document.getElementById('file-input').click()">
+        📥 IMPORT CSV
+    </button>
+    <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 LGL AI Tools Usage Report</h1>
+            <p class="subtitle">Software Company: LGL</p>
+            <p class="timestamp">Generated: February 09, 2026 at 07:27 PM</p>
+        </div>
+
+        <div id="placeholder" class="placeholder">
+            <div class="placeholder-icon">📊</div>
+            <h2>No Data Loaded</h2>
+            <p>Click the <strong>IMPORT CSV</strong> button above to load your AI usage data.</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                Supported formats: CSV, Excel (.xlsx, .xls)<br>
+                All processing happens in your browser - data never leaves your computer.
+            </p>
+        </div>
+
+        <div id="content" class="hidden">
+            <div class="stats-card">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="total-users">0</div>
+                        <div class="label">Total LGL Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="claude-users">0</div>
+                        <div class="label">Claude Active Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="devin-users">0</div>
+                        <div class="label">Devin Active Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="avg-claude">0</div>
+                        <div class="label">Avg Claude Usage</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="avg-devin">0</div>
+                        <div class="label">Avg Devin Usage</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend-card">
+                <h3>📊 Usage Intensity Legend</h3>
+                <div class="legend-content">
+                    <div class="legend-item">
+                        <span class="legend-box legend-green"></span>
+                        <strong>High (≥100 uses)</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box legend-amber"></span>
+                        <strong>Medium (20-99 uses)</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box legend-red"></span>
+                        <strong>Low (&lt;20 uses)</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-card">
+                <input type="text"
+                       id="globalSearch"
+                       class="search-box"
+                       placeholder="🔍 Search..."
+                       onkeyup="filterAllTables()">
+            </div>
+
+            <div class="tables-container">
+                <div class="table-card">
+                    <h2>Claude Usage (Last 30 Days)</h2>
+                    <div class="table-wrapper">
+                        <table id="claudeTable" class="usage-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable('claudeTable', 0)">Name</th>
+                                    <th onclick="sortTable('claudeTable', 1)">Job Title</th>
+                                    <th onclick="sortTable('claudeTable', 2)">Access</th>
+                                    <th onclick="sortTable('claudeTable', 3)">Usage (30 days)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="claudeTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <h2>Devin Usage (Last 30 Days)</h2>
+                    <div class="table-wrapper">
+                        <table id="devinTable" class="usage-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable('devinTable', 0)">Name</th>
+                                    <th onclick="sortTable('devinTable', 1)">Job Title</th>
+                                    <th onclick="sortTable('devinTable', 2)">Access</th>
+                                    <th onclick="sortTable('devinTable', 3)">Usage (30 days)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devinTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+    
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+        const icon = document.getElementById('theme-icon');
+        const label = document.getElementById('theme-label');
+        if (theme === 'dark') {
+            icon.textContent = '☀️';
+            if (label) label.textContent = 'Light Mode';
+        } else {
+            icon.textContent = '🌙';
+            if (label) label.textContent = 'Dark Mode';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+    });
+    
+
+    document.querySelectorAll('.table-wrapper').forEach(wrapper => {
+        function checkScroll() {
+            const isScrolledEnd = wrapper.scrollWidth - wrapper.scrollLeft <= wrapper.clientWidth + 1;
+            if (isScrolledEnd) {
+                wrapper.classList.add('scrolled-end');
+            } else {
+                wrapper.classList.remove('scrolled-end');
+            }
+        }
+
+        wrapper.addEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+        checkScroll(); // Initial check
+    });
+    
+    </script>
+    
+    <script>
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading state
+            document.querySelector('.import-button').textContent = '⏳ Loading...';
+            document.querySelector('.import-button').disabled = true;
+
+            // Parse CSV
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processData(results.data);
+                    document.querySelector('.import-button').textContent = '✅ Data Loaded';
+                    setTimeout(() => {
+                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
+                        document.querySelector('.import-button').disabled = false;
+                    }, 2000);
+                },
+                error: function(error) {
+                    alert('Error parsing CSV: ' + error.message);
+                    document.querySelector('.import-button').textContent = '❌ Error';
+                    setTimeout(() => {
+                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
+                        document.querySelector('.import-button').disabled = false;
+                    }, 2000);
+                }
+            });
+        }
+
+        function processData(data) {
+            // Filter for LGL users
+            const lglData = data.filter(row =>
+                row['Software Company'] && row['Software Company'].trim().toUpperCase() === 'LGL'
+            );
+
+            if (lglData.length === 0) {
+                alert('No LGL users found in the data!');
+                return;
+            }
+
+            // Find the correct column names (handle variations)
+            const claudeAccessCol = Object.keys(lglData[0]).find(k =>
+                k === 'Claude Access?' || k === 'Claude Access '
+            ) || 'Claude Access?';
+
+            const devinAccessCol = Object.keys(lglData[0]).find(k =>
+                k === 'Devin Access?' || k === 'Devin Access '
+            ) || 'Devin Access?';
+
+            // Calculate statistics
+            const claudeActiveUsers = lglData.filter(row => parseFloat(row['Claude 30 day usage'] || 0) > 0).length;
+            const devinActiveUsers = lglData.filter(row => parseFloat(row['Devin_30d'] || 0) > 0).length;
+            const avgClaudeUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Claude 30 day usage'] || 0), 0) / lglData.length;
+            const avgDevinUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Devin_30d'] || 0), 0) / lglData.length;
+
+            // Update stats
+            document.getElementById('total-users').textContent = lglData.length;
+            document.getElementById('claude-users').textContent = claudeActiveUsers;
+            document.getElementById('devin-users').textContent = devinActiveUsers;
+            document.getElementById('avg-claude').textContent = Math.round(avgClaudeUsage);
+            document.getElementById('avg-devin').textContent = Math.round(avgDevinUsage);
+
+            // Sort by usage descending
+            const claudeData = [...lglData].sort((a, b) =>
+                parseFloat(b['Claude 30 day usage'] || 0) - parseFloat(a['Claude 30 day usage'] || 0)
+            );
+            const devinData = [...lglData].sort((a, b) =>
+                parseFloat(b['Devin_30d'] || 0) - parseFloat(a['Devin_30d'] || 0)
+            );
+
+            // Generate Claude table
+            const claudeTableBody = document.getElementById('claudeTableBody');
+            claudeTableBody.innerHTML = claudeData.map(row => {
+                const usage = parseFloat(row['Claude 30 day usage'] || 0);
+                const { bgColor, textColor } = getHeatmapColor(usage);
+                const access = String(row[claudeAccessCol] || '').trim().toUpperCase();
+                const accessBadge = ['YES', '1', '1.0'].includes(access)
+                    ? '<span class="badge badge-success">Yes</span>'
+                    : '<span class="badge badge-secondary">No</span>';
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(row['Name'] || '')}</td>
+                        <td>${escapeHtml(row['Job Title'] || '')}</td>
+                        <td>${accessBadge}</td>
+                        <td class="heatmap-cell" style="background-color: ${bgColor}; color: ${textColor};" data-value="${usage}">
+                            ${Math.round(usage)}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Generate Devin table
+            const devinTableBody = document.getElementById('devinTableBody');
+            devinTableBody.innerHTML = devinData.map(row => {
+                const usage = parseFloat(row['Devin_30d'] || 0);
+                const { bgColor, textColor } = getHeatmapColor(usage);
+                const access = String(row[devinAccessCol] || '').trim().toUpperCase();
+                const accessBadge = ['YES', '1', '1.0'].includes(access)
+                    ? '<span class="badge badge-success">Yes</span>'
+                    : '<span class="badge badge-secondary">No</span>';
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(row['Name'] || '')}</td>
+                        <td>${escapeHtml(row['Job Title'] || '')}</td>
+                        <td>${accessBadge}</td>
+                        <td class="heatmap-cell" style="background-color: ${bgColor}; color: ${textColor};" data-value="${usage}">
+                            ${Math.round(usage)}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Show content, hide placeholder
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+        }
+
+        function getHeatmapColor(usage) {
+            if (usage >= 100) {
+                return { bgColor: '#d1fae5', textColor: '#065f46' };
+            } else if (usage >= 20) {
+                return { bgColor: '#fef3c7', textColor: '#92400e' };
+            } else {
+                return { bgColor: '#fee2e2', textColor: '#991b1b' };
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function filterAllTables() {
+            const input = document.getElementById('globalSearch');
+            const filter = input.value.toLowerCase();
+
+            ['claudeTable', 'devinTable'].forEach(tableId => {
+                const table = document.getElementById(tableId);
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const nameCell = rows[i].cells[0];
+                    const jobTitleCell = rows[i].cells[1];
+                    const accessCell = rows[i].cells[2];
+
+                    if (nameCell && jobTitleCell && accessCell) {
+                        const name = nameCell.textContent.toLowerCase();
+                        const jobTitle = jobTitleCell.textContent.toLowerCase();
+                        const access = accessCell.textContent.toLowerCase();
+
+                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {
+                            rows[i].style.display = '';
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                }
+            });
+        }
+
+        function sortTable(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+
+            const isNumeric = columnIndex === 3;
+
+            rows.sort((a, b) => {
+                let aValue, bValue;
+
+                if (isNumeric) {
+                    aValue = parseFloat(a.cells[columnIndex].getAttribute('data-value') || 0);
+                    bValue = parseFloat(b.cells[columnIndex].getAttribute('data-value') || 0);
+                    return bValue - aValue;
+                } else {
+                    aValue = a.cells[columnIndex].textContent.trim();
+                    bValue = b.cells[columnIndex].textContent.trim();
+                    return aValue.localeCompare(bValue);
+                }
+            });
+
+            if (table.dataset.lastSort === String(columnIndex)) {
+                rows.reverse();
+                table.dataset.lastSort = '';
+            } else {
+                table.dataset.lastSort = String(columnIndex);
+            }
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+    </script>
+</body>
+</html>

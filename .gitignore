@@ -6,6 +6,7 @@
 !.tmp/observatory/dashboards/
 .tmp/observatory/dashboards/*
 !.tmp/observatory/dashboards/index.html
+!.tmp/observatory/dashboards/usage_tables_latest.html
 
 # Data directory with operational metrics (includes sensitive AI usage data)
 # Ignore all files in data/ but allow example files to be tracked
