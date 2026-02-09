@@ -23,9 +23,10 @@ import os
 from pathlib import Path
 from typing import Any
 
+from execution.dashboards.renderer import render_dashboard
+
 # Import dependencies
 from execution.framework import get_dashboard_framework
-from execution.dashboards.renderer import render_dashboard
 from execution.template_engine import render_template
 
 

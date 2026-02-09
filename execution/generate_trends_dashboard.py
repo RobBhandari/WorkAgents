@@ -10,8 +10,8 @@ Reads historical JSON data and creates a trends dashboard showing:
 - View selector (4/12/24 weeks)
 """
 
-import os
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +19,7 @@ from statistics import median
 
 # Import mobile-responsive framework
 from execution.framework import get_dashboard_framework
+
 
 def load_history_file(file_path):
     """Load a history JSON file with error handling"""
@@ -36,7 +37,7 @@ def load_history_file(file_path):
             return None
 
         # Load and parse JSON
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             data = json.load(f)
 
         # Validate structure
@@ -74,14 +75,14 @@ def load_baseline_data():
     # Load ArmorCode baseline
     armorcode_file = 'data/armorcode_baseline.json'
     if os.path.exists(armorcode_file):
-        with open(armorcode_file, 'r', encoding='utf-8') as f:
+        with open(armorcode_file, encoding='utf-8') as f:
             data = json.load(f)
             baselines['security'] = data.get('total_vulnerabilities', 0)
 
     # Load ADO bugs baseline
     ado_file = 'data/baseline.json'
     if os.path.exists(ado_file):
-        with open(ado_file, 'r', encoding='utf-8') as f:
+        with open(ado_file, encoding='utf-8') as f:
             data = json.load(f)
             baselines['bugs'] = data.get('open_count', 0)  # Field is 'open_count' not 'total_bugs'
 
@@ -163,7 +164,7 @@ def calculate_target_progress():
     vulns_going_backwards = actual_vulns_burn_rate <= 0
 
     if bugs_going_backwards and vulns_going_backwards:
-        forecast_msg = f"⚠ Both bugs and vulnerabilities are increasing. Need to turn around immediately."
+        forecast_msg = "⚠ Both bugs and vulnerabilities are increasing. Need to turn around immediately."
     elif bugs_going_backwards:
         forecast_msg = f"⚠ Bugs are increasing at {abs(actual_bugs_burn_rate):.1f}/wk. Vulnerabilities decreasing at {actual_vulns_burn_rate:.1f}/wk."
     elif vulns_going_backwards:
@@ -175,7 +176,7 @@ def calculate_target_progress():
         avg_pct = (bugs_pct + vulns_pct) / 2
 
         if avg_pct >= 100:
-            forecast_msg = f"On track: Current pace will reach target by June 30."
+            forecast_msg = "On track: Current pace will reach target by June 30."
         else:
             forecast_msg = f"At current pace ({actual_bugs_burn_rate:.1f} bugs/wk, {actual_vulns_burn_rate:.1f} vulns/wk), reaching {int(avg_pct)}% of target by June 30."
 
@@ -485,58 +486,82 @@ def get_rag_color(value, metric_type):
         if metric_type == "lead_time":
             # Lower is better: <30 days green, 30-60 amber, >60 red
             val = float(value)
-            if val < 30: return "#10b981"  # Green
-            elif val < 60: return "#f59e0b"  # Amber
-            else: return "#ef4444"  # Red
+            if val < 30:
+                return "#10b981"  # Green
+            elif val < 60:
+                return "#f59e0b"  # Amber
+            else:
+                return "#ef4444"  # Red
 
         elif metric_type == "mttr":
             # Lower is better: <7 days green, 7-14 days amber, >14 days red
             val = float(value)
-            if val < 7: return "#10b981"
-            elif val < 14: return "#f59e0b"
-            else: return "#ef4444"
+            if val < 7:
+                return "#10b981"
+            elif val < 14:
+                return "#f59e0b"
+            else:
+                return "#ef4444"
 
         elif metric_type == "total_vulns":
             # Lower is better: <150 green, 150-250 amber, >250 red
             val = int(value)
-            if val < 150: return "#10b981"
-            elif val < 250: return "#f59e0b"
-            else: return "#ef4444"
+            if val < 150:
+                return "#10b981"
+            elif val < 250:
+                return "#f59e0b"
+            else:
+                return "#ef4444"
 
         elif metric_type == "bugs":
             # Lower is better: <100 green, 100-200 amber, >200 red
             val = int(value)
-            if val < 100: return "#10b981"
-            elif val < 200: return "#f59e0b"
-            else: return "#ef4444"
+            if val < 100:
+                return "#10b981"
+            elif val < 200:
+                return "#f59e0b"
+            else:
+                return "#ef4444"
 
         elif metric_type == "success_rate":
             # Higher is better: >90% green, 70-90% amber, <70% red
             val = float(value)
-            if val >= 90: return "#10b981"
-            elif val >= 70: return "#f59e0b"
-            else: return "#ef4444"
+            if val >= 90:
+                return "#10b981"
+            elif val >= 70:
+                return "#f59e0b"
+            else:
+                return "#ef4444"
 
         elif metric_type == "merge_time":
             # Lower is better: <4h green, 4-24h amber, >24h red
             val = float(value)
-            if val < 4: return "#10b981"
-            elif val < 24: return "#f59e0b"
-            else: return "#ef4444"
+            if val < 4:
+                return "#10b981"
+            elif val < 24:
+                return "#f59e0b"
+            else:
+                return "#ef4444"
 
         elif metric_type == "unassigned":
             # Lower is better: <20% green, 20-40% amber, >40% red
             val = float(value)
-            if val < 20: return "#10b981"
-            elif val < 40: return "#f59e0b"
-            else: return "#ef4444"
+            if val < 20:
+                return "#10b981"
+            elif val < 40:
+                return "#f59e0b"
+            else:
+                return "#ef4444"
 
         elif metric_type == "target_progress":
             # Higher is better: >=70% green, 40-70% amber, <40% red
             val = float(value)
-            if val >= 70: return "#10b981"
-            elif val >= 40: return "#f59e0b"
-            else: return "#ef4444"
+            if val >= 70:
+                return "#10b981"
+            elif val >= 40:
+                return "#f59e0b"
+            else:
+                return "#ef4444"
 
         elif metric_type == "commits":
             # Neutral metric - no RAG thresholds

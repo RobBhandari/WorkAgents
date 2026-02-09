@@ -23,9 +23,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from execution.dashboards.renderer import render_dashboard
+
 # Import dependencies
 from execution.framework import get_dashboard_framework
-from execution.dashboards.renderer import render_dashboard
 
 # Configure logging
 logger = logging.getLogger(__name__)
