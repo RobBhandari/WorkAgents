@@ -11,7 +11,7 @@ Usage:
     stats = calculate_percentiles(data, [50, 85, 95])
 """
 
-from typing import Sequence
+from collections.abc import Sequence
 
 
 def calculate_percentile(data: Sequence[float], percentile: float) -> float:

@@ -17,7 +17,8 @@ Usage:
 
 import logging
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from azure.devops.v7_1.work_item_tracking import WorkItemTrackingClient
 

@@ -152,7 +152,7 @@ class TestLoadDeploymentData:
 
     def test_load_deployment_data_no_weeks(self):
         """Test ValueError when weeks array is empty"""
-        empty_data = {"weeks": []}
+        empty_data: dict[str, list] = {"weeks": []}
 
         with patch("builtins.open", mock_open(read_data=json.dumps(empty_data))):
             with patch("pathlib.Path.exists", return_value=True):
@@ -376,7 +376,9 @@ class TestGenerateDeploymentDashboard:
 
     @patch("execution.dashboards.deployment.render_dashboard")
     @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_success(self, mock_load, mock_render, sample_metrics_list, sample_raw_projects):
+    def test_generate_deployment_dashboard_success(
+        self, mock_load, mock_render, sample_metrics_list, sample_raw_projects
+    ):
         """Test successful dashboard generation"""
         # Setup mocks
         mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
@@ -422,7 +424,9 @@ class TestGenerateDeploymentDashboard:
 
     @patch("execution.dashboards.deployment.render_dashboard")
     @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_output_format(self, mock_load, mock_render, sample_metrics_list, sample_raw_projects):
+    def test_generate_deployment_dashboard_output_format(
+        self, mock_load, mock_render, sample_metrics_list, sample_raw_projects
+    ):
         """Test dashboard output contains expected content"""
         # Setup mocks
         mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
