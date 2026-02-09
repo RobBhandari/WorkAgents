@@ -106,7 +106,8 @@ def create_app() -> FastAPI:
                 headers={"WWW-Authenticate": "Basic"},
             )
 
-        return credentials.username
+        username: str = credentials.username
+        return username
 
     # ============================================================
     # Health Check

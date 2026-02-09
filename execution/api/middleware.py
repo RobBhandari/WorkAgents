@@ -12,12 +12,16 @@ import uuid
 from collections import defaultdict
 from collections.abc import Awaitable, Callable
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from execution.core import get_logger
+
+if TYPE_CHECKING:
+    from fastapi import FastAPI
 
 logger = get_logger(__name__)
 
@@ -296,7 +300,7 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
 # ============================================================
 
 
-def add_cors_middleware(app):
+def add_cors_middleware(app: "FastAPI") -> None:
     """
     Add CORS middleware for cross-origin requests.
 
