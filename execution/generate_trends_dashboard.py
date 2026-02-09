@@ -57,7 +57,7 @@ def main():
     print()
 
     # Call new implementation with same default path
-    output_path = Path(".tmp/observatory/dashboards/trends.html")
+    output_path = Path(".tmp/observatory/dashboards/index.html")
 
     try:
         html = _new_implementation(output_path)

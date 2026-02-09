@@ -395,6 +395,8 @@ class TrendsDashboardGenerator:
             "trend_arrow": trend_arrow,
             "change_text": change_text,
             "weeks": len(values),
+            "values": values,  # Raw data for client-side filtering
+            "lower_is_better": lower_is_better,
         }
 
     def _build_context(self, forecast: dict | None, trend_metrics: list[dict], historical_data: dict) -> dict:
