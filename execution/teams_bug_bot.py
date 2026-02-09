@@ -39,10 +39,10 @@ from botbuilder.schema import Activity, ActivityTypes
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
-# Security utilities for input validation
-from security_utils import ValidationError, WIQLValidator
-
 from execution.core import get_config
+
+# Security utilities for input validation
+from execution.security import ValidationError, WIQLValidator
 
 # Load environment variables
 load_dotenv()
@@ -87,7 +87,9 @@ def query_current_bugs(organization_url: str, project_name: str, pat: str) -> in
             state="Closed",
         )
 
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
+        wiql_results = wit_client.query_by_wiql(
+            wiql={"query": wiql_query}
+        )  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             return 0
@@ -147,7 +149,9 @@ def query_bugs_by_date_range(
         else:
             raise ValueError(f"Invalid query_type: {query_type}")
 
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
+        wiql_results = wit_client.query_by_wiql(
+            wiql={"query": wiql_query}
+        )  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             return 0
@@ -552,7 +556,9 @@ if __name__ == "__main__":
         print("Health check: http://localhost:3978/health")
         print("\nPress Ctrl+C to stop the bot.\n")
 
-        web.run_app(app, host="0.0.0.0", port=PORT)  # nosec B104 - Required for Azure App Service containerized deployment
+        web.run_app(
+            app, host="0.0.0.0", port=PORT
+        )  # nosec B104 - Required for Azure App Service containerized deployment
 
     except Exception as e:
         logger.error(f"Failed to start bot: {e}", exc_info=True)

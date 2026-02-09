@@ -22,10 +22,10 @@ from azure.devops.connection import Connection
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
-# Security utilities for input validation
-from security_utils import WIQLValidator
-
 from execution.core import get_config
+
+# Security utilities for input validation
+from execution.security import WIQLValidator
 
 # Load environment variables from .env file
 load_dotenv()
@@ -96,7 +96,9 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
 
         # Step 5: Execute WIQL query
         logger.info("Executing WIQL query for bugs...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
+        wiql_results = wit_client.query_by_wiql(
+            wiql={"query": wiql_query}
+        )  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         # Step 6: Extract work item IDs
         if not wiql_results.work_items:

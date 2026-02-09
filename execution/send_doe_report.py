@@ -24,9 +24,9 @@ from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from security_utils import PathValidator, ValidationError
 
 from execution.core import get_config
+from execution.security import PathValidator, ValidationError
 
 # Load environment variables from .env file
 load_dotenv()

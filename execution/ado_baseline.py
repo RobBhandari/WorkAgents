@@ -21,10 +21,10 @@ from azure.devops.connection import Connection
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
-# Security utilities for input validation
-from security_utils import WIQLValidator
-
 from execution.core import get_config
+
+# Security utilities for input validation
+from execution.security import WIQLValidator
 
 # Load environment variables from .env file
 load_dotenv()
@@ -126,7 +126,9 @@ def create_baseline(
 
         # Step 3: Execute WIQL query
         logger.info(f"Executing WIQL query for bugs open on {BASELINE_DATE}...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
+        wiql_results = wit_client.query_by_wiql(
+            wiql={"query": wiql_query}
+        )  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             logger.warning("No bugs found for baseline date")

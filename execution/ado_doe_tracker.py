@@ -23,10 +23,10 @@ from azure.devops.connection import Connection
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
-# Security utilities for input validation
-from security_utils import WIQLValidator
-
 from execution.core import get_config
+
+# Security utilities for input validation
+from execution.security import WIQLValidator
 
 # Load environment variables from .env file
 load_dotenv()
@@ -172,7 +172,9 @@ def query_current_bugs(organization_url: str, project_name: str, pat: str) -> in
         )
 
         logger.info("Querying current open bugs...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
+        wiql_results = wit_client.query_by_wiql(
+            wiql={"query": wiql_query}
+        )  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             logger.info("No open bugs found")
@@ -248,7 +250,9 @@ def query_bugs_by_date_range(
             raise ValueError(f"Invalid query_type: {query_type}")
 
         logger.info(f"Querying bugs {query_type} between {start_date} and {end_date}...")
-        wiql_results = wit_client.query_by_wiql(wiql={"query": wiql_query})  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
+        wiql_results = wit_client.query_by_wiql(
+            wiql={"query": wiql_query}
+        )  # nosec B608 - Input validated by WIQLValidator.build_safe_wiql()
 
         if not wiql_results.work_items:
             return 0
