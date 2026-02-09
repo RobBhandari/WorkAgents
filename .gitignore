@@ -90,3 +90,6 @@ dmypy.json
 *.log
 logs/
 nul
+
+# Azure deployment directory (local only)
+.azure-deploy/
