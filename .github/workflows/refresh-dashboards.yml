@@ -70,6 +70,7 @@ jobs:
   # Job 2: Generate all dashboards in parallel
   generate-dashboards:
     needs: collect-metrics
+    if: always()  # Run even if collect-metrics fails
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -111,12 +112,20 @@ jobs:
           echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
 
-      - name: Download all metrics artifacts
+      - name: Download all metrics artifacts (if available)
         uses: actions/download-artifact@v4
         with:
           pattern: metrics-*
           path: .tmp/observatory/
           merge-multiple: true
+        continue-on-error: true
+
+      - name: Use existing history files from git
+        run: |
+          echo "📂 Checking for existing history files in git..."
+          # History files are tracked in git, so they're already available
+          # This step ensures we use them if artifact download failed
+          ls -la .tmp/observatory/*.json 2>/dev/null || echo "No history files in git"
 
       - name: Verify metrics data available
         run: |
@@ -161,6 +170,7 @@ jobs:
           pattern: metrics-*
           path: .tmp/observatory/
           merge-multiple: true
+        continue-on-error: true
 
       - name: Verify deployment package
         run: |
