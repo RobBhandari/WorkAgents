@@ -36,14 +36,14 @@ jobs:
 
       - name: Run Ruff linter
         run: |
-          echo "Linting modular code (domain, dashboards/components, collectors, tests)..."
-          ruff check execution/domain execution/dashboards/components execution/collectors tests/ --exit-non-zero-on-fix
+          echo "Linting modular code (domain, dashboards/components, collectors, api, tests)..."
+          ruff check execution/domain execution/dashboards/components execution/collectors execution/api tests/ --exit-non-zero-on-fix
           echo "✅ Ruff linting passed"
 
       - name: Run Black formatter
         run: |
           echo "Checking formatting on modular code..."
-          black --check execution/domain execution/dashboards/components execution/collectors tests/
+          black --check execution/domain execution/dashboards/components execution/collectors execution/api tests/
           echo "✅ Black formatting passed"
 
   # Job 2: Architecture Governance
@@ -72,9 +72,9 @@ jobs:
       - name: Check Architecture Patterns
         run: |
           echo "Checking architectural standards on modular code..."
-          # Only check refactored modular code (dashboards/components/domain)
+          # Only check refactored modular code (dashboards/components/domain/api)
           # Collectors are exempt - they're operational ETL code with different constraints
-          find execution/domain execution/dashboards/components -name "*.py" 2>/dev/null | xargs python hooks/check-architecture-patterns.py || {
+          find execution/domain execution/dashboards/components execution/api -name "*.py" 2>/dev/null | xargs python hooks/check-architecture-patterns.py || {
             echo "[X] Architecture violations found in modular code"
             echo "See: execution/CONTRIBUTING.md for guidelines"
             exit 1
@@ -108,6 +108,9 @@ jobs:
 
           echo "Type checking collectors..."
           mypy execution/collectors --ignore-missing-imports --check-untyped-defs
+
+          echo "Type checking API..."
+          mypy execution/api --ignore-missing-imports --check-untyped-defs
 
           echo "✅ Type checking passed"
 
@@ -174,7 +177,7 @@ jobs:
       - name: Run Bandit security scanner
         run: |
           echo "Scanning modular code for security issues..."
-          bandit -r execution/domain execution/dashboards/components execution/collectors -ll
+          bandit -r execution/domain execution/dashboards/components execution/collectors execution/api -ll
           echo "✅ Security scan passed"
 
   # Summary Job
