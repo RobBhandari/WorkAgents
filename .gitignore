@@ -1,5 +1,11 @@
-# Temporary and intermediate files (including history data)
-.tmp/
+# Temporary and intermediate files (but ALLOW history data for dashboards)
+.tmp/*
+!.tmp/observatory/
+.tmp/observatory/*
+!.tmp/observatory/*_history.json
+!.tmp/observatory/dashboards/
+.tmp/observatory/dashboards/*
+!.tmp/observatory/dashboards/index.html
 
 # Data directory with operational metrics (includes sensitive AI usage data)
 # Ignore all files in data/ but allow example files to be tracked
