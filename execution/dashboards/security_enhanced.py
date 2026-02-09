@@ -207,6 +207,15 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
     Returns:
         Dictionary with template variables
     """
+    # Get framework CSS/JS
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start="#667eea",
+        header_gradient_end="#764ba2",
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=False,
+    )
+
     # Build summary cards using component function
     summary_cards = [
         summary_card("Total Findings", str(summary_stats["total_vulns"])),
@@ -250,6 +259,8 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
         )
 
     return {
+        "framework_css": framework_css,
+        "framework_js": framework_js,
         "summary_cards": summary_cards,
         "products": products,
         "show_glossary": False,
