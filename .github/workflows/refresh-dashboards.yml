@@ -80,9 +80,9 @@ jobs:
           - { name: 'Risk', script: 'generate_risk_dashboard.py' }
           - { name: 'Deployment', script: 'generate_deployment_dashboard.py' }
           - { name: 'Collaboration', script: 'generate_collaboration_dashboard.py' }
-          - { name: 'Security (with drill-down)', script: 'archive/generate_security_dashboard_original.py' }
+          - { name: 'Security (with drill-down)', script: 'generate_security_dashboard.py' }
           - { name: 'Target', script: 'generate_target_dashboard.py' }
-          - { name: 'Executive Trends (index)', script: 'archive/generate_trends_dashboard_original.py' }
+          - { name: 'Executive Trends (index)', script: 'generate_trends_dashboard.py' }
           - { name: 'AI Usage Report', script: 'reports/usage_tables_report.py' }
       fail-fast: false   # Continue even if one fails
       max-parallel: 10   # Run all 10 dashboards at once
