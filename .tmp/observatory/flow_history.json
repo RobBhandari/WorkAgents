@@ -216,7 +216,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -814,7 +814,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -1215,7 +1215,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -1425,7 +1425,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -1855,7 +1855,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -2453,7 +2453,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -2854,7 +2854,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -3064,7 +3064,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -3494,7 +3494,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -4092,7 +4092,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -4493,7 +4493,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -4703,7 +4703,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -5133,7 +5133,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -5731,7 +5731,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -6132,7 +6132,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -6342,7 +6342,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -6772,7 +6772,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -7370,7 +7370,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -7771,7 +7771,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -7981,7 +7981,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -8411,7 +8411,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -9009,7 +9009,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -9410,7 +9410,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -9620,7 +9620,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -10050,7 +10050,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -10648,7 +10648,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -11049,7 +11049,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -11259,7 +11259,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -11689,7 +11689,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -12287,7 +12287,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -12688,7 +12688,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -12898,7 +12898,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -13328,7 +13328,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -13926,7 +13926,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -14327,7 +14327,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -14537,7 +14537,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -14967,7 +14967,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -15565,7 +15565,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -15966,7 +15966,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -16176,7 +16176,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -16606,7 +16606,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -17204,7 +17204,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -17605,7 +17605,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -17815,7 +17815,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -18245,7 +18245,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -18843,7 +18843,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -19244,7 +19244,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -19454,7 +19454,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -19884,7 +19884,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -20482,7 +20482,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -20883,7 +20883,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -21093,7 +21093,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -21523,7 +21523,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -22121,7 +22121,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -22522,7 +22522,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -22732,7 +22732,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -23162,7 +23162,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -23760,7 +23760,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -24161,7 +24161,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -24371,7 +24371,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -24801,7 +24801,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -25399,7 +25399,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -25800,7 +25800,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -26010,7 +26010,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -26440,7 +26440,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -27038,7 +27038,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -27439,7 +27439,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -27649,7 +27649,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -28079,7 +28079,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -28677,7 +28677,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -29078,7 +29078,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -29288,7 +29288,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -29718,7 +29718,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -30316,7 +30316,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -30716,7 +30716,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -30926,7 +30926,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -31356,7 +31356,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -31954,7 +31954,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -32354,7 +32354,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -32564,7 +32564,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -32994,7 +32994,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -33592,7 +33592,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -33992,7 +33992,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -34202,7 +34202,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -34632,7 +34632,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -35218,7 +35218,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -35618,7 +35618,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -35828,7 +35828,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -36246,7 +36246,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -36844,7 +36844,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -37244,7 +37244,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -37454,7 +37454,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -37884,7 +37884,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -38482,7 +38482,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -38882,7 +38882,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -39092,7 +39092,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 19,
@@ -39522,7 +39522,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -40120,7 +40120,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -40520,7 +40520,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -40730,7 +40730,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -41160,7 +41160,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -41758,7 +41758,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -42158,7 +42158,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -42368,7 +42368,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -42798,7 +42798,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -43396,7 +43396,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -43796,7 +43796,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -44006,7 +44006,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -44436,7 +44436,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -45034,7 +45034,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -45434,7 +45434,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -45644,7 +45644,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -46074,7 +46074,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -46672,7 +46672,7 @@
         },
         {
           "project_key": "Product L",
-          "project_name": "Access Product L",
+          "project_name": "Product L",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -47072,7 +47072,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Product F",
+          "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -47282,7 +47282,7 @@
         },
         {
           "project_key": "Legal_Product D",
-          "project_name": "Access Legal Product D",
+          "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,

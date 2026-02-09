@@ -11,25 +11,55 @@ from pathlib import Path
 from typing import Any, Dict
 
 # Product name mapping (real name -> generic name)
+# IMPORTANT: Ordered from most specific to least specific to avoid partial matches
 PRODUCT_MAPPING = {
+    # Fix partially-genericized names (from previous runs)
+    "Access Legal Product D": "Product D",
+    "Access Legal Product F": "Product F",
+    "Access Legal Product L": "Product L",
+    "Access Product D": "Product D",
+    "Access Product F": "Product F",
+    "Access Product L": "Product L",
+    "Legal Product D": "Product D",
+    "Legal Product F": "Product F",
+    "Legal Product L": "Product L",
+
+    # Product D variants (do these BEFORE "Proclaim" alone)
+    "Access Legal Proclaim": "Product D",
+    "Access Proclaim": "Product D",
+    "Legal Proclaim": "Product D",
+    "Proclaim Portals - Eclipse": "Product N",
+    "Proclaim": "Product D",
+
+    # Product F variants (do these BEFORE "inCase" alone)
+    "Access Legal InCase": "Product F",
+    "Access Legal inCase": "Product F",
+    "Access InCase": "Product F",
+    "Access inCase": "Product F",
+    "Legal InCase": "Product F",
+    "Legal inCase": "Product F",
+    "inCase": "Product F",
+
+    # Product L variants (do these BEFORE "Legal Bricks" alone)
+    "Access LegalBricks": "Product L",
+    "Access Legal Bricks": "Product L",
+    "LegalBricks": "Product L",
+    "Legal Bricks": "Product L",
+
+    # Other products (specific to general)
     "Access Legal Case Management": "Product A",
     "One Office & Financial Director": "Product B",
+    "One Office": "Product B",
     "Access LawFusion": "Product C",
     "LawFusion": "Product C",
     "Law Fusion": "Product C",
-    "Proclaim": "Product D",
     "Access Legal Compliance": "Product E",
-    "Legal InCase": "Product F",
-    "inCase": "Product F",
     "Access Diversity": "Product G",
     "Access Legal AI Services": "Product H",
     "Access Legal Framework": "Product I",
     "Access MyCalendars": "Product J",
     "Eclipse": "Product K",
-    "Legal Bricks": "Product L",
-    "LegalBricks": "Product L",
     "Legal Workspace": "Product M",
-    "Proclaim Portals - Eclipse": "Product N",
     "Learning Content Legal": "Product O",
 }
 
