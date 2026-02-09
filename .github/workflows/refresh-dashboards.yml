@@ -80,9 +80,9 @@ jobs:
           - { name: 'Risk', script: 'generate_risk_dashboard.py' }
           - { name: 'Deployment', script: 'generate_deployment_dashboard.py' }
           - { name: 'Collaboration', script: 'generate_collaboration_dashboard.py' }
-          - { name: 'Security (with drill-down)', script: 'generate_security_dashboard.py' }
+          - { name: 'Security (with drill-down)', script: 'dashboards/security_enhanced.py' }
           - { name: 'Target', script: 'generate_target_dashboard.py' }
-          - { name: 'Executive Trends (index)', script: 'generate_trends_dashboard.py' }
+          - { name: 'Executive Trends (index)', script: 'dashboards/trends.py' }
           - { name: 'AI Usage Report', script: 'reports/usage_tables_report.py' }
       fail-fast: false   # Continue even if one fails
       max-parallel: 10   # Run all 10 dashboards at once
@@ -127,7 +127,9 @@ jobs:
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          python execution/${{ matrix.dashboard.script }}
+          # Convert path to module notation (e.g., dashboards/trends.py -> execution.dashboards.trends)
+          MODULE=$(echo "${{ matrix.dashboard.script }}" | sed 's/\.py$//' | sed 's/\//./g' | sed 's/^/execution./')
+          python -m "$MODULE"
 
       - name: Upload dashboard artifact
         uses: actions/upload-artifact@v4
