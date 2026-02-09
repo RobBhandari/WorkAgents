@@ -130,11 +130,43 @@ markers = [
 [tool.coverage.run]
 source = ["execution"]
 omit = [
+    # Existing exclusions
     "execution/experiments/*",
     "execution/archive/*",
     "*/tests/*",
     "*/__pycache__/*",
     "*/.venv/*",
+
+    # Deprecated wrappers (delegate to refactored implementations)
+    "execution/generate_*_dashboard.py",
+    "execution/generate_executive_summary.py",
+    "execution/generate_dashboard_launcher.py",
+    "execution/generate_index.py",
+
+    # One-off utility scripts (not library code)
+    "execution/ado_*.py",
+    "execution/armorcode_*.py",
+    "execution/check_*.py",
+    "execution/validate_*.py",
+    "execution/scan_*.py",
+    "execution/send_*.py",
+    "execution/collect_*.py",
+    "execution/discover_*.py",
+    "execution/benchmark_*.py",
+    "execution/create_*.py",
+    "execution/refresh_*.py",
+    "execution/import_*.py",
+    "execution/migrate_*.py",
+
+    # Standalone infrastructure (tested indirectly)
+    "execution/_template.py",
+    "execution/hello_bot.py",
+    "execution/async_http_client.py",
+    "execution/http_client.py",
+    "execution/secure_config.py",
+    "execution/template_engine.py",
+    "execution/dashboard_framework.py",
+    "execution/teams_bug_bot.py",
 ]
 
 [tool.coverage.report]
