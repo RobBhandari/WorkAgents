@@ -164,16 +164,16 @@ jobs:
     strategy:
       matrix:
         dashboard:
-          - { name: 'Quality', script: 'generate_quality_dashboard.py' }
-          - { name: 'Flow', script: 'generate_flow_dashboard.py' }
-          - { name: 'Ownership', script: 'generate_ownership_dashboard.py' }
-          - { name: 'Risk', script: 'generate_risk_dashboard.py' }
-          - { name: 'Deployment', script: 'generate_deployment_dashboard.py' }
-          - { name: 'Collaboration', script: 'generate_collaboration_dashboard.py' }
-          - { name: 'Security', script: 'generate_security_dashboard.py' }
-          - { name: 'Targets', script: 'generate_targets_dashboard.py' }
-          - { name: 'Executive', script: 'generate_executive_dashboard.py' }
-          - { name: 'AI Usage', script: 'reports/usage_tables_report.py' }
+          - { name: 'Quality', script: 'quality.py' }
+          - { name: 'Flow', script: 'flow.py' }
+          - { name: 'Ownership', script: 'ownership.py' }
+          - { name: 'Risk', script: 'risk.py' }
+          - { name: 'Deployment', script: 'deployment.py' }
+          - { name: 'Collaboration', script: 'collaboration.py' }
+          - { name: 'Security', script: 'security_enhanced.py' }
+          - { name: 'Targets', script: 'targets.py' }
+          - { name: 'Executive', script: 'executive.py' }
+          - { name: 'AI Usage', script: 'ai.py' }
       fail-fast: false
       max-parallel: 10
 
