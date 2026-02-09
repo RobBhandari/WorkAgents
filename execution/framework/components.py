@@ -149,6 +149,54 @@ def get_metric_components():
         transition: background-color 0.3s ease;
     }
 
+    /* Summary Card Components */
+    .summary-card .label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        line-height: 1.2;
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .label { font-size: 0.85rem; }
+    }
+
+    .summary-card .value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .value { font-size: 2rem; }
+    }
+
+    .summary-card .unit {
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .unit { font-size: 1.2rem; }
+    }
+
+    .summary-card .explanation {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 8px;
+        line-height: 1.4;
+    }
+
+    @media (min-width: 768px) {
+        .summary-card .explanation { font-size: 0.85rem; }
+    }
+
     /* Metric Label */
     .metric-label {
         font-size: 0.7rem;
