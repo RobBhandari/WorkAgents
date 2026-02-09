@@ -60,7 +60,7 @@ jobs:
           python execution/${{ matrix.collector.script }}
 
       - name: Upload metrics artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: metrics-${{ strategy.job-index }}
           path: .tmp/observatory/${{ matrix.collector.outputs }}
@@ -132,7 +132,7 @@ jobs:
           python -m "$MODULE"
 
       - name: Upload dashboard artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dashboard-${{ strategy.job-index }}
           path: .tmp/observatory/dashboards/
