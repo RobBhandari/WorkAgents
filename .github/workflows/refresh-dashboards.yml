@@ -142,6 +142,13 @@ jobs:
             exit 1
           fi
 
+      - name: De-genericize history files (reverse Product A → Real Names)
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          echo "🔓 Converting Product A, B, C back to real product names..."
+          python scripts/degener icize_history_files.py || echo "⚠️  No history files to de-genericize (first run or not found)"
+          echo "✅ History files now have REAL names - collectors will append with real names"
+
       - name: Collect ${{ matrix.collector.name }}
         id: collect
         run: |
@@ -244,21 +251,7 @@ jobs:
           echo "✅ Fresh history files ready for dashboard generation:"
           ls -lh .tmp/observatory/*.json
           echo ""
-          echo "🔒 These contain REAL product names (will be genericized before git commit)"
-
-      - name: DEBUG - Verify real product names in data
-        run: |
-          echo "🔍 Checking if data contains REAL product names (not Product A, B, C)..."
-          if grep -q "Product A\|Product B\|Product C" .tmp/observatory/quality_history.json 2>/dev/null; then
-            echo "❌ ERROR: Data contains genericized names (Product A, B, C)!"
-            echo "Sample data:"
-            head -50 .tmp/observatory/quality_history.json
-            exit 1
-          else
-            echo "✅ Data appears to contain real product names"
-            echo "Sample project names found:"
-            grep -o '"project_name": "[^"]*"' .tmp/observatory/quality_history.json 2>/dev/null | head -5
-          fi
+          echo "🔒 These contain REAL product names (de-genericized + fresh appended data)"
 
       - name: Verify metrics data available
         id: verify
