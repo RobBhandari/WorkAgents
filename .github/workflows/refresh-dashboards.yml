@@ -246,6 +246,20 @@ jobs:
           echo ""
           echo "🔒 These contain REAL product names (will be genericized before git commit)"
 
+      - name: DEBUG - Verify real product names in data
+        run: |
+          echo "🔍 Checking if data contains REAL product names (not Product A, B, C)..."
+          if grep -q "Product A\|Product B\|Product C" .tmp/observatory/quality_history.json 2>/dev/null; then
+            echo "❌ ERROR: Data contains genericized names (Product A, B, C)!"
+            echo "Sample data:"
+            head -50 .tmp/observatory/quality_history.json
+            exit 1
+          else
+            echo "✅ Data appears to contain real product names"
+            echo "Sample project names found:"
+            grep -o '"project_name": "[^"]*"' .tmp/observatory/quality_history.json 2>/dev/null | head -5
+          fi
+
       - name: Verify metrics data available
         id: verify
         run: |
