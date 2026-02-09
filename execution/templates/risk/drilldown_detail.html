@@ -1,0 +1,55 @@
+<div class="detail-content">
+    <!-- Section 1: Code Activity Metrics -->
+    <div class="detail-section">
+        <h4>Code Activity Metrics (Last 90 Days - All Project Activity)</h4>
+
+        {% if has_activity %}
+        <div class="detail-grid">
+            {% if has_commits %}
+            {{ commit_metric|safe }}
+            {{ file_changes_metric|safe }}
+            {{ avg_changes_metric|safe }}
+            {% endif %}
+
+            {% if has_prs %}
+            {{ total_prs_metric|safe }}
+            {{ small_prs_metric|safe }}
+            {{ large_prs_metric|safe }}
+            {% endif %}
+        </div>
+        {% else %}
+        {% if repo_count > 0 %}
+        <p style="color: #6b7280; font-size: 0.9rem;">No commits or PRs found in last 90 days across {{ repo_count }} repositor{% if repo_count == 1 %}y{% else %}ies{% endif %}.</p>
+        {% else %}
+        <p style="color: #6b7280; font-size: 0.9rem;">No repository data available.</p>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Section 2: Hot Paths (High Churn Files) -->
+    {% if hot_paths %}
+    <div class="detail-section">
+        <h4>Hot Paths (High Churn Files)</h4>
+        <ul class="detail-list">
+            {% for path_data in hot_paths[:10] %}
+            <li>
+                <strong>{{ path_data.path }}</strong>
+                <em>({{ path_data.change_count }} changes)</em>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Section 3: Repository Info -->
+    {% if repo_count > 0 %}
+    <div class="detail-section">
+        <p style="color: #6b7280; font-size: 0.9rem;"><strong>Repositories:</strong> {{ repo_count }} repos tracked for this project</p>
+    </div>
+    {% endif %}
+
+    <!-- If no data at all -->
+    {% if not has_activity %}
+    <div class="no-data">No detailed metrics available for this project</div>
+    {% endif %}
+</div>

@@ -1,0 +1,13 @@
+<tr class="data-row" onclick="toggleDetail('risk-detail-{{ idx }}', this)">
+    <td><strong>{{ project_name }}</strong></td>
+    <td>{{ commits }}</td>
+    <td>{{ files }}</td>
+    <td title="{{ knowledge_title }}">{{ knowledge_display }}</td>
+    <td title="{{ coupling_title }}">{{ coupling_display }}</td>
+    <td title="{{ activity_tooltip }}">{{ activity_level|safe }}</td>
+</tr>
+<tr class="detail-row" id="risk-detail-{{ idx }}">
+    <td colspan="6">
+        {{ drilldown_html|safe }}
+    </td>
+</tr>

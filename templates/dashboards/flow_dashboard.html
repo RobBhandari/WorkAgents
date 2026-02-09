@@ -1,0 +1,359 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Flow Dashboard{% endblock %}
+{% block meta_description %}Engineering flow metrics by project and work type - Director Observatory{% endblock %}
+
+{% block header_title %}Engineering Flow Dashboard{% endblock %}
+{% block header_subtitle %}Portfolio Health at a Glance{% endblock %}
+{% block header_metadata %}Week {{ week_number }} • {{ week_date }} • Generated {{ generation_date }}{% endblock %}
+{% block footer_context %}Flow Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Work type color indicators */
+    .work-type-bug {
+        color: #ef4444;
+    }
+
+    .work-type-story {
+        color: #3b82f6;
+    }
+
+    .work-type-task {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    /* Status badge */
+    .status-badge {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        background: {{ portfolio_status_color }};
+        color: white;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Summary grid */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    /* Work type breakdown container */
+    .work-type-breakdown {
+        margin-top: 24px;
+        padding: 20px;
+        background: var(--bg-tertiary);
+        border-radius: 8px;
+    }
+
+    .work-type-breakdown h3 {
+        font-size: 1rem;
+        margin-bottom: 16px;
+        color: var(--text-primary);
+    }
+
+    /* Cleanup indicator */
+    .cleanup-indicator {
+        color: #f59e0b;
+        margin-left: 8px;
+        font-size: 0.9em;
+    }
+
+    /* Table styling enhancements */
+    .data-table th {
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        vertical-align: top;
+    }
+
+    .data-table small {
+        font-size: 0.8em;
+        color: var(--text-secondary);
+    }
+
+    /* Section styling */
+    .section {
+        margin-bottom: 32px;
+    }
+
+    .section h2 {
+        margin-bottom: 16px;
+        padding-left: 12px;
+    }
+
+    .section-summary {
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+        margin-left: 8px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .data-table {
+            font-size: 0.85rem;
+        }
+
+        .cleanup-indicator {
+            display: block;
+            margin-left: 0;
+            margin-top: 4px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Executive Summary Section -->
+<div class="section">
+    <div class="status-badge">{{ portfolio_status }}</div>
+
+    <h2>Executive Summary</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">
+        Flow metrics across {{ project_count }} projects — segmented by Bug, User Story, and Task.
+    </p>
+
+    <!-- 4 Summary cards (pre-rendered) -->
+    <div class="summary-grid">
+        {% for card in summary_cards %}
+        {{ card|safe }}
+        {% endfor %}
+    </div>
+
+    <!-- Work type breakdown -->
+    <div class="work-type-breakdown">
+        <h3>Work Type Breakdown</h3>
+        <div class="summary-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            {% for card in work_type_cards %}
+            {{ card|safe }}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Work Type Tables (Bug, User Story, Task) -->
+{% for wt in work_types %}
+<div class="section">
+    <h2 style="border-left: 4px solid {{ wt.color }}; padding-left: 12px;">
+        {{ wt.name }} Flow Metrics
+        <span class="section-summary">
+            — Avg Lead Time: {{ wt.avg_lead_time|format_number(0) }} days |
+            Open: {{ wt.total_open|format_number }} |
+            Closed (90d): {{ wt.total_closed|format_number }}
+        </span>
+    </h2>
+
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Lead Time (P85)</th>
+                    <th>Lead Time (Median)</th>
+                    <th>Throughput</th>
+                    <th>Cycle Time Variance</th>
+                    <th>Open</th>
+                    <th>Closed (90d)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in wt.projects %}
+                <tr>
+                    <td>
+                        <strong>{{ project.name }}</strong>
+                        {% if project.has_cleanup %}
+                        <span class="cleanup-indicator"
+                              title="{{ project.cleanup_pct }}% of closures are cleanup work (>1 year old)">
+                            ⚠️ Cleanup
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if project.has_cleanup and project.op_p85 %}
+                        <strong>{{ project.op_p85 }} days</strong><br>
+                        <small>(Total: {{ project.p85 }})</small>
+                        {% else %}
+                        {{ project.p85 }} days
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if project.has_cleanup and project.op_p50 %}
+                        <strong>{{ project.op_p50 }} days</strong><br>
+                        <small>(Total: {{ project.p50 }})</small>
+                        {% else %}
+                        {{ project.p50 }} days
+                        {% endif %}
+                    </td>
+                    <td title="{{ project.closed }} closed in 90 days">{{ project.throughput }}/wk</td>
+                    <td title="Std dev: {{ project.std_dev }} days">{{ project.cv }}% CV</td>
+                    <td>{{ project.open }}</td>
+                    <td>
+                        {% if project.has_cleanup and project.op_closed %}
+                        <strong>{{ project.op_closed }}</strong><br>
+                        <small>(+{{ project.cleanup_closed }} cleanup)</small>
+                        {% else %}
+                        {{ project.closed }}
+                        {% endif %}
+                    </td>
+                    <td title="{{ project.status_tooltip }}">
+                        {{ project.status_html|safe }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Glossary Section -->
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>📖 What These Metrics Mean</h3>
+        <span class="glossary-toggle" id="glossary-toggle">▼</span>
+    </div>
+    <div class="glossary-content" id="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">Lead Time</div>
+            <div class="glossary-definition">
+                The total time from when work is requested until it's completed and delivered.
+                Think of it as "order to delivery" time. Shorter lead times mean faster response to customer needs.
+                <br><strong>Good:</strong> Under 60 days | <strong>Needs attention:</strong> Over 150 days
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">85th Percentile (P85)</div>
+            <div class="glossary-definition">
+                A statistical measure showing the value below which 85% of items fall.
+                This gives a realistic picture while filtering out extreme outliers.
+                If P85 is 77 days, it means 85% of work completes in 77 days or less.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Work in Progress (WIP)</div>
+            <div class="glossary-definition">
+                The number of work items currently being worked on. High WIP means teams are juggling many tasks at once,
+                which can slow everything down due to context switching. Lower WIP often leads to faster completion times.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Median (P50)</div>
+            <div class="glossary-definition">
+                The middle value - half of items complete faster, half slower.
+                Useful for understanding typical performance when P85 includes some very old items.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Throughput</div>
+            <div class="glossary-definition">
+                The rate at which work items are completed, measured as items per week.
+                Calculated from items closed in the last 90 days divided by the number of weeks.
+                Higher throughput indicates more work getting done. This is a pure velocity metric.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Cycle Time Variance (CV)</div>
+            <div class="glossary-definition">
+                The coefficient of variation measures how consistent your lead times are.
+                It's the standard deviation divided by the mean, expressed as a percentage.
+                <strong>Lower is better</strong> - it means more predictable delivery times.
+                <br><br>
+                Example: If CV is 50%, that means the standard deviation is half the mean.
+                A CV of 100% means the standard deviation equals the mean (high variability).
+                <br><br>
+                High CV suggests inconsistent processes or work item sizes. Low CV indicates
+                more predictable, standardized flow.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Overall Status (Composite Score)</div>
+            <div class="glossary-definition">
+                The status indicator for each project is calculated by evaluating flow metrics:
+                how quickly work moves through the system.
+                This gives you a clear view of delivery speed and consistency.
+                <br><br>
+                <strong>Status Determination:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><strong style="color: #10b981;">✓ Good:</strong> Both lead time metrics meet target thresholds</li>
+                    <li><strong style="color: #f59e0b;">⚠ Caution:</strong> One or more lead time metrics need attention</li>
+                    <li><strong style="color: #ef4444;">● Action Needed:</strong> Both lead time metrics miss targets</li>
+                </ul>
+                <br>
+                <strong>Metrics Used for Status:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><strong>P85 Lead Time:</strong> Good &lt; 60 days | Caution 60-150 days | Poor &gt; 150 days</li>
+                    <li><strong>Median Lead Time:</strong> Good &lt; 30 days | Caution 30-90 days | Poor &gt; 90 days</li>
+                </ul>
+                <br>
+                <strong>Why only lead time metrics?</strong> Open bug count is a backlog/capacity metric,
+                not a flow metric. If bugs sit open for months, that already shows up as poor lead time.
+                This keeps the focus on what matters for flow: how fast work gets done, not how much is waiting.
+            </div>
+        </div>
+
+        <h3 style="margin-top: 30px; color: #dc2626;">⚠ Data Collection Assumptions</h3>
+
+        <div class="glossary-item">
+            <div class="glossary-term"><strong>Work Type Segmentation</strong></div>
+            <div class="glossary-definition">
+                <strong>Flow metrics are SEGMENTED by work type:</strong> Bug, User Story, and Task tracked separately.
+                This provides visibility into how different types of work flow through your delivery process.
+                Each work type has independent lead time, WIP, and aging metrics.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term"><strong>State Filter - Open Items Only</strong></div>
+            <div class="glossary-definition">
+                <strong>Only open items are counted for WIP and aging.</strong>
+                Items in "Closed" or "Removed" states are excluded from open counts.
+                Lead time calculations use items closed within the lookback period.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term"><strong>Time Period</strong></div>
+            <div class="glossary-definition">
+                <strong>90-day lookback period</strong> for closed items used in lead time calculations.
+                Open items and WIP counts reflect current state (all open items, regardless of age).
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term"><strong>Historical Data</strong></div>
+            <div class="glossary-definition">
+                <strong>Last 12 weeks only</strong> are kept in history for trending charts.
+                Older data is automatically pruned during collection.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term"><strong>Complete Data</strong></div>
+            <div class="glossary-definition">
+                <strong>ALL bugs matching the filters are analyzed</strong> - no sampling or arbitrary limits.
+                Data collection processes all open bugs and all closed bugs within the 90-day window.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

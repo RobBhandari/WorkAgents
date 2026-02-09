@@ -1,0 +1,55 @@
+{% if not has_activity %}
+<div class="no-data">No code activity in the last 90 days</div>
+{% else %}
+
+<!-- Section 1: Code Churn Metrics -->
+{% if has_commits %}
+<div class="detail-section">
+    <h4>Code Churn Metrics (90 days)</h4>
+    <div class="detail-grid">
+        {{ commit_metric|safe }}
+        {{ file_changes_metric|safe }}
+        {{ avg_changes_metric|safe }}
+    </div>
+</div>
+{% endif %}
+
+<!-- Section 2: PR Size Distribution -->
+{% if has_prs %}
+<div class="detail-section">
+    <h4>Pull Request Size Distribution</h4>
+    <div class="detail-grid">
+        {{ total_prs_metric|safe }}
+        {{ small_prs_metric|safe }}
+        {{ large_prs_metric|safe }}
+    </div>
+</div>
+{% endif %}
+
+<!-- Section 3: Repository Count -->
+{% if repo_count > 0 %}
+<div class="detail-section">
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        <strong>Repositories tracked:</strong> {{ repo_count }}
+    </p>
+</div>
+{% endif %}
+
+<!-- Section 4: Hot Paths (High Churn Files) -->
+{% if hot_paths %}
+<div class="detail-section">
+    <h4>Hot Paths (Top Changed Files)</h4>
+    <ul class="detail-list">
+        {% for hot_path in hot_paths[:10] %}
+        <li>
+            <strong>{{ hot_path.path }}</strong>
+            <span style="color: var(--text-secondary); margin-left: 8px;">
+                {{ hot_path.change_count }} changes
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% endif %}

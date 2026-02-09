@@ -1,0 +1,14 @@
+<div class="detail-content">
+    <!-- Stage 1: Aging Heatmap -->
+    {{ heatmap_html|safe }}
+
+    <!-- Stage 2: Vulnerability Breakdown (collapsible) -->
+    <div class="vuln-breakdown-section">
+        <button class="expand-btn" onclick="toggleVulnDetails(this); event.stopPropagation();">
+            Show Vulnerability Breakdown ▼
+        </button>
+        <div class="vuln-details-hidden">
+            {{ breakdown_html|safe }}
+        </div>
+    </div>
+</div>

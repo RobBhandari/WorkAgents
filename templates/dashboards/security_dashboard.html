@@ -1,0 +1,328 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Security Dashboard{% endblock %}
+{% block meta_description %}Security vulnerabilities by product - Director Observatory{% endblock %}
+
+{% block header_title %}Security Vulnerabilities{% endblock %}
+{% block header_subtitle %}Product-level vulnerability tracking{% endblock %}
+{% block footer_context %}Security Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Disable expandable row styling (using VIEW buttons instead) */
+    tbody tr.data-row {
+        cursor: default !important;
+    }
+
+    tbody tr.data-row td:first-child {
+        padding-left: 16px !important; /* Remove extra padding for chevron */
+    }
+
+    tbody tr.data-row td:first-child::before {
+        content: none !important; /* Hide chevron arrow */
+    }
+
+    /* View Button Styling */
+    .view-btn {
+        display: inline-block;
+        padding: 6px 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .view-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Heatmap Styling */
+    .heatmap-container {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .heatmap-header h4 {
+        margin: 0 0 5px 0;
+        color: var(--text-primary);
+    }
+
+    .heatmap-subtitle {
+        margin: 0 0 10px 0;
+        font-size: 0.9em;
+        color: var(--text-secondary);
+    }
+
+    .heatmap-note {
+        margin: 10px 0 15px 0;
+        padding: 10px;
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 3px solid #3b82f6;
+        border-radius: 4px;
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(5, 1fr);
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .heatmap-corner {
+        background: transparent;
+    }
+
+    .heatmap-col-header {
+        text-align: center;
+        font-weight: 600;
+        padding: 10px 5px;
+        color: var(--text-primary);
+        font-size: 0.9em;
+    }
+
+    .days-label {
+        display: block;
+        font-size: 0.7em;
+        color: var(--text-secondary);
+        font-weight: 400;
+        margin-top: 2px;
+    }
+
+    .heatmap-row-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 10px;
+        font-weight: 600;
+        font-size: 0.9em;
+    }
+
+    .critical-header {
+        color: #dc2626;
+    }
+
+    .high-header {
+        color: #ea580c;
+    }
+
+    .heatmap-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 1.1em;
+        min-height: 50px;
+        transition: transform 0.2s;
+    }
+
+    .heatmap-cell:not(.empty):hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Vulnerability Breakdown Section */
+    .vuln-breakdown-section {
+        margin-top: 20px;
+    }
+
+    .expand-btn {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: 600;
+        transition: all 0.3s;
+        width: 100%;
+        text-align: center;
+    }
+
+    .expand-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .vuln-details-hidden {
+        display: none;
+        margin-top: 15px;
+        animation: slideDown 0.3s ease;
+    }
+
+    .vuln-details-visible {
+        display: block;
+        margin-top: 15px;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .vuln-breakdown-table {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .vuln-breakdown-table h4 {
+        margin: 0 0 15px 0;
+        color: var(--text-primary);
+    }
+
+    .severity-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .severity-badge.critical {
+        background: rgba(220, 38, 38, 0.2);
+        color: #dc2626;
+    }
+
+    .severity-badge.high {
+        background: rgba(234, 88, 12, 0.2);
+        color: #ea580c;
+    }
+
+    .severity-badge.medium {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+    }
+
+    .severity-badge.low {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+    }
+
+    .breakdown-note {
+        padding: 15px;
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 3px solid #3b82f6;
+        border-radius: 4px;
+    }
+
+    .breakdown-note p {
+        margin: 5px 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Two-stage toggle for vulnerability details
+    function toggleVulnDetails(button) {
+        const container = button.nextElementSibling;
+
+        if (container.classList.contains('vuln-details-hidden')) {
+            container.classList.remove('vuln-details-hidden');
+            container.classList.add('vuln-details-visible');
+            button.innerHTML = 'Hide Vulnerability Breakdown ▲';
+        } else {
+            container.classList.remove('vuln-details-visible');
+            container.classList.add('vuln-details-hidden');
+            button.innerHTML = 'Show Vulnerability Breakdown ▼';
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Summary cards -->
+<div class="section">
+    <h2>Overview</h2>
+    <div class="summary-grid">
+        {% for card in summary_cards %}
+        {{ card|safe }}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Products table -->
+<div class="section">
+    <h2>Vulnerabilities by Product</h2>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Total</th>
+                    <th>Critical</th>
+                    <th>High</th>
+                    <th>Medium</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+                <tr class="data-row">
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.total }}</td>
+                    <td class="{% if product.critical > 0 %}critical{% endif %}">{{ product.critical }}</td>
+                    <td class="{% if product.high > 0 %}high{% endif %}">{{ product.high }}</td>
+                    <td>{{ product.medium }}</td>
+                    <td>
+                        <span class="status-badge status-{{ product.status_class }}">
+                            {{ product.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ product.detail_page_url }}" class="view-btn" target="_blank">VIEW</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Glossary (optional) -->
+{% if show_glossary %}
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>Metric Definitions</h3>
+        <span id="glossary-toggle" class="glossary-toggle">▼</span>
+    </div>
+    <div id="glossary-content" class="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">Critical</div>
+            <div class="glossary-definition">
+                Vulnerabilities that require immediate attention and can lead to complete system compromise.
+            </div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">High</div>
+            <div class="glossary-definition">
+                Significant vulnerabilities that should be resolved within 30 days.
+            </div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">70% Reduction Target</div>
+            <div class="glossary-definition">
+                Goal to reduce Critical+High vulnerabilities by 70% from baseline (Jan 1, 2026) by June 30, 2026.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

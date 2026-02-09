@@ -1,0 +1,47 @@
+name: Documentation Build Validation
+
+# Validates that Sphinx documentation builds successfully
+# Does NOT deploy - docs are kept in repo only for local viewing
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'execution/domain/**'
+      - 'execution/collectors/**'
+      - 'execution/dashboards/**'
+      - 'execution/secure_config.py'
+      - 'execution/http_client.py'
+      - '.github/workflows/docs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Sphinx Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+          # Install only runtime dependencies needed for autodoc (not the package itself)
+          pip install python-dotenv requests httpx jinja2 pandas beautifulsoup4 lxml azure-devops google-api-python-client
+
+      - name: Build documentation
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          cd docs
+          sphinx-build -b html . _build/html
+          echo "✅ Documentation builds successfully!"
+          echo "📚 Docs are available in the repo at docs/_build/html/"

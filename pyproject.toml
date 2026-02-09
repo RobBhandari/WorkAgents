@@ -1,0 +1,180 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_backend"
+
+[project]
+name = "engineering-metrics"
+version = "2.0.0"
+description = "Engineering metrics and insights platform"
+requires-python = ">=3.11"
+dependencies = [
+    "python-dotenv>=1.0.0",
+    "requests>=2.32.3",
+    "httpx[http2]>=0.28.0",
+    "jinja2>=3.1.6",
+    "pandas>=2.2.3",
+    "pytest>=9.0.0",
+]
+
+# Ruff configuration
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+# Linting rules (new format)
+[tool.ruff.lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort (import sorting)
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+]
+
+# Ignore specific rules (gradual enforcement on legacy code)
+ignore = [
+    "E501",  # Line too long
+    "E722",  # Bare except (common in legacy code)
+    "F841",  # Unused variable (common in legacy code)
+    "B007",  # Unused loop variable
+    "E402",  # Module import not at top (legacy code pattern)
+    "F401",  # Unused imports (will fix gradually)
+    "B904",  # Exception chaining (will fix gradually)
+    "C401",  # Unnecessary generator (cosmetic)
+]
+
+# Per-file ignores
+[tool.ruff.lint.per-file-ignores]
+"execution/experiments/*.py" = ["ALL"]  # Ignore experimental files
+"execution/archive/*.py" = ["ALL"]  # Ignore archived files
+"tests/*.py" = ["F401"]  # Allow unused imports in tests
+
+# Strict rules for new modular code
+"execution/domain/*.py" = []  # Enforce all rules
+"execution/dashboards/components/*.py" = []  # Enforce all rules
+"execution/collectors/*.py" = []  # Enforce all rules
+
+# Black configuration
+[tool.black]
+line-length = 120
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # Exclude specific directories
+  | \.venv
+  | \.git
+  | __pycache__
+  | \.pytest_cache
+  | execution/experiments
+  | execution/archive
+)/
+'''
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Gradual adoption
+check_untyped_defs = true
+ignore_missing_imports = true
+exclude = [
+    'execution/experiments/',
+    'execution/archive/',
+    '.venv/',
+]
+
+# Strict type checking for new code
+[[tool.mypy.overrides]]
+module = "execution.domain.*"
+disallow_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "execution.dashboards.components.*"
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "execution.core.*"
+disallow_untyped_defs = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--cov=execution",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["execution"]
+omit = [
+    # Existing exclusions
+    "execution/experiments/*",
+    "execution/archive/*",
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/.venv/*",
+
+    # Deprecated wrappers (delegate to refactored implementations)
+    "execution/generate_*_dashboard.py",
+    "execution/generate_executive_summary.py",
+    "execution/generate_dashboard_launcher.py",
+    "execution/generate_index.py",
+
+    # One-off utility scripts (not library code)
+    "execution/ado_*.py",
+    "execution/armorcode_*.py",
+    "execution/check_*.py",
+    "execution/validate_*.py",
+    "execution/scan_*.py",
+    "execution/send_*.py",
+    "execution/collect_*.py",
+    "execution/discover_*.py",
+    "execution/benchmark_*.py",
+    "execution/create_*.py",
+    "execution/refresh_*.py",
+    "execution/import_*.py",
+    "execution/migrate_*.py",
+
+    # Standalone infrastructure (tested indirectly)
+    "execution/_template.py",
+    "execution/hello_bot.py",
+    "execution/async_http_client.py",
+    "execution/http_client.py",
+    "execution/secure_config.py",
+    "execution/template_engine.py",
+    "execution/dashboard_framework.py",
+    "execution/teams_bug_bot.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

@@ -1,0 +1,247 @@
+name: Refresh Observatory Dashboards
+
+on:
+  # Run every day at 6 AM UTC (adjust timezone as needed)
+  schedule:
+    - cron: '0 6 * * *'
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Allow workflow to commit and push history files
+
+jobs:
+  # Job 1: Collect all metrics in parallel
+  collect-metrics:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        collector:
+          - { name: 'Discover Projects', script: 'discover_projects.py', outputs: 'ado_structure.json' }
+          - { name: 'Quality Metrics', script: 'collectors/ado_quality_metrics.py', outputs: 'quality_history.json' }
+          - { name: 'Flow Metrics', script: 'collectors/ado_flow_metrics.py', outputs: 'flow_history.json' }
+          - { name: 'Ownership Metrics', script: 'collectors/ado_ownership_metrics.py', outputs: 'ownership_history.json' }
+          - { name: 'Risk Metrics', script: 'collectors/ado_risk_metrics.py', outputs: 'risk_history.json' }
+          - { name: 'Deployment Metrics', script: 'collectors/ado_deployment_metrics.py', outputs: 'deployment_history.json' }
+          - { name: 'Collaboration Metrics', script: 'collectors/ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
+          - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
+      fail-fast: false  # Continue even if one fails
+      max-parallel: 8   # Run all 8 collectors at once
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env file from secrets
+        run: |
+          echo "AZURE_DEVOPS_ORG_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ADO_ORGANIZATION_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
+          echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
+
+      - name: Collect ${{ matrix.collector.name }}
+        id: collect
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python execution/${{ matrix.collector.script }}
+
+      - name: Upload metrics artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: metrics-${{ strategy.job-index }}
+          path: .tmp/observatory/${{ matrix.collector.outputs }}
+          retention-days: 1
+        if: steps.collect.outcome == 'success'
+
+  # Job 2: Generate all dashboards in parallel
+  generate-dashboards:
+    needs: collect-metrics
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dashboard:
+          - { name: 'Quality', script: 'generate_quality_dashboard.py' }
+          - { name: 'Flow', script: 'generate_flow_dashboard.py' }
+          - { name: 'Ownership', script: 'generate_ownership_dashboard.py' }
+          - { name: 'Risk', script: 'generate_risk_dashboard.py' }
+          - { name: 'Deployment', script: 'generate_deployment_dashboard.py' }
+          - { name: 'Collaboration', script: 'generate_collaboration_dashboard.py' }
+          - { name: 'Security (with drill-down)', script: 'dashboards/security_enhanced.py' }
+          - { name: 'Target', script: 'generate_target_dashboard.py' }
+          - { name: 'Executive Trends (index)', script: 'generate_trends_dashboard.py' }
+          # AI Usage Report removed - requires local data file (gitignored for security)
+      fail-fast: false   # Continue even if one fails
+      max-parallel: 10   # Run all 10 dashboards at once
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env file from secrets
+        run: |
+          echo "AZURE_DEVOPS_ORG_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ADO_ORGANIZATION_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
+          echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
+
+      - name: Download all metrics artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: .tmp/observatory/
+          merge-multiple: true
+
+      - name: Verify metrics data available
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          echo "📊 Validating metrics history files..."
+          python execution/validate_metrics_data.py
+
+      - name: Generate ${{ matrix.dashboard.name }} Dashboard
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          # Convert path to module notation (e.g., dashboards/trends.py -> execution.dashboards.trends)
+          MODULE=$(echo "${{ matrix.dashboard.script }}" | sed 's/\.py$//' | sed 's/\//./g' | sed 's/^/execution./')
+          python -m "$MODULE"
+
+      - name: Upload dashboard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-${{ strategy.job-index }}
+          path: .tmp/observatory/dashboards/
+          retention-days: 1
+        if: always()
+
+  # Job 3: Deploy to Azure Static Web Apps
+  deploy-to-azure:
+    needs: generate-dashboards
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all dashboard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: dashboard-*
+          path: .tmp/observatory/dashboards/
+          merge-multiple: true
+
+      - name: Download all metrics artifacts (for data files)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: .tmp/observatory/
+          merge-multiple: true
+
+      - name: Verify deployment package
+        run: |
+          echo "📦 Deployment package contents:"
+          ls -la .tmp/observatory/dashboards/ || echo "No dashboards found"
+          ls -la .tmp/observatory/*.json || echo "No data files found"
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: ".tmp/observatory/dashboards"
+          skip_app_build: true
+          skip_api_build: true
+
+      - name: Deployment Complete
+        run: |
+          echo "✅ Dashboards deployed successfully to Azure Static Web Apps!"
+          echo "🔒 Access is now protected with Azure AD authentication"
+          echo "🌐 Your team can access at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net/"
+
+      - name: Validate History Files Before Commit
+        run: |
+          echo "🔍 Validating history files before committing..."
+          python -c "
+          import json
+          import sys
+          from pathlib import Path
+
+          history_files = list(Path('.tmp/observatory').glob('*_history.json'))
+          valid_files = []
+          invalid_files = []
+
+          for file in history_files:
+              try:
+                  with open(file, 'r') as f:
+                      data = json.load(f)
+
+                  # Check basic structure
+                  if not isinstance(data, dict) or 'weeks' not in data:
+                      invalid_files.append(f'{file.name}: Invalid structure')
+                      continue
+
+                  # Check if weeks array has data
+                  if not data['weeks']:
+                      invalid_files.append(f'{file.name}: Empty weeks array')
+                      continue
+
+                  valid_files.append(file.name)
+                  print(f'✓ {file.name}: Valid ({len(data[\"weeks\"])} weeks)')
+              except Exception as e:
+                  invalid_files.append(f'{file.name}: {e}')
+
+          if invalid_files:
+              print('\n⚠️  Invalid history files found:')
+              for f in invalid_files:
+                  print(f'  - {f}')
+              print('\nThese files will NOT be committed.')
+
+          if not valid_files:
+              print('\n❌ No valid history files to commit!')
+              sys.exit(1)
+
+          print(f'\n✅ {len(valid_files)} valid history files ready to commit')
+          "
+
+      - name: Commit History Files to Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Only add valid JSON files (validation passed above)
+          git add -f .tmp/observatory/*_history.json
+
+          if ! git diff --staged --quiet; then
+            echo "📝 Committing history files..."
+            git commit -m "Update metrics history - $(date +'%Y-%m-%d')"
+            git push
+            echo "✅ History files committed and pushed"
+          else
+            echo "ℹ️  No changes to commit"
+          fi

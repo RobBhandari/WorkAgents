@@ -1,0 +1,12 @@
+<div class="summary-card {{ css_class }}">
+    <div class="metric-label">{{ title }}</div>
+    <div class="metric-value">
+        {{ value }}
+        {% if trend %}
+        <span class="trend">{{ trend }}</span>
+        {% endif %}
+    </div>
+    {% if subtitle %}
+    <div class="metric-unit">{{ subtitle }}</div>
+    {% endif %}
+</div>

@@ -1,0 +1,45 @@
+<div class="detail-content">
+    {% if assigned_only %}
+    <div class="detail-section">
+        <h4>Work Distribution by Assignee</h4>
+        <div class="detail-grid">
+            {% for name, count in assigned_only[:8] %}
+            {% include "ownership/assignee_item.html" %}
+            {% endfor %}
+        </div>
+        {% if load_imbalance %}
+        <p style="margin-top: 12px; color: #6b7280; font-size: 0.9rem;"><strong>Load Imbalance Ratio:</strong> {{ load_imbalance }}:1 (max vs min workload)</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if work_type_metrics %}
+    <div class="detail-section">
+        <h4>Ownership by Work Type</h4>
+        <div class="detail-grid">
+            {% for metric in work_type_metrics %}
+            {{ metric|safe }}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if areas %}
+    <div class="detail-section">
+        <h4>Area Unassigned Statistics</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Top areas by unassigned percentage (all areas shown, no filtering)</p>
+        <ul class="detail-list">
+            {% for area in areas[:10] %}
+            <li>
+                <strong>{{ area.area_path }}</strong>
+                <em>({{ area.unassigned_pct }}% unassigned • {{ area.unassigned_items }}/{{ area.total_items }} items)</em>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if not (assigned_only or areas) %}
+    <div class="no-data">No detailed metrics available for this project</div>
+    {% endif %}
+</div>

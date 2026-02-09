@@ -1,0 +1,71 @@
+{# Ownership Dashboard - Project Drill-Down Detail Template #}
+
+{# Section 1: Assignment Distribution #}
+<div class="detail-section">
+    <h4>📊 Assignment Distribution</h4>
+    {% if assigned_only %}
+        <ul class="detail-list">
+            {% for name, count in assigned_only[:10] %}
+            <li>{{ name }}: <strong>{{ count }}</strong> items</li>
+            {% endfor %}
+        </ul>
+        {% if load_imbalance %}
+        <p style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9rem;">
+            <strong>Load Imbalance:</strong> {{ load_imbalance }}:1 (max/min ratio)
+        </p>
+        {% endif %}
+    {% else %}
+        <p class="no-data">No assignment data available</p>
+    {% endif %}
+</div>
+
+{# Section 2: Work Type Breakdown #}
+{% if work_type_metrics %}
+<div class="detail-section">
+    <h4>🔖 Work Type Breakdown</h4>
+    <div class="detail-grid">
+        {% for metric in work_type_metrics %}
+        <div class="detail-metric {{ metric.rag_class }}"
+             style="border-left: 3px solid {{ metric.rag_color }};">
+            <div class="detail-metric-label">{{ metric.wtype }}</div>
+            <div class="detail-metric-value">
+                {{ metric.assigned }} / {{ metric.total }}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+                {{ metric.unassigned }} unassigned ({{ metric.unassigned_pct }}%)
+            </div>
+            <div class="detail-metric-status" style="color: {{ metric.rag_color }};">
+                {{ metric.rag_status }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{# Section 3: Area Unassigned Statistics #}
+{% if areas %}
+<div class="detail-section">
+    <h4>📍 Area Unassigned Statistics</h4>
+    <table class="detail-table">
+        <thead>
+            <tr>
+                <th>Area Path</th>
+                <th>Total Items</th>
+                <th>Unassigned Items</th>
+                <th>Unassigned %</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for area in areas %}
+            <tr>
+                <td>{{ area.area_path }}</td>
+                <td>{{ area.total_items }}</td>
+                <td>{{ area.unassigned_items }}</td>
+                <td>{{ area.unassigned_pct }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
