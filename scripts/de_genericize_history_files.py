@@ -33,7 +33,7 @@ REVERSE_MAPPING = {
 }
 
 
-def degener icize_value(value: Any, stats: Dict[str, int]) -> Any:
+def de_genericize_value(value: Any, stats: Dict[str, int]) -> Any:
     """
     Recursively replace generic product names with real names.
 
@@ -45,25 +45,25 @@ def degener icize_value(value: Any, stats: Dict[str, int]) -> Any:
         De-genericized value
     """
     if isinstance(value, dict):
-        return {k: degener icize_value(v, stats) for k, v in value.items()}
+        return {k: de_genericize_value(v, stats) for k, v in value.items()}
     elif isinstance(value, list):
-        return [degener icize_value(item, stats) for item in value]
+        return [de_genericize_value(item, stats) for item in value]
     elif isinstance(value, str):
-        degener icized = value
+        de_genericized = value
         # Replace generic names with real names
         # Order from most specific to least specific
         for generic_name, real_name in sorted(
             REVERSE_MAPPING.items(), key=lambda x: len(x[0]), reverse=True
         ):
-            if generic_name in degener icized:
-                degener icized = degener icized.replace(generic_name, real_name)
+            if generic_name in de_genericized:
+                de_genericized = de_genericized.replace(generic_name, real_name)
                 stats[generic_name] = stats.get(generic_name, 0) + 1
-        return degener icized
+        return de_genericized
     else:
         return value
 
 
-def degener icize_history_file(file_path: Path) -> bool:
+def de_genericize_history_file(file_path: Path) -> bool:
     """
     De-genericize a single history JSON file.
 
@@ -82,11 +82,11 @@ def degener icize_history_file(file_path: Path) -> bool:
         stats: Dict[str, int] = {}
 
         # De-genericize all values
-        degener icized_data = degener icize_value(data, stats)
+        de_genericized_data = de_genericize_value(data, stats)
 
         # Save back
         with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(degener icized_data, f, indent=2, ensure_ascii=False)
+            json.dump(de_genericized_data, f, indent=2, ensure_ascii=False)
 
         # Report
         total_replacements = sum(stats.values())
@@ -126,7 +126,7 @@ def main():
 
     success_count = 0
     for file_path in sorted(history_files):
-        if degener icize_history_file(file_path):
+        if de_genericize_history_file(file_path):
             success_count += 1
 
     print("\n" + "=" * 70)
