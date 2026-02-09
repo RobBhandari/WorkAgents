@@ -32,8 +32,10 @@ jobs:
 
       - name: Copy data files to .tmp
         run: |
-          cp data/baseline*.json .tmp/ 2>/dev/null || echo "No baseline files"
-          cp data/weekly_tracking*.json .tmp/ 2>/dev/null || echo "No tracking files"
+          echo "Copying baseline files from data/ to .tmp/..."
+          cp data/baseline*.json .tmp/ 2>/dev/null && echo "✓ Baseline files copied" || echo "⚠ No baseline files found in data/"
+          echo "Copying weekly tracking files from data/ to .tmp/..."
+          cp data/weekly_tracking*.json .tmp/ 2>/dev/null && echo "✓ Weekly tracking files copied" || echo "⚠ No tracking files found in data/"
 
       - name: Create .env file from secrets
         run: |
@@ -47,16 +49,34 @@ jobs:
           SMTP_PORT=${{ secrets.SMTP_PORT }}
           EOF
 
-      - name: Create baselines for all projects (if not exist)
+      - name: Verify or create baselines for all projects
         run: |
-          python execution/ado_baseline.py --project "Access Legal Case Management" --project-key Access_Legal_Case_Management --force || echo "Baseline exists or failed"
-          python execution/ado_baseline.py --project "Access LawFusion" --project-key LawFusion --force || echo "Baseline exists or failed"
-          python execution/ado_baseline.py --project "Learning Content Legal" --project-key Learning_Content_Legal --force || echo "Baseline exists or failed"
-          python execution/ado_baseline.py --project "Access LegalBricks" --project-key LegalBricks --force || echo "Baseline exists or failed"
-          python execution/ado_baseline.py --project "Access Legal Compliance" --project-key Legal_Compliance --force || echo "Baseline exists or failed"
-          python execution/ado_baseline.py --project "Access Legal InCase" --project-key Legal_InCase --force || echo "Baseline exists or failed"
-          python execution/ado_baseline.py --project "Access Legal Proclaim" --project-key Legal_Proclaim --force || echo "Baseline exists or failed"
-        continue-on-error: true
+          # Function to check and create baseline if missing
+          check_or_create_baseline() {
+            local project_name="$1"
+            local project_key="$2"
+            local baseline_file=".tmp/baseline_${project_key}.json"
+
+            if [ -f "$baseline_file" ]; then
+              echo "✓ Baseline exists for ${project_key}"
+              return 0
+            else
+              echo "⚠ Baseline missing for ${project_key}, creating..."
+              python execution/ado_baseline.py --project "$project_name" --project-key "$project_key"
+              return $?
+            fi
+          }
+
+          # Check or create baselines for all projects
+          check_or_create_baseline "Access Legal Case Management" "Access_Legal_Case_Management"
+          check_or_create_baseline "Access LawFusion" "LawFusion"
+          check_or_create_baseline "Learning Content Legal" "Learning_Content_Legal"
+          check_or_create_baseline "Access LegalBricks" "LegalBricks"
+          check_or_create_baseline "Access Legal Compliance" "Legal_Compliance"
+          check_or_create_baseline "Access Legal InCase" "Legal_InCase"
+          check_or_create_baseline "Access Legal Proclaim" "Legal_Proclaim"
+
+          echo "All baselines verified/created successfully"
 
       - name: Run DOE tracker for Access Legal Case Management
         run: python execution/ado_doe_tracker.py --project "Access Legal Case Management" --project-key Access_Legal_Case_Management
