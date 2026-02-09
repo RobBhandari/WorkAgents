@@ -12,13 +12,67 @@ permissions:
   contents: write  # Allow workflow to commit and push history files
 
 jobs:
-  # Job 1: Collect all metrics in parallel
+  # Job 1: Discover Projects (MUST run first - other collectors depend on it)
+  discover-projects:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env file from secrets
+        run: |
+          echo "AZURE_DEVOPS_ORG_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+          echo "ADO_ORGANIZATION_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
+          echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
+
+      - name: Create baseline files from secrets
+        run: |
+          mkdir -p data
+          echo "📂 Creating baseline files from GitHub secrets..."
+
+          # Main ADO baseline
+          echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
+
+          # Project-specific baselines (if configured)
+          if [ -n "${{ secrets.BASELINE_ADO_PROJECTS }}" ]; then
+            echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
+          fi
+
+          echo "✅ Baseline files created"
+          ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
+
+      - name: Discover Projects
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python execution/discover_projects.py
+
+      - name: Upload project discovery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-discovery
+          path: .tmp/observatory/ado_structure.json
+          retention-days: 1
+
+  # Job 2: Collect all other metrics in parallel (depends on project discovery)
   collect-metrics:
+    needs: discover-projects
     runs-on: ubuntu-latest
     strategy:
       matrix:
         collector:
-          - { name: 'Discover Projects', script: 'discover_projects.py', outputs: 'ado_structure.json' }
           - { name: 'Quality Metrics', script: 'collectors/ado_quality_metrics.py', outputs: 'quality_history.json' }
           - { name: 'Flow Metrics', script: 'collectors/ado_flow_metrics.py', outputs: 'flow_history.json' }
           - { name: 'Ownership Metrics', script: 'collectors/ado_ownership_metrics.py', outputs: 'ownership_history.json' }
@@ -27,7 +81,7 @@ jobs:
           - { name: 'Collaboration Metrics', script: 'collectors/ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
           - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
       fail-fast: false  # Continue even if one fails
-      max-parallel: 8   # Run all 8 collectors at once
+      max-parallel: 7   # Run all 7 collectors at once
 
     steps:
       - name: Checkout repository
@@ -72,6 +126,22 @@ jobs:
           echo "✅ Baseline files created"
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
 
+      - name: Download project discovery artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: project-discovery
+          path: .tmp/observatory/
+
+      - name: Verify project discovery file
+        run: |
+          if [ -f .tmp/observatory/ado_structure.json ]; then
+            echo "✅ Project discovery file found"
+            ls -la .tmp/observatory/ado_structure.json
+          else
+            echo "❌ Project discovery file not found!"
+            exit 1
+          fi
+
       - name: Collect ${{ matrix.collector.name }}
         id: collect
         run: |
@@ -81,12 +151,12 @@ jobs:
       - name: Upload metrics artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: metrics-${{ strategy.job-index }}
+          name: metrics-${{ matrix.collector.name }}
           path: .tmp/observatory/${{ matrix.collector.outputs }}
           retention-days: 1
         if: steps.collect.outcome == 'success'
 
-  # Job 2: Generate all dashboards in parallel
+  # Job 3: Generate all dashboards in parallel
   generate-dashboards:
     needs: collect-metrics
     if: always()  # Run even if collect-metrics fails
@@ -100,12 +170,12 @@ jobs:
           - { name: 'Risk', script: 'generate_risk_dashboard.py' }
           - { name: 'Deployment', script: 'generate_deployment_dashboard.py' }
           - { name: 'Collaboration', script: 'generate_collaboration_dashboard.py' }
-          - { name: 'Security (with drill-down)', script: 'dashboards/security_enhanced.py' }
-          - { name: 'Target', script: 'generate_target_dashboard.py' }
-          - { name: 'Executive Trends (index)', script: 'generate_trends_dashboard.py' }
-          - { name: 'AI Usage Report (Interactive)', script: 'reports/usage_tables_report.py' }
-      fail-fast: false   # Continue even if one fails
-      max-parallel: 10   # Run all 10 dashboards at once
+          - { name: 'Security', script: 'generate_security_dashboard.py' }
+          - { name: 'Targets', script: 'generate_targets_dashboard.py' }
+          - { name: 'Executive', script: 'generate_executive_dashboard.py' }
+          - { name: 'AI Usage', script: 'reports/usage_tables_report.py' }
+      fail-fast: false
+      max-parallel: 10
 
     steps:
       - name: Checkout repository
@@ -122,54 +192,107 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Create .env file from secrets
-        run: |
-          echo "AZURE_DEVOPS_ORG_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
-          echo "AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
-          echo "ADO_ORGANIZATION_URL=${{ secrets.AZURE_DEVOPS_ORG_URL }}" >> .env
-          echo "ADO_PAT=${{ secrets.AZURE_DEVOPS_PAT }}" >> .env
-          echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
-          echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
-
-      - name: Download all metrics artifacts (if available)
+      - name: Download ALL metrics artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: metrics-*
-          path: .tmp/observatory/
-          merge-multiple: true
+          path: artifacts/
         continue-on-error: true
 
       - name: Use existing history files from git
         run: |
           echo "📂 Checking for existing history files in git..."
-          # History files are tracked in git, so they're already available
-          # This step ensures we use them if artifact download failed
-          ls -la .tmp/observatory/*.json 2>/dev/null || echo "No history files in git"
+          if [ -d ".tmp/observatory" ] && [ "$(ls -A .tmp/observatory/*_history.json 2>/dev/null)" ]; then
+            echo "✅ Found existing history files in git"
+            ls -la .tmp/observatory/*_history.json
+          else
+            echo "⚠️  No existing history files found in git"
+          fi
+
+      - name: Merge artifacts into history
+        run: |
+          # Create output directory
+          mkdir -p .tmp/observatory
+
+          # Copy any artifacts that were successfully collected
+          if [ -d "artifacts" ]; then
+            echo "📦 Merging artifacts..."
+            find artifacts -name "*.json" -exec cp {} .tmp/observatory/ \; 2>/dev/null || true
+            echo "✅ Artifacts merged"
+          else
+            echo "⚠️  No artifacts to merge, will use existing history files"
+          fi
 
       - name: Verify metrics data available
+        id: verify
         run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          echo "📊 Validating metrics history files..."
-          python execution/validate_metrics_data.py
+          # Check for the specific history file this dashboard needs
+          DASHBOARD_NAME="${{ matrix.dashboard.name }}"
+
+          # Map dashboard names to their required history files
+          case "$DASHBOARD_NAME" in
+            "Quality")
+              REQUIRED_FILE="quality_history.json"
+              ;;
+            "Flow")
+              REQUIRED_FILE="flow_history.json"
+              ;;
+            "Ownership")
+              REQUIRED_FILE="ownership_history.json"
+              ;;
+            "Risk")
+              REQUIRED_FILE="risk_history.json"
+              ;;
+            "Deployment")
+              REQUIRED_FILE="deployment_history.json"
+              ;;
+            "Collaboration")
+              REQUIRED_FILE="collaboration_history.json"
+              ;;
+            "Security")
+              REQUIRED_FILE="security_history.json"
+              ;;
+            "Targets"|"Executive")
+              # These dashboards aggregate all history files
+              REQUIRED_FILE="quality_history.json"  # Just check if any exists
+              ;;
+            "AI Usage")
+              # AI Usage doesn't require history files
+              echo "✅ AI Usage dashboard doesn't require history files"
+              exit 0
+              ;;
+            *)
+              echo "⚠️  Unknown dashboard type"
+              exit 0
+              ;;
+          esac
+
+          if [ -f ".tmp/observatory/$REQUIRED_FILE" ]; then
+            echo "✅ Required history file found: $REQUIRED_FILE"
+            ls -lh ".tmp/observatory/$REQUIRED_FILE"
+          else
+            echo "❌ Required history file not found: $REQUIRED_FILE"
+            echo "⚠️  Dashboard generation may fail or show incomplete data"
+            exit 1
+          fi
 
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
+        if: steps.verify.outcome == 'success' || matrix.dashboard.name == 'AI Usage'
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          # Convert path to module notation (e.g., dashboards/trends.py -> execution.dashboards.trends)
-          MODULE=$(echo "${{ matrix.dashboard.script }}" | sed 's/\.py$//' | sed 's/\//./g' | sed 's/^/execution./')
-          python -m "$MODULE"
+          python execution/dashboards/${{ matrix.dashboard.script }}
 
-      - name: Upload dashboard artifact
+      - name: Upload dashboard artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dashboard-${{ strategy.job-index }}
+          name: dashboard-${{ matrix.dashboard.name }}
           path: .tmp/observatory/dashboards/
           retention-days: 1
-        if: always()
+        if: success()
 
-  # Job 3: Deploy to Azure Static Web Apps
+  # Job 4: Deploy to Azure Static Web Apps
   deploy-to-azure:
     needs: generate-dashboards
+    if: always()  # Run even if some dashboards fail
     runs-on: ubuntu-latest
 
     steps:
@@ -180,22 +303,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: dashboard-*
-          path: .tmp/observatory/dashboards/
+          path: dashboard-artifacts/
           merge-multiple: true
 
-      - name: Download all metrics artifacts (for data files)
-        uses: actions/download-artifact@v4
-        with:
-          pattern: metrics-*
-          path: .tmp/observatory/
-          merge-multiple: true
-        continue-on-error: true
-
-      - name: Verify deployment package
+      - name: Prepare deployment directory
         run: |
-          echo "📦 Deployment package contents:"
-          ls -la .tmp/observatory/dashboards/ || echo "No dashboards found"
-          ls -la .tmp/observatory/*.json || echo "No data files found"
+          mkdir -p .tmp/observatory/dashboards
+
+          # Copy all dashboard HTML files
+          if [ -d "dashboard-artifacts" ]; then
+            cp -r dashboard-artifacts/* .tmp/observatory/dashboards/ 2>/dev/null || true
+            echo "✅ Dashboards prepared for deployment"
+            ls -la .tmp/observatory/dashboards/
+          else
+            echo "⚠️  No dashboards found, deployment will be empty"
+          fi
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
