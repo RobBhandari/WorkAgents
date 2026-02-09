@@ -35,17 +35,17 @@ from execution.framework import get_dashboard_framework
 
 def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tuple[str, int]:
     """
-    Generate enhanced security dashboard with drill-down pages.
+    Generate enhanced security dashboard with expandable rows.
 
     Args:
         output_dir: Directory to write HTML files (defaults to .tmp/observatory/dashboards)
 
     Returns:
-        Tuple of (main_dashboard_html, num_detail_pages)
+        Tuple of (main_dashboard_html, 0) - detail pages no longer generated
 
     Example:
-        html, num_pages = generate_security_dashboard_enhanced()
-        print(f"Generated dashboard with {num_pages} detail pages")
+        html, _ = generate_security_dashboard_enhanced()
+        print(f"Generated dashboard with expandable rows")
     """
     if output_dir is None:
         output_dir = Path(".tmp/observatory/dashboards")
@@ -89,49 +89,24 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     main_file.write_text(main_html, encoding="utf-8")
     print(f"      Main dashboard: {main_file}")
 
-    # Step 5: Generate individual product detail pages
-    print("\n[4/5] Generating individual product detail pages...")
-    query_date = datetime.now().strftime("%Y-%m-%d")
-
-    # Get product IDs for detail pages
-    product_id_map = vuln_loader.get_product_ids(product_names)
-
-    detail_pages_generated = 0
-    for product_name in product_names:
-        product_vulns = vulns_by_product.get(product_name, [])
-        product_id = product_id_map.get(product_name, "Unknown")
-
-        # Generate detail page
-        detail_html = generate_product_detail_page(product_name, product_id, product_vulns, query_date)
-
-        # Save detail page with sanitized filename
-        safe_filename = _sanitize_filename(product_name)
-        detail_file = output_dir / f"security_detail_{safe_filename}.html"
-        detail_file.write_text(detail_html, encoding="utf-8")
-
-        print(f"      Generated: {detail_file.name} ({len(product_vulns)} vulnerabilities)")
-        detail_pages_generated += 1
-
-    # Step 6: Summary
-    print("\n[5/5] Summary")
+    # Step 4: Summary
+    print("\n[4/5] Summary")
     print(f"      Main dashboard: {len(main_html):,} bytes")
-    print(f"      Detail pages: {detail_pages_generated} files")
+    print("      Using expandable rows (no separate detail pages)")
 
     print("\n" + "=" * 60)
     print("[SUCCESS] Security dashboard generated!")
     print(f"  Main: {main_file}")
-    print(f"  Details: {detail_pages_generated} files")
     print(f"\nOpen: start {main_file}")
     print("\nFeatures:")
-    print("  [X] Product summary table")
-    print("  [X] Clickable 'View' buttons open detail pages")
-    print("  [X] Detail pages with full vulnerability lists")
-    print("  [X] Aging heatmap per product")
-    print("  [X] Search, filter, and Excel export")
+    print("  [X] Product summary table with expandable rows")
+    print("  [X] Click rows to expand vulnerability details inline")
+    print("  [X] Aging metrics displayed in expanded rows")
+    print("  [X] Collapsible vulnerability table with search/filter")
     print("  [X] Dark mode with toggle")
     print("=" * 60)
 
-    return main_html, detail_pages_generated
+    return main_html, 0  # No detail pages generated
 
 
 def _generate_main_dashboard_html(metrics_by_product: dict, vulns_by_product: dict) -> str:
@@ -207,12 +182,12 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
     Returns:
         Dictionary with template variables
     """
-    # Get framework CSS/JS
+    # Get framework CSS/JS (enable expandable rows)
     framework_css, framework_js = get_dashboard_framework(
         header_gradient_start="#667eea",
         header_gradient_end="#764ba2",
         include_table_scroll=True,
-        include_expandable_rows=False,
+        include_expandable_rows=True,
         include_glossary=False,
     )
 
@@ -224,7 +199,7 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
         summary_card("Products", str(summary_stats["products_with_vulns"])),
     ]
 
-    # Build product rows
+    # Build product rows with expandable content
     products = []
     for product_name, metrics in sorted(metrics_by_product.items()):
         if metrics.total_vulnerabilities == 0:
@@ -244,9 +219,11 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
             status = "OK"
             status_class = "good"
 
-        # Generate detail page URL
-        safe_filename = _sanitize_filename(product_name)
-        detail_page_url = f"security_detail_{safe_filename}.html"
+        # Get vulnerabilities for this product
+        vulns = vulns_by_product.get(product_name, [])
+
+        # Generate expanded content HTML
+        expanded_html = _generate_expanded_content(product_name, metrics, vulns)
 
         products.append(
             {
@@ -257,7 +234,7 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
                 "medium": metrics.medium,
                 "status": status,
                 "status_class": status_class,
-                "detail_page_url": detail_page_url,
+                "expanded_html": expanded_html,
             }
         )
 
@@ -290,6 +267,129 @@ def _escape_html(text: str) -> str:
         .replace('"', "&quot;")
         .replace("'", "&#x27;")
     )
+
+
+def _generate_expanded_content(product_name: str, metrics, vulnerabilities: list) -> str:
+    """
+    Generate HTML for expanded row content with aging metrics + collapsible vulnerabilities.
+
+    Args:
+        product_name: Product name
+        metrics: SecurityMetrics object
+        vulnerabilities: List of VulnerabilityDetail objects
+
+    Returns:
+        HTML string for expanded row content
+    """
+    # Part 1: Aging Metrics Section
+    aging_html = f"""
+    <div class="detail-section">
+        <h4>📊 Vulnerability Metrics</h4>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <div class="metric-label">Total Findings</div>
+                <div class="metric-value">{metrics.total_vulnerabilities}</div>
+            </div>
+            <div class="metric-box critical">
+                <div class="metric-label">Critical</div>
+                <div class="metric-value">{metrics.critical}</div>
+            </div>
+            <div class="metric-box high">
+                <div class="metric-label">High</div>
+                <div class="metric-value">{metrics.high}</div>
+            </div>
+            <div class="metric-box medium">
+                <div class="metric-label">Medium</div>
+                <div class="metric-value">{metrics.medium or 0}</div>
+            </div>
+            <div class="metric-box low">
+                <div class="metric-label">Low</div>
+                <div class="metric-value">{metrics.low or 0}</div>
+            </div>
+        </div>
+    </div>
+    """
+
+    # Part 2: Collapsible Vulnerabilities Section
+    if not vulnerabilities:
+        vulns_section = """
+        <div class="detail-section">
+            <div class="collapsible-header">
+                <h4>No Vulnerabilities Found</h4>
+            </div>
+        </div>
+        """
+    else:
+        vuln_rows_html = _generate_vulnerability_table_rows(vulnerabilities)
+        vulns_section = f"""
+        <div class="detail-section">
+            <div class="collapsible-header" onclick="toggleVulnerabilities(this)">
+                <span class="chevron">▶</span>
+                <h4>Show Vulnerabilities ({len(vulnerabilities)})</h4>
+            </div>
+            <div class="collapsible-content" style="display: none;">
+                <div class="vuln-filters">
+                    <input type="text" placeholder="Search vulnerabilities..."
+                           onkeyup="filterVulnerabilities(this)">
+                    <button class="active" onclick="filterSeverity(this, 'all')">All ({len(vulnerabilities)})</button>
+                    <button onclick="filterSeverity(this, 'critical')">Critical</button>
+                    <button onclick="filterSeverity(this, 'high')">High</button>
+                    <button onclick="filterSeverity(this, 'medium')">Medium</button>
+                    <button onclick="filterSeverity(this, 'low')">Low</button>
+                </div>
+                <table class="vuln-table">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Age (Days)</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {vuln_rows_html}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        """
+
+    return aging_html + vulns_section
+
+
+def _generate_vulnerability_table_rows(vulnerabilities: list) -> str:
+    """
+    Generate HTML table rows for vulnerabilities.
+
+    Args:
+        vulnerabilities: List of VulnerabilityDetail or Vulnerability objects
+
+    Returns:
+        HTML string with table rows
+    """
+    rows = []
+    for vuln in vulnerabilities:
+        severity_class = vuln.severity.lower()
+        # Get description - VulnerabilityDetail has description, Vulnerability doesn't
+        desc_text = getattr(vuln, "description", "") or ""
+        desc = _escape_html(desc_text)
+        desc_short = desc[:100] + "..." if len(desc) > 100 else desc
+
+        row = f"""
+        <tr data-severity="{severity_class}">
+            <td><span class="badge badge-{severity_class}">{_escape_html(vuln.severity)}</span></td>
+            <td>{_escape_html(vuln.status)}</td>
+            <td>{vuln.age_days}</td>
+            <td>{_escape_html(vuln.title or "")}</td>
+            <td class="description">{desc_short}</td>
+            <td class="vuln-id">{_escape_html(vuln.id)}</td>
+        </tr>
+        """
+        rows.append(row)
+
+    return "\n".join(rows)
 
 
 def main():

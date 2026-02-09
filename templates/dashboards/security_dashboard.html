@@ -9,35 +9,176 @@
 
 {% block extra_css %}
 <style>
-    /* Disable expandable row styling (using VIEW buttons instead) */
-    tbody tr.data-row {
-        cursor: default !important;
+    /* Collapsible vulnerabilities section */
+    .collapsible-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        margin-bottom: 8px;
+        transition: background 0.2s;
     }
 
-    tbody tr.data-row td:first-child {
-        padding-left: 16px !important; /* Remove extra padding for chevron */
+    .collapsible-header:hover {
+        background: var(--bg-tertiary);
     }
 
-    tbody tr.data-row td:first-child::before {
-        content: none !important; /* Hide chevron arrow */
+    .collapsible-header .chevron {
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
     }
 
-    /* View Button Styling */
-    .view-btn {
-        display: inline-block;
-        padding: 6px 16px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        text-decoration: none;
+    .collapsible-content {
+        padding: 16px;
+        background: var(--bg-card);
+        border-radius: 6px;
+        margin-top: 8px;
+    }
+
+    /* Vulnerability filters */
+    .vuln-filters {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .vuln-filters input {
+        flex: 1;
+        min-width: 200px;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
-        font-size: 0.85em;
-        font-weight: 600;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    .vuln-filters button {
+        padding: 8px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
         transition: all 0.2s;
     }
 
-    .view-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    .vuln-filters button.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    /* Vulnerability table */
+    .vuln-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .vuln-table th,
+    .vuln-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vuln-table .description {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vuln-table .vuln-id {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+    }
+
+    /* Badge styling for vulnerabilities */
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .badge-critical {
+        background: rgba(220, 38, 38, 0.2);
+        color: #dc2626;
+    }
+
+    .badge-high {
+        background: rgba(234, 88, 12, 0.2);
+        color: #ea580c;
+    }
+
+    .badge-medium {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+    }
+
+    .badge-low {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+    }
+
+    /* Metrics grid in expanded row */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .metric-box {
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        border-left: 3px solid var(--text-tertiary);
+    }
+
+    .metric-box.critical {
+        border-left-color: #dc2626;
+    }
+
+    .metric-box.high {
+        border-left-color: #ea580c;
+    }
+
+    .metric-box.medium {
+        border-left-color: #f59e0b;
+    }
+
+    .metric-box.low {
+        border-left-color: #10b981;
+    }
+
+    .metric-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .metric-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* Detail sections */
+    .detail-section {
+        margin-bottom: 24px;
+    }
+
+    .detail-section h4 {
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        font-size: 1rem;
     }
 
     /* Heatmap Styling */
@@ -229,19 +370,49 @@
 
 {% block extra_js %}
 <script>
-    // Two-stage toggle for vulnerability details
-    function toggleVulnDetails(button) {
-        const container = button.nextElementSibling;
+    // Toggle collapsible vulnerabilities section (nested within expanded row)
+    function toggleVulnerabilities(header) {
+        const content = header.nextElementSibling;
+        const chevron = header.querySelector('.chevron');
 
-        if (container.classList.contains('vuln-details-hidden')) {
-            container.classList.remove('vuln-details-hidden');
-            container.classList.add('vuln-details-visible');
-            button.innerHTML = 'Hide Vulnerability Breakdown ▲';
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            chevron.textContent = '▼';
         } else {
-            container.classList.remove('vuln-details-visible');
-            container.classList.add('vuln-details-hidden');
-            button.innerHTML = 'Show Vulnerability Breakdown ▼';
+            content.style.display = 'none';
+            chevron.textContent = '▶';
         }
+    }
+
+    // Search/filter vulnerabilities table
+    function filterVulnerabilities(input) {
+        const searchTerm = input.value.toLowerCase();
+        const table = input.closest('.collapsible-content').querySelector('.vuln-table');
+        const rows = table.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    }
+
+    // Filter by severity
+    function filterSeverity(button, severity) {
+        const content = button.closest('.collapsible-content');
+        const rows = content.querySelectorAll('.vuln-table tbody tr');
+
+        // Update active button
+        content.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        // Filter rows
+        rows.forEach(row => {
+            if (severity === 'all' || row.dataset.severity === severity) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
     }
 </script>
 {% endblock %}
@@ -268,26 +439,33 @@
                     <th>Total</th>
                     <th>Critical</th>
                     <th>High</th>
-                    <th>Medium</th>
                     <th>Status</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
             {% for product in products %}
-                <tr class="data-row">
-                    <td>{{ product.name }}</td>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-{{ loop.index }}', this)">
+                    <td>
+                        <span class="expand-icon">▶</span>
+                        <strong>{{ product.name }}</strong>
+                    </td>
                     <td>{{ product.total }}</td>
                     <td class="{% if product.critical > 0 %}critical{% endif %}">{{ product.critical }}</td>
                     <td class="{% if product.high > 0 %}high{% endif %}">{{ product.high }}</td>
-                    <td>{{ product.medium }}</td>
                     <td>
                         <span class="status-badge status-{{ product.status_class }}">
                             {{ product.status }}
                         </span>
                     </td>
-                    <td>
-                        <a href="{{ product.detail_page_url }}" class="view-btn" target="_blank">VIEW</a>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-{{ loop.index }}" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            {{ product.expanded_html|safe }}
+                        </div>
                     </td>
                 </tr>
             {% endfor %}
