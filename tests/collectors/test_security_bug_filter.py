@@ -8,13 +8,7 @@ Run with:
     pytest tests/collectors/test_security_bug_filter.py -v
 """
 
-import os
-import sys
-
 import pytest
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from execution.collectors.security_bug_filter import filter_security_bugs, is_security_bug
 

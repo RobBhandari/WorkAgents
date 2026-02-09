@@ -25,10 +25,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 # Import mobile-responsive framework
-try:
-    from execution.dashboard_framework import get_dashboard_framework
-except ModuleNotFoundError:
-    from dashboard_framework import get_dashboard_framework
+from execution.framework import get_dashboard_framework
 
 # Load environment variables
 load_dotenv()

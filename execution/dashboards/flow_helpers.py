@@ -7,16 +7,8 @@ Contains calculation, formatting, and component building logic.
 
 from typing import Any
 
-try:
-    from ..dashboards.components.cards import metric_card
-    from ..template_engine import render_template
-except ImportError:
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboards.components.cards import metric_card  # type: ignore[no-redef]
-    from template_engine import render_template  # type: ignore[no-redef]
+from execution.dashboards.components.cards import metric_card
+from execution.template_engine import render_template
 
 
 def calculate_portfolio_summary(week_data: dict[str, Any]) -> dict[str, Any]:

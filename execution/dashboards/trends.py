@@ -23,18 +23,10 @@ from datetime import datetime
 from pathlib import Path
 
 # Import infrastructure and components
-try:
-    from ..dashboards.components.charts import sparkline
-    from ..dashboards.renderer import render_dashboard
-    from ..domain.metrics import TrendData
-    from ..framework import get_dashboard_framework
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboards.components.charts import sparkline  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
-    from framework import get_dashboard_framework  # type: ignore[no-redef]
+from execution.dashboards.components.charts import sparkline
+from execution.dashboards.renderer import render_dashboard
+from execution.domain.metrics import TrendData
+from execution.framework import get_dashboard_framework
 
 
 class TrendsDashboardGenerator:

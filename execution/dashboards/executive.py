@@ -23,24 +23,14 @@ from datetime import datetime
 from pathlib import Path
 
 # Import infrastructure and domain models
-try:
-    from ..collectors.armorcode_loader import ArmorCodeLoader
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.components.cards import attention_item_card, metric_card
-    from ..dashboards.components.charts import sparkline, trend_indicator
-    from ..dashboards.renderer import render_dashboard
-    from ..domain.flow import FlowMetrics
-    from ..domain.quality import QualityMetrics
-    from ..domain.security import SecurityMetrics
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from collectors.armorcode_loader import ArmorCodeLoader  # type: ignore[no-redef]
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.components.cards import metric_card  # type: ignore[no-redef]
-    from dashboards.components.charts import trend_indicator  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
+from execution.collectors.armorcode_loader import ArmorCodeLoader
+from execution.framework import get_dashboard_framework
+from execution.dashboards.components.cards import attention_item_card, metric_card
+from execution.dashboards.components.charts import sparkline, trend_indicator
+from execution.dashboards.renderer import render_dashboard
+from execution.domain.flow import FlowMetrics
+from execution.domain.quality import QualityMetrics
+from execution.domain.security import SecurityMetrics
 
 
 class ExecutiveSummaryGenerator:

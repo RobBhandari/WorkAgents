@@ -25,15 +25,8 @@ from pathlib import Path
 from typing import Any
 
 # Import dependencies
-try:
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.renderer import render_dashboard
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
+from execution.framework import get_dashboard_framework
+from execution.dashboards.renderer import render_dashboard
 
 
 def generate_ai_dashboard(output_path: Path | None = None) -> str:

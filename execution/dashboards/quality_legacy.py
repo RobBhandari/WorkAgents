@@ -10,14 +10,7 @@ TODO: Migrate these functions to use Jinja2 templates instead of inline HTML.
 
 from typing import Any
 
-try:
-    from ..template_engine import render_template
-except ImportError:
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from template_engine import render_template  # type: ignore[no-redef]
+from execution.template_engine import render_template
 
 
 def build_summary_cards(summary_stats: dict[str, Any]) -> list[str]:

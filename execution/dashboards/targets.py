@@ -24,13 +24,8 @@ from datetime import datetime
 from pathlib import Path
 
 # Import dependencies
-try:
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.renderer import render_dashboard
-except ImportError:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
+from execution.framework import get_dashboard_framework
+from execution.dashboards.renderer import render_dashboard
 
 # Configure logging
 logger = logging.getLogger(__name__)

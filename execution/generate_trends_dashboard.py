@@ -18,10 +18,7 @@ from pathlib import Path
 from statistics import median
 
 # Import mobile-responsive framework
-try:
-    from execution.dashboard_framework import get_dashboard_framework
-except ModuleNotFoundError:
-    from dashboard_framework import get_dashboard_framework
+from execution.framework import get_dashboard_framework
 
 def load_history_file(file_path):
     """Load a history JSON file with error handling"""

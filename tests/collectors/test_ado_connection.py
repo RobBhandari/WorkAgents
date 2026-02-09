@@ -14,9 +14,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-
 from execution.collectors.ado_connection import get_ado_connection, get_wit_client
 
 

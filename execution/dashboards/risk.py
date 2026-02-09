@@ -24,19 +24,10 @@ from pathlib import Path
 from typing import Any
 
 # Import framework and rendering
-try:
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.components.cards import metric_card
-    from ..dashboards.renderer import render_dashboard
-    from ..template_engine import render_template
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.components.cards import metric_card  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
-    from template_engine import render_template  # type: ignore[no-redef]
+from execution.framework import get_dashboard_framework
+from execution.dashboards.components.cards import metric_card
+from execution.dashboards.renderer import render_dashboard
+from execution.template_engine import render_template
 
 
 def generate_risk_dashboard(output_path: Path | None = None) -> str:

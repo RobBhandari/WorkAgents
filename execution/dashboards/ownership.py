@@ -24,17 +24,9 @@ from pathlib import Path
 from typing import Any
 
 # Import dependencies
-try:
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.renderer import render_dashboard
-    from ..template_engine import render_template
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
-    from template_engine import render_template  # type: ignore[no-redef]
+from execution.framework import get_dashboard_framework
+from execution.dashboards.renderer import render_dashboard
+from execution.template_engine import render_template
 
 
 def generate_ownership_dashboard(output_path: Path | None = None) -> str:

@@ -23,27 +23,14 @@ from pathlib import Path
 from typing import Any
 
 # Import infrastructure
-try:
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.renderer import render_dashboard
-    from .flow_helpers import (
-        build_project_tables,
-        build_summary_cards,
-        build_work_type_cards,
-        calculate_portfolio_summary,
-    )
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
-    from flow_helpers import (  # type: ignore[no-redef]
-        build_project_tables,
-        build_summary_cards,
-        build_work_type_cards,
-        calculate_portfolio_summary,
-    )
+from execution.framework import get_dashboard_framework
+from execution.dashboards.renderer import render_dashboard
+from execution.dashboards.flow_helpers import (
+    build_project_tables,
+    build_summary_cards,
+    build_work_type_cards,
+    calculate_portfolio_summary,
+)
 
 
 class FlowDataLoader:

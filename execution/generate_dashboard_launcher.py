@@ -16,15 +16,8 @@ if sys.platform == "win32":
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
     sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-try:
-    from execution.framework import get_dashboard_framework
-    from execution.dashboards.renderer import render_dashboard
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent))
-    from framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
+from execution.framework import get_dashboard_framework
+from execution.dashboards.renderer import render_dashboard
 
 
 def generate_dashboard_launcher(output_path: Path | None = None) -> str:

@@ -26,13 +26,7 @@ from execution.core.logging_config import get_logger
 logger = get_logger(__name__)
 
 # Import domain models
-try:
-    from ..domain.security import SecurityMetrics, Vulnerability
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
-    from domain.security import SecurityMetrics  # type: ignore[no-redef]
+from execution.domain.security import SecurityMetrics, Vulnerability
 
 
 class ArmorCodeLoader:

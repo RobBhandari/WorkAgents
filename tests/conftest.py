@@ -4,15 +4,9 @@ Pytest configuration and shared fixtures
 Provides common test fixtures for domain models, components, and integrations.
 """
 
-import sys
 from datetime import datetime
-from pathlib import Path
 
 import pytest
-
-# Add execution directory to path for imports
-execution_dir = Path(__file__).parent.parent / "execution"
-sys.path.insert(0, str(execution_dir))
 
 
 # ===== Domain Model Fixtures =====
@@ -27,7 +21,7 @@ def sample_timestamp():
 @pytest.fixture
 def sample_bug():
     """Provide a sample Bug domain model"""
-    from domain.quality import Bug
+    from execution.domain.quality import Bug
 
     return Bug(
         id=12345,
@@ -43,7 +37,7 @@ def sample_bug():
 @pytest.fixture
 def sample_closed_bug():
     """Provide a closed Bug domain model"""
-    from domain.quality import Bug
+    from execution.domain.quality import Bug
 
     return Bug(
         id=67890,
@@ -59,7 +53,7 @@ def sample_closed_bug():
 @pytest.fixture
 def sample_quality_metrics(sample_timestamp):
     """Provide sample QualityMetrics"""
-    from domain.quality import QualityMetrics
+    from execution.domain.quality import QualityMetrics
 
     return QualityMetrics(
         timestamp=sample_timestamp,
@@ -77,7 +71,7 @@ def sample_quality_metrics(sample_timestamp):
 @pytest.fixture
 def sample_vulnerability():
     """Provide a sample Vulnerability domain model"""
-    from domain.security import Vulnerability
+    from execution.domain.security import Vulnerability
 
     return Vulnerability(
         id="VUL-2026-0123",
@@ -93,7 +87,7 @@ def sample_vulnerability():
 @pytest.fixture
 def sample_security_metrics(sample_timestamp):
     """Provide sample SecurityMetrics"""
-    from domain.security import SecurityMetrics
+    from execution.domain.security import SecurityMetrics
 
     return SecurityMetrics(
         timestamp=sample_timestamp,
@@ -111,7 +105,7 @@ def sample_security_metrics(sample_timestamp):
 @pytest.fixture
 def sample_flow_metrics(sample_timestamp):
     """Provide sample FlowMetrics"""
-    from domain.flow import FlowMetrics
+    from execution.domain.flow import FlowMetrics
 
     return FlowMetrics(
         timestamp=sample_timestamp,
@@ -133,7 +127,7 @@ def sample_trend_data(sample_timestamp):
     """Provide sample TrendData"""
     from datetime import timedelta
 
-    from domain.metrics import TrendData
+    from execution.domain.metrics import TrendData
 
     return TrendData(
         values=[50.0, 45.0, 42.0, 38.0],

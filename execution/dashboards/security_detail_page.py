@@ -19,14 +19,10 @@ Usage:
 
 from datetime import datetime
 
-try:
-    from ..dashboards.components.aging_heatmap import generate_aging_heatmap
-except ImportError:
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboards.components.aging_heatmap import generate_aging_heatmap  # type: ignore[no-redef]
+from execution.dashboards.components.aging_heatmap import (
+    generate_aging_heatmap,
+    get_aging_heatmap_styles,
+)
 
 
 def generate_product_detail_page(
@@ -199,8 +195,6 @@ def _escape_html(text: str) -> str:
 
 def _get_detail_page_styles() -> str:
     """Get CSS styles for detail page"""
-    from ..dashboards.components.aging_heatmap import get_aging_heatmap_styles
-
     base_styles = """
         :root {
             --bg-primary: #f9fafb;

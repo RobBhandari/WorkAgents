@@ -23,17 +23,9 @@ from datetime import datetime
 from pathlib import Path
 
 # Import framework components
-try:
-    from ..dashboard_framework import get_dashboard_framework
-    from ..dashboards.components.cards import metric_card
-    from ..dashboards.renderer import render_dashboard
-except ImportError:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
-    from dashboards.components.cards import metric_card  # type: ignore[no-redef]
-    from dashboards.renderer import render_dashboard  # type: ignore[no-redef]
+from execution.framework import get_dashboard_framework
+from execution.dashboards.components.cards import metric_card
+from execution.dashboards.renderer import render_dashboard
 
 
 def generate_collaboration_dashboard(output_path: Path | None = None) -> str:
