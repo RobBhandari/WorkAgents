@@ -8,7 +8,6 @@ from datetime import datetime
 
 import pytest
 
-
 # ===== Domain Model Fixtures =====
 
 
