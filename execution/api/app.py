@@ -129,7 +129,7 @@ def create_app() -> FastAPI:
         security_file = observatory_dir / "security_history.json"
         flow_file = observatory_dir / "flow_history.json"
 
-        health_status = {
+        health_status: dict[str, Any] = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "version": "2.0.0",

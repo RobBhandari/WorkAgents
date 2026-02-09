@@ -10,7 +10,7 @@ Middleware for FastAPI application to handle:
 import time
 import uuid
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from datetime import datetime, timedelta
 
 from fastapi import Request, Response, status
@@ -46,7 +46,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Track requests: {ip: [(timestamp, count), ...]}
         self.request_counts: dict[str, list[tuple[datetime, int]]] = defaultdict(list)
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # Cleanup counter to periodically remove stale IPs
+        self._request_counter = 0
+        self._cleanup_interval = 100  # Clean up every 100 requests
+
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         """Process request with rate limiting."""
 
         # Skip rate limiting for health checks
@@ -91,13 +95,25 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         now = datetime.now()
         requests = self.request_counts[client_ip]
 
-        # Clean old entries
+        # Clean old entries and update storage
         minute_ago = now - timedelta(minutes=1)
         hour_ago = now - timedelta(hours=1)
 
-        requests_last_minute = sum(count for timestamp, count in requests if timestamp >= minute_ago)
+        # Filter to keep only recent requests (last hour)
+        recent_requests = [(ts, count) for ts, count in requests if ts >= hour_ago]
 
-        requests_last_hour = sum(count for timestamp, count in requests if timestamp >= hour_ago)
+        # Update storage with cleaned data or remove IP if no recent requests
+        if recent_requests:
+            self.request_counts[client_ip] = recent_requests
+        elif client_ip in self.request_counts:
+            # No recent requests - remove this IP to prevent memory leak
+            del self.request_counts[client_ip]
+            # No requests in last hour means we're definitely not rate limiting
+            return True, ""
+
+        requests_last_minute = sum(count for ts, count in recent_requests if ts >= minute_ago)
+
+        requests_last_hour = sum(count for ts, count in recent_requests)
 
         # Check limits
         if requests_last_minute >= self.requests_per_minute:
@@ -120,6 +136,29 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Add new request
         self.request_counts[client_ip].append((now, 1))
+
+        # Periodic cleanup: remove stale IPs to prevent memory leak
+        self._request_counter += 1
+        if self._request_counter >= self._cleanup_interval:
+            self._cleanup_stale_ips(hour_ago)
+            self._request_counter = 0
+
+    def _cleanup_stale_ips(self, cutoff_time: datetime) -> None:
+        """
+        Remove IPs with no recent requests to prevent memory leak.
+
+        Args:
+            cutoff_time: Remove IPs with no requests after this time
+        """
+        stale_ips = [
+            ip for ip, requests in self.request_counts.items() if not any(ts >= cutoff_time for ts, _ in requests)
+        ]
+
+        for ip in stale_ips:
+            del self.request_counts[ip]
+
+        if stale_ips:
+            logger.debug(f"Cleaned up {len(stale_ips)} stale IP(s) from rate limiter cache")
 
     def _get_remaining_requests(self, client_ip: str) -> int:
         """Get remaining requests for client in current minute."""
@@ -145,7 +184,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
     Adds X-Request-ID header to both request and response.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         """Add request ID to request and response."""
 
         # Generate or use existing request ID
@@ -199,7 +238,7 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
     - /docs, /redoc: 1 day cache (static docs)
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         """Add Cache-Control headers based on endpoint."""
 
         response = await call_next(request)
