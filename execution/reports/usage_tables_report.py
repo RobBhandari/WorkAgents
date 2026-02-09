@@ -1,12 +1,12 @@
 """
-LGL AI Tools Usage Tables Report Generator
+AI Tools Usage Tables Report Generator
 
 Generates interactive HTML report for AI usage data with two modes:
 1. Interactive Mode (default): HTML with IMPORT CSV button for browser-based file upload
 2. CLI Mode: Direct processing with --file argument
 
 Features:
-- Filters for LGL users
+- Filters for target team users
 - Side-by-side Claude and Devin usage tables
 - Heatmap styling (red/amber/green)
 - Sortable columns and search functionality
@@ -41,6 +41,9 @@ from execution.framework import get_dashboard_framework
 
 # Load environment variables
 load_dotenv()
+
+# Configurable team filter - update as needed for your organization
+TEAM_FILTER = "TARGET_TEAM"
 
 # Configure logging
 logging.basicConfig(
@@ -156,26 +159,26 @@ def read_excel_usage_data(file_path: str) -> pd.DataFrame:
 
 def filter_lgl_users(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter DataFrame for Software Company = 'LGL'.
+    Filter DataFrame for target team (Software Company column).
 
     Args:
         df: DataFrame with usage data
 
     Returns:
-        pd.DataFrame: Filtered DataFrame containing only LGL users
+        pd.DataFrame: Filtered DataFrame containing only target team users
 
     Raises:
-        ValueError: If no LGL users found
+        ValueError: If no target team users found
     """
-    logger.info("Filtering for Software Company = 'LGL'")
+    logger.info(f"Filtering for Software Company = '{TEAM_FILTER}'")
 
-    # Filter for LGL (case-insensitive)
-    filtered_df = df[df["Software Company"].str.upper() == "LGL"].copy()
+    # Filter for team (case-insensitive)
+    filtered_df = df[df["Software Company"].str.upper() == TEAM_FILTER.upper()].copy()
 
     if len(filtered_df) == 0:
-        raise ValueError("No LGL users found in dataset")
+        raise ValueError(f"No {TEAM_FILTER} users found in dataset")
 
-    logger.info(f"Found {len(filtered_df)} LGL users out of {len(df)} total users")
+    logger.info(f"Found {len(filtered_df)} {TEAM_FILTER} users out of {len(df)} total users")
     return filtered_df
 
 
@@ -184,7 +187,7 @@ def prepare_claude_data(df: pd.DataFrame) -> pd.DataFrame:
     Prepare Claude usage table data.
 
     Args:
-        df: Filtered DataFrame with LGL users
+        df: Filtered DataFrame with target team users
 
     Returns:
         pd.DataFrame: DataFrame sorted by Claude usage (descending)
@@ -211,7 +214,7 @@ def prepare_devin_data(df: pd.DataFrame) -> pd.DataFrame:
     Prepare Devin usage table data.
 
     Args:
-        df: Filtered DataFrame with LGL users
+        df: Filtered DataFrame with target team users
 
     Returns:
         pd.DataFrame: DataFrame sorted by Devin usage (descending)
@@ -375,7 +378,7 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LGL AI Tools Usage Report</title>
+    <title>AI Tools Usage Report</title>
     {framework_css}
     <style>
         /* Dashboard-specific styles */
@@ -676,8 +679,8 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
 
     <div class="container">
         <div class="header">
-            <h1>🤖 LGL AI Tools Usage Report</h1>
-            <p class="subtitle">Software Company: LGL</p>
+            <h1>🤖 AI Tools Usage Report</h1>
+            <p class="subtitle">Team Metrics</p>
             <p class="timestamp">Generated: {report_date}</p>
         </div>
 
@@ -685,7 +688,7 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="value">{total_users}</div>
-                    <div class="label">Total LGL Users</div>
+                    <div class="label">Total Team Users</div>
                 </div>
                 <div class="stat-card">
                     <div class="value">{claude_users}</div>
@@ -857,7 +860,7 @@ def generate_interactive_html(output_file: str) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LGL AI Tools Usage Report - Import Data</title>
+    <title>AI Tools Usage Report - Import Data</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     {framework_css}
     <style>
@@ -1080,8 +1083,8 @@ def generate_interactive_html(output_file: str) -> str:
 
     <div class="container">
         <div class="header">
-            <h1>🤖 LGL AI Tools Usage Report</h1>
-            <p class="subtitle">Software Company: LGL</p>
+            <h1>🤖 AI Tools Usage Report</h1>
+            <p class="subtitle">Team Metrics</p>
             <p class="timestamp">Generated: {report_date}</p>
         </div>
 
@@ -1100,7 +1103,7 @@ def generate_interactive_html(output_file: str) -> str:
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="value" id="total-users">0</div>
-                        <div class="label">Total LGL Users</div>
+                        <div class="label">Total Team Users</div>
                     </div>
                     <div class="stat-card">
                         <div class="value" id="claude-users">0</div>
@@ -1221,13 +1224,14 @@ def generate_interactive_html(output_file: str) -> str:
         }}
 
         function processData(data) {{
-            // Filter for LGL users
+            // Filter for target team users (change TEAM_FILTER as needed)
+            const TEAM_FILTER = 'TARGET_TEAM';
             const lglData = data.filter(row =>
-                row['Software Company'] && row['Software Company'].trim().toUpperCase() === 'LGL'
+                row['Software Company'] && row['Software Company'].trim().toUpperCase() === TEAM_FILTER
             );
 
             if (lglData.length === 0) {{
-                alert('No LGL users found in the data!');
+                alert(`No ${TEAM_FILTER} users found in the data!`);
                 return;
             }}
 
@@ -1414,7 +1418,7 @@ def parse_arguments():
     Returns:
         Namespace: Parsed arguments
     """
-    parser = argparse.ArgumentParser(description="Generate LGL AI Tools usage tables report from CSV/Excel file")
+    parser = argparse.ArgumentParser(description="Generate AI Tools usage tables report from CSV/Excel file")
 
     parser.add_argument(
         "--file",
@@ -1480,7 +1484,7 @@ if __name__ == "__main__":
         # Step 1: Read Excel/CSV file
         df = read_excel_usage_data(file_path)
 
-        # Step 2: Filter for LGL users
+        # Step 2: Filter for target team users
         lgl_df = filter_lgl_users(df)
 
         # Step 3: Prepare Claude data
@@ -1493,11 +1497,11 @@ if __name__ == "__main__":
         output_file = generate_html_report(claude_df=claude_df, devin_df=devin_df, output_file=args.output_file)
 
         print(f"\n{'='*70}")
-        print("SUCCESS: LGL AI Tools Usage Report Generated")
+        print("SUCCESS: AI Tools Usage Report Generated")
         print(f"{'='*70}")
         print(f"Output file: {output_file}")
         print("\nStatistics:")
-        print(f"  • Total LGL Users: {len(lgl_df)}")
+        print(f"  • Total Team Users: {len(lgl_df)}")
         print(f"  • Claude Active Users: {len(claude_df[claude_df['Claude 30 day usage'] > 0])}")
         print(f"  • Devin Active Users: {len(devin_df[devin_df['Devin_30d'] > 0])}")
         print("\nOpen this file in your web browser to view the interactive report.")
