@@ -23,18 +23,18 @@ from pathlib import Path
 
 # Import domain models and utilities
 try:
-    from ..dashboard_framework import get_dashboard_framework
     from ..dashboards.renderer import render_dashboard
     from ..domain.deployment import DeploymentMetrics, from_json
+    from ..framework import get_dashboard_framework
 except ImportError:
     import sys
 
     root_path = Path(__file__).parent.parent.parent
     if str(root_path) not in sys.path:
         sys.path.insert(0, str(root_path))
-    from execution.dashboard_framework import get_dashboard_framework  # type: ignore[no-redef]
     from execution.dashboards.renderer import render_dashboard  # type: ignore[no-redef]
     from execution.domain.deployment import DeploymentMetrics, from_json  # type: ignore[no-redef]
+    from execution.framework import get_dashboard_framework  # type: ignore[no-redef]
 
 
 def generate_deployment_dashboard(output_path: Path | None = None) -> str:
@@ -145,7 +145,9 @@ def _calculate_summary(metrics_list: list[DeploymentMetrics]) -> dict:
     }
 
 
-def _build_context(metrics_list: list[DeploymentMetrics], raw_projects: list[dict], summary_stats: dict, collection_date: str) -> dict:
+def _build_context(
+    metrics_list: list[DeploymentMetrics], raw_projects: list[dict], summary_stats: dict, collection_date: str
+) -> dict:
     """
     Build template context with all dashboard data.
 
