@@ -12,7 +12,7 @@ google-api-python-client>=2.150.0,<3.0
 
 # Web scraping (for example scripts)
 beautifulsoup4>=4.12.3,<5.0
-lxml>=5.3.0,<6.0
+lxml>=5.3.0,<7.0
 
 # Data processing
 pandas>=2.2.3,<3.0
