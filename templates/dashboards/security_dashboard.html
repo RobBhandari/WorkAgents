@@ -277,15 +277,6 @@
                         <a href="{{ product.detail_page_url }}" class="view-btn" target="_blank">VIEW</a>
                     </td>
                 </tr>
-                {% if product.expandable and product.details %}
-                <tr id="detail-{{ loop.index }}" class="detail-row">
-                    <td colspan="6">
-                        <div class="detail-content">
-                            {{ product.details|safe }}
-                        </div>
-                    </td>
-                </tr>
-                {% endif %}
             {% endfor %}
             </tbody>
         </table>
