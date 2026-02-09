@@ -2,33 +2,43 @@
 """
 Generate index.html for Observatory dashboards.
 
-Copies trends.html to index.html to serve as the default landing page.
+⚠️ DEPRECATED: This script is deprecated. Use generate_dashboard_launcher.py instead.
+
+The landing page is now a dashboard launcher with cards for all dashboards,
+not a copy of trends.html.
+
+For new code, use:
+    from execution.generate_dashboard_launcher import generate_dashboard_launcher
+    generate_dashboard_launcher()
 """
 
-import shutil
+import warnings
 from pathlib import Path
+
+warnings.warn(
+    "\n" + "=" * 70 + "\n"
+    "generate_index.py is deprecated!\n"
+    "\n"
+    "The landing page is now a dashboard launcher with cards.\n"
+    "Please use: python -m execution.generate_dashboard_launcher\n"
+    "\n"
+    "This wrapper will be removed in v3.0\n" + "=" * 70,
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 
 def generate_index_html():
-    """Copy trends.html to index.html."""
+    """Deprecated - delegates to generate_dashboard_launcher."""
+    print("[DEPRECATED] Calling generate_dashboard_launcher instead...")
 
-    dashboards_dir = Path(".tmp/observatory/dashboards")
-    dashboards_dir.mkdir(parents=True, exist_ok=True)
-
-    trends_file = dashboards_dir / "trends.html"
-    index_file = dashboards_dir / "index.html"
-
-    if trends_file.exists():
-        shutil.copy2(trends_file, index_file)
-        print("✅ Generated index.html from trends.html")
-        print(f"   Source: {trends_file}")
-        print(f"   Target: {index_file}")
-    else:
-        print(f"⚠️  trends.html not found at {trends_file}")
-        print("   Skipping index.html generation")
+    try:
+        from execution.generate_dashboard_launcher import generate_dashboard_launcher
+        generate_dashboard_launcher()
+        return 0
+    except Exception as e:
+        print(f"Error: {e}")
         return 1
-
-    return 0
 
 
 if __name__ == "__main__":

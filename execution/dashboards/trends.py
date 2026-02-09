@@ -14,7 +14,7 @@ Usage:
     from execution.dashboards.trends import generate_trends_dashboard
     from pathlib import Path
 
-    output_path = Path('.tmp/observatory/dashboards/index.html')
+    output_path = Path('.tmp/observatory/dashboards/trends.html')
     generate_trends_dashboard(output_path)
 """
 
@@ -427,14 +427,14 @@ def generate_trends_dashboard(output_path: Path | None = None, weeks: int = 12) 
     Generate trends dashboard.
 
     Args:
-        output_path: Optional output path (defaults to .tmp/observatory/dashboards/index.html)
+        output_path: Optional output path (defaults to .tmp/observatory/dashboards/trends.html)
         weeks: Number of weeks to display (default: 12)
 
     Returns:
         Generated HTML string
     """
     if output_path is None:
-        output_path = Path('.tmp/observatory/dashboards/index.html')
+        output_path = Path('.tmp/observatory/dashboards/trends.html')
     generator = TrendsDashboardGenerator(weeks=weeks)
     return generator.generate(output_path)
 
@@ -445,7 +445,7 @@ if __name__ == "__main__":
     print("=" * 60)
 
     try:
-        output_path = Path(".tmp/observatory/dashboards/index.html")
+        output_path = Path(".tmp/observatory/dashboards/trends.html")
         html = generate_trends_dashboard(output_path)
 
         print("\n" + "=" * 60)
