@@ -205,8 +205,8 @@ git log --all --full-history --source -- .env
 ```bash
 # List settings (values are hidden)
 az webapp config appsettings list \
-  --resource-group metrics-api-rg \
-  --name metrics-api-prod \
+  --resource-group <your-resource-group> \
+  --name <your-app-name> \
   --query "[].{name:name}" \
   --output table
 

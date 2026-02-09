@@ -16,8 +16,8 @@ if sys.platform == "win32":
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
     sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-from execution.framework import get_dashboard_framework
 from execution.dashboards.renderer import render_dashboard
+from execution.framework import get_dashboard_framework
 
 
 def generate_dashboard_launcher(output_path: Path | None = None) -> str:

@@ -25,11 +25,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from execution.dashboards.quality_legacy import build_summary_cards, generate_distribution_section
+from execution.dashboards.renderer import render_dashboard
+
 # Import infrastructure
 from execution.framework import get_dashboard_framework
-from execution.dashboards.renderer import render_dashboard
 from execution.template_engine import render_template
-from execution.dashboards.quality_legacy import build_summary_cards, generate_distribution_section
 
 
 def generate_quality_dashboard(output_path: Path | None = None) -> str:

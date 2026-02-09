@@ -22,15 +22,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Import infrastructure
-from execution.framework import get_dashboard_framework
-from execution.dashboards.renderer import render_dashboard
 from execution.dashboards.flow_helpers import (
     build_project_tables,
     build_summary_cards,
     build_work_type_cards,
     calculate_portfolio_summary,
 )
+from execution.dashboards.renderer import render_dashboard
+
+# Import infrastructure
+from execution.framework import get_dashboard_framework
 
 
 class FlowDataLoader:

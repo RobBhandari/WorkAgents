@@ -24,9 +24,10 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from execution.dashboards.renderer import render_dashboard
+
 # Import dependencies
 from execution.framework import get_dashboard_framework
-from execution.dashboards.renderer import render_dashboard
 
 
 def generate_ai_dashboard(output_path: Path | None = None) -> str:
