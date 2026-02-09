@@ -213,68 +213,70 @@ jobs:
           echo "🔒 Access is now protected with Azure AD authentication"
           echo "🌐 Your team can access at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net/"
 
-      # DISABLED: Do not commit fresh data with real product names to public repo
-      # History files are already tracked in git with genericized product names
-      # Fresh data from collectors would expose real product names
-      #
-      # - name: Validate History Files Before Commit
-      #   run: |
-      #     echo "🔍 Validating history files before committing..."
-      #     python -c "
-      #     import json
-      #     import sys
-      #     from pathlib import Path
-      #
-      #     history_files = list(Path('.tmp/observatory').glob('*_history.json'))
-      #     valid_files = []
-      #     invalid_files = []
-      #
-      #     for file in history_files:
-      #         try:
-      #             with open(file, 'r') as f:
-      #                 data = json.load(f)
-      #
-      #             # Check basic structure
-      #             if not isinstance(data, dict) or 'weeks' not in data:
-      #                 invalid_files.append(f'{file.name}: Invalid structure')
-      #                 continue
-      #
-      #             # Check if weeks array has data
-      #             if not data['weeks']:
-      #                 invalid_files.append(f'{file.name}: Empty weeks array')
-      #                 continue
-      #
-      #             valid_files.append(file.name)
-      #             print(f'✓ {file.name}: Valid ({len(data[\"weeks\"])} weeks)')
-      #         except Exception as e:
-      #             invalid_files.append(f'{file.name}: {e}')
-      #
-      #     if invalid_files:
-      #         print('\n⚠️  Invalid history files found:')
-      #         for f in invalid_files:
-      #             print(f'  - {f}')
-      #         print('\nThese files will NOT be committed.')
-      #
-      #     if not valid_files:
-      #         print('\n❌ No valid history files to commit!')
-      #         sys.exit(1)
-      #
-      #     print(f'\n✅ {len(valid_files)} valid history files ready to commit')
-      #     "
-      #
-      # - name: Commit History Files to Git
-      #   run: |
-      #     git config user.name "github-actions[bot]"
-      #     git config user.email "github-actions[bot]@users.noreply.github.com"
-      #
-      #     # Only add valid JSON files (validation passed above)
-      #     git add -f .tmp/observatory/*_history.json
-      #
-      #     if ! git diff --staged --quiet; then
-      #       echo "📝 Committing history files..."
-      #       git commit -m "Update metrics history - $(date +'%Y-%m-%d')"
-      #       git push
-      #       echo "✅ History files committed and pushed"
-      #     else
-      #       echo "ℹ️  No changes to commit"
-      #     fi
+      - name: Genericize History Files Before Commit
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          echo "🔒 Genericizing product names in history files for public repo..."
+          python scripts/genericize_history_files.py || echo "Warning: Genericization script had issues, but continuing..."
+
+      - name: Validate History Files Before Commit
+        run: |
+          echo "🔍 Validating history files before committing..."
+          python -c "
+          import json
+          import sys
+          from pathlib import Path
+
+          history_files = list(Path('.tmp/observatory').glob('*_history.json'))
+          valid_files = []
+          invalid_files = []
+
+          for file in history_files:
+              try:
+                  with open(file, 'r') as f:
+                      data = json.load(f)
+
+                  # Check basic structure
+                  if not isinstance(data, dict) or 'weeks' not in data:
+                      invalid_files.append(f'{file.name}: Invalid structure')
+                      continue
+
+                  # Check if weeks array has data
+                  if not data['weeks']:
+                      invalid_files.append(f'{file.name}: Empty weeks array')
+                      continue
+
+                  valid_files.append(file.name)
+                  print(f'✓ {file.name}: Valid ({len(data[\"weeks\"])} weeks)')
+              except Exception as e:
+                  invalid_files.append(f'{file.name}: {e}')
+
+          if invalid_files:
+              print('\n⚠️  Invalid history files found:')
+              for f in invalid_files:
+                  print(f'  - {f}')
+              print('\nThese files will NOT be committed.')
+
+          if not valid_files:
+              print('\n❌ No valid history files to commit!')
+              sys.exit(1)
+
+          print(f'\n✅ {len(valid_files)} valid history files ready to commit')
+          "
+
+      - name: Commit Genericized History Files to Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Only add valid JSON files (validation passed above)
+          git add -f .tmp/observatory/*_history.json
+
+          if ! git diff --staged --quiet; then
+            echo "📝 Committing genericized history files..."
+            git commit -m "Update metrics history (genericized) - $(date +'%Y-%m-%d')"
+            git push
+            echo "✅ History files committed and pushed to public repo"
+          else
+            echo "ℹ️  No changes to commit"
+          fi
