@@ -306,6 +306,27 @@ jobs:
           path: dashboard-artifacts/
           merge-multiple: true
 
+      - name: Download fresh metrics artifacts (for history commit)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: metrics-artifacts/
+        continue-on-error: true
+
+      - name: Merge fresh metrics into history
+        run: |
+          mkdir -p .tmp/observatory
+
+          # Copy fresh history files with REAL product names
+          if [ -d "metrics-artifacts" ]; then
+            echo "📦 Merging fresh metrics with real product names..."
+            find metrics-artifacts -name "*_history.json" -exec cp {} .tmp/observatory/ \; 2>/dev/null || true
+            echo "✅ Fresh history files ready for genericization"
+            ls -la .tmp/observatory/*_history.json 2>/dev/null || echo "⚠️  No history files found in artifacts"
+          else
+            echo "⚠️  No metrics artifacts found, will use existing history from git"
+          fi
+
       - name: Prepare deployment directory
         run: |
           mkdir -p .tmp/observatory/dashboards
