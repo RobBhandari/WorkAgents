@@ -4,6 +4,14 @@
 # Data directory with operational metrics
 data/
 
+# Internal setup documentation (contains company-specific details)
+SETUP_STEPS.md
+SECURITY_ISSUES.md
+TEAMS_BOT_SETUP.md
+.github/workflows/weekly-doe-report.yml
+.github/workflows/ARMORCODE_SETUP.md
+directives/ado_doe_charter.md
+
 # Environment variables and credentials
 .env
 credentials.json
