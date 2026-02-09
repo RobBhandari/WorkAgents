@@ -12,6 +12,11 @@ TEAMS_BOT_SETUP.md
 .github/workflows/ARMORCODE_SETUP.md
 directives/ado_doe_charter.md
 
+# Utility scripts with hardcoded product names
+execution/check_area_paths.py
+execution/check_armorcode_creator.py
+execution/verify_incase_closed.py
+
 # Environment variables and credentials
 .env
 credentials.json
