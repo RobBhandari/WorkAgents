@@ -116,7 +116,7 @@ class TestLoadSecurityData:
 
         html, count = generate_security_dashboard_enhanced()
 
-        assert count == 3  # 3 products loaded
+        assert count == 0  # No detail pages (using expandable rows)
         mock_loader.load_latest_metrics.assert_called_once()
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
@@ -213,9 +213,9 @@ class TestGenerateProductDetailPage:
 
         html, count = generate_security_dashboard_enhanced()
 
-        # Should call detail page generator for each product (3)
-        assert mock_detail_generator.call_count == 3
-        assert count == 3
+        # No longer generates detail pages (using expandable rows instead)
+        assert mock_detail_generator.call_count == 0
+        assert count == 0
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced.generate_product_detail_page")
@@ -256,8 +256,8 @@ class TestGenerateProductDetailPage:
 
         generate_security_dashboard_enhanced()
 
-        # Should be called 3 times (once per product)
-        assert mock_detail_generator.call_count == 3
+        # No longer generates detail pages (using expandable rows instead)
+        assert mock_detail_generator.call_count == 0
 
 
 class TestGenerateSecurityDashboardEnhanced:
@@ -304,7 +304,7 @@ class TestGenerateSecurityDashboardEnhanced:
 
         assert isinstance(html, str)
         assert len(html) > 0
-        assert count == 3
+        assert count == 0  # No detail pages (using expandable rows)
         assert "Web Application" in html
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
@@ -348,8 +348,8 @@ class TestGenerateSecurityDashboardEnhanced:
         output_dir = tmp_path / "dashboards"
 
         html, count = generate_security_dashboard_enhanced(output_dir)
-        # Should have written main dashboard + 3 detail pages
-        assert mock_write.call_count >= 4  # 1 main + 3 details
+        # Should have written main dashboard only (no detail pages)
+        assert mock_write.call_count == 1  # Only main dashboard
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
@@ -386,4 +386,4 @@ class TestGenerateSecurityDashboardEnhanced:
 
         # Should not raise exception
         html, count = generate_security_dashboard_enhanced()
-        assert count == 1  # Product has vulnerabilities, so detail page is generated (even if empty)
+        assert count == 0  # No detail pages generated (using expandable rows instead)
