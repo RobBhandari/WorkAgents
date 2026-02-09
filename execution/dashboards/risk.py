@@ -23,10 +23,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Import framework and rendering
-from execution.framework import get_dashboard_framework
 from execution.dashboards.components.cards import metric_card
 from execution.dashboards.renderer import render_dashboard
+
+# Import framework and rendering
+from execution.framework import get_dashboard_framework
 from execution.template_engine import render_template
 
 

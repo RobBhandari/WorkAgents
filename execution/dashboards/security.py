@@ -22,10 +22,10 @@ from pathlib import Path
 
 # Import domain models
 from execution.collectors.armorcode_loader import ArmorCodeLoader
-from execution.framework import get_dashboard_framework
 from execution.dashboards.components.cards import metric_card, summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.security import SecurityMetrics
+from execution.framework import get_dashboard_framework
 from execution.template_engine import render_template
 
 

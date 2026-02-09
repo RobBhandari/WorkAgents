@@ -22,10 +22,11 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-# Import framework components
-from execution.framework import get_dashboard_framework
 from execution.dashboards.components.cards import metric_card
 from execution.dashboards.renderer import render_dashboard
+
+# Import framework components
+from execution.framework import get_dashboard_framework
 
 
 def generate_collaboration_dashboard(output_path: Path | None = None) -> str:

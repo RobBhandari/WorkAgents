@@ -24,13 +24,13 @@ from pathlib import Path
 
 # Import infrastructure and domain models
 from execution.collectors.armorcode_loader import ArmorCodeLoader
-from execution.framework import get_dashboard_framework
 from execution.dashboards.components.cards import attention_item_card, metric_card
 from execution.dashboards.components.charts import sparkline, trend_indicator
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.flow import FlowMetrics
 from execution.domain.quality import QualityMetrics
 from execution.domain.security import SecurityMetrics
+from execution.framework import get_dashboard_framework
 
 
 class ExecutiveSummaryGenerator:
