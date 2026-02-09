@@ -9,6 +9,24 @@
 
 {% block extra_css %}
 <style>
+    /* View Button Styling */
+    .view-btn {
+        display: inline-block;
+        padding: 6px 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .view-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
     /* Heatmap Styling */
     .heatmap-container {
         background: var(--bg-secondary);
@@ -239,12 +257,12 @@
                     <th>High</th>
                     <th>Medium</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
             {% for product in products %}
-                <tr class="data-row {% if product.expandable %}clickable{% endif %}"
-                    {% if product.expandable %}onclick="toggleDetail('detail-{{ loop.index }}', this)"{% endif %}>
+                <tr class="data-row">
                     <td>{{ product.name }}</td>
                     <td>{{ product.total }}</td>
                     <td class="{% if product.critical > 0 %}critical{% endif %}">{{ product.critical }}</td>
@@ -254,6 +272,9 @@
                         <span class="status-badge status-{{ product.status_class }}">
                             {{ product.status }}
                         </span>
+                    </td>
+                    <td>
+                        <a href="{{ product.detail_page_url }}" class="view-btn" target="_blank">VIEW</a>
                     </td>
                 </tr>
                 {% if product.expandable and product.details %}

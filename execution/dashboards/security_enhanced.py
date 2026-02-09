@@ -244,6 +244,10 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
             status = "OK"
             status_class = "good"
 
+        # Generate detail page URL
+        safe_filename = _sanitize_filename(product_name)
+        detail_page_url = f"security_detail_{safe_filename}.html"
+
         products.append(
             {
                 "name": product_name,
@@ -253,8 +257,7 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
                 "medium": metrics.medium,
                 "status": status,
                 "status_class": status_class,
-                "expandable": False,  # Security dashboard uses separate detail pages
-                "details": None,
+                "detail_page_url": detail_page_url,
             }
         )
 
