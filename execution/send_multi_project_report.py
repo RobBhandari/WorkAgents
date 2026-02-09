@@ -41,7 +41,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Default recipient
-DEFAULT_RECIPIENT = "robin.bhandari@theaccessgroup.com"
+DEFAULT_RECIPIENT = os.getenv("REPORT_RECIPIENT_EMAIL", "user@example.com")
 
 # Status colors for HTML (softer, gradient-friendly tones)
 STATUS_COLORS = {"GREEN": "#10b981", "AMBER": "#f59e0b", "RED": "#f87171"}

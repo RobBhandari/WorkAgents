@@ -8,6 +8,42 @@
 
 A robust system for AI agent orchestration that separates concerns into three layers: Directives (what to do), Orchestration (decision making), and Execution (deterministic work).
 
+## Development Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/RobBhandari/WorkAgents.git
+   cd WorkAgents
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run tests:
+   ```bash
+   pytest tests/ -v
+   ```
+
+### Running Dashboards
+
+Generate dashboards using module execution:
+
+```bash
+python execution/dashboards/quality.py
+python execution/dashboards/security_enhanced.py
+python execution/dashboards/deployment.py
+```
+
+### Architecture
+
+- `execution/dashboards/` - Dashboard generators (use absolute imports)
+- `execution/domain/` - Type-safe domain models
+- `execution/collectors/` - Data collection from APIs
+- `execution/framework/` - UI framework (CSS/JS)
+- `execution/security/` - Security validators
+
 ## Architecture Overview
 
 This system is designed to maximize reliability when working with AI agents. LLMs are probabilistic, but business logic requires consistency. This architecture solves that mismatch.

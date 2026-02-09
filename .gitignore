@@ -1,8 +1,8 @@
-# Temporary and intermediate files
+# Temporary and intermediate files (including history data)
 .tmp/
-# BUT allow history files for trend tracking
-!.tmp/observatory/
-!.tmp/observatory/*.json
+
+# Data directory with operational metrics
+data/
 
 # Environment variables and credentials
 .env
