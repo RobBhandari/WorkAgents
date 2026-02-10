@@ -4,31 +4,62 @@ Flow Metrics Query Functions
 
 Functions for querying Azure DevOps work items for flow metrics.
 Handles WIQL queries, batching, and security bug filtering.
+
+Migrated to Azure DevOps REST API v7.1 (replaces SDK).
 """
 
+import asyncio
 from datetime import datetime, timedelta
 
-from azure.devops.v7_1.work_item_tracking import Wiql
-
+from execution.collectors.ado_rest_client import AzureDevOpsRESTClient
+from execution.collectors.ado_rest_transformers import WorkItemTransformer
 from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.security_utils import WIQLValidator
 
 
-def query_work_items_by_type(
-    wit_client, project_name: str, work_type: str, lookback_days: int = 90, area_path_filter: str | None = None
+async def query_work_items_by_type(
+    rest_client: AzureDevOpsRESTClient,
+    project_name: str,
+    work_type: str,
+    lookback_days: int = 90,
+    area_path_filter: str | None = None,
 ) -> dict:
     """
     Query work items for a specific work type (Bug, User Story, or Task).
 
-    Args:
-        wit_client: Work Item Tracking client
-        project_name: ADO project name
-        work_type: 'Bug', 'User Story', or 'Task'
-        lookback_days: How many days back to look for closed items
-        area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
+    Executes two WIQL queries:
+    1. Currently open work items of the specified type
+    2. Recently closed work items (within lookback period)
 
-    Returns:
-        Dictionary with open and closed items for the work type
+    Security bugs (created by ArmorCode) are automatically filtered out from Bug queries
+    to prevent double-counting with the Security Dashboard.
+
+    :param rest_client: Azure DevOps REST API client
+    :param project_name: ADO project name (validated for WIQL injection)
+    :param work_type: Work item type ('Bug', 'User Story', or 'Task')
+    :param lookback_days: Days to look back for closed items (default: 90)
+    :param area_path_filter: Optional area path filter:
+        - "EXCLUDE:path" - Exclude work items under path
+        - "INCLUDE:path" - Include only work items under path
+    :returns: Dictionary with query results::
+
+        {
+            "work_type": str,
+            "open_items": list[dict],      # Open work items
+            "closed_items": list[dict],    # Recently closed work items
+            "open_count": int,             # Count after filtering
+            "closed_count": int,           # Count after filtering
+            "excluded_security_bugs": {"open": int, "closed": int}
+        }
+
+    :raises httpx.HTTPStatusError: If ADO API call fails
+    :raises ValueError: If project_name or work_type contains invalid characters
+
+    Example:
+        >>> from execution.collectors.ado_rest_client import get_ado_rest_client
+        >>> rest_client = get_ado_rest_client()
+        >>> result = await query_work_items_by_type(rest_client, "MyProject", "Bug", lookback_days=30)
+        >>> print(f"Found {result['open_count']} open bugs")
     """
     lookback_date = (datetime.now() - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
 
@@ -59,8 +90,7 @@ def query_work_items_by_type(
           AND [System.State] NOT IN ('Closed', 'Removed')
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
-        """  # nosec B608 - Input validated by WIQLValidator on lines 36-38
-    wiql_open = Wiql(query=query_open)
+        """  # nosec B608 - Input validated by WIQLValidator on lines 60-62
 
     # Query 2: Recently closed items of this type
     query_closed = f"""
@@ -73,60 +103,83 @@ def query_work_items_by_type(
           AND [Microsoft.VSTS.Common.ClosedDate] >= '{safe_lookback_date}'
           {area_filter_clause}
         ORDER BY [Microsoft.VSTS.Common.ClosedDate] DESC
-        """  # nosec B608 - Input validated by WIQLValidator on lines 36-38
-    wiql_closed = Wiql(query=query_closed)
+        """  # nosec B608 - Input validated by WIQLValidator on lines 60-62
 
     try:
-        # Execute queries
-        open_result = wit_client.query_by_wiql(wiql_open).work_items
-        closed_result = wit_client.query_by_wiql(wiql_closed).work_items
+        # Execute queries concurrently (REST API)
+        open_response, closed_response = await asyncio.gather(
+            rest_client.query_by_wiql(project=safe_project, wiql_query=query_open),
+            rest_client.query_by_wiql(project=safe_project, wiql_query=query_closed),
+        )
 
-        open_count = len(open_result) if open_result else 0
-        closed_count = len(closed_result) if closed_result else 0
+        # Transform WIQL responses to SDK format
+        open_wiql = WorkItemTransformer.transform_wiql_response(open_response)
+        closed_wiql = WorkItemTransformer.transform_wiql_response(closed_response)
 
-        # Fetch full work item details with batching (200 per batch)
+        open_count = len(open_wiql.work_items) if open_wiql.work_items else 0
+        closed_count = len(closed_wiql.work_items) if closed_wiql.work_items else 0
+
+        # Fetch full work item details with batching (200 per batch) - CONCURRENT
         open_items = []
-        if open_result and len(open_result) > 0:
-            open_ids = [item.id for item in open_result]
+        if open_wiql.work_items and len(open_wiql.work_items) > 0:
+            open_ids = [item.id for item in open_wiql.work_items]
             try:
+                # Create batch tasks for concurrent execution
+                batch_tasks = []
                 for i in range(0, len(open_ids), 200):
                     batch_ids = open_ids[i : i + 200]
-                    batch_items = wit_client.get_work_items(
-                        ids=batch_ids,
-                        fields=[
-                            "System.Id",
-                            "System.Title",
-                            "System.State",
-                            "System.CreatedDate",
-                            "System.WorkItemType",
-                            "Microsoft.VSTS.Common.StateChangeDate",
-                            "System.CreatedBy",
-                        ],
+                    batch_tasks.append(
+                        rest_client.get_work_items(
+                            ids=batch_ids,
+                            fields=[
+                                "System.Id",
+                                "System.Title",
+                                "System.State",
+                                "System.CreatedDate",
+                                "System.WorkItemType",
+                                "Microsoft.VSTS.Common.StateChangeDate",
+                                "System.CreatedBy",
+                            ],
+                        )
                     )
-                    open_items.extend([item.fields for item in batch_items])
+                # Execute all batches concurrently
+                batch_responses = await asyncio.gather(*batch_tasks)
+                # Transform and combine results
+                for response in batch_responses:
+                    items = WorkItemTransformer.transform_work_items_response(response)
+                    open_items.extend(items)
             except Exception as e:
                 print(f"      [WARNING] Error fetching open {work_type}s: {e}")
 
         closed_items = []
-        if closed_result and len(closed_result) > 0:
-            closed_ids = [item.id for item in closed_result]
+        if closed_wiql.work_items and len(closed_wiql.work_items) > 0:
+            closed_ids = [item.id for item in closed_wiql.work_items]
             try:
+                # Create batch tasks for concurrent execution
+                batch_tasks = []
                 for i in range(0, len(closed_ids), 200):
                     batch_ids = closed_ids[i : i + 200]
-                    batch_items = wit_client.get_work_items(
-                        ids=batch_ids,
-                        fields=[
-                            "System.Id",
-                            "System.Title",
-                            "System.State",
-                            "System.CreatedDate",
-                            "Microsoft.VSTS.Common.ClosedDate",
-                            "System.WorkItemType",
-                            "Microsoft.VSTS.Common.StateChangeDate",
-                            "System.CreatedBy",
-                        ],
+                    batch_tasks.append(
+                        rest_client.get_work_items(
+                            ids=batch_ids,
+                            fields=[
+                                "System.Id",
+                                "System.Title",
+                                "System.State",
+                                "System.CreatedDate",
+                                "Microsoft.VSTS.Common.ClosedDate",
+                                "System.WorkItemType",
+                                "Microsoft.VSTS.Common.StateChangeDate",
+                                "System.CreatedBy",
+                            ],
+                        )
                     )
-                    closed_items.extend([item.fields for item in batch_items])
+                # Execute all batches concurrently
+                batch_responses = await asyncio.gather(*batch_tasks)
+                # Transform and combine results
+                for response in batch_responses:
+                    items = WorkItemTransformer.transform_work_items_response(response)
+                    closed_items.extend(items)
             except Exception as e:
                 print(f"      [WARNING] Error fetching closed {work_type}s: {e}")
 
@@ -153,20 +206,38 @@ def query_work_items_by_type(
         return {"work_type": work_type, "open_items": [], "closed_items": [], "open_count": 0, "closed_count": 0}
 
 
-def query_work_items_for_flow(
-    wit_client, project_name: str, lookback_days: int = 90, area_path_filter: str | None = None
-) -> dict:
+async def query_work_items_for_flow(
+    rest_client: AzureDevOpsRESTClient,
+    project_name: str,
+    lookback_days: int = 90,
+    area_path_filter: str | None = None,
+) -> dict[str, dict]:
     """
     Query work items for flow metrics, segmented by work type.
 
-    Args:
-        wit_client: Work Item Tracking client
-        project_name: ADO project name
-        lookback_days: How many days back to look for closed items
-        area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
+    Queries all three standard work types (Bug, User Story, Task) CONCURRENTLY
+    and returns separate results for each type. This enables work-type-specific flow analysis.
 
-    Returns:
-        Dictionary with work items segmented by type (Bug, User Story, Task)
+    :param rest_client: Azure DevOps REST API client
+    :param project_name: ADO project name
+    :param lookback_days: Days to look back for closed items (default: 90)
+    :param area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
+    :returns: Dictionary mapping work type to query results::
+
+        {
+            "Bug": {...},         # Result from query_work_items_by_type()
+            "User Story": {...},  # Result from query_work_items_by_type()
+            "Task": {...}         # Result from query_work_items_by_type()
+        }
+
+    :raises httpx.HTTPStatusError: If ADO API calls fail
+
+    Example:
+        >>> from execution.collectors.ado_rest_client import get_ado_rest_client
+        >>> rest_client = get_ado_rest_client()
+        >>> results = await query_work_items_for_flow(rest_client, "MyProject")
+        >>> print(f"Open bugs: {results['Bug']['open_count']}")
+        >>> print(f"Open stories: {results['User Story']['open_count']}")
     """
     print(f"    Querying work items for {project_name}...")
 
@@ -177,12 +248,21 @@ def query_work_items_for_flow(
         elif area_path_filter.startswith("INCLUDE:"):
             print(f"      Including only area path: {area_path_filter.replace('INCLUDE:', '')}")
 
-    # Query each work type separately
+    # Query all work types CONCURRENTLY (3x faster than sequential)
     work_types = ["Bug", "User Story", "Task"]
-    results = {}
 
-    for work_type in work_types:
-        result = query_work_items_by_type(wit_client, project_name, work_type, lookback_days, area_path_filter)
+    # Create tasks for all work types
+    tasks = [
+        query_work_items_by_type(rest_client, project_name, work_type, lookback_days, area_path_filter)
+        for work_type in work_types
+    ]
+
+    # Execute concurrently
+    results_list = await asyncio.gather(*tasks)
+
+    # Combine results into dictionary
+    results = {}
+    for work_type, result in zip(work_types, results_list, strict=True):
         results[work_type] = result
         print(
             f"      {work_type}: {result['open_count']} open, {result['closed_count']} closed (last {lookback_days} days)"

@@ -9,8 +9,11 @@ Collects engineering flow metrics at project level:
 - Aging Items: Items open > threshold days
 
 Read-only operation - does not modify any existing data.
+
+Migrated to Azure DevOps REST API v7.1 (replaces SDK).
 """
 
+import asyncio
 import json
 import os
 import sys
@@ -19,7 +22,7 @@ from datetime import datetime
 # Load environment variables
 from dotenv import load_dotenv
 
-from execution.collectors.ado_connection import get_ado_connection
+from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.collectors.flow_metrics_calculations import (
     calculate_aging_items,
     calculate_cycle_time_variance,
@@ -33,12 +36,12 @@ from execution.domain.constants import flow_metrics, history_retention
 load_dotenv()
 
 
-def collect_flow_metrics_for_project(wit_client, project: dict, config: dict) -> dict:
+async def collect_flow_metrics_for_project(rest_client, project: dict, config: dict) -> dict:
     """
     Collect all flow metrics for a single project, segmented by work type.
 
     Args:
-        wit_client: Work Item Tracking client
+        rest_client: Azure DevOps REST API client
         project: Project metadata from discovery
         config: Configuration dict (thresholds, lookback days, etc.)
 
@@ -56,9 +59,9 @@ def collect_flow_metrics_for_project(wit_client, project: dict, config: dict) ->
 
     print(f"\n  Collecting flow metrics for: {project_name}")
 
-    # Query work items (returns segmented by work type)
-    work_items = query_work_items_for_flow(
-        wit_client,
+    # Query work items (returns segmented by work type) - CONCURRENT EXECUTION
+    work_items = await query_work_items_for_flow(
+        rest_client,
         ado_project_name,
         lookback_days=config.get("lookback_days", flow_metrics.LOOKBACK_DAYS),
         area_path_filter=area_path_filter,
@@ -179,7 +182,8 @@ def save_flow_metrics(metrics: dict, output_file: str = ".tmp/observatory/flow_h
         return False
 
 
-if __name__ == "__main__":
+async def main() -> None:
+    """Main async function for flow metrics collection"""
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
         import codecs
@@ -187,7 +191,7 @@ if __name__ == "__main__":
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    print("Director Observatory - Flow Metrics Collector\n")
+    print("Director Observatory - Flow Metrics Collector (REST API)\n")
     print("=" * 60)
 
     # Configuration (using constants for defaults)
@@ -207,28 +211,32 @@ if __name__ == "__main__":
         print("Run: python execution/discover_projects.py")
         exit(1)
 
-    # Connect to ADO
-    print("\nConnecting to Azure DevOps...")
+    # Connect to ADO REST API
+    print("\nConnecting to Azure DevOps REST API...")
     try:
-        connection = get_ado_connection()
-        wit_client = connection.clients.get_work_item_tracking_client()
-        print("[SUCCESS] Connected to ADO")
+        rest_client = get_ado_rest_client()
+        print("[SUCCESS] Connected to ADO REST API")
     except Exception as e:
         print(f"[ERROR] Failed to connect to ADO: {e}")
         exit(1)
 
-    # Collect metrics for all projects
-    print("\nCollecting flow metrics...")
+    # Collect metrics for all projects CONCURRENTLY
+    print("\nCollecting flow metrics (concurrent execution)...")
     print("=" * 60)
 
-    project_metrics = []
-    for project in projects:
-        try:
-            metrics = collect_flow_metrics_for_project(wit_client, project, config)
-            project_metrics.append(metrics)
-        except Exception as e:
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
-            continue
+    # Create tasks for all projects (concurrent collection)
+    tasks = [collect_flow_metrics_for_project(rest_client, project, config) for project in projects]
+
+    # Execute all collections concurrently
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter successful results
+    project_metrics: list[dict] = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
+        else:
+            project_metrics.append(result)  # type: ignore[arg-type]
 
     # Save results
     week_metrics = {
@@ -288,6 +296,11 @@ if __name__ == "__main__":
     print("  [NOTE] All metrics now segmented by Bug/Story/Task")
     print("  [NOTE] No data limits - absolute accuracy")
 
-    print("\nFlow metrics collection complete!")
+    print("\nFlow metrics collection complete (REST API + concurrent execution)!")
     print("  ✓ Security bugs filtered out (no double-counting)")
+    print("  ✓ Concurrent collection for maximum speed")
     print("\nNext step: Generate flow dashboard with work type segmentation")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
