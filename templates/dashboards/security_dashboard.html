@@ -87,9 +87,28 @@
 
     .vuln-table .description {
         max-width: 300px;
+    }
+
+    .vuln-table .description.clickable {
+        cursor: pointer;
+        color: var(--text-link);
+        transition: color 0.2s;
+    }
+
+    .vuln-table .description.clickable:hover {
+        color: var(--text-link-hover);
+        text-decoration: underline;
+    }
+
+    .vuln-table .description:not(.expanded) {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .vuln-table .description.expanded {
+        white-space: normal;
+        word-wrap: break-word;
     }
 
     .vuln-table .vuln-id {
@@ -373,14 +392,28 @@
     // Toggle collapsible vulnerabilities section (nested within expanded row)
     function toggleVulnerabilities(header) {
         const content = header.nextElementSibling;
-        const chevron = header.querySelector('.chevron');
+        const h4 = header.querySelector('h4');
 
         if (content.style.display === 'none') {
             content.style.display = 'block';
-            chevron.textContent = '▼';
+            h4.textContent = h4.textContent.replace('▶', '▼');
         } else {
             content.style.display = 'none';
-            chevron.textContent = '▶';
+            h4.textContent = h4.textContent.replace('▼', '▶');
+        }
+    }
+
+    // Toggle description expansion on click
+    function toggleDescription(cell) {
+        const fullText = cell.getAttribute('data-full-text');
+        const shortText = cell.getAttribute('data-short-text');
+
+        if (cell.classList.contains('expanded')) {
+            cell.textContent = shortText;
+            cell.classList.remove('expanded');
+        } else {
+            cell.textContent = fullText;
+            cell.classList.add('expanded');
         }
     }
 
