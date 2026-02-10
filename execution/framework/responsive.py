@@ -109,8 +109,20 @@ def get_responsive_breakpoints():
     """
     Returns documentation for responsive breakpoint system.
 
+    Provides comprehensive documentation for the mobile-first responsive
+    breakpoint strategy including specific pixel ranges, media queries,
+    and usage patterns.
+
     Returns:
-        Dictionary with breakpoint definitions and usage guidelines
+        Dictionary containing responsive breakpoint documentation including:
+        - Breakpoint ranges and media queries
+        - Mobile-first strategy principles
+        - Touch optimization guidelines
+
+    Example:
+        >>> docs = get_responsive_breakpoints()
+        >>> print(docs['breakpoints']['tablet']['query'])
+        '@media (min-width: 768px)'
     """
     return {
         "breakpoints": {
@@ -164,8 +176,21 @@ def get_accessibility_guidelines():
     """
     Returns documentation for accessibility features.
 
+    Provides comprehensive documentation for accessibility features including
+    focus indicators, reduced motion support, color contrast, and touch targets.
+
     Returns:
-        Dictionary with accessibility guidelines and implementations
+        Dictionary containing accessibility guidelines including:
+        - Focus indicators for keyboard navigation
+        - Reduced motion preferences
+        - Color contrast ratios (WCAG compliance)
+        - Touch target minimum sizes
+        - Screen reader support
+
+    Example:
+        >>> docs = get_accessibility_guidelines()
+        >>> print(docs['touch_targets']['minimum_size'])
+        '44x44px for all interactive elements'
     """
     return {
         "focus_indicators": {
