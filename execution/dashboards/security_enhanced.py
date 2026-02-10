@@ -282,32 +282,39 @@ def _generate_expanded_content(product_name: str, metrics, vulnerabilities: list
     Returns:
         HTML string for expanded row content
     """
-    # Part 1: Aging Heatmap - Compact modern UX
-    aging_html = generate_aging_heatmap(vulnerabilities)
+    # Filter to only Critical and High vulnerabilities
+    filtered_vulns = [v for v in vulnerabilities if v.severity in ["CRITICAL", "HIGH"]]
 
-    # Part 2: Collapsible Vulnerabilities Section
-    if not vulnerabilities:
+    # Part 1: Aging Heatmap - Compact modern UX (only C+H)
+    aging_html = generate_aging_heatmap(filtered_vulns)
+
+    # Part 2: Collapsible Vulnerabilities Section (only C+H)
+    if not filtered_vulns:
         vulns_section = """
         <div class="detail-section">
             <div class="collapsible-header">
-                <h4>No Vulnerabilities Found</h4>
+                <h4>No Critical or High Vulnerabilities Found</h4>
             </div>
         </div>
         """
     else:
-        vuln_rows_html = _generate_vulnerability_table_rows(vulnerabilities)
+        vuln_rows_html = _generate_vulnerability_table_rows(filtered_vulns)
+        # Count by severity for filter buttons
+        critical_count = sum(1 for v in filtered_vulns if v.severity == "CRITICAL")
+        high_count = sum(1 for v in filtered_vulns if v.severity == "HIGH")
+
         vulns_section = f"""
         <div class="detail-section">
             <div class="collapsible-header" onclick="toggleVulnerabilities(this)">
-                <h4>▶ Vulnerabilities ({len(vulnerabilities)})</h4>
+                <h4>▶ Vulnerabilities ({len(filtered_vulns)})</h4>
             </div>
             <div class="collapsible-content" style="display: none;">
                 <div class="vuln-filters">
                     <input type="text" placeholder="Search vulnerabilities..."
                            onkeyup="filterVulnerabilities(this)">
-                    <button class="active" onclick="filterSeverity(this, 'all')">All ({len(vulnerabilities)})</button>
-                    <button onclick="filterSeverity(this, 'critical')">Critical</button>
-                    <button onclick="filterSeverity(this, 'high')">High</button>
+                    <button class="active" onclick="filterSeverity(this, 'all')">All ({len(filtered_vulns)})</button>
+                    <button onclick="filterSeverity(this, 'critical')">Critical ({critical_count})</button>
+                    <button onclick="filterSeverity(this, 'high')">High ({high_count})</button>
                 </div>
                 <table class="vuln-table">
                     <thead>
