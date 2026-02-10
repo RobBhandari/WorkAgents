@@ -105,7 +105,7 @@ async def query_pull_requests(
 
     except Exception as e:
         print(f"      [WARNING] Could not query PRs: {e}")
-        return log_and_return_default(
+        return log_and_return_default(  # type: ignore[no-any-return]
             logger,
             e,
             context={"repo_id": repo_id, "project": project_name},
@@ -114,7 +114,7 @@ async def query_pull_requests(
         )
     except (ValueError, AttributeError) as e:
         print(f"      [WARNING] Data error querying PRs: {e}")
-        return log_and_return_default(
+        return log_and_return_default(  # type: ignore[no-any-return]
             logger,
             e,
             context={"repo_id": repo_id, "project": project_name},
@@ -123,32 +123,40 @@ async def query_pull_requests(
         )
 
 
-def get_first_comment_time(threads: list) -> datetime | None:
+def get_first_comment_time(threads: list[dict]) -> datetime | None:
     """
-    Extract first comment timestamp from PR threads.
+    Extract first comment timestamp from PR threads (REST format).
 
     Args:
-        threads: List of PR threads
+        threads: List of PR thread dictionaries
 
     Returns:
         Timestamp of first comment or None
     """
     first_comment_time = None
     for thread in threads:
-        if thread.comments:
-            for comment in thread.comments:
-                if comment.published_date:
-                    if first_comment_time is None or comment.published_date < first_comment_time:
-                        first_comment_time = comment.published_date
+        comments = thread.get("comments", [])
+        if comments:
+            for comment in comments:
+                published_date_str = comment.get("published_date")
+                if published_date_str:
+                    try:
+                        published_date = datetime.fromisoformat(published_date_str.replace("Z", "+00:00"))
+                        if first_comment_time is None or published_date < first_comment_time:
+                            first_comment_time = published_date
+                    except ValueError:
+                        continue
     return first_comment_time
 
 
-def calculate_single_pr_review_time(git_client, project_name: str, pr: dict) -> float | None:
+async def calculate_single_pr_review_time(
+    rest_client: AzureDevOpsRESTClient, project_name: str, pr: dict
+) -> float | None:
     """
     Calculate review time for a single PR.
 
     Args:
-        git_client: Git client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         pr: PR data dict
 
@@ -156,10 +164,13 @@ def calculate_single_pr_review_time(git_client, project_name: str, pr: dict) -> 
         Review time in hours or None if unable to calculate
     """
     try:
-        # Get PR threads (comments)
-        threads = git_client.get_threads(
-            repository_id=pr["repository_id"], pull_request_id=pr["pr_id"], project=project_name
+        # Get PR threads (comments) via REST API
+        response = await rest_client.get_pull_request_threads(
+            project=project_name, repository_id=pr["repository_id"], pull_request_id=pr["pr_id"]
         )
+
+        # Transform to simplified format
+        threads = GitTransformer.transform_threads_response(response)
 
         if not threads:
             return None
@@ -183,35 +194,39 @@ def calculate_single_pr_review_time(git_client, project_name: str, pr: dict) -> 
         # Only return positive times
         return review_hours if review_hours > 0 else None
 
-    except AzureDevOpsServiceError as e:
-        logger.debug(f"ADO API error getting threads for PR {pr.get('pr_id')}: {e}")
+    except Exception as e:
+        logger.debug(f"API error getting threads for PR {pr.get('pr_id')}: {e}")
         return None
     except (ValueError, AttributeError, KeyError) as e:
         logger.debug(f"Data error processing PR {pr.get('pr_id')}: {e}")
         return None
 
 
-def calculate_pr_review_time(git_client, project_name: str, prs: list[dict]) -> dict:
+async def calculate_pr_review_time(rest_client: AzureDevOpsRESTClient, project_name: str, prs: list[dict]) -> dict:
     """
     Calculate PR review time - creation to first review comment.
 
     HARD DATA: Timestamps only, no assumptions.
 
     Args:
-        git_client: Git client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         prs: List of PR data
 
     Returns:
         PR review time metrics
     """
-    review_times = []
-
     # Random sample of 10 PRs for statistical validity with reduced API calls
-    for pr in sample_prs(prs):
-        review_time = calculate_single_pr_review_time(git_client, project_name, pr)
-        if review_time is not None:
-            review_times.append(review_time)
+    sampled_prs = sample_prs(prs)
+
+    # Get review times concurrently (PARALLEL EXECUTION)
+    review_time_tasks = [calculate_single_pr_review_time(rest_client, project_name, pr) for pr in sampled_prs]
+    review_time_results = await asyncio.gather(*review_time_tasks, return_exceptions=True)
+
+    # Filter valid times
+    review_times = [
+        time for time in review_time_results if isinstance(time, (int, float)) and time is not None and time > 0
+    ]
 
     if not review_times:
         return {"sample_size": 0, "median_hours": None, "p85_hours": None, "p95_hours": None}
@@ -268,38 +283,44 @@ def calculate_pr_merge_time(prs: list[dict]) -> dict:
     }
 
 
-def calculate_review_iteration_count(git_client, project_name: str, prs: list[dict]) -> dict:
+async def calculate_review_iteration_count(
+    rest_client: AzureDevOpsRESTClient, project_name: str, prs: list[dict]
+) -> dict:
     """
     Calculate review iteration count - number of PR iterations.
 
     HARD DATA: Azure DevOps tracks iterations (push events after PR creation).
 
     Args:
-        git_client: Git client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         prs: List of PR data
 
     Returns:
         Review iteration count metrics
     """
-    iteration_counts = []
-
     # Random sample of 10 PRs for statistical validity with reduced API calls
-    for pr in sample_prs(prs):
+    sampled_prs = sample_prs(prs)
+
+    # Get iterations concurrently (PARALLEL EXECUTION)
+    async def get_iteration_count(pr: dict) -> int | None:
         try:
-            iterations = git_client.get_pull_request_iterations(
-                repository_id=pr["repository_id"], pull_request_id=pr["pr_id"], project=project_name
+            response = await rest_client.get_pull_request_iterations(
+                project=project_name, repository_id=pr["repository_id"], pull_request_id=pr["pr_id"]
             )
+            iterations = response.get("value", [])
+            return len(iterations) if iterations else None
+        except Exception as e:
+            logger.debug(f"API error getting iterations for PR {pr.get('pr_id')}: {e}")
+            return None
 
-            if iterations:
-                iteration_counts.append(len(iterations))
+    iteration_tasks = [get_iteration_count(pr) for pr in sampled_prs]
+    iteration_results = await asyncio.gather(*iteration_tasks, return_exceptions=True)
 
-        except AzureDevOpsServiceError as e:
-            logger.debug(f"ADO API error getting iterations for PR {pr.get('pr_id')}: {e}")
-            continue
-        except (AttributeError, KeyError) as e:
-            logger.debug(f"Data error processing iterations for PR {pr.get('pr_id')}: {e}")
-            continue
+    # Filter valid counts
+    iteration_counts = [
+        count for count in iteration_results if isinstance(count, int) and count is not None and count > 0
+    ]
 
     if not iteration_counts:
         return {"sample_size": 0, "median_iterations": None, "max_iterations": None}
@@ -311,43 +332,42 @@ def calculate_review_iteration_count(git_client, project_name: str, prs: list[di
     }
 
 
-def calculate_pr_size_loc(git_client, project_name: str, prs: list[dict]) -> dict:
+async def calculate_pr_size_loc(rest_client: AzureDevOpsRESTClient, project_name: str, prs: list[dict]) -> dict:
     """
     Calculate PR size in lines of code (LOC).
 
     HARD DATA: Sum of lines added + deleted from commit diffs.
 
     Args:
-        git_client: Git client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         prs: List of PR data
 
     Returns:
         PR size metrics
     """
-    pr_sizes = []
-
     # Random sample of 10 PRs for statistical validity with reduced API calls
-    for pr in sample_prs(prs):
+    sampled_prs = sample_prs(prs)
+
+    # Get PR commits concurrently (PARALLEL EXECUTION)
+    async def get_pr_commit_count(pr: dict) -> int | None:
         try:
-            # Get PR commits
-            commits = git_client.get_pull_request_commits(
-                repository_id=pr["repository_id"], pull_request_id=pr["pr_id"], project=project_name
+            response = await rest_client.get_pull_request_commits(
+                project=project_name, repository_id=pr["repository_id"], pull_request_id=pr["pr_id"]
             )
-
-            if not commits:
-                continue
-
+            commits = response.get("value", [])
             # Use commit count as proxy for PR size (hard data)
             # Avoids expensive get_changes() API calls that don't provide line counts anyway
-            pr_sizes.append(len(commits))
+            return len(commits) if commits else None
+        except Exception as e:
+            logger.debug(f"API error getting commits for PR {pr.get('pr_id')}: {e}")
+            return None
 
-        except AzureDevOpsServiceError as e:
-            logger.debug(f"ADO API error getting commits for PR {pr.get('pr_id')}: {e}")
-            continue
-        except (AttributeError, KeyError) as e:
-            logger.debug(f"Data error processing commits for PR {pr.get('pr_id')}: {e}")
-            continue
+    commit_count_tasks = [get_pr_commit_count(pr) for pr in sampled_prs]
+    commit_count_results = await asyncio.gather(*commit_count_tasks, return_exceptions=True)
+
+    # Filter valid counts
+    pr_sizes = [count for count in commit_count_results if isinstance(count, int) and count is not None and count > 0]
 
     if not pr_sizes:
         return {
@@ -370,12 +390,14 @@ def calculate_pr_size_loc(git_client, project_name: str, prs: list[dict]) -> dic
     }
 
 
-def collect_collaboration_metrics_for_project(connection, project: dict, config: dict) -> dict:
+async def collect_collaboration_metrics_for_project(
+    rest_client: AzureDevOpsRESTClient, project: dict, config: dict
+) -> dict:
     """
     Collect all collaboration metrics for a single project.
 
     Args:
-        connection: ADO connection
+        rest_client: Azure DevOps REST API client
         project: Project metadata from discovery
         config: Configuration dict
 
@@ -390,39 +412,35 @@ def collect_collaboration_metrics_for_project(connection, project: dict, config:
 
     print(f"\n  Collecting collaboration metrics for: {project_name}")
 
-    git_client = connection.clients.get_git_client()
-
-    # Get repositories
+    # Get repositories via REST API
     try:
-        repos = git_client.get_repositories(project=ado_project_name)
+        repos_response = await rest_client.get_repositories(project=ado_project_name)
+        repos = GitTransformer.transform_repositories_response(repos_response)
         print(f"    Found {len(repos)} repositories")
-    except AzureDevOpsServiceError as e:
-        logger.warning(f"ADO API error getting repositories for project {ado_project_name}: {e}")
+    except Exception as e:
+        logger.warning(f"API error getting repositories for project {ado_project_name}: {e}")
         print(f"    [WARNING] Could not get repositories: {e}")
         repos = []
-    except (AttributeError, ValueError) as e:
-        logger.error(f"Data error getting repositories for project {ado_project_name}: {e}")
-        print(f"    [WARNING] Error getting repositories: {e}")
-        repos = []
+
+    # Query PRs concurrently for all repos (PARALLEL EXECUTION)
+    pr_tasks = [
+        query_pull_requests(rest_client, ado_project_name, repo["id"], days=config.get("lookback_days", 90))
+        for repo in repos
+    ]
+
+    pr_results = await asyncio.gather(*pr_tasks, return_exceptions=True)
 
     # Aggregate metrics across all repos
-    all_prs = []
-
-    for repo in repos:
-        print(f"    Analyzing repo: {repo.name}")
-
-        try:
-            prs = query_pull_requests(git_client, ado_project_name, repo.id, days=config.get("lookback_days", 90))
+    all_prs: list[dict] = []
+    for repo, result in zip(repos, pr_results, strict=True):
+        if isinstance(result, Exception):
+            logger.warning(f"API error analyzing repo {repo['name']}: {result}")
+            print(f"    [WARNING] Failed to analyze repo {repo['name']}: {result}")
+            continue
+        else:
+            prs: list[dict] = result  # type: ignore[assignment]
             all_prs.extend(prs)
-            print(f"      Found {len(prs)} completed PRs")
-        except AzureDevOpsServiceError as e:
-            logger.warning(f"ADO API error analyzing repo {repo.name}: {e}")
-            print(f"      [WARNING] Failed to analyze repo {repo.name}: {e}")
-            continue
-        except (AttributeError, ValueError, KeyError) as e:
-            logger.error(f"Data error analyzing repo {repo.name}: {e}")
-            print(f"      [WARNING] Data error in repo {repo.name}: {e}")
-            continue
+            print(f"    Repo {repo['name']}: Found {len(prs)} completed PRs")
 
     if not all_prs:
         print("    [WARNING] No PRs found - skipping collaboration metrics")
@@ -437,11 +455,17 @@ def collect_collaboration_metrics_for_project(connection, project: dict, config:
             "collected_at": datetime.now().isoformat(),
         }
 
-    # Calculate metrics - ALL HARD DATA
-    pr_review_time = calculate_pr_review_time(git_client, ado_project_name, all_prs)
-    pr_merge_time = calculate_pr_merge_time(all_prs)
-    review_iterations = calculate_review_iteration_count(git_client, ado_project_name, all_prs)
-    pr_size = calculate_pr_size_loc(git_client, ado_project_name, all_prs)
+    # Calculate metrics concurrently - ALL HARD DATA (PARALLEL EXECUTION)
+    pr_review_task = calculate_pr_review_time(rest_client, ado_project_name, all_prs)
+    pr_merge_task = calculate_pr_merge_time(all_prs)  # Synchronous, no API calls
+    review_iterations_task = calculate_review_iteration_count(rest_client, ado_project_name, all_prs)
+    pr_size_task = calculate_pr_size_loc(rest_client, ado_project_name, all_prs)
+
+    # Run async tasks concurrently
+    pr_review_time, review_iterations, pr_size = await asyncio.gather(
+        pr_review_task, review_iterations_task, pr_size_task
+    )
+    pr_merge_time = pr_merge_task  # Already computed
 
     print(f"    PR Review Time: {pr_review_time['median_hours']} hours (median)")
     print(f"    PR Merge Time: {pr_merge_time['median_hours']} hours (median)")
@@ -555,25 +579,25 @@ def run_self_test() -> None:
     # Test 3: First comment time extraction
     print("\n[Test 3] First comment time extraction")
 
-    class MockComment:
-        def __init__(self, published_date):
-            self.published_date = published_date
-
-    class MockThread:
-        def __init__(self, comments):
-            self.comments = comments
-
     now = datetime.now()
     earlier = now - timedelta(hours=1)
     later = now + timedelta(hours=1)
 
+    # Mock REST response format
     threads = [
-        MockThread([MockComment(now), MockComment(later)]),
-        MockThread([MockComment(earlier)]),
+        {
+            "comments": [
+                {"published_date": now.isoformat()},
+                {"published_date": later.isoformat()},
+            ]
+        },
+        {"comments": [{"published_date": earlier.isoformat()}]},
     ]
 
     first_time = get_first_comment_time(threads)
-    assert first_time == earlier, f"Expected {earlier}, got {first_time}"
+    assert first_time is not None, "Expected a datetime, got None"
+    # Compare just the timestamp (ignore microseconds for comparison)
+    assert abs((first_time - earlier).total_seconds()) < 1, f"Expected {earlier}, got {first_time}"
     print(f"  Found first comment at: {first_time}")
     print("  ✓ PASS")
 
@@ -611,12 +635,8 @@ def run_self_test() -> None:
     print("All existing functionality preserved with improved code quality.\n")
 
 
-if __name__ == "__main__":
-    # Check for self-test flag first
-    if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
-        run_self_test()
-        exit(0)
-
+async def main() -> None:
+    """Main async function for collaboration metrics collection"""
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
         import codecs
@@ -624,7 +644,7 @@ if __name__ == "__main__":
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    print("Director Observatory - Collaboration Metrics Collector\n")
+    print("Director Observatory - Collaboration Metrics Collector (REST API)\n")
     print("=" * 60)
 
     # Configuration
@@ -646,33 +666,34 @@ if __name__ == "__main__":
         print(f"[ERROR] Invalid discovery file format: {e}")
         exit(1)
 
-    # Connect to ADO
-    print("\nConnecting to Azure DevOps...")
+    # Connect to ADO REST API
+    print("\nConnecting to Azure DevOps REST API...")
     try:
-        connection = get_ado_connection()
-        print("[SUCCESS] Connected to ADO")
-    except (AzureDevOpsServiceError, ValueError) as e:
+        rest_client = get_ado_rest_client()
+        print("[SUCCESS] Connected to ADO REST API")
+    except ValueError as e:
         logger.error(f"Failed to connect to ADO: {e}")
         print(f"[ERROR] Failed to connect to ADO: {e}")
         exit(1)
 
-    # Collect metrics for all projects
-    print("\nCollecting collaboration metrics...")
+    # Collect metrics for all projects CONCURRENTLY
+    print("\nCollecting collaboration metrics (concurrent execution)...")
     print("=" * 60)
 
-    project_metrics = []
-    for project in projects:
-        try:
-            metrics = collect_collaboration_metrics_for_project(connection, project, config)
-            project_metrics.append(metrics)
-        except AzureDevOpsServiceError as e:
-            logger.error(f"ADO API error collecting metrics for {project['project_name']}: {e}")
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
-            continue
-        except (KeyError, ValueError, AttributeError) as e:
-            logger.error(f"Data error collecting metrics for {project.get('project_name', 'Unknown')}: {e}")
-            print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {e}")
-            continue
+    # Create tasks for all projects (concurrent collection)
+    tasks = [collect_collaboration_metrics_for_project(rest_client, project, config) for project in projects]
+
+    # Execute all collections concurrently
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter successful results
+    project_metrics: list[dict] = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            logger.error(f"Error collecting metrics for {project.get('project_name', 'Unknown')}: {result}")
+            print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {result}")
+        else:
+            project_metrics.append(result)  # type: ignore[arg-type]
 
     # Save results
     week_metrics = {
@@ -692,10 +713,20 @@ if __name__ == "__main__":
     total_prs = sum(p["total_prs_analyzed"] for p in project_metrics)
     print(f"  Total PRs analyzed: {total_prs}")
 
-    print("\nCollaboration metrics collection complete!")
+    print("\nCollaboration metrics collection complete (REST API + concurrent execution)!")
     print("  ✓ Only hard data - no assumptions")
     print("  ✓ PR Review Time: Actual timestamps")
     print("  ✓ PR Merge Time: Actual timestamps")
     print("  ✓ Review Iteration Count: ADO-tracked iterations")
     print("  ✓ PR Size: Actual commit counts")
+    print("  ✓ Concurrent collection for maximum speed")
     print("\nNext step: Generate collaboration dashboard")
+
+
+if __name__ == "__main__":
+    # Check for self-test flag first
+    if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
+        run_self_test()
+        exit(0)
+
+    asyncio.run(main())
