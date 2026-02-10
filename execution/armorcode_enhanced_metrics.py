@@ -79,8 +79,11 @@ def get_product_names_to_ids(product_names: list[str]) -> dict[str, str]:
 
                     if not result.get("pageInfo", {}).get("hasNext", False):
                         break
-        except Exception as e:
-            print(f"      [WARNING] Error fetching products: {e}")
+        except (ConnectionError, TimeoutError) as e:
+            print(f"      [WARNING] Network error fetching products page {page}: {e}")
+            break
+        except (KeyError, ValueError, json.JSONDecodeError) as e:
+            print(f"      [WARNING] Invalid response format fetching products page {page}: {e}")
             break
 
     # Map product names to IDs
@@ -211,11 +214,11 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
 
         return {"findings": all_findings, "total_count": len(all_findings)}
 
-    except Exception as e:
-        print(f"      [ERROR] Failed to query vulnerabilities: {e}")
-        import traceback
-
-        traceback.print_exc()
+    except (ConnectionError, TimeoutError) as e:
+        print(f"      [ERROR] Network error querying current vulnerabilities: {e}")
+        return {"findings": [], "total_count": 0}
+    except (KeyError, ValueError, json.JSONDecodeError) as e:
+        print(f"      [ERROR] Invalid response format querying current vulnerabilities: {e}")
         return {"findings": [], "total_count": 0}
 
 

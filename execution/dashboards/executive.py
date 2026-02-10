@@ -32,6 +32,7 @@ from execution.domain.flow import FlowMetrics
 from execution.domain.quality import QualityMetrics
 from execution.domain.security import SecurityMetrics
 from execution.framework import get_dashboard_framework
+from execution.utils.error_handling import log_and_return_default
 
 logger = get_logger(__name__)
 
@@ -127,9 +128,14 @@ class ExecutiveSummaryGenerator:
                 "net_change": total_closed - total_created,
                 "weeks": weeks,
             }
-        except Exception as e:
-            logger.warning(f"Error loading quality data: {e}")
-            return None
+        except (OSError, json.JSONDecodeError, KeyError, TypeError) as e:
+            return log_and_return_default(  # type: ignore[no-any-return]
+                logger,
+                e,
+                context={"file": str(self.quality_file)},
+                default_value=None,
+                error_type="Quality data loading",
+            )
 
     def _load_security_data(self) -> dict | None:
         """Load security vulnerability metrics"""
@@ -152,9 +158,14 @@ class ExecutiveSummaryGenerator:
         except FileNotFoundError:
             logger.warning("Security history not found")
             return None
-        except Exception as e:
-            logger.warning(f"Error loading security data: {e}")
-            return None
+        except (OSError, json.JSONDecodeError, KeyError, AttributeError) as e:
+            return log_and_return_default(  # type: ignore[no-any-return]
+                logger,
+                e,
+                context={"file": str(self.security_file)},
+                default_value=None,
+                error_type="Security data loading",
+            )
 
     def _load_flow_data(self) -> dict | None:
         """Load flow/velocity metrics"""
@@ -181,9 +192,14 @@ class ExecutiveSummaryGenerator:
             avg_lead_time = sum(all_lead_times) / len(all_lead_times) if all_lead_times else None
 
             return {"avg_lead_time_p50": avg_lead_time, "projects": projects, "weeks": weeks}
-        except Exception as e:
-            logger.warning(f"Error loading flow data: {e}")
-            return None
+        except (OSError, json.JSONDecodeError, KeyError, TypeError) as e:
+            return log_and_return_default(  # type: ignore[no-any-return]
+                logger,
+                e,
+                context={"file": str(self.flow_file)},
+                default_value=None,
+                error_type="Flow data loading",
+            )
 
     def _calculate_target_progress(self, all_data: dict) -> dict | None:
         """Calculate 70% reduction target progress"""
@@ -417,5 +433,6 @@ if __name__ == "__main__":
             "Executive summary generated successfully", extra={"output": str(output_path), "html_size": len(html)}
         )
 
-    except Exception as e:
+    except (OSError, ValueError, KeyError) as e:
         logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
+        raise

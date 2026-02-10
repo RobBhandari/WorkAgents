@@ -8,9 +8,14 @@ These functions operate on work item data and return metric dictionaries.
 
 import statistics
 from datetime import datetime
+from typing import cast
 
+from execution.core import get_logger
 from execution.domain.constants import cleanup_indicators, flow_metrics
 from execution.utils.datetime_utils import calculate_age_days, calculate_lead_time_days
+from execution.utils.error_handling import log_and_return_default
+
+logger = get_logger(__name__)
 
 
 def calculate_percentile(values: list[float], percentile: int) -> float | None:
@@ -33,9 +38,15 @@ def calculate_percentile(values: list[float], percentile: int) -> float | None:
         upper_index = min(lower_index + 1, len(sorted_values) - 1)
         weight = index - lower_index
         return sorted_values[lower_index] * (1 - weight) + sorted_values[upper_index] * weight
-    except Exception as e:
-        print(f"    [WARNING] Error calculating P{percentile}: {e}")
-        return None
+    except (ValueError, IndexError, TypeError, ZeroDivisionError) as e:
+        result = log_and_return_default(
+            logger,
+            e,
+            context={"percentile": percentile, "values_count": len(values), "sample_values": values[:5]},
+            default_value=None,
+            error_type=f"Percentile calculation (P{percentile})",
+        )
+        return cast(float | None, result)
 
 
 def calculate_lead_time(closed_items: list[dict]) -> dict:

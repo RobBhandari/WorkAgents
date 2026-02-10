@@ -21,7 +21,10 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
+from azure.devops.exceptions import AzureDevOpsServiceError
+
 from execution.core import get_logger
+from execution.utils.error_handling import log_and_continue
 
 logger = get_logger(__name__)
 
@@ -264,8 +267,8 @@ async def main_quality():
     try:
         connection = get_ado_connection()
         logger.info("Connected to Azure DevOps")
-    except Exception as e:
-        logger.error(f"Failed to connect to ADO: {e}")
+    except AzureDevOpsServiceError as e:
+        log_and_continue(logger, e, {"operation": "connect_ado"}, "Azure DevOps connection")
         return 1
 
     # Create async collector
@@ -330,8 +333,8 @@ async def main_flow():
     try:
         connection = get_ado_connection()
         logger.info("Connected to Azure DevOps")
-    except Exception as e:
-        logger.error(f"Failed to connect to ADO: {e}")
+    except AzureDevOpsServiceError as e:
+        log_and_continue(logger, e, {"operation": "connect_ado"}, "Azure DevOps connection")
         return 1
 
     # Create async collector
