@@ -41,7 +41,7 @@ logger = get_logger(__name__)
 class FlowDataLoader:
     """Load flow metrics from history JSON file."""
 
-    def __init__(self, history_file: Path | None = None):
+    def __init__(self, history_file: Path | None = None) -> None:
         """
         Initialize loader.
 
@@ -95,7 +95,7 @@ def generate_flow_dashboard(output_path: Path | None = None) -> str:
         html = generate_flow_dashboard(
             Path('.tmp/observatory/dashboards/flow_dashboard.html')
         )
-        print(f"Generated dashboard with {len(html)} characters")
+        logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating flow dashboard")
 

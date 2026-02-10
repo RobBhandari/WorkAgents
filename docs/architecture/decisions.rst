@@ -3,6 +3,22 @@ Architecture Decision Records (ADRs)
 
 This document records significant architectural decisions made during the platform's evolution.
 
+.. note::
+
+   **Comprehensive ADR Documentation**: For detailed Architecture Decision Records documenting Phases 1-3 refactorings, see the `docs/adr/ directory <../adr/README.md>`_.
+
+   The ADRs in this file cover infrastructure decisions (Phases 5-7). For refactoring decisions including:
+
+   * Structured logging (ADR-001)
+   * Datetime utilities (ADR-002)
+   * Constants extraction (ADR-003)
+   * Error handling patterns (ADR-004)
+   * God file decomposition (ADR-005)
+   * Dashboard pipeline pattern (ADR-006)
+   * Command pattern for queries (ADR-007)
+
+   Please refer to the `ADR directory index <../adr/README.md>`_.
+
 ADR-001: Security Wrappers
 ---------------------------
 
@@ -387,9 +403,25 @@ Use this template for future decisions:
    * Option A: Why rejected?
    * Option B: Why rejected?
 
+Refactoring ADRs (Phases 1-3)
+-----------------------------
+
+For detailed ADRs documenting code quality and architecture refactorings, see:
+
+* `ADR-001: Structured Logging <../adr/ADR-001-structured-logging.md>`_ (Phase 1)
+* `ADR-002: Datetime Utilities <../adr/ADR-002-datetime-utilities.md>`_ (Phase 1)
+* `ADR-003: Constants Extraction <../adr/ADR-003-constants-extraction.md>`_ (Phase 1)
+* `ADR-004: Error Handling Patterns <../adr/ADR-004-error-handling-patterns.md>`_ (Phase 2)
+* `ADR-005: God File Decomposition <../adr/ADR-005-god-file-decomposition.md>`_ (Phase 3)
+* `ADR-006: Dashboard Pipeline Pattern <../adr/ADR-006-dashboard-pipeline-pattern.md>`_ (Phase 3)
+* `ADR-007: Command Pattern for Queries <../adr/ADR-007-command-pattern-risk-queries.md>`_ (Phase 3)
+
+**Full ADR Index:** `docs/adr/README.md <../adr/README.md>`_
+
 See Also
 --------
 
 * ``execution/ARCHITECTURE.md`` - Technical architecture
 * ``execution/CONTRIBUTING.md`` - Development guidelines
 * :doc:`overview` - Architecture overview
+* `ADR Directory <../adr/README.md>`_ - Complete ADR documentation

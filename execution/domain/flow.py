@@ -76,12 +76,32 @@ class FlowMetrics(MetricSnapshot):
 
     @property
     def has_lead_time_data(self) -> bool:
-        """Check if lead time metrics are available"""
+        """
+        Check if lead time metrics are available.
+
+        Returns:
+            True if lead_time_p50 is not None, False otherwise
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="App", lead_time_p50=7.5)
+            >>> metrics.has_lead_time_data
+            True
+        """
         return self.lead_time_p50 is not None
 
     @property
     def has_cycle_time_data(self) -> bool:
-        """Check if cycle time metrics are available"""
+        """
+        Check if cycle time metrics are available.
+
+        Returns:
+            True if cycle_time_p50 is not None, False otherwise
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="App", cycle_time_p50=4.2)
+            >>> metrics.has_cycle_time_data
+            True
+        """
         return self.cycle_time_p50 is not None
 
     def lead_time_variability(self) -> float | None:
@@ -92,7 +112,12 @@ class FlowMetrics(MetricSnapshot):
         Ideal range: 1.5-2.5
 
         Returns:
-            Ratio of P95 to P50, or None if data unavailable
+            Ratio of P95 to P50, or None if data unavailable or P50 is zero
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="App", lead_time_p50=10.0, lead_time_p95=30.0)
+            >>> metrics.lead_time_variability()
+            3.0
         """
         if self.lead_time_p50 is None or self.lead_time_p95 is None or self.lead_time_p50 == 0:
             return None
@@ -104,7 +129,12 @@ class FlowMetrics(MetricSnapshot):
         Calculate cycle time variability (P95 / P50).
 
         Returns:
-            Ratio of P95 to P50, or None if data unavailable
+            Ratio of P95 to P50, or None if data unavailable or P50 is zero
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="App", cycle_time_p50=5.0, cycle_time_p95=12.0)
+            >>> metrics.cycle_time_variability()
+            2.4
         """
         if self.cycle_time_p50 is None or self.cycle_time_p95 is None or self.cycle_time_p50 == 0:
             return None
@@ -119,9 +149,14 @@ class FlowMetrics(MetricSnapshot):
             threshold: Variability threshold (default: 3.0)
 
         Returns:
-            True if variability exceeds threshold
+            True if variability exceeds threshold, False otherwise
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="App", lead_time_p50=10.0, lead_time_p95=35.0)
+            >>> metrics.has_high_variability()  # 3.5 > 3.0
+            True
         """
-        variability = self.lead_time_variability()
+        variability: float | None = self.lead_time_variability()
         return variability is not None and variability > threshold
 
     def aging_percentage(self) -> float | None:
@@ -129,7 +164,12 @@ class FlowMetrics(MetricSnapshot):
         Calculate percentage of WIP that is aging.
 
         Returns:
-            Percentage of aging items, or None if no WIP
+            Percentage of aging items (0-100), or None if no WIP
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="App", wip_count=50, aging_items=10)
+            >>> metrics.aging_percentage()
+            20.0
         """
         if self.wip_count == 0:
             return None
@@ -144,9 +184,14 @@ class FlowMetrics(MetricSnapshot):
             threshold_percent: Percentage threshold (default: 20%)
 
         Returns:
-            True if aging percentage exceeds threshold
+            True if aging percentage exceeds threshold, False otherwise
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="App", wip_count=50, aging_items=15)
+            >>> metrics.has_aging_issues()  # 30% > 20%
+            True
         """
-        aging_pct = self.aging_percentage()
+        aging_pct: float | None = self.aging_percentage()
         return aging_pct is not None and aging_pct > threshold_percent
 
     def has_flow_issues(self) -> bool:
@@ -159,9 +204,17 @@ class FlowMetrics(MetricSnapshot):
         - Very high lead time (P50 >14 days)
 
         Returns:
-            True if any flow issues detected
+            True if any flow issues detected, False otherwise
+
+        Example:
+            >>> metrics = FlowMetrics(
+            ...     timestamp=datetime.now(), project="App",
+            ...     lead_time_p50=20.0, wip_count=100, aging_items=30
+            ... )
+            >>> metrics.has_flow_issues()  # Multiple issues: slow delivery + aging
+            True
         """
-        issues = []
+        issues: list[str] = []
 
         # Check variability
         if self.has_high_variability():
@@ -178,7 +231,17 @@ class FlowMetrics(MetricSnapshot):
         return len(issues) > 0
 
     def __str__(self) -> str:
-        """String representation for logging/debugging"""
+        """
+        String representation for logging/debugging.
+
+        Returns:
+            Formatted string with project, lead time, WIP, and aging counts
+
+        Example:
+            >>> metrics = FlowMetrics(timestamp=datetime.now(), project="MyApp", lead_time_p50=7.5, wip_count=25, aging_items=5)
+            >>> str(metrics)
+            'FlowMetrics(project=MyApp, lead_time_p50=7.5d, wip=25, aging=5)'
+        """
         return (
             f"FlowMetrics(project={self.project}, "
             f"lead_time_p50={self.lead_time_p50:.1f}d, "

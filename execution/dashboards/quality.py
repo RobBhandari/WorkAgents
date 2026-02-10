@@ -58,7 +58,7 @@ def generate_quality_dashboard(output_path: Path | None = None) -> str:
         html = generate_quality_dashboard(
             Path('.tmp/observatory/dashboards/quality_dashboard.html')
         )
-        print(f"Generated dashboard with {len(html)} characters")
+        logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating quality dashboard")
 
