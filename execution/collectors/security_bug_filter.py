@@ -59,7 +59,7 @@ def is_security_bug(work_item: dict) -> bool:
     return "armorcode" in creator_name or "armorcode" in tags_str
 
 
-def filter_security_bugs(work_items: list[dict]) -> tuple:
+def filter_security_bugs(work_items: list[dict]) -> tuple[list[dict], int]:
     """
     Filter out security bugs created by ArmorCode to avoid double-counting.
 

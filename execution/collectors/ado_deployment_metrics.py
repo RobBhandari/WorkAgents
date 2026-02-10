@@ -10,8 +10,11 @@ Collects DORA and deployment metrics at project level:
 
 HARD DATA ONLY - No assumptions, no thresholds, no classifications.
 Read-only operation - does not modify any existing data.
+
+Migrated to Azure DevOps REST API v7.1 (replaces SDK).
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -21,15 +24,11 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import cast
 
-# Azure DevOps SDK
-from azure.devops.connection import Connection
-from azure.devops.exceptions import AzureDevOpsServiceError
-
 # Load environment variables
 from dotenv import load_dotenv
-from msrest.authentication import BasicAuthentication
 
-from execution.collectors.ado_connection import get_ado_connection
+from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
+from execution.collectors.ado_rest_transformers import BuildTransformer, GitTransformer
 from execution.secure_config import get_config
 from execution.utils.datetime_utils import parse_ado_timestamp
 from execution.utils.error_handling import log_and_continue, log_and_raise, log_and_return_default
@@ -41,12 +40,12 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
-def query_builds(build_client, project_name: str, days: int = 90) -> list[dict]:
+async def query_builds(rest_client: AzureDevOpsRESTClient, project_name: str, days: int = 90) -> list[dict]:
     """
-    Query recent builds from Azure Pipelines.
+    Query recent builds from Azure Pipelines (REST API).
 
     Args:
-        build_client: Build client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         days: Lookback period in days
 
@@ -54,56 +53,52 @@ def query_builds(build_client, project_name: str, days: int = 90) -> list[dict]:
         List of build data with timestamps and status
     """
     lookback_date = datetime.now() - timedelta(days=days)
+    min_time_iso = lookback_date.isoformat() + "Z"
 
     try:
-        builds = build_client.get_builds(project=project_name, min_time=lookback_date)
+        # REST API call
+        response = await rest_client.get_builds(project=project_name, min_time=min_time_iso)
+
+        # Transform to SDK-compatible format
+        builds = BuildTransformer.transform_builds_response(response)
 
         build_data = []
         for build in builds:
             # Calculate duration if both timestamps exist
             duration_minutes = None
-            if build.start_time and build.finish_time:
-                delta = build.finish_time - build.start_time
-                duration_minutes = delta.total_seconds() / 60
+            start_time = build.get("start_time")
+            finish_time = build.get("finish_time")
+
+            if start_time and finish_time:
+                start_dt = parse_ado_timestamp(start_time)
+                finish_dt = parse_ado_timestamp(finish_time)
+                if start_dt and finish_dt:
+                    delta = finish_dt - start_dt
+                    duration_minutes = delta.total_seconds() / 60
 
             build_data.append(
                 {
-                    "build_id": build.id,
-                    "build_number": build.build_number,
-                    "definition_id": build.definition.id if build.definition else None,
-                    "definition_name": build.definition.name if build.definition else "Unknown",
-                    "status": build.status,
-                    "result": build.result,
-                    "start_time": build.start_time.isoformat() if build.start_time else None,
-                    "finish_time": build.finish_time.isoformat() if build.finish_time else None,
+                    "build_id": build.get("id"),
+                    "build_number": build.get("build_number"),
+                    "definition_id": build.get("definition", {}).get("id"),
+                    "definition_name": build.get("definition", {}).get("name", "Unknown"),
+                    "status": build.get("status"),
+                    "result": build.get("result"),
+                    "start_time": start_time,
+                    "finish_time": finish_time,
                     "duration_minutes": round(duration_minutes, 2) if duration_minutes else None,
-                    "source_branch": build.source_branch if hasattr(build, "source_branch") else None,
-                    "source_version": build.source_version if hasattr(build, "source_version") else None,
-                    "requested_for": build.requested_for.display_name if build.requested_for else "Unknown",
+                    "source_branch": build.get("source_branch"),
+                    "source_version": build.get("source_version"),
+                    "requested_for": build.get("requested_for", "Unknown"),
                 }
             )
 
         return build_data
 
-    except AzureDevOpsServiceError as e:
-        logger.warning(f"Azure DevOps service error querying builds for {project_name}: {e}")
+    except Exception as e:
+        logger.warning(f"Error querying builds for {project_name}: {e}")
         print(f"      [WARNING] Could not query builds: {e}")
         return []
-    except (ConnectionError, TimeoutError) as e:
-        logger.error(f"Network error querying builds for {project_name}: {e}")
-        print(f"      [WARNING] Could not query builds: {e}")
-        return []
-    except (AttributeError, KeyError, TypeError) as e:
-        return cast(
-            list[dict],
-            log_and_return_default(
-                logger,
-                e,
-                context={"project_name": project_name, "operation": "query_builds"},
-                default_value=[],
-                error_type="Build data parsing",
-            ),
-        )
 
 
 def calculate_deployment_frequency(builds: list[dict], lookback_days: int = 90) -> dict:
@@ -237,12 +232,14 @@ def calculate_build_duration(builds: list[dict]) -> dict:
     }
 
 
-def _get_commit_timestamp_from_build(build_client, project_name: str, build: dict) -> datetime | None:
+async def _get_commit_timestamp_from_build(
+    rest_client: AzureDevOpsRESTClient, project_name: str, build: dict
+) -> datetime | None:
     """
-    Extract the latest commit timestamp from a build's changes.
+    Extract the latest commit timestamp from a build's changes (REST API).
 
     Args:
-        build_client: Build client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         build: Build data dictionary
 
@@ -253,36 +250,28 @@ def _get_commit_timestamp_from_build(build_client, project_name: str, build: dic
         if not build["finish_time"] or not build["source_version"]:
             return None
 
-        # Get build changes (commits)
-        changes = build_client.get_build_changes(project=project_name, build_id=build["build_id"])
+        # Get build changes (commits) via REST API
+        response = await rest_client.get_build_changes(project=project_name, build_id=build["build_id"])
+
+        # Transform response
+        changes = BuildTransformer.transform_build_changes_response(response)
 
         if not changes:
             return None
 
         # Get the latest commit timestamp (changes are typically ordered with latest first)
         latest_change = changes[0]
-        if not hasattr(latest_change, "timestamp") or not latest_change.timestamp:
+        timestamp_str = latest_change.get("timestamp")
+
+        if not timestamp_str:
             return None
 
-        return cast(datetime, latest_change.timestamp)
+        # Parse timestamp
+        return parse_ado_timestamp(timestamp_str)
 
-    except AzureDevOpsServiceError as e:
-        logger.debug(f"Azure DevOps error getting changes for build {build['build_id']}: {e}")
+    except Exception as e:
+        logger.debug(f"Error getting changes for build {build.get('build_id', 'unknown')}: {e}")
         return None
-    except (AttributeError, KeyError) as e:
-        logger.debug(f"Invalid build data structure for build {build.get('build_id', 'unknown')}: {e}")
-        return None
-    except (TypeError, IndexError) as e:
-        return cast(
-            datetime | None,
-            log_and_return_default(
-                logger,
-                e,
-                context={"build_id": build.get("build_id", "unknown"), "operation": "get_commit_timestamp"},
-                default_value=None,
-                error_type="Build changes data handling",
-            ),
-        )
 
 
 def _calculate_single_build_lead_time(commit_time: datetime, build: dict) -> float | None:
@@ -319,16 +308,18 @@ def _calculate_single_build_lead_time(commit_time: datetime, build: dict) -> flo
         return None
 
 
-def calculate_lead_time_for_changes(build_client, git_client, project_name: str, builds: list[dict]) -> dict:
+async def calculate_lead_time_for_changes(
+    rest_client: AzureDevOpsRESTClient, project_name: str, builds: list[dict]
+) -> dict:
     """
-    Calculate lead time for changes - commit timestamp to build completion.
+    Calculate lead time for changes - commit timestamp to build completion (REST API).
 
     HARD DATA: Commit timestamp → Build finish_time.
     Only counts builds where we can link to commits.
+    Uses concurrent API calls for maximum performance.
 
     Args:
-        build_client: Build client
-        git_client: Git client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         builds: List of build data
 
@@ -340,13 +331,17 @@ def calculate_lead_time_for_changes(build_client, git_client, project_name: str,
     # Sample recent successful builds (limit to 50 for performance)
     successful_builds = [b for b in builds if b["result"] == "succeeded"][:50]
 
-    for build in successful_builds:
-        # Get commit timestamp
-        commit_time = _get_commit_timestamp_from_build(build_client, project_name, build)
+    # Get commit timestamps concurrently for all builds
+    commit_time_tasks = [
+        _get_commit_timestamp_from_build(rest_client, project_name, build) for build in successful_builds
+    ]
+    commit_times = await asyncio.gather(*commit_time_tasks)
+
+    # Calculate lead times
+    for build, commit_time in zip(successful_builds, commit_times, strict=True):
         if not commit_time:
             continue
 
-        # Calculate lead time
         lead_time_hours = _calculate_single_build_lead_time(commit_time, build)
         if lead_time_hours is not None:
             lead_times.append(lead_time_hours)
@@ -362,12 +357,14 @@ def calculate_lead_time_for_changes(build_client, git_client, project_name: str,
     }
 
 
-def collect_deployment_metrics_for_project(connection, project: dict, config: dict) -> dict:
+async def collect_deployment_metrics_for_project(
+    rest_client: AzureDevOpsRESTClient, project: dict, config: dict
+) -> dict:
     """
-    Collect all deployment metrics for a single project.
+    Collect all deployment metrics for a single project (REST API).
 
     Args:
-        connection: ADO connection
+        rest_client: Azure DevOps REST API client
         project: Project metadata from discovery
         config: Configuration dict
 
@@ -382,22 +379,14 @@ def collect_deployment_metrics_for_project(connection, project: dict, config: di
 
     print(f"\n  Collecting deployment metrics for: {project_name}")
 
-    build_client = connection.clients.get_build_client()
-    git_client = connection.clients.get_git_client()
-
-    # Query builds
+    # Query builds via REST API
     try:
-        builds = query_builds(build_client, ado_project_name, days=config.get("lookback_days", 90))
+        builds = await query_builds(rest_client, ado_project_name, days=config.get("lookback_days", 90))
         print(f"    Found {len(builds)} builds in last {config.get('lookback_days', 90)} days")
-    except AzureDevOpsServiceError as e:
-        logger.error(f"Azure DevOps error querying builds for {project_name}: {e}")
+    except Exception as e:
+        logger.error(f"Error querying builds for {project_name}: {e}")
         print(f"    [ERROR] Failed to query builds: {e}")
         builds = []
-    except (ConnectionError, TimeoutError) as e:
-        logger.error(f"Network error querying builds for {project_name}: {e}")
-        print(f"    [ERROR] Failed to query builds: {e}")
-        builds = []
-    except (AttributeError, KeyError, TypeError, ValueError) as e:
         builds = log_and_return_default(
             logger,
             e,
@@ -423,7 +412,7 @@ def collect_deployment_metrics_for_project(connection, project: dict, config: di
     deployment_frequency = calculate_deployment_frequency(builds, config.get("lookback_days", 90))
     build_success_rate = calculate_build_success_rate(builds)
     build_duration = calculate_build_duration(builds)
-    lead_time = calculate_lead_time_for_changes(build_client, git_client, ado_project_name, builds)
+    lead_time = await calculate_lead_time_for_changes(rest_client, ado_project_name, builds)
 
     print(f"    Deployment Frequency: {deployment_frequency['deployments_per_week']:.1f} per week")
     print(f"    Build Success Rate: {build_success_rate['success_rate_pct']:.1f}%")
@@ -504,7 +493,8 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
         return False
 
 
-if __name__ == "__main__":
+async def main() -> None:
+    """Main async function for deployment metrics collection"""
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
         import codecs
@@ -519,7 +509,7 @@ if __name__ == "__main__":
         handlers=[logging.FileHandler(".tmp/observatory/deployment_metrics.log"), logging.StreamHandler()],
     )
 
-    print("Director Observatory - Deployment Metrics Collector\n")
+    print("Director Observatory - Deployment Metrics Collector (REST API)\n")
     print("=" * 60)
 
     # Configuration
@@ -536,49 +526,34 @@ if __name__ == "__main__":
         print("Run: python execution/discover_projects.py")
         exit(1)
 
-    # Connect to ADO
-    print("\nConnecting to Azure DevOps...")
+    # Connect to ADO REST API
+    print("\nConnecting to Azure DevOps REST API...")
     try:
-        connection = get_ado_connection()
-        print("[SUCCESS] Connected to ADO")
-    except (ConnectionError, TimeoutError) as e:
-        logger.error(f"Network error connecting to ADO: {e}")
-        print(f"[ERROR] Failed to connect to ADO: {e}")
-        exit(1)
-    except (ValueError, KeyError, AttributeError) as e:
-        log_and_raise(logger, e, context={"operation": "ado_connection"}, error_type="ADO connection initialization")
+        rest_client = get_ado_rest_client()
+        print("[SUCCESS] Connected to ADO REST API")
+    except Exception as e:
+        logger.error(f"Error connecting to ADO: {e}")
         print(f"[ERROR] Failed to connect to ADO: {e}")
         exit(1)
 
-    # Collect metrics for all projects
-    print("\nCollecting deployment metrics...")
+    # Collect metrics for all projects CONCURRENTLY
+    print("\nCollecting deployment metrics (concurrent execution)...")
     print("=" * 60)
 
-    project_metrics = []
-    for project in projects:
-        try:
-            metrics = collect_deployment_metrics_for_project(connection, project, config)
-            project_metrics.append(metrics)
-        except AzureDevOpsServiceError as e:
-            logger.error(f"Azure DevOps error collecting metrics for {project['project_name']}: {e}")
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
-            continue
-        except (ConnectionError, TimeoutError) as e:
-            logger.error(f"Network error collecting metrics for {project['project_name']}: {e}")
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
-            continue
-        except (AttributeError, KeyError, TypeError, ValueError) as e:
-            log_and_continue(
-                logger,
-                e,
-                context={
-                    "project_name": project.get("project_name", "unknown"),
-                    "project_key": project.get("project_key"),
-                },
-                error_type="Project metrics collection",
-            )
-            print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'unknown')}: {e}")
-            continue
+    # Create tasks for all projects (concurrent collection)
+    tasks = [collect_deployment_metrics_for_project(rest_client, project, config) for project in projects]
+
+    # Execute all collections concurrently
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter successful results
+    project_metrics: list[dict] = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
+            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
+        else:
+            project_metrics.append(result)  # type: ignore[arg-type]
 
     # Save results
     week_metrics = {
@@ -601,10 +576,15 @@ if __name__ == "__main__":
     print(f"  Total builds analyzed: {total_builds}")
     print(f"  Total successful builds: {total_successful}")
 
-    print("\nDeployment metrics collection complete!")
+    print("\nDeployment metrics collection complete (REST API + concurrent execution)!")
     print("  ✓ Only hard data - no assumptions")
     print("  ✓ Deployment Frequency: Actual build counts")
     print("  ✓ Build Success Rate: ADO-provided status")
     print("  ✓ Build Duration: Actual finish_time - start_time")
-    print("  ✓ Lead Time: Actual commit → build timestamps")
+    print("  ✓ Lead Time: Actual commit → build timestamps (concurrent API calls)")
+    print("  ✓ Concurrent collection for maximum speed")
     print("\nNext step: Generate deployment dashboard")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -15,17 +15,22 @@ Output: KLOC metrics per project stored in .tmp/observatory/kloc_data.json
 """
 
 import json
+import logging
 import os
 import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from azure.devops.connection import Connection
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 # Set UTF-8 encoding for Windows
 if sys.platform == "win32":
@@ -270,7 +275,7 @@ def count_lines_in_content(content: str, file_path: str) -> dict[str, int]:
     }
 
 
-def get_repository_kloc(git_client, project_name: str, repo_name: str, repo_id: str) -> dict:
+def get_repository_kloc(git_client, project_name: str, repo_name: str, repo_id: str) -> dict[str, Any] | None:
     """
     Calculate KLOC for a single repository.
 
@@ -282,7 +287,7 @@ def get_repository_kloc(git_client, project_name: str, repo_name: str, repo_id: 
     - files_analyzed: Number of source files counted
     - file_breakdown: Dict of extension -> line counts
     """
-    print(f"  Analyzing repository: {repo_name}")
+    logger.info(f"  Analyzing repository: {repo_name}")
 
     try:
         # Get repository items (files) - try common branch names
@@ -299,13 +304,13 @@ def get_repository_kloc(git_client, project_name: str, repo_name: str, repo_id: 
                     recursion_level="Full",
                     version_descriptor={"version": branch, "version_type": "branch"},
                 )
-                print(f"    Using branch: {branch}")
+                logger.info(f"    Using branch: {branch}")
                 break
             except Exception:
                 continue
 
         if items is None:
-            print(f"    ⚠ Could not access any branch (tried: {', '.join(branches_to_try)})")
+            logger.warning(f"    Could not access any branch (tried: {', '.join(branches_to_try)})")
             return None
 
         total_lines = 0
@@ -313,7 +318,7 @@ def get_repository_kloc(git_client, project_name: str, repo_name: str, repo_id: 
         total_blank_lines = 0
         total_comment_lines = 0
         files_analyzed = 0
-        extension_breakdown = defaultdict(lambda: {"files": 0, "lines": 0, "code_lines": 0})
+        extension_breakdown: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "lines": 0, "code_lines": 0})
 
         # Analyze each file
         for item in items.value:
@@ -365,7 +370,7 @@ def get_repository_kloc(git_client, project_name: str, repo_name: str, repo_id: 
                 # Skip files we can't read
                 continue
 
-        print(f"    ✓ Analyzed {files_analyzed} files, {total_lines:,} total lines")
+        logger.info(f"    Analyzed {files_analyzed} files, {total_lines:,} total lines")
 
         return {
             "repo_name": repo_name,
@@ -382,7 +387,7 @@ def get_repository_kloc(git_client, project_name: str, repo_name: str, repo_id: 
         }
 
     except Exception as e:
-        print(f"    ✗ Error analyzing repository: {e}")
+        logger.error(f"    Error analyzing repository: {e}")
         return None
 
 
@@ -395,7 +400,7 @@ def calculate_project_kloc(connection, project_config: dict) -> dict | None:
     project_name = project_config.get("ado_project_name") or project_config["project_name"]
     project_key = project_config["project_key"]
 
-    print(f"\n[{project_key}] Calculating KLOC for project: {project_name}")
+    logger.info(f"\n[{project_key}] Calculating KLOC for project: {project_name}")
 
     try:
         git_client = connection.clients.get_git_client()
@@ -404,10 +409,10 @@ def calculate_project_kloc(connection, project_config: dict) -> dict | None:
         repositories = git_client.get_repositories(project=project_name)
 
         if not repositories:
-            print("  ⚠ No repositories found")
+            logger.warning("  No repositories found")
             return None
 
-        print(f"  Found {len(repositories)} repositories")
+        logger.info(f"  Found {len(repositories)} repositories")
 
         # Quick diagnostic: check if repos have any branches
         repos_with_branches = 0
@@ -420,8 +425,8 @@ def calculate_project_kloc(connection, project_config: dict) -> dict | None:
                 pass
 
         if repos_with_branches == 0:
-            print(f"  ⚠ Warning: None of the {len(repositories)} repositories have accessible branches")
-            print("  This could mean repositories are empty or use TFVC instead of Git")
+            logger.warning(f"  None of the {len(repositories)} repositories have accessible branches")
+            logger.warning("  This could mean repositories are empty or use TFVC instead of Git")
 
         # Calculate KLOC for each repository
         repo_metrics = []
@@ -439,7 +444,7 @@ def calculate_project_kloc(connection, project_config: dict) -> dict | None:
                 total_files += repo_kloc["files_analyzed"]
 
         if not repo_metrics:
-            print("  ⚠ No KLOC data collected")
+            logger.warning("  No KLOC data collected")
             return None
 
         result = {
@@ -454,26 +459,33 @@ def calculate_project_kloc(connection, project_config: dict) -> dict | None:
             "collected_at": datetime.now().isoformat(),
         }
 
-        print(f"  ✓ Total KLOC: {result['total_kloc']:.2f} ({result['code_kloc']:.2f} code)")
+        logger.info(f"  Total KLOC: {result['total_kloc']:.2f} ({result['code_kloc']:.2f} code)")
 
         return result
 
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        logger.error(f"  Error: {e}")
         return None
 
 
-def main():
+def main() -> None:
     """Main execution function"""
-    print("=" * 80)
-    print("KLOC Calculator for Azure DevOps Projects")
-    print("=" * 80)
+    # Set up logging for main execution
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+        handlers=[logging.StreamHandler()],
+    )
+
+    logger.info("=" * 80)
+    logger.info("KLOC Calculator for Azure DevOps Projects")
+    logger.info("=" * 80)
 
     # Load project structure
     structure_file = ".tmp/observatory/ado_structure.json"
     if not os.path.exists(structure_file):
-        print(f"\n[ERROR] Project structure file not found: {structure_file}")
-        print("Run: python execution/discover_projects.py")
+        logger.error(f"\nProject structure file not found: {structure_file}")
+        logger.error("Run: python execution/discover_projects.py")
         return
 
     with open(structure_file, encoding="utf-8") as f:
@@ -481,15 +493,15 @@ def main():
 
     projects = discovery_data.get("projects", [])
 
-    print(f"\nFound {len(projects)} projects to analyze")
+    logger.info(f"\nFound {len(projects)} projects to analyze")
 
     # Connect to Azure DevOps
-    print("\nConnecting to Azure DevOps...")
+    logger.info("\nConnecting to Azure DevOps...")
     try:
         connection = get_ado_connection()
-        print("✓ Connected successfully")
+        logger.info("Connected successfully")
     except Exception as e:
-        print(f"✗ Connection failed: {e}")
+        logger.error(f"Connection failed: {e}")
         return
 
     # Calculate KLOC for each project
@@ -512,33 +524,33 @@ def main():
         json.dump(output_data, f, indent=2, ensure_ascii=False)
 
     # Print summary
-    print("\n" + "=" * 80)
-    print("KLOC CALCULATION SUMMARY")
-    print("=" * 80)
-    print(f"\nProjects analyzed: {len(kloc_results)}/{len(projects)}")
-    print("\nTotal Portfolio KLOC:")
+    logger.info("\n" + "=" * 80)
+    logger.info("KLOC CALCULATION SUMMARY")
+    logger.info("=" * 80)
+    logger.info(f"\nProjects analyzed: {len(kloc_results)}/{len(projects)}")
+    logger.info("\nTotal Portfolio KLOC:")
 
     total_kloc = sum(p["total_kloc"] for p in kloc_results)
     total_code_kloc = sum(p["code_kloc"] for p in kloc_results)
     total_files = sum(p["files_analyzed"] for p in kloc_results)
 
-    print(f"  Total Lines: {total_kloc:.2f} KLOC")
-    print(f"  Code Lines:  {total_code_kloc:.2f} KLOC (excluding comments/blanks)")
-    print(f"  Files:       {total_files:,}")
+    logger.info(f"  Total Lines: {total_kloc:.2f} KLOC")
+    logger.info(f"  Code Lines:  {total_code_kloc:.2f} KLOC (excluding comments/blanks)")
+    logger.info(f"  Files:       {total_files:,}")
 
-    print(f"\nResults saved to: {output_file}")
+    logger.info(f"\nResults saved to: {output_file}")
 
     # Print per-project summary
-    print("\nPer-Project KLOC:")
-    print(f"{'Project':<40} {'KLOC':>10} {'Code KLOC':>12} {'Files':>8}")
-    print("-" * 75)
+    logger.info("\nPer-Project KLOC:")
+    logger.info(f"{'Project':<40} {'KLOC':>10} {'Code KLOC':>12} {'Files':>8}")
+    logger.info("-" * 75)
 
     for project in sorted(kloc_results, key=lambda x: x["total_kloc"], reverse=True):
-        print(
+        logger.info(
             f"{project['project_name']:<40} {project['total_kloc']:>10.2f} {project['code_kloc']:>12.2f} {project['files_analyzed']:>8,}"
         )
 
-    print("\n✓ KLOC calculation complete!")
+    logger.info("\nKLOC calculation complete!")
 
 
 if __name__ == "__main__":

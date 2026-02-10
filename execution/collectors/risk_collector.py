@@ -81,7 +81,7 @@ class ADORiskCollector:
 
         logger.info(f"Initialized ADORiskCollector with {len(self.queries)} queries")
 
-    def collect_metrics(self, project_name: str, area_path_filter: str | None = None) -> dict:
+    def collect_metrics(self, project_name: str, area_path_filter: str | None = None) -> dict[str, Any]:
         """
         Execute all configured queries and collect risk metrics.
 
@@ -168,7 +168,7 @@ class ADORiskCollector:
 
     def collect_for_multiple_projects(
         self, projects: list[dict], area_path_filter_key: str = "area_path_filter"
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """
         Collect risk metrics for multiple projects.
 

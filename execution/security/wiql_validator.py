@@ -332,7 +332,7 @@ class WIQLValidator:
         return field_name
 
     @staticmethod
-    def build_safe_wiql(template: str, **params) -> str:
+    def build_safe_wiql(template: str, **params: str) -> str:
         """
         Build WIQL query with validated parameters.
 
