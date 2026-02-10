@@ -308,8 +308,6 @@ def _generate_expanded_content(product_name: str, metrics, vulnerabilities: list
                     <button class="active" onclick="filterSeverity(this, 'all')">All ({len(vulnerabilities)})</button>
                     <button onclick="filterSeverity(this, 'critical')">Critical</button>
                     <button onclick="filterSeverity(this, 'high')">High</button>
-                    <button onclick="filterSeverity(this, 'medium')">Medium</button>
-                    <button onclick="filterSeverity(this, 'low')">Low</button>
                 </div>
                 <table class="vuln-table">
                     <thead>

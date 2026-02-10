@@ -142,7 +142,7 @@ def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> 
             bg_color = f"rgba(249, 115, 22, {0.6 + intensity * 0.2})"
         else:
             bg_color = f"rgba(234, 88, 12, {0.8 + intensity * 0.2})"
-    else:  # medium
+    elif severity_type == "medium":
         # Yellow/amber scale for medium
         if intensity < 0.3:
             bg_color = f"rgba(251, 191, 36, {0.3 + intensity * 0.3})"
@@ -150,6 +150,14 @@ def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> 
             bg_color = f"rgba(245, 158, 11, {0.6 + intensity * 0.2})"
         else:
             bg_color = f"rgba(217, 119, 6, {0.8 + intensity * 0.2})"
+    else:  # low
+        # Blue/cyan scale for low
+        if intensity < 0.3:
+            bg_color = f"rgba(59, 130, 246, {0.3 + intensity * 0.3})"
+        elif intensity < 0.7:
+            bg_color = f"rgba(37, 99, 235, {0.6 + intensity * 0.2})"
+        else:
+            bg_color = f"rgba(29, 78, 216, {0.8 + intensity * 0.2})"
 
     # Text color - white for high intensity, darker for low
     text_color = "#ffffff" if intensity > 0.5 else "var(--text-primary)"
