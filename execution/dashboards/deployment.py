@@ -26,6 +26,7 @@ from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.deployment import DeploymentMetrics, from_json
 from execution.framework import get_dashboard_framework
+from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
@@ -377,4 +378,9 @@ if __name__ == "__main__":
         logger.info("Run data collection first: python execution/ado_deployment_metrics.py")
 
     except Exception as e:
-        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
+        log_and_raise(
+            logger,
+            e,
+            context={"output_path": str(output_path)},
+            error_type="Dashboard generation",
+        )
