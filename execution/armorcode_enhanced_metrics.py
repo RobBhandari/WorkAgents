@@ -14,6 +14,7 @@ Matches existing report counts exactly.
 """
 
 import json
+import logging
 import os
 import sys
 from datetime import datetime
@@ -25,6 +26,8 @@ from http_client import post
 from execution.secure_config import get_config
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 def get_armorcode_headers():
@@ -80,17 +83,17 @@ def get_product_names_to_ids(product_names: list[str]) -> dict[str, str]:
                     if not result.get("pageInfo", {}).get("hasNext", False):
                         break
         except (ConnectionError, TimeoutError) as e:
-            print(f"      [WARNING] Network error fetching products page {page}: {e}")
+            logger.warning(f"Network error fetching products page {page}: {e}")
             break
         except (KeyError, ValueError, json.JSONDecodeError) as e:
-            print(f"      [WARNING] Invalid response format fetching products page {page}: {e}")
+            logger.warning(f"Invalid response format fetching products page {page}: {e}")
             break
 
     # Map product names to IDs
     product_map = {p["name"]: str(p["id"]) for p in all_products}
-    print(f"      API returned {len(all_products)} total products from ArmorCode")
+    logger.info(f"API returned {len(all_products)} total products from ArmorCode")
     if len(all_products) > 0:
-        print(f"      Sample products: {list(product_map.keys())[:5]}")
+        logger.debug(f"Sample products: {list(product_map.keys())[:5]}")
     return product_map
 
 
@@ -107,11 +110,11 @@ def get_product_ids_from_baseline(baseline: dict) -> list[str]:
     # Get product names from baseline
     product_names = baseline.get("products", [])
     if not product_names:
-        print("      [WARNING] No products found in baseline")
+        logger.warning("No products found in baseline")
         return []
 
-    print(f"      Found {len(product_names)} products in baseline")
-    print("      Converting product names to IDs...")
+    logger.info(f"Found {len(product_names)} products in baseline")
+    logger.info("Converting product names to IDs...")
 
     # Convert names to IDs
     product_map = get_product_names_to_ids(product_names)
@@ -122,9 +125,9 @@ def get_product_ids_from_baseline(baseline: dict) -> list[str]:
         if name in product_map:
             product_ids.append(product_map[name])
         else:
-            print(f"      [WARNING] Product '{name}' not found in ArmorCode")
+            logger.warning(f"Product '{name}' not found in ArmorCode")
 
-    print(f"      Resolved {len(product_ids)} product IDs")
+    logger.info(f"Resolved {len(product_ids)} product IDs")
     return product_ids
 
 
@@ -144,8 +147,8 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
     Returns:
         Dictionary with vulnerability data
     """
-    print("    Querying current HIGH and CRITICAL vulnerabilities via GraphQL...")
-    print(f"    Products: {len(product_ids)}")
+    logger.info("Querying current HIGH and CRITICAL vulnerabilities via GraphQL...")
+    logger.info(f"Products: {len(product_ids)}")
 
     headers = get_armorcode_headers()
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
@@ -192,7 +195,7 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
                 data = response.json()
 
                 if "errors" in data:
-                    print(f"      [ERROR] GraphQL error for product {product_id}: {data['errors']}")
+                    logger.error(f"GraphQL error for product {product_id}: {data['errors']}")
                     break
 
                 if "data" in data and "findings" in data["data"]:
@@ -205,20 +208,20 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
                     page += 1
 
                     if page > 100:
-                        print(f"      [WARNING] Reached page limit for product {product_id}")
+                        logger.warning(f"Reached page limit for product {product_id}")
                         break
                 else:
                     break
 
-        print(f"      Found {len(all_findings)} total current HIGH/CRITICAL vulnerabilities")
+        logger.info(f"Found {len(all_findings)} total current HIGH/CRITICAL vulnerabilities")
 
         return {"findings": all_findings, "total_count": len(all_findings)}
 
     except (ConnectionError, TimeoutError) as e:
-        print(f"      [ERROR] Network error querying current vulnerabilities: {e}")
+        logger.error(f"Network error querying current vulnerabilities: {e}")
         return {"findings": [], "total_count": 0}
     except (KeyError, ValueError, json.JSONDecodeError) as e:
-        print(f"      [ERROR] Invalid response format querying current vulnerabilities: {e}")
+        logger.error(f"Invalid response format querying current vulnerabilities: {e}")
         return {"findings": [], "total_count": 0}
 
 
@@ -236,8 +239,8 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], 
     Returns:
         Dictionary with closed vulnerability data (count only, no date data)
     """
-    print(f"    Querying closed vulnerabilities (last {lookback_days} days) via GraphQL...")
-    print("      [INFO] MTTR calculation disabled - date fields not available in GraphQL schema")
+    logger.info(f"Querying closed vulnerabilities (last {lookback_days} days) via GraphQL...")
+    logger.info("MTTR calculation disabled - date fields not available in GraphQL schema")
 
     headers = get_armorcode_headers()
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
@@ -293,12 +296,12 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], 
                 else:
                     break
 
-        print(f"      Found ~{len(all_findings)} closed vulnerabilities (limited sample, no date filtering)")
+        logger.info(f"Found ~{len(all_findings)} closed vulnerabilities (limited sample, no date filtering)")
 
         return {"findings": all_findings, "total_count": len(all_findings)}
 
     except Exception as e:
-        print(f"      [ERROR] Failed to query closed vulnerabilities: {e}")
+        logger.error(f"Failed to query closed vulnerabilities: {e}")
         return {"findings": [], "total_count": 0}
 
 
@@ -432,12 +435,12 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
     """
     base_url = get_config().get_armorcode_config().base_url
 
-    print("\n  Collecting enhanced security metrics from ArmorCode...")
+    logger.info("Collecting enhanced security metrics from ArmorCode...")
 
     # Get product IDs from baseline
     product_ids = get_product_ids_from_baseline(baseline)
     if not product_ids:
-        print("      [ERROR] No product IDs found in baseline - cannot query")
+        logger.error("No product IDs found in baseline - cannot query")
         return {
             "current_total": 0,
             "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
@@ -466,7 +469,7 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
     try:
         mttr = calculate_mttr(closed_vulns["findings"])
     except Exception as e:
-        print(f"      [ERROR] MTTR calculation failed: {e}")
+        logger.error(f"MTTR calculation failed: {e}")
         mttr = {"critical_mttr_days": None, "high_mttr_days": None, "critical_sample_size": 0, "high_sample_size": 0}
 
     try:
@@ -474,33 +477,33 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
             current_vulns["findings"], stale_threshold_days=config.get("stale_threshold_days", 90)
         )
     except Exception as e:
-        print(f"      [ERROR] Stale criticals calculation failed: {e}")
+        logger.error(f"Stale criticals calculation failed: {e}")
         stale_criticals = {"count": 0, "threshold_days": 90, "items": []}
 
     try:
         severity_breakdown = calculate_severity_breakdown(current_vulns["findings"])
     except Exception as e:
-        print(f"      [ERROR] Severity breakdown calculation failed: {e}")
+        logger.error(f"Severity breakdown calculation failed: {e}")
         severity_breakdown = {"critical": 0, "high": 0, "total": 0}
 
     try:
         product_breakdown = calculate_product_breakdown(current_vulns["findings"])
     except Exception as e:
-        print(f"      [ERROR] Product breakdown calculation failed: {e}")
+        logger.error(f"Product breakdown calculation failed: {e}")
         product_breakdown = {}
 
     try:
         age_distribution = calculate_age_distribution(current_vulns["findings"])
     except Exception as e:
-        print(f"      [ERROR] Age distribution calculation failed: {e}")
+        logger.error(f"Age distribution calculation failed: {e}")
         age_distribution = {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0}
 
-    print(
-        f"    Current Total: {current_vulns['total_count']} (Critical: {severity_breakdown['critical']}, High: {severity_breakdown['high']})"
+    logger.info(
+        f"Current Total: {current_vulns['total_count']} (Critical: {severity_breakdown['critical']}, High: {severity_breakdown['high']})"
     )
-    print(f"    MTTR - Critical: {mttr['critical_mttr_days']} days, High: {mttr['high_mttr_days']} days")
-    print(f"    Stale Criticals (>90d): {stale_criticals['count']}")
-    print(f"    Closed (last 90d): {closed_vulns['total_count']}")
+    logger.info(f"MTTR - Critical: {mttr['critical_mttr_days']} days, High: {mttr['high_mttr_days']} days")
+    logger.info(f"Stale Criticals (>90d): {stale_criticals['count']}")
+    logger.info(f"Closed (last 90d): {closed_vulns['total_count']}")
 
     return {
         "current_total": current_vulns["total_count"],
@@ -525,11 +528,11 @@ def load_existing_baseline():
                 baseline = json.load(f)
 
             vuln_count = baseline.get("total_vulnerabilities") or baseline.get("vulnerability_count")
-            print(f"    Loaded existing baseline: {vuln_count} vulns on {baseline.get('baseline_date')}")
-            print(f"    Tracking {len(baseline.get('products', []))} products")
+            logger.info(f"Loaded existing baseline: {vuln_count} vulns on {baseline.get('baseline_date')}")
+            logger.info(f"Tracking {len(baseline.get('products', []))} products")
             return baseline
 
-    print("    [WARNING] No existing baseline found")
+    logger.warning("No existing baseline found")
     return None
 
 
@@ -552,8 +555,8 @@ def save_security_metrics(metrics: dict, output_file: str = ".tmp/observatory/se
     high_count = severity_breakdown.get("high", 0)
 
     if current_total == 0 and critical_count == 0 and high_count == 0:
-        print("\n[SKIPPED] All vulnerability counts are zero - likely a collection failure")
-        print("          Not persisting this data to avoid corrupting trend history")
+        logger.warning("All vulnerability counts are zero - likely a collection failure")
+        logger.warning("Not persisting this data to avoid corrupting trend history")
         return False
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -563,7 +566,7 @@ def save_security_metrics(metrics: dict, output_file: str = ".tmp/observatory/se
 
     # Add validation if structure check exists
     if not isinstance(history, dict) or "weeks" not in history:
-        print("\n[WARNING] Existing history file has invalid structure - recreating")
+        logger.warning("Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
     # Add new week entry
@@ -575,11 +578,11 @@ def save_security_metrics(metrics: dict, output_file: str = ".tmp/observatory/se
     # Save updated history
     try:
         atomic_json_save(history, output_file)
-        print(f"\n[SAVED] Security metrics saved to: {output_file}")
-        print(f"        History now contains {len(history['weeks'])} week(s)")
+        logger.info(f"Security metrics saved to: {output_file}")
+        logger.info(f"History now contains {len(history['weeks'])} week(s)")
         return True
     except Exception as e:
-        print(f"\n[ERROR] Failed to save Security metrics: {e}")
+        logger.error(f"Failed to save Security metrics: {e}")
         return False
 
 
@@ -591,8 +594,15 @@ if __name__ == "__main__":
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    print("Director Observatory - Enhanced Security Metrics Collector\n")
-    print("=" * 60)
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)],
+    )
+
+    logger.info("Director Observatory - Enhanced Security Metrics Collector")
+    logger.info("=" * 60)
 
     # Configuration
     config = {
@@ -603,13 +613,13 @@ if __name__ == "__main__":
     # Load existing baseline (REQUIRED - contains product IDs to filter)
     baseline = load_existing_baseline()
     if not baseline:
-        print("\n[ERROR] Baseline is required to determine which products to track")
-        print("Please run: python execution/armorcode_baseline.py")
+        logger.error("Baseline is required to determine which products to track")
+        logger.error("Please run: python execution/armorcode_baseline.py")
         exit(1)
 
     # Collect enhanced metrics
-    print("\nCollecting enhanced security metrics...")
-    print("=" * 60)
+    logger.info("Collecting enhanced security metrics...")
+    logger.info("=" * 60)
 
     try:
         metrics = collect_enhanced_security_metrics(config, baseline)
@@ -633,21 +643,21 @@ if __name__ == "__main__":
         save_security_metrics(week_metrics)
 
         # Summary
-        print("\n" + "=" * 60)
-        print("Enhanced Security Metrics Collection Summary:")
-        print(f"  Current vulnerabilities: {metrics['current_total']} (HIGH + CRITICAL)")
-        print(f"  Critical: {metrics['severity_breakdown']['critical']}")
-        print(f"  High: {metrics['severity_breakdown']['high']}")
-        print(f"  Stale criticals (>90d): {metrics['stale_criticals']['count']}")
+        logger.info("=" * 60)
+        logger.info("Enhanced Security Metrics Collection Summary:")
+        logger.info(f"Current vulnerabilities: {metrics['current_total']} (HIGH + CRITICAL)")
+        logger.info(f"Critical: {metrics['severity_breakdown']['critical']}")
+        logger.info(f"High: {metrics['severity_breakdown']['high']}")
+        logger.info(f"Stale criticals (>90d): {metrics['stale_criticals']['count']}")
 
         if baseline:
-            print(f"  Baseline: {baseline.get('vulnerability_count')} → Target: {baseline.get('target_count')}")
+            logger.info(f"Baseline: {baseline.get('vulnerability_count')} → Target: {baseline.get('target_count')}")
             delta = metrics["current_total"] - baseline.get("vulnerability_count", 0)
-            print(f"  Net change from baseline: {delta:+d}")
+            logger.info(f"Net change from baseline: {delta:+d}")
 
-        print("\nEnhanced security metrics collection complete!")
-        print("\nNext step: Generate security dashboard")
+        logger.info("Enhanced security metrics collection complete!")
+        logger.info("Next step: Generate security dashboard")
 
     except Exception as e:
-        print(f"\n[ERROR] Failed to collect security metrics: {e}")
+        logger.error(f"Failed to collect security metrics: {e}", exc_info=True)
         exit(1)
