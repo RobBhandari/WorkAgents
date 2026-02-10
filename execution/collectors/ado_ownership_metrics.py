@@ -12,7 +12,6 @@ Read-only operation - does not modify any existing data.
 """
 
 import json
-import logging
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -25,15 +24,16 @@ from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
+from execution.core import get_logger
 from execution.secure_config import get_config
 from execution.security import WIQLValidator
 from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
+from execution.utils.error_handling import log_and_continue, log_and_raise, log_and_return_default
 
 load_dotenv()
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _build_area_filter_clause(area_path_filter: str | None) -> tuple[str, str | None]:
@@ -423,8 +423,12 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
                             total_commits += 1
 
             except (AzureDevOpsServiceError, AttributeError) as e:
-                # Skip repos that fail (might be empty, archived, or permission issues)
-                logger.debug(f"Skipping repository {repo.name}: {e}")
+                log_and_continue(
+                    logger,
+                    e,
+                    context={"repository": repo.name, "project": project_name},
+                    error_type="Repository commit query",
+                )
                 continue
 
         # Calculate active days per developer
@@ -451,8 +455,21 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
         }
 
     except AzureDevOpsServiceError as e:
-        logger.warning(f"Could not calculate developer active days: {e}")
-        return {"sample_size": 0, "total_commits": 0, "lookback_days": days, "developers": [], "avg_active_days": None}
+        default_result = {
+            "sample_size": 0,
+            "total_commits": 0,
+            "lookback_days": days,
+            "developers": [],
+            "avg_active_days": None,
+        }
+        log_and_return_default(
+            logger,
+            e,
+            context={"project": project_name, "lookback_days": days},
+            default_value=default_result,
+            error_type="Developer active days calculation",
+        )
+        return default_result
 
 
 def _calculate_all_metrics(work_items: dict, git_client, ado_project_name: str, lookback_days: int) -> dict:
@@ -599,7 +616,13 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
         logger.info(f"        History now contains {len(history['weeks'])} week(s)")
         return True
     except OSError as e:
-        logger.error(f"[ERROR] Failed to save ownership metrics: {e}")
+        log_and_return_default(
+            logger,
+            e,
+            context={"output_file": output_file, "weeks_count": len(history["weeks"])},
+            default_value=False,
+            error_type="Ownership metrics save",
+        )
         return False
 
 
@@ -623,12 +646,24 @@ if __name__ == "__main__":
             discovery_data = json.load(f)
         projects = discovery_data["projects"]
         logger.info(f"Loaded {len(projects)} projects from discovery")
-    except FileNotFoundError:
-        logger.error("[ERROR] Project discovery file not found.")
-        logger.error("Run: python execution/discover_projects.py")
+    except FileNotFoundError as e:
+        log_and_raise(
+            logger,
+            e,
+            context={
+                "file_path": ".tmp/observatory/ado_structure.json",
+                "hint": "Run: python execution/discover_projects.py",
+            },
+            error_type="Project discovery file not found",
+        )
         exit(1)
     except json.JSONDecodeError as e:
-        logger.error(f"[ERROR] Invalid JSON in discovery file: {e}")
+        log_and_raise(
+            logger,
+            e,
+            context={"file_path": ".tmp/observatory/ado_structure.json"},
+            error_type="Invalid JSON in discovery file",
+        )
         exit(1)
 
     # Connect to ADO
@@ -637,7 +672,12 @@ if __name__ == "__main__":
         connection = get_ado_connection()
         logger.info("[SUCCESS] Connected to ADO")
     except (AzureDevOpsServiceError, ValueError) as e:
-        logger.error(f"[ERROR] Failed to connect to ADO: {e}")
+        log_and_raise(
+            logger,
+            e,
+            context={"operation": "ADO connection"},
+            error_type="ADO connection failed",
+        )
         exit(1)
 
     # Collect metrics for all projects
@@ -650,7 +690,12 @@ if __name__ == "__main__":
             metrics = collect_ownership_metrics_for_project(connection, project, config)
             project_metrics.append(metrics)
         except (AzureDevOpsServiceError, BatchFetchError) as e:
-            logger.error(f"[ERROR] Failed to collect metrics for {project['project_name']}: {e}")
+            log_and_continue(
+                logger,
+                e,
+                context={"project_name": project["project_name"], "project_key": project.get("project_key")},
+                error_type="Project metrics collection",
+            )
             continue
 
     # Save results

@@ -33,6 +33,7 @@ from execution.collectors.ado_connection import get_ado_connection
 from execution.domain.constants import flow_metrics, sampling_config
 from execution.secure_config import get_config
 from execution.utils.datetime_utils import parse_ado_timestamp
+from execution.utils.error_handling import log_and_return_default
 from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
@@ -98,13 +99,23 @@ def query_pull_requests(
         return pr_data
 
     except AzureDevOpsServiceError as e:
-        logger.warning(f"ADO API error querying PRs for repo {repo_id}: {e}")
         print(f"      [WARNING] Could not query PRs: {e}")
-        return []
+        return log_and_return_default(
+            logger,
+            e,
+            context={"repo_id": repo_id, "project": project_name},
+            default_value=[],
+            error_type="ADO API PR query",
+        )
     except (ValueError, AttributeError) as e:
-        logger.error(f"Data processing error in query_pull_requests: {e}")
         print(f"      [WARNING] Data error querying PRs: {e}")
-        return []
+        return log_and_return_default(
+            logger,
+            e,
+            context={"repo_id": repo_id, "project": project_name},
+            default_value=[],
+            error_type="PR data processing",
+        )
 
 
 def get_first_comment_time(threads: list) -> datetime | None:

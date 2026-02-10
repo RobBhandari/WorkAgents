@@ -20,6 +20,7 @@ import sys
 from datetime import UTC, datetime, timedelta
 
 from azure.devops.connection import Connection
+from azure.devops.exceptions import AzureDevOpsServiceError
 from azure.devops.v7_1.work_item_tracking import Wiql
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
@@ -30,6 +31,7 @@ from execution.secure_config import get_config
 from execution.security import WIQLValidator
 from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
 from execution.utils.datetime_utils import calculate_age_days, calculate_lead_time_days
+from execution.utils.error_handling import log_and_continue, log_and_return_default
 from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
@@ -369,6 +371,8 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
     Returns:
         Test execution time metrics dictionary
     """
+    default_result = {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
+
     try:
         # Get recent test runs
         test_runs = test_client.get_test_runs(project=project_name, top=50)
@@ -388,7 +392,7 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
                     continue
 
         if not execution_times:
-            return {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
+            return default_result
 
         return {
             "sample_size": len(execution_times),
@@ -397,9 +401,15 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
             "p95_minutes": round(calculate_percentile(execution_times, 95), 1),
         }
 
-    except Exception as e:
-        logger.warning(f"Could not calculate test execution time: {e}")
-        return {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
+    except (AzureDevOpsServiceError, AttributeError, ValueError) as e:
+        log_and_return_default(
+            logger,
+            e,
+            context={"project_name": project_name, "operation": "get_test_runs"},
+            default_value=default_result,
+            error_type="Test execution time calculation",
+        )
+        return default_result
 
 
 def _print_metrics_summary(age_distribution: dict, mttr: dict, test_execution: dict) -> None:
@@ -573,8 +583,8 @@ if __name__ == "__main__":
     try:
         connection = get_ado_connection()
         print("[SUCCESS] Connected to ADO")
-    except Exception as e:
-        logger.error(f"Failed to connect to ADO: {e}")
+    except (AzureDevOpsServiceError, ValueError, ConnectionError) as e:
+        logger.error(f"Failed to connect to ADO: {e}", exc_info=True, extra={"error_type": "ADO Connection"})
         sys.exit(1)
 
     # Collect metrics for all projects
@@ -586,8 +596,16 @@ if __name__ == "__main__":
         try:
             metrics = collect_quality_metrics_for_project(connection, project, config)
             project_metrics.append(metrics)
-        except Exception as e:
-            logger.error(f"Failed to collect metrics for {project['project_name']}: {e}", exc_info=True)
+        except (AzureDevOpsServiceError, KeyError, ValueError, BatchFetchError) as e:
+            log_and_continue(
+                logger,
+                e,
+                context={
+                    "project_name": project.get("project_name", "Unknown"),
+                    "project_key": project.get("project_key"),
+                },
+                error_type="Project metrics collection",
+            )
             continue
 
     # Save results

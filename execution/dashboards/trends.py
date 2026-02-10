@@ -21,6 +21,7 @@ Usage:
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 # Import infrastructure and components
 from execution.core import get_logger
@@ -28,6 +29,7 @@ from execution.dashboards.components.charts import sparkline
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.metrics import TrendData
 from execution.framework import get_dashboard_framework
+from execution.utils.error_handling import log_and_raise, log_and_return_default
 
 logger = get_logger(__name__)
 
@@ -122,8 +124,16 @@ class TrendsDashboardGenerator:
             return {"weeks": weeks_subset, "all_weeks": weeks}
 
         except Exception as e:
-            logger.error("Failed to load history file", extra={"file": file_path.name, "error": str(e)})
-            return None
+            return cast(
+                dict | None,
+                log_and_return_default(
+                    logger,
+                    e,
+                    context={"file": file_path.name, "operation": "load_history"},
+                    default_value=None,
+                    error_type="History file loading",
+                ),
+            )
 
     def _calculate_forecast(self, historical_data: dict) -> dict | None:
         """Calculate 70% reduction forecast"""
@@ -449,4 +459,9 @@ if __name__ == "__main__":
         )
 
     except Exception as e:
-        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
+        log_and_raise(
+            logger,
+            e,
+            context={"operation": "generate_trends_dashboard", "output": str(output_path)},
+            error_type="Trends dashboard generation",
+        )

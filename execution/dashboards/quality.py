@@ -32,6 +32,7 @@ from execution.dashboards.renderer import render_dashboard
 # Import infrastructure
 from execution.framework import get_dashboard_framework
 from execution.template_engine import render_template
+from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
@@ -449,6 +450,12 @@ if __name__ == "__main__":
     except FileNotFoundError as e:
         logger.error("Quality data file not found", extra={"error": str(e)})
         logger.info("Run data collection first: python execution/collectors/ado_quality_metrics.py")
+        raise
 
-    except Exception as e:
-        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
+        log_and_raise(
+            logger,
+            e,
+            context={"output_path": str(output_path) if output_path else None},
+            error_type="Dashboard generation",
+        )

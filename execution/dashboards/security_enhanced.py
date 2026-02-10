@@ -33,6 +33,7 @@ from execution.dashboards.components.cards import summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.dashboards.security_detail_page import generate_product_detail_page
 from execution.framework import get_dashboard_framework
+from execution.utils.error_handling import log_and_return_default
 
 logger = get_logger(__name__)
 
@@ -64,8 +65,16 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
         loader = ArmorCodeLoader()
         metrics_by_product = loader.load_latest_metrics()
         logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
-    except FileNotFoundError:
-        logger.error("No ArmorCode data found in security_history.json")
+    except FileNotFoundError as e:
+        logger.warning(
+            "ArmorCode data loading failed, returning empty result: No ArmorCode data found in security_history.json",
+            extra={
+                "error_type": "ArmorCode data loading",
+                "exception_class": e.__class__.__name__,
+                "context": {"output_dir": str(output_dir), "expected_file": "security_history.json"},
+                "default_value": "('', 0)",
+            },
+        )
         logger.info("Run: python execution/armorcode_enhanced_metrics.py")
         return "", 0
 

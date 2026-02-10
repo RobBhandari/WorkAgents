@@ -9,12 +9,14 @@ Tests cover:
 """
 
 import json
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, mock_open, patch
 
 import pytest
 
 from execution.dashboards.executive import ExecutiveSummaryGenerator
+from execution.domain.security import SecurityMetrics
 
 
 @pytest.fixture
@@ -102,8 +104,29 @@ class TestLoadExecutiveData:
     def test_load_security_data(self, sample_security_data):
         """Should load security data from API"""
         with patch("execution.dashboards.executive.ArmorCodeLoader") as mock_loader:
+            # Create SecurityMetrics objects matching the expected structure
+            mock_metrics = {
+                "Product1": SecurityMetrics(
+                    timestamp=datetime.now(),
+                    project="Product1",
+                    total_vulnerabilities=42,
+                    critical=5,
+                    high=12,
+                    medium=20,
+                    low=5,
+                ),
+                "Product2": SecurityMetrics(
+                    timestamp=datetime.now(),
+                    project="Product2",
+                    total_vulnerabilities=25,
+                    critical=2,
+                    high=6,
+                    medium=10,
+                    low=7,
+                ),
+            }
             mock_instance = Mock()
-            mock_instance.get_summary.return_value = sample_security_data
+            mock_instance.load_latest_metrics.return_value = mock_metrics
             mock_loader.return_value = mock_instance
 
             generator = ExecutiveSummaryGenerator()

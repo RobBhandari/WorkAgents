@@ -18,10 +18,13 @@ import asyncio
 import sys
 from datetime import datetime
 
+import httpx
+
 from execution.async_http_client import AsyncSecureHTTPClient
 from execution.core import get_logger
 from execution.domain.constants import api_config
 from execution.secure_config import get_config
+from execution.utils.error_handling import log_and_continue
 
 logger = get_logger(__name__)
 
@@ -92,8 +95,8 @@ class AsyncArmorCodeCollector:
             response.raise_for_status()
             data: dict = response.json()
             return data
-        except Exception as e:
-            logger.error(f"Failed to fetch page {page} for product {product_id}: {e}")
+        except (httpx.HTTPError, httpx.TimeoutException) as e:
+            log_and_continue(logger, e, {"page": page, "product_id": product_id}, "ArmorCode API fetch")
             return {"errors": [str(e)]}
 
     async def _fetch_all_pages_for_product(self, client: AsyncSecureHTTPClient, product_id: str) -> list[dict]:
@@ -238,10 +241,12 @@ class AsyncArmorCodeCollector:
 
                                     if not page_result.get("pageInfo", {}).get("hasNext", False):
                                         break
-                        except Exception as e:
-                            logger.warning(f"Failed to parse product response: {e}")
-        except Exception as e:
-            logger.error(f"Failed to fetch products: {e}")
+                        except (ValueError, KeyError, TypeError) as e:
+                            log_and_continue(
+                                logger, e, {"result_type": type(result).__name__}, "Product response parsing"
+                            )
+        except (httpx.HTTPError, httpx.TimeoutException) as e:
+            log_and_continue(logger, e, {"page": 1, "operation": "fetch_products"}, "ArmorCode products fetch")
 
         # Map product names to IDs
         product_map = {p["name"]: str(p["id"]) for p in all_products}

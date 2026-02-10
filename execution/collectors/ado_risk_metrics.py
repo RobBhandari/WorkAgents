@@ -29,6 +29,7 @@ from execution.collectors.ado_connection import get_ado_connection
 from execution.core.logging_config import get_logger
 from execution.domain.constants import flow_metrics, sampling_config
 from execution.secure_config import get_config
+from execution.utils.error_handling import log_and_continue, log_and_return_default
 
 load_dotenv()
 
@@ -121,14 +122,11 @@ def _fetch_commit_changes(git_client, commit_id: str, repo_id: str, project_name
     except (ConnectionError, TimeoutError) as e:
         logger.warning(
             "Network error getting changes for commit",
-            extra={"commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id, "error": str(e)},
-        )
-        return 0, []
-    except Exception as e:
-        logger.error(
-            "Unexpected error getting changes for commit",
-            extra={"commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id, "error": str(e)},
-            exc_info=True,
+            extra={
+                "error_type": "Network error getting changes for commit",
+                "exception_class": e.__class__.__name__,
+                "context": {"commit_id": commit_id[:8] if len(commit_id) >= 8 else commit_id, "repo_id": repo_id},
+            },
         )
         return 0, []
 
@@ -183,15 +181,13 @@ def query_recent_commits(
         )
         return []
     except (ConnectionError, TimeoutError) as e:
-        logger.error(
-            "Network error querying commits", extra={"project": project_name, "repo_id": repo_id, "error": str(e)}
-        )
-        return []
-    except Exception as e:
-        logger.error(
-            "Unexpected error querying commits",
-            extra={"project": project_name, "repo_id": repo_id, "error": str(e)},
-            exc_info=True,
+        logger.warning(
+            "Network error querying commits",
+            extra={
+                "error_type": "Network error querying commits",
+                "exception_class": e.__class__.__name__,
+                "context": {"project": project_name, "repo_id": repo_id},
+            },
         )
         return []
 
@@ -246,9 +242,12 @@ def query_pull_requests(
                     extra={"pr_id": pr.pull_request_id, "repo_id": repo_id, "error": str(e)},
                 )
                 commit_count = 0
-            except Exception as e:
-                logger.warning(
-                    "Unexpected error getting PR commits", extra={"pr_id": pr.pull_request_id, "error": str(e)}
+            except (AttributeError, KeyError, ValueError) as e:
+                log_and_continue(
+                    logger,
+                    e,
+                    context={"pr_id": pr.pull_request_id, "repo_id": repo_id},
+                    error_type="Parsing PR commits",
                 )
                 commit_count = 0
 
@@ -276,13 +275,13 @@ def query_pull_requests(
         )
         return []
     except (ConnectionError, TimeoutError) as e:
-        logger.error("Network error querying PRs", extra={"project": project_name, "repo_id": repo_id, "error": str(e)})
-        return []
-    except Exception as e:
-        logger.error(
-            "Unexpected error querying PRs",
-            extra={"project": project_name, "repo_id": repo_id, "error": str(e)},
-            exc_info=True,
+        logger.warning(
+            "Network error querying PRs",
+            extra={
+                "error_type": "Network error querying PRs",
+                "exception_class": e.__class__.__name__,
+                "context": {"project": project_name, "repo_id": repo_id},
+            },
         )
         return []
 
@@ -461,15 +460,14 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
         print(f"    [WARNING] Could not get repositories: {e}")
         repos = []
     except (ConnectionError, TimeoutError) as e:
-        logger.error("Network error getting repositories", extra={"project": ado_project_name, "error": str(e)})
         print(f"    [WARNING] Could not get repositories: {e}")
-        repos = []
-    except Exception as e:
-        logger.error(
-            "Unexpected error getting repositories", extra={"project": ado_project_name, "error": str(e)}, exc_info=True
+        repos = log_and_return_default(
+            logger,
+            e,
+            context={"project": ado_project_name},
+            default_value=[],
+            error_type="Network error getting repositories",
         )
-        print(f"    [WARNING] Could not get repositories: {e}")
-        repos = []
 
     # Aggregate metrics across all repos - ONLY HARD DATA
     all_commits = []
@@ -490,11 +488,9 @@ def collect_risk_metrics_for_project(connection, project: dict, config: dict) ->
             )
             print(f"      [WARNING] Failed to analyze repo {repo.name}: {e}")
             continue
-        except Exception as e:
-            logger.error(
-                "Unexpected error analyzing repo",
-                extra={"repo_name": repo.name, "project": project_name, "error": str(e)},
-                exc_info=True,
+        except (AttributeError, KeyError, ValueError) as e:
+            log_and_continue(
+                logger, e, context={"repo_name": repo.name, "project": project_name}, error_type="Parsing repo data"
             )
             print(f"      [WARNING] Failed to analyze repo {repo.name}: {e}")
             continue
@@ -590,16 +586,17 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
         print(f"\n[SAVED] Risk metrics saved to: {output_file}")
         print(f"        History now contains {len(history['weeks'])} week(s)")
         return True
-    except OSError as e:
-        logger.error("File system error saving risk metrics", extra={"file": output_file, "error": str(e)})
+    except (OSError, PermissionError) as e:
         print(f"\n[ERROR] Failed to save Risk metrics: {e}")
-        return False
-    except Exception as e:
-        logger.error(
-            "Unexpected error saving risk metrics", extra={"file": output_file, "error": str(e)}, exc_info=True
+        return bool(
+            log_and_return_default(
+                logger,
+                e,
+                context={"file": output_file},
+                default_value=False,
+                error_type="File system error saving risk metrics",
+            )
         )
-        print(f"\n[ERROR] Failed to save Risk metrics: {e}")
-        return False
 
 
 if __name__ == "__main__":
@@ -640,7 +637,7 @@ if __name__ == "__main__":
         logger.error(f"Network error connecting to ADO: {e}")
         print(f"[ERROR] Failed to connect to ADO: {e}")
         sys.exit(1)
-    except Exception as e:
+    except (OSError, ValueError, RuntimeError) as e:
         logger.error(f"Failed to connect to ADO: {e}", exc_info=True)
         print(f"[ERROR] Failed to connect to ADO: {e}")
         sys.exit(1)
@@ -660,11 +657,9 @@ if __name__ == "__main__":
             )
             print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
-        except Exception as e:
-            logger.error(
-                "Unexpected error collecting metrics",
-                extra={"project": project["project_name"], "error": str(e)},
-                exc_info=True,
+        except (AttributeError, KeyError, ValueError, TypeError) as e:
+            log_and_continue(
+                logger, e, context={"project": project["project_name"]}, error_type="Collecting project metrics"
             )
             print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
@@ -721,7 +716,7 @@ if __name__ == "__main__":
                     test_project = project
                     test_repo = repos[0]
                     break
-            except Exception:
+            except (AzureDevOpsServiceError, ConnectionError, TimeoutError, AttributeError, KeyError):
                 continue
 
         if not test_project or not test_repo:
@@ -754,7 +749,7 @@ if __name__ == "__main__":
                     print(f"   ✓ Sample path: {file_paths[0]}")
             else:
                 print("   [SKIP] No commits found in test repo")
-        except Exception as e:
+        except (AzureDevOpsServiceError, AttributeError, KeyError, IndexError, AssertionError) as e:
             print(f"   ✗ FAILED: {e}")
 
         # Test 2: _fetch_commit_changes
@@ -770,7 +765,7 @@ if __name__ == "__main__":
                 assert isinstance(changes_count, int), "changes should be int"
                 assert isinstance(files, list), "files should be list"
                 print("   ✓ Return types correct")
-        except Exception as e:
+        except (AzureDevOpsServiceError, AttributeError, AssertionError, NameError) as e:
             print(f"   ✗ FAILED: {e}")
 
         # Test 3: _build_commit_data
@@ -792,7 +787,7 @@ if __name__ == "__main__":
                 assert commit_dict_basic["changes"] == 0
                 assert commit_dict_basic["files"] == []
                 print("   ✓ Basic commit data structure correct")
-        except Exception as e:
+        except (AttributeError, AssertionError, KeyError, NameError) as e:
             print(f"   ✗ FAILED: {e}")
 
         # Test 4: query_recent_commits (integration)
@@ -817,7 +812,7 @@ if __name__ == "__main__":
                         print("   ✓ First commits include file details")
                     else:
                         print("   ⚠ First commits have no file details (may be empty commits)")
-        except Exception as e:
+        except (AzureDevOpsServiceError, AttributeError, KeyError, AssertionError, IndexError) as e:
             print(f"   ✗ FAILED: {e}")
 
         # Test 5: query_pull_requests (integration)
@@ -834,7 +829,7 @@ if __name__ == "__main__":
                 for key in required_keys:
                     assert key in sample, f"Missing key: {key}"
                 print("   ✓ PR data structure valid")
-        except Exception as e:
+        except (AzureDevOpsServiceError, AttributeError, KeyError, AssertionError, IndexError) as e:
             print(f"   ✗ FAILED: {e}")
 
         print("\n" + "=" * 60)
