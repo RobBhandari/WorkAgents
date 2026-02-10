@@ -22,6 +22,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from execution.core import get_logger
 from execution.dashboards.flow_helpers import (
     build_project_tables,
     build_summary_cards,
@@ -32,6 +33,8 @@ from execution.dashboards.renderer import render_dashboard
 
 # Import infrastructure
 from execution.framework import get_dashboard_framework
+
+logger = get_logger(__name__)
 
 
 class FlowDataLoader:
@@ -93,36 +96,34 @@ def generate_flow_dashboard(output_path: Path | None = None) -> str:
         )
         print(f"Generated dashboard with {len(html)} characters")
     """
-    print("[INFO] Generating Flow Dashboard...")
+    logger.info("Generating flow dashboard")
 
     # [1/4] Load data
-    print("[1/4] Loading flow data...")
+    logger.info("Loading flow data")
     loader = FlowDataLoader()
     week_data = loader.load_latest_week()
-    print(f"      Loaded {len(week_data.get('projects', []))} projects")
+    logger.info("Flow data loaded", extra={"project_count": len(week_data.get("projects", []))})
 
     # [2/4] Calculate summaries
-    print("[2/4] Calculating portfolio metrics...")
+    logger.info("Calculating portfolio metrics")
     summary_stats = calculate_portfolio_summary(week_data)
 
     # [3/4] Build context
-    print("[3/4] Preparing dashboard components...")
+    logger.info("Preparing dashboard components")
     context = _build_context(week_data, summary_stats)
 
     # [4/4] Render
-    print("[4/4] Rendering HTML template...")
+    logger.info("Rendering HTML template")
     html = render_dashboard("dashboards/flow_dashboard.html", context)
 
     # Write if path specified
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
-        print(f"[SUCCESS] Dashboard written to: {output_path}")
+        logger.info("Dashboard written to file", extra={"path": str(output_path)})
 
-    print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
+    logger.info("Flow dashboard generated", extra={"html_size": len(html)})
     return html
-
-
 
 
 def _build_context(week_data: dict[str, Any], summary_stats: dict[str, Any]) -> dict[str, Any]:
@@ -178,29 +179,21 @@ def _build_context(week_data: dict[str, Any], summary_stats: dict[str, Any]) -> 
 
 # Main for testing
 if __name__ == "__main__":
-    print("Flow Dashboard Generator - Self Test")
-    print("=" * 60)
+    logger.info("Flow Dashboard Generator - Self Test")
 
     try:
         output_path = Path(".tmp/observatory/dashboards/flow_dashboard.html")
         html = generate_flow_dashboard(output_path)
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] Flow dashboard generated!")
-        print(f"[OUTPUT] {output_path}")
-        print(f"[SIZE] {len(html):,} characters")
+        logger.info("Flow dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)})
 
         if output_path.exists():
             file_size = output_path.stat().st_size
-            print(f"[FILE] {file_size:,} bytes on disk")
+            logger.info("Output file verified", extra={"file_size": file_size})
 
     except FileNotFoundError as e:
-        print(f"\n[ERROR] {e}")
-        print("\n[INFO] Run data collection first:")
-        print("  python execution/collectors/ado_flow_metrics.py")
+        logger.error("Flow data file not found", extra={"error": str(e)})
+        logger.info("Run data collection first: python execution/collectors/ado_flow_metrics.py")
 
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)

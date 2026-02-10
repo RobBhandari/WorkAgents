@@ -23,10 +23,13 @@ from datetime import datetime
 from pathlib import Path
 
 # Import infrastructure and components
+from execution.core import get_logger
 from execution.dashboards.components.charts import sparkline
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.metrics import TrendData
 from execution.framework import get_dashboard_framework
+
+logger = get_logger(__name__)
 
 
 class TrendsDashboardGenerator:
@@ -61,22 +64,22 @@ class TrendsDashboardGenerator:
         Returns:
             Generated HTML string
         """
-        print("[INFO] Generating Trends Dashboard...")
+        logger.info("Generating trends dashboard")
 
         # Step 1: Load all historical data
-        print(f"[1/4] Loading {self.weeks}-week history...")
+        logger.info("Loading historical data", extra={"weeks": self.weeks})
         historical_data = self._load_all_history()
 
         # Step 2: Calculate forecast
-        print("[2/4] Calculating forecast and burn rate...")
+        logger.info("Calculating forecast and burn rate")
         forecast = self._calculate_forecast(historical_data)
 
         # Step 3: Build trend metrics
-        print("[3/4] Building trend metrics with sparklines...")
+        logger.info("Building trend metrics with sparklines")
         trend_metrics = self._build_trend_metrics(historical_data)
 
         # Step 4: Render dashboard
-        print("[4/4] Rendering trends dashboard...")
+        logger.info("Rendering trends dashboard")
         context = self._build_context(forecast, trend_metrics, historical_data)
         html = render_dashboard("dashboards/trends_dashboard.html", context)
 
@@ -84,9 +87,9 @@ class TrendsDashboardGenerator:
         if output_path:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(html, encoding="utf-8")
-            print(f"[SUCCESS] Dashboard written to: {output_path}")
+            logger.info("Dashboard written to file", extra={"path": str(output_path)})
 
-        print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
+        logger.info("Trends dashboard generated", extra={"html_size": len(html)})
         return html
 
     def _load_all_history(self) -> dict:
@@ -428,27 +431,22 @@ def generate_trends_dashboard(output_path: Path | None = None, weeks: int = 12) 
         Generated HTML string
     """
     if output_path is None:
-        output_path = Path('.tmp/observatory/dashboards/index.html')
+        output_path = Path(".tmp/observatory/dashboards/index.html")
     generator = TrendsDashboardGenerator(weeks=weeks)
     return generator.generate(output_path)
 
 
 # Self-test
 if __name__ == "__main__":
-    print("Trends Dashboard Generator - Self Test")
-    print("=" * 60)
+    logger.info("Trends Dashboard Generator - Self Test")
 
     try:
         output_path = Path(".tmp/observatory/dashboards/index.html")
         html = generate_trends_dashboard(output_path)
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] Trends dashboard generated!")
-        print(f"[OUTPUT] {output_path}")
-        print(f"[SIZE] {len(html):,} characters")
+        logger.info(
+            "Trends dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
+        )
 
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)

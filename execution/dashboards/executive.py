@@ -24,6 +24,7 @@ from pathlib import Path
 
 # Import infrastructure and domain models
 from execution.collectors.armorcode_loader import ArmorCodeLoader
+from execution.core import get_logger
 from execution.dashboards.components.cards import attention_item_card, metric_card
 from execution.dashboards.components.charts import sparkline, trend_indicator
 from execution.dashboards.renderer import render_dashboard
@@ -31,6 +32,8 @@ from execution.domain.flow import FlowMetrics
 from execution.domain.quality import QualityMetrics
 from execution.domain.security import SecurityMetrics
 from execution.framework import get_dashboard_framework
+
+logger = get_logger(__name__)
 
 
 class ExecutiveSummaryGenerator:
@@ -59,22 +62,22 @@ class ExecutiveSummaryGenerator:
         Returns:
             Generated HTML string
         """
-        print("[INFO] Generating Executive Summary...")
+        logger.info("Generating executive summary")
 
         # Step 1: Load all data sources
-        print("[1/4] Loading metrics from all sources...")
+        logger.info("Loading metrics from all sources")
         all_data = self._load_all_data()
 
         # Step 2: Calculate target progress
-        print("[2/4] Calculating 70% reduction target progress...")
+        logger.info("Calculating 70% reduction target progress")
         target_progress = self._calculate_target_progress(all_data)
 
         # Step 3: Identify attention items
-        print("[3/4] Identifying items requiring attention...")
+        logger.info("Identifying items requiring attention")
         attention_items = self._identify_attention_items(all_data)
 
         # Step 4: Build and render dashboard
-        print("[4/4] Rendering executive dashboard...")
+        logger.info("Rendering executive dashboard")
         context = self._build_context(all_data, target_progress, attention_items)
         html = render_dashboard("dashboards/executive_summary.html", context)
 
@@ -82,9 +85,9 @@ class ExecutiveSummaryGenerator:
         if output_path:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(html, encoding="utf-8")
-            print(f"[SUCCESS] Dashboard written to: {output_path}")
+            logger.info("Dashboard written to file", extra={"path": str(output_path)})
 
-        print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
+        logger.info("Executive summary generated", extra={"html_size": len(html)})
         return html
 
     def _load_all_data(self) -> dict:
@@ -404,20 +407,15 @@ def generate_executive_summary(output_path: Path | None = None) -> str:
 
 # Self-test
 if __name__ == "__main__":
-    print("Executive Summary Generator - Self Test")
-    print("=" * 60)
+    logger.info("Executive Summary Generator - Self Test")
 
     try:
         output_path = Path(".tmp/observatory/dashboards/executive.html")
         html = generate_executive_summary(output_path)
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] Executive summary generated!")
-        print(f"[OUTPUT] {output_path}")
-        print(f"[SIZE] {len(html):,} characters")
+        logger.info(
+            "Executive summary generated successfully", extra={"output": str(output_path), "html_size": len(html)}
+        )
 
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)

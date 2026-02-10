@@ -21,7 +21,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from execution.core import get_logger
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+logger = get_logger(__name__)
 
 # Initialize Jinja2 environment (singleton)
 _jinja_env: Environment | None = None
@@ -196,7 +199,7 @@ def trend_arrow(value: float) -> str:
 # Convenience function for testing
 if __name__ == "__main__":
     """Test template rendering"""
-    print("Testing template renderer...")
+    logger.info("Testing template renderer")
 
     context = {
         "summary_cards": [
@@ -220,6 +223,5 @@ if __name__ == "__main__":
     }
 
     html = render_dashboard("dashboards/security_dashboard.html", context)
-    print(f"Rendered {len(html)} characters of HTML")
-    print("\nFirst 500 characters:")
-    print(html[:500])
+    logger.info("Template rendered successfully", extra={"html_size": len(html)})
+    logger.info("Preview", extra={"preview": html[:500]})

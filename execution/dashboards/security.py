@@ -22,11 +22,14 @@ from pathlib import Path
 
 # Import domain models
 from execution.collectors.armorcode_loader import ArmorCodeLoader
+from execution.core import get_logger
 from execution.dashboards.components.cards import metric_card, summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.security import SecurityMetrics
 from execution.framework import get_dashboard_framework
 from execution.template_engine import render_template
+
+logger = get_logger(__name__)
 
 
 def generate_security_dashboard(output_path: Path | None = None) -> str:
@@ -52,33 +55,33 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
         )
         print(f"Generated dashboard with {len(html)} characters")
     """
-    print("[INFO] Generating Security Dashboard...")
+    logger.info("Generating security dashboard")
 
     # Step 1: Load data
-    print("[1/4] Loading security data...")
+    logger.info("Loading security data")
     loader = ArmorCodeLoader()
     metrics_by_product = loader.load_latest_metrics()
-    print(f"      Loaded {len(metrics_by_product)} products")
+    logger.info("Security data loaded", extra={"product_count": len(metrics_by_product)})
 
     # Step 2: Calculate summary statistics
-    print("[2/4] Calculating summary metrics...")
+    logger.info("Calculating summary metrics")
     summary_stats = _calculate_summary(metrics_by_product)
 
     # Step 3: Prepare template context
-    print("[3/4] Preparing dashboard components...")
+    logger.info("Preparing dashboard components")
     context = _build_context(metrics_by_product, summary_stats)
 
     # Step 4: Render template
-    print("[4/4] Rendering HTML template...")
+    logger.info("Rendering HTML template")
     html = render_dashboard("dashboards/security_dashboard.html", context)
 
     # Write to file if specified
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
-        print(f"[SUCCESS] Dashboard written to: {output_path}")
+        logger.info("Dashboard written to file", extra={"path": str(output_path)})
 
-    print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
+    logger.info("Security dashboard generated", extra={"html_size": len(html)})
     return html
 
 
@@ -420,32 +423,26 @@ def _generate_vulnerability_breakdown(metrics: SecurityMetrics) -> str:
 
 # Main execution for testing
 if __name__ == "__main__":
-    print("Security Dashboard Generator - Self Test")
-    print("=" * 60)
+    logger.info("Security Dashboard Generator - Self Test")
 
     try:
         output_path = Path(".tmp/observatory/dashboards/security.html")
         html = generate_security_dashboard(output_path)
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] Security dashboard generated!")
-        print(f"[OUTPUT] {output_path}")
-        print(f"[SIZE] {len(html):,} characters")
+        logger.info(
+            "Security dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
+        )
 
         # Verify output
         if output_path.exists():
             file_size = output_path.stat().st_size
-            print(f"[FILE] {file_size:,} bytes on disk")
+            logger.info("Output file verified", extra={"file_size": file_size})
         else:
-            print("[WARNING] Output file not created")
+            logger.warning("Output file not created")
 
     except FileNotFoundError as e:
-        print(f"\n[ERROR] {e}")
-        print("\n[INFO] Run data collection first:")
-        print("  python execution/armorcode_weekly_query.py")
+        logger.error("Security data file not found", extra={"error": str(e)})
+        logger.info("Run data collection first: python execution/armorcode_weekly_query.py")
 
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)

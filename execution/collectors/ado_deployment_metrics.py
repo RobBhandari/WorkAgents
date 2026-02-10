@@ -31,6 +31,7 @@ from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
 from execution.secure_config import get_config
+from execution.utils.datetime_utils import parse_ado_timestamp
 from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
@@ -280,7 +281,9 @@ def _calculate_single_build_lead_time(commit_time: datetime, build: dict) -> flo
         Lead time in hours if positive, None otherwise
     """
     try:
-        build_finish_time = datetime.fromisoformat(build["finish_time"].replace("Z", "+00:00"))
+        build_finish_time = parse_ado_timestamp(build.get("finish_time"))
+        if build_finish_time is None:
+            return None
 
         # Make timezone-aware if needed
         if commit_time.tzinfo is None and build_finish_time.tzinfo is not None:

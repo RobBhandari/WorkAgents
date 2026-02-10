@@ -27,11 +27,14 @@ from pathlib import Path
 
 from execution.collectors.armorcode_loader import ArmorCodeLoader
 from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
+from execution.core import get_logger
 from execution.dashboards.components.aging_heatmap import generate_aging_heatmap
 from execution.dashboards.components.cards import summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.dashboards.security_detail_page import generate_product_detail_page
 from execution.framework import get_dashboard_framework
+
+logger = get_logger(__name__)
 
 
 def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tuple[str, int]:
@@ -53,59 +56,55 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print("\n" + "=" * 60)
-    print("Enhanced Security Dashboard Generator")
-    print("=" * 60)
+    logger.info("Enhanced Security Dashboard Generator")
 
     # Step 1: Load ArmorCode summary data
-    print("\n[1/5] Loading ArmorCode summary data...")
+    logger.info("Loading ArmorCode summary data")
     try:
         loader = ArmorCodeLoader()
         metrics_by_product = loader.load_latest_metrics()
-        print(f"      Loaded {len(metrics_by_product)} products")
+        logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
     except FileNotFoundError:
-        print("[ERROR] No ArmorCode data found in security_history.json")
-        print("Run: python execution/armorcode_enhanced_metrics.py")
+        logger.error("No ArmorCode data found in security_history.json")
+        logger.info("Run: python execution/armorcode_enhanced_metrics.py")
         return "", 0
 
     # Step 2: Get product names with vulnerabilities
     product_names = [name for name, metrics in metrics_by_product.items() if metrics.total_vulnerabilities > 0]
-    print(f"      Products with vulnerabilities: {len(product_names)}")
+    logger.info("Products with vulnerabilities identified", extra={"count": len(product_names)})
 
     # Step 3: Query individual vulnerabilities via GraphQL
-    print("\n[2/5] Querying individual vulnerability details via GraphQL...")
+    logger.info("Querying individual vulnerability details via GraphQL")
     vuln_loader = ArmorCodeVulnerabilityLoader()
     vulnerabilities = vuln_loader.load_vulnerabilities_for_products(product_names)
-    print(f"      Retrieved {len(vulnerabilities)} vulnerability details")
+    logger.info("Vulnerability details retrieved", extra={"vuln_count": len(vulnerabilities)})
 
     # Group vulnerabilities by product
     vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
 
     # Step 4: Generate main dashboard HTML
-    print("\n[3/5] Generating main dashboard...")
+    logger.info("Generating main dashboard")
     main_html = _generate_main_dashboard_html(metrics_by_product, vulns_by_product)
 
     # Write main dashboard
     main_file = output_dir / "security_dashboard.html"
     main_file.write_text(main_html, encoding="utf-8")
-    print(f"      Main dashboard: {main_file}")
+    logger.info("Main dashboard written", extra={"path": str(main_file)})
 
     # Step 4: Summary
-    print("\n[4/5] Summary")
-    print(f"      Main dashboard: {len(main_html):,} bytes")
-    print("      Using expandable rows (no separate detail pages)")
-
-    print("\n" + "=" * 60)
-    print("[SUCCESS] Security dashboard generated!")
-    print(f"  Main: {main_file}")
-    print(f"\nOpen: start {main_file}")
-    print("\nFeatures:")
-    print("  [X] Product summary table with expandable rows")
-    print("  [X] Click rows to expand vulnerability details inline")
-    print("  [X] Aging metrics displayed in expanded rows")
-    print("  [X] Collapsible vulnerability table with search/filter")
-    print("  [X] Dark mode with toggle")
-    print("=" * 60)
+    logger.info(
+        "Security dashboard generated successfully",
+        extra={
+            "main_size": len(main_html),
+            "features": [
+                "Product summary table with expandable rows",
+                "Click rows to expand vulnerability details inline",
+                "Aging metrics displayed in expanded rows",
+                "Collapsible vulnerability table with search/filter",
+                "Dark mode with toggle",
+            ],
+        },
+    )
 
     return main_html, 0  # No detail pages generated
 

@@ -27,6 +27,7 @@ from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
 from execution.core.logging_config import get_logger
+from execution.domain.constants import flow_metrics, sampling_config
 from execution.secure_config import get_config
 
 load_dotenv()
@@ -132,7 +133,9 @@ def _fetch_commit_changes(git_client, commit_id: str, repo_id: str, project_name
         return 0, []
 
 
-def query_recent_commits(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:
+def query_recent_commits(
+    git_client, project_name: str, repo_id: str, days: int = flow_metrics.LOOKBACK_DAYS
+) -> list[dict]:
     """
     Query recent commits to analyze code churn.
 
@@ -161,14 +164,14 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
 
         commit_data = []
 
-        # Process ALL commits for author/date info, but only fetch file details for first 20 (performance optimization)
+        # Process ALL commits for author/date info, but only fetch file details for limited sample
         for idx, commit in enumerate(commits):
-            if idx < 20:
-                # Fetch detailed file changes for first 20 commits (representative sample for hot paths)
+            if idx < sampling_config.COMMIT_DETAIL_LIMIT:
+                # Fetch detailed file changes for sample commits (representative for hot paths)
                 changes, files = _fetch_commit_changes(git_client, commit.commit_id, repo_id, project_name)
                 commit_data.append(_build_commit_data(commit, changes, files))
             else:
-                # For commits beyond first 20, only store basic info (no file details)
+                # For commits beyond limit, only store basic info (no file details)
                 commit_data.append(_build_commit_data(commit))
 
         return commit_data
@@ -193,7 +196,9 @@ def query_recent_commits(git_client, project_name: str, repo_id: str, days: int 
         return []
 
 
-def query_pull_requests(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:
+def query_pull_requests(
+    git_client, project_name: str, repo_id: str, days: int = flow_metrics.LOOKBACK_DAYS
+) -> list[dict]:
     """
     Query recent pull requests to analyze PR size.
 
@@ -306,8 +311,11 @@ def analyze_code_churn(commits: list[dict]) -> dict:
         for file_path in commit["files"]:
             file_change_counts[file_path] += 1
 
-    # Get top 20 most changed files (hot paths)
-    hot_paths = [{"path": path, "change_count": count} for path, count in file_change_counts.most_common(20)]
+    # Get top N most changed files (hot paths)
+    hot_paths = [
+        {"path": path, "change_count": count}
+        for path, count in file_change_counts.most_common(sampling_config.HOT_PATHS_LIMIT)
+    ]
 
     return {
         "total_commits": len(commits),
