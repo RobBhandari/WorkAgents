@@ -32,31 +32,35 @@ jobs:
         run: |
           cp data/armorcode_baseline.json .tmp/ 2>/dev/null || echo "No baseline file in data/"
 
-      - name: Create .env file from secrets
-        run: |
-          cat << EOF > .env
-          ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}
-          ARMORCODE_BASE_URL=${{ secrets.ARMORCODE_BASE_URL }}
-          ARMORCODE_PRODUCTS=${{ secrets.ARMORCODE_PRODUCTS }}
-          ARMORCODE_EMAIL_RECIPIENTS=${{ secrets.ARMORCODE_EMAIL_RECIPIENTS }}
-          ARMORCODE_BASELINE_DATE=${{ secrets.ARMORCODE_BASELINE_DATE }}
-          ARMORCODE_TARGET_DATE=${{ secrets.ARMORCODE_TARGET_DATE }}
-          ARMORCODE_REDUCTION_GOAL=${{ secrets.ARMORCODE_REDUCTION_GOAL }}
-          EMAIL_ADDRESS=${{ secrets.EMAIL_ADDRESS }}
-          EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
-          SMTP_SERVER=${{ secrets.SMTP_SERVER }}
-          SMTP_PORT=${{ secrets.SMTP_PORT }}
-          EOF
-
       - name: Query current ArmorCode vulnerabilities
+        env:
+          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+          ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
+          ARMORCODE_PRODUCTS: ${{ secrets.ARMORCODE_PRODUCTS }}
+          ARMORCODE_BASELINE_DATE: ${{ secrets.ARMORCODE_BASELINE_DATE }}
+          ARMORCODE_TARGET_DATE: ${{ secrets.ARMORCODE_TARGET_DATE }}
+          ARMORCODE_REDUCTION_GOAL: ${{ secrets.ARMORCODE_REDUCTION_GOAL }}
         run: python execution/armorcode_weekly_query.py
         continue-on-error: false
 
       - name: Generate HTML report
+        env:
+          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+          ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
+          ARMORCODE_PRODUCTS: ${{ secrets.ARMORCODE_PRODUCTS }}
+          ARMORCODE_EMAIL_RECIPIENTS: ${{ secrets.ARMORCODE_EMAIL_RECIPIENTS }}
+          ARMORCODE_BASELINE_DATE: ${{ secrets.ARMORCODE_BASELINE_DATE }}
+          ARMORCODE_TARGET_DATE: ${{ secrets.ARMORCODE_TARGET_DATE }}
+          ARMORCODE_REDUCTION_GOAL: ${{ secrets.ARMORCODE_REDUCTION_GOAL }}
         run: python execution/armorcode_generate_report.py
         continue-on-error: false
 
       - name: Send email report
+        env:
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
         run: python execution/armorcode_send_email.py
         continue-on-error: false
 
@@ -69,4 +73,4 @@ jobs:
             .tmp/armorcode_weekly_*.json
             .tmp/armorcode_report_*.html
             .tmp/armorcode_baseline_*.log
-          retention-days: 90
+          retention-days: 1  # Minimize exposure window for sensitive data

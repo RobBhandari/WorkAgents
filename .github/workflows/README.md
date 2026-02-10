@@ -50,7 +50,7 @@ Before the workflow can run, you must configure these secrets in your GitHub rep
 1. **Checks out** the repository
 2. **Sets up Python** 3.11 with pip caching
 3. **Installs dependencies** from requirements.txt
-4. **Creates .env file** from GitHub secrets
+4. **Sets environment variables** from GitHub secrets (secure, no file creation)
 5. **Collects metrics** from:
    - Azure DevOps (Quality, Flow, Ownership, Risk)
    - ArmorCode (Security)
@@ -78,11 +78,11 @@ View workflow execution history:
 If you want to refresh dashboards locally instead:
 
 ```bash
-# Run all collectors and generators
+# Run all collectors and generators (uses local .env file for credentials)
 py execution/refresh_all_dashboards.py
 ```
 
-This runs the same steps locally using your local `.env` file.
+**Note**: Local development uses `.env` file (gitignored) for credentials, while CI/CD uses environment variables directly from GitHub Secrets. Both methods work identically since the code reads from `os.getenv()`.
 
 ## Troubleshooting
 
