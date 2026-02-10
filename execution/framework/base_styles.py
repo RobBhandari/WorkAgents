@@ -95,6 +95,21 @@ def get_base_styles():
 def get_reset_docs():
     """
     Returns documentation for the CSS reset and base styles.
+
+    Provides comprehensive documentation of the mobile-first reset approach,
+    breakpoints, and responsive typography scale.
+
+    Returns:
+        Dictionary containing base styles documentation including:
+        - CSS reset approach
+        - Mobile-first strategy
+        - Responsive breakpoints
+        - Typography scale across devices
+
+    Example:
+        >>> docs = get_reset_docs()
+        >>> print(docs['breakpoints']['tablet'])
+        '768px - 1023px'
     """
     return {
         "reset": "Removes browser defaults for consistent cross-browser styling",

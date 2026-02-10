@@ -164,8 +164,20 @@ def get_javascript_docs():
     """
     Returns documentation for JavaScript features.
 
+    Provides comprehensive documentation for all interactive dashboard features
+    including theme toggling, glossary, table scrolling, and expandable rows.
+
     Returns:
-        Dictionary with feature descriptions and usage examples
+        Dictionary containing JavaScript feature documentation including:
+        - Feature descriptions
+        - Required HTML structure
+        - Function signatures
+        - Behavior details
+
+    Example:
+        >>> docs = get_javascript_docs()
+        >>> print(docs['theme_toggle']['description'])
+        'Light/dark mode switcher with localStorage persistence'
     """
     return {
         "theme_toggle": {

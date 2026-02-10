@@ -286,6 +286,11 @@ class DeploymentMetrics:
 
         Returns:
             Status string: "Good", "Caution", "Action Needed", or "Inactive"
+
+        Example:
+            >>> metrics = DeploymentMetrics(...)  # With 95% success, 3 deploys/week
+            >>> metrics.status
+            'Good'
         """
         if self.is_inactive:
             return "Inactive"
@@ -302,7 +307,12 @@ class DeploymentMetrics:
         Get CSS class for status.
 
         Returns:
-            CSS class string for styling
+            CSS class string for styling: "good", "caution", "action", or "inactive"
+
+        Example:
+            >>> metrics = DeploymentMetrics(...)  # With status "Good"
+            >>> metrics.status_class
+            'good'
         """
         status_map: dict[str, str] = {
             "Good": "good",
@@ -317,20 +327,29 @@ def from_json(project_data: dict) -> DeploymentMetrics:
     """
     Create DeploymentMetrics from JSON data structure.
 
+    Parses nested JSON structure from deployment_history.json and constructs
+    a complete DeploymentMetrics instance with all DORA metrics.
+
     Args:
-        project_data: Project data dictionary from deployment_history.json
+        project_data: Project data dictionary from deployment_history.json.
+                     Must contain 'project_name' key. Optional nested keys:
+                     'deployment_frequency', 'build_success_rate',
+                     'build_duration', 'lead_time_for_changes'
 
     Returns:
-        DeploymentMetrics instance
+        DeploymentMetrics instance with all metrics populated.
+        Missing nested data defaults to zeros.
 
     Example:
-        with open('deployment_history.json') as f:
-            data = json.load(f)
-            latest_week = data['weeks'][-1]
-
-            for project_data in latest_week['projects']:
-                metrics = from_json(project_data)
-                print(f"{metrics.project_name}: {metrics.status}")
+        >>> import json
+        >>> with open('deployment_history.json') as f:
+        ...     data = json.load(f)
+        ...     latest_week = data['weeks'][-1]
+        ...     for project_data in latest_week['projects']:
+        ...         metrics = from_json(project_data)
+        ...         print(f"{metrics.project_name}: {metrics.status}")
+        API Gateway: Good
+        Web Frontend: Caution
     """
     # Extract deployment frequency
     deploy_freq_data = project_data.get("deployment_frequency", {})
