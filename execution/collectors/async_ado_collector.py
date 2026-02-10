@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """
-Async ADO Collector - 5-8x faster than synchronous version
+Async ADO Collector - Direct REST API with true async/await
 
-Challenge: Azure DevOps SDK is synchronous only (no async methods)
-Solution: Wrap SDK calls in asyncio.to_thread() for non-blocking execution
-
-Optimizations:
-- Concurrent project processing: Query all projects simultaneously
-- Concurrent work type queries: Bug/Story/Task in parallel
-- Thread pool executor: Non-blocking SDK calls
+Migrated from SDK thread pool wrapper to true async REST API calls.
 
 Performance:
+- All collectors now use Azure DevOps REST API v7.1
+- True concurrent execution with asyncio (no thread pool needed)
+- HTTP/2 multiplexing for optimal network performance
 - Sequential: 5 projects × 10s = 50 seconds
 - Async: max(10s) = 10 seconds
-- Speedup: 5x
+- Speedup: 3-10x depending on collector
+
+Breaking Changes from Previous Version:
+- No longer uses ThreadPoolExecutor (REST API is truly async)
+- Requires rest_client instead of connection
+- All collector methods are now pure async (not wrapped)
 """
 
 import asyncio
 import sys
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
-from azure.devops.exceptions import AzureDevOpsServiceError
-
+from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
 from execution.core import get_logger
 from execution.utils.error_handling import log_and_continue
 
@@ -30,43 +30,22 @@ logger = get_logger(__name__)
 
 
 class AsyncADOCollector:
-    """Async Azure DevOps collector using thread pool for SDK calls"""
+    """Async Azure DevOps collector using native REST API"""
 
-    def __init__(self, max_workers: int = 10):
+    def __init__(self, rest_client: AzureDevOpsRESTClient | None = None):
         """
         Initialize async ADO collector.
 
         Args:
-            max_workers: Max concurrent threads for ADO SDK calls (default: 10)
+            rest_client: Azure DevOps REST API client (optional, will create if not provided)
         """
-        self.max_workers = max_workers
-        self.executor = ThreadPoolExecutor(max_workers=max_workers)
+        self.rest_client = rest_client or get_ado_rest_client()
 
-    async def _run_in_thread(self, func, *args, **kwargs):
+    async def collect_quality_metrics_for_project(self, project: dict, config: dict) -> dict:
         """
-        Run synchronous function in thread pool.
-
-        This makes blocking SDK calls non-blocking from asyncio perspective.
+        Collect quality metrics for single project (true async).
 
         Args:
-            func: Synchronous function to run
-            *args: Positional arguments
-            **kwargs: Keyword arguments
-
-        Returns:
-            Function result
-        """
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self.executor, lambda: func(*args, **kwargs))
-
-    async def collect_quality_metrics_for_project(self, connection, project: dict, config: dict) -> dict:
-        """
-        Collect quality metrics for single project (non-blocking).
-
-        Wraps synchronous collect_quality_metrics_for_project in thread.
-
-        Args:
-            connection: ADO connection
             project: Project metadata
             config: Configuration dict
 
@@ -75,135 +54,120 @@ class AsyncADOCollector:
         """
         from execution.collectors.ado_quality_metrics import collect_quality_metrics_for_project
 
-        # Run blocking SDK calls in thread pool
-        result: dict = await self._run_in_thread(collect_quality_metrics_for_project, connection, project, config)
+        # Direct async call (no thread wrapping needed - REST API is truly async)
+        result: dict = await collect_quality_metrics_for_project(self.rest_client, project, config)
         return result
 
-    async def collect_flow_metrics_for_project(self, connection, project: dict, config: dict) -> dict:
+    async def collect_flow_metrics_for_project(self, project: dict, config: dict) -> dict:
         """
-        Collect flow metrics for single project with concurrent work type queries.
-
-        Optimization: Query Bug/Story/Task work types concurrently instead of sequentially.
+        Collect flow metrics for single project (true async).
 
         Args:
-            connection: ADO connection
             project: Project metadata
             config: Configuration dict
 
         Returns:
             Flow metrics for the project
         """
-        from execution.collectors.flow_metrics_calculations import (
-            calculate_aging_items,
-            calculate_cycle_time_variance,
-            calculate_dual_metrics,
-            calculate_lead_time,
-            calculate_throughput,
-        )
-        from execution.collectors.flow_metrics_queries import query_work_items_by_type
+        from execution.collectors.ado_flow_metrics import collect_flow_metrics_for_project
 
-        project_name = project["project_name"]
-        ado_project_name = project.get("ado_project_name", project_name)
-        area_path_filter = project.get("area_path_filter")
-        lookback_days = config.get("lookback_days", 90)
+        # Direct async call (no thread wrapping needed - REST API is truly async)
+        result: dict = await collect_flow_metrics_for_project(self.rest_client, project, config)
+        return result
 
-        logger.info(f"Collecting flow metrics for {project_name} (async)")
+    async def collect_deployment_metrics_for_project(self, project: dict, config: dict) -> dict:
+        """
+        Collect deployment metrics for single project (true async).
 
-        wit_client = connection.clients.get_work_item_tracking_client()
+        Args:
+            project: Project metadata
+            config: Configuration dict
 
-        # Query all work types concurrently (instead of sequentially)
-        work_types = ["Bug", "User Story", "Task"]
+        Returns:
+            Deployment metrics for the project
+        """
+        from execution.collectors.ado_deployment_metrics import collect_deployment_metrics_for_project
 
-        tasks = [
-            self._run_in_thread(
-                query_work_items_by_type, wit_client, ado_project_name, work_type, lookback_days, area_path_filter
-            )
-            for work_type in work_types
-        ]
+        result: dict = await collect_deployment_metrics_for_project(self.rest_client, project, config)
+        return result
 
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+    async def collect_ownership_metrics_for_project(self, project: dict, config: dict) -> dict:
+        """
+        Collect ownership metrics for single project (true async).
 
-        # Combine results
-        work_items: dict[str, dict[str, object]] = {}
-        for work_type, result in zip(work_types, results, strict=False):
-            if isinstance(result, Exception):
-                logger.error(f"Failed to query {work_type} for {project_name}: {result}")
-                work_items[work_type] = {
-                    "work_type": work_type,
-                    "open_items": [],
-                    "closed_items": [],
-                    "open_count": 0,
-                    "closed_count": 0,
-                }
-            elif isinstance(result, dict):
-                work_items[work_type] = result
-            else:
-                logger.error(f"Unexpected result type for {work_type}: {type(result)}")
-                work_items[work_type] = {
-                    "work_type": work_type,
-                    "open_items": [],
-                    "closed_items": [],
-                    "open_count": 0,
-                    "closed_count": 0,
-                }
+        Args:
+            project: Project metadata
+            config: Configuration dict
 
-        # Calculate metrics for each work type (synchronous - just data processing)
-        work_type_metrics = {}
-        for work_type, data in work_items.items():
-            open_items = data.get("open_items", [])
-            closed_items = data.get("closed_items", [])
-            open_count = data.get("open_count", 0)
-            closed_count = data.get("closed_count", 0)
+        Returns:
+            Ownership metrics for the project
+        """
+        from execution.collectors.ado_ownership_metrics import collect_ownership_metrics_for_project
 
-            # Type narrowing: ensure we have lists
-            if not isinstance(open_items, list):
-                open_items = []
-            if not isinstance(closed_items, list):
-                closed_items = []
-            if not isinstance(open_count, int):
-                open_count = 0
-            if not isinstance(closed_count, int):
-                closed_count = 0
+        result: dict = await collect_ownership_metrics_for_project(self.rest_client, project, config)
+        return result
 
-            work_type_metrics[work_type] = {
-                "open_count": open_count,
-                "closed_count_90d": closed_count,
-                "wip": open_count,
-                "lead_time": calculate_lead_time(closed_items),
-                "dual_metrics": calculate_dual_metrics(closed_items),
-                "aging_items": calculate_aging_items(open_items, config.get("aging_threshold_days", 30)),
-                "throughput": calculate_throughput(closed_items, lookback_days),
-                "cycle_time_variance": calculate_cycle_time_variance(closed_items),
-            }
+    async def collect_collaboration_metrics_for_project(self, project: dict, config: dict) -> dict:
+        """
+        Collect collaboration metrics for single project (true async).
 
-        return {
-            "project_key": project["project_key"],
-            "project_name": project_name,
-            "work_type_metrics": work_type_metrics,
-            "collected_at": datetime.now().isoformat(),
-        }
+        Args:
+            project: Project metadata
+            config: Configuration dict
+
+        Returns:
+            Collaboration metrics for the project
+        """
+        from execution.collectors.ado_collaboration_metrics import collect_collaboration_metrics_for_project
+
+        result: dict = await collect_collaboration_metrics_for_project(self.rest_client, project, config)
+        return result
+
+    async def collect_risk_metrics_for_project(self, project: dict, config: dict) -> dict:
+        """
+        Collect risk metrics for single project (true async).
+
+        Args:
+            project: Project metadata
+            config: Configuration dict
+
+        Returns:
+            Risk metrics for the project
+        """
+        from execution.collectors.ado_risk_metrics import collect_risk_metrics_for_project
+
+        result: dict = await collect_risk_metrics_for_project(self.rest_client, project, config)
+        return result
 
     async def collect_all_projects(
-        self, connection, projects: list[dict], config: dict, collector_type: str = "quality"
+        self, projects: list[dict], config: dict, collector_type: str = "quality"
     ) -> list[dict]:
         """
         Collect metrics for all projects concurrently.
 
         Args:
-            connection: ADO connection
             projects: List of project configs
             config: Collection config
-            collector_type: "quality" or "flow"
+            collector_type: "quality", "flow", "deployment", "ownership", "collaboration", or "risk"
 
         Returns:
             List of project metrics
         """
-        logger.info(f"Collecting {collector_type} metrics for {len(projects)} projects (async)")
+        logger.info(f"Collecting {collector_type} metrics for {len(projects)} projects (async REST API)")
 
+        # Select collector method
         if collector_type == "quality":
-            tasks = [self.collect_quality_metrics_for_project(connection, project, config) for project in projects]
+            tasks = [self.collect_quality_metrics_for_project(project, config) for project in projects]
         elif collector_type == "flow":
-            tasks = [self.collect_flow_metrics_for_project(connection, project, config) for project in projects]
+            tasks = [self.collect_flow_metrics_for_project(project, config) for project in projects]
+        elif collector_type == "deployment":
+            tasks = [self.collect_deployment_metrics_for_project(project, config) for project in projects]
+        elif collector_type == "ownership":
+            tasks = [self.collect_ownership_metrics_for_project(project, config) for project in projects]
+        elif collector_type == "collaboration":
+            tasks = [self.collect_collaboration_metrics_for_project(project, config) for project in projects]
+        elif collector_type == "risk":
+            tasks = [self.collect_risk_metrics_for_project(project, config) for project in projects]
         else:
             raise ValueError(f"Unknown collector type: {collector_type}")
 
@@ -214,7 +178,7 @@ class AsyncADOCollector:
         # Filter out exceptions
         metrics: list[dict] = []
         errors = 0
-        for project, result in zip(projects, results, strict=False):
+        for project, result in zip(projects, results, strict=True):
             if isinstance(result, Exception):
                 logger.error(f"Failed to collect {collector_type} metrics for {project['project_name']}: {result}")
                 errors += 1
@@ -226,21 +190,17 @@ class AsyncADOCollector:
 
         logger.info(
             f"Collected {collector_type} metrics for {len(metrics)} projects in {duration:.2f}s "
-            f"({errors} errors, {len(metrics) / duration:.2f} projects/sec)"
+            f"({errors} errors, {len(metrics) / duration if duration > 0 else 0:.2f} projects/sec)"
         )
 
         return metrics
-
-    def shutdown(self) -> None:
-        """Shutdown thread pool executor"""
-        self.executor.shutdown(wait=True)
 
 
 async def main_quality():
     """Async main for quality metrics"""
     import json
 
-    from execution.collectors.ado_quality_metrics import get_ado_connection, save_quality_metrics
+    from execution.collectors.ado_quality_metrics import save_quality_metrics
 
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
@@ -250,7 +210,7 @@ async def main_quality():
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     logger.info("=" * 60)
-    logger.info("Async ADO Quality Metrics Collector Starting")
+    logger.info("Async ADO Quality Metrics Collector Starting (REST API)")
     logger.info("=" * 60)
 
     # Load projects
@@ -263,50 +223,46 @@ async def main_quality():
         logger.error("Project discovery file not found. Run: python execution/discover_projects.py")
         return 1
 
-    # Connect to ADO (synchronous - one-time operation)
+    # Connect to ADO REST API
     try:
-        connection = get_ado_connection()
-        logger.info("Connected to Azure DevOps")
-    except AzureDevOpsServiceError as e:
-        log_and_continue(logger, e, {"operation": "connect_ado"}, "Azure DevOps connection")
+        rest_client = get_ado_rest_client()
+        logger.info("Connected to Azure DevOps REST API")
+    except Exception as e:
+        log_and_continue(logger, e, {"operation": "connect_ado"}, "Azure DevOps connection")  # type: ignore[arg-type]
         return 1
 
     # Create async collector
-    collector = AsyncADOCollector(max_workers=10)
+    collector = AsyncADOCollector(rest_client)
 
-    try:
-        # Collect quality metrics concurrently
-        config = {"lookback_days": 90}
-        project_metrics = await collector.collect_all_projects(connection, projects, config, collector_type="quality")
+    # Collect quality metrics concurrently
+    config = {"lookback_days": 90}
+    project_metrics = await collector.collect_all_projects(projects, config, collector_type="quality")
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],
-            "projects": project_metrics,
-            "config": {**config, "async": True},
-        }
+    # Save results
+    week_metrics = {
+        "week_date": datetime.now().strftime("%Y-%m-%d"),
+        "week_number": datetime.now().isocalendar()[1],
+        "projects": project_metrics,
+        "config": {**config, "async": True, "rest_api": True},
+    }
 
-        saved = save_quality_metrics(week_metrics)
+    saved = save_quality_metrics(week_metrics)
 
-        if saved:
-            logger.info("=" * 60)
-            logger.info(f"Async collection complete ({len(project_metrics)} projects)")
-            logger.info("=" * 60)
-            return 0
-        else:
-            logger.error("Failed to save metrics")
-            return 1
-
-    finally:
-        collector.shutdown()
+    if saved:
+        logger.info("=" * 60)
+        logger.info(f"Async collection complete ({len(project_metrics)} projects)")
+        logger.info("=" * 60)
+        return 0
+    else:
+        logger.error("Failed to save metrics")
+        return 1
 
 
 async def main_flow():
     """Async main for flow metrics"""
     import json
 
-    from execution.collectors.ado_flow_metrics import get_ado_connection, save_flow_metrics
+    from execution.collectors.ado_flow_metrics import save_flow_metrics
 
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
@@ -316,7 +272,7 @@ async def main_flow():
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
     logger.info("=" * 60)
-    logger.info("Async ADO Flow Metrics Collector Starting")
+    logger.info("Async ADO Flow Metrics Collector Starting (REST API)")
     logger.info("=" * 60)
 
     # Load projects
@@ -329,49 +285,45 @@ async def main_flow():
         logger.error("Project discovery file not found. Run: python execution/discover_projects.py")
         return 1
 
-    # Connect to ADO
+    # Connect to ADO REST API
     try:
-        connection = get_ado_connection()
-        logger.info("Connected to Azure DevOps")
-    except AzureDevOpsServiceError as e:
-        log_and_continue(logger, e, {"operation": "connect_ado"}, "Azure DevOps connection")
+        rest_client = get_ado_rest_client()
+        logger.info("Connected to Azure DevOps REST API")
+    except Exception as e:
+        log_and_continue(logger, e, {"operation": "connect_ado"}, "Azure DevOps connection")  # type: ignore[arg-type]
         return 1
 
     # Create async collector
-    collector = AsyncADOCollector(max_workers=10)
+    collector = AsyncADOCollector(rest_client)
 
-    try:
-        # Collect flow metrics concurrently
-        config = {"lookback_days": 90, "aging_threshold_days": 30}
-        project_metrics = await collector.collect_all_projects(connection, projects, config, collector_type="flow")
+    # Collect flow metrics concurrently
+    config = {"lookback_days": 90, "aging_threshold_days": 30}
+    project_metrics = await collector.collect_all_projects(projects, config, collector_type="flow")
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],
-            "projects": project_metrics,
-            "config": {**config, "async": True},
-        }
+    # Save results
+    week_metrics = {
+        "week_date": datetime.now().strftime("%Y-%m-%d"),
+        "week_number": datetime.now().isocalendar()[1],
+        "projects": project_metrics,
+        "config": {**config, "async": True, "rest_api": True},
+    }
 
-        saved = save_flow_metrics(week_metrics)
+    saved = save_flow_metrics(week_metrics)
 
-        if saved:
-            logger.info("=" * 60)
-            logger.info(f"Async collection complete ({len(project_metrics)} projects)")
-            logger.info("=" * 60)
-            return 0
-        else:
-            logger.error("Failed to save metrics")
-            return 1
-
-    finally:
-        collector.shutdown()
+    if saved:
+        logger.info("=" * 60)
+        logger.info(f"Async collection complete ({len(project_metrics)} projects)")
+        logger.info("=" * 60)
+        return 0
+    else:
+        logger.error("Failed to save metrics")
+        return 1
 
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Async ADO Metrics Collector")
+    parser = argparse.ArgumentParser(description="Async ADO Metrics Collector (REST API)")
     parser.add_argument("--type", choices=["quality", "flow"], default="quality", help="Metrics type to collect")
     args = parser.parse_args()
 
