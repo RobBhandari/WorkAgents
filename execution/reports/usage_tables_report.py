@@ -26,18 +26,33 @@ Usage:
 """
 
 import argparse
-import html as html_module
 import logging
 import os
 import sys
+import webbrowser
 from datetime import datetime
 from pathlib import Path
 
-import pandas as pd
 from dotenv import load_dotenv
 
-# Import mobile-responsive framework
 from execution.framework import get_dashboard_framework
+from execution.reports.usage_tables.data_loader import read_excel_usage_data
+from execution.reports.usage_tables.data_processor import (
+    calculate_summary_stats,
+    filter_team_users,
+    prepare_claude_data,
+    prepare_devin_data,
+)
+from execution.reports.usage_tables.interactive_uploader import (
+    generate_data_processing_js,
+    generate_file_upload_handler_js,
+    generate_import_button_html,
+    generate_import_button_styles,
+    generate_papaparse_script_tag,
+    generate_placeholder_html,
+    generate_utility_functions_js,
+)
+from execution.reports.usage_tables.table_generator import generate_table_html
 
 # Load environment variables
 load_dotenv()
@@ -57,281 +72,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def read_excel_usage_data(file_path: str) -> pd.DataFrame:
+def generate_html_report_with_data(claude_df, devin_df, output_file: str) -> str:
     """
-    Read Excel or CSV file and validate required columns exist.
-
-    Args:
-        file_path: Path to Excel/CSV file containing usage data
-
-    Returns:
-        pd.DataFrame: Cleaned DataFrame with usage data
-
-    Raises:
-        FileNotFoundError: If file doesn't exist
-        ValueError: If required columns are missing
-    """
-    logger.info(f"Reading file: {file_path}")
-
-    # Validate file exists
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    try:
-        # Detect file type and read accordingly
-        file_ext = Path(file_path).suffix.lower()
-
-        if file_ext == ".csv":
-            df = pd.read_csv(file_path)
-            logger.info(f"Successfully read CSV file with {len(df)} rows")
-        elif file_ext in [".xlsx", ".xls"]:
-            df = pd.read_excel(file_path, engine="openpyxl")
-            logger.info(f"Successfully read Excel file with {len(df)} rows")
-        else:
-            raise ValueError(f"Unsupported file type: {file_ext}. Please use .csv, .xlsx, or .xls")
-
-        logger.info(f"Available columns: {list(df.columns)}")
-
-    except Exception as e:
-        logger.error(f"Failed to read file: {e}")
-        raise ValueError(f"Error reading file: {e}") from e
-
-    # Validate required columns (check for variations)
-    required_columns = {
-        "Name": "Name",
-        "Software Company": "Software Company",
-        "Claude Access": None,  # Will find the right variant
-        "Claude 30 day usage": "Claude 30 day usage",
-        "Devin_30d": "Devin_30d",
-    }
-
-    # Find Claude Access column (with or without space before ?)
-    claude_access_col = None
-    for col in df.columns:
-        if col in ["Claude Access?", "Claude Access ?"]:
-            claude_access_col = col
-            break
-
-    if not claude_access_col:
-        raise ValueError(
-            f"Missing 'Claude Access?' or 'Claude Access ?' column\n" f"Available columns: {list(df.columns)}"
-        )
-
-    # Find Devin Access column (with or without space before ?)
-    devin_access_col = None
-    for col in df.columns:
-        if col in ["Devin Access?", "Devin Access ?"]:
-            devin_access_col = col
-            break
-
-    if not devin_access_col:
-        raise ValueError(
-            f"Missing 'Devin Access?' or 'Devin Access ?' column\n" f"Available columns: {list(df.columns)}"
-        )
-
-    # Verify other required columns exist
-    missing = []
-    for req_col in ["Name", "Software Company", "Claude 30 day usage", "Devin_30d"]:
-        if req_col not in df.columns:
-            missing.append(req_col)
-
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}\n" f"Available columns: {list(df.columns)}")
-
-    # Standardize the access column names
-    df = df.rename(columns={claude_access_col: "Claude Access", devin_access_col: "Devin Access"})
-    logger.info(f"Using column '{claude_access_col}' for Claude Access")
-    logger.info(f"Using column '{devin_access_col}' for Devin Access")
-
-    # Clean data
-    # Strip whitespace from string columns
-    for col in ["Name", "Software Company", "Claude Access", "Devin Access"]:
-        if col in df.columns:
-            df[col] = df[col].astype(str).str.strip()
-
-    # Handle missing usage values (treat as 0)
-    df["Claude 30 day usage"] = pd.to_numeric(df["Claude 30 day usage"], errors="coerce").fillna(0)
-    df["Devin_30d"] = pd.to_numeric(df["Devin_30d"], errors="coerce").fillna(0)
-
-    logger.info("Data cleaned successfully")
-    return df
-
-
-def filter_lgl_users(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Filter DataFrame for target team (Software Company column).
-
-    Args:
-        df: DataFrame with usage data
-
-    Returns:
-        pd.DataFrame: Filtered DataFrame containing only target team users
-
-    Raises:
-        ValueError: If no target team users found
-    """
-    logger.info(f"Filtering for Software Company = '{TEAM_FILTER}'")
-
-    # Filter for team (case-insensitive)
-    filtered_df = df[df["Software Company"].str.upper() == TEAM_FILTER.upper()].copy()
-
-    if len(filtered_df) == 0:
-        raise ValueError(f"No {TEAM_FILTER} users found in dataset")
-
-    logger.info(f"Found {len(filtered_df)} {TEAM_FILTER} users out of {len(df)} total users")
-    return filtered_df
-
-
-def prepare_claude_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Prepare Claude usage table data.
-
-    Args:
-        df: Filtered DataFrame with target team users
-
-    Returns:
-        pd.DataFrame: DataFrame sorted by Claude usage (descending)
-    """
-    # Select relevant columns
-    claude_df = df[["Name", "Job Title", "Claude Access", "Claude 30 day usage"]].copy()
-
-    # Sort by usage (descending)
-    claude_df = claude_df.sort_values("Claude 30 day usage", ascending=False)
-
-    # Reset index
-    claude_df = claude_df.reset_index(drop=True)
-
-    logger.info(f"Prepared Claude table with {len(claude_df)} users")
-    logger.info(
-        f"Claude usage range: {claude_df['Claude 30 day usage'].min():.0f} - {claude_df['Claude 30 day usage'].max():.0f}"
-    )
-
-    return claude_df
-
-
-def prepare_devin_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Prepare Devin usage table data.
-
-    Args:
-        df: Filtered DataFrame with target team users
-
-    Returns:
-        pd.DataFrame: DataFrame sorted by Devin usage (descending)
-    """
-    # Select relevant columns
-    devin_df = df[["Name", "Job Title", "Devin Access", "Devin_30d"]].copy()
-
-    # Sort by usage (descending)
-    devin_df = devin_df.sort_values("Devin_30d", ascending=False)
-
-    # Reset index
-    devin_df = devin_df.reset_index(drop=True)
-
-    logger.info(f"Prepared Devin table with {len(devin_df)} users")
-    logger.info(f"Devin usage range: {devin_df['Devin_30d'].min():.0f} - {devin_df['Devin_30d'].max():.0f}")
-
-    return devin_df
-
-
-def get_usage_heatmap_color(usage: float) -> tuple[str, str, str]:
-    """
-    Determine heatmap color based on usage value.
-
-    Thresholds (per user requirement):
-    - Low (RED): usage < 20
-    - Medium (AMBER): 20 <= usage < 100
-    - High (GREEN): usage >= 100
-
-    Args:
-        usage: Usage count value
-
-    Returns:
-        Tuple of (background_color, text_color, intensity_class)
-    """
-    if usage >= 100:
-        # High - Green
-        return "#d1fae5", "#065f46", "high"
-    elif usage >= 20:
-        # Medium - Amber
-        return "#fef3c7", "#92400e", "medium"
-    else:
-        # Low - Red
-        return "#fee2e2", "#991b1b", "low"
-
-
-def generate_table_html(df: pd.DataFrame, table_id: str, title: str, usage_column: str, access_column: str) -> str:
-    """
-    Generate HTML for a single usage table.
-
-    Args:
-        df: DataFrame with table data
-        table_id: HTML ID for the table
-        title: Table title
-        usage_column: Name of the usage column
-        access_column: Name of the access column
-
-    Returns:
-        str: HTML string for the table section
-    """
-    html = f"""
-            <div class="table-card">
-                <h2>{html_module.escape(title)}</h2>
-                <div class="table-wrapper">
-                    <table id="{table_id}" class="usage-table">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('{table_id}', 0)">Name</th>
-                                <th onclick="sortTable('{table_id}', 1)">Job Title</th>
-                                <th onclick="sortTable('{table_id}', 2)">Access</th>
-                                <th onclick="sortTable('{table_id}', 3)">Usage (30 days)</th>
-                            </tr>
-                        </thead>
-                        <tbody>"""
-
-    # Generate rows
-    for _, row in df.iterrows():
-        name = html_module.escape(str(row["Name"]))
-        job_title = html_module.escape(str(row["Job Title"]))
-        access = str(row[access_column]).strip()
-        usage = float(row[usage_column])
-
-        # Get heatmap color
-        bg_color, text_color, intensity = get_usage_heatmap_color(usage)
-
-        # Access badge (handle both text and numeric values)
-        # Treat NaN, empty, or 0 as "No"
-        if access.upper() in ["YES", "1", "1.0"]:
-            access_badge = '<span class="badge badge-success">Yes</span>'
-        elif access.upper() in ["NO", "0", "0.0", "NAN", "NONE", ""]:
-            access_badge = '<span class="badge badge-secondary">No</span>'
-        else:
-            access_badge = '<span class="badge badge-secondary">No</span>'
-
-        html += f"""
-                        <tr>
-                            <td>{name}</td>
-                            <td>{job_title}</td>
-                            <td>{access_badge}</td>
-                            <td class="heatmap-cell"
-                                style="background-color: {bg_color}; color: {text_color};"
-                                data-value="{usage}">
-                                {int(usage)}
-                            </td>
-                        </tr>"""
-
-    html += """
-                        </tbody>
-                    </table>
-                </div>
-            </div>"""
-
-    return html
-
-
-def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output_file: str) -> str:
-    """
-    Generate complete HTML report with both tables.
+    Generate HTML report with provided data.
 
     Args:
         claude_df: DataFrame with Claude usage data
@@ -341,29 +84,20 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
     Returns:
         str: Path to generated HTML file
     """
-    logger.info("Generating HTML report")
+    logger.info("Generating HTML report with data")
 
     # Calculate statistics
-    total_users = len(claude_df)
-    claude_users = len(claude_df[claude_df["Claude 30 day usage"] > 0])
-    devin_users = len(devin_df[devin_df["Devin_30d"] > 0])
-    avg_claude_usage = claude_df["Claude 30 day usage"].mean()
-    avg_devin_usage = devin_df["Devin_30d"].mean()
+    stats = calculate_summary_stats(claude_df, devin_df)
 
-    # Generate report date
-    report_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
-
-    # Generate Claude table HTML
+    # Generate tables
     claude_table_html = generate_table_html(
         claude_df, "claudeTable", "Claude Usage (Last 30 Days)", "Claude 30 day usage", "Claude Access"
     )
-
-    # Generate Devin table HTML
     devin_table_html = generate_table_html(
         devin_df, "devinTable", "Devin Usage (Last 30 Days)", "Devin_30d", "Devin Access"
     )
 
-    # Get mobile-responsive framework
+    # Get framework CSS/JS
     framework_css, framework_js = get_dashboard_framework(
         header_gradient_start="#667eea",
         header_gradient_end="#764ba2",
@@ -372,7 +106,10 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
         include_glossary=False,
     )
 
-    # Complete HTML document
+    # Generate report date
+    report_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
+
+    # Build complete HTML
     html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -380,296 +117,6 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Tools Usage Report</title>
     {framework_css}
-    <style>
-        /* Dashboard-specific styles */
-        .stats-card {{
-            background: var(--bg-secondary);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }}
-
-        @media (min-width: 768px) {{
-            .stats-card {{
-                padding: 24px;
-                border-radius: 12px;
-                margin-bottom: 20px;
-                box-shadow: 0 4px 12px var(--shadow);
-            }}
-        }}
-
-        @media (min-width: 1024px) {{
-            .stats-card {{
-                padding: 30px;
-            }}
-        }}
-
-        .stats-grid {{
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-top: 16px;
-        }}
-
-        @media (min-width: 480px) {{
-            .stats-grid {{
-                grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-            }}
-        }}
-
-        @media (min-width: 768px) {{
-            .stats-grid {{
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-            }}
-        }}
-
-        @media (min-width: 1024px) {{
-            .stats-grid {{
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }}
-        }}
-
-        .stat-card {{
-            background: var(--bg-tertiary);
-            padding: 16px;
-            border-radius: 8px;
-            text-align: center;
-            border-left: 4px solid #667eea;
-        }}
-
-        @media (min-width: 768px) {{
-            .stat-card {{
-                padding: 20px;
-            }}
-        }}
-
-        .stat-card .value {{
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            font-variant-numeric: tabular-nums;
-        }}
-
-        @media (min-width: 768px) {{
-            .stat-card .value {{
-                font-size: 2.5rem;
-            }}
-        }}
-
-        .stat-card .label {{
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }}
-
-        @media (min-width: 768px) {{
-            .stat-card .label {{
-                font-size: 0.75rem;
-            }}
-        }}
-
-        .legend-card {{
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }}
-
-        @media (min-width: 768px) {{
-            .legend-card {{
-                padding: 24px;
-                border-radius: 12px;
-                margin-bottom: 30px;
-                box-shadow: 0 4px 12px var(--shadow);
-            }}
-        }}
-
-        @media (min-width: 1024px) {{
-            .legend-card {{
-                padding: 30px;
-            }}
-        }}
-
-        .legend-card h3 {{
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }}
-
-        @media (min-width: 768px) {{
-            .legend-card h3 {{
-                font-size: 1.25rem;
-                margin-bottom: 16px;
-            }}
-        }}
-
-        .legend-content {{
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-        }}
-
-        @media (min-width: 768px) {{
-            .legend-content {{
-                gap: 20px;
-            }}
-        }}
-
-        .legend-item {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-        }}
-
-        @media (min-width: 768px) {{
-            .legend-item {{
-                font-size: 0.9rem;
-            }}
-        }}
-
-        .legend-box {{
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            display: inline-block;
-        }}
-
-        .legend-green {{
-            background-color: #d1fae5;
-            border: 2px solid #065f46;
-        }}
-
-        .legend-amber {{
-            background-color: #fef3c7;
-            border: 2px solid #92400e;
-        }}
-
-        .legend-red {{
-            background-color: #fee2e2;
-            border: 2px solid #991b1b;
-        }}
-
-        .search-card {{
-            background: var(--bg-secondary);
-            padding: 16px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }}
-
-        @media (min-width: 768px) {{
-            .search-card {{
-                padding: 20px 30px;
-                border-radius: 12px;
-                margin-bottom: 30px;
-                box-shadow: 0 4px 12px var(--shadow);
-            }}
-        }}
-
-        .search-box {{
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 0.9rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 44px;
-        }}
-
-        @media (min-width: 768px) {{
-            .search-box {{
-                padding: 14px 20px;
-                font-size: 1rem;
-            }}
-        }}
-
-        .search-box:focus {{
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }}
-
-        .tables-container {{
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }}
-
-        @media (min-width: 1200px) {{
-            .tables-container {{
-                grid-template-columns: 1fr 1fr;
-                gap: 30px;
-                margin-bottom: 30px;
-            }}
-        }}
-
-        .table-card {{
-            background: var(--bg-secondary);
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }}
-
-        @media (min-width: 768px) {{
-            .table-card {{
-                padding: 24px;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px var(--shadow);
-            }}
-        }}
-
-        @media (min-width: 1024px) {{
-            .table-card {{
-                padding: 30px;
-            }}
-        }}
-
-        .table-card h2 {{
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }}
-
-        @media (min-width: 768px) {{
-            .table-card h2 {{
-                font-size: 1.5rem;
-                margin-bottom: 20px;
-            }}
-        }}
-
-        .usage-table th:nth-child(3),
-        .usage-table th:nth-child(4) {{
-            text-align: center;
-        }}
-
-        .usage-table td:nth-child(3),
-        .usage-table td:nth-child(4) {{
-            text-align: center;
-        }}
-
-        .heatmap-cell {{
-            font-weight: 700;
-            border-radius: 4px;
-        }}
-
-        /* Sortable column indicator */
-        .usage-table th {{
-            cursor: pointer;
-            user-select: none;
-        }}
-    </style>
 </head>
 <body>
     <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
@@ -687,139 +134,49 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
         <div class="stats-card">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="value">{total_users}</div>
+                    <div class="value">{stats['total_users']}</div>
                     <div class="label">Total Team Users</div>
                 </div>
                 <div class="stat-card">
-                    <div class="value">{claude_users}</div>
+                    <div class="value">{stats['claude_active_users']}</div>
                     <div class="label">Claude Active Users</div>
                 </div>
                 <div class="stat-card">
-                    <div class="value">{devin_users}</div>
+                    <div class="value">{stats['devin_active_users']}</div>
                     <div class="label">Devin Active Users</div>
                 </div>
                 <div class="stat-card">
-                    <div class="value">{avg_claude_usage:.0f}</div>
+                    <div class="value">{int(stats['avg_claude_usage'])}</div>
                     <div class="label">Avg Claude Usage</div>
                 </div>
                 <div class="stat-card">
-                    <div class="value">{avg_devin_usage:.0f}</div>
+                    <div class="value">{int(stats['avg_devin_usage'])}</div>
                     <div class="label">Avg Devin Usage</div>
                 </div>
             </div>
         </div>
 
-        <div class="legend-card">
-            <h3>📊 Usage Intensity Legend</h3>
-            <div class="legend-content">
-                <div class="legend-item">
-                    <span class="legend-box legend-green"></span>
-                    <strong>High (≥100 uses)</strong>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-box legend-amber"></span>
-                    <strong>Medium (20-99 uses)</strong>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-box legend-red"></span>
-                    <strong>Low (&lt;20 uses)</strong>
-                </div>
-            </div>
-        </div>
-
-        <div class="search-card">
-            <input type="text"
-                   id="globalSearch"
-                   class="search-box"
-                   placeholder="🔍 Search..."
-                   onkeyup="filterAllTables()">
-        </div>
-
         <div class="tables-container">
-{claude_table_html}
-{devin_table_html}
+            {claude_table_html}
+            {devin_table_html}
         </div>
     </div>
 
     {framework_js}
-    <script>
-        // Dashboard-specific functions
-        function filterAllTables() {{
-            const input = document.getElementById('globalSearch');
-            const filter = input.value.toLowerCase();
-
-            // Filter both tables
-            const tables = ['claudeTable', 'devinTable'];
-
-            tables.forEach(tableId => {{
-                const table = document.getElementById(tableId);
-                const rows = table.getElementsByTagName('tr');
-
-                for (let i = 1; i < rows.length; i++) {{
-                    const nameCell = rows[i].cells[0];
-                    const jobTitleCell = rows[i].cells[1];
-                    const accessCell = rows[i].cells[2];
-
-                    if (nameCell && jobTitleCell && accessCell) {{
-                        const name = nameCell.textContent.toLowerCase();
-                        const jobTitle = jobTitleCell.textContent.toLowerCase();
-                        const access = accessCell.textContent.toLowerCase();
-
-                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {{
-                            rows[i].style.display = '';
-                        }} else {{
-                            rows[i].style.display = 'none';
-                        }}
-                    }}
-                }}
-            }});
-        }}
-
-        function sortTable(tableId, columnIndex) {{
-            const table = document.getElementById(tableId);
-            const tbody = table.tBodies[0];
-            const rows = Array.from(tbody.rows);
-
-            const isNumeric = columnIndex === 3;  // Usage column (now at index 3)
-
-            rows.sort((a, b) => {{
-                let aValue, bValue;
-
-                if (isNumeric) {{
-                    aValue = parseFloat(a.cells[columnIndex].getAttribute('data-value') || 0);
-                    bValue = parseFloat(b.cells[columnIndex].getAttribute('data-value') || 0);
-                    return bValue - aValue;  // Descending
-                }} else {{
-                    aValue = a.cells[columnIndex].textContent.trim();
-                    bValue = b.cells[columnIndex].textContent.trim();
-                    return aValue.localeCompare(bValue);
-                }}
-            }});
-
-            // Toggle direction on repeated clicks
-            if (table.dataset.lastSort === String(columnIndex)) {{
-                rows.reverse();
-                table.dataset.lastSort = '';
-            }} else {{
-                table.dataset.lastSort = String(columnIndex);
-            }}
-
-            rows.forEach(row => tbody.appendChild(row));
-        }}
-    </script>
 </body>
 </html>"""
 
     # Write HTML file
-    with open(output_file, "w", encoding="utf-8") as f:
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    logger.info(f"HTML report created successfully: {output_file}")
+    logger.info(f"HTML report created: {output_file}")
 
-    # Also save a copy as "latest" in dashboards directory for trends dashboard linking
+    # Also save as latest
     latest_file = Path(".tmp/observatory/dashboards/usage_tables_latest.html")
     try:
-        # Ensure dashboards directory exists
         latest_file.parent.mkdir(parents=True, exist_ok=True)
         with open(latest_file, "w", encoding="utf-8") as f:
             f.write(html)
@@ -827,16 +184,12 @@ def generate_html_report(claude_df: pd.DataFrame, devin_df: pd.DataFrame, output
     except Exception as e:
         logger.warning(f"Failed to save latest copy: {e}")
 
-    return output_file
+    return str(output_path)
 
 
 def generate_interactive_html(output_file: str) -> str:
     """
     Generate interactive HTML with CSV import capability.
-
-    When no data file is provided, this creates an HTML page with an IMPORT button
-    that allows users to upload their CSV file directly in the browser.
-    All processing happens client-side for maximum security.
 
     Args:
         output_file: Path to save the HTML file
@@ -844,7 +197,9 @@ def generate_interactive_html(output_file: str) -> str:
     Returns:
         str: Path to generated HTML file
     """
-    # Get mobile-responsive framework
+    logger.info("Generating interactive HTML with import capability")
+
+    # Get framework CSS/JS
     framework_css, framework_js = get_dashboard_framework(
         header_gradient_start="#667eea",
         header_gradient_end="#764ba2",
@@ -853,221 +208,20 @@ def generate_interactive_html(output_file: str) -> str:
         include_glossary=False,
     )
 
+    # Generate report date
     report_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
 
+    # Build HTML with interactive components
     html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Tools Usage Report - Import Data</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    {generate_papaparse_script_tag()}
     {framework_css}
     <style>
-        .import-button {{
-            position: fixed;
-            top: 20px;
-            right: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }}
-
-        .import-button:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }}
-
-        .import-button:active {{
-            transform: translateY(0);
-        }}
-
-        #file-input {{
-            display: none;
-        }}
-
-        .placeholder {{
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }}
-
-        .placeholder-icon {{
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }}
-
-        .placeholder h2 {{
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }}
-
-        .placeholder p {{
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }}
-
-        .hidden {{
-            display: none !important;
-        }}
-
-        /* Match existing dashboard styles */
-        .stats-card, .legend-card, .search-card, .table-card {{
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px var(--shadow);
-            margin-bottom: 20px;
-        }}
-
-        .stats-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }}
-
-        .stat-card {{
-            background: var(--bg-tertiary);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border-left: 4px solid #667eea;
-        }}
-
-        .stat-card .value {{
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }}
-
-        .stat-card .label {{
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }}
-
-        .legend-content {{
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }}
-
-        .legend-item {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-
-        .legend-box {{
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }}
-
-        .legend-green {{ background-color: #d1fae5; border: 2px solid #065f46; }}
-        .legend-amber {{ background-color: #fef3c7; border: 2px solid #92400e; }}
-        .legend-red {{ background-color: #fee2e2; border: 2px solid #991b1b; }}
-
-        .search-box {{
-            width: 100%;
-            padding: 14px 20px;
-            font-size: 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }}
-
-        .search-box:focus {{
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }}
-
-        .tables-container {{
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }}
-
-        @media (min-width: 1200px) {{
-            .tables-container {{
-                grid-template-columns: 1fr 1fr;
-            }}
-        }}
-
-        .table-card h2 {{
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: var(--text-primary);
-        }}
-
-        .usage-table {{
-            width: 100%;
-            border-collapse: collapse;
-        }}
-
-        .usage-table th {{
-            background: var(--bg-tertiary);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            cursor: pointer;
-            user-select: none;
-        }}
-
-        .usage-table th:nth-child(3),
-        .usage-table th:nth-child(4) {{
-            text-align: center;
-        }}
-
-        .usage-table td {{
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }}
-
-        .usage-table td:nth-child(3),
-        .usage-table td:nth-child(4) {{
-            text-align: center;
-        }}
-
-        .heatmap-cell {{
-            font-weight: 700;
-            border-radius: 4px;
-        }}
-
-        .badge {{
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }}
-
-        .badge-success {{
-            background: #d1fae5;
-            color: #065f46;
-        }}
-
-        .badge-secondary {{
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-        }}
+        {generate_import_button_styles()}
     </style>
 </head>
 <body>
@@ -1076,10 +230,7 @@ def generate_interactive_html(output_file: str) -> str:
         <span id="theme-label">Light Mode</span>
     </button>
 
-    <button class="import-button" onclick="document.getElementById('file-input').click()">
-        📥 IMPORT CSV
-    </button>
-    <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
+    {generate_import_button_html()}
 
     <div class="container">
         <div class="header">
@@ -1088,15 +239,7 @@ def generate_interactive_html(output_file: str) -> str:
             <p class="timestamp">Generated: {report_date}</p>
         </div>
 
-        <div id="placeholder" class="placeholder">
-            <div class="placeholder-icon">📊</div>
-            <h2>No Data Loaded</h2>
-            <p>Click the <strong>IMPORT CSV</strong> button above to load your AI usage data.</p>
-            <p style="font-size: 0.9rem; color: var(--text-secondary);">
-                Supported formats: CSV, Excel (.xlsx, .xls)<br>
-                All processing happens in your browser - data never leaves your computer.
-            </p>
-        </div>
+        {generate_placeholder_html()}
 
         <div id="content" class="hidden">
             <div class="stats-card">
@@ -1124,32 +267,6 @@ def generate_interactive_html(output_file: str) -> str:
                 </div>
             </div>
 
-            <div class="legend-card">
-                <h3>📊 Usage Intensity Legend</h3>
-                <div class="legend-content">
-                    <div class="legend-item">
-                        <span class="legend-box legend-green"></span>
-                        <strong>High (≥100 uses)</strong>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-box legend-amber"></span>
-                        <strong>Medium (20-99 uses)</strong>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-box legend-red"></span>
-                        <strong>Low (&lt;20 uses)</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div class="search-card">
-                <input type="text"
-                       id="globalSearch"
-                       class="search-box"
-                       placeholder="🔍 Search..."
-                       onkeyup="filterAllTables()">
-            </div>
-
             <div class="tables-container">
                 <div class="table-card">
                     <h2>Claude Usage (Last 30 Days)</h2>
@@ -1157,14 +274,13 @@ def generate_interactive_html(output_file: str) -> str:
                         <table id="claudeTable" class="usage-table">
                             <thead>
                                 <tr>
-                                    <th onclick="sortTable('claudeTable', 0)">Name</th>
-                                    <th onclick="sortTable('claudeTable', 1)">Job Title</th>
-                                    <th onclick="sortTable('claudeTable', 2)">Access</th>
-                                    <th onclick="sortTable('claudeTable', 3)">Usage (30 days)</th>
+                                    <th>Name</th>
+                                    <th>Job Title</th>
+                                    <th>Access</th>
+                                    <th>Usage (30 days)</th>
                                 </tr>
                             </thead>
-                            <tbody id="claudeTableBody">
-                            </tbody>
+                            <tbody id="claudeTableBody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1175,14 +291,13 @@ def generate_interactive_html(output_file: str) -> str:
                         <table id="devinTable" class="usage-table">
                             <thead>
                                 <tr>
-                                    <th onclick="sortTable('devinTable', 0)">Name</th>
-                                    <th onclick="sortTable('devinTable', 1)">Job Title</th>
-                                    <th onclick="sortTable('devinTable', 2)">Access</th>
-                                    <th onclick="sortTable('devinTable', 3)">Usage (30 days)</th>
+                                    <th>Name</th>
+                                    <th>Job Title</th>
+                                    <th>Access</th>
+                                    <th>Usage (30 days)</th>
                                 </tr>
                             </thead>
-                            <tbody id="devinTableBody">
-                            </tbody>
+                            <tbody id="devinTableBody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1192,208 +307,17 @@ def generate_interactive_html(output_file: str) -> str:
 
     {framework_js}
     <script>
-        function handleFileUpload(event) {{
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Show loading state
-            document.querySelector('.import-button').textContent = '⏳ Loading...';
-            document.querySelector('.import-button').disabled = true;
-
-            // Parse CSV
-            Papa.parse(file, {{
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {{
-                    processData(results.data);
-                    document.querySelector('.import-button').textContent = '✅ Data Loaded';
-                    setTimeout(() => {{
-                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
-                        document.querySelector('.import-button').disabled = false;
-                    }}, 2000);
-                }},
-                error: function(error) {{
-                    alert('Error parsing CSV: ' + error.message);
-                    document.querySelector('.import-button').textContent = '❌ Error';
-                    setTimeout(() => {{
-                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
-                        document.querySelector('.import-button').disabled = false;
-                    }}, 2000);
-                }}
-            }});
-        }}
-
-        function processData(data) {{
-            // Filter for target team users (change TEAM_FILTER as needed)
-            const TEAM_FILTER = 'TARGET_TEAM';
-            const lglData = data.filter(row =>
-                row['Software Company'] && row['Software Company'].trim().toUpperCase() === TEAM_FILTER
-            );
-
-            if (lglData.length === 0) {{
-                alert(`No ${TEAM_FILTER} users found in the data!`);
-                return;
-            }}
-
-            // Find the correct column names (handle variations)
-            const claudeAccessCol = Object.keys(lglData[0]).find(k =>
-                k === 'Claude Access?' || k === 'Claude Access '
-            ) || 'Claude Access?';
-
-            const devinAccessCol = Object.keys(lglData[0]).find(k =>
-                k === 'Devin Access?' || k === 'Devin Access '
-            ) || 'Devin Access?';
-
-            // Calculate statistics
-            const claudeActiveUsers = lglData.filter(row => parseFloat(row['Claude 30 day usage'] || 0) > 0).length;
-            const devinActiveUsers = lglData.filter(row => parseFloat(row['Devin_30d'] || 0) > 0).length;
-            const avgClaudeUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Claude 30 day usage'] || 0), 0) / lglData.length;
-            const avgDevinUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Devin_30d'] || 0), 0) / lglData.length;
-
-            // Update stats
-            document.getElementById('total-users').textContent = lglData.length;
-            document.getElementById('claude-users').textContent = claudeActiveUsers;
-            document.getElementById('devin-users').textContent = devinActiveUsers;
-            document.getElementById('avg-claude').textContent = Math.round(avgClaudeUsage);
-            document.getElementById('avg-devin').textContent = Math.round(avgDevinUsage);
-
-            // Sort by usage descending
-            const claudeData = [...lglData].sort((a, b) =>
-                parseFloat(b['Claude 30 day usage'] || 0) - parseFloat(a['Claude 30 day usage'] || 0)
-            );
-            const devinData = [...lglData].sort((a, b) =>
-                parseFloat(b['Devin_30d'] || 0) - parseFloat(a['Devin_30d'] || 0)
-            );
-
-            // Generate Claude table
-            const claudeTableBody = document.getElementById('claudeTableBody');
-            claudeTableBody.innerHTML = claudeData.map(row => {{
-                const usage = parseFloat(row['Claude 30 day usage'] || 0);
-                const {{ bgColor, textColor }} = getHeatmapColor(usage);
-                const access = String(row[claudeAccessCol] || '').trim().toUpperCase();
-                const accessBadge = ['YES', '1', '1.0'].includes(access)
-                    ? '<span class="badge badge-success">Yes</span>'
-                    : '<span class="badge badge-secondary">No</span>';
-
-                return `
-                    <tr>
-                        <td>${{escapeHtml(row['Name'] || '')}}</td>
-                        <td>${{escapeHtml(row['Job Title'] || '')}}</td>
-                        <td>${{accessBadge}}</td>
-                        <td class="heatmap-cell" style="background-color: ${{bgColor}}; color: ${{textColor}};" data-value="${{usage}}">
-                            ${{Math.round(usage)}}
-                        </td>
-                    </tr>
-                `;
-            }}).join('');
-
-            // Generate Devin table
-            const devinTableBody = document.getElementById('devinTableBody');
-            devinTableBody.innerHTML = devinData.map(row => {{
-                const usage = parseFloat(row['Devin_30d'] || 0);
-                const {{ bgColor, textColor }} = getHeatmapColor(usage);
-                const access = String(row[devinAccessCol] || '').trim().toUpperCase();
-                const accessBadge = ['YES', '1', '1.0'].includes(access)
-                    ? '<span class="badge badge-success">Yes</span>'
-                    : '<span class="badge badge-secondary">No</span>';
-
-                return `
-                    <tr>
-                        <td>${{escapeHtml(row['Name'] || '')}}</td>
-                        <td>${{escapeHtml(row['Job Title'] || '')}}</td>
-                        <td>${{accessBadge}}</td>
-                        <td class="heatmap-cell" style="background-color: ${{bgColor}}; color: ${{textColor}};" data-value="${{usage}}">
-                            ${{Math.round(usage)}}
-                        </td>
-                    </tr>
-                `;
-            }}).join('');
-
-            // Show content, hide placeholder
-            document.getElementById('placeholder').classList.add('hidden');
-            document.getElementById('content').classList.remove('hidden');
-        }}
-
-        function getHeatmapColor(usage) {{
-            if (usage >= 100) {{
-                return {{ bgColor: '#d1fae5', textColor: '#065f46' }};
-            }} else if (usage >= 20) {{
-                return {{ bgColor: '#fef3c7', textColor: '#92400e' }};
-            }} else {{
-                return {{ bgColor: '#fee2e2', textColor: '#991b1b' }};
-            }}
-        }}
-
-        function escapeHtml(text) {{
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }}
-
-        function filterAllTables() {{
-            const input = document.getElementById('globalSearch');
-            const filter = input.value.toLowerCase();
-
-            ['claudeTable', 'devinTable'].forEach(tableId => {{
-                const table = document.getElementById(tableId);
-                const rows = table.getElementsByTagName('tr');
-
-                for (let i = 1; i < rows.length; i++) {{
-                    const nameCell = rows[i].cells[0];
-                    const jobTitleCell = rows[i].cells[1];
-                    const accessCell = rows[i].cells[2];
-
-                    if (nameCell && jobTitleCell && accessCell) {{
-                        const name = nameCell.textContent.toLowerCase();
-                        const jobTitle = jobTitleCell.textContent.toLowerCase();
-                        const access = accessCell.textContent.toLowerCase();
-
-                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {{
-                            rows[i].style.display = '';
-                        }} else {{
-                            rows[i].style.display = 'none';
-                        }}
-                    }}
-                }}
-            }});
-        }}
-
-        function sortTable(tableId, columnIndex) {{
-            const table = document.getElementById(tableId);
-            const tbody = table.tBodies[0];
-            const rows = Array.from(tbody.rows);
-
-            const isNumeric = columnIndex === 3;
-
-            rows.sort((a, b) => {{
-                let aValue, bValue;
-
-                if (isNumeric) {{
-                    aValue = parseFloat(a.cells[columnIndex].getAttribute('data-value') || 0);
-                    bValue = parseFloat(b.cells[columnIndex].getAttribute('data-value') || 0);
-                    return bValue - aValue;
-                }} else {{
-                    aValue = a.cells[columnIndex].textContent.trim();
-                    bValue = b.cells[columnIndex].textContent.trim();
-                    return aValue.localeCompare(bValue);
-                }}
-            }});
-
-            if (table.dataset.lastSort === String(columnIndex)) {{
-                rows.reverse();
-                table.dataset.lastSort = '';
-            }} else {{
-                table.dataset.lastSort = String(columnIndex);
-            }}
-
-            rows.forEach(row => tbody.appendChild(row));
-        }}
+        {generate_file_upload_handler_js(TEAM_FILTER)}
+        {generate_data_processing_js(TEAM_FILTER)}
+        {generate_utility_functions_js()}
     </script>
 </body>
 </html>"""
 
     # Write HTML file
-    with open(output_file, "w", encoding="utf-8") as f:
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
 
     logger.info(f"Interactive HTML with import capability created: {output_file}")
@@ -1408,16 +332,11 @@ def generate_interactive_html(output_file: str) -> str:
     except Exception as e:
         logger.warning(f"Failed to save latest copy: {e}")
 
-    return output_file
+    return str(output_path)
 
 
 def parse_arguments():
-    """
-    Parse command-line arguments.
-
-    Returns:
-        Namespace: Parsed arguments
-    """
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Generate AI Tools usage tables report from CSV/Excel file")
 
     parser.add_argument(
@@ -1439,10 +358,8 @@ def parse_arguments():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
-    """
-    Entry point when script is run from command line.
-    """
+def main():
+    """Main entry point for the report generator."""
     try:
         # Parse command-line arguments
         args = parse_arguments()
@@ -1470,54 +387,46 @@ if __name__ == "__main__":
 
             # Open in browser if requested
             if args.open:
-                import webbrowser
-
                 webbrowser.open(f"file://{os.path.abspath(output_file)}")
                 logger.info("Opened report in browser")
 
             sys.exit(0)
 
-        # Use file path from command-line argument
-        file_path = args.file
-        logger.info(f"Using data file: {file_path}")
+        # CLI Mode: Process file directly
+        logger.info(f"Using data file: {args.file}")
 
-        # Step 1: Read Excel/CSV file
-        df = read_excel_usage_data(file_path)
+        # Pipeline: Load → Filter → Process → Generate
+        df = read_excel_usage_data(args.file)
+        team_df = filter_team_users(df, TEAM_FILTER)
+        claude_df = prepare_claude_data(team_df)
+        devin_df = prepare_devin_data(team_df)
+        output_file = generate_html_report_with_data(claude_df, devin_df, args.output_file)
 
-        # Step 2: Filter for target team users
-        lgl_df = filter_lgl_users(df)
-
-        # Step 3: Prepare Claude data
-        claude_df = prepare_claude_data(lgl_df)
-
-        # Step 4: Prepare Devin data
-        devin_df = prepare_devin_data(lgl_df)
-
-        # Step 5: Generate HTML report
-        output_file = generate_html_report(claude_df=claude_df, devin_df=devin_df, output_file=args.output_file)
-
+        # Print success message
+        stats = calculate_summary_stats(claude_df, devin_df)
         print(f"\n{'='*70}")
         print("SUCCESS: AI Tools Usage Report Generated")
         print(f"{'='*70}")
         print(f"Output file: {output_file}")
         print("\nStatistics:")
-        print(f"  • Total Team Users: {len(lgl_df)}")
-        print(f"  • Claude Active Users: {len(claude_df[claude_df['Claude 30 day usage'] > 0])}")
-        print(f"  • Devin Active Users: {len(devin_df[devin_df['Devin_30d'] > 0])}")
+        print(f"  • Total Team Users: {stats['total_users']}")
+        print(f"  • Claude Active Users: {stats['claude_active_users']}")
+        print(f"  • Devin Active Users: {stats['devin_active_users']}")
         print("\nOpen this file in your web browser to view the interactive report.")
         print(f"{'='*70}\n")
 
         # Open in browser if requested
         if args.open:
-            import webbrowser
-
             webbrowser.open(f"file://{os.path.abspath(output_file)}")
             logger.info("Opened report in browser")
 
-        # Exit with success code
         sys.exit(0)
 
     except Exception as e:
         logger.error(f"Script failed: {e}", exc_info=True)
         print(f"\nERROR: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
