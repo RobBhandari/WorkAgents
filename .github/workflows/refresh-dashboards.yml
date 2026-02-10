@@ -107,27 +107,6 @@ jobs:
           echo "ARMORCODE_BASE_URL=${{ secrets.ARMORCODE_BASE_URL }}" >> .env
           echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
 
-      - name: Debug - Verify ArmorCode secret (safe)
-        run: |
-          echo "🔍 Checking ArmorCode API key configuration..."
-          if grep -q "ARMORCODE_API_KEY=" .env; then
-            KEY_VALUE=$(grep "ARMORCODE_API_KEY=" .env | cut -d'=' -f2)
-            if [ -z "$KEY_VALUE" ]; then
-              echo "❌ ARMORCODE_API_KEY is EMPTY in .env file"
-            else
-              KEY_LENGTH=${#KEY_VALUE}
-              echo "✅ ARMORCODE_API_KEY is set (length: $KEY_LENGTH chars)"
-              # Check UUID format without exposing value
-              if [[ "$KEY_VALUE" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
-                echo "✅ Format: Valid UUID"
-              else
-                echo "⚠️ Format: NOT a valid UUID (expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
-              fi
-            fi
-          else
-            echo "❌ ARMORCODE_API_KEY line not found in .env file"
-          fi
-
       - name: Create baseline files from secrets
         run: |
           mkdir -p data
