@@ -110,7 +110,7 @@ class ArmorCodeLoader:
 
         return metrics_by_product
 
-    def load_all_weeks(self) -> list[dict]:
+    def load_all_weeks(self) -> list[dict[str, object]]:
         """
         Load all historical weeks of security data.
 

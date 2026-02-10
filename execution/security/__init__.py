@@ -45,7 +45,7 @@ def safe_html(text: str | None) -> str:
     return HTMLSanitizer.escape_html(text)
 
 
-def safe_wiql(template: str, **params) -> str:
+def safe_wiql(template: str, **params: str) -> str:
     """Convenience wrapper for WIQLValidator.build_safe_wiql()"""
     return WIQLValidator.build_safe_wiql(template, **params)
 
