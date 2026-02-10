@@ -9,25 +9,25 @@ Collects ownership and assignment metrics at project level:
 - Orphan Areas: Areas/services without clear ownership
 
 Read-only operation - does not modify any existing data.
+
+Migrated to Azure DevOps REST API v7.1 (replaces SDK).
 """
 
+import asyncio
 import json
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any
 
-from azure.devops.connection import Connection
-from azure.devops.exceptions import AzureDevOpsServiceError
-from azure.devops.v7_1.work_item_tracking import Wiql
 from dotenv import load_dotenv
-from msrest.authentication import BasicAuthentication
 
-from execution.collectors.ado_connection import get_ado_connection
+from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
+from execution.collectors.ado_rest_transformers import GitTransformer, WorkItemTransformer
 from execution.core import get_logger
 from execution.secure_config import get_config
 from execution.security import WIQLValidator
-from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
+from execution.utils.ado_batch_utils import batch_fetch_work_items_rest
 from execution.utils.error_handling import log_and_continue, log_and_raise, log_and_return_default
 
 load_dotenv()
@@ -64,12 +64,14 @@ def _build_area_filter_clause(area_path_filter: str | None) -> tuple[str, str | 
         return "", None
 
 
-def _execute_wiql_query(wit_client, project_name: str, area_filter_clause: str) -> list[int]:
+async def _execute_wiql_query(
+    rest_client: AzureDevOpsRESTClient, project_name: str, area_filter_clause: str
+) -> list[int]:
     """
-    Execute WIQL query for ownership analysis.
+    Execute WIQL query for ownership analysis (REST API).
 
     Args:
-        wit_client: Work Item Tracking client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         area_filter_clause: Area path filter clause (already validated)
 
@@ -77,7 +79,7 @@ def _execute_wiql_query(wit_client, project_name: str, area_filter_clause: str) 
         List of work item IDs
 
     Raises:
-        AzureDevOpsServiceError: If query fails
+        Exception: If query fails
     """
     # Validate project name to prevent WIQL injection
     safe_project = WIQLValidator.validate_project_name(project_name)
@@ -96,24 +98,25 @@ def _execute_wiql_query(wit_client, project_name: str, area_filter_clause: str) 
         ORDER BY [System.CreatedDate] DESC
         """  # nosec B608 - project_name validated by WIQLValidator, area_filter_clause validated in _build_area_filter_clause
 
-    wiql_open = Wiql(query=wiql_query)
-    result = wit_client.query_by_wiql(wiql_open).work_items
+    response = await rest_client.query_by_wiql(project=safe_project, wiql_query=wiql_query)
+    wiql_result = WorkItemTransformer.transform_wiql_response(response)
+    result = wiql_result.work_items
     return [item.id for item in result] if result else []
 
 
-def _fetch_work_item_details(wit_client, item_ids: list[int]) -> list[dict]:
+async def _fetch_work_item_details(rest_client: AzureDevOpsRESTClient, item_ids: list[int]) -> list[dict]:
     """
-    Fetch full work item details using batch utility.
+    Fetch full work item details using batch utility (REST API).
 
     Args:
-        wit_client: Work Item Tracking client
+        rest_client: Azure DevOps REST API client
         item_ids: List of work item IDs
 
     Returns:
         List of work item field dictionaries
 
     Raises:
-        BatchFetchError: If all batches fail
+        Exception: If all batches fail
     """
     if not item_ids:
         return []
@@ -129,8 +132,8 @@ def _fetch_work_item_details(wit_client, item_ids: list[int]) -> list[dict]:
         "System.ChangedDate",
     ]
 
-    items, failed_ids = batch_fetch_work_items(
-        wit_client,
+    items_raw, failed_ids = await batch_fetch_work_items_rest(
+        rest_client,
         item_ids,
         fields=fields,
         batch_size=200,
@@ -141,15 +144,19 @@ def _fetch_work_item_details(wit_client, item_ids: list[int]) -> list[dict]:
     if failed_ids:
         logger.warning(f"Failed to fetch {len(failed_ids)} work items")
 
+    # Transform to SDK format
+    items = WorkItemTransformer.transform_work_items_response({"value": items_raw})
     return items
 
 
-def query_work_items_for_ownership(wit_client, project_name: str, area_path_filter: str | None = None) -> dict:
+async def query_work_items_for_ownership(
+    rest_client: AzureDevOpsRESTClient, project_name: str, area_path_filter: str | None = None
+) -> dict:
     """
-    Query work items for ownership analysis.
+    Query work items for ownership analysis (REST API).
 
     Args:
-        wit_client: Work Item Tracking client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
 
@@ -157,8 +164,7 @@ def query_work_items_for_ownership(wit_client, project_name: str, area_path_filt
         Dictionary with work items and total count
 
     Raises:
-        AzureDevOpsServiceError: If WIQL query fails
-        BatchFetchError: If all batch fetches fail
+        Exception: If WIQL query fails or batch fetches fail
     """
     logger.info("Querying work items for ownership analysis...")
 
@@ -167,12 +173,12 @@ def query_work_items_for_ownership(wit_client, project_name: str, area_path_filt
     if filter_msg:
         logger.info(f"  {filter_msg}")
 
-    # Execute query
-    item_ids = _execute_wiql_query(wit_client, project_name, area_filter_clause)
+    # Execute query and fetch details CONCURRENTLY
+    item_ids = await _execute_wiql_query(rest_client, project_name, area_filter_clause)
     logger.info(f"  Found {len(item_ids)} actionable items")
 
     # Fetch full details
-    items = _fetch_work_item_details(wit_client, item_ids)
+    items = await _fetch_work_item_details(rest_client, item_ids)
     logger.info(f"  Fetched {len(items)} items for analysis")
 
     return {"open_items": items, "total_count": len(items)}

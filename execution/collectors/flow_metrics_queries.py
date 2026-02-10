@@ -14,7 +14,10 @@ from datetime import datetime, timedelta
 from execution.collectors.ado_rest_client import AzureDevOpsRESTClient
 from execution.collectors.ado_rest_transformers import WorkItemTransformer
 from execution.collectors.security_bug_filter import filter_security_bugs
+from execution.core.logging_config import get_logger
 from execution.security_utils import WIQLValidator
+
+logger = get_logger(__name__)
 
 
 async def query_work_items_by_type(
@@ -149,7 +152,7 @@ async def query_work_items_by_type(
                     items = WorkItemTransformer.transform_work_items_response(response)
                     open_items.extend(items)
             except Exception as e:
-                print(f"      [WARNING] Error fetching open {work_type}s: {e}")
+                logger.warning("Error fetching open work items", extra={"work_type": work_type, "error": str(e)})
 
         closed_items = []
         if closed_wiql.work_items and len(closed_wiql.work_items) > 0:
@@ -181,7 +184,7 @@ async def query_work_items_by_type(
                     items = WorkItemTransformer.transform_work_items_response(response)
                     closed_items.extend(items)
             except Exception as e:
-                print(f"      [WARNING] Error fetching closed {work_type}s: {e}")
+                logger.warning("Error fetching closed work items", extra={"work_type": work_type, "error": str(e)})
 
         # Filter out ArmorCode security bugs (ONLY for Bugs, not Stories/Tasks)
         excluded_open = 0
@@ -190,7 +193,9 @@ async def query_work_items_by_type(
             open_items, excluded_open = filter_security_bugs(open_items)
             closed_items, excluded_closed = filter_security_bugs(closed_items)
             if excluded_open > 0 or excluded_closed > 0:
-                print(f"      [Filtered] Excluded {excluded_open} open and {excluded_closed} closed security bugs")
+                logger.info(
+                    "Security bugs filtered", extra={"excluded_open": excluded_open, "excluded_closed": excluded_closed}
+                )
 
         return {
             "work_type": work_type,
@@ -202,7 +207,7 @@ async def query_work_items_by_type(
         }
 
     except Exception as e:
-        print(f"      [ERROR] Failed to query {work_type}s: {e}")
+        logger.error("Failed to query work items", extra={"work_type": work_type, "error": str(e)})
         return {"work_type": work_type, "open_items": [], "closed_items": [], "open_count": 0, "closed_count": 0}
 
 
@@ -239,14 +244,14 @@ async def query_work_items_for_flow(
         >>> print(f"Open bugs: {results['Bug']['open_count']}")
         >>> print(f"Open stories: {results['User Story']['open_count']}")
     """
-    print(f"    Querying work items for {project_name}...")
+    logger.info("Querying work items", extra={"project": project_name})
 
     # Show area path filter if specified
     if area_path_filter:
         if area_path_filter.startswith("EXCLUDE:"):
-            print(f"      Excluding area path: {area_path_filter.replace('EXCLUDE:', '')}")
+            logger.info("Excluding area path", extra={"area_path": area_path_filter.replace("EXCLUDE:", "")})
         elif area_path_filter.startswith("INCLUDE:"):
-            print(f"      Including only area path: {area_path_filter.replace('INCLUDE:', '')}")
+            logger.info("Including only area path", extra={"area_path": area_path_filter.replace("INCLUDE:", "")})
 
     # Query all work types CONCURRENTLY (3x faster than sequential)
     work_types = ["Bug", "User Story", "Task"]
@@ -264,8 +269,14 @@ async def query_work_items_for_flow(
     results = {}
     for work_type, result in zip(work_types, results_list, strict=True):
         results[work_type] = result
-        print(
-            f"      {work_type}: {result['open_count']} open, {result['closed_count']} closed (last {lookback_days} days)"
+        logger.info(
+            "Work items queried",
+            extra={
+                "work_type": work_type,
+                "open_count": result["open_count"],
+                "closed_count": result["closed_count"],
+                "lookback_days": lookback_days,
+            },
         )
 
     return results
