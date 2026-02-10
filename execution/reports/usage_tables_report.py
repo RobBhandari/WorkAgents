@@ -424,7 +424,7 @@ def main():
 
     except Exception as e:
         logger.error(f"Script failed: {e}", exc_info=True)
-        print(f"\nERROR: {e}", file=sys.stderr)
+        logger.error(f"\nERROR: {e}")
         sys.exit(1)
 
 

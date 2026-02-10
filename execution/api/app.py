@@ -482,12 +482,12 @@ app = create_app()
 if __name__ == "__main__":
     import uvicorn
 
-    print("=" * 60)
-    print("Engineering Metrics Platform API")
-    print("=" * 60)
-    print("Starting server...")
-    print("API Docs: http://localhost:8000/docs")
-    print("Health Check: http://localhost:8000/health")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Engineering Metrics Platform API")
+    logger.info("=" * 60)
+    logger.info("Starting server...")
+    logger.info("API Docs: http://localhost:8000/docs")
+    logger.info("Health Check: http://localhost:8000/health")
+    logger.info("=" * 60)
 
     uvicorn.run("execution.api.app:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
