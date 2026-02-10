@@ -103,7 +103,7 @@ class TrendsDashboardGenerator:
     def _load_history_file(self, file_path: Path) -> dict | None:
         """Load a single history JSON file"""
         if not file_path.exists():
-            print(f"  [WARNING] {file_path.name}: Not found")
+            logger.warning("History file not found", extra={"file": file_path.name})
             return None
 
         try:
@@ -112,17 +112,17 @@ class TrendsDashboardGenerator:
 
             weeks = data.get("weeks", [])
             if not weeks:
-                print(f"  [WARNING] {file_path.name}: No weeks data")
+                logger.warning("No weeks data in file", extra={"file": file_path.name})
                 return None
 
             # Get last N weeks
             weeks_subset = weeks[-self.weeks :] if len(weeks) > self.weeks else weeks
-            print(f"  [OK] {file_path.name}: {len(weeks_subset)} weeks loaded")
+            logger.info("History file loaded", extra={"file": file_path.name, "weeks_loaded": len(weeks_subset)})
 
             return {"weeks": weeks_subset, "all_weeks": weeks}
 
         except Exception as e:
-            print(f"  [ERROR] {file_path.name}: {e}")
+            logger.error("Failed to load history file", extra={"file": file_path.name, "error": str(e)})
             return None
 
     def _calculate_forecast(self, historical_data: dict) -> dict | None:
