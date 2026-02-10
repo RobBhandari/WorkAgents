@@ -386,14 +386,16 @@ def calculate_area_unassigned_stats(open_items: list[dict]) -> dict:
     return {"area_count": len(area_list), "areas": area_list}  # All areas, no filtering
 
 
-def calculate_developer_active_days(git_client, project_name: str, days: int = 90) -> dict:
+async def calculate_developer_active_days(
+    rest_client: AzureDevOpsRESTClient, project_name: str, days: int = 90
+) -> dict:
     """
     Calculate developer active days - count of unique commit dates per developer.
 
     HARD DATA: Actual commit dates from Git history.
 
     Args:
-        git_client: Git client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         days: Lookback period
 
@@ -403,46 +405,57 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
     lookback_date = datetime.now() - timedelta(days=days)
 
     try:
-        # Get all repositories
-        repos = git_client.get_repositories(project=project_name)
+        # Get all repositories (REST API)
+        repos_response = await rest_client.get_repositories(project=project_name)
+        repos = GitTransformer.transform_repositories_response(repos_response)
+
+        # Get commits concurrently for all repos (PARALLEL EXECUTION)
+        commit_tasks = [
+            rest_client.get_commits(
+                project=project_name, repository_id=repo["id"], from_date=lookback_date.isoformat() + "Z"
+            )
+            for repo in repos
+        ]
+
+        # Execute all commit queries concurrently
+        commit_responses = await asyncio.gather(*commit_tasks, return_exceptions=True)
 
         developer_dates = defaultdict(set)  # dev -> set of dates
         total_commits = 0
 
-        for repo in repos:
-            try:
-                from azure.devops.v7_1.git.models import GitQueryCommitsCriteria
-
-                search_criteria = GitQueryCommitsCriteria(from_date=lookback_date.isoformat())
-
-                commits = git_client.get_commits(
-                    repository_id=repo.id, project=project_name, search_criteria=search_criteria
-                )
-
-                for commit in commits:
-                    if commit.author:
-                        author_name = commit.author.name
-                        commit_date = commit.author.date.date() if commit.author.date else None
-
-                        if commit_date:
-                            developer_dates[author_name].add(commit_date)
-                            total_commits += 1
-
-            except (AzureDevOpsServiceError, AttributeError) as e:
+        for repo, response in zip(repos, commit_responses, strict=True):
+            if isinstance(response, Exception):
                 log_and_continue(
                     logger,
-                    e,
-                    context={"repository": repo.name, "project": project_name},
+                    response,  # type: ignore[arg-type]
+                    context={"repository": repo["name"], "project": project_name},
                     error_type="Repository commit query",
                 )
                 continue
+
+            # Transform REST response to simplified format
+            commits = GitTransformer.transform_commits_response(response)  # type: ignore[arg-type]
+
+            for commit in commits:
+                author_name = commit.get("author_name")
+                author_date_str = commit.get("author_date")
+
+                if author_name and author_date_str:
+                    # Parse date from ISO string
+                    try:
+                        commit_datetime = datetime.fromisoformat(author_date_str.replace("Z", "+00:00"))
+                        commit_date = commit_datetime.date()
+                        developer_dates[author_name].add(commit_date)
+                        total_commits += 1
+                    except ValueError:
+                        continue
 
         # Calculate active days per developer
         developer_stats = []
         for dev, dates in developer_dates.items():
             active_days = len(dates)
             developer_stats.append(
-                {"developer": dev, "active_days": active_days, "commits": sum(1 for d in dates)}  # This is approximate
+                {"developer": dev, "active_days": active_days, "commits": total_commits}  # Total commits count
             )
 
         # Sort by active days
@@ -460,7 +473,7 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
             ),
         }
 
-    except AzureDevOpsServiceError as e:
+    except Exception as e:
         default_result = {
             "sample_size": 0,
             "total_commits": 0,
@@ -478,13 +491,15 @@ def calculate_developer_active_days(git_client, project_name: str, days: int = 9
         return default_result
 
 
-def _calculate_all_metrics(work_items: dict, git_client, ado_project_name: str, lookback_days: int) -> dict:
+async def _calculate_all_metrics(
+    work_items: dict, rest_client: AzureDevOpsRESTClient, ado_project_name: str, lookback_days: int
+) -> dict:
     """
     Calculate all ownership metrics for a project.
 
     Args:
         work_items: Dictionary with open_items list
-        git_client: Git client for developer activity
+        rest_client: Azure DevOps REST API client for developer activity
         ado_project_name: ADO project name
         lookback_days: Days to look back for developer activity
 
@@ -493,12 +508,15 @@ def _calculate_all_metrics(work_items: dict, git_client, ado_project_name: str, 
     """
     open_items = work_items["open_items"]
 
+    # Get developer activity concurrently (async)
+    developer_activity = await calculate_developer_active_days(rest_client, ado_project_name, lookback_days)
+
     return {
         "unassigned": calculate_unassigned_items(open_items),
         "distribution": calculate_assignment_distribution(open_items),
         "area_stats": calculate_area_unassigned_stats(open_items),
         "work_type_segmentation": calculate_work_type_segmentation(open_items),
-        "developer_activity": calculate_developer_active_days(git_client, ado_project_name, lookback_days),
+        "developer_activity": developer_activity,
         "total_count": work_items["total_count"],
     }
 
@@ -525,12 +543,14 @@ def _log_metrics_summary(project_name: str, metrics: dict) -> None:
     )
 
 
-def collect_ownership_metrics_for_project(connection, project: dict, config: dict) -> dict:
+async def collect_ownership_metrics_for_project(
+    rest_client: AzureDevOpsRESTClient, project: dict, config: dict
+) -> dict:
     """
     Collect all ownership metrics for a single project.
 
     Args:
-        connection: ADO connection
+        rest_client: Azure DevOps REST API client
         project: Project metadata from discovery
         config: Configuration dict
 
@@ -538,7 +558,7 @@ def collect_ownership_metrics_for_project(connection, project: dict, config: dic
         Ownership metrics dictionary for the project
 
     Raises:
-        AzureDevOpsServiceError: If ADO API calls fail
+        httpx.HTTPStatusError: If ADO API calls fail
     """
     project_name = project["project_name"]
     project_key = project["project_key"]
@@ -547,16 +567,12 @@ def collect_ownership_metrics_for_project(connection, project: dict, config: dic
 
     logger.info(f"\nCollecting ownership metrics for: {project_name}")
 
-    # Get clients
-    wit_client = connection.clients.get_work_item_tracking_client()
-    git_client = connection.clients.get_git_client()
+    # Query work items (REST API, async)
+    work_items = await query_work_items_for_ownership(rest_client, ado_project_name, area_path_filter)
 
-    # Query work items
-    work_items = query_work_items_for_ownership(wit_client, ado_project_name, area_path_filter)
-
-    # Calculate all metrics
+    # Calculate all metrics (async for developer activity)
     lookback_days = config.get("lookback_days", 90)
-    metrics = _calculate_all_metrics(work_items, git_client, ado_project_name, lookback_days)
+    metrics = await _calculate_all_metrics(work_items, rest_client, ado_project_name, lookback_days)
 
     # Log summary
     _log_metrics_summary(project_name, metrics)
@@ -632,7 +648,8 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
         return False
 
 
-if __name__ == "__main__":
+async def main() -> None:
+    """Main async function for ownership metrics collection"""
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
         import codecs
@@ -640,7 +657,7 @@ if __name__ == "__main__":
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    logger.info("Director Observatory - Ownership Metrics Collector\n")
+    logger.info("Director Observatory - Ownership Metrics Collector (REST API)\n")
     logger.info("=" * 60)
 
     # Configuration
@@ -672,37 +689,42 @@ if __name__ == "__main__":
         )
         exit(1)
 
-    # Connect to ADO
-    logger.info("\nConnecting to Azure DevOps...")
+    # Connect to ADO REST API
+    logger.info("\nConnecting to Azure DevOps REST API...")
     try:
-        connection = get_ado_connection()
-        logger.info("[SUCCESS] Connected to ADO")
-    except (AzureDevOpsServiceError, ValueError) as e:
+        rest_client = get_ado_rest_client()
+        logger.info("[SUCCESS] Connected to ADO REST API")
+    except ValueError as e:
         log_and_raise(
             logger,
             e,
-            context={"operation": "ADO connection"},
-            error_type="ADO connection failed",
+            context={"operation": "ADO REST client initialization"},
+            error_type="ADO REST client failed",
         )
         exit(1)
 
-    # Collect metrics for all projects
-    logger.info("\nCollecting ownership metrics...")
+    # Collect metrics for all projects CONCURRENTLY
+    logger.info("\nCollecting ownership metrics (concurrent execution)...")
     logger.info("=" * 60)
 
-    project_metrics = []
-    for project in projects:
-        try:
-            metrics = collect_ownership_metrics_for_project(connection, project, config)
-            project_metrics.append(metrics)
-        except (AzureDevOpsServiceError, BatchFetchError) as e:
+    # Create tasks for all projects (concurrent collection)
+    tasks = [collect_ownership_metrics_for_project(rest_client, project, config) for project in projects]
+
+    # Execute all collections concurrently
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter successful results
+    project_metrics: list[dict] = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
             log_and_continue(
                 logger,
-                e,
+                result,  # type: ignore[arg-type]
                 context={"project_name": project["project_name"], "project_key": project.get("project_key")},
                 error_type="Project metrics collection",
             )
-            continue
+        else:
+            project_metrics.append(result)  # type: ignore[arg-type]
 
     # Save results
     week_metrics = {
@@ -726,6 +748,11 @@ if __name__ == "__main__":
     logger.info(f"  Total items analyzed: {total_items}")
     logger.info(f"  Total unassigned: {total_unassigned} ({overall_unassigned_pct:.1f}%)")
 
-    logger.info("\nOwnership metrics collection complete!")
+    logger.info("\nOwnership metrics collection complete (REST API + concurrent execution)!")
     logger.info("  ✓ Only hard data - no thresholds or classifications")
+    logger.info("  ✓ Concurrent collection for maximum speed")
     logger.info("\nNext step: Generate ownership dashboard")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
