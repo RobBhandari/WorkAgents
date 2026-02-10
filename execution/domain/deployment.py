@@ -122,7 +122,17 @@ class BuildDuration:
 
     @property
     def is_fast(self) -> bool:
-        """Check if median build is fast (≤10 minutes)"""
+        """
+        Check if median build is fast (≤10 minutes).
+
+        Returns:
+            True if median_minutes <= 10.0, False otherwise
+
+        Example:
+            >>> duration = BuildDuration(median_minutes=8.5, p85_minutes=12.0)
+            >>> duration.is_fast
+            True
+        """
         return self.median_minutes <= 10.0
 
 
@@ -141,12 +151,32 @@ class LeadTimeForChanges:
 
     @property
     def is_elite(self) -> bool:
-        """Check if lead time is elite (<1 hour)"""
+        """
+        Check if lead time is elite (<1 hour).
+
+        Returns:
+            True if median_hours < 1.0, False otherwise
+
+        Example:
+            >>> lead_time = LeadTimeForChanges(median_hours=0.5, p85_hours=1.2)
+            >>> lead_time.is_elite
+            True
+        """
         return self.median_hours < 1.0
 
     @property
     def is_high(self) -> bool:
-        """Check if lead time is high (1 day to 1 week)"""
+        """
+        Check if lead time is high (1 day to 1 week).
+
+        Returns:
+            True if median_hours is between 24.0 and 168.0, False otherwise
+
+        Example:
+            >>> lead_time = LeadTimeForChanges(median_hours=48.0, p85_hours=72.0)
+            >>> lead_time.is_high
+            True
+        """
         return 24.0 <= self.median_hours <= 168.0
 
 
@@ -208,7 +238,12 @@ class DeploymentMetrics:
         Healthy = ≥90% success rate + ≥1 deploy/week
 
         Returns:
-            True if deployment pipeline is healthy
+            True if deployment pipeline is healthy, False otherwise
+
+        Example:
+            >>> metrics = DeploymentMetrics(...)  # With 95% success, 3 deploys/week
+            >>> metrics.is_healthy
+            True
         """
         return self.build_success_rate.is_stable and self.deployment_frequency.is_frequent
 
@@ -220,13 +255,28 @@ class DeploymentMetrics:
         Needs attention = low success rate or infrequent deployments
 
         Returns:
-            True if pipeline needs attention
+            True if pipeline needs attention, False otherwise
+
+        Example:
+            >>> metrics = DeploymentMetrics(...)  # With 75% success, 0.5 deploys/week
+            >>> metrics.needs_attention
+            True
         """
         return not self.is_healthy and self.deployment_frequency.is_active
 
     @property
     def is_inactive(self) -> bool:
-        """Check if project has no recent deployments"""
+        """
+        Check if project has no recent deployments.
+
+        Returns:
+            True if project has no deployments, False otherwise
+
+        Example:
+            >>> metrics = DeploymentMetrics(...)  # With 0 deploys/week
+            >>> metrics.is_inactive
+            True
+        """
         return not self.deployment_frequency.is_active
 
     @property

@@ -45,7 +45,7 @@ class ExecutiveSummaryGenerator:
     high-level health view for directors and executives.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize generator with file paths"""
         self.quality_file = Path(".tmp/observatory/quality_history.json")
         self.security_file = Path(".tmp/observatory/security_history.json")
