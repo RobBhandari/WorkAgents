@@ -431,6 +431,56 @@ class GitTransformer:
         return threads
 
     @staticmethod
+    def transform_repositories_response(rest_response: dict[str, Any]) -> list[dict[str, Any]]:
+        """
+        Transform repositories REST response.
+
+        REST Response:
+        {
+            "count": 5,
+            "value": [
+                {
+                    "id": "repo-guid-123",
+                    "name": "MyRepo",
+                    "url": "https://...",
+                    "project": {"name": "MyProject"}
+                }
+            ]
+        }
+
+        SDK Format:
+        [
+            {
+                "id": "repo-guid-123",
+                "name": "MyRepo",
+                "url": "https://...",
+                "project_name": "MyProject"
+            }
+        ]
+
+        Args:
+            rest_response: Raw REST API response dict
+
+        Returns:
+            List of repository dictionaries
+
+        Example:
+            response = await client.get_repositories(project="MyProject")
+            repos = GitTransformer.transform_repositories_response(response)
+        """
+        repos = []
+        for repo in rest_response.get("value", []):
+            repos.append(
+                {
+                    "id": repo.get("id"),
+                    "name": repo.get("name"),
+                    "url": repo.get("url"),
+                    "project_name": repo.get("project", {}).get("name"),
+                }
+            )
+        return repos
+
+    @staticmethod
     def transform_commits_response(rest_response: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Transform commits REST response.
