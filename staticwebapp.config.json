@@ -2,7 +2,7 @@
   "routes": [
     {
       "route": "/*",
-      "allowedRoles": ["viewer"]
+      "allowedRoles": ["authenticated"]
     }
   ],
   "responseOverrides": {
