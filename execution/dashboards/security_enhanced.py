@@ -282,8 +282,8 @@ def _generate_expanded_content(product_name: str, metrics, vulnerabilities: list
     Returns:
         HTML string for expanded row content
     """
-    # Filter to only Critical and High vulnerabilities
-    filtered_vulns = [v for v in vulnerabilities if v.severity in ["CRITICAL", "HIGH"]]
+    # Filter to only Critical and High vulnerabilities (case-insensitive)
+    filtered_vulns = [v for v in vulnerabilities if v.severity.upper() in ["CRITICAL", "HIGH"]]
 
     # Part 1: Aging Heatmap - Compact modern UX (only C+H)
     aging_html = generate_aging_heatmap(filtered_vulns)
