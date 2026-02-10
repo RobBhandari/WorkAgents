@@ -78,3 +78,58 @@ class TestCommandValidator:
         """Test that path traversal in commands is rejected"""
         with pytest.raises(ValidationError, match="path traversal"):
             CommandValidator.validate_command_path("../../usr/bin/malicious")
+
+    def test_validate_safe_argument_empty_string(self):
+        """Test that empty string arguments are rejected"""
+        with pytest.raises(ValidationError, match="cannot be empty"):
+            CommandValidator.validate_safe_argument("")
+
+    def test_validate_safe_argument_non_string(self):
+        """Test that non-string arguments are converted"""
+        result = CommandValidator.validate_safe_argument(123)  # type: ignore[arg-type]
+        assert result == "123"
+
+    def test_validate_safe_argument_null_byte(self):
+        """Test that null bytes are rejected"""
+        with pytest.raises(ValidationError, match="dangerous character"):
+            CommandValidator.validate_safe_argument("file\x00.txt")
+
+    def test_validate_safe_argument_newline(self):
+        """Test that newlines are rejected"""
+        with pytest.raises(ValidationError, match="dangerous character"):
+            CommandValidator.validate_safe_argument("file\n.txt")
+
+    def test_validate_safe_argument_carriage_return(self):
+        """Test that carriage returns are rejected"""
+        with pytest.raises(ValidationError, match="dangerous character"):
+            CommandValidator.validate_safe_argument("file\r.txt")
+
+    def test_validate_safe_argument_parentheses(self):
+        """Test that parentheses are rejected"""
+        with pytest.raises(ValidationError, match="dangerous character"):
+            CommandValidator.validate_safe_argument("file(test).txt")
+
+    def test_validate_safe_argument_less_than(self):
+        """Test that < is rejected"""
+        with pytest.raises(ValidationError, match="dangerous character"):
+            CommandValidator.validate_safe_argument("file<input.txt")
+
+    def test_validate_safe_argument_greater_than(self):
+        """Test that > is rejected"""
+        with pytest.raises(ValidationError, match="dangerous character"):
+            CommandValidator.validate_safe_argument("file>output.txt")
+
+    def test_validate_command_path_empty_string(self):
+        """Test that empty command paths are rejected"""
+        with pytest.raises(ValidationError, match="cannot be empty"):
+            CommandValidator.validate_command_path("")
+
+    def test_validate_command_path_full_path(self):
+        """Test that full paths are accepted"""
+        result = CommandValidator.validate_command_path("/usr/bin/python")
+        assert result == "/usr/bin/python"
+
+    def test_validate_command_path_basename_check(self):
+        """Test that basename is checked against whitelist"""
+        result = CommandValidator.validate_command_path("/usr/bin/python", allowed_commands=["python"])
+        assert result == "/usr/bin/python"
