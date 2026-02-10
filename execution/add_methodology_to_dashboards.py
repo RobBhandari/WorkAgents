@@ -3,8 +3,11 @@
 Add Data Collection Methodology sections to all dashboards
 """
 
+import logging
 import os
 import re
+
+logger = logging.getLogger(__name__)
 
 
 def get_methodology_html(dashboard_type):
@@ -185,7 +188,7 @@ def add_methodology_to_dashboard(html_file, dashboard_type):
     """Add methodology section to a dashboard HTML file"""
 
     if not os.path.exists(html_file):
-        print(f"  [SKIP] File not found: {html_file}")
+        logger.info(f"File not found (skipping): {html_file}")
         return False
 
     with open(html_file, encoding="utf-8") as f:
@@ -193,13 +196,13 @@ def add_methodology_to_dashboard(html_file, dashboard_type):
 
     # Check if methodology already exists
     if "Data Collection Methodology" in content:
-        print(f"  [SKIP] Methodology already exists in {os.path.basename(html_file)}")
+        logger.info(f"Methodology already exists (skipping): {os.path.basename(html_file)}")
         return False
 
     # Get methodology HTML
     methodology = get_methodology_html(dashboard_type)
     if not methodology:
-        print(f"  [ERROR] No methodology template for type: {dashboard_type}")
+        logger.error(f"No methodology template for type: {dashboard_type}")
         return False
 
     # Find insertion point (before closing </div> of container and before footer)
@@ -218,14 +221,14 @@ def add_methodology_to_dashboard(html_file, dashboard_type):
             break
 
     if not modified:
-        print(f"  [ERROR] Could not find insertion point in {os.path.basename(html_file)}")
+        logger.error(f"Could not find insertion point in {os.path.basename(html_file)}")
         return False
 
     # Save updated content
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(content)
 
-    print(f"  [SUCCESS] Added methodology to {os.path.basename(html_file)}")
+    logger.info(f"Added methodology to {os.path.basename(html_file)}")
     return True
 
 
@@ -238,8 +241,15 @@ if __name__ == "__main__":
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    print("Adding Data Collection Methodology to Dashboards")
-    print("=" * 60)
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)],
+    )
+
+    logger.info("Adding Data Collection Methodology to Dashboards")
+    logger.info("=" * 60)
 
     dashboard_dir = ".tmp/observatory/dashboards"
 
@@ -254,11 +264,11 @@ if __name__ == "__main__":
     success_count = 0
     for filename, dashboard_type in dashboards.items():
         filepath = os.path.join(dashboard_dir, filename)
-        print(f"\nProcessing: {filename}")
+        logger.info(f"Processing: {filename}")
         if add_methodology_to_dashboard(filepath, dashboard_type):
             success_count += 1
 
-    print("\n" + "=" * 60)
-    print(f"Complete: {success_count}/{len(dashboards)} dashboards updated")
-    print("\nNote: AI Contributions dashboard already has methodology.")
-    print("Note: Executive Summary doesn't need detailed methodology (it aggregates from others).")
+    logger.info("=" * 60)
+    logger.info(f"Complete: {success_count}/{len(dashboards)} dashboards updated")
+    logger.info("Note: AI Contributions dashboard already has methodology.")
+    logger.info("Note: Executive Summary doesn't need detailed methodology (it aggregates from others).")
