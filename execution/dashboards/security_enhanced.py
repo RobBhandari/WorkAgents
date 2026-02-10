@@ -229,7 +229,7 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
         products.append(
             {
                 "name": product_name,
-                "total": metrics.total_vulnerabilities,
+                "total": metrics.critical + metrics.high,
                 "critical": metrics.critical,
                 "high": metrics.high,
                 "medium": metrics.medium,

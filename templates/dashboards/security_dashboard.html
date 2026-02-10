@@ -229,9 +229,17 @@
 
     .heatmap-grid {
         display: grid;
-        grid-template-columns: 100px repeat(5, 1fr);
-        gap: 8px;
-        margin-top: 15px;
+        grid-template-columns: 80px repeat(7, 1fr);
+        gap: 6px;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .heatmap-grid {
+            grid-template-columns: 60px repeat(7, 1fr);
+            gap: 3px;
+            font-size: 0.75rem;
+        }
     }
 
     .heatmap-corner {
@@ -241,51 +249,58 @@
     .heatmap-col-header {
         text-align: center;
         font-weight: 600;
-        padding: 10px 5px;
-        color: var(--text-primary);
-        font-size: 0.9em;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        padding: 8px 4px;
     }
 
     .days-label {
         display: block;
-        font-size: 0.7em;
-        color: var(--text-secondary);
+        font-size: 0.65rem;
         font-weight: 400;
+        opacity: 0.7;
         margin-top: 2px;
     }
 
     .heatmap-row-header {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding: 10px;
         font-weight: 600;
-        font-size: 0.9em;
+        font-size: 0.95rem;
+        padding: 12px 8px;
+        text-align: right;
+        border-radius: 4px;
     }
 
     .critical-header {
-        color: #dc2626;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
     }
 
     .high-header {
-        color: #ea580c;
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
     }
 
     .heatmap-cell {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 15px 10px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 1.1em;
-        min-height: 50px;
-        transition: transform 0.2s;
+        padding: 12px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        min-height: 40px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: default;
     }
 
     .heatmap-cell:not(.empty):hover {
         transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+
+    .heatmap-cell.empty {
+        font-size: 0.8rem;
     }
 
     /* Vulnerability Breakdown Section */
