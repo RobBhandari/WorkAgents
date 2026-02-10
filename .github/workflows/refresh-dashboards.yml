@@ -381,6 +381,14 @@ jobs:
             echo "⚠️  No dashboards found, deployment will be empty"
           fi
 
+          # Copy staticwebapp.config.json to enable authentication
+          if [ -f "staticwebapp.config.json" ]; then
+            cp staticwebapp.config.json .tmp/observatory/dashboards/
+            echo "✅ Authentication config copied to deployment"
+          else
+            echo "⚠️  staticwebapp.config.json not found - authentication will NOT be enforced!"
+          fi
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
