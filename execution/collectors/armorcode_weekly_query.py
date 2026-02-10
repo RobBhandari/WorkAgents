@@ -26,7 +26,28 @@ logger = logging.getLogger(__name__)
 
 
 def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict[str, Any]:
-    """Load baseline data from file."""
+    """
+    Load vulnerability baseline data from JSON file.
+
+    Baseline is used to calculate progress towards 70% reduction target.
+    Contains initial vulnerability counts and timestamp.
+
+    :param baseline_file: Path to baseline JSON file (default: .tmp/armorcode_baseline.json)
+    :returns: Dictionary with baseline data::
+
+        {
+            "baseline_date": str,           # ISO timestamp
+            "total_vulnerabilities": int,   # Total vulns at baseline
+            "by_product": dict,             # Per-product counts
+            "by_severity": dict             # Severity breakdown
+        }
+
+    :raises FileNotFoundError: If baseline file doesn't exist
+
+    Example:
+        >>> baseline = load_baseline()
+        >>> print(f"Baseline: {baseline['total_vulnerabilities']} vulnerabilities")
+    """
     if not os.path.exists(baseline_file):
         raise FileNotFoundError(f"Baseline file not found: {baseline_file}")
 
@@ -40,8 +61,30 @@ def load_baseline(baseline_file: str = ".tmp/armorcode_baseline.json") -> dict[s
     return baseline
 
 
-def get_product_ids(api_key: str, base_url: str, product_names: list[str]) -> list[dict]:
-    """Get product IDs for the specified product names via GraphQL."""
+def get_product_ids(api_key: str, base_url: str, product_names: list[str]) -> list[dict[str, str]]:
+    """
+    Get ArmorCode product IDs for specified product names via GraphQL.
+
+    Queries ArmorCode GraphQL API with pagination to retrieve all products,
+    then filters to requested product names.
+
+    :param api_key: ArmorCode API key (Bearer token)
+    :param base_url: ArmorCode base URL (e.g., https://company.armorcode.com)
+    :param product_names: List of product names to lookup
+    :returns: List of product dictionaries with name and ID::
+
+        [
+            {"name": "Product A", "id": "uuid-1"},
+            {"name": "Product B", "id": "uuid-2"}
+        ]
+
+    :raises requests.RequestException: If API request fails
+
+    Example:
+        >>> products = get_product_ids(api_key, base_url, ["WebApp", "MobileApp"])
+        >>> len(products)
+        2
+    """
     logger.info("Fetching product IDs...")
 
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
@@ -96,7 +139,7 @@ def get_product_ids(api_key: str, base_url: str, product_names: list[str]) -> li
     return product_data
 
 
-def fetch_current_findings(api_key: str, base_url: str, product_id: str, product_name: str) -> list[dict]:
+def fetch_current_findings(api_key: str, base_url: str, product_id: str, product_name: str) -> list[dict[str, Any]]:
     """Fetch current HIGH+CRITICAL findings with OPEN+CONFIRMED status."""
 
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
@@ -167,7 +210,7 @@ def fetch_current_findings(api_key: str, base_url: str, product_id: str, product
     return findings
 
 
-def query_current_state(baseline: dict) -> dict:
+def query_current_state(baseline: dict) -> dict[str, Any]:
     """Query current vulnerability counts for all products in baseline."""
     api_key = get_config().get_armorcode_config().api_key
     base_url = get_config().get_armorcode_config().base_url
@@ -235,7 +278,7 @@ def query_current_state(baseline: dict) -> dict:
     }
 
 
-def calculate_progress(baseline: dict, current: dict) -> dict:
+def calculate_progress(baseline: dict, current: dict) -> dict[str, Any]:
     """Calculate progress metrics comparing current state to baseline."""
     baseline_total = baseline.get("total_vulnerabilities", 0)
     current_total = current.get("total_vulnerabilities", 0)
