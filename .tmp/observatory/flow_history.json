@@ -6,7 +6,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -216,7 +216,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -425,8 +425,8 @@
           "collected_at": "2026-02-06T17:17:42.554830"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -609,7 +609,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -813,8 +813,8 @@
           "collected_at": "2026-02-06T17:17:45.295287"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -1018,7 +1018,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -1215,7 +1215,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -1424,8 +1424,8 @@
           "collected_at": "2026-02-06T17:17:49.033861"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -1645,7 +1645,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -1855,7 +1855,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -2064,8 +2064,8 @@
           "collected_at": "2026-02-06T17:38:28.539568"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -2248,7 +2248,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -2452,8 +2452,8 @@
           "collected_at": "2026-02-06T17:38:33.664258"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -2657,7 +2657,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -2854,7 +2854,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -3063,8 +3063,8 @@
           "collected_at": "2026-02-06T17:38:40.633617"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -3284,7 +3284,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -3494,7 +3494,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -3703,8 +3703,8 @@
           "collected_at": "2026-02-06T17:46:08.142764"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -3887,7 +3887,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -4091,8 +4091,8 @@
           "collected_at": "2026-02-06T17:46:13.021026"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -4296,7 +4296,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -4493,7 +4493,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -4702,8 +4702,8 @@
           "collected_at": "2026-02-06T17:46:18.831400"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -4923,7 +4923,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -5133,7 +5133,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -5342,8 +5342,8 @@
           "collected_at": "2026-02-06T18:08:20.206249"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -5526,7 +5526,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -5730,8 +5730,8 @@
           "collected_at": "2026-02-06T18:08:26.307866"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -5935,7 +5935,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -6132,7 +6132,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -6341,8 +6341,8 @@
           "collected_at": "2026-02-06T18:08:34.277865"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -6562,7 +6562,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -6772,7 +6772,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -6981,8 +6981,8 @@
           "collected_at": "2026-02-06T18:34:40.038476"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -7165,7 +7165,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -7369,8 +7369,8 @@
           "collected_at": "2026-02-06T18:34:46.330439"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -7574,7 +7574,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -7771,7 +7771,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -7980,8 +7980,8 @@
           "collected_at": "2026-02-06T18:34:54.852136"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -8201,7 +8201,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -8411,7 +8411,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -8620,8 +8620,8 @@
           "collected_at": "2026-02-06T18:41:09.688107"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -8804,7 +8804,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -9008,8 +9008,8 @@
           "collected_at": "2026-02-06T18:41:14.018806"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -9213,7 +9213,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -9410,7 +9410,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -9619,8 +9619,8 @@
           "collected_at": "2026-02-06T18:41:19.970092"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -9840,7 +9840,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -10050,7 +10050,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -10259,8 +10259,8 @@
           "collected_at": "2026-02-06T22:38:52.261508"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -10443,7 +10443,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -10647,8 +10647,8 @@
           "collected_at": "2026-02-06T22:38:58.607973"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -10852,7 +10852,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -11049,7 +11049,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -11258,8 +11258,8 @@
           "collected_at": "2026-02-06T22:39:07.268027"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -11479,7 +11479,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -11689,7 +11689,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -11898,8 +11898,8 @@
           "collected_at": "2026-02-07T06:48:32.011171"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -12082,7 +12082,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -12286,8 +12286,8 @@
           "collected_at": "2026-02-07T06:48:38.210826"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -12491,7 +12491,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -12688,7 +12688,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -12897,8 +12897,8 @@
           "collected_at": "2026-02-07T06:48:46.705036"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -13118,7 +13118,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -13328,7 +13328,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -13537,8 +13537,8 @@
           "collected_at": "2026-02-07T12:26:13.694390"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -13721,7 +13721,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -13925,8 +13925,8 @@
           "collected_at": "2026-02-07T12:26:18.859867"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -14130,7 +14130,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -14327,7 +14327,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -14536,8 +14536,8 @@
           "collected_at": "2026-02-07T12:26:25.467181"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -14757,7 +14757,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -14967,7 +14967,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -15176,8 +15176,8 @@
           "collected_at": "2026-02-07T12:45:11.390391"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -15360,7 +15360,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -15564,8 +15564,8 @@
           "collected_at": "2026-02-07T12:45:15.234420"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -15769,7 +15769,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -15966,7 +15966,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -16175,8 +16175,8 @@
           "collected_at": "2026-02-07T12:45:20.337617"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -16396,7 +16396,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -16606,7 +16606,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -16815,8 +16815,8 @@
           "collected_at": "2026-02-07T13:27:41.642189"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -16999,7 +16999,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -17203,8 +17203,8 @@
           "collected_at": "2026-02-07T13:27:46.194946"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -17408,7 +17408,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -17605,7 +17605,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -17814,8 +17814,8 @@
           "collected_at": "2026-02-07T13:27:51.872508"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -18035,7 +18035,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -18245,7 +18245,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -18454,8 +18454,8 @@
           "collected_at": "2026-02-08T14:49:34.885195"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -18638,7 +18638,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -18842,8 +18842,8 @@
           "collected_at": "2026-02-08T14:49:40.321836"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -19047,7 +19047,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -19244,7 +19244,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -19453,8 +19453,8 @@
           "collected_at": "2026-02-08T14:49:47.583847"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -19674,7 +19674,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -19884,7 +19884,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -20093,8 +20093,8 @@
           "collected_at": "2026-02-08T15:13:45.933335"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -20277,7 +20277,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -20481,8 +20481,8 @@
           "collected_at": "2026-02-08T15:13:49.715314"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -20686,7 +20686,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -20883,7 +20883,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -21092,8 +21092,8 @@
           "collected_at": "2026-02-08T15:13:54.917882"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -21313,7 +21313,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -21523,7 +21523,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -21732,8 +21732,8 @@
           "collected_at": "2026-02-08T15:19:09.105146"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -21916,7 +21916,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -22120,8 +22120,8 @@
           "collected_at": "2026-02-08T15:19:13.818099"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -22325,7 +22325,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -22522,7 +22522,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -22731,8 +22731,8 @@
           "collected_at": "2026-02-08T15:19:20.091410"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -22952,7 +22952,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -23162,7 +23162,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -23371,8 +23371,8 @@
           "collected_at": "2026-02-08T20:58:27.844994"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -23555,7 +23555,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -23759,8 +23759,8 @@
           "collected_at": "2026-02-08T20:58:31.757399"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -23964,7 +23964,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -24161,7 +24161,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -24370,8 +24370,8 @@
           "collected_at": "2026-02-08T20:58:36.910264"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -24591,7 +24591,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -24801,7 +24801,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -25010,8 +25010,8 @@
           "collected_at": "2026-02-08T21:05:34.165224"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -25194,7 +25194,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -25398,8 +25398,8 @@
           "collected_at": "2026-02-08T21:05:38.251456"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -25603,7 +25603,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -25800,7 +25800,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -26009,8 +26009,8 @@
           "collected_at": "2026-02-08T21:05:43.609013"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -26230,7 +26230,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -26440,7 +26440,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -26649,8 +26649,8 @@
           "collected_at": "2026-02-08T22:55:00.922596"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -26833,7 +26833,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -27037,8 +27037,8 @@
           "collected_at": "2026-02-08T22:55:04.728066"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -27242,7 +27242,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -27439,7 +27439,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -27648,8 +27648,8 @@
           "collected_at": "2026-02-08T22:55:09.835997"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -27869,7 +27869,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -28079,7 +28079,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -28288,8 +28288,8 @@
           "collected_at": "2026-02-08T23:01:52.735435"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -28472,7 +28472,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -28676,8 +28676,8 @@
           "collected_at": "2026-02-08T23:01:59.285282"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -28881,7 +28881,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -29078,7 +29078,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -29287,8 +29287,8 @@
           "collected_at": "2026-02-08T23:02:08.384667"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -29508,7 +29508,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -29718,7 +29718,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -29927,8 +29927,8 @@
           "collected_at": "2026-02-09T00:34:25.660306"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -30111,7 +30111,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -30315,8 +30315,8 @@
           "collected_at": "2026-02-09T00:34:31.966020"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -30520,7 +30520,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -30716,7 +30716,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -30925,8 +30925,8 @@
           "collected_at": "2026-02-09T00:34:40.375212"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -31146,7 +31146,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -31356,7 +31356,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -31565,8 +31565,8 @@
           "collected_at": "2026-02-09T01:47:24.048091"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -31749,7 +31749,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -31953,8 +31953,8 @@
           "collected_at": "2026-02-09T01:47:27.913326"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -32158,7 +32158,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -32354,7 +32354,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -32563,8 +32563,8 @@
           "collected_at": "2026-02-09T01:47:32.949560"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -32784,7 +32784,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -32994,7 +32994,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -33203,8 +33203,8 @@
           "collected_at": "2026-02-09T07:09:27.123007"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -33387,7 +33387,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -33591,8 +33591,8 @@
           "collected_at": "2026-02-09T07:09:32.717395"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -33796,7 +33796,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -33992,7 +33992,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -34201,8 +34201,8 @@
           "collected_at": "2026-02-09T07:09:40.391436"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -34422,7 +34422,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -34632,7 +34632,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -34829,8 +34829,8 @@
           "collected_at": "2026-02-09T11:16:30.237598"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -35013,7 +35013,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -35217,8 +35217,8 @@
           "collected_at": "2026-02-09T11:17:06.469080"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -35422,7 +35422,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -35618,7 +35618,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -35827,8 +35827,8 @@
           "collected_at": "2026-02-09T11:18:03.959580"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -36048,7 +36048,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -36246,7 +36246,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -36455,8 +36455,8 @@
           "collected_at": "2026-02-09T11:26:39.274275"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -36639,7 +36639,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -36843,8 +36843,8 @@
           "collected_at": "2026-02-09T11:27:07.855029"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -37048,7 +37048,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -37244,7 +37244,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -37453,8 +37453,8 @@
           "collected_at": "2026-02-09T11:27:53.394319"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -37674,7 +37674,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -37884,7 +37884,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -38093,8 +38093,8 @@
           "collected_at": "2026-02-09T12:05:55.321709"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -38277,7 +38277,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -38481,8 +38481,8 @@
           "collected_at": "2026-02-09T12:06:00.245665"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -38686,7 +38686,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -38882,7 +38882,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -39091,8 +39091,8 @@
           "collected_at": "2026-02-09T12:06:07.595653"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 19,
@@ -39312,7 +39312,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -39522,7 +39522,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -39731,8 +39731,8 @@
           "collected_at": "2026-02-09T12:55:00.820736"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -39915,7 +39915,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -40119,8 +40119,8 @@
           "collected_at": "2026-02-09T12:55:07.662439"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -40324,7 +40324,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -40520,7 +40520,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 15,
@@ -40729,8 +40729,8 @@
           "collected_at": "2026-02-09T12:55:16.638760"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -40950,7 +40950,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -41160,7 +41160,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -41369,8 +41369,8 @@
           "collected_at": "2026-02-09T14:22:25.020574"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -41553,7 +41553,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -41757,8 +41757,8 @@
           "collected_at": "2026-02-09T14:22:30.446869"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -41962,7 +41962,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -42158,7 +42158,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -42367,8 +42367,8 @@
           "collected_at": "2026-02-09T14:22:37.268931"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -42588,7 +42588,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -42798,7 +42798,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -43007,8 +43007,8 @@
           "collected_at": "2026-02-09T14:53:20.174131"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -43191,7 +43191,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -43395,8 +43395,8 @@
           "collected_at": "2026-02-09T14:53:25.778866"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -43600,7 +43600,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -43796,7 +43796,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -44005,8 +44005,8 @@
           "collected_at": "2026-02-09T14:53:32.930116"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -44226,7 +44226,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -44436,7 +44436,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -44645,8 +44645,8 @@
           "collected_at": "2026-02-09T15:34:34.015472"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -44829,7 +44829,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -45033,8 +45033,8 @@
           "collected_at": "2026-02-09T15:34:38.881538"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 5,
@@ -45238,7 +45238,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -45434,7 +45434,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -45643,8 +45643,8 @@
           "collected_at": "2026-02-09T15:34:45.379965"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,
@@ -45864,7 +45864,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "work_type_metrics": {
             "Bug": {
               "open_count": 184,
@@ -46074,7 +46074,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "work_type_metrics": {
             "Bug": {
               "open_count": 70,
@@ -46283,8 +46283,8 @@
           "collected_at": "2026-02-09T16:15:52.667482"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "work_type_metrics": {
             "Bug": {
               "open_count": 10,
@@ -46467,7 +46467,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "work_type_metrics": {
             "Bug": {
               "open_count": 0,
@@ -46671,8 +46671,8 @@
           "collected_at": "2026-02-09T16:15:57.996866"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "work_type_metrics": {
             "Bug": {
               "open_count": 6,
@@ -46876,7 +46876,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "work_type_metrics": {
             "Bug": {
               "open_count": 7,
@@ -47072,7 +47072,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "work_type_metrics": {
             "Bug": {
               "open_count": 16,
@@ -47281,8 +47281,8 @@
           "collected_at": "2026-02-09T16:16:05.209326"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "work_type_metrics": {
             "Bug": {
               "open_count": 18,

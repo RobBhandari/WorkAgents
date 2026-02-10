@@ -30,7 +30,9 @@ from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
 from execution.collectors.ado_connection import get_ado_connection
+from execution.domain.constants import flow_metrics, sampling_config
 from execution.secure_config import get_config
+from execution.utils.datetime_utils import parse_ado_timestamp
 from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
@@ -39,7 +41,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
-def sample_prs(prs: list[dict], sample_size: int = 10) -> list[dict]:
+def sample_prs(prs: list[dict], sample_size: int = sampling_config.PR_SAMPLE_SIZE) -> list[dict]:
     """
     Sample PRs for analysis to reduce API calls.
 
@@ -53,7 +55,9 @@ def sample_prs(prs: list[dict], sample_size: int = 10) -> list[dict]:
     return random.sample(prs, min(sample_size, len(prs)))
 
 
-def query_pull_requests(git_client, project_name: str, repo_id: str, days: int = 90) -> list[dict]:
+def query_pull_requests(
+    git_client, project_name: str, repo_id: str, days: int = flow_metrics.LOOKBACK_DAYS
+) -> list[dict]:
     """
     Query recent completed pull requests.
 
@@ -144,7 +148,10 @@ def calculate_single_pr_review_time(git_client, project_name: str, pr: dict) -> 
         if not threads:
             return None
 
-        pr_created = datetime.fromisoformat(pr["created_date"].replace("Z", "+00:00"))
+        pr_created = parse_ado_timestamp(pr["created_date"])
+        if pr_created is None:
+            return None
+
         first_comment_time = get_first_comment_time(threads)
 
         if not first_comment_time:
@@ -220,14 +227,15 @@ def calculate_pr_merge_time(prs: list[dict]) -> dict:
             if not pr["created_date"] or not pr["closed_date"]:
                 continue
 
-            created = datetime.fromisoformat(pr["created_date"].replace("Z", "+00:00"))
-            closed = datetime.fromisoformat(pr["closed_date"].replace("Z", "+00:00"))
+            created = parse_ado_timestamp(pr["created_date"])
+            closed = parse_ado_timestamp(pr["closed_date"])
 
-            merge_delta = closed - created
-            merge_hours = merge_delta.total_seconds() / 3600
+            if created and closed:
+                merge_delta = closed - created
+                merge_hours = merge_delta.total_seconds() / 3600
 
-            if merge_hours > 0:  # Only positive times
-                merge_times.append(merge_hours)
+                if merge_hours > 0:  # Only positive times
+                    merge_times.append(merge_hours)
 
         except (ValueError, KeyError) as e:
             logger.debug(f"Data error calculating merge time for PR {pr.get('pr_id')}: {e}")

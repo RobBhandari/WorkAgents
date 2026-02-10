@@ -10,6 +10,10 @@ Usage:
     heatmap_html = generate_aging_heatmap(vulnerabilities)
 """
 
+from execution.core import get_logger
+
+logger = get_logger(__name__)
+
 
 def generate_aging_heatmap(vulnerabilities: list) -> str:
     """
@@ -287,8 +291,7 @@ def get_aging_heatmap_styles() -> str:
 
 # Self-test
 if __name__ == "__main__":
-    print("Aging Heatmap Component - Self Test")
-    print("=" * 60)
+    logger.info("Aging Heatmap Component - Self Test")
 
     # Mock vulnerability data
     class MockVuln:
@@ -308,10 +311,10 @@ if __name__ == "__main__":
     ]
 
     heatmap_html = generate_aging_heatmap(test_vulns)
-    print(f"Generated heatmap HTML: {len(heatmap_html)} characters")
+    logger.info("Heatmap HTML generated", extra={"html_size": len(heatmap_html)})
 
     styles = get_aging_heatmap_styles()
-    print(f"Generated heatmap styles: {len(styles)} characters")
+    logger.info("Heatmap styles generated", extra={"styles_size": len(styles)})
 
     # Write test HTML
     test_file = ".tmp/test_heatmap.html"
@@ -338,5 +341,4 @@ if __name__ == "__main__":
 </body>
 </html>""")
 
-    print(f"\n[SUCCESS] Test HTML written to: {test_file}")
-    print("Open in browser to view heatmap")
+    logger.info("Test HTML written successfully", extra={"output": test_file})

@@ -6,7 +6,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 323,
             "lookback_days": 90,
@@ -259,7 +259,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 323,
             "lookback_days": 90,
@@ -511,8 +511,8 @@
           "collected_at": "2026-02-06T09:04:39.471327"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -609,7 +609,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -625,8 +625,8 @@
           "collected_at": "2026-02-06T09:04:49.549371"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 326,
             "lookback_days": 90,
@@ -775,7 +775,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -847,7 +847,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -1000,8 +1000,8 @@
           "collected_at": "2026-02-06T09:05:17.881875"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -1240,7 +1240,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -1493,7 +1493,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -1745,8 +1745,8 @@
           "collected_at": "2026-02-06T17:38:34.496098"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -1843,7 +1843,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -1859,8 +1859,8 @@
           "collected_at": "2026-02-06T17:38:42.148317"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -2009,7 +2009,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -2081,7 +2081,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -2234,8 +2234,8 @@
           "collected_at": "2026-02-06T17:39:05.523856"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -2474,7 +2474,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -2727,7 +2727,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -2979,8 +2979,8 @@
           "collected_at": "2026-02-06T17:46:28.592859"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -3077,7 +3077,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -3093,8 +3093,8 @@
           "collected_at": "2026-02-06T17:46:39.814108"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -3243,7 +3243,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -3315,7 +3315,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -3468,8 +3468,8 @@
           "collected_at": "2026-02-06T17:47:15.819956"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -3708,7 +3708,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -3961,7 +3961,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -4213,8 +4213,8 @@
           "collected_at": "2026-02-06T18:08:27.429068"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -4311,7 +4311,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -4327,8 +4327,8 @@
           "collected_at": "2026-02-06T18:08:35.121143"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -4477,7 +4477,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -4549,7 +4549,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -4702,8 +4702,8 @@
           "collected_at": "2026-02-06T18:08:58.494401"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -4942,7 +4942,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -5195,7 +5195,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -5447,8 +5447,8 @@
           "collected_at": "2026-02-06T18:34:54.789969"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -5545,7 +5545,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -5561,8 +5561,8 @@
           "collected_at": "2026-02-06T18:35:05.527937"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -5711,7 +5711,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -5783,7 +5783,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -5936,8 +5936,8 @@
           "collected_at": "2026-02-06T18:35:40.429342"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -6176,7 +6176,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -6429,7 +6429,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 328,
             "lookback_days": 90,
@@ -6681,8 +6681,8 @@
           "collected_at": "2026-02-06T18:41:32.792692"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -6779,7 +6779,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -6795,8 +6795,8 @@
           "collected_at": "2026-02-06T18:41:43.852675"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 341,
             "lookback_days": 90,
@@ -6945,7 +6945,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -7017,7 +7017,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 138,
             "lookback_days": 90,
@@ -7170,8 +7170,8 @@
           "collected_at": "2026-02-06T18:42:19.884091"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -7410,7 +7410,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -7663,7 +7663,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -7915,8 +7915,8 @@
           "collected_at": "2026-02-06T22:38:58.815159"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -8012,7 +8012,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -8028,8 +8028,8 @@
           "collected_at": "2026-02-06T22:39:06.337925"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -8178,7 +8178,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -8250,7 +8250,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -8403,8 +8403,8 @@
           "collected_at": "2026-02-06T22:39:30.375673"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -8642,7 +8642,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 325,
             "lookback_days": 90,
@@ -8895,7 +8895,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 325,
             "lookback_days": 90,
@@ -9147,8 +9147,8 @@
           "collected_at": "2026-02-07T06:48:37.973501"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -9244,7 +9244,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -9260,8 +9260,8 @@
           "collected_at": "2026-02-07T06:48:44.780044"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -9410,7 +9410,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -9482,7 +9482,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -9635,8 +9635,8 @@
           "collected_at": "2026-02-07T06:49:07.667346"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -9874,7 +9874,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -10119,7 +10119,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -10363,8 +10363,8 @@
           "collected_at": "2026-02-07T12:26:28.517860"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -10460,7 +10460,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -10476,8 +10476,8 @@
           "collected_at": "2026-02-07T12:26:37.740007"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -10626,7 +10626,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -10698,7 +10698,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -10851,8 +10851,8 @@
           "collected_at": "2026-02-07T12:27:11.710964"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -11090,7 +11090,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -11335,7 +11335,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -11579,8 +11579,8 @@
           "collected_at": "2026-02-07T12:45:21.213914"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -11676,7 +11676,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -11692,8 +11692,8 @@
           "collected_at": "2026-02-07T12:45:28.208749"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -11842,7 +11842,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -11914,7 +11914,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -12067,8 +12067,8 @@
           "collected_at": "2026-02-07T12:45:51.941504"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -12306,7 +12306,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -12551,7 +12551,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 322,
             "lookback_days": 90,
@@ -12795,8 +12795,8 @@
           "collected_at": "2026-02-07T13:27:51.136128"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -12892,7 +12892,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -12908,8 +12908,8 @@
           "collected_at": "2026-02-07T13:27:58.605800"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 327,
             "lookback_days": 90,
@@ -13058,7 +13058,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 49,
             "lookback_days": 90,
@@ -13130,7 +13130,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 137,
             "lookback_days": 90,
@@ -13283,8 +13283,8 @@
           "collected_at": "2026-02-07T13:28:23.619532"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 112,
             "lookback_days": 90,
@@ -13522,7 +13522,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -13767,7 +13767,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -14011,8 +14011,8 @@
           "collected_at": "2026-02-08T14:49:46.603262"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -14108,7 +14108,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -14124,8 +14124,8 @@
           "collected_at": "2026-02-08T14:49:56.789277"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 286,
             "lookback_days": 90,
@@ -14271,7 +14271,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 48,
             "lookback_days": 90,
@@ -14343,7 +14343,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -14496,8 +14496,8 @@
           "collected_at": "2026-02-08T14:50:32.963325"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -14735,7 +14735,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -14980,7 +14980,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -15224,8 +15224,8 @@
           "collected_at": "2026-02-08T15:13:57.019520"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -15321,7 +15321,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -15337,8 +15337,8 @@
           "collected_at": "2026-02-08T15:14:03.954361"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 286,
             "lookback_days": 90,
@@ -15484,7 +15484,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 48,
             "lookback_days": 90,
@@ -15556,7 +15556,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -15709,8 +15709,8 @@
           "collected_at": "2026-02-08T15:14:27.819303"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -15948,7 +15948,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -16193,7 +16193,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 318,
             "lookback_days": 90,
@@ -16437,8 +16437,8 @@
           "collected_at": "2026-02-08T15:19:23.888140"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 36,
             "lookback_days": 90,
@@ -16534,7 +16534,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -16550,8 +16550,8 @@
           "collected_at": "2026-02-08T15:19:33.093615"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 286,
             "lookback_days": 90,
@@ -16697,7 +16697,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 48,
             "lookback_days": 90,
@@ -16769,7 +16769,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 125,
             "lookback_days": 90,
@@ -16922,8 +16922,8 @@
           "collected_at": "2026-02-08T15:20:05.569516"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 109,
             "lookback_days": 90,
@@ -17161,7 +17161,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -17406,7 +17406,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -17650,8 +17650,8 @@
           "collected_at": "2026-02-08T20:58:40.309164"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 35,
             "lookback_days": 90,
@@ -17747,7 +17747,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -17763,8 +17763,8 @@
           "collected_at": "2026-02-08T20:58:47.118994"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -17910,7 +17910,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -17982,7 +17982,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -18135,8 +18135,8 @@
           "collected_at": "2026-02-08T20:59:10.202190"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -18374,7 +18374,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -18619,7 +18619,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -18863,8 +18863,8 @@
           "collected_at": "2026-02-08T21:05:50.906211"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 35,
             "lookback_days": 90,
@@ -18960,7 +18960,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -18976,8 +18976,8 @@
           "collected_at": "2026-02-08T21:05:59.230889"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -19123,7 +19123,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -19195,7 +19195,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -19348,8 +19348,8 @@
           "collected_at": "2026-02-08T21:06:27.902622"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -19587,7 +19587,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -19832,7 +19832,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -20076,8 +20076,8 @@
           "collected_at": "2026-02-08T22:55:09.645860"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 35,
             "lookback_days": 90,
@@ -20173,7 +20173,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -20189,8 +20189,8 @@
           "collected_at": "2026-02-08T22:55:16.230445"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -20336,7 +20336,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -20408,7 +20408,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -20561,8 +20561,8 @@
           "collected_at": "2026-02-08T22:55:38.417213"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -20800,7 +20800,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -21045,7 +21045,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -21289,8 +21289,8 @@
           "collected_at": "2026-02-08T23:02:02.541788"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 35,
             "lookback_days": 90,
@@ -21386,7 +21386,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -21402,8 +21402,8 @@
           "collected_at": "2026-02-08T23:02:10.215129"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -21549,7 +21549,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -21621,7 +21621,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -21774,8 +21774,8 @@
           "collected_at": "2026-02-08T23:02:35.851043"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -22013,7 +22013,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -22258,7 +22258,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -22502,8 +22502,8 @@
           "collected_at": "2026-02-09T00:34:32.718878"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 35,
             "lookback_days": 90,
@@ -22599,7 +22599,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -22615,8 +22615,8 @@
           "collected_at": "2026-02-09T00:34:39.753521"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -22762,7 +22762,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -22834,7 +22834,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -22987,8 +22987,8 @@
           "collected_at": "2026-02-09T00:35:02.599725"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -23226,7 +23226,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -23471,7 +23471,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -23715,8 +23715,8 @@
           "collected_at": "2026-02-09T01:47:44.766312"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 35,
             "lookback_days": 90,
@@ -23812,7 +23812,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -23828,8 +23828,8 @@
           "collected_at": "2026-02-09T01:47:54.366446"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -23975,7 +23975,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -24047,7 +24047,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -24200,8 +24200,8 @@
           "collected_at": "2026-02-09T01:48:29.459555"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -24439,7 +24439,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -24684,7 +24684,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -24928,8 +24928,8 @@
           "collected_at": "2026-02-09T07:09:47.373411"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 35,
             "lookback_days": 90,
@@ -25025,7 +25025,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -25041,8 +25041,8 @@
           "collected_at": "2026-02-09T07:09:56.753766"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 265,
             "lookback_days": 90,
@@ -25188,7 +25188,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -25260,7 +25260,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 116,
             "lookback_days": 90,
@@ -25413,8 +25413,8 @@
           "collected_at": "2026-02-09T07:10:29.044720"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -25652,7 +25652,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -25897,7 +25897,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -26141,8 +26141,8 @@
           "collected_at": "2026-02-09T11:16:00.891171"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 37,
             "lookback_days": 90,
@@ -26238,7 +26238,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -26254,8 +26254,8 @@
           "collected_at": "2026-02-09T11:16:08.705435"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 278,
             "lookback_days": 90,
@@ -26401,7 +26401,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -26473,7 +26473,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 120,
             "lookback_days": 90,
@@ -26626,8 +26626,8 @@
           "collected_at": "2026-02-09T11:16:36.966061"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 102,
             "lookback_days": 90,
@@ -26866,7 +26866,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -27111,7 +27111,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -27355,8 +27355,8 @@
           "collected_at": "2026-02-09T11:26:40.907603"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 37,
             "lookback_days": 90,
@@ -27452,7 +27452,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -27468,8 +27468,8 @@
           "collected_at": "2026-02-09T11:26:49.548087"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 279,
             "lookback_days": 90,
@@ -27615,7 +27615,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -27687,7 +27687,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 120,
             "lookback_days": 90,
@@ -27840,8 +27840,8 @@
           "collected_at": "2026-02-09T11:27:21.319098"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 102,
             "lookback_days": 90,
@@ -28080,7 +28080,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -28325,7 +28325,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -28569,8 +28569,8 @@
           "collected_at": "2026-02-09T12:06:11.347187"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 37,
             "lookback_days": 90,
@@ -28666,7 +28666,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -28682,8 +28682,8 @@
           "collected_at": "2026-02-09T12:06:21.278868"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 285,
             "lookback_days": 90,
@@ -28829,7 +28829,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -28901,7 +28901,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 119,
             "lookback_days": 90,
@@ -29054,8 +29054,8 @@
           "collected_at": "2026-02-09T12:06:52.153669"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 101,
             "lookback_days": 90,
@@ -29294,7 +29294,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -29539,7 +29539,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -29783,8 +29783,8 @@
           "collected_at": "2026-02-09T12:55:05.982986"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 37,
             "lookback_days": 90,
@@ -29880,7 +29880,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -29896,8 +29896,8 @@
           "collected_at": "2026-02-09T12:55:14.392498"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 298,
             "lookback_days": 90,
@@ -30046,7 +30046,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -30118,7 +30118,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -30271,8 +30271,8 @@
           "collected_at": "2026-02-09T12:55:39.653195"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -30511,7 +30511,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -30756,7 +30756,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -31000,8 +31000,8 @@
           "collected_at": "2026-02-09T14:22:43.356181"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -31097,7 +31097,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -31113,8 +31113,8 @@
           "collected_at": "2026-02-09T14:22:55.039927"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 299,
             "lookback_days": 90,
@@ -31263,7 +31263,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -31335,7 +31335,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -31488,8 +31488,8 @@
           "collected_at": "2026-02-09T14:23:30.811843"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 103,
             "lookback_days": 90,
@@ -31729,7 +31729,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -31974,7 +31974,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -32218,8 +32218,8 @@
           "collected_at": "2026-02-09T14:53:30.195751"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -32315,7 +32315,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -32331,8 +32331,8 @@
           "collected_at": "2026-02-09T14:53:39.148070"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 302,
             "lookback_days": 90,
@@ -32481,7 +32481,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -32553,7 +32553,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -32706,8 +32706,8 @@
           "collected_at": "2026-02-09T14:54:08.196652"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 104,
             "lookback_days": 90,
@@ -32947,7 +32947,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -33192,7 +33192,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -33436,8 +33436,8 @@
           "collected_at": "2026-02-09T15:34:45.423131"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -33533,7 +33533,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -33549,8 +33549,8 @@
           "collected_at": "2026-02-09T15:34:54.169672"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 306,
             "lookback_days": 90,
@@ -33699,7 +33699,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -33771,7 +33771,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -33924,8 +33924,8 @@
           "collected_at": "2026-02-09T15:35:20.852395"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 104,
             "lookback_days": 90,
@@ -34165,7 +34165,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -34410,7 +34410,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "deployment_frequency": {
             "total_successful_builds": 313,
             "lookback_days": 90,
@@ -34654,8 +34654,8 @@
           "collected_at": "2026-02-09T16:16:12.581653"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "deployment_frequency": {
             "total_successful_builds": 39,
             "lookback_days": 90,
@@ -34751,7 +34751,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "deployment_frequency": {
             "total_successful_builds": 0
           },
@@ -34767,8 +34767,8 @@
           "collected_at": "2026-02-09T16:16:23.969066"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "deployment_frequency": {
             "total_successful_builds": 310,
             "lookback_days": 90,
@@ -34917,7 +34917,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "deployment_frequency": {
             "total_successful_builds": 45,
             "lookback_days": 90,
@@ -34989,7 +34989,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "deployment_frequency": {
             "total_successful_builds": 123,
             "lookback_days": 90,
@@ -35142,8 +35142,8 @@
           "collected_at": "2026-02-09T16:16:58.554825"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "deployment_frequency": {
             "total_successful_builds": 104,
             "lookback_days": 90,

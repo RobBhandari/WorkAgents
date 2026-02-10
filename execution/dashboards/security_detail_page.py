@@ -19,10 +19,13 @@ Usage:
 
 from datetime import datetime
 
+from execution.core import get_logger
 from execution.dashboards.components.aging_heatmap import (
     generate_aging_heatmap,
     get_aging_heatmap_styles,
 )
+
+logger = get_logger(__name__)
 
 
 def generate_product_detail_page(
@@ -581,8 +584,7 @@ def _get_detail_page_javascript() -> str:
 
 # Self-test
 if __name__ == "__main__":
-    print("Security Detail Page Generator - Self Test")
-    print("=" * 60)
+    logger.info("Security Detail Page Generator - Self Test")
 
     # Mock vulnerability class
     class MockVuln:
@@ -595,17 +597,18 @@ if __name__ == "__main__":
             self.id = vuln_id
 
     test_vulns = [
-        MockVuln("CRITICAL", "OPEN", 45, "SQL Injection in login form", "A critical SQL injection vulnerability", "abc123"),
+        MockVuln(
+            "CRITICAL", "OPEN", 45, "SQL Injection in login form", "A critical SQL injection vulnerability", "abc123"
+        ),
         MockVuln("HIGH", "CONFIRMED", 12, "XSS vulnerability", "Cross-site scripting issue found", "def456"),
         MockVuln("CRITICAL", "OPEN", 90, "Remote code execution", "RCE vulnerability in upload handler", "ghi789"),
     ]
 
     html = generate_product_detail_page("Test Product", "12345", test_vulns)
-    print(f"Generated {len(html)} characters of HTML")
+    logger.info("Test detail page generated", extra={"html_size": len(html)})
 
     output_file = ".tmp/test_security_detail.html"
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\n[SUCCESS] Test detail page written to: {output_file}")
-    print("Open in browser to view")
+    logger.info("Test detail page written successfully", extra={"output": output_file})

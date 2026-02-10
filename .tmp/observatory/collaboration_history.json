@@ -6,7 +6,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 49,
             "median_hours": 0.0,
@@ -37,7 +37,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 49,
             "median_hours": 0.0,
@@ -67,8 +67,8 @@
           "collected_at": "2026-02-06T09:06:12.743514"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 50,
             "median_hours": 0.1,
@@ -99,7 +99,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -116,8 +116,8 @@
           "collected_at": "2026-02-06T09:06:58.770122"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 50,
             "median_hours": 0.0,
@@ -148,7 +148,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 50,
             "median_hours": 0.0,
@@ -179,7 +179,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 50,
             "median_hours": 0.0,
@@ -209,8 +209,8 @@
           "collected_at": "2026-02-06T09:10:04.613181"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 50,
             "median_hours": 0.0,
@@ -250,7 +250,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -281,7 +281,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -311,8 +311,8 @@
           "collected_at": "2026-02-06T17:38:46.904902"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -343,7 +343,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -360,8 +360,8 @@
           "collected_at": "2026-02-06T17:38:54.197490"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -392,7 +392,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -423,7 +423,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.6,
@@ -453,8 +453,8 @@
           "collected_at": "2026-02-06T17:39:14.636289"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -494,7 +494,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -525,7 +525,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -555,8 +555,8 @@
           "collected_at": "2026-02-06T17:46:28.147688"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -587,7 +587,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -604,8 +604,8 @@
           "collected_at": "2026-02-06T17:46:35.211543"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -636,7 +636,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -667,7 +667,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -697,8 +697,8 @@
           "collected_at": "2026-02-06T17:46:57.192057"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -738,7 +738,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -769,7 +769,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -799,8 +799,8 @@
           "collected_at": "2026-02-06T18:08:54.434573"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -831,7 +831,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -848,8 +848,8 @@
           "collected_at": "2026-02-06T18:09:06.071360"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -880,7 +880,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -911,7 +911,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -941,8 +941,8 @@
           "collected_at": "2026-02-06T18:09:39.477699"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -982,7 +982,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1013,7 +1013,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -1043,8 +1043,8 @@
           "collected_at": "2026-02-06T18:35:10.070707"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -1075,7 +1075,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -1092,8 +1092,8 @@
           "collected_at": "2026-02-06T18:35:20.428607"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1124,7 +1124,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1155,7 +1155,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1185,8 +1185,8 @@
           "collected_at": "2026-02-06T18:35:52.072998"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1226,7 +1226,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -1257,7 +1257,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1287,8 +1287,8 @@
           "collected_at": "2026-02-06T18:41:33.225868"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1319,7 +1319,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -1336,8 +1336,8 @@
           "collected_at": "2026-02-06T18:41:40.800819"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1368,7 +1368,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1399,7 +1399,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1429,8 +1429,8 @@
           "collected_at": "2026-02-06T18:42:04.111716"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1470,7 +1470,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1501,7 +1501,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1531,8 +1531,8 @@
           "collected_at": "2026-02-06T22:39:21.496175"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1563,7 +1563,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -1580,8 +1580,8 @@
           "collected_at": "2026-02-06T22:39:30.779212"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1612,7 +1612,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1643,7 +1643,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1673,8 +1673,8 @@
           "collected_at": "2026-02-06T22:39:57.198945"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1714,7 +1714,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1745,7 +1745,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1775,8 +1775,8 @@
           "collected_at": "2026-02-07T06:48:47.835306"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -1807,7 +1807,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -1824,8 +1824,8 @@
           "collected_at": "2026-02-07T06:48:55.478755"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1856,7 +1856,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1887,7 +1887,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1917,8 +1917,8 @@
           "collected_at": "2026-02-07T06:49:18.359212"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1958,7 +1958,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -1989,7 +1989,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.4,
@@ -2019,8 +2019,8 @@
           "collected_at": "2026-02-07T12:26:43.130192"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2051,7 +2051,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -2068,8 +2068,8 @@
           "collected_at": "2026-02-07T12:26:53.476616"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2100,7 +2100,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2131,7 +2131,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2161,8 +2161,8 @@
           "collected_at": "2026-02-07T12:27:23.761260"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2202,7 +2202,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -2233,7 +2233,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2263,8 +2263,8 @@
           "collected_at": "2026-02-07T12:45:46.627352"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -2295,7 +2295,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -2312,8 +2312,8 @@
           "collected_at": "2026-02-07T12:45:57.553173"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2344,7 +2344,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2375,7 +2375,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2405,8 +2405,8 @@
           "collected_at": "2026-02-07T12:46:30.067029"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2446,7 +2446,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2477,7 +2477,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2507,8 +2507,8 @@
           "collected_at": "2026-02-07T13:28:05.938718"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2539,7 +2539,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -2556,8 +2556,8 @@
           "collected_at": "2026-02-07T13:28:14.525068"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2588,7 +2588,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2619,7 +2619,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2649,8 +2649,8 @@
           "collected_at": "2026-02-07T13:28:38.382972"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2690,7 +2690,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -2721,7 +2721,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2751,8 +2751,8 @@
           "collected_at": "2026-02-08T14:49:48.244787"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -2783,7 +2783,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -2800,8 +2800,8 @@
           "collected_at": "2026-02-08T14:49:55.654788"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2832,7 +2832,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2863,7 +2863,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2893,8 +2893,8 @@
           "collected_at": "2026-02-08T14:50:18.447100"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2934,7 +2934,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2965,7 +2965,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -2995,8 +2995,8 @@
           "collected_at": "2026-02-08T15:14:06.368959"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -3027,7 +3027,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -3044,8 +3044,8 @@
           "collected_at": "2026-02-08T15:14:14.276465"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3076,7 +3076,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3107,7 +3107,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3137,8 +3137,8 @@
           "collected_at": "2026-02-08T15:14:36.555142"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3178,7 +3178,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3209,7 +3209,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3239,8 +3239,8 @@
           "collected_at": "2026-02-08T15:19:28.683362"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3271,7 +3271,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -3288,8 +3288,8 @@
           "collected_at": "2026-02-08T15:19:36.243377"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3320,7 +3320,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3351,7 +3351,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3381,8 +3381,8 @@
           "collected_at": "2026-02-08T15:19:57.823795"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3422,7 +3422,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3453,7 +3453,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3483,8 +3483,8 @@
           "collected_at": "2026-02-08T20:59:01.535365"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3515,7 +3515,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -3532,8 +3532,8 @@
           "collected_at": "2026-02-08T20:59:11.830925"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3564,7 +3564,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3595,7 +3595,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3625,8 +3625,8 @@
           "collected_at": "2026-02-08T20:59:41.510397"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3666,7 +3666,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3697,7 +3697,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3727,8 +3727,8 @@
           "collected_at": "2026-02-08T21:06:05.396610"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -3759,7 +3759,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -3776,8 +3776,8 @@
           "collected_at": "2026-02-08T21:06:16.342794"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3808,7 +3808,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3839,7 +3839,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3869,8 +3869,8 @@
           "collected_at": "2026-02-08T21:06:48.085649"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3910,7 +3910,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3941,7 +3941,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -3971,8 +3971,8 @@
           "collected_at": "2026-02-08T22:55:36.235938"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -4003,7 +4003,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -4020,8 +4020,8 @@
           "collected_at": "2026-02-08T22:55:46.322442"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4052,7 +4052,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4083,7 +4083,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4113,8 +4113,8 @@
           "collected_at": "2026-02-08T22:56:15.961901"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4154,7 +4154,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4185,7 +4185,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -4215,8 +4215,8 @@
           "collected_at": "2026-02-08T23:02:11.534274"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4247,7 +4247,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -4264,8 +4264,8 @@
           "collected_at": "2026-02-08T23:02:18.946810"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4296,7 +4296,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4327,7 +4327,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4357,8 +4357,8 @@
           "collected_at": "2026-02-08T23:02:41.375092"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4398,7 +4398,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4429,7 +4429,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4459,8 +4459,8 @@
           "collected_at": "2026-02-09T00:34:37.192462"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4491,7 +4491,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -4508,8 +4508,8 @@
           "collected_at": "2026-02-09T00:34:44.035377"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4540,7 +4540,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4571,7 +4571,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4601,8 +4601,8 @@
           "collected_at": "2026-02-09T00:35:03.471082"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4642,7 +4642,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4673,7 +4673,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -4703,8 +4703,8 @@
           "collected_at": "2026-02-09T01:47:55.842990"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -4735,7 +4735,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -4752,8 +4752,8 @@
           "collected_at": "2026-02-09T01:48:06.634953"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4784,7 +4784,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4815,7 +4815,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4845,8 +4845,8 @@
           "collected_at": "2026-02-09T01:48:38.811804"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4886,7 +4886,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4917,7 +4917,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -4947,8 +4947,8 @@
           "collected_at": "2026-02-09T07:09:57.741618"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -4979,7 +4979,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -4996,8 +4996,8 @@
           "collected_at": "2026-02-09T07:10:07.978300"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5028,7 +5028,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5059,7 +5059,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5089,8 +5089,8 @@
           "collected_at": "2026-02-09T07:10:37.818928"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5130,7 +5130,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5161,7 +5161,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -5191,8 +5191,8 @@
           "collected_at": "2026-02-09T11:16:46.104406"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -5223,7 +5223,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -5240,8 +5240,8 @@
           "collected_at": "2026-02-09T11:16:56.658194"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5272,7 +5272,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5303,7 +5303,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5333,8 +5333,8 @@
           "collected_at": "2026-02-09T11:17:31.196177"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5374,7 +5374,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5405,7 +5405,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5435,8 +5435,8 @@
           "collected_at": "2026-02-09T11:26:41.805963"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -5467,7 +5467,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -5484,8 +5484,8 @@
           "collected_at": "2026-02-09T11:26:50.180080"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5516,7 +5516,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5547,7 +5547,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5577,8 +5577,8 @@
           "collected_at": "2026-02-09T11:27:14.141221"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5618,7 +5618,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5649,7 +5649,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5679,8 +5679,8 @@
           "collected_at": "2026-02-09T12:06:20.386389"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -5711,7 +5711,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -5728,8 +5728,8 @@
           "collected_at": "2026-02-09T12:06:27.987083"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5760,7 +5760,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5791,7 +5791,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5821,8 +5821,8 @@
           "collected_at": "2026-02-09T12:06:50.806739"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5862,7 +5862,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -5893,7 +5893,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -5923,8 +5923,8 @@
           "collected_at": "2026-02-09T12:55:20.185825"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -5955,7 +5955,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -5972,8 +5972,8 @@
           "collected_at": "2026-02-09T12:55:29.484179"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.2,
@@ -6004,7 +6004,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6035,7 +6035,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6065,8 +6065,8 @@
           "collected_at": "2026-02-09T12:55:53.553931"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6106,7 +6106,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6137,7 +6137,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6167,8 +6167,8 @@
           "collected_at": "2026-02-09T14:22:52.282932"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -6199,7 +6199,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -6216,8 +6216,8 @@
           "collected_at": "2026-02-09T14:23:00.599670"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6248,7 +6248,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6279,7 +6279,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6309,8 +6309,8 @@
           "collected_at": "2026-02-09T14:23:26.856085"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6350,7 +6350,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6381,7 +6381,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6411,8 +6411,8 @@
           "collected_at": "2026-02-09T14:53:41.446277"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -6443,7 +6443,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -6460,8 +6460,8 @@
           "collected_at": "2026-02-09T14:53:49.213711"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6492,7 +6492,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6523,7 +6523,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.1,
@@ -6553,8 +6553,8 @@
           "collected_at": "2026-02-09T14:54:13.492629"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6594,7 +6594,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6625,7 +6625,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6655,8 +6655,8 @@
           "collected_at": "2026-02-09T15:35:00.896800"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6687,7 +6687,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -6704,8 +6704,8 @@
           "collected_at": "2026-02-09T15:35:09.769967"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6736,7 +6736,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6767,7 +6767,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6797,8 +6797,8 @@
           "collected_at": "2026-02-09T15:35:36.986311"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6838,7 +6838,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Product A",
+          "project_name": "Access Legal Case Management",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6869,7 +6869,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "Product B",
+          "project_name": "One Office & Financial Director",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6899,8 +6899,8 @@
           "collected_at": "2026-02-09T16:16:15.999369"
         },
         {
-          "project_key": "Product C",
-          "project_name": "Product C",
+          "project_key": "Access LawFusion",
+          "project_name": "Access LawFusion",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6931,7 +6931,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Product O",
+          "project_name": "Learning Content Legal",
           "pr_review_time": {
             "sample_size": 0
           },
@@ -6948,8 +6948,8 @@
           "collected_at": "2026-02-09T16:16:23.372864"
         },
         {
-          "project_key": "Product L",
-          "project_name": "Product L",
+          "project_key": "Access LegalBricks",
+          "project_name": "Access LegalBricks",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -6980,7 +6980,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Product E",
+          "project_name": "Access Legal Compliance",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -7011,7 +7011,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Product F",
+          "project_name": "Access Legal InCase",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
@@ -7041,8 +7041,8 @@
           "collected_at": "2026-02-09T16:16:45.675053"
         },
         {
-          "project_key": "Legal_Product D",
-          "project_name": "Product D",
+          "project_key": "Legal_Access Legal Proclaim",
+          "project_name": "Access Legal Proclaim",
           "pr_review_time": {
             "sample_size": 10,
             "median_hours": 0.0,
