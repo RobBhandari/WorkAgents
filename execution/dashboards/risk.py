@@ -30,6 +30,7 @@ from execution.dashboards.renderer import render_dashboard
 # Import framework and rendering
 from execution.framework import get_dashboard_framework
 from execution.template_engine import render_template
+from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
@@ -454,4 +455,9 @@ if __name__ == "__main__":
         logger.info("Run data collection first: python execution/ado_risk_metrics.py")
 
     except Exception as e:
-        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
+        log_and_raise(
+            logger,
+            e,
+            context={"output_path": str(output_path), "operation": "dashboard_generation"},
+            error_type="Risk dashboard generation",
+        )

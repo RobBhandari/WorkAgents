@@ -29,6 +29,7 @@ from execution.dashboards.renderer import render_dashboard
 
 # Import dependencies
 from execution.framework import get_dashboard_framework
+from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
@@ -304,4 +305,4 @@ if __name__ == "__main__":
         logger.info("Run data collection first: python execution/analyze_devin_prs.py")
 
     except Exception as e:
-        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
+        log_and_raise(logger, e, context={"operation": "generate_ai_dashboard"}, error_type="AI dashboard generation")

@@ -32,6 +32,7 @@ from msrest.authentication import BasicAuthentication
 from execution.collectors.ado_connection import get_ado_connection
 from execution.secure_config import get_config
 from execution.utils.datetime_utils import parse_ado_timestamp
+from execution.utils.error_handling import log_and_continue, log_and_raise, log_and_return_default
 from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
@@ -92,10 +93,17 @@ def query_builds(build_client, project_name: str, days: int = 90) -> list[dict]:
         logger.error(f"Network error querying builds for {project_name}: {e}")
         print(f"      [WARNING] Could not query builds: {e}")
         return []
-    except Exception as e:
-        logger.error(f"Unexpected error querying builds for {project_name}: {e}", exc_info=True)
-        print(f"      [WARNING] Could not query builds: {e}")
-        return []
+    except (AttributeError, KeyError, TypeError) as e:
+        return cast(
+            list[dict],
+            log_and_return_default(
+                logger,
+                e,
+                context={"project_name": project_name, "operation": "query_builds"},
+                default_value=[],
+                error_type="Build data parsing",
+            ),
+        )
 
 
 def calculate_deployment_frequency(builds: list[dict], lookback_days: int = 90) -> dict:
@@ -264,9 +272,17 @@ def _get_commit_timestamp_from_build(build_client, project_name: str, build: dic
     except (AttributeError, KeyError) as e:
         logger.debug(f"Invalid build data structure for build {build.get('build_id', 'unknown')}: {e}")
         return None
-    except Exception as e:
-        logger.warning(f"Unexpected error getting commit timestamp for build {build.get('build_id', 'unknown')}: {e}")
-        return None
+    except (TypeError, IndexError) as e:
+        return cast(
+            datetime | None,
+            log_and_return_default(
+                logger,
+                e,
+                context={"build_id": build.get("build_id", "unknown"), "operation": "get_commit_timestamp"},
+                default_value=None,
+                error_type="Build changes data handling",
+            ),
+        )
 
 
 def _calculate_single_build_lead_time(commit_time: datetime, build: dict) -> float | None:
@@ -381,10 +397,15 @@ def collect_deployment_metrics_for_project(connection, project: dict, config: di
         logger.error(f"Network error querying builds for {project_name}: {e}")
         print(f"    [ERROR] Failed to query builds: {e}")
         builds = []
-    except Exception as e:
-        logger.error(f"Unexpected error querying builds for {project_name}: {e}", exc_info=True)
+    except (AttributeError, KeyError, TypeError, ValueError) as e:
+        builds = log_and_return_default(
+            logger,
+            e,
+            context={"project_name": project_name, "ado_project_name": ado_project_name},
+            default_value=[],
+            error_type="Build query data handling",
+        )
         print(f"    [ERROR] Failed to query builds: {e}")
-        builds = []
 
     if not builds:
         print("    [WARNING] No builds found - skipping deployment metrics")
@@ -471,8 +492,14 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
         logger.error(f"File I/O error saving deployment metrics to {output_file}: {e}")
         print(f"\n[ERROR] Failed to save Deployment metrics: {e}")
         return False
-    except Exception as e:
-        logger.error(f"Unexpected error saving deployment metrics: {e}", exc_info=True)
+    except (TypeError, ValueError) as e:
+        log_and_return_default(
+            logger,
+            e,
+            context={"output_file": output_file, "weeks_count": len(history.get("weeks", []))},
+            default_value=False,
+            error_type="JSON serialization",
+        )
         print(f"\n[ERROR] Failed to save Deployment metrics: {e}")
         return False
 
@@ -518,8 +545,8 @@ if __name__ == "__main__":
         logger.error(f"Network error connecting to ADO: {e}")
         print(f"[ERROR] Failed to connect to ADO: {e}")
         exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error connecting to ADO: {e}", exc_info=True)
+    except (ValueError, KeyError, AttributeError) as e:
+        log_and_raise(logger, e, context={"operation": "ado_connection"}, error_type="ADO connection initialization")
         print(f"[ERROR] Failed to connect to ADO: {e}")
         exit(1)
 
@@ -540,9 +567,17 @@ if __name__ == "__main__":
             logger.error(f"Network error collecting metrics for {project['project_name']}: {e}")
             print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
             continue
-        except Exception as e:
-            logger.error(f"Unexpected error collecting metrics for {project['project_name']}: {e}", exc_info=True)
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {e}")
+        except (AttributeError, KeyError, TypeError, ValueError) as e:
+            log_and_continue(
+                logger,
+                e,
+                context={
+                    "project_name": project.get("project_name", "unknown"),
+                    "project_key": project.get("project_key"),
+                },
+                error_type="Project metrics collection",
+            )
+            print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'unknown')}: {e}")
             continue
 
     # Save results
