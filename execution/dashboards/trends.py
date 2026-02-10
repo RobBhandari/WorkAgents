@@ -42,7 +42,7 @@ class TrendsDashboardGenerator:
     with sparklines and forecast analysis.
     """
 
-    def __init__(self, weeks: int = 12):
+    def __init__(self, weeks: int = 12) -> None:
         """
         Initialize generator.
 

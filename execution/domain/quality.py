@@ -82,7 +82,12 @@ class Bug:
             threshold_days: Age threshold in days (default: 30)
 
         Returns:
-            True if open and older than threshold
+            True if open and older than threshold, False otherwise
+
+        Example:
+            >>> bug = Bug(id=123, title="Bug", state="Active", priority=1, created_date="2025-12-01", closed_date=None, age_days=45)
+            >>> bug.is_aging(30)
+            True
         """
         return self.is_open and self.age_days > threshold_days
 
@@ -170,11 +175,26 @@ class QualityMetrics(MetricSnapshot):
 
         Returns:
             Percentage of open bugs closed this week, or None if no bugs
+
+        Example:
+            >>> metrics = QualityMetrics(timestamp=datetime.now(), project="App", open_bugs=100, closed_this_week=10, created_this_week=5, net_change=-5)
+            >>> metrics.closure_rate
+            10.0
         """
         if self.open_bugs == 0:
             return None
         return (self.closed_this_week / self.open_bugs) * 100
 
     def __str__(self) -> str:
-        """String representation for logging/debugging"""
+        """
+        String representation for logging/debugging.
+
+        Returns:
+            Formatted string with project, open bugs, and net change
+
+        Example:
+            >>> metrics = QualityMetrics(timestamp=datetime.now(), project="MyApp", open_bugs=50, closed_this_week=10, created_this_week=5, net_change=-5)
+            >>> str(metrics)
+            'QualityMetrics(project=MyApp, open=50, net_change=-5)'
+        """
         return f"QualityMetrics(project={self.project}, " f"open={self.open_bugs}, net_change={self.net_change:+d})"

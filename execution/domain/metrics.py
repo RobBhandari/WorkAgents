@@ -27,7 +27,17 @@ class MetricSnapshot:
     project: str | None = None
 
     def __post_init__(self) -> None:
-        """Validate timestamp is a datetime object"""
+        """
+        Validate timestamp is a datetime object.
+
+        Raises:
+            TypeError: If timestamp is not a datetime instance
+
+        Example:
+            >>> from datetime import datetime
+            >>> snapshot = MetricSnapshot(timestamp=datetime.now())  # Valid
+            >>> snapshot = MetricSnapshot(timestamp="2026-01-01")  # Raises TypeError
+        """
         if not isinstance(self.timestamp, datetime):
             raise TypeError(f"timestamp must be datetime, got {type(self.timestamp)}")
 
@@ -60,7 +70,17 @@ class TrendData:
     label: str | None = None
 
     def __post_init__(self) -> None:
-        """Validate that values and timestamps have same length"""
+        """
+        Validate that values and timestamps have same length.
+
+        Raises:
+            ValueError: If values and timestamps arrays have different lengths
+
+        Example:
+            >>> from datetime import datetime
+            >>> trend = TrendData(values=[1, 2, 3], timestamps=[datetime.now(), datetime.now(), datetime.now()])  # Valid
+            >>> trend = TrendData(values=[1, 2], timestamps=[datetime.now()])  # Raises ValueError
+        """
         if len(self.values) != len(self.timestamps):
             raise ValueError(
                 f"values and timestamps must have same length: " f"{len(self.values)} != {len(self.timestamps)}"
@@ -160,10 +180,17 @@ class TrendData:
         Get last N data points.
 
         Args:
-            n: Number of most recent data points to include
+            n: Number of most recent data points to include (default: 4)
 
         Returns:
-            New TrendData with last N points
+            New TrendData instance containing only the last N points.
+            If n >= total points, returns self unchanged.
+
+        Example:
+            >>> trend = TrendData(values=[1, 2, 3, 4, 5], timestamps=timestamps, label="Bugs")
+            >>> last_3 = trend.get_range(3)
+            >>> print(last_3.values)
+            [3, 4, 5]
         """
         if n >= len(self.values):
             return self
