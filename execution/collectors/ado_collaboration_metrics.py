@@ -10,8 +10,11 @@ Collects PR and code review metrics at project level:
 
 HARD DATA ONLY - No assumptions, no thresholds, no classifications.
 Read-only operation - does not modify any existing data.
+
+Migrated to Azure DevOps REST API v7.1 (replaces SDK).
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -20,16 +23,11 @@ import statistics
 import sys
 from datetime import datetime, timedelta
 
-# Azure DevOps SDK
-from azure.devops.connection import Connection
-from azure.devops.exceptions import AzureDevOpsServiceError
-from azure.devops.v7_1.git.models import GitPullRequestSearchCriteria
-
 # Load environment variables
 from dotenv import load_dotenv
-from msrest.authentication import BasicAuthentication
 
-from execution.collectors.ado_connection import get_ado_connection
+from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
+from execution.collectors.ado_rest_transformers import GitTransformer
 from execution.domain.constants import flow_metrics, sampling_config
 from execution.secure_config import get_config
 from execution.utils.datetime_utils import parse_ado_timestamp
@@ -56,14 +54,14 @@ def sample_prs(prs: list[dict], sample_size: int = sampling_config.PR_SAMPLE_SIZ
     return random.sample(prs, min(sample_size, len(prs)))
 
 
-def query_pull_requests(
-    git_client, project_name: str, repo_id: str, days: int = flow_metrics.LOOKBACK_DAYS
+async def query_pull_requests(
+    rest_client: AzureDevOpsRESTClient, project_name: str, repo_id: str, days: int = flow_metrics.LOOKBACK_DAYS
 ) -> list[dict]:
     """
     Query recent completed pull requests.
 
     Args:
-        git_client: Git client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         repo_id: Repository ID
         days: Lookback period in days
@@ -72,33 +70,40 @@ def query_pull_requests(
         List of PR data
     """
     try:
-        search_criteria = GitPullRequestSearchCriteria(status="completed")
+        # Query completed PRs via REST API
+        response = await rest_client.get_pull_requests(project=project_name, repository_id=repo_id, status="completed")
 
-        prs = git_client.get_pull_requests(repository_id=repo_id, project=project_name, search_criteria=search_criteria)
+        # Transform to simplified format
+        prs = GitTransformer.transform_pull_requests_response(response)
 
+        # Filter by date
         pr_data = []
-        cutoff_date = datetime.now(prs[0].creation_date.tzinfo if prs and prs[0].creation_date else None) - timedelta(
-            days=days
-        )
+        cutoff_date = datetime.now(datetime.now().astimezone().tzinfo) - timedelta(days=days)
 
         for pr in prs:
-            if pr.creation_date < cutoff_date:
-                continue
+            created_date_str = pr.get("creation_date")
+            if created_date_str:
+                try:
+                    created_date = datetime.fromisoformat(created_date_str.replace("Z", "+00:00"))
+                    if created_date < cutoff_date:
+                        continue
+                except ValueError:
+                    continue
 
             pr_data.append(
                 {
-                    "pr_id": pr.pull_request_id,
-                    "title": pr.title,
-                    "created_date": pr.creation_date.isoformat() if pr.creation_date else None,
-                    "closed_date": pr.closed_date.isoformat() if pr.closed_date else None,
-                    "created_by": pr.created_by.display_name if pr.created_by else "Unknown",
+                    "pr_id": pr.get("pull_request_id"),
+                    "title": pr.get("title"),
+                    "created_date": pr.get("creation_date"),
+                    "closed_date": pr.get("closed_date"),
+                    "created_by": pr.get("created_by", "Unknown"),
                     "repository_id": repo_id,
                 }
             )
 
         return pr_data
 
-    except AzureDevOpsServiceError as e:
+    except Exception as e:
         print(f"      [WARNING] Could not query PRs: {e}")
         return log_and_return_default(
             logger,
