@@ -221,6 +221,11 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Create .env file from secrets
+        run: |
+          echo "ARMORCODE_API_URL=${{ secrets.ARMORCODE_API_URL }}" >> .env
+          echo "ARMORCODE_API_KEY=${{ secrets.ARMORCODE_API_KEY }}" >> .env
+
       - name: Create baseline files from secrets
         run: |
           mkdir -p data
