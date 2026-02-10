@@ -19,7 +19,22 @@ logger = get_logger(__name__)
 
 
 def calculate_percentile(values: list[float], percentile: int) -> float | None:
-    """Calculate percentile from list of values."""
+    """
+    Calculate percentile from list of values using linear interpolation.
+
+    :param values: List of numeric values to analyze
+    :param percentile: Percentile to calculate (0-100)
+    :returns: Calculated percentile value, or None if no valid values
+    :raises ValueError: If percentile is not between 0-100
+    :raises TypeError: If values cannot be sorted
+
+    Example:
+        >>> values = [10, 20, 30, 40, 50]
+        >>> calculate_percentile(values, 50)
+        30.0
+        >>> calculate_percentile(values, 85)
+        44.0
+    """
     if not values:
         return None
 
@@ -51,9 +66,30 @@ def calculate_percentile(values: list[float], percentile: int) -> float | None:
 
 def calculate_lead_time(closed_items: list[dict]) -> dict:
     """
-    Calculate lead time: Created Date → Closed Date
+    Calculate lead time percentiles from closed work items.
 
-    Returns percentiles (P50, P85, P95) in days
+    Lead time is measured from work item creation date to closed date.
+    Percentiles (P50, P85, P95) provide statistical distribution of lead times.
+
+    :param closed_items: List of closed work item dictionaries with System.CreatedDate and Microsoft.VSTS.Common.ClosedDate
+    :returns: Dictionary with percentile metrics and sample size::
+
+        {
+            "p50": float | None,  # Median lead time in days
+            "p85": float | None,  # 85th percentile in days
+            "p95": float | None,  # 95th percentile in days
+            "sample_size": int,    # Number of items analyzed
+            "raw_values": list[float]  # First 10 lead times for debugging
+        }
+
+    Example:
+        >>> items = [
+        ...     {"System.CreatedDate": "2026-01-01T00:00:00Z", "Microsoft.VSTS.Common.ClosedDate": "2026-01-05T00:00:00Z"},
+        ...     {"System.CreatedDate": "2026-01-02T00:00:00Z", "Microsoft.VSTS.Common.ClosedDate": "2026-01-10T00:00:00Z"}
+        ... ]
+        >>> result = calculate_lead_time(items)
+        >>> result["p50"]  # Median lead time
+        6.5
     """
     lead_times = []
 

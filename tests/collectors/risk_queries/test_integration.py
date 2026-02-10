@@ -224,6 +224,7 @@ class TestRiskCollectorPattern:
 
     def test_collector_with_query_list(self, mock_wit_client):
         """Test collector pattern that manages a list of queries."""
+
         # Simple collector class
         class RiskCollector:
             def __init__(self, wit_client):
@@ -247,6 +248,7 @@ class TestRiskCollectorPattern:
 
     def test_collector_with_configurable_queries(self, mock_wit_client):
         """Test collector that accepts query configuration."""
+
         # Collector with configurable query list
         class ConfigurableRiskCollector:
             def __init__(self, wit_client, query_classes: list):
