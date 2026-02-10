@@ -33,10 +33,19 @@ _jinja_env: Environment | None = None
 
 def get_jinja_environment() -> Environment:
     """
-    Get or create the Jinja2 environment.
+    Get or create the Jinja2 environment (singleton pattern).
 
-    Returns:
-        Configured Jinja2 Environment instance
+    Initializes Jinja2 with security-focused configuration:
+    - Auto-escaping enabled for HTML/XML to prevent XSS
+    - Custom filters for number/date formatting
+    - Trim blocks and lstrip for clean output
+
+    :returns: Configured Jinja2 Environment with custom filters registered
+    :raises FileNotFoundError: If templates directory doesn't exist
+
+    Example:
+        >>> env = get_jinja_environment()
+        >>> template = env.get_template('dashboards/security_dashboard.html')
     """
     global _jinja_env
 
@@ -63,21 +72,26 @@ def get_jinja_environment() -> Environment:
 
 def render_dashboard(template_name: str, context: dict[str, Any], inject_defaults: bool = True) -> str:
     """
-    Render a dashboard template with context.
+    Render a dashboard template with context data.
 
-    Args:
-        template_name: Template file name (relative to templates/)
-        context: Dictionary of template variables
-        inject_defaults: Whether to inject default variables (generation_date, etc.)
+    Main entry point for dashboard generation. Loads Jinja2 template,
+    merges context with defaults, and returns rendered HTML.
 
-    Returns:
-        Rendered HTML string
+    :param template_name: Template file name relative to templates/ directory
+        (e.g., 'dashboards/security_dashboard.html')
+    :param context: Dictionary of template variables (metrics, cards, etc.)
+    :param inject_defaults: Whether to inject default variables like generation_date (default: True)
+    :returns: Fully rendered HTML string with XSS-safe escaping
+    :raises jinja2.TemplateNotFound: If template file doesn't exist
+    :raises jinja2.TemplateSyntaxError: If template has syntax errors
 
     Example:
-        html = render_dashboard('dashboards/security.html', {
-            'products': [...],
-            'summary_cards': [...]
-        })
+        >>> html = render_dashboard('dashboards/security_dashboard.html', {
+        ...     'products': [...],
+        ...     'summary_cards': [...]
+        ... })
+        >>> len(html) > 0
+        True
     """
     env = get_jinja_environment()
     template = env.get_template(template_name)
@@ -102,16 +116,22 @@ def render_dashboard(template_name: str, context: dict[str, Any], inject_default
 
 def format_number(value: Any, decimals: int = 0) -> str:
     """
-    Format number with thousand separators.
+    Format number with thousand separators (Jinja2 filter).
 
-    Args:
-        value: Numeric value
-        decimals: Number of decimal places
+    Converts numeric values to human-readable strings with commas.
+    Handles invalid inputs gracefully by returning string representation.
 
-    Returns:
-        Formatted string
+    :param value: Numeric value to format
+    :param decimals: Number of decimal places (default: 0)
+    :returns: Formatted string with thousand separators
 
     Example:
+        >>> format_number(1234.56)
+        '1,235'
+        >>> format_number(1234.56, 2)
+        '1,234.56'
+
+        In Jinja2 template:
         {{ 1234.56|format_number }} -> "1,235"
         {{ 1234.56|format_number(2) }} -> "1,234.56"
     """
@@ -127,16 +147,19 @@ def format_number(value: Any, decimals: int = 0) -> str:
 
 def format_percent(value: Any, decimals: int = 1) -> str:
     """
-    Format number as percentage.
+    Format number as percentage string (Jinja2 filter).
 
-    Args:
-        value: Numeric value (0-100)
-        decimals: Number of decimal places
-
-    Returns:
-        Formatted percentage string
+    :param value: Numeric value (0-100 scale)
+    :param decimals: Number of decimal places (default: 1)
+    :returns: Formatted percentage string with % symbol
 
     Example:
+        >>> format_percent(65.432)
+        '65.4%'
+        >>> format_percent(65.432, 2)
+        '65.43%'
+
+        In Jinja2 template:
         {{ 65.432|format_percent }} -> "65.4%"
         {{ 65.432|format_percent(2) }} -> "65.43%"
     """
@@ -149,16 +172,23 @@ def format_percent(value: Any, decimals: int = 1) -> str:
 
 def format_date(value: Any, format_str: str = "%Y-%m-%d") -> str:
     """
-    Format datetime object as string.
+    Format datetime object as string (Jinja2 filter).
 
-    Args:
-        value: datetime object or ISO string
-        format_str: strftime format string
+    Handles both datetime objects and ISO 8601 strings.
 
-    Returns:
-        Formatted date string
+    :param value: datetime object or ISO format string
+    :param format_str: strftime format string (default: "%Y-%m-%d")
+    :returns: Formatted date string
 
     Example:
+        >>> from datetime import datetime
+        >>> dt = datetime(2026, 2, 7)
+        >>> format_date(dt)
+        '2026-02-07'
+        >>> format_date(dt, '%B %d, %Y')
+        'February 07, 2026'
+
+        In Jinja2 template:
         {{ some_date|format_date }} -> "2026-02-07"
         {{ some_date|format_date('%B %d, %Y') }} -> "February 07, 2026"
     """
@@ -176,15 +206,20 @@ def format_date(value: Any, format_str: str = "%Y-%m-%d") -> str:
 
 def trend_arrow(value: float) -> str:
     """
-    Convert numeric change to trend arrow.
+    Convert numeric change to trend arrow (Jinja2 filter).
 
-    Args:
-        value: Numeric change value
-
-    Returns:
-        Unicode arrow character
+    :param value: Numeric change value (positive, negative, or zero)
+    :returns: Unicode arrow character (↑ for positive, ↓ for negative, → for zero)
 
     Example:
+        >>> trend_arrow(-5)
+        '↓'
+        >>> trend_arrow(10)
+        '↑'
+        >>> trend_arrow(0)
+        '→'
+
+        In Jinja2 template:
         {{ -5|trend_arrow }} -> "↓"
         {{ 10|trend_arrow }} -> "↑"
         {{ 0|trend_arrow }} -> "→"
