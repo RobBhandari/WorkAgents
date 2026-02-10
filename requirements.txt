@@ -21,8 +21,9 @@ pandas>=2.2.3,<3.0
 scikit-learn>=1.5.0,<2.0  # Linear regression for trend prediction
 numpy>=1.26.0,<2.0  # Numerical computing for ML
 
-# Azure DevOps integration (only beta versions available from Microsoft)
-azure-devops==7.1.0b4  # Latest available - no stable release exists yet
+# Azure DevOps integration - using direct REST API (no SDK needed)
+# Removed azure-devops==7.1.0b4 beta dependency in favor of direct REST API calls
+# See execution/collectors/ado_rest_client.py for REST API implementation
 
 # ArmorCode integration uses requests (no additional SDK needed)
 
