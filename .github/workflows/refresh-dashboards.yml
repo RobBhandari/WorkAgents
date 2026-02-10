@@ -382,12 +382,14 @@ jobs:
           fi
 
           # Copy staticwebapp.config.json to enable authentication
-          if [ -f "staticwebapp.config.json" ]; then
-            cp staticwebapp.config.json .tmp/observatory/dashboards/
-            echo "✅ Authentication config copied to deployment"
-          else
-            echo "⚠️  staticwebapp.config.json not found - authentication will NOT be enforced!"
-          fi
+          # TEMPORARILY DISABLED - waiting for admin approval
+          # if [ -f "staticwebapp.config.json" ]; then
+          #   cp staticwebapp.config.json .tmp/observatory/dashboards/
+          #   echo "✅ Authentication config copied to deployment"
+          # else
+          #   echo "⚠️  staticwebapp.config.json not found - authentication will NOT be enforced!"
+          # fi
+          echo "⚠️  Authentication temporarily disabled - site is public"
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
