@@ -102,7 +102,7 @@ class ExecutiveSummaryGenerator:
     def _load_quality_data(self) -> dict | None:
         """Load quality/bug metrics"""
         if not self.quality_file.exists():
-            print("[WARNING] Quality history not found")
+            logger.warning("Quality history not found")
             return None
 
         try:
@@ -128,7 +128,7 @@ class ExecutiveSummaryGenerator:
                 "weeks": weeks,
             }
         except Exception as e:
-            print(f"[WARNING] Error loading quality data: {e}")
+            logger.warning(f"Error loading quality data: {e}")
             return None
 
     def _load_security_data(self) -> dict | None:
@@ -150,16 +150,16 @@ class ExecutiveSummaryGenerator:
                 "products": metrics,
             }
         except FileNotFoundError:
-            print("[WARNING] Security history not found")
+            logger.warning("Security history not found")
             return None
         except Exception as e:
-            print(f"[WARNING] Error loading security data: {e}")
+            logger.warning(f"Error loading security data: {e}")
             return None
 
     def _load_flow_data(self) -> dict | None:
         """Load flow/velocity metrics"""
         if not self.flow_file.exists():
-            print("[WARNING] Flow history not found")
+            logger.warning("Flow history not found")
             return None
 
         try:
@@ -182,7 +182,7 @@ class ExecutiveSummaryGenerator:
 
             return {"avg_lead_time_p50": avg_lead_time, "projects": projects, "weeks": weeks}
         except Exception as e:
-            print(f"[WARNING] Error loading flow data: {e}")
+            logger.warning(f"Error loading flow data: {e}")
             return None
 
     def _calculate_target_progress(self, all_data: dict) -> dict | None:
