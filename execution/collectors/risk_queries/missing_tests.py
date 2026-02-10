@@ -67,7 +67,7 @@ class MissingTestsQuery:
           AND [Microsoft.VSTS.Common.ClosedDate] >= '{lookback_date}'
           {area_filter_clause}
         ORDER BY [Microsoft.VSTS.Common.ClosedDate] DESC
-        """
+        """  # nosec B608 - project_name and lookback_date validated by WIQLValidator in execute(), area_filter_clause validated in _build_area_filter_clause
         return query
 
     def _build_area_filter_clause(self, area_path_filter: str | None) -> str:
