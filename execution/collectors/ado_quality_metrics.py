@@ -29,6 +29,7 @@ from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.secure_config import get_config
 from execution.security import WIQLValidator
 from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
+from execution.utils.datetime_utils import calculate_age_days, calculate_lead_time_days
 from execution.utils.statistics import calculate_percentile
 
 load_dotenv()
@@ -245,17 +246,15 @@ def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
     for bug in open_bugs:
         created = bug.get("System.CreatedDate")
 
-        if created:
-            try:
-                created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
-                age_days = (now - created_dt).total_seconds() / 86400
-                ages.append(age_days)
-            except (ValueError, AttributeError) as e:
-                parse_errors += 1
-                # Log first few errors to help debug
-                if parse_errors <= 3:
-                    logger.warning(f"Could not parse date for bug {bug.get('System.Id')}: {created} - {e}")
-                continue
+        age = calculate_age_days(created, reference_time=now)
+        if age is not None:
+            ages.append(age)
+        elif created:
+            # Log parsing errors
+            parse_errors += 1
+            if parse_errors <= 3:
+                logger.warning(f"Could not parse date for bug {bug.get('System.Id')}: {created}")
+            continue
 
     if parse_errors > 0:
         logger.warning(f"Failed to parse {parse_errors} out of {len(open_bugs)} open bug dates")
@@ -306,20 +305,9 @@ def _parse_repair_times(all_bugs: list[dict]) -> list[float]:
         closed_date = bug.get("Microsoft.VSTS.Common.ClosedDate")
 
         # Only calculate for bugs that have been closed
-        if created_date and closed_date:
-            try:
-                created_dt = datetime.fromisoformat(created_date.replace("Z", "+00:00"))
-                closed_dt = datetime.fromisoformat(closed_date.replace("Z", "+00:00"))
-
-                # Calculate repair time in days
-                repair_time_days = (closed_dt - created_dt).total_seconds() / 86400
-
-                # Filter out negative values (data quality issue)
-                if repair_time_days >= 0:
-                    repair_times.append(repair_time_days)
-            except (ValueError, AttributeError) as e:
-                logger.debug(f"Could not parse dates for bug {bug.get('System.Id')}: {e}")
-                continue
+        repair_time = calculate_lead_time_days(created_date, closed_date)
+        if repair_time is not None:
+            repair_times.append(repair_time)
 
     return repair_times
 

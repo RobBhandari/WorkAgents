@@ -28,6 +28,7 @@ from execution.collectors.flow_metrics_calculations import (
     calculate_throughput,
 )
 from execution.collectors.flow_metrics_queries import query_work_items_for_flow
+from execution.domain.constants import flow_metrics, history_retention
 
 load_dotenv()
 
@@ -57,7 +58,10 @@ def collect_flow_metrics_for_project(wit_client, project: dict, config: dict) ->
 
     # Query work items (returns segmented by work type)
     work_items = query_work_items_for_flow(
-        wit_client, ado_project_name, lookback_days=config.get("lookback_days", 90), area_path_filter=area_path_filter
+        wit_client,
+        ado_project_name,
+        lookback_days=config.get("lookback_days", flow_metrics.LOOKBACK_DAYS),
+        area_path_filter=area_path_filter,
     )
 
     # Calculate metrics for each work type separately
@@ -77,9 +81,11 @@ def collect_flow_metrics_for_project(wit_client, project: dict, config: dict) ->
 
         # Calculate lead time and aging for this work type - ONLY HARD DATA
         lead_time = calculate_lead_time(closed_items)
-        dual_metrics = calculate_dual_metrics(closed_items, cleanup_threshold_days=365)
-        aging = calculate_aging_items(open_items, aging_threshold_days=config.get("aging_threshold_days", 30))
-        throughput = calculate_throughput(closed_items, config.get("lookback_days", 90))
+        dual_metrics = calculate_dual_metrics(closed_items)
+        aging = calculate_aging_items(
+            open_items, aging_threshold_days=config.get("aging_threshold_days", flow_metrics.AGING_THRESHOLD_DAYS)
+        )
+        throughput = calculate_throughput(closed_items, config.get("lookback_days", flow_metrics.LOOKBACK_DAYS))
         variance = calculate_cycle_time_variance(closed_items)
 
         work_type_metrics[work_type] = {
@@ -159,8 +165,8 @@ def save_flow_metrics(metrics: dict, output_file: str = ".tmp/observatory/flow_h
     # Add new week entry
     history["weeks"].append(metrics)
 
-    # Keep only last 52 weeks (12 months) for quarter/annual analysis
-    history["weeks"] = history["weeks"][-52:]
+    # Keep only last N weeks for quarter/annual analysis
+    history["weeks"] = history["weeks"][-history_retention.WEEKS_TO_RETAIN :]
 
     # Save updated history
     try:
@@ -184,10 +190,10 @@ if __name__ == "__main__":
     print("Director Observatory - Flow Metrics Collector\n")
     print("=" * 60)
 
-    # Configuration
+    # Configuration (using constants for defaults)
     config = {
-        "lookback_days": 90,  # How many days back to look for closed items
-        "aging_threshold_days": 30,  # Items open > 30 days are "aging"
+        "lookback_days": flow_metrics.LOOKBACK_DAYS,
+        "aging_threshold_days": flow_metrics.AGING_THRESHOLD_DAYS,
     }
 
     # Load discovered projects

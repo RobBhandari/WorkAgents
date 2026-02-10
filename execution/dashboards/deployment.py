@@ -22,9 +22,12 @@ from datetime import datetime
 from pathlib import Path
 
 # Import domain models and utilities
+from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.deployment import DeploymentMetrics, from_json
 from execution.framework import get_dashboard_framework
+
+logger = get_logger(__name__)
 
 
 def generate_deployment_dashboard(output_path: Path | None = None) -> str:
@@ -50,32 +53,32 @@ def generate_deployment_dashboard(output_path: Path | None = None) -> str:
         )
         print(f"Generated dashboard with {len(html)} characters")
     """
-    print("[INFO] Generating Deployment Dashboard...")
+    logger.info("Generating deployment dashboard")
 
     # Step 1: Load data
-    print("[1/4] Loading deployment data...")
+    logger.info("Loading deployment data")
     metrics_list, raw_projects, collection_date = _load_deployment_data()
-    print(f"      Loaded {len(metrics_list)} projects")
+    logger.info("Deployment data loaded", extra={"project_count": len(metrics_list)})
 
     # Step 2: Calculate summary statistics
-    print("[2/4] Calculating summary metrics...")
+    logger.info("Calculating summary metrics")
     summary_stats = _calculate_summary(metrics_list)
 
     # Step 3: Prepare template context
-    print("[3/4] Preparing dashboard components...")
+    logger.info("Preparing dashboard components")
     context = _build_context(metrics_list, raw_projects, summary_stats, collection_date)
 
     # Step 4: Render template
-    print("[4/4] Rendering HTML template...")
+    logger.info("Rendering HTML template")
     html = render_dashboard("dashboards/deployment_dashboard.html", context)
 
     # Write to file if specified
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
-        print(f"[SUCCESS] Dashboard written to: {output_path}")
+        logger.info("Dashboard written to file", extra={"path": str(output_path)})
 
-    print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
+    logger.info("Deployment dashboard generated", extra={"html_size": len(html)})
     return html
 
 
@@ -352,32 +355,26 @@ def _build_project_rows(metrics_list: list[DeploymentMetrics], raw_projects: lis
 
 # Main execution for testing
 if __name__ == "__main__":
-    print("Deployment Dashboard Generator - Self Test")
-    print("=" * 60)
+    logger.info("Deployment Dashboard Generator - Self Test")
 
     try:
         output_path = Path(".tmp/observatory/dashboards/deployment_dashboard.html")
         html = generate_deployment_dashboard(output_path)
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] Deployment dashboard generated!")
-        print(f"[OUTPUT] {output_path}")
-        print(f"[SIZE] {len(html):,} characters")
+        logger.info(
+            "Deployment dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
+        )
 
         # Verify output
         if output_path.exists():
             file_size = output_path.stat().st_size
-            print(f"[FILE] {file_size:,} bytes on disk")
+            logger.info("Output file verified", extra={"file_size": file_size})
         else:
-            print("[WARNING] Output file not created")
+            logger.warning("Output file not created")
 
     except FileNotFoundError as e:
-        print(f"\n[ERROR] {e}")
-        print("\n[INFO] Run data collection first:")
-        print("  python execution/ado_deployment_metrics.py")
+        logger.error("Deployment data file not found", extra={"error": str(e)})
+        logger.info("Run data collection first: python execution/ado_deployment_metrics.py")
 
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)

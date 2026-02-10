@@ -24,10 +24,13 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
 
 # Import dependencies
 from execution.framework import get_dashboard_framework
+
+logger = get_logger(__name__)
 
 
 def generate_ai_dashboard(output_path: Path | None = None) -> str:
@@ -53,35 +56,37 @@ def generate_ai_dashboard(output_path: Path | None = None) -> str:
         )
         print(f"Generated dashboard with {len(html)} characters")
     """
-    print("[INFO] Generating AI Contributions Dashboard...")
+    logger.info("Generating AI contributions dashboard")
 
     # Step 1: Load data
-    print("[1/4] Loading Devin analysis and risk metrics...")
+    logger.info("Loading Devin analysis and risk metrics")
     analysis = _load_devin_analysis()
     risk_data = _load_risk_metrics()
     author_stats = _get_author_stats(risk_data)
     project_stats = _get_project_stats(risk_data)
-    print(f"      Loaded {len(author_stats)} authors, {len(project_stats)} projects")
+    logger.info(
+        "AI contribution data loaded", extra={"author_count": len(author_stats), "project_count": len(project_stats)}
+    )
 
     # Step 2: Calculate summary statistics
-    print("[2/4] Calculating summary metrics...")
+    logger.info("Calculating summary metrics")
     summary_stats = _calculate_summary(analysis, author_stats, project_stats)
 
     # Step 3: Prepare template context
-    print("[3/4] Preparing dashboard components...")
+    logger.info("Preparing dashboard components")
     context = _build_context(analysis, author_stats, project_stats, summary_stats)
 
     # Step 4: Render template
-    print("[4/4] Rendering HTML template...")
+    logger.info("Rendering HTML template")
     html = render_dashboard("dashboards/ai_dashboard.html", context)
 
     # Write to file if specified
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
-        print(f"[SUCCESS] Dashboard written to: {output_path}")
+        logger.info("Dashboard written to file", extra={"path": str(output_path)})
 
-    print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
+    logger.info("AI contributions dashboard generated", extra={"html_size": len(html)})
     return html
 
 
@@ -178,7 +183,9 @@ def _get_project_stats(risk_data: dict[str, Any] | None) -> dict[str, dict[str, 
     return dict(project_stats)
 
 
-def _calculate_summary(analysis: dict[str, Any], author_stats: dict[str, int], project_stats: dict[str, dict[str, int]]) -> dict[str, Any]:
+def _calculate_summary(
+    analysis: dict[str, Any], author_stats: dict[str, int], project_stats: dict[str, dict[str, int]]
+) -> dict[str, Any]:
     """
     Calculate summary statistics for the dashboard.
 
@@ -202,7 +209,12 @@ def _calculate_summary(analysis: dict[str, Any], author_stats: dict[str, int], p
     }
 
 
-def _build_context(analysis: dict[str, Any], author_stats: dict[str, int], project_stats: dict[str, dict[str, int]], summary_stats: dict[str, Any]) -> dict[str, Any]:
+def _build_context(
+    analysis: dict[str, Any],
+    author_stats: dict[str, int],
+    project_stats: dict[str, dict[str, int]],
+    summary_stats: dict[str, Any],
+) -> dict[str, Any]:
     """
     Build template context with all dashboard data.
 
@@ -272,32 +284,24 @@ def _build_context(analysis: dict[str, Any], author_stats: dict[str, int], proje
 
 # Main execution for testing
 if __name__ == "__main__":
-    print("AI Contributions Dashboard Generator - Self Test")
-    print("=" * 60)
+    logger.info("AI Contributions Dashboard Generator - Self Test")
 
     try:
         output_path = Path(".tmp/observatory/dashboards/usage_tables_latest.html")
         html = generate_ai_dashboard(output_path)
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] AI dashboard generated!")
-        print(f"[OUTPUT] {output_path}")
-        print(f"[SIZE] {len(html):,} characters")
+        logger.info("AI dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)})
 
         # Verify output
         if output_path.exists():
             file_size = output_path.stat().st_size
-            print(f"[FILE] {file_size:,} bytes on disk")
+            logger.info("Output file verified", extra={"file_size": file_size})
         else:
-            print("[WARNING] Output file not created")
+            logger.warning("Output file not created")
 
     except FileNotFoundError as e:
-        print(f"\n[ERROR] {e}")
-        print("\n[INFO] Run data collection first:")
-        print("  python execution/analyze_devin_prs.py")
+        logger.error("AI contribution data file not found", extra={"error": str(e)})
+        logger.info("Run data collection first: python execution/analyze_devin_prs.py")
 
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)

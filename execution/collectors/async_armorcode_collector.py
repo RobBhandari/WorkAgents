@@ -20,6 +20,7 @@ from datetime import datetime
 
 from execution.async_http_client import AsyncSecureHTTPClient
 from execution.core import get_logger
+from execution.domain.constants import api_config
 from execution.secure_config import get_config
 
 logger = get_logger(__name__)
@@ -58,7 +59,7 @@ class AsyncArmorCodeCollector:
         {{
           findings(
             page: {page}
-            size: 100
+            size: {api_config.ARMORCODE_PAGE_SIZE}
             findingFilter: {{
               product: [{product_id}]
               severity: [High, Critical]
@@ -83,7 +84,10 @@ class AsyncArmorCodeCollector:
 
         try:
             response = await client.post(
-                self.graphql_url, headers=self._get_headers(), json={"query": query}, timeout=60
+                self.graphql_url,
+                headers=self._get_headers(),
+                json={"query": query},
+                timeout=api_config.ARMORCODE_TIMEOUT_SECONDS,
             )
             response.raise_for_status()
             data: dict = response.json()

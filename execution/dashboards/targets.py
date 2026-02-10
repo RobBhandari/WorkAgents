@@ -18,18 +18,17 @@ Usage:
 """
 
 import json
-import logging
 import sys
 from datetime import datetime
 from pathlib import Path
 
+from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
 
 # Import dependencies
 from execution.framework import get_dashboard_framework
 
-# Configure logging
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def generate_targets_dashboard(output_path: Path | None = None) -> str:
@@ -56,38 +55,38 @@ def generate_targets_dashboard(output_path: Path | None = None) -> str:
         )
         print(f"Generated dashboard with {len(html)} characters")
     """
-    print("[INFO] Generating 70% Reduction Target Dashboard...")
+    logger.info("Generating 70% reduction target dashboard")
 
     # Step 1: Load baseline data
-    print("[1/5] Loading baseline data...")
+    logger.info("Loading baseline data")
     baselines = _load_baselines()
 
     # Step 2: Query current state
-    print("[2/5] Querying current metrics...")
+    logger.info("Querying current metrics")
     current_state = _query_current_state()
 
     # Step 3: Calculate summary metrics
-    print("[3/5] Calculating progress metrics...")
+    logger.info("Calculating progress metrics")
     summary_stats = _calculate_summary(baselines, current_state)
 
     # Step 4: Prepare template context
-    print("[4/5] Preparing dashboard components...")
+    logger.info("Preparing dashboard components")
     context = _build_context(summary_stats)
 
     # Step 5: Render template
-    print("[5/5] Rendering HTML template...")
+    logger.info("Rendering HTML template")
     html = render_dashboard("dashboards/targets_dashboard.html", context)
 
     # Write to file if specified
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
-        print(f"[SUCCESS] Dashboard written to: {output_path}")
+        logger.info("Dashboard written to file", extra={"path": str(output_path)})
 
     # Print summary to console
     _print_summary(summary_stats)
 
-    print(f"[SUCCESS] Generated {len(html):,} characters of HTML")
+    logger.info("Target dashboard generated", extra={"html_size": len(html)})
     return html
 
 
@@ -247,7 +246,9 @@ def _calculate_summary(baselines: dict[str, dict], current_state: dict[str, int]
     return {"security": security_metrics, "bugs": bugs_metrics}
 
 
-def _calculate_metrics(baseline_count: int, target_count: int, current_count: int, weeks_to_target: int) -> dict[str, int | float | str]:
+def _calculate_metrics(
+    baseline_count: int, target_count: int, current_count: int, weeks_to_target: int
+) -> dict[str, int | float | str]:
     """
     Calculate progress metrics for target tracking.
 
@@ -354,54 +355,44 @@ def _print_summary(summary_stats: dict[str, dict]) -> None:
     security = summary_stats["security"]
     bugs = summary_stats["bugs"]
 
-    print(f"\n{'=' * 70}")
-    print("70% REDUCTION TARGET DASHBOARD")
-    print(f"{'=' * 70}")
-    print("\nSecurity Vulnerabilities:")
-    print(f"  Current: {security['current_count']} ({security['progress_pct']}% progress)")
-    print(f"  Status: {security['status']}")
-    print("\nBugs:")
-    print(f"  Current: {bugs['current_count']} ({bugs['progress_pct']}% progress)")
-    print(f"  Status: {bugs['status']}")
-    print(f"{'=' * 70}\n")
+    logger.info("70% Reduction Target Dashboard Summary")
+    logger.info(
+        "Security vulnerabilities",
+        extra={
+            "current": security["current_count"],
+            "progress_pct": security["progress_pct"],
+            "status": security["status"],
+        },
+    )
+    logger.info(
+        "Bugs", extra={"current": bugs["current_count"], "progress_pct": bugs["progress_pct"], "status": bugs["status"]}
+    )
 
 
 # Main execution for testing
 if __name__ == "__main__":
-    print("Target Dashboard Generator - Self Test")
-    print("=" * 60)
-
-    # Configure logging for testing
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
+    logger.info("Target Dashboard Generator - Self Test")
 
     try:
         output_path = Path(".tmp/observatory/dashboards/target_dashboard.html")
         html = generate_targets_dashboard(output_path)
 
-        print("\n" + "=" * 60)
-        print("[SUCCESS] Target dashboard generated!")
-        print(f"[OUTPUT] {output_path}")
-        print(f"[SIZE] {len(html):,} characters")
+        logger.info(
+            "Target dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
+        )
 
         # Verify output
         if output_path.exists():
             file_size = output_path.stat().st_size
-            print(f"[FILE] {file_size:,} bytes on disk")
+            logger.info("Output file verified", extra={"file_size": file_size})
         else:
-            print("[WARNING] Output file not created")
+            logger.warning("Output file not created")
 
     except FileNotFoundError as e:
-        print(f"\n[ERROR] {e}")
-        print("\n[INFO] Run data collection first:")
-        print("  python execution/armorcode_weekly_query.py")
-        print("  python execution/ado_quality_metrics.py")
+        logger.error("Target data file not found", extra={"error": str(e)})
+        logger.info(
+            "Run data collection first: python execution/armorcode_weekly_query.py, python execution/ado_quality_metrics.py"
+        )
 
     except Exception as e:
-        print(f"\n[ERROR] {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)

@@ -9,6 +9,9 @@ These functions operate on work item data and return metric dictionaries.
 import statistics
 from datetime import datetime
 
+from execution.domain.constants import cleanup_indicators, flow_metrics
+from execution.utils.datetime_utils import calculate_age_days, calculate_lead_time_days
+
 
 def calculate_percentile(values: list[float], percentile: int) -> float | None:
     """Calculate percentile from list of values."""
@@ -47,20 +50,13 @@ def calculate_lead_time(closed_items: list[dict]) -> dict:
         created = item.get("System.CreatedDate")
         closed = item.get("Microsoft.VSTS.Common.ClosedDate")
 
-        if created and closed:
-            try:
-                created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
-                closed_dt = datetime.fromisoformat(closed.replace("Z", "+00:00"))
+        lead_time = calculate_lead_time_days(created, closed)
+        if lead_time is not None:
+            lead_times.append(lead_time)
 
-                lead_time_days = (closed_dt - created_dt).total_seconds() / 86400  # Convert to days
-                if lead_time_days >= 0:  # Sanity check
-                    lead_times.append(lead_time_days)
-            except Exception:
-                continue
-
-    p50 = calculate_percentile(lead_times, 50)
-    p85 = calculate_percentile(lead_times, 85)
-    p95 = calculate_percentile(lead_times, 95)
+    p50 = calculate_percentile(lead_times, flow_metrics.P50_PERCENTILE)
+    p85 = calculate_percentile(lead_times, flow_metrics.P85_PERCENTILE)
+    p95 = calculate_percentile(lead_times, flow_metrics.P95_PERCENTILE)
 
     return {
         "p50": round(p50, 1) if p50 is not None else None,
@@ -71,7 +67,9 @@ def calculate_lead_time(closed_items: list[dict]) -> dict:
     }
 
 
-def calculate_dual_metrics(closed_items: list[dict], cleanup_threshold_days: int = 365) -> dict:
+def calculate_dual_metrics(
+    closed_items: list[dict], cleanup_threshold_days: int = flow_metrics.CLEANUP_THRESHOLD_DAYS
+) -> dict:
     """
     Calculate separate metrics for operational work vs cleanup work.
 
@@ -96,29 +94,21 @@ def calculate_dual_metrics(closed_items: list[dict], cleanup_threshold_days: int
         created = item.get("System.CreatedDate")
         closed = item.get("Microsoft.VSTS.Common.ClosedDate")
 
-        if created and closed:
-            try:
-                created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
-                closed_dt = datetime.fromisoformat(closed.replace("Z", "+00:00"))
-
-                lead_time_days = (closed_dt - created_dt).total_seconds() / 86400
-
-                if lead_time_days >= 0:
-                    if lead_time_days < cleanup_threshold_days:
-                        # Operational work - closed within threshold
-                        operational_items.append(item)
-                        operational_lead_times.append(lead_time_days)
-                    else:
-                        # Cleanup work - very old items closed
-                        cleanup_items.append(item)
-                        cleanup_lead_times.append(lead_time_days)
-            except Exception:
-                continue
+        lead_time = calculate_lead_time_days(created, closed)
+        if lead_time is not None:
+            if lead_time < cleanup_threshold_days:
+                # Operational work - closed within threshold
+                operational_items.append(item)
+                operational_lead_times.append(lead_time)
+            else:
+                # Cleanup work - very old items closed
+                cleanup_items.append(item)
+                cleanup_lead_times.append(lead_time)
 
     # Calculate operational metrics
-    op_p50 = calculate_percentile(operational_lead_times, 50)
-    op_p85 = calculate_percentile(operational_lead_times, 85)
-    op_p95 = calculate_percentile(operational_lead_times, 95)
+    op_p50 = calculate_percentile(operational_lead_times, flow_metrics.P50_PERCENTILE)
+    op_p85 = calculate_percentile(operational_lead_times, flow_metrics.P85_PERCENTILE)
+    op_p95 = calculate_percentile(operational_lead_times, flow_metrics.P95_PERCENTILE)
 
     operational_metrics = {
         "p50": round(op_p50, 1) if op_p50 is not None else None,
@@ -129,9 +119,9 @@ def calculate_dual_metrics(closed_items: list[dict], cleanup_threshold_days: int
     }
 
     # Calculate cleanup metrics
-    cl_p50 = calculate_percentile(cleanup_lead_times, 50)
-    cl_p85 = calculate_percentile(cleanup_lead_times, 85)
-    cl_p95 = calculate_percentile(cleanup_lead_times, 95)
+    cl_p50 = calculate_percentile(cleanup_lead_times, flow_metrics.P50_PERCENTILE)
+    cl_p85 = calculate_percentile(cleanup_lead_times, flow_metrics.P85_PERCENTILE)
+    cl_p95 = calculate_percentile(cleanup_lead_times, flow_metrics.P95_PERCENTILE)
 
     cleanup_metrics = {
         "p50": round(cl_p50, 1) if cl_p50 is not None else None,
@@ -148,8 +138,8 @@ def calculate_dual_metrics(closed_items: list[dict], cleanup_threshold_days: int
     total_closed = len(operational_items) + len(cleanup_items)
     cleanup_percentage = (len(cleanup_items) / total_closed * 100) if total_closed > 0 else 0
 
-    is_cleanup_effort = cleanup_percentage > 30  # >30% of closures are old items
-    has_significant_cleanup = len(cleanup_items) > 10  # More than 10 old items closed
+    is_cleanup_effort = cleanup_percentage > cleanup_indicators.CLEANUP_PERCENTAGE_THRESHOLD
+    has_significant_cleanup = len(cleanup_items) > cleanup_indicators.SIGNIFICANT_CLEANUP_COUNT
 
     return {
         "operational": operational_metrics,
@@ -202,17 +192,9 @@ def calculate_cycle_time_variance(closed_items: list[dict]) -> dict:
         created = item.get("System.CreatedDate")
         closed = item.get("Microsoft.VSTS.Common.ClosedDate")
 
-        if created and closed:
-            try:
-                created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
-                closed_dt = datetime.fromisoformat(closed.replace("Z", "+00:00"))
-
-                lead_time_days = (closed_dt - created_dt).total_seconds() / 86400
-
-                if lead_time_days >= 0:
-                    lead_times.append(lead_time_days)
-            except Exception:
-                continue
+        lead_time = calculate_lead_time_days(created, closed)
+        if lead_time is not None:
+            lead_times.append(lead_time)
 
     if len(lead_times) < 2:  # Need at least 2 points for std dev
         return {"sample_size": len(lead_times), "std_dev_days": None, "coefficient_of_variation": None}
@@ -229,7 +211,9 @@ def calculate_cycle_time_variance(closed_items: list[dict]) -> dict:
     }
 
 
-def calculate_aging_items(open_items: list[dict], aging_threshold_days: int = 30) -> dict:
+def calculate_aging_items(
+    open_items: list[dict], aging_threshold_days: int = flow_metrics.AGING_THRESHOLD_DAYS
+) -> dict:
     """
     Calculate aging items: Items open > threshold days
 
@@ -241,24 +225,18 @@ def calculate_aging_items(open_items: list[dict], aging_threshold_days: int = 30
     for item in open_items:
         created = item.get("System.CreatedDate")
 
-        if created:
-            try:
-                created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
-                age_days = (now - created_dt.astimezone()).total_seconds() / 86400
-
-                if age_days > aging_threshold_days:
-                    aging_items.append(
-                        {
-                            "id": item.get("System.Id"),
-                            "title": item.get("System.Title"),
-                            "state": item.get("System.State"),
-                            "type": item.get("System.WorkItemType"),
-                            "age_days": round(age_days, 1),
-                            "created_date": created,
-                        }
-                    )
-            except Exception:
-                continue
+        age_days = calculate_age_days(created, reference_time=now)
+        if age_days is not None and age_days > aging_threshold_days:
+            aging_items.append(
+                {
+                    "id": item.get("System.Id"),
+                    "title": item.get("System.Title"),
+                    "state": item.get("System.State"),
+                    "type": item.get("System.WorkItemType"),
+                    "age_days": round(age_days, 1),
+                    "created_date": created,
+                }
+            )
 
     # Sort by age (oldest first)
     aging_items.sort(key=lambda x: x["age_days"], reverse=True)
