@@ -36,7 +36,7 @@ pytest>=9.0.0,<10.0  # For running security tests
 sentry-sdk>=1.40.0,<2.0  # Error tracking and performance monitoring
 
 # REST API
-fastapi>=0.109.0,<1.0  # Modern async web framework
+fastapi>=0.128.7,<1.0  # Modern async web framework (updated to latest: 0.128.7)
 uvicorn[standard]>=0.27.0,<1.0  # ASGI server with WebSocket support
 python-multipart>=0.0.6,<1.0  # For handling form data
 
