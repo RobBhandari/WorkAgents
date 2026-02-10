@@ -11,7 +11,11 @@ Usage:
     stats = calculate_percentiles(data, [50, 85, 95])
 """
 
+import logging
 from collections.abc import Sequence
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 
 def calculate_percentile(data: Sequence[float], percentile: float) -> float:
@@ -146,70 +150,77 @@ def calculate_summary_stats(data: Sequence[float]) -> dict[str, float]:
 
 # Self-test
 if __name__ == "__main__":
-    print("Statistics Utilities - Self Test")
-    print("=" * 60)
+    # Set up logger for self-test
+    test_logger = logging.getLogger(__name__)
+    test_logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    test_logger.addHandler(handler)
+
+    test_logger.info("Statistics Utilities - Self Test")
+    test_logger.info("=" * 60)
 
     # Test data
     test_data = [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0]
 
     # Test 1: Single percentile
-    print("\n[Test 1] Single percentile calculation")
+    test_logger.info("\n[Test 1] Single percentile calculation")
     p50 = calculate_percentile(test_data, 50)
-    print(f"  Median (P50): {p50}")
+    test_logger.info(f"  Median (P50): {p50}")
     assert p50 == 27.5, f"Expected 27.5, got {p50}"
-    print("  ✓ PASS")
+    test_logger.info("  ✓ PASS")
 
     # Test 2: Multiple percentiles
-    print("\n[Test 2] Multiple percentiles")
+    test_logger.info("\n[Test 2] Multiple percentiles")
     percentiles = calculate_percentiles(test_data, [25, 50, 75, 85, 95])
-    print(f"  P25: {percentiles['p25']:.2f}")
-    print(f"  P50: {percentiles['p50']:.2f}")
-    print(f"  P75: {percentiles['p75']:.2f}")
-    print(f"  P85: {percentiles['p85']:.2f}")
-    print(f"  P95: {percentiles['p95']:.2f}")
-    print("  ✓ PASS")
+    test_logger.info(f"  P25: {percentiles['p25']:.2f}")
+    test_logger.info(f"  P50: {percentiles['p50']:.2f}")
+    test_logger.info(f"  P75: {percentiles['p75']:.2f}")
+    test_logger.info(f"  P85: {percentiles['p85']:.2f}")
+    test_logger.info(f"  P95: {percentiles['p95']:.2f}")
+    test_logger.info("  ✓ PASS")
 
     # Test 3: Summary statistics
-    print("\n[Test 3] Summary statistics")
+    test_logger.info("\n[Test 3] Summary statistics")
     stats = calculate_summary_stats(test_data)
-    print(f"  Min: {stats['min']}")
-    print(f"  Max: {stats['max']}")
-    print(f"  Mean: {stats['mean']}")
-    print(f"  Median: {stats['p50']}")
-    print(f"  P85: {stats['p85']}")
-    print(f"  Count: {stats['count']}")
+    test_logger.info(f"  Min: {stats['min']}")
+    test_logger.info(f"  Max: {stats['max']}")
+    test_logger.info(f"  Mean: {stats['mean']}")
+    test_logger.info(f"  Median: {stats['p50']}")
+    test_logger.info(f"  P85: {stats['p85']}")
+    test_logger.info(f"  Count: {stats['count']}")
     assert stats["min"] == 5.0
     assert stats["max"] == 50.0
     assert stats["mean"] == 27.5
     assert stats["count"] == 10
-    print("  ✓ PASS")
+    test_logger.info("  ✓ PASS")
 
     # Test 4: Empty data
-    print("\n[Test 4] Empty data handling")
+    test_logger.info("\n[Test 4] Empty data handling")
     try:
         calculate_percentile([], 50)
-        print("  ✗ FAIL - Should raise ValueError")
+        test_logger.error("  ✗ FAIL - Should raise ValueError")
     except ValueError:
-        print("  ✓ PASS - Correctly raises ValueError")
+        test_logger.info("  ✓ PASS - Correctly raises ValueError")
 
     # Test 5: Edge case - single value
-    print("\n[Test 5] Single value")
+    test_logger.info("\n[Test 5] Single value")
     result = calculate_percentile([42.0], 50)
     assert result == 42.0
-    print(f"  Result: {result}")
-    print("  ✓ PASS")
+    test_logger.info(f"  Result: {result}")
+    test_logger.info("  ✓ PASS")
 
     # Test 6: Invalid percentile
-    print("\n[Test 6] Invalid percentile")
+    test_logger.info("\n[Test 6] Invalid percentile")
     try:
         calculate_percentile([1, 2, 3], 150)
-        print("  ✗ FAIL - Should raise ValueError")
+        test_logger.error("  ✗ FAIL - Should raise ValueError")
     except ValueError:
-        print("  ✓ PASS - Correctly raises ValueError")
+        test_logger.info("  ✓ PASS - Correctly raises ValueError")
 
-    print("\n" + "=" * 60)
-    print("All tests passed!")
-    print("\nUsage Examples:")
-    print("  from execution.utils.statistics import calculate_percentile, calculate_percentiles")
-    print("  p50 = calculate_percentile(lead_times, 50)")
-    print("  stats = calculate_percentiles(lead_times, [50, 85, 95])")
+    test_logger.info("\n" + "=" * 60)
+    test_logger.info("All tests passed!")
+    test_logger.info("\nUsage Examples:")
+    test_logger.info("  from execution.utils.statistics import calculate_percentile, calculate_percentiles")
+    test_logger.info("  p50 = calculate_percentile(lead_times, 50)")
+    test_logger.info("  stats = calculate_percentiles(lead_times, [50, 85, 95])")

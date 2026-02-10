@@ -66,7 +66,7 @@ def batch_fetch_work_items(
         )
 
         if failed:
-            print(f"Warning: {len(failed)} items failed to fetch")
+            logger.warning(f"{len(failed)} items failed to fetch")
     """
     if not item_ids:
         return [], []
@@ -288,8 +288,15 @@ async def batch_fetch_work_items_rest(
 
 # Self-test
 if __name__ == "__main__":
-    print("ADO Batch Utilities - Self Test")
-    print("=" * 60)
+    # Set up logger for self-test
+    test_logger = logging.getLogger(__name__)
+    test_logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    test_logger.addHandler(handler)
+
+    test_logger.info("ADO Batch Utilities - Self Test")
+    test_logger.info("=" * 60)
 
     # Test with mock data
     class MockWorkItem:
@@ -311,28 +318,28 @@ if __name__ == "__main__":
             return [MockWorkItem(item_id) for item_id in ids]
 
     # Test 1: Successful fetch
-    print("\n[Test 1] Successful fetch of 450 items (3 batches)")
+    test_logger.info("\n[Test 1] Successful fetch of 450 items (3 batches)")
     mock_client = MockClient()
     item_ids = list(range(1, 451))
     items, failed = batch_fetch_work_items(mock_client, item_ids, batch_size=200)
-    print(f"  Result: {len(items)} fetched, {len(failed)} failed")
+    test_logger.info(f"  Result: {len(items)} fetched, {len(failed)} failed")
     assert len(items) == 450
     assert len(failed) == 0
-    print("  ✓ PASS")
+    test_logger.info("  ✓ PASS")
 
     # Test 2: Batch failure with retry
-    print("\n[Test 2] Batch 2 fails, should retry and succeed")
+    test_logger.info("\n[Test 2] Batch 2 fails, should retry and succeed")
     mock_client = MockClient()
     items, failed = batch_fetch_work_items(mock_client, list(range(1, 451)), batch_size=200, max_retries=1)
-    print(f"  Result: {len(items)} fetched, {len(failed)} failed")
-    print("  ✓ PASS")
+    test_logger.info(f"  Result: {len(items)} fetched, {len(failed)} failed")
+    test_logger.info("  ✓ PASS")
 
     # Test 3: Empty input
-    print("\n[Test 3] Empty input")
+    test_logger.info("\n[Test 3] Empty input")
     items, failed = batch_fetch_work_items(mock_client, [])
     assert len(items) == 0
     assert len(failed) == 0
-    print("  ✓ PASS")
+    test_logger.info("  ✓ PASS")
 
-    print("\n" + "=" * 60)
-    print("All tests passed!")
+    test_logger.info("\n" + "=" * 60)
+    test_logger.info("All tests passed!")
