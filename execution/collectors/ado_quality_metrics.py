@@ -10,8 +10,11 @@ Collects quality and defect metrics at project level:
 - Fix Quality: % of bugs that stay fixed (no reopen within 30 days)
 
 Read-only operation - does not modify any existing data.
+
+Migrated to Azure DevOps REST API v7.1 (replaces SDK).
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -19,18 +22,15 @@ import statistics
 import sys
 from datetime import UTC, datetime, timedelta
 
-from azure.devops.connection import Connection
-from azure.devops.exceptions import AzureDevOpsServiceError
-from azure.devops.v7_1.work_item_tracking import Wiql
 from dotenv import load_dotenv
-from msrest.authentication import BasicAuthentication
 
-from execution.collectors.ado_connection import get_ado_connection
+from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
+from execution.collectors.ado_rest_transformers import TestTransformer, WorkItemTransformer
 from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.secure_config import get_config
 from execution.security import WIQLValidator
-from execution.utils.ado_batch_utils import BatchFetchError, batch_fetch_work_items
-from execution.utils.datetime_utils import calculate_age_days, calculate_lead_time_days
+from execution.utils.ado_batch_utils import batch_fetch_work_items_rest
+from execution.utils.datetime_utils import calculate_age_days, calculate_lead_time_days, parse_ado_timestamp
 from execution.utils.error_handling import log_and_continue, log_and_return_default
 from execution.utils.statistics import calculate_percentile
 
@@ -69,12 +69,12 @@ def _build_area_filter_clause(area_path_filter: str | None) -> str:
     return ""
 
 
-def _fetch_bug_details(wit_client, bug_ids: list[int], fields: list[str]) -> list[dict]:
+async def _fetch_bug_details(rest_client: AzureDevOpsRESTClient, bug_ids: list[int], fields: list[str]) -> list[dict]:
     """
-    Fetch full bug details using batch utility.
+    Fetch full bug details using batch utility (REST API).
 
     Args:
-        wit_client: Work Item Tracking client
+        rest_client: Azure DevOps REST API client
         bug_ids: List of bug IDs to fetch
         fields: List of fields to retrieve
 
@@ -82,32 +82,37 @@ def _fetch_bug_details(wit_client, bug_ids: list[int], fields: list[str]) -> lis
         List of bug field dictionaries
 
     Raises:
-        BatchFetchError: If all batches fail
+        Exception: If all batches fail
     """
     if not bug_ids:
         return []
 
     try:
-        bugs, failed_ids = batch_fetch_work_items(wit_client, item_ids=bug_ids, fields=fields, logger=logger)
+        # Use REST batch fetching (concurrent)
+        bugs_raw, failed_ids = await batch_fetch_work_items_rest(
+            rest_client, item_ids=bug_ids, fields=fields, logger=logger
+        )
 
         if failed_ids:
             logger.warning(f"Failed to fetch {len(failed_ids)} out of {len(bug_ids)} bugs")
 
+        # Transform to SDK format
+        bugs = WorkItemTransformer.transform_work_items_response({"value": bugs_raw})
         return bugs
 
-    except BatchFetchError as e:
+    except Exception as e:
         logger.error(f"All bug fetches failed: {e}")
         raise
 
 
-def query_bugs_for_quality(
-    wit_client, project_name: str, lookback_days: int = 90, area_path_filter: str | None = None
+async def query_bugs_for_quality(
+    rest_client: AzureDevOpsRESTClient, project_name: str, lookback_days: int = 90, area_path_filter: str | None = None
 ) -> dict:
     """
-    Query bugs for quality metrics.
+    Query bugs for quality metrics (REST API).
 
     Args:
-        wit_client: Work Item Tracking client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
         lookback_days: How many days back to look for bugs
         area_path_filter: Optional area path filter (format: "EXCLUDE:path" or "INCLUDE:path")
@@ -141,7 +146,6 @@ def query_bugs_for_quality(
           {area_filter_clause}
         ORDER BY [System.CreatedDate] DESC
         """  # nosec B608 - Inputs validated by WIQLValidator
-    wiql_all_bugs = Wiql(query=wiql_all_bugs_query)
 
     # Query 2: Currently open bugs (for aging analysis)
     wiql_open_bugs_query = f"""SELECT [System.Id], [System.Title], [System.State], [System.CreatedDate],
@@ -156,63 +160,100 @@ def query_bugs_for_quality(
           {area_filter_clause}
         ORDER BY [System.CreatedDate] ASC
         """  # nosec B608 - Inputs validated by WIQLValidator
-    wiql_open_bugs = Wiql(query=wiql_open_bugs_query)
 
-    # Execute queries
-    all_bugs_result = wit_client.query_by_wiql(wiql_all_bugs).work_items
-    open_bugs_result = wit_client.query_by_wiql(wiql_open_bugs).work_items
+    # Execute queries CONCURRENTLY (REST API)
+    all_bugs_response, open_bugs_response = await asyncio.gather(
+        rest_client.query_by_wiql(project=safe_project, wiql_query=wiql_all_bugs_query),
+        rest_client.query_by_wiql(project=safe_project, wiql_query=wiql_open_bugs_query),
+    )
+
+    # Transform responses to SDK format
+    all_bugs_wiql = WorkItemTransformer.transform_wiql_response(all_bugs_response)
+    open_bugs_wiql = WorkItemTransformer.transform_wiql_response(open_bugs_response)
+
+    all_bugs_result = all_bugs_wiql.work_items
+    open_bugs_result = open_bugs_wiql.work_items
 
     print(f"      Found {len(all_bugs_result) if all_bugs_result else 0} total bugs (last {lookback_days} days)")
     print(f"      Found {len(open_bugs_result) if open_bugs_result else 0} open bugs")
 
-    # Fetch full bug details with batching
+    # Fetch full bug details with batching CONCURRENTLY
     all_bugs = []
+    open_bugs = []
+
+    # Create tasks for concurrent fetching
+    all_bug_task = None
+    open_bug_task = None
+
     if all_bugs_result:
         all_bug_ids = [item.id for item in all_bugs_result]
-        try:
-            all_bugs = _fetch_bug_details(
-                wit_client,
-                all_bug_ids,
-                fields=[
-                    "System.Id",
-                    "System.Title",
-                    "System.State",
-                    "System.CreatedDate",
-                    "System.WorkItemType",
-                    "Microsoft.VSTS.Common.Priority",
-                    "Microsoft.VSTS.Common.Severity",
-                    "System.Tags",
-                    "Microsoft.VSTS.Common.ClosedDate",
-                    "Microsoft.VSTS.Common.ResolvedDate",
-                    "System.CreatedBy",
-                ],
-            )
-        except BatchFetchError as e:
-            logger.warning(f"Error fetching all bugs: {e}")
-            all_bugs = []
+        all_bug_task = _fetch_bug_details(
+            rest_client,
+            all_bug_ids,
+            fields=[
+                "System.Id",
+                "System.Title",
+                "System.State",
+                "System.CreatedDate",
+                "System.WorkItemType",
+                "Microsoft.VSTS.Common.Priority",
+                "Microsoft.VSTS.Common.Severity",
+                "System.Tags",
+                "Microsoft.VSTS.Common.ClosedDate",
+                "Microsoft.VSTS.Common.ResolvedDate",
+                "System.CreatedBy",
+            ],
+        )
 
-    open_bugs = []
     if open_bugs_result:
         open_bug_ids = [item.id for item in open_bugs_result]
+        open_bug_task = _fetch_bug_details(
+            rest_client,
+            open_bug_ids,
+            fields=[
+                "System.Id",
+                "System.Title",
+                "System.State",
+                "System.CreatedDate",
+                "System.WorkItemType",
+                "Microsoft.VSTS.Common.Priority",
+                "Microsoft.VSTS.Common.Severity",
+                "System.Tags",
+                "System.CreatedBy",
+            ],
+        )
+
+    # Execute fetches concurrently
+    tasks = []
+    if all_bug_task:
+        tasks.append(all_bug_task)
+    if open_bug_task:
+        tasks.append(open_bug_task)
+
+    if tasks:
         try:
-            open_bugs = _fetch_bug_details(
-                wit_client,
-                open_bug_ids,
-                fields=[
-                    "System.Id",
-                    "System.Title",
-                    "System.State",
-                    "System.CreatedDate",
-                    "System.WorkItemType",
-                    "Microsoft.VSTS.Common.Priority",
-                    "Microsoft.VSTS.Common.Severity",
-                    "System.Tags",
-                    "System.CreatedBy",
-                ],
-            )
-        except BatchFetchError as e:
-            logger.warning(f"Error fetching open bugs: {e}")
-            open_bugs = []
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            result_idx = 0
+
+            if all_bug_task:
+                all_bugs_result = results[result_idx]  # type: ignore[assignment]
+                if isinstance(all_bugs_result, Exception):
+                    logger.warning(f"Error fetching all bugs: {all_bugs_result}")
+                    all_bugs = []
+                else:
+                    all_bugs = all_bugs_result  # type: ignore[assignment]
+                result_idx += 1
+
+            if open_bug_task:
+                open_bugs_result = results[result_idx]  # type: ignore[assignment]
+                if isinstance(open_bugs_result, Exception):
+                    logger.warning(f"Error fetching open bugs: {open_bugs_result}")
+                    open_bugs = []
+                else:
+                    open_bugs = open_bugs_result  # type: ignore[assignment]
+
+        except Exception as e:
+            logger.error(f"Error fetching bugs: {e}")
 
     return {"all_bugs": all_bugs, "open_bugs": open_bugs}
 
@@ -358,14 +399,14 @@ def calculate_mttr(all_bugs: list[dict]) -> dict:
 # Cannot reliably track if bugs stayed fixed without revision history.
 
 
-def calculate_test_execution_time(test_client, project_name: str) -> dict:
+async def calculate_test_execution_time(rest_client: AzureDevOpsRESTClient, project_name: str) -> dict:
     """
-    Calculate test execution time from recent test runs.
+    Calculate test execution time from recent test runs (REST API).
 
     HARD DATA: Actual test run completed_date - started_date.
 
     Args:
-        test_client: Test client
+        rest_client: Azure DevOps REST API client
         project_name: ADO project name
 
     Returns:
@@ -374,20 +415,30 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
     default_result = {"sample_size": 0, "median_minutes": None, "p85_minutes": None, "p95_minutes": None}
 
     try:
-        # Get recent test runs
-        test_runs = test_client.get_test_runs(project=project_name, top=50)
+        # Get recent test runs via REST API
+        response = await rest_client.get_test_runs(project=project_name, top=50)
+
+        # Transform to SDK format
+        test_runs = TestTransformer.transform_test_runs_response(response)
 
         execution_times = []
 
         for run in test_runs:
-            if run.started_date and run.completed_date:
-                try:
-                    duration = run.completed_date - run.started_date
-                    duration_minutes = duration.total_seconds() / 60
+            started_date_str = run.get("started_date")
+            completed_date_str = run.get("completed_date")
 
-                    if duration_minutes > 0:
-                        execution_times.append(duration_minutes)
-                except (AttributeError, TypeError) as e:
+            if started_date_str and completed_date_str:
+                try:
+                    started_date = parse_ado_timestamp(started_date_str)
+                    completed_date = parse_ado_timestamp(completed_date_str)
+
+                    if started_date and completed_date:
+                        duration = completed_date - started_date
+                        duration_minutes = duration.total_seconds() / 60
+
+                        if duration_minutes > 0:
+                            execution_times.append(duration_minutes)
+                except (AttributeError, TypeError, ValueError) as e:
                     logger.debug(f"Could not parse test run duration: {e}")
                     continue
 
@@ -401,7 +452,7 @@ def calculate_test_execution_time(test_client, project_name: str) -> dict:
             "p95_minutes": round(calculate_percentile(execution_times, 95), 1),
         }
 
-    except (AzureDevOpsServiceError, AttributeError, ValueError) as e:
+    except Exception as e:
         log_and_return_default(
             logger,
             e,
@@ -426,12 +477,12 @@ def _print_metrics_summary(age_distribution: dict, mttr: dict, test_execution: d
     print(f"    Test Execution Time: {test_execution['median_minutes']} minutes (median)")
 
 
-def collect_quality_metrics_for_project(connection, project: dict, config: dict) -> dict:
+async def collect_quality_metrics_for_project(rest_client: AzureDevOpsRESTClient, project: dict, config: dict) -> dict:
     """
-    Collect all quality metrics for a single project.
+    Collect all quality metrics for a single project (REST API).
 
     Args:
-        connection: ADO connection
+        rest_client: Azure DevOps REST API client
         project: Project metadata from discovery
         config: Configuration dict (thresholds, lookback days, etc.)
 
@@ -449,13 +500,14 @@ def collect_quality_metrics_for_project(connection, project: dict, config: dict)
 
     print(f"\n  Collecting quality metrics for: {project_name}")
 
-    wit_client = connection.clients.get_work_item_tracking_client()
-    test_client = connection.clients.get_test_client()
-
-    # Query bugs
-    bugs = query_bugs_for_quality(
-        wit_client, ado_project_name, lookback_days=config.get("lookback_days", 90), area_path_filter=area_path_filter
+    # Query bugs and get test execution time CONCURRENTLY
+    bugs_task = query_bugs_for_quality(
+        rest_client, ado_project_name, lookback_days=config.get("lookback_days", 90), area_path_filter=area_path_filter
     )
+    test_exec_task = calculate_test_execution_time(rest_client, ado_project_name)
+
+    # Execute concurrently
+    bugs, test_execution = await asyncio.gather(bugs_task, test_exec_task)
 
     # Filter out ArmorCode security bugs to avoid double-counting
     bugs["all_bugs"], excluded_all = filter_security_bugs(bugs["all_bugs"])
@@ -466,10 +518,9 @@ def collect_quality_metrics_for_project(connection, project: dict, config: dict)
             f"    Excluded {excluded_open} open security bugs and {excluded_all} total security bugs from quality metrics"
         )
 
-    # Calculate metrics - ONLY HARD DATA
+    # Calculate metrics - ONLY HARD DATA (synchronous calculations)
     age_distribution = calculate_bug_age_distribution(bugs["open_bugs"])
     mttr = calculate_mttr(bugs["all_bugs"])
-    test_execution = calculate_test_execution_time(test_client, ado_project_name)
 
     _print_metrics_summary(age_distribution, mttr, test_execution)
 
@@ -545,7 +596,8 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
         return False
 
 
-if __name__ == "__main__":
+async def main() -> None:
+    """Main async function for quality metrics collection"""
     # Set UTF-8 encoding for Windows console
     if sys.platform == "win32":
         import codecs
@@ -556,7 +608,7 @@ if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    print("Director Observatory - Quality Metrics Collector\n")
+    print("Director Observatory - Quality Metrics Collector (REST API)\n")
     print("=" * 60)
 
     # Configuration
@@ -578,35 +630,32 @@ if __name__ == "__main__":
         logger.error(f"Invalid discovery file format: {e}")
         sys.exit(1)
 
-    # Connect to ADO
-    print("\nConnecting to Azure DevOps...")
+    # Connect to ADO REST API
+    print("\nConnecting to Azure DevOps REST API...")
     try:
-        connection = get_ado_connection()
-        print("[SUCCESS] Connected to ADO")
-    except (AzureDevOpsServiceError, ValueError, ConnectionError) as e:
+        rest_client = get_ado_rest_client()
+        print("[SUCCESS] Connected to ADO REST API")
+    except Exception as e:
         logger.error(f"Failed to connect to ADO: {e}", exc_info=True, extra={"error_type": "ADO Connection"})
         sys.exit(1)
 
-    # Collect metrics for all projects
-    print("\nCollecting quality metrics...")
+    # Collect metrics for all projects CONCURRENTLY
+    print("\nCollecting quality metrics (concurrent execution)...")
     print("=" * 60)
 
-    project_metrics = []
-    for project in projects:
-        try:
-            metrics = collect_quality_metrics_for_project(connection, project, config)
-            project_metrics.append(metrics)
-        except (AzureDevOpsServiceError, KeyError, ValueError, BatchFetchError) as e:
-            log_and_continue(
-                logger,
-                e,
-                context={
-                    "project_name": project.get("project_name", "Unknown"),
-                    "project_key": project.get("project_key"),
-                },
-                error_type="Project metrics collection",
-            )
-            continue
+    # Create tasks for all projects
+    tasks = [collect_quality_metrics_for_project(rest_client, project, config) for project in projects]
+
+    # Execute concurrently
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter successful results
+    project_metrics: list[dict] = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
+        else:
+            project_metrics.append(result)  # type: ignore[arg-type]
 
     # Save results
     week_metrics = {
@@ -641,10 +690,15 @@ if __name__ == "__main__":
         avg_mttr = sum(mttr_values) / len(mttr_values)
         print(f"  Avg MTTR: {round(avg_mttr, 1)} days")
 
-    print("\nQuality metrics collection complete!")
+    print("\nQuality metrics collection complete (REST API + concurrent execution)!")
     print("  ✓ Only hard data - no speculation")
     print("  ✓ MTTR: Actual CreatedDate → ClosedDate")
     print("  ✓ Bug Age: Actual time open")
     print("  ✓ Security bugs filtered out (no double-counting)")
     print("  ✓ Rejected bugs excluded (Triage = 'Rejected')")
+    print("  ✓ Concurrent collection for maximum speed")
     print("\nNext step: Generate quality dashboard")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
