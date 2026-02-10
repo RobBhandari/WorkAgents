@@ -210,15 +210,19 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
         if metrics.critical >= 5:
             status = "Critical"
             status_class = "action"
+            status_priority = 0  # Highest priority
         elif metrics.critical > 0:
             status = "High Risk"
             status_class = "caution"
+            status_priority = 1
         elif metrics.high >= 10:
             status = "Monitor"
             status_class = "caution"
+            status_priority = 2
         else:
             status = "OK"
             status_class = "good"
+            status_priority = 3  # Lowest priority
 
         # Get vulnerabilities for this product
         vulns = vulns_by_product.get(product_name, [])
@@ -235,9 +239,14 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
                 "medium": metrics.medium,
                 "status": status,
                 "status_class": status_class,
+                "status_priority": status_priority,
                 "expanded_html": expanded_html,
             }
         )
+
+    # Sort products by status priority (Critical→High Risk→Monitor→OK),
+    # then by critical count (descending), then by product name
+    products.sort(key=lambda p: (p["status_priority"], -p["critical"], p["name"]))
 
     return {
         "framework_css": framework_css,
