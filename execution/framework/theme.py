@@ -69,7 +69,21 @@ def get_theme_variables(primary_color="#667eea", secondary_color="#764ba2"):
 def get_color_palette_docs():
     """
     Returns documentation for the color palette and theme system.
-    Used for reference and auto-generated documentation.
+
+    Provides comprehensive documentation of all theme variables for
+    reference and auto-generated documentation.
+
+    Returns:
+        Dictionary containing theme system documentation including:
+        - Background color usage
+        - Text color hierarchy
+        - RAG status colors with semantic meanings
+        - Spacing scale with use cases
+
+    Example:
+        >>> docs = get_color_palette_docs()
+        >>> print(docs['rag_colors']['green'])
+        '#10b981 - Success, healthy, on-track'
     """
     return {
         "backgrounds": {
