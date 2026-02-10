@@ -27,6 +27,7 @@ from pathlib import Path
 
 from execution.collectors.armorcode_loader import ArmorCodeLoader
 from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
+from execution.dashboards.components.aging_heatmap import generate_aging_heatmap
 from execution.dashboards.components.cards import summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.dashboards.security_detail_page import generate_product_detail_page
@@ -281,34 +282,8 @@ def _generate_expanded_content(product_name: str, metrics, vulnerabilities: list
     Returns:
         HTML string for expanded row content
     """
-    # Part 1: Aging Metrics Section
-    aging_html = f"""
-    <div class="detail-section">
-        <h4>📊 Vulnerability Metrics</h4>
-        <div class="metrics-grid">
-            <div class="metric-box">
-                <div class="metric-label">Total Findings</div>
-                <div class="metric-value">{metrics.total_vulnerabilities}</div>
-            </div>
-            <div class="metric-box critical">
-                <div class="metric-label">Critical</div>
-                <div class="metric-value">{metrics.critical}</div>
-            </div>
-            <div class="metric-box high">
-                <div class="metric-label">High</div>
-                <div class="metric-value">{metrics.high}</div>
-            </div>
-            <div class="metric-box medium">
-                <div class="metric-label">Medium</div>
-                <div class="metric-value">{metrics.medium or 0}</div>
-            </div>
-            <div class="metric-box low">
-                <div class="metric-label">Low</div>
-                <div class="metric-value">{metrics.low or 0}</div>
-            </div>
-        </div>
-    </div>
-    """
+    # Part 1: Aging Heatmap - Compact modern UX
+    aging_html = generate_aging_heatmap(vulnerabilities)
 
     # Part 2: Collapsible Vulnerabilities Section
     if not vulnerabilities:
@@ -324,8 +299,7 @@ def _generate_expanded_content(product_name: str, metrics, vulnerabilities: list
         vulns_section = f"""
         <div class="detail-section">
             <div class="collapsible-header" onclick="toggleVulnerabilities(this)">
-                <span class="chevron">▶</span>
-                <h4>Show Vulnerabilities ({len(vulnerabilities)})</h4>
+                <h4>▶ Vulnerabilities ({len(vulnerabilities)})</h4>
             </div>
             <div class="collapsible-content" style="display: none;">
                 <div class="vuln-filters">
@@ -377,13 +351,19 @@ def _generate_vulnerability_table_rows(vulnerabilities: list) -> str:
         desc = _escape_html(desc_text)
         desc_short = desc[:100] + "..." if len(desc) > 100 else desc
 
+        # Make description clickable if truncated
+        if len(desc) > 100:
+            desc_cell = f'<td class="description clickable" onclick="toggleDescription(this)" data-full-text="{desc}" data-short-text="{desc_short}" title="Click to expand">{desc_short}</td>'
+        else:
+            desc_cell = f'<td class="description">{desc_short}</td>'
+
         row = f"""
         <tr data-severity="{severity_class}">
             <td><span class="badge badge-{severity_class}">{_escape_html(vuln.severity)}</span></td>
             <td>{_escape_html(vuln.status)}</td>
             <td>{vuln.age_days}</td>
             <td>{_escape_html(vuln.title or "")}</td>
-            <td class="description">{desc_short}</td>
+            {desc_cell}
             <td class="vuln-id">{_escape_html(vuln.id)}</td>
         </tr>
         """
