@@ -52,7 +52,7 @@ def generate_deployment_dashboard(output_path: Path | None = None) -> str:
         html = generate_deployment_dashboard(
             Path('.tmp/observatory/dashboards/deployment_dashboard.html')
         )
-        print(f"Generated dashboard with {len(html)} characters")
+        logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating deployment dashboard")
 

@@ -55,7 +55,7 @@ def generate_ai_dashboard(output_path: Path | None = None) -> str:
         html = generate_ai_dashboard(
             Path('.tmp/observatory/dashboards/usage_tables_latest.html')
         )
-        print(f"Generated dashboard with {len(html)} characters")
+        logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating AI contributions dashboard")
 

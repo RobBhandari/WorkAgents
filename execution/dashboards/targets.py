@@ -54,7 +54,7 @@ def generate_targets_dashboard(output_path: Path | None = None) -> str:
         html = generate_targets_dashboard(
             Path('.tmp/observatory/dashboards/target_dashboard.html')
         )
-        print(f"Generated dashboard with {len(html)} characters")
+        logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating 70% reduction target dashboard")
 
