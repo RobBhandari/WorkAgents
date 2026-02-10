@@ -55,12 +55,32 @@ class Vulnerability:
 
     @property
     def is_critical(self) -> bool:
-        """Check if vulnerability is CRITICAL severity"""
+        """
+        Check if vulnerability is CRITICAL severity.
+
+        Returns:
+            True if severity is CRITICAL, False otherwise
+
+        Example:
+            >>> vuln = Vulnerability(id="V1", title="SQL Injection", severity="CRITICAL", status="Open", product="API", age_days=5)
+            >>> vuln.is_critical
+            True
+        """
         return self.severity == "CRITICAL"
 
     @property
     def is_high(self) -> bool:
-        """Check if vulnerability is HIGH severity"""
+        """
+        Check if vulnerability is HIGH severity.
+
+        Returns:
+            True if severity is HIGH, False otherwise
+
+        Example:
+            >>> vuln = Vulnerability(id="V2", title="XSS", severity="HIGH", status="Open", product="Web", age_days=10)
+            >>> vuln.is_high
+            True
+        """
         return self.severity == "HIGH"
 
     @property
@@ -77,11 +97,20 @@ class Vulnerability:
 
     @property
     def is_open(self) -> bool:
-        """Check if vulnerability is currently open"""
+        """
+        Check if vulnerability is currently open.
+
+        Returns:
+            True if status is not in closed/resolved states, False otherwise
+
+        Example:
+            >>> vuln = Vulnerability(id="V1", title="XSS", severity="HIGH", status="Open", product="Web", age_days=10)
+            >>> vuln.is_open
+            True
+        """
         closed_statuses = {"Closed", "Resolved", "Fixed", "Accepted Risk"}
         return self.status not in closed_statuses
 
-    @property
     def is_aging(self, threshold_days: int = 14) -> bool:
         """
         Check if vulnerability has been open longer than threshold.
@@ -90,7 +119,12 @@ class Vulnerability:
             threshold_days: Age threshold in days (default: 14)
 
         Returns:
-            True if open and older than threshold
+            True if open and older than threshold, False otherwise
+
+        Example:
+            >>> vuln = Vulnerability(id="V1", title="XSS", severity="HIGH", status="Open", product="Web", age_days=20)
+            >>> vuln.is_aging(14)
+            True
         """
         return self.is_open and self.age_days > threshold_days
 
@@ -99,7 +133,12 @@ class Vulnerability:
         Get numeric severity score for sorting/prioritization.
 
         Returns:
-            4 for CRITICAL, 3 for HIGH, 2 for MEDIUM, 1 for LOW
+            4 for CRITICAL, 3 for HIGH, 2 for MEDIUM, 1 for LOW, 0 for unknown
+
+        Example:
+            >>> vuln = Vulnerability(id="V1", title="XSS", severity="CRITICAL", status="Open", product="Web", age_days=5)
+            >>> vuln.severity_score()
+            4
         """
         severity_map = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}
         return severity_map.get(self.severity, 0)
@@ -165,12 +204,32 @@ class SecurityMetrics(MetricSnapshot):
 
     @property
     def has_critical(self) -> bool:
-        """Check if there are any CRITICAL vulnerabilities"""
+        """
+        Check if there are any CRITICAL vulnerabilities.
+
+        Returns:
+            True if critical count > 0, False otherwise
+
+        Example:
+            >>> metrics = SecurityMetrics(timestamp=datetime.now(), project="API", total_vulnerabilities=10, critical=2, high=5)
+            >>> metrics.has_critical
+            True
+        """
         return self.critical > 0
 
     @property
     def has_high(self) -> bool:
-        """Check if there are any HIGH vulnerabilities"""
+        """
+        Check if there are any HIGH vulnerabilities.
+
+        Returns:
+            True if high count > 0, False otherwise
+
+        Example:
+            >>> metrics = SecurityMetrics(timestamp=datetime.now(), project="API", total_vulnerabilities=10, critical=0, high=5)
+            >>> metrics.has_high
+            True
+        """
         return self.high > 0
 
     def reduction_progress(self) -> float | None:
@@ -192,11 +251,11 @@ class SecurityMetrics(MetricSnapshot):
         if self.baseline <= self.target:
             return 100.0  # Already at or below target
 
-        current = self.critical_high_count
-        reduction_needed = self.baseline - self.target
-        reduction_achieved = self.baseline - current
+        current: int = self.critical_high_count
+        reduction_needed: int = self.baseline - self.target
+        reduction_achieved: int = self.baseline - current
 
-        progress = (reduction_achieved / reduction_needed) * 100
+        progress: float = (reduction_achieved / reduction_needed) * 100
         return min(max(progress, 0), 100)  # Clamp to 0-100
 
     def is_on_track(self) -> bool | None:
@@ -214,7 +273,17 @@ class SecurityMetrics(MetricSnapshot):
         return self.critical_high_count <= self.target
 
     def __str__(self) -> str:
-        """String representation for logging/debugging"""
+        """
+        String representation for logging/debugging.
+
+        Returns:
+            Formatted string with product, total, critical, and high counts
+
+        Example:
+            >>> metrics = SecurityMetrics(timestamp=datetime.now(), project="API", total_vulnerabilities=42, critical=3, high=12)
+            >>> str(metrics)
+            'SecurityMetrics(product=API, total=42, critical=3, high=12)'
+        """
         return (
             f"SecurityMetrics(product={self.project}, "
             f"total={self.total_vulnerabilities}, "

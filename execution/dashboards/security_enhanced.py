@@ -32,6 +32,7 @@ from execution.dashboards.components.aging_heatmap import generate_aging_heatmap
 from execution.dashboards.components.cards import summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.dashboards.security_detail_page import generate_product_detail_page
+from execution.domain.security import SecurityMetrics
 from execution.framework import get_dashboard_framework
 from execution.utils.error_handling import log_and_return_default
 
@@ -50,7 +51,7 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     Example:
         html, _ = generate_security_dashboard_enhanced()
-        print(f"Generated dashboard with expandable rows")
+        logger.info("Dashboard generated with expandable rows")
     """
     if output_dir is None:
         output_dir = Path(".tmp/observatory/dashboards")
@@ -287,7 +288,7 @@ def _escape_html(text: str) -> str:
     )
 
 
-def _generate_expanded_content(product_name: str, metrics, vulnerabilities: list) -> str:
+def _generate_expanded_content(product_name: str, metrics: SecurityMetrics, vulnerabilities: list) -> str:
     """
     Generate HTML for expanded row content with aging metrics + collapsible vulnerabilities.
 
@@ -394,7 +395,7 @@ def _generate_vulnerability_table_rows(vulnerabilities: list) -> str:
     return "\n".join(rows)
 
 
-def main():
+def main() -> None:
     """Command-line entry point"""
     output_dir = Path(".tmp/observatory/dashboards")
     generate_security_dashboard_enhanced(output_dir)

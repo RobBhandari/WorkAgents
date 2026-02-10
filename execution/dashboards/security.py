@@ -37,24 +37,24 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
     """
     Generate security vulnerabilities dashboard HTML.
 
-    This is the main entry point for generating the security dashboard.
-    It loads data, processes it, and renders the HTML template.
+    Main entry point for security dashboard generation. Follows 4-stage pipeline:
+    1. Load data from ArmorCode history
+    2. Calculate summary statistics
+    3. Build template context
+    4. Render HTML template
 
-    Args:
-        output_path: Optional path to write HTML file
-
-    Returns:
-        Generated HTML string
-
-    Raises:
-        FileNotFoundError: If security_history.json doesn't exist
+    :param output_path: Optional path to write HTML file (creates parent directories if needed)
+    :returns: Fully rendered HTML string
+    :raises FileNotFoundError: If security_history.json doesn't exist
+    :raises ValueError: If history file has invalid format
 
     Example:
-        from pathlib import Path
-        html = generate_security_dashboard(
-            Path('.tmp/observatory/dashboards/security.html')
-        )
-        print(f"Generated dashboard with {len(html)} characters")
+        >>> from pathlib import Path
+        >>> html = generate_security_dashboard(
+        ...     Path('.tmp/observatory/dashboards/security.html')
+        ... )
+        >>> len(html) > 0
+        True
     """
     logger.info("Generating security dashboard")
 
@@ -88,13 +88,27 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
 
 def _calculate_summary(metrics_by_product: dict[str, SecurityMetrics]) -> dict:
     """
-    Calculate summary statistics across all products.
+    Calculate aggregate summary statistics across all products.
 
-    Args:
-        metrics_by_product: Dictionary of product metrics
+    :param metrics_by_product: Dictionary mapping product name to SecurityMetrics
+    :returns: Summary statistics dictionary::
 
-    Returns:
-        Dictionary with summary stats
+        {
+            "total_vulnerabilities": int,
+            "total_critical": int,
+            "total_high": int,
+            "total_medium": int,
+            "total_low": int,
+            "critical_high_count": int,  # Sum of critical + high
+            "status_color": str,         # RGB color for status
+            "status_text": str           # "HEALTHY" | "CAUTION" | "ACTION NEEDED"
+        }
+
+    Example:
+        >>> metrics = {"App1": SecurityMetrics(...), "App2": SecurityMetrics(...)}
+        >>> summary = _calculate_summary(metrics)
+        >>> summary["status_text"]
+        'ACTION NEEDED'
     """
     total_vulns = sum(m.total_vulnerabilities for m in metrics_by_product.values())
     total_critical = sum(m.critical for m in metrics_by_product.values())

@@ -30,12 +30,32 @@ class DeploymentFrequency:
 
     @property
     def is_active(self) -> bool:
-        """Check if project has recent deployments"""
+        """
+        Check if project has recent deployments.
+
+        Returns:
+            True if deployments_per_week > 0, False otherwise
+
+        Example:
+            >>> freq = DeploymentFrequency(total_successful_builds=10, deployments_per_week=2.5, lookback_days=90, pipeline_count=1)
+            >>> freq.is_active
+            True
+        """
         return self.deployments_per_week > 0
 
     @property
     def is_frequent(self) -> bool:
-        """Check if deployment frequency is high (≥1 per week)"""
+        """
+        Check if deployment frequency is high (≥1 per week).
+
+        Returns:
+            True if deployments_per_week >= 1.0, False otherwise
+
+        Example:
+            >>> freq = DeploymentFrequency(total_successful_builds=15, deployments_per_week=1.5, lookback_days=90, pipeline_count=1)
+            >>> freq.is_frequent
+            True
+        """
         return self.deployments_per_week >= 1.0
 
 
@@ -58,12 +78,32 @@ class BuildSuccessRate:
 
     @property
     def is_stable(self) -> bool:
-        """Check if build success rate is stable (≥90%)"""
+        """
+        Check if build success rate is stable (≥90%).
+
+        Returns:
+            True if success_rate_pct >= 90.0, False otherwise
+
+        Example:
+            >>> rate = BuildSuccessRate(total_builds=100, succeeded=95, failed=5, success_rate_pct=95.0)
+            >>> rate.is_stable
+            True
+        """
         return self.success_rate_pct >= 90.0
 
     @property
     def is_acceptable(self) -> bool:
-        """Check if build success rate is acceptable (≥70%)"""
+        """
+        Check if build success rate is acceptable (≥70%).
+
+        Returns:
+            True if success_rate_pct >= 70.0, False otherwise
+
+        Example:
+            >>> rate = BuildSuccessRate(total_builds=100, succeeded=75, failed=25, success_rate_pct=75.0)
+            >>> rate.is_acceptable
+            True
+        """
         return self.success_rate_pct >= 70.0
 
 
@@ -214,7 +254,12 @@ class DeploymentMetrics:
         Returns:
             CSS class string for styling
         """
-        status_map = {"Good": "good", "Caution": "caution", "Action Needed": "action", "Inactive": "inactive"}
+        status_map: dict[str, str] = {
+            "Good": "good",
+            "Caution": "caution",
+            "Action Needed": "action",
+            "Inactive": "inactive",
+        }
         return status_map.get(self.status, "inactive")
 
 
