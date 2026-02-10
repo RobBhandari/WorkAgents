@@ -31,22 +31,24 @@ def generate_aging_heatmap(vulnerabilities: list) -> str:
     if not vulnerabilities:
         return '<div class="no-data">No vulnerability details available</div>'
 
-    # Define age buckets
+    # Define age buckets matching modern UX
     age_buckets = [
-        {"label": "0-7", "min": 0, "max": 7},
-        {"label": "8-14", "min": 8, "max": 14},
-        {"label": "15-30", "min": 15, "max": 30},
-        {"label": "31-90", "min": 31, "max": 90},
-        {"label": "90+", "min": 91, "max": 999999},
+        {"label": "0-14", "min": 0, "max": 14},
+        {"label": "15-29", "min": 15, "max": 29},
+        {"label": "30-90", "min": 30, "max": 90},
+        {"label": "91-120", "min": 91, "max": 120},
+        {"label": "121-365", "min": 121, "max": 365},
+        {"label": "366-500", "min": 366, "max": 500},
+        {"label": "500+", "min": 501, "max": 999999},
     ]
 
-    # Initialize counts
+    # Initialize counts for Critical and High only
     heatmap_data = {
         "CRITICAL": {bucket["label"]: 0 for bucket in age_buckets},
         "HIGH": {bucket["label"]: 0 for bucket in age_buckets},
     }
 
-    # Count vulnerabilities by severity and age bucket
+    # Count vulnerabilities by severity and age bucket (Critical and High only)
     for vuln in vulnerabilities:
         severity = vuln.severity if hasattr(vuln, "severity") else vuln.get("severity", "")
         age_days = vuln.age_days if hasattr(vuln, "age_days") else vuln.get("age_days", 0)
@@ -132,7 +134,7 @@ def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> 
             bg_color = f"rgba(239, 68, 68, {0.6 + intensity * 0.2})"
         else:
             bg_color = f"rgba(220, 38, 38, {0.8 + intensity * 0.2})"
-    else:
+    elif severity_type == "high":
         # Orange/amber scale for high
         if intensity < 0.3:
             bg_color = f"rgba(251, 146, 60, {0.3 + intensity * 0.3})"
@@ -140,6 +142,14 @@ def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> 
             bg_color = f"rgba(249, 115, 22, {0.6 + intensity * 0.2})"
         else:
             bg_color = f"rgba(234, 88, 12, {0.8 + intensity * 0.2})"
+    else:  # medium
+        # Yellow/amber scale for medium
+        if intensity < 0.3:
+            bg_color = f"rgba(251, 191, 36, {0.3 + intensity * 0.3})"
+        elif intensity < 0.7:
+            bg_color = f"rgba(245, 158, 11, {0.6 + intensity * 0.2})"
+        else:
+            bg_color = f"rgba(217, 119, 6, {0.8 + intensity * 0.2})"
 
     # Text color - white for high intensity, darker for low
     text_color = "#ffffff" if intensity > 0.5 else "var(--text-primary)"
@@ -178,16 +188,16 @@ def get_aging_heatmap_styles() -> str:
 
         .heatmap-grid {
             display: grid;
-            grid-template-columns: 100px repeat(5, 1fr);
-            gap: 8px;
+            grid-template-columns: 80px repeat(7, 1fr);
+            gap: 6px;
             align-items: center;
         }
 
         @media (max-width: 768px) {
             .heatmap-grid {
-                grid-template-columns: 80px repeat(5, 1fr);
-                gap: 4px;
-                font-size: 0.85rem;
+                grid-template-columns: 60px repeat(7, 1fr);
+                gap: 3px;
+                font-size: 0.75rem;
             }
         }
 
@@ -229,14 +239,23 @@ def get_aging_heatmap_styles() -> str:
             background: rgba(245, 158, 11, 0.1);
         }
 
+        .medium-header {
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
         .heatmap-cell {
-            padding: 16px 8px;
+            padding: 12px 6px;
             text-align: center;
             font-weight: 700;
-            font-size: 1.1rem;
-            border-radius: 6px;
+            font-size: 0.95rem;
+            border-radius: 4px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             cursor: default;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .heatmap-cell:not(.empty):hover {
