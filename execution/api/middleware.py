@@ -315,10 +315,16 @@ def add_cors_middleware(app: "FastAPI") -> None:
 
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],  # Configure for production
+            allow_origins=[
+                "http://localhost:8000",  # Local development
+                "http://127.0.0.1:8000",  # Local development (alternative)
+                # Add production domains here when deployed
+                # "https://your-dashboard.azurestaticapps.net",
+            ],
             allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
+            allow_methods=["GET", "POST"],  # Restrict to needed methods
+            allow_headers=["Content-Type", "Authorization"],
+            max_age=3600,  # Cache preflight requests for 1 hour
         )
 
         logger.info("CORS middleware enabled")
