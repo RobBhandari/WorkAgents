@@ -140,6 +140,59 @@ def sample_trend_data(sample_timestamp):
     )
 
 
+@pytest.fixture
+def sample_collector_metrics(sample_timestamp):
+    """Provide sample CollectorPerformanceMetrics"""
+    from execution.domain.collector_health import CollectorPerformanceMetrics
+
+    return CollectorPerformanceMetrics(
+        timestamp=sample_timestamp,
+        collector_name="quality",
+        execution_time_ms=45230.5,
+        success=True,
+        project_count=12,
+        api_call_count=150,
+        rate_limit_hits=0,
+        retry_count=2,
+    )
+
+
+@pytest.fixture
+def sample_failed_collector_metrics(sample_timestamp):
+    """Provide sample failed CollectorPerformanceMetrics"""
+    from execution.domain.collector_health import CollectorPerformanceMetrics
+
+    return CollectorPerformanceMetrics(
+        timestamp=sample_timestamp,
+        collector_name="deployment",
+        execution_time_ms=12345.67,
+        success=False,
+        project_count=8,
+        api_call_count=75,
+        rate_limit_hits=1,
+        retry_count=3,
+        error_message="Connection timeout",
+        error_type="TimeoutError",
+    )
+
+
+@pytest.fixture
+def sample_collector_health_summary():
+    """Provide sample CollectorHealthSummary"""
+    from execution.domain.collector_health import CollectorHealthSummary
+
+    return CollectorHealthSummary(
+        total_runs=7,
+        successful_runs=6,
+        failed_runs=1,
+        avg_execution_time_ms=52340.5,
+        total_api_calls=850,
+        total_rate_limit_hits=0,
+        slowest_collector="risk",
+        slowest_collector_time_ms=89234.2,
+    )
+
+
 # ===== Component Testing Fixtures =====
 
 
