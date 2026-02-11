@@ -108,11 +108,7 @@ Errors are learning opportunities. When something breaks:
 
 - `.env` - Environment variables and API keys
 
-- `credentials.json`, `token.json` - Google OAuth credentials (required files, in `.gitignore`)
-
-
-
-**Key principle:** Local files are only for processing. Deliverables live in cloud services (Google Sheets, Slides, etc.) where the user can access them. Everything in `.tmp/` can be deleted and regenerated.
+**Key principle:** Local files are only for processing. Deliverables live in cloud services where the user can access them. Everything in `.tmp/` can be deleted and regenerated.
 
 ## Summary
 

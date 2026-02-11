@@ -30,8 +30,6 @@ execution/verify_incase_closed.py
 
 # Environment variables and credentials
 .env
-credentials.json
-token.json
 
 # Python virtual environments
 .venv/
