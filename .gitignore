@@ -18,9 +18,7 @@ data/*
 SETUP_STEPS.md
 SECURITY_ISSUES.md
 TEAMS_BOT_SETUP.md
-.github/workflows/weekly-doe-report.yml
 .github/workflows/ARMORCODE_SETUP.md
-directives/ado_doe_charter.md
 
 # Utility scripts with hardcoded product names
 execution/check_area_paths.py
