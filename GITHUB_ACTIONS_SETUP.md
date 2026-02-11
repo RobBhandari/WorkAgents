@@ -43,13 +43,15 @@ GitHub Secrets store sensitive information like API keys and passwords securely.
 
 ### Required Secrets
 
-| Secret Name | Description | Example Value |
+⚠️ **Note**: The "Example Value" column shows PLACEHOLDER values only. Replace with your actual credentials in GitHub Secrets.
+
+| Secret Name | Description | Example Value (Replace with your real values) |
 |-------------|-------------|---------------|
 | `ADO_ORGANIZATION_URL` | Your Azure DevOps organization URL | `https://dev.azure.com/your-org` |
 | `ADO_PROJECT_NAME` | Your ADO project name | `Your Project Name` |
-| `ADO_PAT` | Azure DevOps Personal Access Token | `abcd1234...` |
+| `ADO_PAT` | Azure DevOps Personal Access Token | `xxxx1234-PLACEHOLDER-NOT-REAL` |
 | `EMAIL_ADDRESS` | Gmail address for sending reports | `your-email@gmail.com` |
-| `EMAIL_PASSWORD` | Gmail App Password (NOT your regular password) | `abcd efgh ijkl mnop` |
+| `EMAIL_PASSWORD` | Gmail App Password (NOT your regular password) | `xxxx xxxx xxxx xxxx` (PLACEHOLDER) |
 | `SMTP_SERVER` | SMTP server address | `smtp.gmail.com` |
 | `SMTP_PORT` | SMTP port | `587` |
 
