@@ -15,6 +15,7 @@ from typing import Any
 from dotenv import load_dotenv
 from http_client import post
 
+from execution.core.collector_metrics import track_collector_performance
 from execution.core.secure_config import get_config
 
 # Load environment variables
@@ -342,37 +343,41 @@ def calculate_progress(baseline: dict, current: dict) -> dict[str, Any]:
 
 def main() -> dict[str, Any]:
     """Main execution."""
-    try:
-        # Load baseline
-        baseline = load_baseline()
+    with track_collector_performance("security") as tracker:
+        try:
+            # Load baseline
+            baseline = load_baseline()
 
-        # Query current state
-        current = query_current_state(baseline)
+            # Query current state
+            current = query_current_state(baseline)
 
-        # Calculate progress
-        progress = calculate_progress(baseline, current)
+            # Calculate progress
+            progress = calculate_progress(baseline, current)
 
-        # Save results
-        result = {
-            "baseline": baseline,
-            "current": current,
-            "progress": progress,
-            "generated_at": datetime.now().isoformat(),
-        }
+            # Track project count (number of products in baseline)
+            tracker.project_count = len(baseline.get("products", []))
 
-        output_file = f'.tmp/armorcode_weekly_{datetime.now().strftime("%Y%m%d")}.json'
-        with open(output_file, "w") as f:
-            json.dump(result, f, indent=2)
+            # Save results
+            result = {
+                "baseline": baseline,
+                "current": current,
+                "progress": progress,
+                "generated_at": datetime.now().isoformat(),
+            }
 
-        logger.info("=" * 70)
-        logger.info(f"Results saved to: {output_file}")
-        logger.info("=" * 70)
+            output_file = f'.tmp/armorcode_weekly_{datetime.now().strftime("%Y%m%d")}.json'
+            with open(output_file, "w") as f:
+                json.dump(result, f, indent=2)
 
-        return result
+            logger.info("=" * 70)
+            logger.info(f"Results saved to: {output_file}")
+            logger.info("=" * 70)
 
-    except Exception as e:
-        logger.error(f"Error: {e}", exc_info=True)
-        sys.exit(1)
+            return result
+
+        except Exception as e:
+            logger.error(f"Error: {e}", exc_info=True)
+            sys.exit(1)
 
 
 if __name__ == "__main__":
