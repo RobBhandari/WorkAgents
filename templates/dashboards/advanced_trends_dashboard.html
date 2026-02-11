@@ -1,0 +1,230 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Advanced Trend Analytics{% endblock %}
+{% block header_title %}Advanced Trend Analytics{% endblock %}
+
+{% block content %}
+<!-- Performance Banner -->
+<div style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">🚀 Performance-Enabled Analytics</h3>
+            <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">
+                REST API 3-10x speedup enables extended {{ lookback_days }}-day analysis with moving averages and ML predictions
+            </p>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 2rem; font-weight: bold;">{{ lookback_weeks }}</div>
+            <div style="font-size: 0.85rem; opacity: 0.9;">Weeks Analyzed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Status -->
+<div style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">Data Sources</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        {% for source in data_status %}
+        <div style="background: {{ '#f0fdf4' if source.loaded else '#fef2f2' }}; border-left: 4px solid {{ '#22c55e' if source.loaded else '#ef4444' }}; padding: 1rem; border-radius: 4px;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">{{ source.name }}</div>
+            <div style="color: #6b7280; font-size: 0.875rem;">
+                {% if source.loaded %}
+                    ✅ {{ source.weeks }} weeks loaded
+                {% else %}
+                    ❌ Not available
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Trend Analytics with Moving Averages -->
+<div style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">Trend Analytics - Moving Averages</h3>
+
+    {% if trend_analytics %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+        {% for metric in trend_analytics %}
+        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h4 style="margin: 0; font-size: 1rem; color: #4b5563;">{{ metric.title }}</h4>
+                    <div style="margin-top: 0.5rem;">
+                        <span style="font-size: 2rem; font-weight: bold; color: #111827;">{{ metric.current_value }}</span>
+                        <span class="trend-arrow {{ metric.trend_class }}" style="font-size: 1.5rem; margin-left: 0.5rem;">{{ metric.trend_arrow }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sparkline -->
+            <div style="margin: 1rem 0;">
+                {{ metric.sparkline | safe }}
+            </div>
+
+            <!-- Moving Averages -->
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.75rem; font-weight: 600;">Moving Averages</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+                    {% if metric.moving_averages.ma_7 %}
+                    <div>
+                        <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;">7-Day</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #059669;">{{ metric.moving_averages.ma_7 }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if metric.moving_averages.ma_30 %}
+                    <div>
+                        <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;">30-Day</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #0891b2;">{{ metric.moving_averages.ma_30 }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if metric.moving_averages.ma_90 %}
+                    <div>
+                        <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;">90-Day</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #7c3aed;">{{ metric.moving_averages.ma_90 }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Change vs MA -->
+            {% if metric.change_vs_ma is not none %}
+            <div style="margin-top: 1rem; padding: 0.75rem; background: {{ '#fef3c7' if (metric.lower_is_better and metric.change_vs_ma > 0) or (not metric.lower_is_better and metric.change_vs_ma < 0) else '#d1fae5' }}; border-radius: 4px;">
+                <div style="font-size: 0.875rem;">
+                    <strong>vs 7-day MA:</strong>
+                    <span style="font-weight: 600;">{{ "+" if metric.change_vs_ma > 0 else "" }}{{ metric.change_vs_ma }}</span>
+                    {% if (metric.lower_is_better and metric.change_vs_ma < 0) or (not metric.lower_is_better and metric.change_vs_ma > 0) %}
+                        <span style="color: #059669;">↓ Below average (good)</span>
+                    {% else %}
+                        <span style="color: #d97706;">↑ Above average (action needed)</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Metadata -->
+            <div style="margin-top: 1rem; font-size: 0.75rem; color: #9ca3af;">
+                {{ metric.weeks_analyzed }} weeks analyzed
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="padding: 2rem; text-align: center; color: #6b7280; background: #f9fafb; border-radius: 8px;">
+        <p>No trend analytics available. Ensure history files exist.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ML Predictions Section -->
+<div style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">ML-Based Predictions (4 Weeks Ahead)</h3>
+
+    {% if predictions %}
+        {% for project_key, prediction in predictions.items() %}
+        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; margin-bottom: 1.5rem;">
+            <!-- Project Header -->
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                <div>
+                    <h4 style="margin: 0; font-size: 1.125rem; color: #111827;">{{ project_key }}</h4>
+                    <div style="margin-top: 0.5rem; color: #6b7280; font-size: 0.875rem;">
+                        Current: <strong>{{ prediction.current_count }}</strong> bugs |
+                        Trend: <strong style="color: {{ '#22c55e' if prediction.trend_direction == 'decreasing' else '#ef4444' if prediction.trend_direction == 'increasing' else '#f59e0b' }};">{{ prediction.trend_direction }}</strong> |
+                        Model R²: <strong>{{ prediction.r2_score }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictions Table -->
+            <div style="overflow-x: auto; margin-bottom: 1rem;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                    <thead>
+                        <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #374151;">Week Ending</th>
+                            <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">Predicted Count</th>
+                            <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">Confidence Interval</th>
+                            <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in prediction.predictions %}
+                        <tr style="border-bottom: 1px solid #e5e7eb; {{ 'background: #fef2f2;' if pred.is_anomaly else '' }}">
+                            <td style="padding: 0.75rem;">{{ pred.week_ending }}</td>
+                            <td style="padding: 0.75rem; text-align: center; font-weight: 600; font-size: 1.125rem;">{{ pred.predicted_count }}</td>
+                            <td style="padding: 0.75rem; text-align: center; color: #6b7280;">{{ pred.confidence_low }} - {{ pred.confidence_high }}</td>
+                            <td style="padding: 0.75rem; text-align: center;">
+                                {% if pred.is_anomaly %}
+                                    <span style="background: #fef2f2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">⚠️ ANOMALY</span>
+                                {% else %}
+                                    <span style="color: #059669;">✓ Normal</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Historical Anomalies -->
+            {% if prediction.anomalies %}
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+                <h5 style="margin: 0 0 1rem 0; font-size: 0.875rem; color: #6b7280; font-weight: 600; text-transform: uppercase;">Historical Anomalies Detected</h5>
+                <div style="display: grid; gap: 0.75rem;">
+                    {% for anomaly in prediction.anomalies %}
+                    <div style="padding: 0.75rem; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 4px;">
+                        <div style="font-weight: 600; color: #991b1b;">{{ anomaly.week_ending }}</div>
+                        <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">
+                            {{ anomaly.bug_count }} bugs (z-score: {{ "%.2f" | format(anomaly.z_score) }}, {{ anomaly.severity }} severity)
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+    <div style="padding: 2rem; text-align: center; color: #6b7280; background: #f9fafb; border-radius: 8px;">
+        <p>ML predictions unavailable. Ensure quality history has sufficient data (≥3 weeks).</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Insights -->
+<div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+    <h4 style="margin: 0 0 1rem 0; color: #78350f;">💡 Key Insights</h4>
+    <ul style="margin: 0; padding-left: 1.5rem; color: #78350f; line-height: 1.8;">
+        <li><strong>Moving Averages</strong> reduce noise and reveal true trends over 7, 30, and 90-day windows</li>
+        <li><strong>ML Predictions</strong> provide 4-week forecasts with confidence intervals to anticipate future workload</li>
+        <li><strong>Anomaly Detection</strong> identifies unusual spikes that may require investigation</li>
+        <li><strong>Extended Lookback</strong> ({{ lookback_days }} days) enables long-term pattern recognition</li>
+        <li><strong>Performance-Enabled</strong>: REST API 3-10x speedup makes this analysis feasible without timeout concerns</li>
+    </ul>
+</div>
+
+<!-- Generation Info -->
+<div style="margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 4px; font-size: 0.75rem; color: #6b7280;">
+    Generated on {{ generation_date }} | Analyzing {{ lookback_weeks }} weeks ({{ lookback_days }} days) of historical data
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Trend arrow styling
+    document.addEventListener('DOMContentLoaded', function() {
+        const arrows = document.querySelectorAll('.trend-arrow');
+        arrows.forEach(arrow => {
+            if (arrow.classList.contains('improving')) {
+                arrow.style.color = '#22c55e';
+            } else if (arrow.classList.contains('degrading')) {
+                arrow.style.color = '#ef4444';
+            } else {
+                arrow.style.color = '#f59e0b';
+            }
+        });
+    });
+</script>
+{% endblock %}

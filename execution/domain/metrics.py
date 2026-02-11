@@ -196,3 +196,107 @@ class TrendData:
             return self
 
         return TrendData(values=self.values[-n:], timestamps=self.timestamps[-n:], label=self.label)
+
+    def moving_average(self, window: int = 7) -> list[float]:
+        """
+        Calculate simple moving average (SMA) with specified window size.
+
+        For each point, averages the current point and (window-1) previous points.
+        Returns NaN for points where insufficient history exists.
+
+        Args:
+            window: Number of data points to average (default: 7)
+
+        Returns:
+            List of moving averages, same length as values.
+            Early values (< window) will be NaN.
+
+        Example:
+            >>> trend = TrendData(values=[10, 12, 15, 14, 13], timestamps=timestamps)
+            >>> ma = trend.moving_average(window=3)
+            >>> # ma = [NaN, NaN, 12.33, 13.67, 14.0]
+        """
+        if not self.values or window < 1:
+            return []
+
+        import math
+
+        result = []
+        for i in range(len(self.values)):
+            if i < window - 1:
+                result.append(math.nan)
+            else:
+                window_values = self.values[i - window + 1 : i + 1]
+                result.append(sum(window_values) / len(window_values))
+
+        return result
+
+    def exponential_moving_average(self, alpha: float = 0.3) -> list[float]:
+        """
+        Calculate exponential moving average (EMA).
+
+        EMA gives more weight to recent values. Formula:
+            EMA[t] = alpha * value[t] + (1 - alpha) * EMA[t-1]
+
+        Args:
+            alpha: Smoothing factor (0 < alpha <= 1). Higher = more weight to recent values.
+                  Common values: 0.1 (slow), 0.3 (medium), 0.5 (fast)
+
+        Returns:
+            List of exponential moving averages, same length as values.
+
+        Example:
+            >>> trend = TrendData(values=[100, 95, 90, 92, 88], timestamps=timestamps)
+            >>> ema = trend.exponential_moving_average(alpha=0.3)
+            >>> # Emphasizes recent trend while smoothing noise
+        """
+        if not self.values or alpha <= 0 or alpha > 1:
+            return []
+
+        result = [self.values[0]]  # First value is the starting point
+        for i in range(1, len(self.values)):
+            ema_value = alpha * self.values[i] + (1 - alpha) * result[-1]
+            result.append(ema_value)
+
+        return result
+
+    def smooth(self, method: str = "sma", window: int = 7) -> "TrendData":
+        """
+        Create smoothed version of trend data using moving averages.
+
+        Args:
+            method: Smoothing method - "sma" (simple) or "ema" (exponential)
+            window: Window size for SMA, or controls alpha for EMA (default: 7)
+
+        Returns:
+            New TrendData instance with smoothed values
+
+        Example:
+            >>> trend = TrendData(values=[...], timestamps=[...], label="Open Bugs")
+            >>> smoothed = trend.smooth(method="sma", window=7)
+            >>> smoothed_ema = trend.smooth(method="ema", window=7)
+        """
+        if method == "sma":
+            smoothed_values = self.moving_average(window=window)
+        elif method == "ema":
+            # Convert window to alpha: larger window = smaller alpha (more smoothing)
+            alpha = 2 / (window + 1)  # Standard EMA alpha formula
+            smoothed_values = self.exponential_moving_average(alpha=alpha)
+        else:
+            raise ValueError(f"Unknown smoothing method: {method}. Use 'sma' or 'ema'")
+
+        # Filter out NaN values for SMA
+        import math
+
+        if method == "sma":
+            valid_indices = [i for i, v in enumerate(smoothed_values) if not math.isnan(v)]
+            if not valid_indices:
+                return TrendData(values=[], timestamps=[], label=f"{self.label} ({method.upper()})")
+
+            smoothed_values = [smoothed_values[i] for i in valid_indices]
+            filtered_timestamps = [self.timestamps[i] for i in valid_indices]
+        else:
+            filtered_timestamps = self.timestamps
+
+        label_suffix = f" ({method.upper()}-{window})"
+        return TrendData(values=smoothed_values, timestamps=filtered_timestamps, label=f"{self.label}{label_suffix}")
