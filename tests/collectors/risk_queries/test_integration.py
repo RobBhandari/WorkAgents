@@ -163,8 +163,6 @@ class TestRiskQueryIntegration:
 
     def test_query_wiql_generation(self, mock_wit_client):
         """Test that all queries can generate WIQL."""
-        from datetime import datetime
-
         high_priority = HighPriorityBugsQuery(mock_wit_client)
         stale = StaleBugsQuery(mock_wit_client, stale_threshold_days=30)
         blocked = BlockedBugsQuery(mock_wit_client)
