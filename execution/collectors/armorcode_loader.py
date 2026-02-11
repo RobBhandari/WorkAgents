@@ -28,6 +28,9 @@ logger = get_logger(__name__)
 # Import domain models
 from execution.domain.security import SecurityMetrics, Vulnerability
 
+# Security validators
+from execution.security import PathValidator, ValidationError
+
 
 class ArmorCodeLoader:
     """
@@ -43,11 +46,31 @@ class ArmorCodeLoader:
 
         Args:
             history_file: Path to history file (defaults to .tmp/observatory/security_history.json)
+
+        Raises:
+            ValidationError: If history_file path is invalid or unsafe
         """
         if history_file is None:
-            self.history_file = pathlib.Path(".tmp/observatory/security_history.json")
+            # Default to standard history file location
+            project_root = pathlib.Path(__file__).parent.parent.parent
+            history_file = project_root / ".tmp" / "observatory" / "security_history.json"
         else:
-            self.history_file = pathlib.Path(history_file)
+            history_file = pathlib.Path(history_file)
+
+        # SECURITY: Validate file path to prevent path traversal attacks
+        # Ensure history file is within the .tmp/observatory directory
+        project_root = pathlib.Path(__file__).parent.parent.parent
+        allowed_dir = project_root / ".tmp" / "observatory"
+
+        try:
+            # PathValidator ensures the resolved path is within allowed_dir
+            validated_path = PathValidator.validate_safe_path(
+                str(allowed_dir), str(history_file)
+            )
+            self.history_file = pathlib.Path(validated_path)
+        except ValidationError as e:
+            logger.error(f"Invalid history file path: {e}", extra={"path": str(history_file)})
+            raise
 
     def load_latest_metrics(self) -> dict[str, SecurityMetrics]:
         """
