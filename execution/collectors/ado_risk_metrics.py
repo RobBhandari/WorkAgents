@@ -581,95 +581,83 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
         )
 
 
-async def main() -> None:
-    """Main async function for risk metrics collection"""
-    with track_collector_performance("risk") as tracker:
-        # Set UTF-8 encoding for Windows console
-        if sys.platform == "win32":
-            import codecs
+class RiskCollector:
+    """Risk metrics collector using BaseCollector infrastructure"""
 
-            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+    def __init__(self):
+        from execution.collectors.base import BaseCollector
 
-        print("Director Observatory - Delivery Risk Metrics Collector (REST API)\n")
-        print("=" * 60)
+        class _BaseHelper(BaseCollector):
+            async def collect(self, project, rest_client):
+                pass
 
-        # Configuration
-        config = {"lookback_days": 90}
+            def save_metrics(self, results):
+                pass
 
-        # Load discovered projects
-        try:
-            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-                discovery_data = json.load(f)
-            projects = discovery_data["projects"]
-            print(f"Loaded {len(projects)} projects from discovery")
-        except FileNotFoundError:
-            print("[ERROR] Project discovery file not found.")
-            print("Run: python execution/discover_projects.py")
-            exit(1)
+        self._base = _BaseHelper(name="risk", lookback_days=90)
+        self.config = self._base.config
 
-        # Connect to ADO REST API
-        print("\nConnecting to Azure DevOps REST API...")
-        try:
-            rest_client = get_ado_rest_client()
-            logger.info("Connected to ADO REST API")
-            print("[SUCCESS] Connected to ADO REST API")
-        except ValueError as e:
-            logger.error(f"Failed to connect to ADO: {e}", exc_info=True)
-            print(f"[ERROR] Failed to connect to ADO: {e}")
-            sys.exit(1)
+    async def run(self) -> bool:
+        with track_collector_performance("risk") as tracker:
+            print("Director Observatory - Delivery Risk Metrics Collector (REST API)")
+            print("=" * 60)
 
-        # Collect metrics for all projects CONCURRENTLY
-        print("\nCollecting delivery risk metrics (concurrent execution)...")
-        print("=" * 60)
+            discovery_data = self._base.load_discovery_data()
+            projects = discovery_data.get("projects", [])
+            tracker.project_count = len(projects)
 
-        # Create tasks for all projects (concurrent collection)
-        tasks = [collect_risk_metrics_for_project(rest_client, project, config) for project in projects]
+            if not projects:
+                return False
 
-        # Execute all collections concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+            rest_client = self._base.get_rest_client()
 
-        # Filter successful results
-        project_metrics: list[dict] = []
-        for project, result in zip(projects, results, strict=True):
-            if isinstance(result, Exception):
-                logger.error(
-                    "Error collecting metrics",
-                    extra={"project": project.get("project_name", "Unknown"), "error": str(result)},
-                )
-                print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {result}")
-            else:
-                project_metrics.append(result)  # type: ignore[arg-type]
+            print("\nCollecting delivery risk metrics (concurrent execution)...")
+            print("=" * 60)
 
-        # Update tracker with project count
-        tracker.project_count = len(project_metrics)
+            tasks = [collect_risk_metrics_for_project(rest_client, project, self.config) for project in projects]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],
-            "projects": project_metrics,
-            "config": config,
-        }
+            project_metrics: list[dict] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    logger.error(
+                        "Error collecting metrics",
+                        extra={"project": project.get("project_name", "Unknown"), "error": str(result)},
+                    )
+                    print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {result}")
+                else:
+                    project_metrics.append(result)  # type: ignore[arg-type]
 
-        save_risk_metrics(week_metrics)
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": self.config,
+            }
 
-        # Summary
+            success = save_risk_metrics(week_metrics)
+            tracker.success = success
+            self._log_summary(project_metrics)
+            return success
+
+    def _log_summary(self, project_metrics: list[dict]) -> None:
         print("\n" + "=" * 60)
         print("Delivery Risk Metrics Collection Summary:")
         print(f"  Projects processed: {len(project_metrics)}")
-
         total_commits = sum(p["code_churn"]["total_commits"] for p in project_metrics)
         total_files = sum(p["code_churn"]["unique_files_touched"] for p in project_metrics)
-
         print(f"  Total commits analyzed: {total_commits}")
         print(f"  Total unique files changed: {total_files}")
-
         print("\nDelivery risk metrics collection complete (REST API + concurrent execution)!")
         print("  ✓ Only hard data - no speculation")
         print("  ✓ Code churn: Actual file change counts from commits")
         print("  ✓ Concurrent collection for maximum speed")
         print("\nNext step: Generate risk dashboard")
+
+
+async def main() -> None:
+    collector = RiskCollector()
+    await collector.run()
 
 
 if __name__ == "__main__":

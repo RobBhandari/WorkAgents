@@ -494,93 +494,75 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
         return False
 
 
-async def main() -> None:
-    """Main async function for deployment metrics collection"""
-    with track_collector_performance("deployment") as tracker:
-        # Set UTF-8 encoding for Windows console
-        if sys.platform == "win32":
-            import codecs
+class DeploymentCollector:
+    """Deployment metrics collector using BaseCollector infrastructure"""
 
-            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+    def __init__(self):
+        from execution.collectors.base import BaseCollector
 
-        # Configure logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[logging.FileHandler(".tmp/observatory/deployment_metrics.log"), logging.StreamHandler()],
-        )
+        class _BaseHelper(BaseCollector):
+            async def collect(self, project, rest_client):
+                pass
 
-        print("Director Observatory - Deployment Metrics Collector (REST API)\n")
-        print("=" * 60)
+            def save_metrics(self, results):
+                pass
 
-        # Configuration
-        config = {"lookback_days": 90}
+        self._base = _BaseHelper(name="deployment", lookback_days=90)
+        self.config = self._base.config
 
-        # Load discovered projects
-        try:
-            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-                discovery_data = json.load(f)
-            projects = discovery_data["projects"]
-            print(f"Loaded {len(projects)} projects from discovery")
-        except FileNotFoundError:
-            print("[ERROR] Project discovery file not found.")
-            print("Run: python execution/discover_projects.py")
-            exit(1)
+    async def run(self) -> bool:
+        with track_collector_performance("deployment") as tracker:
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                handlers=[logging.FileHandler(".tmp/observatory/deployment_metrics.log"), logging.StreamHandler()],
+            )
+            print("Director Observatory - Deployment Metrics Collector (REST API)")
+            print("=" * 60)
 
-        # Connect to ADO REST API
-        print("\nConnecting to Azure DevOps REST API...")
-        try:
-            rest_client = get_ado_rest_client()
-            print("[SUCCESS] Connected to ADO REST API")
-        except Exception as e:
-            logger.error(f"Error connecting to ADO: {e}")
-            print(f"[ERROR] Failed to connect to ADO: {e}")
-            exit(1)
+            discovery_data = self._base.load_discovery_data()
+            projects = discovery_data.get("projects", [])
+            tracker.project_count = len(projects)
 
-        # Collect metrics for all projects CONCURRENTLY
-        print("\nCollecting deployment metrics (concurrent execution)...")
-        print("=" * 60)
+            if not projects:
+                return False
 
-        # Create tasks for all projects (concurrent collection)
-        tasks = [collect_deployment_metrics_for_project(rest_client, project, config) for project in projects]
+            rest_client = self._base.get_rest_client()
 
-        # Execute all collections concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+            print("\nCollecting deployment metrics (concurrent execution)...")
+            print("=" * 60)
 
-        # Filter successful results
-        project_metrics: list[dict] = []
-        for project, result in zip(projects, results, strict=True):
-            if isinstance(result, Exception):
-                logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
-                print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
-            else:
-                project_metrics.append(result)  # type: ignore[arg-type]
+            tasks = [collect_deployment_metrics_for_project(rest_client, project, self.config) for project in projects]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Update tracker with project count
-        tracker.project_count = len(project_metrics)
+            project_metrics: list[dict] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
+                    print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
+                else:
+                    project_metrics.append(result)  # type: ignore[arg-type]
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],
-            "projects": project_metrics,
-            "config": config,
-        }
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": self.config,
+            }
 
-        save_deployment_metrics(week_metrics)
+            success = save_deployment_metrics(week_metrics)
+            tracker.success = success
+            self._log_summary(project_metrics)
+            return success
 
-        # Summary
+    def _log_summary(self, project_metrics: list[dict]) -> None:
         print("\n" + "=" * 60)
         print("Deployment Metrics Collection Summary:")
         print(f"  Projects processed: {len(project_metrics)}")
-
         total_builds = sum(p["build_success_rate"]["total_builds"] for p in project_metrics)
         total_successful = sum(p["deployment_frequency"]["total_successful_builds"] for p in project_metrics)
-
         print(f"  Total builds analyzed: {total_builds}")
         print(f"  Total successful builds: {total_successful}")
-
         print("\nDeployment metrics collection complete (REST API + concurrent execution)!")
         print("  ✓ Only hard data - no assumptions")
         print("  ✓ Deployment Frequency: Actual build counts")
@@ -589,6 +571,11 @@ async def main() -> None:
         print("  ✓ Lead Time: Actual commit → build timestamps (concurrent API calls)")
         print("  ✓ Concurrent collection for maximum speed")
         print("\nNext step: Generate deployment dashboard")
+
+
+async def main() -> None:
+    collector = DeploymentCollector()
+    await collector.run()
 
 
 if __name__ == "__main__":
