@@ -105,61 +105,53 @@ class CollectorBenchmark:
             save_security_metrics(week_metrics)
             return True
 
-        # ADO Quality async
+        # ADO Quality async (REST API)
         async def collect_ado_quality():
-            from execution.collectors.ado_quality_metrics import get_ado_connection, save_quality_metrics
+            from execution.collectors.ado_quality_metrics import save_quality_metrics
+            from execution.collectors.ado_rest_client import get_ado_rest_client
 
             with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
                 projects = json.load(f)["projects"]
 
-            connection = get_ado_connection()
-            collector = AsyncADOCollector(max_workers=10)
+            rest_client = get_ado_rest_client()
+            collector = AsyncADOCollector(rest_client)
 
-            try:
-                config = {"lookback_days": 90}
-                project_metrics = await collector.collect_all_projects(
-                    connection, projects, config, collector_type="quality"
-                )
+            config = {"lookback_days": 90}
+            project_metrics = await collector.collect_all_projects(projects, config, collector_type="quality")
 
-                week_metrics = {
-                    "week_date": datetime.now().strftime("%Y-%m-%d"),
-                    "week_number": datetime.now().isocalendar()[1],
-                    "projects": project_metrics,
-                    "config": {**config, "async": True},
-                }
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": {**config, "async": True},
+            }
 
-                save_quality_metrics(week_metrics)
-                return True
-            finally:
-                collector.shutdown()
+            save_quality_metrics(week_metrics)
+            return True
 
-        # ADO Flow async
+        # ADO Flow async (REST API)
         async def collect_ado_flow():
-            from execution.collectors.ado_flow_metrics import get_ado_connection, save_flow_metrics
+            from execution.collectors.ado_flow_metrics import save_flow_metrics
+            from execution.collectors.ado_rest_client import get_ado_rest_client
 
             with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
                 projects = json.load(f)["projects"]
 
-            connection = get_ado_connection()
-            collector = AsyncADOCollector(max_workers=10)
+            rest_client = get_ado_rest_client()
+            collector = AsyncADOCollector(rest_client)
 
-            try:
-                config = {"lookback_days": 90, "aging_threshold_days": 30}
-                project_metrics = await collector.collect_all_projects(
-                    connection, projects, config, collector_type="flow"
-                )
+            config = {"lookback_days": 90, "aging_threshold_days": 30}
+            project_metrics = await collector.collect_all_projects(projects, config, collector_type="flow")
 
-                week_metrics = {
-                    "week_date": datetime.now().strftime("%Y-%m-%d"),
-                    "week_number": datetime.now().isocalendar()[1],
-                    "projects": project_metrics,
-                    "config": {**config, "async": True},
-                }
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": {**config, "async": True},
+            }
 
-                save_flow_metrics(week_metrics)
-                return True
-            finally:
-                collector.shutdown()
+            save_flow_metrics(week_metrics)
+            return True
 
         # Run all concurrently
         logger.info("Running ArmorCode, ADO Quality, and ADO Flow concurrently...")
