@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from execution.core.logging_config import get_logger
-from execution.core.observability import capture_exception, send_slack_notification, track_performance
+from execution.core.observability import capture_exception, track_performance
 
 logger = get_logger(__name__)
 
@@ -160,10 +160,9 @@ class CollectorMetricsTracker:
 
         # Alert if multiple rate limits in single run (>3 is critical)
         if self.rate_limit_hits > 3:
-            send_slack_notification(
+            logger.error(
                 f"Rate limit threshold exceeded: {self.collector_name} collector",
-                severity="critical",
-                context={"collector": self.collector_name, "rate_limit_hits": self.rate_limit_hits},
+                extra={"collector": self.collector_name, "rate_limit_hits": self.rate_limit_hits},
             )
 
     def record_retry(self) -> None:
@@ -387,13 +386,6 @@ def track_collector_performance(collector_name: str) -> Generator["CollectorMetr
                     "error": str(e),
                     "error_type": type(e).__name__,
                 },
-            )
-
-            # Send Slack alert on failure
-            send_slack_notification(
-                f"Collector failed: {collector_name}",
-                severity="error",
-                context={"collector": collector_name, "error": str(e), "error_type": type(e).__name__},
             )
 
             # Capture exception to Sentry with context

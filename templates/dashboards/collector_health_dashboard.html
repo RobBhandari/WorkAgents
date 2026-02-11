@@ -82,67 +82,100 @@
 </div>
 
 <!-- Glossary -->
-<details class="glossary">
-    <summary>📖 Metric Definitions</summary>
-    <div class="glossary-content">
-        <dl>
-            <dt>Execution Time</dt>
-            <dd>Total time from collector start to completion, including API calls, data processing, and persistence.</dd>
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>📖 What These Metrics Mean</h3>
+        <span class="glossary-toggle" id="glossary-toggle">▼</span>
+    </div>
+    <div class="glossary-content" id="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">Execution Time</div>
+            <div class="glossary-definition">
+                Total time from collector start to completion, including API calls, data processing, and persistence.
+            </div>
+        </div>
 
-            <dt>Success Rate</dt>
-            <dd>Percentage of collectors that completed without raising exceptions. Target: ≥95%</dd>
+        <div class="glossary-item">
+            <div class="glossary-term">Success Rate</div>
+            <div class="glossary-definition">
+                Percentage of collectors that completed without raising exceptions.
+                <br><strong>Target:</strong> ≥95%
+            </div>
+        </div>
 
-            <dt>API Calls</dt>
-            <dd>Total number of HTTP requests made to Azure DevOps REST API. Used to monitor API usage patterns.</dd>
+        <div class="glossary-item">
+            <div class="glossary-term">API Calls</div>
+            <div class="glossary-definition">
+                Total number of HTTP requests made to Azure DevOps REST API. Used to monitor API usage patterns.
+            </div>
+        </div>
 
-            <dt>Rate Limit Hits</dt>
-            <dd>Number of 429 (Too Many Requests) responses from Azure DevOps. Should be 0 in healthy operation.</dd>
+        <div class="glossary-item">
+            <div class="glossary-term">Rate Limit Hits</div>
+            <div class="glossary-definition">
+                Number of 429 (Too Many Requests) responses from Azure DevOps. Should be 0 in healthy operation.
+            </div>
+        </div>
 
-            <dt>Retries</dt>
-            <dd>Number of transient error retries (server errors, network timeouts). Some retries are normal; excessive retries indicate instability.</dd>
+        <div class="glossary-item">
+            <div class="glossary-term">Retries</div>
+            <div class="glossary-definition">
+                Number of transient error retries (server errors, network timeouts). Some retries are normal; excessive retries indicate instability.
+            </div>
+        </div>
 
-            <dt>Status Thresholds</dt>
-            <dd>
+        <div class="glossary-item">
+            <div class="glossary-term">Status Thresholds</div>
+            <div class="glossary-definition">
                 <strong>Good:</strong> Successful completion + &lt;60s execution<br>
                 <strong>Caution:</strong> Successful completion + 60-120s execution<br>
                 <strong>Action Needed:</strong> &gt;120s execution or failed<br>
                 <strong>Failed:</strong> Raised exception during execution
-            </dd>
+            </div>
+        </div>
 
-            <dt>Overall Pipeline Status</dt>
-            <dd>
+        <div class="glossary-item">
+            <div class="glossary-term">Overall Pipeline Status</div>
+            <div class="glossary-definition">
                 <strong>Good:</strong> No failures, avg time &lt;60s, no rate limits<br>
                 <strong>Caution:</strong> Minor issues (1-10% failures OR 60-120s avg time)<br>
                 <strong>Action Needed:</strong> Critical issues (&gt;10% failures OR &gt;120s avg time OR rate limits detected)
-            </dd>
-        </dl>
+            </div>
+        </div>
 
         <h3 style="margin-top: 25px; margin-bottom: 10px;">Common Issues & Remediation</h3>
-        <dl>
-            <dt>🐌 Slow Execution (&gt;120s)</dt>
-            <dd>
+
+        <div class="glossary-item">
+            <div class="glossary-term">🐌 Slow Execution (&gt;120s)</div>
+            <div class="glossary-definition">
                 <strong>Causes:</strong> Large number of projects, complex queries, slow ADO API responses<br>
                 <strong>Fixes:</strong> Optimize WIQL queries, reduce lookback period, increase API concurrency
-            </dd>
+            </div>
+        </div>
 
-            <dt>⚠️ Rate Limit Hits (429 responses)</dt>
-            <dd>
+        <div class="glossary-item">
+            <div class="glossary-term">⚠️ Rate Limit Hits (429 responses)</div>
+            <div class="glossary-definition">
                 <strong>Causes:</strong> Too many parallel requests, other API consumers in org<br>
                 <strong>Fixes:</strong> Reduce max_parallel in GitHub Actions, add delays between requests, contact Azure support for limit increase
-            </dd>
+            </div>
+        </div>
 
-            <dt>❌ Failed Collectors</dt>
-            <dd>
+        <div class="glossary-item">
+            <div class="glossary-term">❌ Failed Collectors</div>
+            <div class="glossary-definition">
                 <strong>Causes:</strong> Authentication failures, network timeouts, API schema changes<br>
                 <strong>Fixes:</strong> Check PAT expiration, verify network connectivity, review Azure DevOps API changelog
-            </dd>
+            </div>
+        </div>
 
-            <dt>🔄 Excessive Retries (&gt;5 per collector)</dt>
-            <dd>
+        <div class="glossary-item">
+            <div class="glossary-term">🔄 Excessive Retries (&gt;5 per collector)</div>
+            <div class="glossary-definition">
                 <strong>Causes:</strong> Intermittent ADO service issues, network instability<br>
                 <strong>Fixes:</strong> Monitor Azure DevOps service health, check GitHub Actions runner connectivity
-            </dd>
-        </dl>
+            </div>
+        </div>
 
         <h3 style="margin-top: 25px; margin-bottom: 10px;">Azure DevOps Rate Limits</h3>
         <ul style="margin-left: 20px; line-height: 1.8;">
@@ -152,7 +185,7 @@
             <li>Documentation: <a href="https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/rate-limits" target="_blank" rel="noopener">Azure DevOps Rate Limits</a></li>
         </ul>
     </div>
-</details>
+</div>
 
 <!-- Footer Context -->
 <div style="margin-top: 40px; padding: 20px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">

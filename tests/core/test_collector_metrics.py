@@ -90,20 +90,17 @@ class TestCollectorMetricsTracker:
 
         assert tracker.rate_limit_hits == 2
 
-    @patch("execution.core.collector_metrics.send_slack_notification")
-    def test_record_rate_limit_hit_alert_threshold(self, mock_slack):
-        """Test that rate limit hits >3 trigger Slack alert"""
+    def test_record_rate_limit_hit_alert_threshold(self):
+        """Test that rate limit hits >3 trigger error log"""
         tracker = CollectorMetricsTracker("quality")
 
-        # First 3 hits should not trigger alert
+        # First 3 hits should only log warnings
         tracker.record_rate_limit_hit()
         tracker.record_rate_limit_hit()
         tracker.record_rate_limit_hit()
-        assert not mock_slack.called
 
-        # 4th hit should trigger alert
+        # 4th hit should log error (threshold exceeded)
         tracker.record_rate_limit_hit()
-        assert mock_slack.called
         assert tracker.rate_limit_hits == 4
 
     def test_record_retry(self):
@@ -256,10 +253,9 @@ class TestTrackCollectorPerformanceContextManager:
         assert tracker.project_count == 12
         assert tracker.execution_time_ms > 0
 
-    @patch("execution.core.collector_metrics.send_slack_notification")
     @patch("execution.core.collector_metrics.capture_exception")
     @patch("execution.core.collector_metrics.track_performance")
-    def test_context_manager_failed_execution(self, mock_track_perf, mock_capture, mock_slack):
+    def test_context_manager_failed_execution(self, mock_track_perf, mock_capture):
         """Test context manager with failed collector execution"""
         mock_context = MagicMock()
         mock_track_perf.return_value.__enter__.return_value = mock_context
@@ -269,11 +265,6 @@ class TestTrackCollectorPerformanceContextManager:
             with track_collector_performance("deployment") as tracker:
                 tracker.project_count = 8
                 raise ValueError("Test failure")
-
-        # Verify Slack notification was sent
-        mock_slack.assert_called_once()
-        call_args = mock_slack.call_args
-        assert "deployment" in call_args[0][0]  # Message contains collector name
 
         # Verify exception was captured to Sentry
         mock_capture.assert_called_once()
@@ -358,10 +349,9 @@ class TestIntegration:
 
     @patch("builtins.open", new_callable=mock_open, read_data='{"weeks": []}')
     @patch("pathlib.Path.exists", return_value=True)
-    @patch("execution.core.collector_metrics.send_slack_notification")
     @patch("execution.core.collector_metrics.capture_exception")
     @patch("execution.core.collector_metrics.track_performance")
-    def test_full_tracking_flow_failure(self, mock_track_perf, mock_capture, mock_slack, mock_exists, mock_file):
+    def test_full_tracking_flow_failure(self, mock_track_perf, mock_capture, mock_exists, mock_file):
         """Test complete flow with failure and error tracking"""
         mock_context = MagicMock()
         mock_track_perf.return_value.__enter__.return_value = mock_context
@@ -375,4 +365,3 @@ class TestIntegration:
 
         # Verify error was captured
         mock_capture.assert_called_once()
-        mock_slack.assert_called_once()
