@@ -1,0 +1,22 @@
+{
+  "weeks": [
+    {
+      "week_date": "2026-02-11",
+      "week_number": 7,
+      "collectors": [
+        {
+          "timestamp": "2026-02-11T12:06:57.253462+00:00",
+          "collector_name": "quality",
+          "execution_time_ms": 10734.93,
+          "success": true,
+          "project_count": 8,
+          "api_call_count": 39,
+          "rate_limit_hits": 0,
+          "retry_count": 0,
+          "error_message": null,
+          "error_type": null
+        }
+      ]
+    }
+  ]
+}
