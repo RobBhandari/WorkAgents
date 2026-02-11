@@ -35,6 +35,9 @@ import httpx
 
 from execution.async_http_client import AsyncSecureHTTPClient
 from execution.core import get_logger
+
+# Import collector metrics tracker for performance monitoring
+from execution.core.collector_metrics import get_current_tracker
 from execution.secure_config import get_config
 from execution.utils.error_handling import log_and_continue
 
@@ -153,6 +156,11 @@ class AzureDevOpsRESTClient:
 
         for attempt in range(max_retries):
             try:
+                # Record API call for performance tracking
+                tracker = get_current_tracker()
+                if tracker:
+                    tracker.record_api_call()
+
                 async with AsyncSecureHTTPClient() as client:
                     # Merge auth headers with any provided headers
                     headers = {**self.auth_header, **kwargs.pop("headers", {})}
@@ -178,6 +186,10 @@ class AzureDevOpsRESTClient:
 
                 # Rate limiting - retry with backoff
                 if status_code == 429:
+                    # Record rate limit hit for monitoring
+                    if tracker:
+                        tracker.record_rate_limit_hit()
+
                     retry_after = int(e.response.headers.get("Retry-After", 60))
                     logger.warning(f"Rate limited, retrying after {retry_after}s (attempt {attempt + 1}/{max_retries})")
                     await asyncio.sleep(retry_after)
@@ -186,6 +198,10 @@ class AzureDevOpsRESTClient:
 
                 # Server errors - retry with exponential backoff
                 if status_code in [500, 502, 503]:
+                    # Record retry for monitoring
+                    if tracker:
+                        tracker.record_retry()
+
                     backoff = 2**attempt  # Exponential backoff: 1s, 2s, 4s
                     logger.warning(
                         f"Server error (HTTP {status_code}), retrying in {backoff}s (attempt {attempt + 1}/{max_retries})"
