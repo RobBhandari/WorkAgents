@@ -636,81 +636,94 @@ def run_self_test() -> None:
     print("All existing functionality preserved with improved code quality.\n")
 
 
-async def main() -> None:
-    """Main async function for collaboration metrics collection"""
-    with track_collector_performance("collaboration") as tracker:
-        # Set UTF-8 encoding for Windows console
-        if sys.platform == "win32":
-            import codecs
+class CollaborationCollector:
+    """Collaboration metrics collector using BaseCollector infrastructure
 
-            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+    Refactored to use BaseCollector for common patterns:
+    - Windows UTF-8 encoding setup
+    - Discovery data loading
+    - ADO REST client initialization
+    - Performance tracking
 
-        print("Director Observatory - Collaboration Metrics Collector (REST API)\n")
-        print("=" * 60)
+    Note: Uses composition to leverage BaseCollector's utility methods.
+    """
 
-        # Configuration
-        config = {"lookback_days": 90}
+    def __init__(self):
+        # Import locally to avoid circular dependency
+        from execution.collectors.base import BaseCollector
 
-        # Load discovered projects
-        try:
-            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-                discovery_data = json.load(f)
-            projects = discovery_data["projects"]
-            print(f"Loaded {len(projects)} projects from discovery")
-        except FileNotFoundError:
-            logger.error("Project discovery file not found")
-            print("[ERROR] Project discovery file not found.")
-            print("Run: python execution/discover_projects.py")
-            exit(1)
-        except (json.JSONDecodeError, KeyError) as e:
-            logger.error(f"Invalid discovery file format: {e}")
-            print(f"[ERROR] Invalid discovery file format: {e}")
-            exit(1)
+        # Create a simple wrapper that implements abstract methods
+        class _BaseHelper(BaseCollector):
+            """Minimal implementation for infrastructure methods only"""
 
-        # Connect to ADO REST API
-        print("\nConnecting to Azure DevOps REST API...")
-        try:
-            rest_client = get_ado_rest_client()
-            print("[SUCCESS] Connected to ADO REST API")
-        except ValueError as e:
-            logger.error(f"Failed to connect to ADO: {e}")
-            print(f"[ERROR] Failed to connect to ADO: {e}")
-            exit(1)
+            async def collect(self, project, rest_client):
+                pass  # Not used - CollaborationCollector has custom collect logic
 
-        # Collect metrics for all projects CONCURRENTLY
-        print("\nCollecting collaboration metrics (concurrent execution)...")
-        print("=" * 60)
+            def save_metrics(self, results):
+                pass  # Not used - CollaborationCollector has custom save logic
 
-        # Create tasks for all projects (concurrent collection)
-        tasks = [collect_collaboration_metrics_for_project(rest_client, project, config) for project in projects]
+        self._base = _BaseHelper(name="collaboration", lookback_days=90)
+        self.config = self._base.config
 
-        # Execute all collections concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+    async def run(self) -> bool:
+        """Run collaboration metrics collection with custom workflow"""
+        with track_collector_performance("collaboration") as tracker:
+            print("Director Observatory - Collaboration Metrics Collector (REST API)")
+            print("=" * 60)
 
-        # Filter successful results
-        project_metrics: list[dict] = []
-        for project, result in zip(projects, results, strict=True):
-            if isinstance(result, Exception):
-                logger.error(f"Error collecting metrics for {project.get('project_name', 'Unknown')}: {result}")
-                print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {result}")
-            else:
-                project_metrics.append(result)  # type: ignore[arg-type]
+            # Use BaseCollector to load discovery data
+            discovery_data = self._base.load_discovery_data()
+            projects = discovery_data.get("projects", [])
+            tracker.project_count = len(projects)
 
-        # Update tracker with project count
-        tracker.project_count = len(project_metrics)
+            if not projects:
+                print("No projects found in discovery data")
+                return False
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],
-            "projects": project_metrics,
-            "config": config,
-        }
+            # Use BaseCollector to get REST client
+            rest_client = self._base.get_rest_client()
 
-        save_collaboration_metrics(week_metrics)
+            # Collect metrics for all projects CONCURRENTLY
+            print("\nCollecting collaboration metrics (concurrent execution)...")
+            print("=" * 60)
 
-        # Summary
+            # Create tasks for all projects (concurrent collection)
+            tasks = [
+                collect_collaboration_metrics_for_project(rest_client, project, self.config) for project in projects
+            ]
+
+            # Execute all collections concurrently
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Filter successful results
+            project_metrics: list[dict] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    logger.error(f"Error collecting metrics for {project.get('project_name', 'Unknown')}: {result}")
+                    print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {result}")
+                else:
+                    project_metrics.append(result)  # type: ignore[arg-type]
+
+            # Save results
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": self.config,
+            }
+
+            success = save_collaboration_metrics(week_metrics)
+
+            # Update tracker
+            tracker.success = success
+
+            # Summary
+            self._log_summary(project_metrics)
+
+            return success
+
+    def _log_summary(self, project_metrics: list[dict]) -> None:
+        """Log collection summary statistics"""
         print("\n" + "=" * 60)
         print("Collaboration Metrics Collection Summary:")
         print(f"  Projects processed: {len(project_metrics)}")
@@ -726,6 +739,12 @@ async def main() -> None:
         print("  ✓ PR Size: Actual commit counts")
         print("  ✓ Concurrent collection for maximum speed")
         print("\nNext step: Generate collaboration dashboard")
+
+
+async def main() -> None:
+    """Main entry point - simplified using CollaborationCollector"""
+    collector = CollaborationCollector()
+    await collector.run()
 
 
 if __name__ == "__main__":
