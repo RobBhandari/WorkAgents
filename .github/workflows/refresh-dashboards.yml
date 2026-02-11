@@ -176,7 +176,7 @@ jobs:
           - { name: 'Security', script: 'security_enhanced.py' }
           - { name: 'Targets', script: 'targets.py' }
           - { name: 'AI Usage', script: 'ai.py' }
-          - { name: 'Trends', script: 'trends.py' }
+          - { name: 'Trends', script: '../generate_trends_dashboard.py' }
           - { name: 'Executive', script: 'executive.py' }
       fail-fast: false
       max-parallel: 11

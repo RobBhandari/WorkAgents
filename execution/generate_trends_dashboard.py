@@ -114,7 +114,7 @@ def main():
 
     # Stage 4: Save Output
     output_path = Path(".tmp/observatory/dashboards/index.html")
-    generated_file = renderer.render_dashboard(output_path)
+    generated_file = renderer.generate_dashboard_file(output_path)
 
     logger.info(f"Dashboard generated: {generated_file}")
     logger.info(f"Total metrics: {len(trends) + (1 if target_progress else 0)}")

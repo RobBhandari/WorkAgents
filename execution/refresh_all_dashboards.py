@@ -21,7 +21,7 @@ def run_script(script_path, description):
         # Set PYTHONPATH to include project root for proper imports
         env = os.environ.copy()
         project_root = Path(__file__).parent.parent.absolute()
-        env['PYTHONPATH'] = str(project_root)
+        env["PYTHONPATH"] = str(project_root)
 
         result = subprocess.run([sys.executable, script_path], capture_output=False, text=True, check=False, env=env)
 
@@ -57,7 +57,7 @@ def main():
     # Set PYTHONPATH for metrics collection
     env = os.environ.copy()
     project_root = Path(__file__).parent.parent.absolute()
-    env['PYTHONPATH'] = str(project_root)
+    env["PYTHONPATH"] = str(project_root)
 
     result = subprocess.run(
         [sys.executable, "execution/collect_all_metrics.py"], capture_output=False, text=True, check=False, env=env
@@ -96,7 +96,7 @@ def main():
         ("execution/generate_deployment_dashboard.py", "Deployment Dashboard"),
         ("execution/generate_collaboration_dashboard.py", "Collaboration Dashboard"),
         ("execution/dashboards/security_enhanced.py", "Security Dashboard (Enhanced with drill-down)"),
-        ("execution/dashboards/trends.py", "Executive Trends (index.html)"),
+        ("execution/generate_trends_dashboard.py", "Executive Trends (index.html)"),
     ]
 
     for script, name in generators:
