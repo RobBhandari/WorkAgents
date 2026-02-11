@@ -25,6 +25,7 @@ from dotenv import load_dotenv
 
 from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
 from execution.collectors.ado_rest_transformers import GitTransformer
+from execution.core.collector_metrics import track_collector_performance
 from execution.core.logging_config import get_logger
 from execution.domain.constants import flow_metrics, sampling_config
 from execution.secure_config import get_config
@@ -582,89 +583,93 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
 
 async def main() -> None:
     """Main async function for risk metrics collection"""
-    # Set UTF-8 encoding for Windows console
-    if sys.platform == "win32":
-        import codecs
+    with track_collector_performance("risk") as tracker:
+        # Set UTF-8 encoding for Windows console
+        if sys.platform == "win32":
+            import codecs
 
-        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    print("Director Observatory - Delivery Risk Metrics Collector (REST API)\n")
-    print("=" * 60)
+        print("Director Observatory - Delivery Risk Metrics Collector (REST API)\n")
+        print("=" * 60)
 
-    # Configuration
-    config = {"lookback_days": 90}
+        # Configuration
+        config = {"lookback_days": 90}
 
-    # Load discovered projects
-    try:
-        with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-            discovery_data = json.load(f)
-        projects = discovery_data["projects"]
-        print(f"Loaded {len(projects)} projects from discovery")
-    except FileNotFoundError:
-        print("[ERROR] Project discovery file not found.")
-        print("Run: python execution/discover_projects.py")
-        exit(1)
+        # Load discovered projects
+        try:
+            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
+                discovery_data = json.load(f)
+            projects = discovery_data["projects"]
+            print(f"Loaded {len(projects)} projects from discovery")
+        except FileNotFoundError:
+            print("[ERROR] Project discovery file not found.")
+            print("Run: python execution/discover_projects.py")
+            exit(1)
 
-    # Connect to ADO REST API
-    print("\nConnecting to Azure DevOps REST API...")
-    try:
-        rest_client = get_ado_rest_client()
-        logger.info("Connected to ADO REST API")
-        print("[SUCCESS] Connected to ADO REST API")
-    except ValueError as e:
-        logger.error(f"Failed to connect to ADO: {e}", exc_info=True)
-        print(f"[ERROR] Failed to connect to ADO: {e}")
-        sys.exit(1)
+        # Connect to ADO REST API
+        print("\nConnecting to Azure DevOps REST API...")
+        try:
+            rest_client = get_ado_rest_client()
+            logger.info("Connected to ADO REST API")
+            print("[SUCCESS] Connected to ADO REST API")
+        except ValueError as e:
+            logger.error(f"Failed to connect to ADO: {e}", exc_info=True)
+            print(f"[ERROR] Failed to connect to ADO: {e}")
+            sys.exit(1)
 
-    # Collect metrics for all projects CONCURRENTLY
-    print("\nCollecting delivery risk metrics (concurrent execution)...")
-    print("=" * 60)
+        # Collect metrics for all projects CONCURRENTLY
+        print("\nCollecting delivery risk metrics (concurrent execution)...")
+        print("=" * 60)
 
-    # Create tasks for all projects (concurrent collection)
-    tasks = [collect_risk_metrics_for_project(rest_client, project, config) for project in projects]
+        # Create tasks for all projects (concurrent collection)
+        tasks = [collect_risk_metrics_for_project(rest_client, project, config) for project in projects]
 
-    # Execute all collections concurrently
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+        # Execute all collections concurrently
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # Filter successful results
-    project_metrics: list[dict] = []
-    for project, result in zip(projects, results, strict=True):
-        if isinstance(result, Exception):
-            logger.error(
-                "Error collecting metrics",
-                extra={"project": project.get("project_name", "Unknown"), "error": str(result)},
-            )
-            print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {result}")
-        else:
-            project_metrics.append(result)  # type: ignore[arg-type]
+        # Filter successful results
+        project_metrics: list[dict] = []
+        for project, result in zip(projects, results, strict=True):
+            if isinstance(result, Exception):
+                logger.error(
+                    "Error collecting metrics",
+                    extra={"project": project.get("project_name", "Unknown"), "error": str(result)},
+                )
+                print(f"  [ERROR] Failed to collect metrics for {project.get('project_name', 'Unknown')}: {result}")
+            else:
+                project_metrics.append(result)  # type: ignore[arg-type]
 
-    # Save results
-    week_metrics = {
-        "week_date": datetime.now().strftime("%Y-%m-%d"),
-        "week_number": datetime.now().isocalendar()[1],
-        "projects": project_metrics,
-        "config": config,
-    }
+        # Update tracker with project count
+        tracker.project_count = len(project_metrics)
 
-    save_risk_metrics(week_metrics)
+        # Save results
+        week_metrics = {
+            "week_date": datetime.now().strftime("%Y-%m-%d"),
+            "week_number": datetime.now().isocalendar()[1],
+            "projects": project_metrics,
+            "config": config,
+        }
 
-    # Summary
-    print("\n" + "=" * 60)
-    print("Delivery Risk Metrics Collection Summary:")
-    print(f"  Projects processed: {len(project_metrics)}")
+        save_risk_metrics(week_metrics)
 
-    total_commits = sum(p["code_churn"]["total_commits"] for p in project_metrics)
-    total_files = sum(p["code_churn"]["unique_files_touched"] for p in project_metrics)
+        # Summary
+        print("\n" + "=" * 60)
+        print("Delivery Risk Metrics Collection Summary:")
+        print(f"  Projects processed: {len(project_metrics)}")
 
-    print(f"  Total commits analyzed: {total_commits}")
-    print(f"  Total unique files changed: {total_files}")
+        total_commits = sum(p["code_churn"]["total_commits"] for p in project_metrics)
+        total_files = sum(p["code_churn"]["unique_files_touched"] for p in project_metrics)
 
-    print("\nDelivery risk metrics collection complete (REST API + concurrent execution)!")
-    print("  ✓ Only hard data - no speculation")
-    print("  ✓ Code churn: Actual file change counts from commits")
-    print("  ✓ Concurrent collection for maximum speed")
-    print("\nNext step: Generate risk dashboard")
+        print(f"  Total commits analyzed: {total_commits}")
+        print(f"  Total unique files changed: {total_files}")
+
+        print("\nDelivery risk metrics collection complete (REST API + concurrent execution)!")
+        print("  ✓ Only hard data - no speculation")
+        print("  ✓ Code churn: Actual file change counts from commits")
+        print("  ✓ Concurrent collection for maximum speed")
+        print("\nNext step: Generate risk dashboard")
 
 
 if __name__ == "__main__":

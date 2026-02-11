@@ -31,6 +31,7 @@ from execution.collectors.flow_metrics_calculations import (
     calculate_throughput,
 )
 from execution.collectors.flow_metrics_queries import query_work_items_for_flow
+from execution.core.collector_metrics import track_collector_performance
 from execution.domain.constants import flow_metrics, history_retention
 
 load_dotenv()
@@ -184,122 +185,128 @@ def save_flow_metrics(metrics: dict, output_file: str = ".tmp/observatory/flow_h
 
 async def main() -> None:
     """Main async function for flow metrics collection"""
-    # Set UTF-8 encoding for Windows console
-    if sys.platform == "win32":
-        import codecs
+    with track_collector_performance("flow") as tracker:
+        # Set UTF-8 encoding for Windows console
+        if sys.platform == "win32":
+            import codecs
 
-        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    print("Director Observatory - Flow Metrics Collector (REST API)\n")
-    print("=" * 60)
+        print("Director Observatory - Flow Metrics Collector (REST API)\n")
+        print("=" * 60)
 
-    # Configuration (using constants for defaults)
-    config = {
-        "lookback_days": flow_metrics.LOOKBACK_DAYS,
-        "aging_threshold_days": flow_metrics.AGING_THRESHOLD_DAYS,
-    }
+        # Configuration (using constants for defaults)
+        config = {
+            "lookback_days": flow_metrics.LOOKBACK_DAYS,
+            "aging_threshold_days": flow_metrics.AGING_THRESHOLD_DAYS,
+        }
 
-    # Load discovered projects
-    try:
-        with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-            discovery_data = json.load(f)
-        projects = discovery_data["projects"]
-        print(f"Loaded {len(projects)} projects from discovery")
-    except FileNotFoundError:
-        print("[ERROR] Project discovery file not found.")
-        print("Run: python execution/discover_projects.py")
-        exit(1)
+        # Load discovered projects
+        try:
+            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
+                discovery_data = json.load(f)
+            projects = discovery_data["projects"]
+            print(f"Loaded {len(projects)} projects from discovery")
+        except FileNotFoundError:
+            print("[ERROR] Project discovery file not found.")
+            print("Run: python execution/discover_projects.py")
+            exit(1)
 
-    # Connect to ADO REST API
-    print("\nConnecting to Azure DevOps REST API...")
-    try:
-        rest_client = get_ado_rest_client()
-        print("[SUCCESS] Connected to ADO REST API")
-    except Exception as e:
-        print(f"[ERROR] Failed to connect to ADO: {e}")
-        exit(1)
+        # Connect to ADO REST API
+        print("\nConnecting to Azure DevOps REST API...")
+        try:
+            rest_client = get_ado_rest_client()
+            print("[SUCCESS] Connected to ADO REST API")
+        except Exception as e:
+            print(f"[ERROR] Failed to connect to ADO: {e}")
+            exit(1)
 
-    # Collect metrics for all projects CONCURRENTLY
-    print("\nCollecting flow metrics (concurrent execution)...")
-    print("=" * 60)
+        # Collect metrics for all projects CONCURRENTLY
+        print("\nCollecting flow metrics (concurrent execution)...")
+        print("=" * 60)
 
-    # Create tasks for all projects (concurrent collection)
-    tasks = [collect_flow_metrics_for_project(rest_client, project, config) for project in projects]
+        # Create tasks for all projects (concurrent collection)
+        tasks = [collect_flow_metrics_for_project(rest_client, project, config) for project in projects]
 
-    # Execute all collections concurrently
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+        # Execute all collections concurrently
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # Filter successful results
-    project_metrics: list[dict] = []
-    for project, result in zip(projects, results, strict=True):
-        if isinstance(result, Exception):
-            print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
-        else:
-            project_metrics.append(result)  # type: ignore[arg-type]
+        # Filter successful results
+        project_metrics: list[dict] = []
+        for project, result in zip(projects, results, strict=True):
+            if isinstance(result, Exception):
+                print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
+            else:
+                project_metrics.append(result)  # type: ignore[arg-type]
 
-    # Save results
-    week_metrics = {
-        "week_date": datetime.now().strftime("%Y-%m-%d"),
-        "week_number": datetime.now().isocalendar()[1],  # ISO week number
-        "projects": project_metrics,
-        "config": config,
-    }
+        # Update tracker with project count
+        tracker.project_count = len(project_metrics)
 
-    save_flow_metrics(week_metrics)
+        # Save results
+        week_metrics = {
+            "week_date": datetime.now().strftime("%Y-%m-%d"),
+            "week_number": datetime.now().isocalendar()[1],  # ISO week number
+            "projects": project_metrics,
+            "config": config,
+        }
 
-    # Summary
-    print("\n" + "=" * 60)
-    print("Flow Metrics Collection Summary:")
-    print(f"  Projects processed: {len(project_metrics)}")
+        save_flow_metrics(week_metrics)
 
-    # Calculate totals by work type
-    totals_by_type = {
-        "Bug": {"open": 0, "closed": 0, "aging": 0},
-        "User Story": {"open": 0, "closed": 0, "aging": 0},
-        "Task": {"open": 0, "closed": 0, "aging": 0},
-    }
+        # Summary
+        print("\n" + "=" * 60)
+        print("Flow Metrics Collection Summary:")
+        print(f"  Projects processed: {len(project_metrics)}")
 
-    for p in project_metrics:
+        # Calculate totals by work type
+        totals_by_type = {
+            "Bug": {"open": 0, "closed": 0, "aging": 0},
+            "User Story": {"open": 0, "closed": 0, "aging": 0},
+            "Task": {"open": 0, "closed": 0, "aging": 0},
+        }
+
+        for p in project_metrics:
+            for work_type in ["Bug", "User Story", "Task"]:
+                metrics = p["work_type_metrics"].get(work_type, {})
+                totals_by_type[work_type]["open"] += metrics.get("open_count", 0)
+                totals_by_type[work_type]["closed"] += metrics.get("closed_count_90d", 0)
+                totals_by_type[work_type]["aging"] += metrics.get("aging_items", {}).get("count", 0)
+
+        print("\n  Metrics by Work Type:")
         for work_type in ["Bug", "User Story", "Task"]:
-            metrics = p["work_type_metrics"].get(work_type, {})
-            totals_by_type[work_type]["open"] += metrics.get("open_count", 0)
-            totals_by_type[work_type]["closed"] += metrics.get("closed_count_90d", 0)
-            totals_by_type[work_type]["aging"] += metrics.get("aging_items", {}).get("count", 0)
+            totals = totals_by_type[work_type]
+            print(f"    {work_type}:")
+            print(f"      WIP (open): {totals['open']}")
+            print(f"      Closed (90d): {totals['closed']}")
+            print(f"      Aging (>30d): {totals['aging']}")
 
-    print("\n  Metrics by Work Type:")
-    for work_type in ["Bug", "User Story", "Task"]:
-        totals = totals_by_type[work_type]
-        print(f"    {work_type}:")
-        print(f"      WIP (open): {totals['open']}")
-        print(f"      Closed (90d): {totals['closed']}")
-        print(f"      Aging (>30d): {totals['aging']}")
+        total_open = sum(p["total_open"] for p in project_metrics)
+        total_closed = sum(p["total_closed_90d"] for p in project_metrics)
 
-    total_open = sum(p["total_open"] for p in project_metrics)
-    total_closed = sum(p["total_closed_90d"] for p in project_metrics)
+        # Calculate excluded security bugs (from Bug work type only)
+        total_excluded_open = 0
+        total_excluded_closed = 0
+        for p in project_metrics:
+            bug_metrics = p["work_type_metrics"].get("Bug", {})
+            total_excluded_open += bug_metrics.get("excluded_security_bugs", {}).get("open", 0)
+            total_excluded_closed += bug_metrics.get("excluded_security_bugs", {}).get("closed", 0)
 
-    # Calculate excluded security bugs (from Bug work type only)
-    total_excluded_open = 0
-    total_excluded_closed = 0
-    for p in project_metrics:
-        bug_metrics = p["work_type_metrics"].get("Bug", {})
-        total_excluded_open += bug_metrics.get("excluded_security_bugs", {}).get("open", 0)
-        total_excluded_closed += bug_metrics.get("excluded_security_bugs", {}).get("closed", 0)
+        print(f"\n  Total WIP (all types): {total_open}")
+        print(f"  Total Closed (90d, all types): {total_closed}")
 
-    print(f"\n  Total WIP (all types): {total_open}")
-    print(f"  Total Closed (90d, all types): {total_closed}")
+        if total_excluded_open > 0 or total_excluded_closed > 0:
+            print(
+                f"  Security bugs excluded from Bug metrics: {total_excluded_open} open, {total_excluded_closed} closed"
+            )
+            print("    → Prevents double-counting with Security Dashboard")
 
-    if total_excluded_open > 0 or total_excluded_closed > 0:
-        print(f"  Security bugs excluded from Bug metrics: {total_excluded_open} open, {total_excluded_closed} closed")
-        print("    → Prevents double-counting with Security Dashboard")
+        print("  [NOTE] All metrics now segmented by Bug/Story/Task")
+        print("  [NOTE] No data limits - absolute accuracy")
 
-    print("  [NOTE] All metrics now segmented by Bug/Story/Task")
-    print("  [NOTE] No data limits - absolute accuracy")
-
-    print("\nFlow metrics collection complete (REST API + concurrent execution)!")
-    print("  ✓ Security bugs filtered out (no double-counting)")
-    print("  ✓ Concurrent collection for maximum speed")
-    print("\nNext step: Generate flow dashboard with work type segmentation")
+        print("\nFlow metrics collection complete (REST API + concurrent execution)!")
+        print("  ✓ Security bugs filtered out (no double-counting)")
+        print("  ✓ Concurrent collection for maximum speed")
+        print("\nNext step: Generate flow dashboard with work type segmentation")
 
 
 if __name__ == "__main__":
