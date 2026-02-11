@@ -64,9 +64,7 @@ class ArmorCodeLoader:
 
         try:
             # PathValidator ensures the resolved path is within allowed_dir
-            validated_path = PathValidator.validate_safe_path(
-                str(allowed_dir), str(history_file)
-            )
+            validated_path = PathValidator.validate_safe_path(str(allowed_dir), str(history_file))
             self.history_file = pathlib.Path(validated_path)
         except ValidationError as e:
             logger.error(f"Invalid history file path: {e}", extra={"path": str(history_file)})

@@ -192,19 +192,6 @@ Directives are living documents. When you discover:
 
 Update the directive! But don't overwrite without asking unless explicitly instructed.
 
-## Google OAuth Setup
-
-If you need Google Sheets, Slides, or other Google APIs:
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing
-3. Enable the APIs you need (Sheets, Slides, Drive, etc.)
-4. Create OAuth 2.0 credentials
-5. Download credentials as `credentials.json` in project root
-6. First run will prompt for authorization and create `token.json`
-
-Both files are in [`.gitignore`](.gitignore) to keep credentials safe.
-
 ## File Organization Best Practices
 
 ### Deliverables vs Intermediates

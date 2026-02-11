@@ -26,8 +26,6 @@
 .env                    # Local credentials
 .env.local              # Local overrides
 .env.production         # Production credentials
-credentials.json        # Google OAuth
-token.json              # Google OAuth tokens
 *.pem                   # Private keys
 *.key                   # Private keys
 ```
