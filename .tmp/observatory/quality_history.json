@@ -9969,7 +9969,7 @@
       "projects": [
         {
           "project_key": "Access_Legal_Case_Management",
-          "project_name": "Access Legal Case Management",
+          "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 420.9,
             "p85_age_days": 596.6,
@@ -10011,7 +10011,7 @@
         },
         {
           "project_key": "One_Office",
-          "project_name": "One Office",
+          "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 181.9,
             "p85_age_days": 583.6,
@@ -10052,8 +10052,8 @@
           "collected_at": "2026-02-11T12:06:57.095344"
         },
         {
-          "project_key": "LawFusion",
-          "project_name": "Access LawFusion",
+          "project_key": "Product C",
+          "project_name": "Product C",
           "bug_age_distribution": {
             "median_age_days": 369.9,
             "p85_age_days": 538.6,
@@ -10095,7 +10095,7 @@
         },
         {
           "project_key": "Learning_Content_Legal",
-          "project_name": "Learning Content Legal",
+          "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
             "p85_age_days": null,
@@ -10136,8 +10136,8 @@
           "collected_at": "2026-02-11T12:06:57.054488"
         },
         {
-          "project_key": "LegalBricks",
-          "project_name": "Access LegalBricks",
+          "project_key": "Product L",
+          "project_name": "Product L",
           "bug_age_distribution": {
             "median_age_days": 1.4,
             "p85_age_days": 10.3,
@@ -10179,7 +10179,7 @@
         },
         {
           "project_key": "Legal_Compliance",
-          "project_name": "Access Legal Compliance",
+          "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 78.9,
             "p85_age_days": 189.6,
@@ -10221,7 +10221,7 @@
         },
         {
           "project_key": "Legal_InCase",
-          "project_name": "Access Legal InCase",
+          "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.0,
             "p85_age_days": 107.8,
@@ -10262,8 +10262,8 @@
           "collected_at": "2026-02-11T12:06:57.051779"
         },
         {
-          "project_key": "Legal_Proclaim",
-          "project_name": "Access Legal Proclaim",
+          "project_key": "Legal_Product D",
+          "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 83.1,
             "p85_age_days": 298.9,
