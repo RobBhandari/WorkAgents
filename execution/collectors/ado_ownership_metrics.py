@@ -649,114 +649,123 @@ def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/o
         return False
 
 
-async def main() -> None:
-    """Main async function for ownership metrics collection"""
-    with track_collector_performance("ownership") as tracker:
-        # Set UTF-8 encoding for Windows console
-        if sys.platform == "win32":
-            import codecs
+class OwnershipCollector:
+    """Ownership metrics collector using BaseCollector infrastructure
 
-            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+    Refactored to use BaseCollector for common patterns:
+    - Windows UTF-8 encoding setup
+    - Discovery data loading
+    - ADO REST client initialization
+    - Performance tracking
 
-        logger.info("Director Observatory - Ownership Metrics Collector (REST API)\n")
-        logger.info("=" * 60)
+    Note: Uses composition instead of inheritance to avoid abstract method requirements
+    while still leveraging BaseCollector's utility methods.
+    """
 
-        # Configuration
-        config = {"lookback_days": 90}
+    def __init__(self):
+        # Import locally to avoid circular dependency
+        from execution.collectors.base import BaseCollector
 
-        # Load discovered projects
-        try:
-            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-                discovery_data = json.load(f)
-            projects = discovery_data["projects"]
-            logger.info(f"Loaded {len(projects)} projects from discovery")
-        except FileNotFoundError as e:
-            log_and_raise(
-                logger,
-                e,
-                context={
-                    "file_path": ".tmp/observatory/ado_structure.json",
-                    "hint": "Run: python execution/discover_projects.py",
-                },
-                error_type="Project discovery file not found",
-            )
-            exit(1)
-        except json.JSONDecodeError as e:
-            log_and_raise(
-                logger,
-                e,
-                context={"file_path": ".tmp/observatory/ado_structure.json"},
-                error_type="Invalid JSON in discovery file",
-            )
-            exit(1)
+        # Create a simple wrapper that implements abstract methods
+        # This allows us to use BaseCollector's infrastructure methods
+        class _BaseHelper(BaseCollector):
+            """Minimal implementation for infrastructure methods only"""
 
-        # Connect to ADO REST API
-        logger.info("\nConnecting to Azure DevOps REST API...")
-        try:
-            rest_client = get_ado_rest_client()
-            logger.info("[SUCCESS] Connected to ADO REST API")
-        except ValueError as e:
-            log_and_raise(
-                logger,
-                e,
-                context={"operation": "ADO REST client initialization"},
-                error_type="ADO REST client failed",
-            )
-            exit(1)
+            async def collect(self, project, rest_client):
+                pass  # Not used - OwnershipCollector has custom collect logic
 
-        # Collect metrics for all projects CONCURRENTLY
-        logger.info("\nCollecting ownership metrics (concurrent execution)...")
-        logger.info("=" * 60)
+            def save_metrics(self, results):
+                pass  # Not used - OwnershipCollector has custom save logic
 
-        # Create tasks for all projects (concurrent collection)
-        tasks = [collect_ownership_metrics_for_project(rest_client, project, config) for project in projects]
+        self._base = _BaseHelper(name="ownership", lookback_days=90)
+        self.config = self._base.config
+        self.logger = logger
 
-        # Execute all collections concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+    async def run(self) -> bool:
+        """Run ownership metrics collection with custom workflow"""
+        with track_collector_performance("ownership") as tracker:
+            self.logger.info("Director Observatory - Ownership Metrics Collector (REST API)")
+            self.logger.info("=" * 60)
 
-        # Filter successful results
-        project_metrics: list[dict] = []
-        for project, result in zip(projects, results, strict=True):
-            if isinstance(result, Exception):
-                log_and_continue(
-                    logger,
-                    result,  # type: ignore[arg-type]
-                    context={"project_name": project["project_name"], "project_key": project.get("project_key")},
-                    error_type="Project metrics collection",
-                )
-            else:
-                project_metrics.append(result)  # type: ignore[arg-type]
+            # Use BaseCollector to load discovery data
+            discovery_data = self._base.load_discovery_data()
+            projects = discovery_data.get("projects", [])
+            tracker.project_count = len(projects)
 
-        # Update tracker with project count
-        tracker.project_count = len(project_metrics)
+            if not projects:
+                self.logger.warning("No projects found in discovery data")
+                return False
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],
-            "projects": project_metrics,
-            "config": config,
-        }
+            # Use BaseCollector to get REST client
+            rest_client = self._base.get_rest_client()
 
-        save_ownership_metrics(week_metrics)
+            # Collect metrics for all projects CONCURRENTLY
+            self.logger.info("\nCollecting ownership metrics (concurrent execution)...")
+            self.logger.info("=" * 60)
 
-        # Summary
-        logger.info("\n" + "=" * 60)
-        logger.info("Ownership Metrics Collection Summary:")
-        logger.info(f"  Projects processed: {len(project_metrics)}")
+            # Create tasks for all projects (concurrent collection)
+            tasks = [collect_ownership_metrics_for_project(rest_client, project, self.config) for project in projects]
+
+            # Execute all collections concurrently
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Filter successful results
+            project_metrics: list[dict] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    log_and_continue(
+                        self.logger,
+                        result,  # type: ignore[arg-type]
+                        context={
+                            "project_name": project["project_name"],
+                            "project_key": project.get("project_key"),
+                        },
+                        error_type="Project metrics collection",
+                    )
+                else:
+                    project_metrics.append(result)  # type: ignore[arg-type]
+
+            # Save results
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": self.config,
+            }
+
+            success = save_ownership_metrics(week_metrics)
+
+            # Update tracker
+            tracker.success = success
+
+            # Summary
+            self._log_summary(project_metrics)
+
+            return success
+
+    def _log_summary(self, project_metrics: list[dict]) -> None:
+        """Log collection summary statistics"""
+        self.logger.info("\n" + "=" * 60)
+        self.logger.info("Ownership Metrics Collection Summary:")
+        self.logger.info(f"  Projects processed: {len(project_metrics)}")
 
         total_unassigned = sum(p["unassigned"]["unassigned_count"] for p in project_metrics)
         total_items = sum(p["total_items_analyzed"] for p in project_metrics)
         overall_unassigned_pct = (total_unassigned / total_items * 100) if total_items > 0 else 0
 
-        logger.info(f"  Total items analyzed: {total_items}")
-        logger.info(f"  Total unassigned: {total_unassigned} ({overall_unassigned_pct:.1f}%)")
+        self.logger.info(f"  Total items analyzed: {total_items}")
+        self.logger.info(f"  Total unassigned: {total_unassigned} ({overall_unassigned_pct:.1f}%)")
 
-        logger.info("\nOwnership metrics collection complete (REST API + concurrent execution)!")
-        logger.info("  ✓ Only hard data - no thresholds or classifications")
-        logger.info("  ✓ Concurrent collection for maximum speed")
-        logger.info("\nNext step: Generate ownership dashboard")
+        self.logger.info("\nOwnership metrics collection complete (REST API + concurrent execution)!")
+        self.logger.info("  ✓ Only hard data - no thresholds or classifications")
+        self.logger.info("  ✓ Concurrent collection for maximum speed")
+        self.logger.info("\nNext step: Generate ownership dashboard")
+
+
+async def main() -> None:
+    """Main entry point - simplified using OwnershipCollector"""
+    collector = OwnershipCollector()
+    await collector.run()
 
 
 if __name__ == "__main__":
