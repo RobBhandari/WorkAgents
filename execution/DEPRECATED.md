@@ -4,47 +4,59 @@ The following scripts are **deprecated** and no longer maintained. They rely on 
 
 ---
 
-## 🚨 CRITICAL: Production-Impacting SDK Dependencies (HIGH PRIORITY MIGRATION)
+## 🗑️ Removed (Dead Code - 2026-02-11)
 
-**WARNING**: These modules are **actively imported by production code** and will fail at runtime.
+The following SDK-dependent files were **NOT used in production** and have been removed:
 
-### Risk Query Modules (Used by `risk_collector.py`)
-- **`collectors/risk_queries/missing_tests.py`** ⚠️ **PRODUCTION IMPORT**
-- **`collectors/risk_queries/stale_bugs.py`** ⚠️ **PRODUCTION IMPORT**
-- **`collectors/risk_queries/high_priority_bugs.py`** ⚠️ **PRODUCTION IMPORT**
-- **`collectors/risk_queries/blocked_bugs.py`** ⚠️ **PRODUCTION IMPORT**
+### Risk Query Modules (Dead Code - Replaced by ado_risk_metrics.py)
+- ~~`collectors/risk_queries/missing_tests.py`~~ ❌ REMOVED
+- ~~`collectors/risk_queries/stale_bugs.py`~~ ❌ REMOVED
+- ~~`collectors/risk_queries/high_priority_bugs.py`~~ ❌ REMOVED
+- ~~`collectors/risk_queries/blocked_bugs.py`~~ ❌ REMOVED
+- ~~`collectors/risk_collector.py`~~ ❌ REMOVED (orchestrator for above modules)
 
-**Impact**: Imported by `collectors/risk_collector.py` (lines 20-24)
-**Issue**: Uses `azure.devops.v7_1.work_item_tracking` SDK (removed from requirements.txt)
-**Result**: `ImportError` at runtime when risk_collector is used
-**Action Required**: Migrate to REST API v7.1 using patterns from `collectors/ado_rest_client.py`
+**Reason**: Dead code left from incomplete migration. Production uses `collectors/ado_risk_metrics.py` (REST API v7.1) instead.
 
-### Utilities
-- **`utils/calculate_kloc.py`** ⚠️ **PRODUCTION USAGE**
-  - **Impact**: Used for defect density calculations in Quality Dashboard
-  - **Documentation**: `execution/KLOC_INTEGRATION_README.md`
-  - **Issue**: Uses `azure.devops.connection` SDK (removed from requirements.txt)
-  - **Action Required**: Migrate to REST API v7.1 Git API endpoints
+### KLOC Calculator (Incomplete Feature - Never Deployed)
+- ~~`utils/calculate_kloc.py`~~ ❌ REMOVED
+- ~~`KLOC_INTEGRATION_README.md`~~ ❌ REMOVED
+- ~~`test_kloc_integration.bat`~~ ❌ REMOVED
 
-- **`utils/ado_batch_utils.py`** - Contains deprecated `batch_fetch_work_items()` (SDK version)
-  - **Status**: File is NOT deprecated, only one function is deprecated
-  - ✅ **Use instead**: `batch_fetch_work_items_rest()` in the same file (REST API version)
-  - **Note**: Risk queries migration will automatically fix this dependency
+**Reason**: Incomplete feature that was documented but never integrated into production GitHub Actions workflow or dashboards.
+
+### Test Files
+- ~~`tests/collectors/test_risk_collector.py`~~ ❌ REMOVED
+- ~~`tests/collectors/risk_queries/`~~ ❌ REMOVED (directory)
 
 ---
 
-## 📋 Standalone Scripts (Lower Priority)
+## 📋 Remaining Deprecated Scripts
 
-### DOE Initiative Tracking Scripts
+### DOE Initiative Tracking Scripts (Status Uncertain)
 - **`create_ado_dec1_baseline.py`** - December 1st baseline creation script
 - **`ado_baseline.py`** - Week 0 baseline utilities (Jan 1, 2026)
 - **`ado_doe_tracker.py`** - Weekly DOE progress tracking (30% bug reduction target)
 - **`ado_query_bugs.py`** - Basic bug query utility
 
-**Status**: Uncertain if DOE initiative is still active
+**Status**: Uncertain if DOE (Department of Excellence) initiative is still active
 **Usage**: Referenced by `send_doe_report.py`, `ado_bugs_to_html.py`, `run_weekly_doe_report.bat`
 **Last Activity**: January-February 2026
 **Action**: Keep as-is until initiative status confirmed
+
+**To Use These Scripts** (Requires Manual SDK Installation):
+```bash
+# Install SDK manually (not in requirements.txt)
+pip install azure-devops==7.1.0b4
+
+# Run DOE tracking script
+python execution/ado_doe_tracker.py
+```
+
+### Utility Functions (Partially Deprecated)
+- **`utils/ado_batch_utils.py`** - Contains deprecated `batch_fetch_work_items()` (SDK version)
+  - **Status**: File is NOT deprecated, only one function is deprecated
+  - ✅ **Use instead**: `batch_fetch_work_items_rest()` in the same file (REST API version)
+  - **Note**: All production collectors use the REST version
 
 ---
 
@@ -56,7 +68,12 @@ These collectors are **actively maintained** and run in production (GitHub Actio
 - ✅ `collectors/ado_deployment_metrics.py`
 - ✅ `collectors/ado_ownership_metrics.py`
 - ✅ `collectors/ado_collaboration_metrics.py`
-- ✅ `collectors/ado_risk_metrics.py`
+- ✅ `collectors/ado_risk_metrics.py` ← **This replaced risk_collector.py**
+- ✅ `armorcode_enhanced_metrics.py` (Security metrics)
+
+**Workflow**: `.github/workflows/refresh-dashboards.yml`
+
+---
 
 ## Migration Notes
 
@@ -69,55 +86,24 @@ These collectors are **actively maintained** and run in production (GitHub Actio
 
 **Impact**: Legacy scripts will fail with `ModuleNotFoundError: No module named 'azure.devops'` if executed locally.
 
-**To Use Legacy Scripts** (Not Recommended):
-```bash
-# Install SDK manually (not in requirements.txt)
-pip install azure-devops==7.1.0b4
+---
 
-# Run legacy script
-python execution/ado_query_bugs.py
-```
+## Cleanup Summary (2026-02-11)
 
-## Migration Priority Roadmap
+**Removed**: 11 files (dead code)
+- 5 risk query modules (replaced by `ado_risk_metrics.py`)
+- 3 KLOC feature files (incomplete, never deployed)
+- 3 test files
 
-### Phase 1: Critical Production Fixes (IMMEDIATE)
-**Objective**: Fix broken production imports
+**Remaining**: 4 DOE tracking scripts (status uncertain)
 
-1. **Migrate `collectors/risk_queries/` modules (4 files)**
-   - Pattern: Use `ado_rest_client.py` for WIQL queries via REST API
-   - Replace `azure.devops.v7_1.work_item_tracking.Wiql` with REST API POST to `{org}/{project}/_apis/wit/wiql?api-version=7.1`
-   - Reference: See `collectors/ado_quality_metrics.py` (already migrated)
-   - Files:
-     - `blocked_bugs.py`
-     - `high_priority_bugs.py`
-     - `missing_tests.py`
-     - `stale_bugs.py`
-
-2. **Migrate `utils/calculate_kloc.py`**
-   - Pattern: Use REST API Git endpoints via `AzureDevOpsRESTClient`
-   - Replace `azure.devops.connection.Connection` with REST API
-   - Reference: See `collectors/ado_rest_client.py` for Git API patterns
-   - Endpoints needed:
-     - GET `{org}/{project}/_apis/git/repositories?api-version=7.1`
-     - GET `{org}/{project}/_apis/git/repositories/{repositoryId}/items?recursionLevel=Full&api-version=7.1`
-
-### Phase 2: Standalone Scripts (As Needed)
-**Objective**: Migrate DOE tracking scripts if initiative is confirmed active
-
-- `ado_baseline.py`
-- `ado_doe_tracker.py`
-- `create_ado_dec1_baseline.py`
-- `ado_query_bugs.py`
-
-**Status**: Deferred until DOE initiative status confirmed
+**Production**: 7 REST API collectors (all migrated, all working)
 
 ---
 
-## Recommended Approach
+## Migration Reference
 
-Instead of using these deprecated scripts:
-1. **PRIORITY**: Migrate risk queries and KLOC calculator (see Phase 1 above)
-2. Use the REST API-based collectors for production metrics (already completed for 6 collectors)
-3. Migrate any needed functionality to REST API v7.1
-4. See `collectors/ado_rest_client.py` for REST API implementation patterns
-5. See `docs/MIGRATION_GUIDE_SDK_TO_REST.md` for detailed migration guide
+For migrating remaining scripts to REST API v7.1:
+- **Migration Guide**: `docs/MIGRATION_GUIDE_SDK_TO_REST.md`
+- **REST Client**: `execution/collectors/ado_rest_client.py`
+- **Example Migration**: `execution/collectors/ado_quality_metrics.py`
