@@ -183,95 +183,79 @@ def save_flow_metrics(metrics: dict, output_file: str = ".tmp/observatory/flow_h
         return False
 
 
-async def main() -> None:
-    """Main async function for flow metrics collection"""
-    with track_collector_performance("flow") as tracker:
-        # Set UTF-8 encoding for Windows console
-        if sys.platform == "win32":
-            import codecs
+class FlowCollector:
+    """Flow metrics collector using BaseCollector infrastructure"""
 
-            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+    def __init__(self):
+        from execution.collectors.base import BaseCollector
 
-        print("Director Observatory - Flow Metrics Collector (REST API)\n")
-        print("=" * 60)
+        class _BaseHelper(BaseCollector):
+            async def collect(self, project, rest_client):
+                pass
 
-        # Configuration (using constants for defaults)
-        config = {
+            def save_metrics(self, results):
+                pass
+
+        self._base = _BaseHelper(name="flow", lookback_days=90)
+        self.config = {
             "lookback_days": flow_metrics.LOOKBACK_DAYS,
             "aging_threshold_days": flow_metrics.AGING_THRESHOLD_DAYS,
         }
 
-        # Load discovered projects
-        try:
-            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-                discovery_data = json.load(f)
-            projects = discovery_data["projects"]
-            print(f"Loaded {len(projects)} projects from discovery")
-        except FileNotFoundError:
-            print("[ERROR] Project discovery file not found.")
-            print("Run: python execution/discover_projects.py")
-            exit(1)
+    async def run(self) -> bool:
+        with track_collector_performance("flow") as tracker:
+            print("Director Observatory - Flow Metrics Collector (REST API)")
+            print("=" * 60)
 
-        # Connect to ADO REST API
-        print("\nConnecting to Azure DevOps REST API...")
-        try:
-            rest_client = get_ado_rest_client()
-            print("[SUCCESS] Connected to ADO REST API")
-        except Exception as e:
-            print(f"[ERROR] Failed to connect to ADO: {e}")
-            exit(1)
+            discovery_data = self._base.load_discovery_data()
+            projects = discovery_data.get("projects", [])
+            tracker.project_count = len(projects)
 
-        # Collect metrics for all projects CONCURRENTLY
-        print("\nCollecting flow metrics (concurrent execution)...")
-        print("=" * 60)
+            if not projects:
+                return False
 
-        # Create tasks for all projects (concurrent collection)
-        tasks = [collect_flow_metrics_for_project(rest_client, project, config) for project in projects]
+            rest_client = self._base.get_rest_client()
 
-        # Execute all collections concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+            print("\nCollecting flow metrics (concurrent execution)...")
+            print("=" * 60)
 
-        # Filter successful results
-        project_metrics: list[dict] = []
-        for project, result in zip(projects, results, strict=True):
-            if isinstance(result, Exception):
-                print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
-            else:
-                project_metrics.append(result)  # type: ignore[arg-type]
+            tasks = [collect_flow_metrics_for_project(rest_client, project, self.config) for project in projects]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Update tracker with project count
-        tracker.project_count = len(project_metrics)
+            project_metrics: list[dict] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    print(f"  [ERROR] Failed to collect metrics for {project['project_name']}: {result}")
+                else:
+                    project_metrics.append(result)  # type: ignore[arg-type]
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],  # ISO week number
-            "projects": project_metrics,
-            "config": config,
-        }
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": self.config,
+            }
 
-        save_flow_metrics(week_metrics)
+            success = save_flow_metrics(week_metrics)
+            tracker.success = success
+            self._log_summary(project_metrics)
+            return success
 
-        # Summary
+    def _log_summary(self, project_metrics: list[dict]) -> None:
         print("\n" + "=" * 60)
         print("Flow Metrics Collection Summary:")
         print(f"  Projects processed: {len(project_metrics)}")
-
-        # Calculate totals by work type
         totals_by_type = {
             "Bug": {"open": 0, "closed": 0, "aging": 0},
             "User Story": {"open": 0, "closed": 0, "aging": 0},
             "Task": {"open": 0, "closed": 0, "aging": 0},
         }
-
         for p in project_metrics:
             for work_type in ["Bug", "User Story", "Task"]:
                 metrics = p["work_type_metrics"].get(work_type, {})
                 totals_by_type[work_type]["open"] += metrics.get("open_count", 0)
                 totals_by_type[work_type]["closed"] += metrics.get("closed_count_90d", 0)
                 totals_by_type[work_type]["aging"] += metrics.get("aging_items", {}).get("count", 0)
-
         print("\n  Metrics by Work Type:")
         for work_type in ["Bug", "User Story", "Task"]:
             totals = totals_by_type[work_type]
@@ -279,34 +263,34 @@ async def main() -> None:
             print(f"      WIP (open): {totals['open']}")
             print(f"      Closed (90d): {totals['closed']}")
             print(f"      Aging (>30d): {totals['aging']}")
-
         total_open = sum(p["total_open"] for p in project_metrics)
         total_closed = sum(p["total_closed_90d"] for p in project_metrics)
-
-        # Calculate excluded security bugs (from Bug work type only)
-        total_excluded_open = 0
-        total_excluded_closed = 0
-        for p in project_metrics:
-            bug_metrics = p["work_type_metrics"].get("Bug", {})
-            total_excluded_open += bug_metrics.get("excluded_security_bugs", {}).get("open", 0)
-            total_excluded_closed += bug_metrics.get("excluded_security_bugs", {}).get("closed", 0)
-
+        total_excluded_open = sum(
+            p["work_type_metrics"].get("Bug", {}).get("excluded_security_bugs", {}).get("open", 0)
+            for p in project_metrics
+        )
+        total_excluded_closed = sum(
+            p["work_type_metrics"].get("Bug", {}).get("excluded_security_bugs", {}).get("closed", 0)
+            for p in project_metrics
+        )
         print(f"\n  Total WIP (all types): {total_open}")
         print(f"  Total Closed (90d, all types): {total_closed}")
-
         if total_excluded_open > 0 or total_excluded_closed > 0:
             print(
                 f"  Security bugs excluded from Bug metrics: {total_excluded_open} open, {total_excluded_closed} closed"
             )
             print("    → Prevents double-counting with Security Dashboard")
-
         print("  [NOTE] All metrics now segmented by Bug/Story/Task")
         print("  [NOTE] No data limits - absolute accuracy")
-
         print("\nFlow metrics collection complete (REST API + concurrent execution)!")
         print("  ✓ Security bugs filtered out (no double-counting)")
         print("  ✓ Concurrent collection for maximum speed")
         print("\nNext step: Generate flow dashboard with work type segmentation")
+
+
+async def main() -> None:
+    collector = FlowCollector()
+    await collector.run()
 
 
 if __name__ == "__main__":
