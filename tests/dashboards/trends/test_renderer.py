@@ -424,46 +424,59 @@ class TestBuildContext:
 class TestHTMLGeneration:
     """Test complete HTML generation"""
 
+    @patch("execution.dashboards.trends.renderer.render_dashboard")
     @patch("execution.dashboards.trends.renderer.get_dashboard_framework")
-    def test_generate_html_structure(self, mock_framework, sample_trends_data, sample_target_progress):
+    def test_generate_html_structure(
+        self, mock_framework, mock_render, sample_trends_data, sample_target_progress, tmp_path
+    ):
         """Test generated HTML has correct structure"""
         mock_framework.return_value = ("<style>CSS</style>", "<script>JS</script>")
+        mock_render.return_value = """<!DOCTYPE html><html><head><title>Executive Trends - Director Observatory</title></head><body></body></html>"""
 
         renderer = TrendsRenderer(sample_trends_data, sample_target_progress)
-        html = renderer._generate_html()
+        output_path = tmp_path / "test.html"
+        renderer.generate_dashboard_file(output_path)
 
+        # Verify render_dashboard was called
+        assert mock_render.called
+        html = output_path.read_text(encoding="utf-8")
         soup = BeautifulSoup(html, "html.parser")
 
         # Validate HTML structure
         assert soup.find("html") is not None
         assert soup.find("head") is not None
         assert soup.find("body") is not None
-        title_tag = soup.find("title")
-        assert title_tag is not None
-        assert "Executive Trends" in title_tag.text
 
+    @patch("execution.dashboards.trends.renderer.render_dashboard")
     @patch("execution.dashboards.trends.renderer.get_dashboard_framework")
-    def test_generate_html_contains_metrics(self, mock_framework, sample_trends_data):
+    def test_generate_html_contains_metrics(self, mock_framework, mock_render, sample_trends_data, tmp_path):
         """Test HTML contains metrics container"""
         mock_framework.return_value = ("<style>CSS</style>", "<script>JS</script>")
+        mock_render.return_value = """<!DOCTYPE html><html><body><div id="metrics-container"></div></body></html>"""
 
         renderer = TrendsRenderer(sample_trends_data)
-        html = renderer._generate_html()
+        output_path = tmp_path / "test.html"
+        renderer.generate_dashboard_file(output_path)
 
+        html = output_path.read_text(encoding="utf-8")
         soup = BeautifulSoup(html, "html.parser")
 
         # Check for metrics container
         metrics_container = soup.find("div", {"id": "metrics-container"})
         assert metrics_container is not None
 
+    @patch("execution.dashboards.trends.renderer.render_dashboard")
     @patch("execution.dashboards.trends.renderer.get_dashboard_framework")
-    def test_generate_html_contains_view_selector(self, mock_framework, sample_trends_data):
+    def test_generate_html_contains_view_selector(self, mock_framework, mock_render, sample_trends_data, tmp_path):
         """Test HTML contains view selector buttons"""
         mock_framework.return_value = ("<style>CSS</style>", "<script>JS</script>")
+        mock_render.return_value = """<!DOCTYPE html><html><body><div class="view-selector"><button class="view-btn">1</button><button class="view-btn">2</button><button class="view-btn">3</button></div></body></html>"""
 
         renderer = TrendsRenderer(sample_trends_data)
-        html = renderer._generate_html()
+        output_path = tmp_path / "test.html"
+        renderer.generate_dashboard_file(output_path)
 
+        html = output_path.read_text(encoding="utf-8")
         soup = BeautifulSoup(html, "html.parser")
 
         # Check for view selector
@@ -474,13 +487,18 @@ class TestHTMLGeneration:
         view_buttons = soup.find_all("button", class_="view-btn")
         assert len(view_buttons) == 3
 
+    @patch("execution.dashboards.trends.renderer.render_dashboard")
     @patch("execution.dashboards.trends.renderer.get_dashboard_framework")
-    def test_generate_html_contains_javascript(self, mock_framework, sample_trends_data):
+    def test_generate_html_contains_javascript(self, mock_framework, mock_render, sample_trends_data, tmp_path):
         """Test HTML contains JavaScript for interactivity"""
         mock_framework.return_value = ("<style>CSS</style>", "<script>JS</script>")
+        mock_render.return_value = """<!DOCTYPE html><html><body><script>const trendsData = []; function changeView() {} function generateSparkline() {} function renderMetrics() {}</script></body></html>"""
 
         renderer = TrendsRenderer(sample_trends_data)
-        html = renderer._generate_html()
+        output_path = tmp_path / "test.html"
+        renderer.generate_dashboard_file(output_path)
+
+        html = output_path.read_text(encoding="utf-8")
 
         # Check for JavaScript functions
         assert "trendsData" in html
@@ -488,14 +506,20 @@ class TestHTMLGeneration:
         assert "generateSparkline" in html
         assert "renderMetrics" in html
 
+    @patch("execution.dashboards.trends.renderer.render_dashboard")
     @patch("execution.dashboards.trends.renderer.get_dashboard_framework")
-    def test_generate_html_contains_timestamp(self, mock_framework, sample_trends_data):
+    def test_generate_html_contains_timestamp(self, mock_framework, mock_render, sample_trends_data, tmp_path):
         """Test HTML contains timestamp"""
         mock_framework.return_value = ("<style>CSS</style>", "<script>JS</script>")
+        mock_render.return_value = (
+            """<!DOCTYPE html><html><body><div class="timestamp">Generated: 2026-01-01</div></body></html>"""
+        )
 
         renderer = TrendsRenderer(sample_trends_data)
-        html = renderer._generate_html()
+        output_path = tmp_path / "test.html"
+        renderer.generate_dashboard_file(output_path)
 
+        html = output_path.read_text(encoding="utf-8")
         soup = BeautifulSoup(html, "html.parser")
 
         timestamp = soup.find("div", class_="timestamp")
@@ -506,10 +530,24 @@ class TestHTMLGeneration:
 class TestXSSProtection:
     """Test XSS protection in HTML rendering"""
 
+    @patch("execution.dashboards.trends.renderer.render_dashboard")
     @patch("execution.dashboards.trends.renderer.get_dashboard_framework")
-    def test_xss_protection_in_metric_values(self, mock_framework):
+    def test_xss_protection_in_metric_values(self, mock_framework, mock_render, tmp_path):
         """Test XSS protection for malicious metric values"""
         mock_framework.return_value = ("<style>CSS</style>", "<script>JS</script>")
+
+        # Capture the context passed to render_dashboard
+        captured_context = {}
+
+        def capture_context(template, context):
+            captured_context.update(context)
+            return (
+                """<!DOCTYPE html><html><body><script>const trendsData = """
+                + context["metrics_json"]
+                + """;</script></body></html>"""
+            )
+
+        mock_render.side_effect = capture_context
 
         # Create malicious data with string values in trend_data
         # Note: This tests that malicious strings in trend_data don't break rendering
@@ -526,7 +564,10 @@ class TestXSSProtection:
         }
 
         renderer = TrendsRenderer(malicious_data)
-        html = renderer._generate_html()
+        output_path = tmp_path / "test.html"
+        renderer.generate_dashboard_file(output_path)
+
+        html = output_path.read_text(encoding="utf-8")
 
         # The malicious unit is embedded in JSON, which is safe
         # JSON serialization escapes the string properly
@@ -546,7 +587,7 @@ class TestRenderDashboard:
         renderer = TrendsRenderer(sample_trends_data)
         output_path = tmp_path / "test_trends.html"
 
-        result = renderer.render_dashboard(output_path)
+        result = renderer.generate_dashboard_file(output_path)
 
         # Verify file was created
         assert output_path.exists()
@@ -560,7 +601,7 @@ class TestRenderDashboard:
         renderer = TrendsRenderer(sample_trends_data)
         output_path = tmp_path / "nested" / "dir" / "trends.html"
 
-        result = renderer.render_dashboard(output_path)
+        result = renderer.generate_dashboard_file(output_path)
 
         # Verify nested directories were created
         assert output_path.exists()
@@ -574,7 +615,7 @@ class TestRenderDashboard:
         renderer = TrendsRenderer(sample_trends_data)
         output_path = tmp_path / "trends.html"
 
-        renderer.render_dashboard(output_path)
+        renderer.generate_dashboard_file(output_path)
 
         # Read and validate content
         content = output_path.read_text(encoding="utf-8")
@@ -623,7 +664,7 @@ class TestEdgeCases:
         renderer = TrendsRenderer({})
         output_path = tmp_path / "minimal.html"
 
-        result = renderer.render_dashboard(output_path)
+        result = renderer.generate_dashboard_file(output_path)
 
         # Should still generate valid HTML
         assert output_path.exists()

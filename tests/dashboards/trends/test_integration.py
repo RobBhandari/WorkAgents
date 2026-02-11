@@ -164,7 +164,7 @@ class TestTrendsIntegration:
         renderer = TrendsRenderer(trends_data=trends, target_progress=target_progress)
 
         output_path = tmp_path / "test_dashboard.html"
-        generated_file = renderer.render_dashboard(output_path)
+        generated_file = renderer.generate_dashboard_file(output_path)
 
         # Verify output
         assert output_path.exists()
