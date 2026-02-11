@@ -21,7 +21,14 @@ import time
 from collections.abc import Callable
 from typing import Any
 
-from azure.devops.v7_1.work_item_tracking import WorkItemTrackingClient
+# Optional SDK import for deprecated functions (SDK removed from requirements.txt)
+try:
+    from azure.devops.v7_1.work_item_tracking import WorkItemTrackingClient
+
+    SDK_AVAILABLE = True
+except ImportError:
+    WorkItemTrackingClient = None  # type: ignore[assignment,misc]
+    SDK_AVAILABLE = False
 
 
 class BatchFetchError(Exception):
@@ -31,7 +38,7 @@ class BatchFetchError(Exception):
 
 
 def batch_fetch_work_items(
-    wit_client: WorkItemTrackingClient,
+    wit_client: Any,  # WorkItemTrackingClient (SDK removed from requirements.txt)
     item_ids: list[int],
     fields: list[str] | None = None,
     batch_size: int = 200,
@@ -39,13 +46,16 @@ def batch_fetch_work_items(
     logger: logging.Logger | None = None,
 ) -> tuple[list[dict[str, Any]], list[int]]:
     """
-    Fetch work items in batches with retry logic.
+    **DEPRECATED**: Fetch work items in batches with retry logic (SDK version).
+
+    This function requires azure-devops SDK, which has been removed from requirements.txt.
+    Use batch_fetch_work_items_rest() instead for REST API-based fetching.
 
     Azure DevOps API has a limit of ~200 items per request. This function
     automatically batches large requests and handles transient failures.
 
     Args:
-        wit_client: Azure DevOps Work Item Tracking client
+        wit_client: Azure DevOps Work Item Tracking client (SDK)
         item_ids: List of work item IDs to fetch
         fields: Optional list of fields to retrieve (None = all fields)
         batch_size: Number of items per batch (default: 200)
@@ -56,9 +66,11 @@ def batch_fetch_work_items(
         Tuple of (successfully_fetched_items, failed_item_ids)
 
     Raises:
+        ImportError: If azure-devops SDK is not installed
         BatchFetchError: If all batches fail completely
 
     Example:
+        # DEPRECATED - Use batch_fetch_work_items_rest() instead
         items, failed = batch_fetch_work_items(
             wit_client,
             item_ids=[1, 2, 3, ..., 500],
@@ -68,6 +80,13 @@ def batch_fetch_work_items(
         if failed:
             logger.warning(f"{len(failed)} items failed to fetch")
     """
+    if not SDK_AVAILABLE:
+        raise ImportError(
+            "batch_fetch_work_items() requires azure-devops SDK, which has been removed. "
+            "Use batch_fetch_work_items_rest() instead for REST API-based fetching. "
+            "See execution/DEPRECATED.md for migration details."
+        )
+
     if not item_ids:
         return [], []
 
@@ -130,6 +149,9 @@ def batch_fetch_with_callback(
 ) -> tuple[list[Any], list[Any]]:
     """
     Generic batch fetcher with custom fetch function.
+
+    NOTE: This function is still supported, but prefer async patterns with asyncio.gather()
+    for better performance in REST API-based collectors.
 
     Useful for non-work-item batching (e.g., commits, PRs).
 
@@ -297,6 +319,14 @@ if __name__ == "__main__":
 
     test_logger.info("ADO Batch Utilities - Self Test")
     test_logger.info("=" * 60)
+
+    if not SDK_AVAILABLE:
+        test_logger.warning("⚠️  Azure DevOps SDK not installed - skipping SDK-based tests")
+        test_logger.info("✓ batch_fetch_work_items_rest() is available (REST API version)")
+        test_logger.info("  See execution/DEPRECATED.md for SDK removal details")
+        import sys
+
+        sys.exit(0)
 
     # Test with mock data
     class MockWorkItem:
