@@ -1,0 +1,171 @@
+{% extends "dashboards/base_dashboard.html" %}
+{% block title %}Collector Health Monitoring{% endblock %}
+{% block header_title %}Collector Health Monitoring{% endblock %}
+
+{% block content %}
+<!-- Overall Status Banner -->
+<div class="section" style="text-align: center; margin-bottom: 30px;">
+    <h2 style="margin-bottom: 15px;">Pipeline Status</h2>
+    <div class="status-badge {{ overall_status_class }}" style="font-size: 1.5rem; padding: 15px 30px; display: inline-block;">
+        {{ overall_status }}
+    </div>
+    <p style="margin-top: 15px; color: var(--text-secondary);">
+        Collected on: <strong>{{ collection_date }}</strong><br>
+        Slowest collector: <strong>{{ slowest_collector }}</strong> ({{ slowest_time }})
+    </p>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary-grid">
+    {% for card in summary_cards %}
+    <div class="summary-card {{ card.status }}">
+        <div class="label">{{ card.title }}</div>
+        <div class="value">
+            {{ card.value }}
+            {% if card.unit %}<span class="unit">{{ card.unit }}</span>{% endif %}
+        </div>
+        {% if card.trend %}
+        <div class="trend" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
+            {{ card.trend }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Collector Performance Table -->
+<div class="section">
+    <h2>Collector Performance Details</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+        Individual collector metrics sorted by execution time (slowest first)
+    </p>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Collector</th>
+                <th>Execution Time</th>
+                <th>Status</th>
+                <th>Projects</th>
+                <th>API Calls</th>
+                <th>Rate Limits</th>
+                <th>Retries</th>
+                <th>Error</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in collector_rows %}
+            <tr>
+                <td>
+                    <span style="font-size: 1.2rem; margin-right: 5px;">{{ row.success_icon }}</span>
+                    <strong>{{ row.collector_name }}</strong>
+                </td>
+                <td>{{ row.execution_time }}</td>
+                <td><span class="status-badge {{ row.status_class }}">{{ row.status }}</span></td>
+                <td style="text-align: center;">{{ row.project_count }}</td>
+                <td style="text-align: center;">{{ row.api_calls }}</td>
+                <td style="text-align: center;">
+                    {% if row.rate_limits > 0 %}
+                    <span class="status-badge action">{{ row.rate_limits }}</span>
+                    {% else %}
+                    0
+                    {% endif %}
+                </td>
+                <td style="text-align: center;">{{ row.retries }}</td>
+                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ row.error_message }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Glossary -->
+<details class="glossary">
+    <summary>📖 Metric Definitions</summary>
+    <div class="glossary-content">
+        <dl>
+            <dt>Execution Time</dt>
+            <dd>Total time from collector start to completion, including API calls, data processing, and persistence.</dd>
+
+            <dt>Success Rate</dt>
+            <dd>Percentage of collectors that completed without raising exceptions. Target: ≥95%</dd>
+
+            <dt>API Calls</dt>
+            <dd>Total number of HTTP requests made to Azure DevOps REST API. Used to monitor API usage patterns.</dd>
+
+            <dt>Rate Limit Hits</dt>
+            <dd>Number of 429 (Too Many Requests) responses from Azure DevOps. Should be 0 in healthy operation.</dd>
+
+            <dt>Retries</dt>
+            <dd>Number of transient error retries (server errors, network timeouts). Some retries are normal; excessive retries indicate instability.</dd>
+
+            <dt>Status Thresholds</dt>
+            <dd>
+                <strong>Good:</strong> Successful completion + &lt;60s execution<br>
+                <strong>Caution:</strong> Successful completion + 60-120s execution<br>
+                <strong>Action Needed:</strong> &gt;120s execution or failed<br>
+                <strong>Failed:</strong> Raised exception during execution
+            </dd>
+
+            <dt>Overall Pipeline Status</dt>
+            <dd>
+                <strong>Good:</strong> No failures, avg time &lt;60s, no rate limits<br>
+                <strong>Caution:</strong> Minor issues (1-10% failures OR 60-120s avg time)<br>
+                <strong>Action Needed:</strong> Critical issues (&gt;10% failures OR &gt;120s avg time OR rate limits detected)
+            </dd>
+        </dl>
+
+        <h3 style="margin-top: 25px; margin-bottom: 10px;">Common Issues & Remediation</h3>
+        <dl>
+            <dt>🐌 Slow Execution (&gt;120s)</dt>
+            <dd>
+                <strong>Causes:</strong> Large number of projects, complex queries, slow ADO API responses<br>
+                <strong>Fixes:</strong> Optimize WIQL queries, reduce lookback period, increase API concurrency
+            </dd>
+
+            <dt>⚠️ Rate Limit Hits (429 responses)</dt>
+            <dd>
+                <strong>Causes:</strong> Too many parallel requests, other API consumers in org<br>
+                <strong>Fixes:</strong> Reduce max_parallel in GitHub Actions, add delays between requests, contact Azure support for limit increase
+            </dd>
+
+            <dt>❌ Failed Collectors</dt>
+            <dd>
+                <strong>Causes:</strong> Authentication failures, network timeouts, API schema changes<br>
+                <strong>Fixes:</strong> Check PAT expiration, verify network connectivity, review Azure DevOps API changelog
+            </dd>
+
+            <dt>🔄 Excessive Retries (&gt;5 per collector)</dt>
+            <dd>
+                <strong>Causes:</strong> Intermittent ADO service issues, network instability<br>
+                <strong>Fixes:</strong> Monitor Azure DevOps service health, check GitHub Actions runner connectivity
+            </dd>
+        </dl>
+
+        <h3 style="margin-top: 25px; margin-bottom: 10px;">Azure DevOps Rate Limits</h3>
+        <ul style="margin-left: 20px; line-height: 1.8;">
+            <li><strong>200 requests/second</strong> per user (PAT)</li>
+            <li><strong>10,000 requests/hour</strong> per organization</li>
+            <li>Rate limit headers: <code>X-RateLimit-Remaining</code>, <code>Retry-After</code></li>
+            <li>Documentation: <a href="https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/rate-limits" target="_blank" rel="noopener">Azure DevOps Rate Limits</a></li>
+        </ul>
+    </div>
+</details>
+
+<!-- Footer Context -->
+<div style="margin-top: 40px; padding: 20px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+    <h3 style="margin-bottom: 10px;">About This Dashboard</h3>
+    <p style="color: var(--text-secondary); line-height: 1.6;">
+        This dashboard monitors the health and performance of the data collector pipeline that feeds all Observatory dashboards.
+        Collectors run daily via GitHub Actions to gather metrics from Azure DevOps and other sources. Healthy collectors
+        ensure fresh, accurate data for decision-making.
+    </p>
+    <p style="color: var(--text-secondary); line-height: 1.6; margin-top: 10px;">
+        <strong>Monitoring:</strong> Performance metrics automatically saved to <code>.tmp/observatory/collector_performance_history.json</code><br>
+        <strong>Alerts:</strong> Failures and slow executions (&gt;120s) trigger Slack notifications<br>
+        <strong>Retention:</strong> 52 weeks of historical data for trend analysis
+    </p>
+</div>
+{% endblock %}
