@@ -375,13 +375,28 @@ jobs:
             echo "⚠️  No dashboards found, deployment will be empty"
           fi
 
-          # Copy staticwebapp.config.json to enable authentication
-          if [ -f "staticwebapp.config.json" ]; then
-            cp staticwebapp.config.json .tmp/observatory/dashboards/
-            echo "✅ Authentication config copied to deployment"
-          else
-            echo "⚠️  staticwebapp.config.json not found - authentication will NOT be enforced!"
+      - name: Validate authentication config (REQUIRED)
+        run: |
+          echo "🔒 Validating Azure AD authentication configuration..."
+
+          # SECURITY: Fail fast if auth config missing (prevent public dashboard deployment)
+          if [ ! -f "staticwebapp.config.json" ]; then
+            echo "❌ FATAL: staticwebapp.config.json not found!"
+            echo "Cannot deploy dashboards without authentication config."
+            echo "This would expose sensitive organizational metrics to the public internet."
+            exit 1
           fi
+
+          # Validate config requires authentication
+          if ! jq -e '.routes[0].allowedRoles | contains(["authenticated"])' staticwebapp.config.json > /dev/null 2>&1; then
+            echo "❌ FATAL: Authentication not enforced in staticwebapp.config.json"
+            echo "Config must require 'authenticated' role for all routes."
+            exit 1
+          fi
+
+          echo "✅ Authentication config validated"
+          cp staticwebapp.config.json .tmp/observatory/dashboards/
+          echo "✅ Authentication config copied to deployment"
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1

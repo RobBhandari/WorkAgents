@@ -64,8 +64,11 @@ jobs:
         run: python execution/armorcode_send_email.py
         continue-on-error: false
 
+      # SECURITY: Artifact upload disabled to prevent exposure of sensitive vulnerability data
+      # Artifacts would be accessible to anyone with repo read access (public repo = internet-wide)
+      # If debugging is needed, enable temporarily with manual workflow_dispatch trigger only
       - name: Upload report artifacts
-        if: always()
+        if: false  # Disabled for security - artifacts contain sensitive vulnerability data
         uses: actions/upload-artifact@v4
         with:
           name: armorcode-report-${{ github.run_number }}
@@ -73,4 +76,4 @@ jobs:
             .tmp/armorcode_weekly_*.json
             .tmp/armorcode_report_*.html
             .tmp/armorcode_baseline_*.log
-          retention-days: 1  # Minimize exposure window for sensitive data
+          retention-days: 1
