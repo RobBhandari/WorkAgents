@@ -203,3 +203,152 @@ class TestTrendData:
 
         # Should return same object since n >= len
         assert result is trend
+
+    def test_moving_average(self):
+        """Test simple moving average calculation"""
+        import math
+
+        values = [10.0, 12.0, 15.0, 14.0, 13.0, 16.0, 18.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 8)]
+        trend = TrendData(values=values, timestamps=timestamps)
+
+        ma = trend.moving_average(window=3)
+
+        # First 2 values should be NaN (insufficient window)
+        assert math.isnan(ma[0])
+        assert math.isnan(ma[1])
+
+        # Third value: avg(10, 12, 15) = 12.33
+        assert abs(ma[2] - 12.33) < 0.01
+
+        # Fourth value: avg(12, 15, 14) = 13.67
+        assert abs(ma[3] - 13.67) < 0.01
+
+        # Fifth value: avg(15, 14, 13) = 14.0
+        assert ma[4] == 14.0
+
+    def test_moving_average_window_1(self):
+        """Test moving average with window=1 returns original values"""
+        values = [10.0, 20.0, 30.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 4)]
+        trend = TrendData(values=values, timestamps=timestamps)
+
+        ma = trend.moving_average(window=1)
+
+        assert ma == values
+
+    def test_moving_average_empty(self):
+        """Test moving average returns empty list for empty data"""
+        trend = TrendData(values=[], timestamps=[])
+        ma = trend.moving_average(window=7)
+
+        assert ma == []
+
+    def test_moving_average_invalid_window(self):
+        """Test moving average returns empty list for invalid window"""
+        values = [10.0, 20.0, 30.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 4)]
+        trend = TrendData(values=values, timestamps=timestamps)
+
+        ma = trend.moving_average(window=0)
+        assert ma == []
+
+        ma = trend.moving_average(window=-1)
+        assert ma == []
+
+    def test_exponential_moving_average(self):
+        """Test exponential moving average calculation"""
+        values = [100.0, 95.0, 90.0, 92.0, 88.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 6)]
+        trend = TrendData(values=values, timestamps=timestamps)
+
+        ema = trend.exponential_moving_average(alpha=0.3)
+
+        # First value is always the same
+        assert ema[0] == 100.0
+
+        # Second: 0.3 * 95 + 0.7 * 100 = 98.5
+        assert abs(ema[1] - 98.5) < 0.01
+
+        # Third: 0.3 * 90 + 0.7 * 98.5 = 95.95
+        assert abs(ema[2] - 95.95) < 0.01
+
+        # EMA should smooth the trend
+        assert len(ema) == len(values)
+
+    def test_exponential_moving_average_alpha_1(self):
+        """Test EMA with alpha=1.0 returns original values"""
+        values = [100.0, 95.0, 90.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 4)]
+        trend = TrendData(values=values, timestamps=timestamps)
+
+        ema = trend.exponential_moving_average(alpha=1.0)
+
+        # With alpha=1, EMA = current value (no smoothing)
+        assert ema == values
+
+    def test_exponential_moving_average_invalid_alpha(self):
+        """Test EMA returns empty list for invalid alpha"""
+        values = [100.0, 95.0, 90.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 4)]
+        trend = TrendData(values=values, timestamps=timestamps)
+
+        # alpha <= 0
+        ema = trend.exponential_moving_average(alpha=0.0)
+        assert ema == []
+
+        # alpha > 1
+        ema = trend.exponential_moving_average(alpha=1.5)
+        assert ema == []
+
+    def test_exponential_moving_average_empty(self):
+        """Test EMA returns empty list for empty data"""
+        trend = TrendData(values=[], timestamps=[])
+        ema = trend.exponential_moving_average(alpha=0.3)
+
+        assert ema == []
+
+    def test_smooth_sma(self):
+        """Test smooth() with simple moving average"""
+        values = [10.0, 12.0, 15.0, 14.0, 13.0, 16.0, 18.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 8)]
+        trend = TrendData(values=values, timestamps=timestamps, label="Open Bugs")
+
+        smoothed = trend.smooth(method="sma", window=3)
+
+        # Should filter out NaN values (first 2)
+        assert len(smoothed.values) == 5  # 7 - 2
+        assert len(smoothed.timestamps) == 5
+
+        # Label should indicate smoothing
+        assert "SMA-3" in smoothed.label
+
+        # Values should be smoothed
+        assert smoothed.values[0] == pytest.approx(12.33, abs=0.01)
+
+    def test_smooth_ema(self):
+        """Test smooth() with exponential moving average"""
+        values = [100.0, 95.0, 90.0, 92.0, 88.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 6)]
+        trend = TrendData(values=values, timestamps=timestamps, label="Critical Vulns")
+
+        smoothed = trend.smooth(method="ema", window=7)
+
+        # EMA doesn't filter values
+        assert len(smoothed.values) == 5
+        assert len(smoothed.timestamps) == 5
+
+        # Label should indicate smoothing
+        assert "EMA-7" in smoothed.label
+
+        # First value always same
+        assert smoothed.values[0] == 100.0
+
+    def test_smooth_invalid_method(self):
+        """Test smooth() raises error for invalid method"""
+        values = [10.0, 20.0, 30.0]
+        timestamps = [datetime(2026, 1, i) for i in range(1, 4)]
+        trend = TrendData(values=values, timestamps=timestamps)
+
+        with pytest.raises(ValueError, match="Unknown smoothing method"):
+            trend.smooth(method="invalid", window=3)

@@ -1,0 +1,189 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Cross-Project Analysis{% endblock %}
+{% block header_title %}Cross-Project Performance Analysis{% endblock %}
+
+{% block content %}
+<!-- Performance Banner -->
+<div style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">⚡ Parallel Collection Performance</h3>
+            <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">
+                Async REST API enables simultaneous collection across {{ project_count }} projects with 3-10x speedup
+            </p>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 2.5rem; font-weight: bold;">{{ project_count }}</div>
+            <div style="font-size: 0.85rem; opacity: 0.9;">Projects Analyzed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performers -->
+<div style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">🏆 Top Performers</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <!-- Best Quality -->
+        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem;">
+            <h4 style="margin: 0 0 1rem 0; color: #059669; font-size: 1rem;">Best Quality (Fewest Bugs)</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for project in rankings.best_quality %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f0fdf4; border-radius: 4px;">
+                    <div>
+                        <div style="font-weight: 600;">{{ project.project_name or project.project_key }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">{{ project.project_key }}</div>
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #059669;">{{ project.open_bugs }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Best Deployment -->
+        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem;">
+            <h4 style="margin: 0 0 1rem 0; color: #0891b2; font-size: 1rem;">Best Deployment (Most Frequent)</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for project in rankings.best_deployment %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #ecfeff; border-radius: 4px;">
+                    <div>
+                        <div style="font-weight: 600;">{{ project.project_name or project.project_key }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">{{ project.project_key }}</div>
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #0891b2;">{{ "%.1f"|format(project.deployments_per_week or 0) }}/wk</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Best Reliability -->
+        <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem;">
+            <h4 style="margin: 0 0 1rem 0; color: #7c3aed; font-size: 1rem;">Best Reliability (Success Rate)</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for project in rankings.best_reliability %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f5f3ff; border-radius: 4px;">
+                    <div>
+                        <div style="font-weight: 600;">{{ project.project_name or project.project_key }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">{{ project.project_key }}</div>
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #7c3aed;">{{ "%.1f"|format(project.success_rate or 0) }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Outliers -->
+{% if outliers.bug_count_outliers %}
+<div style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">⚠️ Statistical Outliers</h3>
+    <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem;">
+        <div style="margin-bottom: 1rem; padding: 1rem; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 4px;">
+            <div style="font-size: 0.875rem; color: #991b1b;">
+                <strong>Mean Bugs:</strong> {{ outliers.mean_bugs }} | <strong>Std Dev:</strong> {{ outliers.std_dev }}
+            </div>
+            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                Projects with >2 standard deviations from mean are flagged
+            </div>
+        </div>
+
+        <div style="display: grid; gap: 0.75rem;">
+            {% for outlier in outliers.bug_count_outliers %}
+            <div style="padding: 1rem; background: {{ '#fef2f2' if outlier.severity == 'high' else '#fef3c7' }}; border-left: 3px solid {{ '#ef4444' if outlier.severity == 'high' else '#f59e0b' }}; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; color: #111827;">{{ outlier.project_name }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                            z-score: {{ outlier.z_score }} ({{ outlier.severity }} severity)
+                        </div>
+                    </div>
+                    <div style="font-size: 1.75rem; font-weight: bold; color: {{ '#ef4444' if outlier.severity == 'high' else '#f59e0b' }};">
+                        {{ outlier.open_bugs }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Needs Improvement -->
+<div style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">📊 Needs Improvement</h3>
+    <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem;">
+        <h4 style="margin: 0 0 1rem 0; color: #dc2626; font-size: 1rem;">Highest Bug Counts</h4>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for project in rankings.worst_quality %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #fef2f2; border-radius: 4px;">
+                <div>
+                    <div style="font-weight: 600;">{{ project.project_name or project.project_key }}</div>
+                    <div style="font-size: 0.75rem; color: #6b7280;">
+                        {{ project.project_key }} |
+                        P1: {{ project.priority_1_bugs or 0 }} |
+                        P2: {{ project.priority_2_bugs or 0 }}
+                    </div>
+                </div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #dc2626;">{{ project.open_bugs }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- All Projects Table -->
+<div style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">All Projects - Comparative View</h3>
+    <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+            <thead>
+                <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #374151;">Project</th>
+                    <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">Open Bugs</th>
+                    <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">P1 Bugs</th>
+                    <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">P2 Bugs</th>
+                    <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">Deploy/Week</th>
+                    <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #374151;">Success Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 0.75rem;">
+                        <div style="font-weight: 600;">{{ project.project_name or project.project_key }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">{{ project.project_key }}</div>
+                    </td>
+                    <td style="padding: 0.75rem; text-align: center; font-weight: 600; color: {{ '#22c55e' if project.open_bugs < 50 else '#f59e0b' if project.open_bugs < 100 else '#ef4444' }};">
+                        {{ project.open_bugs or 0 }}
+                    </td>
+                    <td style="padding: 0.75rem; text-align: center;">{{ project.priority_1_bugs or 0 }}</td>
+                    <td style="padding: 0.75rem; text-align: center;">{{ project.priority_2_bugs or 0 }}</td>
+                    <td style="padding: 0.75rem; text-align: center;">{{ "%.1f"|format(project.deployments_per_week or 0) }}</td>
+                    <td style="padding: 0.75rem; text-align: center; color: {{ '#22c55e' if (project.success_rate or 0) >= 90 else '#f59e0b' if (project.success_rate or 0) >= 70 else '#ef4444' }};">
+                        {{ "%.1f"|format(project.success_rate or 0) }}%
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Insights -->
+<div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+    <h4 style="margin: 0 0 1rem 0; color: #1e40af;">💡 Key Insights</h4>
+    <ul style="margin: 0; padding-left: 1.5rem; color: #1e40af; line-height: 1.8;">
+        <li><strong>Parallel Collection</strong> enables simultaneous metrics gathering across all {{ project_count }} projects</li>
+        <li><strong>Comparative Analysis</strong> identifies best practices from top performers</li>
+        <li><strong>Outlier Detection</strong> flags projects needing immediate attention (>2 std dev)</li>
+        <li><strong>Performance-Enabled</strong>: REST API 3-10x speedup makes cross-project analysis practical</li>
+        <li><strong>Data-Driven Decisions</strong>: Use rankings to guide improvement efforts and resource allocation</li>
+    </ul>
+</div>
+
+<!-- Generation Info -->
+<div style="margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 4px; font-size: 0.75rem; color: #6b7280;">
+    Generated on {{ generation_date }} | Analyzing {{ project_count }} projects in parallel
+</div>
+{% endblock %}
