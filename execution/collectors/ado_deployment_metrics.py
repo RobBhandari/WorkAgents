@@ -29,6 +29,7 @@ from dotenv import load_dotenv
 
 from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
 from execution.collectors.ado_rest_transformers import BuildTransformer, GitTransformer
+from execution.core.collector_metrics import track_collector_performance
 from execution.secure_config import get_config
 from execution.utils.datetime_utils import parse_ado_timestamp
 from execution.utils.error_handling import log_and_continue, log_and_raise, log_and_return_default
@@ -495,19 +496,20 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
 
 async def main() -> None:
     """Main async function for deployment metrics collection"""
-    # Set UTF-8 encoding for Windows console
-    if sys.platform == "win32":
-        import codecs
+    with track_collector_performance("deployment") as tracker:
+        # Set UTF-8 encoding for Windows console
+        if sys.platform == "win32":
+            import codecs
 
-        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[logging.FileHandler(".tmp/observatory/deployment_metrics.log"), logging.StreamHandler()],
-    )
+        # Configure logging
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[logging.FileHandler(".tmp/observatory/deployment_metrics.log"), logging.StreamHandler()],
+        )
 
     print("Director Observatory - Deployment Metrics Collector (REST API)\n")
     print("=" * 60)
