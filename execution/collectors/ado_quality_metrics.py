@@ -596,107 +596,81 @@ def save_quality_metrics(metrics: dict, output_file: str = ".tmp/observatory/qua
         return False
 
 
-async def main() -> None:
-    """Main async function for quality metrics collection"""
-    from execution.core.collector_metrics import track_collector_performance
+class QualityCollector:
+    """Quality metrics collector using BaseCollector infrastructure"""
 
-    # Set UTF-8 encoding for Windows console
-    if sys.platform == "win32":
-        import codecs
+    def __init__(self):
+        from execution.collectors.base import BaseCollector
 
-        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
-        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+        class _BaseHelper(BaseCollector):
+            async def collect(self, project, rest_client):
+                pass
 
-    # WRAP ENTIRE EXECUTION WITH PERFORMANCE TRACKING
-    with track_collector_performance("quality") as tracker:
-        # Configure logging
-        logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            def save_metrics(self, results):
+                pass
 
-        print("Director Observatory - Quality Metrics Collector (REST API)\n")
-        print("=" * 60)
+        self._base = _BaseHelper(name="quality", lookback_days=90)
+        self.config = self._base.config
 
-        # Configuration
-        config = {
-            "lookback_days": 90,  # How many days back to look for bugs
-        }
+    async def run(self) -> bool:
+        from execution.core.collector_metrics import track_collector_performance
 
-        # Load discovered projects
-        try:
-            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-                discovery_data = json.load(f)
-            projects = discovery_data["projects"]
-            print(f"Loaded {len(projects)} projects from discovery")
-        except FileNotFoundError:
-            logger.error("Project discovery file not found.")
-            print("Run: python execution/discover_projects.py")
-            sys.exit(1)
-        except (json.JSONDecodeError, KeyError) as e:
-            logger.error(f"Invalid discovery file format: {e}")
-            sys.exit(1)
+        with track_collector_performance("quality") as tracker:
+            logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            print("Director Observatory - Quality Metrics Collector (REST API)")
+            print("=" * 60)
 
-        # Connect to ADO REST API
-        print("\nConnecting to Azure DevOps REST API...")
-        try:
-            rest_client = get_ado_rest_client()
-            print("[SUCCESS] Connected to ADO REST API")
-        except Exception as e:
-            logger.error(f"Failed to connect to ADO: {e}", exc_info=True, extra={"error_type": "ADO Connection"})
-            sys.exit(1)
+            discovery_data = self._base.load_discovery_data()
+            projects = discovery_data.get("projects", [])
+            tracker.project_count = len(projects)
 
-        # Collect metrics for all projects CONCURRENTLY
-        print("\nCollecting quality metrics (concurrent execution)...")
-        print("=" * 60)
+            if not projects:
+                return False
 
-        # Create tasks for all projects
-        tasks = [collect_quality_metrics_for_project(rest_client, project, config) for project in projects]
+            rest_client = self._base.get_rest_client()
 
-        # Execute concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+            print("\nCollecting quality metrics (concurrent execution)...")
+            print("=" * 60)
 
-        # Filter successful results
-        project_metrics: list[dict] = []
-        for project, result in zip(projects, results, strict=True):
-            if isinstance(result, Exception):
-                logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
-            else:
-                project_metrics.append(result)  # type: ignore[arg-type]
+            tasks = [collect_quality_metrics_for_project(rest_client, project, self.config) for project in projects]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Update tracker with project count
-        tracker.project_count = len(project_metrics)
+            project_metrics: list[dict] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
+                else:
+                    project_metrics.append(result)  # type: ignore[arg-type]
 
-        # Save results
-        week_metrics = {
-            "week_date": datetime.now().strftime("%Y-%m-%d"),
-            "week_number": datetime.now().isocalendar()[1],  # ISO week number
-            "projects": project_metrics,
-            "config": config,
-        }
+            week_metrics = {
+                "week_date": datetime.now().strftime("%Y-%m-%d"),
+                "week_number": datetime.now().isocalendar()[1],
+                "projects": project_metrics,
+                "config": self.config,
+            }
 
-        save_quality_metrics(week_metrics)
+            success = save_quality_metrics(week_metrics)
+            tracker.success = success
+            self._log_summary(project_metrics)
+            return success
 
-        # Summary
+    def _log_summary(self, project_metrics: list[dict]) -> None:
         print("\n" + "=" * 60)
         print("Quality Metrics Collection Summary:")
         print(f"  Projects processed: {len(project_metrics)}")
-
         total_bugs = sum(p["total_bugs_analyzed"] for p in project_metrics)
         total_open = sum(p["open_bugs_count"] for p in project_metrics)
         total_excluded = sum(p["excluded_security_bugs"]["total"] for p in project_metrics)
         total_excluded_open = sum(p["excluded_security_bugs"]["open"] for p in project_metrics)
-
         print(f"  Total bugs analyzed: {total_bugs}")
         print(f"  Total open bugs: {total_open}")
-
         if total_excluded > 0:
             print(f"  Security bugs excluded: {total_excluded} total ({total_excluded_open} open)")
             print("    → Prevents double-counting with Security Dashboard")
-
-        # Calculate average MTTR
         mttr_values = [p["mttr"]["mttr_days"] for p in project_metrics if p["mttr"]["mttr_days"] is not None]
         if mttr_values:
             avg_mttr = sum(mttr_values) / len(mttr_values)
             print(f"  Avg MTTR: {round(avg_mttr, 1)} days")
-
         print("\nQuality metrics collection complete (REST API + concurrent execution)!")
         print("  ✓ Only hard data - no speculation")
         print("  ✓ MTTR: Actual CreatedDate → ClosedDate")
@@ -706,7 +680,10 @@ async def main() -> None:
         print("  ✓ Concurrent collection for maximum speed")
         print("\nNext step: Generate quality dashboard")
 
-    # Metrics auto-saved on context manager exit
+
+async def main() -> None:
+    collector = QualityCollector()
+    await collector.run()
 
 
 if __name__ == "__main__":
