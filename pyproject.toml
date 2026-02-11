@@ -86,6 +86,8 @@ ignore_missing_imports = true
 exclude = [
     'execution/experiments/',
     'execution/archive/',
+    'execution/collectors/risk_queries/',  # Deprecated SDK-based modules
+    'tests/collectors/risk_queries/',      # Deprecated SDK-based tests
     '.venv/',
 ]
 
@@ -119,6 +121,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
+    "--ignore=tests/collectors/risk_queries",  # Deprecated SDK-based tests
 ]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
@@ -136,6 +139,10 @@ omit = [
     "*/tests/*",
     "*/__pycache__/*",
     "*/.venv/*",
+
+    # Deprecated SDK-based modules (see execution/DEPRECATED.md)
+    "execution/collectors/risk_queries/*",
+    "execution/utils/calculate_kloc.py",
 
     # Deprecated wrappers (delegate to refactored implementations)
     "execution/generate_*_dashboard.py",

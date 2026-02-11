@@ -430,17 +430,19 @@ The data collectors have been fully migrated from the Azure DevOps Python SDK to
 
 ### Migration Summary
 
-**Completed**: February 2026
+**Completed**: February 11, 2026
 **Status**: ✅ 100% production validated
+**Migration Duration**: 10 days
 
-All 7 Azure DevOps collectors now use direct REST API calls with async/await patterns:
+All 8 Azure DevOps collectors now use direct REST API v7.1 calls with async/await patterns:
 - `ado_quality_metrics.py` - Test pass rate, bug metrics, code quality
 - `ado_flow_metrics.py` - Lead time, cycle time, throughput
 - `ado_deployment_metrics.py` - Deployment frequency, success rate
 - `ado_ownership_metrics.py` - Active contributors, commit patterns
 - `ado_collaboration_metrics.py` - PR review metrics, iteration counts
 - `ado_risk_metrics.py` - Test coverage, technical debt indicators
-- `async_ado_collector.py` - Unified async wrapper
+- `async_ado_collector.py` - Unified async wrapper for all collectors
+- `ado_flow_loader.py` - Historical flow data loader
 
 ### Performance Improvements
 
@@ -524,12 +526,34 @@ all_metrics = await asyncio.gather(*tasks, return_exceptions=True)
 
 ### Deprecated Components
 
-Legacy scripts relying on the SDK are documented in `execution/DEPRECATED.md`:
-- 4 risk query modules (`collectors/risk_queries/`)
-- 3 baseline/utility scripts
-- 1 SDK-based batch fetcher (replaced with `batch_fetch_work_items_rest()`)
+**10 legacy scripts** relying on the SDK are documented in `execution/DEPRECATED.md`:
+- **4 risk query modules** (`collectors/risk_queries/`) - Replaced by REST-based queries
+- **3 one-time baseline scripts** - No longer needed (baselines created)
+- **2 SDK-dependent utilities** (`utils/calculate_kloc.py`, `utils/ado_batch_utils.py` SDK version)
+- **1 DOE tracker script** - Replaced by REST collectors
 
-These files are **not used in production** and won't affect the GitHub Actions workflow.
+**Impact**: These files are **not used in production** and won't affect the GitHub Actions workflow. They will fail with `ModuleNotFoundError` if executed locally (SDK removed from requirements.txt).
+
+**Migration Path**: See `docs/MIGRATION_GUIDE_SDK_TO_REST.md` for replacement patterns using REST API v7.1.
+
+### Migration Resources
+
+**Comprehensive Documentation**:
+- **Migration Guide**: [docs/MIGRATION_GUIDE_SDK_TO_REST.md](docs/MIGRATION_GUIDE_SDK_TO_REST.md) - Complete step-by-step migration patterns
+- **Lessons Learned**: See migration guide for performance benchmarks, challenges, and best practices
+- **Deprecated Files**: [execution/DEPRECATED.md](execution/DEPRECATED.md) - List of SDK-dependent files
+
+**Performance Benchmarks**:
+- Quality Metrics: **32x faster** (8 min → 15 sec)
+- Collaboration Metrics: **32x faster** (8 min → 15 sec)
+- Total Collection Time: **15x faster** (30 min → 2 min)
+
+**Key Achievements**:
+- ✅ H-1 security vulnerability resolved
+- ✅ Zero production dependencies with security risks
+- ✅ 3-50x performance improvements via async/await
+- ✅ Concurrent project processing with `asyncio.gather()`
+- ✅ 100% backward compatible (no breaking changes for dashboards)
 
 ### API Documentation
 
