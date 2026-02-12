@@ -5,7 +5,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 49,
@@ -36,7 +36,7 @@
           "collected_at": "2026-02-06T09:05:16.602593"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 49,
@@ -98,7 +98,7 @@
           "collected_at": "2026-02-06T09:06:58.372942"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -147,7 +147,7 @@
           "collected_at": "2026-02-06T09:08:17.053677"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 50,
@@ -178,7 +178,7 @@
           "collected_at": "2026-02-06T09:08:51.681913"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 50,
@@ -209,7 +209,7 @@
           "collected_at": "2026-02-06T09:10:04.613181"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 50,
@@ -249,7 +249,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -280,7 +280,7 @@
           "collected_at": "2026-02-06T17:38:32.779545"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -342,7 +342,7 @@
           "collected_at": "2026-02-06T17:38:53.850132"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -391,7 +391,7 @@
           "collected_at": "2026-02-06T17:39:03.587735"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -422,7 +422,7 @@
           "collected_at": "2026-02-06T17:39:07.830966"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -453,7 +453,7 @@
           "collected_at": "2026-02-06T17:39:14.636289"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -493,7 +493,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -524,7 +524,7 @@
           "collected_at": "2026-02-06T17:46:14.587477"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -586,7 +586,7 @@
           "collected_at": "2026-02-06T17:46:34.875090"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -635,7 +635,7 @@
           "collected_at": "2026-02-06T17:46:45.528401"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -666,7 +666,7 @@
           "collected_at": "2026-02-06T17:46:49.717006"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -697,7 +697,7 @@
           "collected_at": "2026-02-06T17:46:57.192057"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -737,7 +737,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -768,7 +768,7 @@
           "collected_at": "2026-02-06T18:08:33.794181"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -830,7 +830,7 @@
           "collected_at": "2026-02-06T18:09:05.433951"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -879,7 +879,7 @@
           "collected_at": "2026-02-06T18:09:21.713730"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -910,7 +910,7 @@
           "collected_at": "2026-02-06T18:09:28.486834"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -941,7 +941,7 @@
           "collected_at": "2026-02-06T18:09:39.477699"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -981,7 +981,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -1012,7 +1012,7 @@
           "collected_at": "2026-02-06T18:34:51.046902"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -1074,7 +1074,7 @@
           "collected_at": "2026-02-06T18:35:19.977956"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -1123,7 +1123,7 @@
           "collected_at": "2026-02-06T18:35:34.428551"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -1154,7 +1154,7 @@
           "collected_at": "2026-02-06T18:35:40.988085"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -1185,7 +1185,7 @@
           "collected_at": "2026-02-06T18:35:52.072998"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -1225,7 +1225,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -1256,7 +1256,7 @@
           "collected_at": "2026-02-06T18:41:18.616652"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -1318,7 +1318,7 @@
           "collected_at": "2026-02-06T18:41:40.429648"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -1367,7 +1367,7 @@
           "collected_at": "2026-02-06T18:41:51.634913"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -1398,7 +1398,7 @@
           "collected_at": "2026-02-06T18:41:56.323368"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -1429,7 +1429,7 @@
           "collected_at": "2026-02-06T18:42:04.111716"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -1469,7 +1469,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -1500,7 +1500,7 @@
           "collected_at": "2026-02-06T22:39:03.990381"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -1562,7 +1562,7 @@
           "collected_at": "2026-02-06T22:39:30.277333"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -1611,7 +1611,7 @@
           "collected_at": "2026-02-06T22:39:43.330224"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -1642,7 +1642,7 @@
           "collected_at": "2026-02-06T22:39:48.537417"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -1673,7 +1673,7 @@
           "collected_at": "2026-02-06T22:39:57.198945"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -1713,7 +1713,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -1744,7 +1744,7 @@
           "collected_at": "2026-02-07T06:48:33.713918"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -1806,7 +1806,7 @@
           "collected_at": "2026-02-07T06:48:55.124654"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -1855,7 +1855,7 @@
           "collected_at": "2026-02-07T06:49:06.148415"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -1886,7 +1886,7 @@
           "collected_at": "2026-02-07T06:49:10.832529"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -1917,7 +1917,7 @@
           "collected_at": "2026-02-07T06:49:18.359212"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -1957,7 +1957,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -1988,7 +1988,7 @@
           "collected_at": "2026-02-07T12:26:24.008570"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -2050,7 +2050,7 @@
           "collected_at": "2026-02-07T12:26:53.016004"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -2099,7 +2099,7 @@
           "collected_at": "2026-02-07T12:27:07.673976"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -2130,7 +2130,7 @@
           "collected_at": "2026-02-07T12:27:13.870087"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -2161,7 +2161,7 @@
           "collected_at": "2026-02-07T12:27:23.761260"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -2201,7 +2201,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -2232,7 +2232,7 @@
           "collected_at": "2026-02-07T12:45:26.475065"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -2294,7 +2294,7 @@
           "collected_at": "2026-02-07T12:45:57.064704"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -2343,7 +2343,7 @@
           "collected_at": "2026-02-07T12:46:12.822363"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -2374,7 +2374,7 @@
           "collected_at": "2026-02-07T12:46:19.305058"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -2405,7 +2405,7 @@
           "collected_at": "2026-02-07T12:46:30.067029"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -2445,7 +2445,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -2476,7 +2476,7 @@
           "collected_at": "2026-02-07T13:27:50.192200"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -2538,7 +2538,7 @@
           "collected_at": "2026-02-07T13:28:14.149083"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -2587,7 +2587,7 @@
           "collected_at": "2026-02-07T13:28:25.512338"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -2618,7 +2618,7 @@
           "collected_at": "2026-02-07T13:28:30.232359"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -2649,7 +2649,7 @@
           "collected_at": "2026-02-07T13:28:38.382972"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -2689,7 +2689,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -2720,7 +2720,7 @@
           "collected_at": "2026-02-08T14:49:34.231121"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -2782,7 +2782,7 @@
           "collected_at": "2026-02-08T14:49:55.325584"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -2831,7 +2831,7 @@
           "collected_at": "2026-02-08T14:50:06.141666"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -2862,7 +2862,7 @@
           "collected_at": "2026-02-08T14:50:10.661324"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -2893,7 +2893,7 @@
           "collected_at": "2026-02-08T14:50:18.447100"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -2933,7 +2933,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -2964,7 +2964,7 @@
           "collected_at": "2026-02-08T15:13:52.195836"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -3026,7 +3026,7 @@
           "collected_at": "2026-02-08T15:14:13.940267"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -3075,7 +3075,7 @@
           "collected_at": "2026-02-08T15:14:24.407015"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -3106,7 +3106,7 @@
           "collected_at": "2026-02-08T15:14:29.368214"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -3137,7 +3137,7 @@
           "collected_at": "2026-02-08T15:14:36.555142"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -3177,7 +3177,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -3208,7 +3208,7 @@
           "collected_at": "2026-02-08T15:19:13.939261"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -3270,7 +3270,7 @@
           "collected_at": "2026-02-08T15:19:35.899721"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -3319,7 +3319,7 @@
           "collected_at": "2026-02-08T15:19:46.168966"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -3350,7 +3350,7 @@
           "collected_at": "2026-02-08T15:19:50.515860"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -3381,7 +3381,7 @@
           "collected_at": "2026-02-08T15:19:57.823795"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -3421,7 +3421,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -3452,7 +3452,7 @@
           "collected_at": "2026-02-08T20:58:42.630974"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -3514,7 +3514,7 @@
           "collected_at": "2026-02-08T20:59:11.388249"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -3563,7 +3563,7 @@
           "collected_at": "2026-02-08T20:59:25.207065"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -3594,7 +3594,7 @@
           "collected_at": "2026-02-08T20:59:31.444450"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -3625,7 +3625,7 @@
           "collected_at": "2026-02-08T20:59:41.510397"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -3665,7 +3665,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -3696,7 +3696,7 @@
           "collected_at": "2026-02-08T21:05:44.717548"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -3758,7 +3758,7 @@
           "collected_at": "2026-02-08T21:06:15.878076"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -3807,7 +3807,7 @@
           "collected_at": "2026-02-08T21:06:31.411422"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -3838,7 +3838,7 @@
           "collected_at": "2026-02-08T21:06:37.803817"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -3869,7 +3869,7 @@
           "collected_at": "2026-02-08T21:06:48.085649"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -3909,7 +3909,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -3940,7 +3940,7 @@
           "collected_at": "2026-02-08T22:55:17.210004"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -4002,7 +4002,7 @@
           "collected_at": "2026-02-08T22:55:45.872883"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -4051,7 +4051,7 @@
           "collected_at": "2026-02-08T22:56:00.174366"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -4082,7 +4082,7 @@
           "collected_at": "2026-02-08T22:56:06.247081"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -4113,7 +4113,7 @@
           "collected_at": "2026-02-08T22:56:15.961901"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -4153,7 +4153,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -4184,7 +4184,7 @@
           "collected_at": "2026-02-08T23:01:56.889213"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -4246,7 +4246,7 @@
           "collected_at": "2026-02-08T23:02:18.599723"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -4295,7 +4295,7 @@
           "collected_at": "2026-02-08T23:02:29.366241"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -4326,7 +4326,7 @@
           "collected_at": "2026-02-08T23:02:33.992298"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -4357,7 +4357,7 @@
           "collected_at": "2026-02-08T23:02:41.375092"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -4397,7 +4397,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -4428,7 +4428,7 @@
           "collected_at": "2026-02-09T00:34:24.533117"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -4490,7 +4490,7 @@
           "collected_at": "2026-02-09T00:34:43.720371"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -4539,7 +4539,7 @@
           "collected_at": "2026-02-09T00:34:53.032884"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -4570,7 +4570,7 @@
           "collected_at": "2026-02-09T00:34:56.756095"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -4601,7 +4601,7 @@
           "collected_at": "2026-02-09T00:35:03.471082"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -4641,7 +4641,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -4672,7 +4672,7 @@
           "collected_at": "2026-02-09T01:47:36.410895"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -4734,7 +4734,7 @@
           "collected_at": "2026-02-09T01:48:06.180095"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -4783,7 +4783,7 @@
           "collected_at": "2026-02-09T01:48:21.586838"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -4814,7 +4814,7 @@
           "collected_at": "2026-02-09T01:48:28.225499"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -4845,7 +4845,7 @@
           "collected_at": "2026-02-09T01:48:38.811804"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -4885,7 +4885,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -4916,7 +4916,7 @@
           "collected_at": "2026-02-09T07:09:39.332252"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -4978,7 +4978,7 @@
           "collected_at": "2026-02-09T07:10:07.494778"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -5027,7 +5027,7 @@
           "collected_at": "2026-02-09T07:10:21.984781"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -5058,7 +5058,7 @@
           "collected_at": "2026-02-09T07:10:28.081637"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -5089,7 +5089,7 @@
           "collected_at": "2026-02-09T07:10:37.818928"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -5129,7 +5129,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -5160,7 +5160,7 @@
           "collected_at": "2026-02-09T11:16:23.215388"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -5222,7 +5222,7 @@
           "collected_at": "2026-02-09T11:16:56.166392"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -5271,7 +5271,7 @@
           "collected_at": "2026-02-09T11:17:13.211051"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -5302,7 +5302,7 @@
           "collected_at": "2026-02-09T11:17:19.778702"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -5333,7 +5333,7 @@
           "collected_at": "2026-02-09T11:17:31.196177"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -5373,7 +5373,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -5404,7 +5404,7 @@
           "collected_at": "2026-02-09T11:26:26.451965"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -5466,7 +5466,7 @@
           "collected_at": "2026-02-09T11:26:49.784847"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -5515,7 +5515,7 @@
           "collected_at": "2026-02-09T11:27:01.349144"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -5546,7 +5546,7 @@
           "collected_at": "2026-02-09T11:27:06.196446"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -5577,7 +5577,7 @@
           "collected_at": "2026-02-09T11:27:14.141221"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -5617,7 +5617,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -5648,7 +5648,7 @@
           "collected_at": "2026-02-09T12:06:05.100027"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -5710,7 +5710,7 @@
           "collected_at": "2026-02-09T12:06:27.612188"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -5759,7 +5759,7 @@
           "collected_at": "2026-02-09T12:06:38.671650"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -5790,7 +5790,7 @@
           "collected_at": "2026-02-09T12:06:43.409247"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -5821,7 +5821,7 @@
           "collected_at": "2026-02-09T12:06:50.806739"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -5861,7 +5861,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -5892,7 +5892,7 @@
           "collected_at": "2026-02-09T12:55:04.453351"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -5954,7 +5954,7 @@
           "collected_at": "2026-02-09T12:55:28.833632"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -6003,7 +6003,7 @@
           "collected_at": "2026-02-09T12:55:41.202739"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -6034,7 +6034,7 @@
           "collected_at": "2026-02-09T12:55:45.858513"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -6065,7 +6065,7 @@
           "collected_at": "2026-02-09T12:55:53.553931"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -6105,7 +6105,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -6136,7 +6136,7 @@
           "collected_at": "2026-02-09T14:22:36.784218"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -6198,7 +6198,7 @@
           "collected_at": "2026-02-09T14:23:00.029955"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -6247,7 +6247,7 @@
           "collected_at": "2026-02-09T14:23:12.602802"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -6278,7 +6278,7 @@
           "collected_at": "2026-02-09T14:23:17.726851"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -6309,7 +6309,7 @@
           "collected_at": "2026-02-09T14:23:26.856085"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -6349,7 +6349,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -6380,7 +6380,7 @@
           "collected_at": "2026-02-09T14:53:26.474469"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -6442,7 +6442,7 @@
           "collected_at": "2026-02-09T14:53:48.853226"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -6491,7 +6491,7 @@
           "collected_at": "2026-02-09T14:53:59.916105"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -6522,7 +6522,7 @@
           "collected_at": "2026-02-09T14:54:04.848878"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -6553,7 +6553,7 @@
           "collected_at": "2026-02-09T14:54:13.492629"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -6593,7 +6593,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -6624,7 +6624,7 @@
           "collected_at": "2026-02-09T15:34:44.981756"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -6686,7 +6686,7 @@
           "collected_at": "2026-02-09T15:35:09.352436"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -6735,7 +6735,7 @@
           "collected_at": "2026-02-09T15:35:22.046108"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -6766,7 +6766,7 @@
           "collected_at": "2026-02-09T15:35:27.499999"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -6797,7 +6797,7 @@
           "collected_at": "2026-02-09T15:35:36.986311"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
@@ -6837,7 +6837,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "pr_review_time": {
             "sample_size": 10,
@@ -6868,7 +6868,7 @@
           "collected_at": "2026-02-09T16:16:01.079815"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "pr_review_time": {
             "sample_size": 10,
@@ -6930,7 +6930,7 @@
           "collected_at": "2026-02-09T16:16:23.050829"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "pr_review_time": {
             "sample_size": 0
@@ -6979,7 +6979,7 @@
           "collected_at": "2026-02-09T16:16:33.739776"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "pr_review_time": {
             "sample_size": 10,
@@ -7010,7 +7010,7 @@
           "collected_at": "2026-02-09T16:16:38.207115"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "pr_review_time": {
             "sample_size": 10,
@@ -7041,7 +7041,7 @@
           "collected_at": "2026-02-09T16:16:45.675053"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "pr_review_time": {
             "sample_size": 10,
