@@ -4,6 +4,58 @@
 
 ## 🎯 Working Conventions
 
+### 🚦 MANDATORY Pre-Flight Checklist (READ THIS FIRST)
+
+**Before making ANY code changes, you MUST complete ALL steps below. This is NON-NEGOTIABLE.**
+
+#### Step 1: Read Documentation
+- Read `CLAUDE.md` (this file) completely - verify you understand all rules
+- Check `memory/dashboard_patterns.md` for UX conventions (if dashboard work)
+- Check `memory/security_architecture.md` for security patterns (if security work)
+- Read any other memory files relevant to this task area
+
+#### Step 2: Understand Existing Patterns
+- Use Grep to find 2-3 examples of similar existing implementations
+- Read those files to understand the current pattern
+- Verify dependencies actually used (e.g., httpx vs aiohttp, exact env var names)
+- Check import patterns - are they using absolute imports from `execution.`?
+
+#### Step 3: State Your Understanding
+**STOP and output this summary BEFORE writing any code:**
+
+```
+## Pre-Flight Summary
+
+**What I understand you're asking for:**
+- [bullet point summary of the task]
+
+**Existing patterns I found:**
+- [file:line_number] - [what pattern this shows]
+- [file:line_number] - [what pattern this shows]
+
+**Files I plan to modify:**
+- [file1] - [what changes]
+- [file2] - [what changes]
+
+**Dependencies/libraries I'll use:**
+- [list actual dependencies from requirements.txt or existing code]
+
+**Assumptions I'm making:**
+- [list ANY assumptions - if none, say "No assumptions"]
+
+**Questions/Ambiguities:**
+- [anything unclear? If nothing, say "No ambiguities"]
+
+Waiting for your confirmation to proceed...
+```
+
+#### Step 4: Wait for Approval
+- Do NOT proceed until the user confirms your understanding
+- If the user says "go ahead", proceed to implementation
+- If the user corrects anything, update your understanding and confirm again
+
+---
+
 ### Before Implementation
 - **ALWAYS** check existing documentation and pattern files (`dashboard_patterns.md`, `CLAUDE.md`, memory files) for established conventions and UX standards
 - **NEVER** assume patterns - always verify existing patterns first
@@ -238,6 +290,111 @@ header_gradient_end="#764ba2"    # purple
 - **ALWAYS** open generated HTML in browser before committing
 - **NEVER** rely solely on file size or pytest for dashboard changes
 - Verify styling, layout, and interactive features work correctly
+
+---
+
+## 📊 Dashboard Development Protocol
+
+### For New Dashboard Creation
+
+When asked to create a new dashboard, follow this protocol:
+
+#### Phase 1: Requirements Clarification
+**STOP and ask these questions if not already specified:**
+- What data source? (ADO API, ArmorCode API, existing collector?)
+- What metrics to display? (be specific - don't assume)
+- What UX patterns? (expandable rows, heatmaps, simple cards?)
+- What status indicators? (RAG badges, numeric thresholds?)
+
+#### Phase 2: Pre-Flight (Use Standard Checklist Above)
+- Read `memory/dashboard_patterns.md` for UX conventions
+- Grep for similar dashboards (e.g., `execution/dashboards/*_dashboard.py`)
+- Verify the 4-stage pipeline pattern in existing dashboards
+- Check what components are available in `execution/dashboards/components/`
+
+#### Phase 3: Scope Boundaries
+**State this explicitly before coding:**
+
+```
+## Dashboard Scope
+
+**Files to CREATE:**
+- execution/dashboards/[name]_dashboard.py
+- templates/dashboards/[name]_dashboard.html
+- execution/domain/[domain].py (if new domain model needed)
+- tests/dashboards/test_[name]_dashboard.py
+
+**Files to MODIFY:**
+- (list any existing files that need updates, or "None")
+
+**Will NOT create:**
+- New collectors (will use existing: [name])
+- New framework CSS/JS (will use existing framework)
+- New deployment workflows (will use existing refresh-dashboards.yml)
+
+**Visual Design:**
+- Header gradient: #667eea → #764ba2 (standard purple)
+- Status badges: Use existing status-good/caution/action classes
+- Layout: [describe - e.g., "summary cards + expandable detail table"]
+
+Confirm before I proceed?
+```
+
+#### Phase 4: Implementation (Follow 4-Stage Pipeline)
+1. **Domain Model**: Create in `execution/domain/` inheriting `MetricSnapshot`
+2. **Generator**: Create in `execution/dashboards/` following 4-stage pattern
+3. **Template**: Create in `templates/dashboards/` extending `base_dashboard.html`
+4. **Tests**: Create in `tests/dashboards/` with fixtures matching JSON structure
+
+#### Phase 5: Verification Checklist
+**Before showing results, verify:**
+- [ ] Generator uses absolute imports from `execution.`
+- [ ] Generator calls `get_dashboard_framework()` in build_context
+- [ ] Template context includes `framework_css` and `framework_js`
+- [ ] Domain model has `from_json()` factory method
+- [ ] Domain model has `@property` for status and status_class
+- [ ] Tests written with mocked file I/O
+- [ ] Run: `pytest tests/dashboards/test_[name]_dashboard.py -v` → ALL PASS
+- [ ] Generate the dashboard and visually inspect HTML in browser
+- [ ] Check file sizes: generator < 500 lines, domain model < 200 lines
+
+### For Dashboard Modifications
+
+When asked to modify an existing dashboard:
+
+#### Scope Template
+**Always start with:**
+
+```
+## Modification Scope
+
+**TASK:** [what you're changing]
+
+**Files to MODIFY:**
+- [specific files]
+
+**Will PRESERVE:**
+- All existing data/metrics
+- All existing interactive features
+- Current layout structure
+- Framework CSS/JS integration
+
+**Will CHANGE ONLY:**
+- [be very specific]
+
+**Will NOT:**
+- Remove any data columns/metrics unless explicitly asked
+- Change other dashboards
+- Modify framework files
+- Add new dependencies
+
+**Verification Plan:**
+- Run tests: pytest tests/dashboards/test_[name].py -v
+- Visual check: Open HTML in browser, verify [specific behaviors]
+- Compare before/after: Ensure no data loss
+
+Proceed?
+```
 
 ---
 
