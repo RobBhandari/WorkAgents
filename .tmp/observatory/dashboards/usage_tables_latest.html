@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Tools Usage Report - Import Data</title>
+    <title>LGL AI Tools Usage Report - Import Data</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
@@ -758,107 +758,10 @@
     </style>
     
     <style>
-        /* Minimalist Design - Inter Font + Solid Slate Colors */
-        /* IMPORTANT: Override framework styles with !important */
-
-        :root {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
-            font-feature-settings: 'ss01', 'cv11', 'cv05';
-        }
-
-        /* Override framework header with solid slate background */
-        .header {
-            background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
-            border-radius: 12px !important;
-            padding: 2.5rem !important;
-            margin-bottom: 2rem !important;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2) !important;
-        }
-
-        [data-theme="light"] .header {
-            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
-            box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.1) !important;
-        }
-
-        .header h1 {
-            color: #f1f5f9 !important;
-            font-size: 2.5rem !important;
-            font-weight: 700 !important;
-            margin: 0 0 0.5rem 0 !important;
-            letter-spacing: -0.025em !important;
-        }
-
-        [data-theme="light"] .header h1 {
-            color: #0f172a !important;
-        }
-
-        .header .subtitle {
-            color: #cbd5e1 !important;
-            font-size: 1.125rem !important;
-        }
-
-        [data-theme="light"] .header .subtitle {
-            color: #475569 !important;
-        }
-
-        .header p {
-            color: #94a3b8 !important;
-            font-size: 0.875rem !important;
-        }
-
-        [data-theme="light"] .header p {
-            color: #64748b !important;
-        }
-
-        /* Dark theme colors (solid slate) */
-        [data-theme="dark"] {
-            --exec-bg: #1e293b;
-            --card-bg: #1e293b;
-            --card-hover: #334155;
-            --detail-bg: #334155;
-            --glossary-bg: #1e293b;
-            --glossary-hover: #334155;
-            --border: #475569;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
-        }
-
-        /* Light theme colors (solid slate) */
-        [data-theme="light"] {
-            --exec-bg: #f8fafc;
-            --card-bg: #ffffff;
-            --card-hover: #f1f5f9;
-            --detail-bg: #f8fafc;
-            --glossary-bg: #f8fafc;
-            --glossary-hover: #e2e8f0;
-            --border: #cbd5e1;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1);
-        }
-
-        /* Override framework body and container */
-        body {
-            background: #0f172a !important;
-            font-family: 'Inter', sans-serif !important;
-        }
-
-        [data-theme="light"] body {
-            background: #f8fafc !important;
-        }
-
-        .container {
-            background: transparent !important;
-        }
-
-        
         .import-button {
             position: fixed;
             top: 20px;
-            right: 200px;
+            right: 80px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -912,6 +815,153 @@
             display: none !important;
         }
 
+        /* Match existing dashboard styles */
+        .stats-card, .legend-card, .search-card, .table-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .legend-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-green { background-color: #d1fae5; border: 2px solid #065f46; }
+        .legend-amber { background-color: #fef3c7; border: 2px solid #92400e; }
+        .legend-red { background-color: #fee2e2; border: 2px solid #991b1b; }
+
+        .search-box {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 1200px) {
+            .tables-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .table-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .usage-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .usage-table th {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .usage-table th:nth-child(3),
+        .usage-table th:nth-child(4) {
+            text-align: center;
+        }
+
+        .usage-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .usage-table td:nth-child(3),
+        .usage-table td:nth-child(4) {
+            text-align: center;
+        }
+
+        .heatmap-cell {
+            font-weight: 700;
+            border-radius: 4px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -920,21 +970,18 @@
         <span id="theme-label">Light Mode</span>
     </button>
 
-    
     <button class="import-button" onclick="document.getElementById('file-input').click()">
         📥 IMPORT CSV
     </button>
     <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
 
-
     <div class="container">
         <div class="header">
-            <h1>🤖 AI Tools Usage Report</h1>
-            <p class="subtitle">Team Metrics</p>
-            <p class="timestamp">Generated: February 12, 2026 at 03:35 PM</p>
+            <h1>🤖 LGL AI Tools Usage Report</h1>
+            <p class="subtitle">Software Company: LGL</p>
+            <p class="timestamp">Generated: February 12, 2026 at 05:59 PM</p>
         </div>
 
-        
         <div id="placeholder" class="placeholder">
             <div class="placeholder-icon">📊</div>
             <h2>No Data Loaded</h2>
@@ -945,13 +992,12 @@
             </p>
         </div>
 
-
         <div id="content" class="hidden">
             <div class="stats-card">
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="value" id="total-users">0</div>
-                        <div class="label">Total Team Users</div>
+                        <div class="label">Total LGL Users</div>
                     </div>
                     <div class="stat-card">
                         <div class="value" id="claude-users">0</div>
@@ -972,6 +1018,32 @@
                 </div>
             </div>
 
+            <div class="legend-card">
+                <h3>📊 Usage Intensity Legend</h3>
+                <div class="legend-content">
+                    <div class="legend-item">
+                        <span class="legend-box legend-green"></span>
+                        <strong>High (≥100 uses)</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box legend-amber"></span>
+                        <strong>Medium (20-99 uses)</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box legend-red"></span>
+                        <strong>Low (&lt;20 uses)</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-card">
+                <input type="text"
+                       id="globalSearch"
+                       class="search-box"
+                       placeholder="🔍 Search..."
+                       onkeyup="filterAllTables()">
+            </div>
+
             <div class="tables-container">
                 <div class="table-card">
                     <h2>Claude Usage (Last 30 Days)</h2>
@@ -979,13 +1051,14 @@
                         <table id="claudeTable" class="usage-table">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Job Title</th>
-                                    <th>Access</th>
-                                    <th>Usage (30 days)</th>
+                                    <th onclick="sortTable('claudeTable', 0)">Name</th>
+                                    <th onclick="sortTable('claudeTable', 1)">Job Title</th>
+                                    <th onclick="sortTable('claudeTable', 2)">Access</th>
+                                    <th onclick="sortTable('claudeTable', 3)">Usage (30 days)</th>
                                 </tr>
                             </thead>
-                            <tbody id="claudeTableBody"></tbody>
+                            <tbody id="claudeTableBody">
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -996,13 +1069,14 @@
                         <table id="devinTable" class="usage-table">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Job Title</th>
-                                    <th>Access</th>
-                                    <th>Usage (30 days)</th>
+                                    <th onclick="sortTable('devinTable', 0)">Name</th>
+                                    <th onclick="sortTable('devinTable', 1)">Job Title</th>
+                                    <th onclick="sortTable('devinTable', 2)">Access</th>
+                                    <th onclick="sortTable('devinTable', 3)">Usage (30 days)</th>
                                 </tr>
                             </thead>
-                            <tbody id="devinTableBody"></tbody>
+                            <tbody id="devinTableBody">
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -1059,7 +1133,6 @@
     </script>
     
     <script>
-        
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1091,16 +1164,14 @@
             });
         }
 
-        
         function processData(data) {
-            // Filter for target team users
-            const TEAM_FILTER = 'TARGET_TEAM';
+            // Filter for LGL users
             const lglData = data.filter(row =>
-                row['Software Company'] && row['Software Company'].trim().toUpperCase() === TEAM_FILTER
+                row['Software Company'] && row['Software Company'].trim().toUpperCase() === 'LGL'
             );
 
             if (lglData.length === 0) {
-                alert(`No ${TEAM_FILTER} users found in the data!`);
+                alert('No LGL users found in the data!');
                 return;
             }
 
@@ -1183,7 +1254,6 @@
             document.getElementById('content').classList.remove('hidden');
         }
 
-        
         function getHeatmapColor(usage) {
             if (usage >= 100) {
                 return { bgColor: '#d1fae5', textColor: '#065f46' };
@@ -1200,6 +1270,64 @@
             return div.innerHTML;
         }
 
+        function filterAllTables() {
+            const input = document.getElementById('globalSearch');
+            const filter = input.value.toLowerCase();
+
+            ['claudeTable', 'devinTable'].forEach(tableId => {
+                const table = document.getElementById(tableId);
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const nameCell = rows[i].cells[0];
+                    const jobTitleCell = rows[i].cells[1];
+                    const accessCell = rows[i].cells[2];
+
+                    if (nameCell && jobTitleCell && accessCell) {
+                        const name = nameCell.textContent.toLowerCase();
+                        const jobTitle = jobTitleCell.textContent.toLowerCase();
+                        const access = accessCell.textContent.toLowerCase();
+
+                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {
+                            rows[i].style.display = '';
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                }
+            });
+        }
+
+        function sortTable(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+
+            const isNumeric = columnIndex === 3;
+
+            rows.sort((a, b) => {
+                let aValue, bValue;
+
+                if (isNumeric) {
+                    aValue = parseFloat(a.cells[columnIndex].getAttribute('data-value') || 0);
+                    bValue = parseFloat(b.cells[columnIndex].getAttribute('data-value') || 0);
+                    return bValue - aValue;
+                } else {
+                    aValue = a.cells[columnIndex].textContent.trim();
+                    bValue = b.cells[columnIndex].textContent.trim();
+                    return aValue.localeCompare(bValue);
+                }
+            });
+
+            if (table.dataset.lastSort === String(columnIndex)) {
+                rows.reverse();
+                table.dataset.lastSort = '';
+            } else {
+                table.dataset.lastSort = String(columnIndex);
+            }
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
     </script>
 </body>
 </html>
