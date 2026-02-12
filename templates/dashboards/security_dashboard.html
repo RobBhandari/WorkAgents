@@ -1,121 +1,500 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Security Dashboard{% endblock %}
+{% block meta_description %}Security vulnerabilities by product - Director Observatory{% endblock %}
+
+{% block header_title %}Security Vulnerabilities{% endblock %}
+{% block header_subtitle %}Product-level vulnerability tracking{% endblock %}
+{% block footer_context %}Security Dashboard{% endblock %}
+
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-/* Refined Minimalist Dashboard Styling */
-:root {
-    --color-slate-50: #f8fafc;
-    --color-slate-100: #f1f5f9;
-    --color-slate-200: #e2e8f0;
-    --color-slate-300: #cbd5e1;
-    --color-slate-400: #94a3b8;
-    --color-slate-500: #64748b;
-    --color-slate-600: #475569;
-    --color-slate-700: #334155;
-    --color-slate-800: #1e293b;
-    --color-slate-900: #0f172a;
-    --color-blue-400: #60a5fa;
-    --color-blue-500: #3b82f6;
-    --color-blue-600: #2563eb;
-    --color-emerald-500: #10b981;
-    --color-amber-500: #f59e0b;
-    --color-red-500: #ef4444;
-    --header-gradient-start: var(--color-slate-900) !important;
-    --header-gradient-end: var(--color-slate-900) !important;
-}
+    /* Minimalist Design - Inter Font + Solid Slate Colors */
+    /* IMPORTANT: Override framework styles with !important */
 
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-    background: var(--color-slate-900) !important;
-    color: #ffffff !important;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+    :root {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+        font-feature-settings: 'ss01', 'cv11', 'cv05';
+    }
 
-body .header, .container .header, div.header {
-    background: var(--color-slate-900) !important;
-    border: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 64px 32px !important;
-}
+    /* Override framework header with solid slate background */
+    .header {
+        background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+        border-radius: 12px !important;
+        padding: 2.5rem !important;
+        margin-bottom: 2rem !important;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2) !important;
+    }
 
-.header h1 {
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
-    color: #ffffff !important;
-    font-size: 2.5rem !important;
-}
+    [data-theme="light"] .header {
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+        box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.1) !important;
+    }
 
-.header p, .header .subtitle {
-    color: var(--color-slate-400) !important;
-    font-weight: 400 !important;
-}
+    .header h1 {
+        color: #f1f5f9 !important;
+        font-size: 2.5rem !important;
+        font-weight: 700 !important;
+        margin: 0 0 0.5rem 0 !important;
+        letter-spacing: -0.025em !important;
+    }
 
-.summary-card, .card, .metric-card {
-    background: var(--color-slate-900) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 8px !important;
-    padding: 24px !important;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
-}
+    [data-theme="light"] .header h1 {
+        color: #0f172a !important;
+    }
 
-.summary-card:hover, .card:hover, .metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-}
+    .header .subtitle {
+        color: #cbd5e1 !important;
+        font-size: 1.125rem !important;
+    }
 
-th {
-    background: var(--color-slate-800) !important;
-    color: var(--color-slate-400) !important;
-    padding: 14px 16px !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
+    [data-theme="light"] .header .subtitle {
+        color: #475569 !important;
+    }
 
-tbody tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
+    .header p {
+        color: #94a3b8 !important;
+        font-size: 0.875rem !important;
+    }
 
-tbody tr:hover {
-    background: rgba(255, 255, 255, 0.02) !important;
-}
+    [data-theme="light"] .header p {
+        color: #64748b !important;
+    }
 
-[data-theme="light"] body {
-    background: #ffffff !important;
-    color: var(--color-slate-900) !important;
-}
+    /* Dark theme colors (solid slate) */
+    [data-theme="dark"] {
+        --exec-bg: #1e293b;
+        --card-bg: #1e293b;
+        --card-hover: #334155;
+        --detail-bg: #334155;
+        --glossary-bg: #1e293b;
+        --glossary-hover: #334155;
+        --border: #475569;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    }
 
-[data-theme="light"] .header {
-    background: #ffffff !important;
-    border-bottom-color: var(--color-slate-200) !important;
-}
+    /* Light theme colors (solid slate) */
+    [data-theme="light"] {
+        --exec-bg: #f8fafc;
+        --card-bg: #ffffff;
+        --card-hover: #f1f5f9;
+        --detail-bg: #f8fafc;
+        --glossary-bg: #f8fafc;
+        --glossary-hover: #e2e8f0;
+        --border: #cbd5e1;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1);
+    }
 
-[data-theme="light"] .header h1 {
-    color: var(--color-slate-900) !important;
-}
+    /* Override framework body and container */
+    body {
+        background: #0f172a !important;
+        font-family: 'Inter', sans-serif !important;
+    }
 
-[data-theme="light"] .header p, [data-theme="light"] .header .subtitle {
-    color: var(--color-slate-600) !important;
-}
+    [data-theme="light"] body {
+        background: #f8fafc !important;
+    }
 
-[data-theme="light"] .summary-card, [data-theme="light"] .card, [data-theme="light"] .metric-card {
-    background: #ffffff !important;
-    border-color: var(--color-slate-200) !important;
-}
+    .container {
+        background: transparent !important;
+    }
 
-[data-theme="light"] th {
-    background: var(--color-slate-100) !important;
-    color: var(--color-slate-700) !important;
-}
+    /* Collapsible vulnerabilities section */
+    .collapsible-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        margin-bottom: 8px;
+        transition: background 0.2s;
+    }
 
-[data-theme="light"] tbody tr:hover {
-    background: var(--color-slate-50) !important;
-}
+    .collapsible-header:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .collapsible-header .chevron {
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
+    }
+
+    .collapsible-content {
+        padding: 16px;
+        background: var(--bg-card);
+        border-radius: 6px;
+        margin-top: 8px;
+    }
+
+    /* Vulnerability filters */
+    .vuln-filters {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .vuln-filters input {
+        flex: 1;
+        min-width: 200px;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    .vuln-filters button {
+        padding: 8px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .vuln-filters button.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    /* Vulnerability table */
+    .vuln-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .vuln-table th,
+    .vuln-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vuln-table .description {
+        max-width: 300px;
+    }
+
+    .vuln-table .description.clickable {
+        cursor: pointer;
+        color: var(--text-link);
+        transition: color 0.2s;
+    }
+
+    .vuln-table .description.clickable:hover {
+        color: var(--text-link-hover);
+        text-decoration: underline;
+    }
+
+    .vuln-table .description:not(.expanded) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vuln-table .description.expanded {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .vuln-table .vuln-id {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+    }
+
+    /* Badge styling for vulnerabilities */
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .badge-critical {
+        background: rgba(220, 38, 38, 0.2);
+        color: #dc2626;
+    }
+
+    .badge-high {
+        background: rgba(234, 88, 12, 0.2);
+        color: #ea580c;
+    }
+
+    .badge-medium {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+    }
+
+    .badge-low {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+    }
+
+    /* Metrics grid in expanded row */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .metric-box {
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        border-left: 3px solid var(--text-tertiary);
+    }
+
+    .metric-box.critical {
+        border-left-color: #dc2626;
+    }
+
+    .metric-box.high {
+        border-left-color: #ea580c;
+    }
+
+    .metric-box.medium {
+        border-left-color: #f59e0b;
+    }
+
+    .metric-box.low {
+        border-left-color: #10b981;
+    }
+
+    .metric-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .metric-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* Detail sections */
+    .detail-section {
+        margin-bottom: 24px;
+    }
+
+    .detail-section h4 {
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+
+    /* Heatmap Styling */
+    .heatmap-container {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .heatmap-header h4 {
+        margin: 0 0 5px 0;
+        color: var(--text-primary);
+    }
+
+    .heatmap-subtitle {
+        margin: 0 0 10px 0;
+        font-size: 0.9em;
+        color: var(--text-secondary);
+    }
+
+    .heatmap-note {
+        margin: 10px 0 15px 0;
+        padding: 10px;
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 3px solid #3b82f6;
+        border-radius: 4px;
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: 80px repeat(7, 1fr);
+        gap: 6px;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .heatmap-grid {
+            grid-template-columns: 60px repeat(7, 1fr);
+            gap: 3px;
+            font-size: 0.75rem;
+        }
+    }
+
+    .heatmap-corner {
+        background: transparent;
+    }
+
+    .heatmap-col-header {
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        padding: 8px 4px;
+    }
+
+    .days-label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 400;
+        opacity: 0.7;
+        margin-top: 2px;
+    }
+
+    .heatmap-row-header {
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 12px 8px;
+        text-align: right;
+        border-radius: 4px;
+    }
+
+    .critical-header {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .high-header {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    .heatmap-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        min-height: 40px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: default;
+    }
+
+    .heatmap-cell:not(.empty):hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+
+    .heatmap-cell.empty {
+        font-size: 0.8rem;
+    }
+
+    /* Vulnerability Breakdown Section */
+    .vuln-breakdown-section {
+        margin-top: 20px;
+    }
+
+    .expand-btn {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: 600;
+        transition: all 0.3s;
+        width: 100%;
+        text-align: center;
+    }
+
+    .expand-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .vuln-details-hidden {
+        display: none;
+        margin-top: 15px;
+        animation: slideDown 0.3s ease;
+    }
+
+    .vuln-details-visible {
+        display: block;
+        margin-top: 15px;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .vuln-breakdown-table {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .vuln-breakdown-table h4 {
+        margin: 0 0 15px 0;
+        color: var(--text-primary);
+    }
+
+    .severity-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .severity-badge.critical {
+        background: rgba(220, 38, 38, 0.2);
+        color: #dc2626;
+    }
+
+    .severity-badge.high {
+        background: rgba(234, 88, 12, 0.2);
+        color: #ea580c;
+    }
+
+    .severity-badge.medium {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+    }
+
+    .severity-badge.low {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+    }
+
+    .breakdown-note {
+        padding: 15px;
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 3px solid #3b82f6;
+        border-radius: 4px;
+    }
+
+    .breakdown-note p {
+        margin: 5px 0;
+    }
 </style>
 {% endblock %}
 

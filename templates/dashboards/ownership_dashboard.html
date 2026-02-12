@@ -1,121 +1,272 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Ownership Dashboard{% endblock %}
+{% block meta_description %}Work assignment and distribution metrics - Director Observatory{% endblock %}
+
+{% block header_title %}Ownership Dashboard{% endblock %}
+{% block header_subtitle %}Work Assignment & Distribution{% endblock %}
+{% block header_metadata %}Week {{ week_number }} • {{ week_date }} • Generated {{ generation_date }}{% endblock %}
+{% block footer_context %}Ownership Dashboard{% endblock %}
+
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-/* Refined Minimalist Dashboard Styling */
-:root {
-    --color-slate-50: #f8fafc;
-    --color-slate-100: #f1f5f9;
-    --color-slate-200: #e2e8f0;
-    --color-slate-300: #cbd5e1;
-    --color-slate-400: #94a3b8;
-    --color-slate-500: #64748b;
-    --color-slate-600: #475569;
-    --color-slate-700: #334155;
-    --color-slate-800: #1e293b;
-    --color-slate-900: #0f172a;
-    --color-blue-400: #60a5fa;
-    --color-blue-500: #3b82f6;
-    --color-blue-600: #2563eb;
-    --color-emerald-500: #10b981;
-    --color-amber-500: #f59e0b;
-    --color-red-500: #ef4444;
-    --header-gradient-start: var(--color-slate-900) !important;
-    --header-gradient-end: var(--color-slate-900) !important;
-}
+    /* Minimalist Design - Inter Font + Solid Slate Colors */
+    /* IMPORTANT: Override framework styles with !important */
 
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-    background: var(--color-slate-900) !important;
-    color: #ffffff !important;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+    :root {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+        font-feature-settings: 'ss01', 'cv11', 'cv05';
+    }
 
-body .header, .container .header, div.header {
-    background: var(--color-slate-900) !important;
-    border: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 64px 32px !important;
-}
+    /* Override framework header with solid slate background */
+    .header {
+        background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+        border-radius: 12px !important;
+        padding: 2.5rem !important;
+        margin-bottom: 2rem !important;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2) !important;
+    }
 
-.header h1 {
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
-    color: #ffffff !important;
-    font-size: 2.5rem !important;
-}
+    [data-theme="light"] .header {
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+        box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.1) !important;
+    }
 
-.header p, .header .subtitle {
-    color: var(--color-slate-400) !important;
-    font-weight: 400 !important;
-}
+    .header h1 {
+        color: #f1f5f9 !important;
+        font-size: 2.5rem !important;
+        font-weight: 700 !important;
+        margin: 0 0 0.5rem 0 !important;
+        letter-spacing: -0.025em !important;
+    }
 
-.summary-card, .card, .metric-card {
-    background: var(--color-slate-900) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 8px !important;
-    padding: 24px !important;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
-}
+    [data-theme="light"] .header h1 {
+        color: #0f172a !important;
+    }
 
-.summary-card:hover, .card:hover, .metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-}
+    .header .subtitle {
+        color: #cbd5e1 !important;
+        font-size: 1.125rem !important;
+    }
 
-th {
-    background: var(--color-slate-800) !important;
-    color: var(--color-slate-400) !important;
-    padding: 14px 16px !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
+    [data-theme="light"] .header .subtitle {
+        color: #475569 !important;
+    }
 
-tbody tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
+    .header p {
+        color: #94a3b8 !important;
+        font-size: 0.875rem !important;
+    }
 
-tbody tr:hover {
-    background: rgba(255, 255, 255, 0.02) !important;
-}
+    [data-theme="light"] .header p {
+        color: #64748b !important;
+    }
 
-[data-theme="light"] body {
-    background: #ffffff !important;
-    color: var(--color-slate-900) !important;
-}
+    /* Dark theme colors (solid slate) */
+    [data-theme="dark"] {
+        --exec-bg: #1e293b;
+        --card-bg: #1e293b;
+        --card-hover: #334155;
+        --detail-bg: #334155;
+        --glossary-bg: #1e293b;
+        --glossary-hover: #334155;
+        --border: #475569;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    }
 
-[data-theme="light"] .header {
-    background: #ffffff !important;
-    border-bottom-color: var(--color-slate-200) !important;
-}
+    /* Light theme colors (solid slate) */
+    [data-theme="light"] {
+        --exec-bg: #f8fafc;
+        --card-bg: #ffffff;
+        --card-hover: #f1f5f9;
+        --detail-bg: #f8fafc;
+        --glossary-bg: #f8fafc;
+        --glossary-hover: #e2e8f0;
+        --border: #cbd5e1;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1);
+    }
 
-[data-theme="light"] .header h1 {
-    color: var(--color-slate-900) !important;
-}
+    /* Override framework body and container */
+    body {
+        background: #0f172a !important;
+        font-family: 'Inter', sans-serif !important;
+    }
 
-[data-theme="light"] .header p, [data-theme="light"] .header .subtitle {
-    color: var(--color-slate-600) !important;
-}
+    [data-theme="light"] body {
+        background: #f8fafc !important;
+    }
 
-[data-theme="light"] .summary-card, [data-theme="light"] .card, [data-theme="light"] .metric-card {
-    background: #ffffff !important;
-    border-color: var(--color-slate-200) !important;
-}
+    .container {
+        background: transparent !important;
+    }
 
-[data-theme="light"] th {
-    background: var(--color-slate-100) !important;
-    color: var(--color-slate-700) !important;
-}
+    /* Executive Summary */
+    .executive-summary {
+        background: var(--bg-secondary);
+        padding: 24px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px var(--shadow);
+        transition: background-color 0.3s ease;
+    }
 
-[data-theme="light"] tbody tr:hover {
-    background: var(--color-slate-50) !important;
-}
+    .status-badge {
+        background: {{ summary_stats.status_color }};
+        color: white;
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+    }
+
+    .executive-summary h2 {
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+    .executive-summary p {
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .summary-card {
+        background: var(--bg-card);
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .summary-card .label {
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .summary-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .summary-card .unit {
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
+
+    .summary-card .explanation {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 8px;
+    }
+
+    /* Detail content styles for expandable rows */
+    .detail-section {
+        margin-bottom: 16px;
+    }
+
+    .detail-section h4 {
+        color: var(--text-primary);
+        margin-bottom: 12px;
+        font-size: 1rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 12px 0;
+    }
+
+    .detail-metric {
+        background: var(--bg-secondary);
+        padding: 12px;
+        border-radius: 6px;
+    }
+
+    .detail-metric-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .detail-metric-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .detail-metric-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 6px;
+    }
+
+    .detail-list {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0;
+    }
+
+    .detail-list li {
+        padding: 8px;
+        background: var(--bg-secondary);
+        margin-bottom: 6px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        border-left: 2px solid #3b82f6;
+    }
+
+    .no-data {
+        color: var(--text-secondary);
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    .detail-table {
+        width: 100%;
+        margin-top: 10px;
+        font-size: 0.85rem;
+    }
+
+    .detail-table th {
+        padding: 8px;
+        font-size: 0.75rem;
+        background: var(--bg-tertiary);
+        text-align: left;
+    }
+
+    .detail-table td {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .detail-table tbody tr:hover {
+        background: var(--bg-tertiary);
+    }
 </style>
 {% endblock %}
 
