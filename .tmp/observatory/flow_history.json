@@ -5,7 +5,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -215,7 +215,7 @@
           "collected_at": "2026-02-06T17:17:41.117731"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -608,7 +608,7 @@
           "collected_at": "2026-02-06T17:17:43.672327"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -1017,7 +1017,7 @@
           "collected_at": "2026-02-06T17:17:46.635750"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -1214,7 +1214,7 @@
           "collected_at": "2026-02-06T17:17:47.580156"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -1424,7 +1424,7 @@
           "collected_at": "2026-02-06T17:17:49.033861"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -1644,7 +1644,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -1854,7 +1854,7 @@
           "collected_at": "2026-02-06T17:38:26.128016"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -2247,7 +2247,7 @@
           "collected_at": "2026-02-06T17:38:30.734279"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -2656,7 +2656,7 @@
           "collected_at": "2026-02-06T17:38:36.126366"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -2853,7 +2853,7 @@
           "collected_at": "2026-02-06T17:38:38.174378"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -3063,7 +3063,7 @@
           "collected_at": "2026-02-06T17:38:40.633617"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -3283,7 +3283,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -3493,7 +3493,7 @@
           "collected_at": "2026-02-06T17:46:06.192583"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -3886,7 +3886,7 @@
           "collected_at": "2026-02-06T17:46:10.075663"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -4295,7 +4295,7 @@
           "collected_at": "2026-02-06T17:46:15.086693"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -4492,7 +4492,7 @@
           "collected_at": "2026-02-06T17:46:16.699907"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -4702,7 +4702,7 @@
           "collected_at": "2026-02-06T17:46:18.831400"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -4922,7 +4922,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -5132,7 +5132,7 @@
           "collected_at": "2026-02-06T18:08:17.547602"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -5525,7 +5525,7 @@
           "collected_at": "2026-02-06T18:08:22.794322"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -5934,7 +5934,7 @@
           "collected_at": "2026-02-06T18:08:28.994885"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -6131,7 +6131,7 @@
           "collected_at": "2026-02-06T18:08:31.352409"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -6341,7 +6341,7 @@
           "collected_at": "2026-02-06T18:08:34.277865"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -6561,7 +6561,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -6771,7 +6771,7 @@
           "collected_at": "2026-02-06T18:34:37.166149"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -7164,7 +7164,7 @@
           "collected_at": "2026-02-06T18:34:42.762861"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -7573,7 +7573,7 @@
           "collected_at": "2026-02-06T18:34:49.327712"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -7770,7 +7770,7 @@
           "collected_at": "2026-02-06T18:34:51.851307"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -7980,7 +7980,7 @@
           "collected_at": "2026-02-06T18:34:54.852136"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -8200,7 +8200,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -8410,7 +8410,7 @@
           "collected_at": "2026-02-06T18:41:07.748284"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -8803,7 +8803,7 @@
           "collected_at": "2026-02-06T18:41:11.480399"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -9212,7 +9212,7 @@
           "collected_at": "2026-02-06T18:41:16.075237"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -9409,7 +9409,7 @@
           "collected_at": "2026-02-06T18:41:17.724669"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -9619,7 +9619,7 @@
           "collected_at": "2026-02-06T18:41:19.970092"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -9839,7 +9839,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -10049,7 +10049,7 @@
           "collected_at": "2026-02-06T22:38:49.457890"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -10442,7 +10442,7 @@
           "collected_at": "2026-02-06T22:38:54.865603"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -10851,7 +10851,7 @@
           "collected_at": "2026-02-06T22:39:01.728669"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -11048,7 +11048,7 @@
           "collected_at": "2026-02-06T22:39:04.191787"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -11258,7 +11258,7 @@
           "collected_at": "2026-02-06T22:39:07.268027"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -11478,7 +11478,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -11688,7 +11688,7 @@
           "collected_at": "2026-02-07T06:48:29.323327"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -12081,7 +12081,7 @@
           "collected_at": "2026-02-07T06:48:34.588845"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -12490,7 +12490,7 @@
           "collected_at": "2026-02-07T06:48:41.122967"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -12687,7 +12687,7 @@
           "collected_at": "2026-02-07T06:48:43.522817"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -12897,7 +12897,7 @@
           "collected_at": "2026-02-07T06:48:46.705036"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -13117,7 +13117,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -13327,7 +13327,7 @@
           "collected_at": "2026-02-07T12:26:11.316389"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -13720,7 +13720,7 @@
           "collected_at": "2026-02-07T12:26:15.866342"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -14129,7 +14129,7 @@
           "collected_at": "2026-02-07T12:26:21.239810"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -14326,7 +14326,7 @@
           "collected_at": "2026-02-07T12:26:23.050088"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -14536,7 +14536,7 @@
           "collected_at": "2026-02-07T12:26:25.467181"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -14756,7 +14756,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -14966,7 +14966,7 @@
           "collected_at": "2026-02-07T12:45:09.515405"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -15359,7 +15359,7 @@
           "collected_at": "2026-02-07T12:45:12.946846"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -15768,7 +15768,7 @@
           "collected_at": "2026-02-07T12:45:16.994017"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -15965,7 +15965,7 @@
           "collected_at": "2026-02-07T12:45:18.479724"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -16175,7 +16175,7 @@
           "collected_at": "2026-02-07T12:45:20.337617"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -16395,7 +16395,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -16605,7 +16605,7 @@
           "collected_at": "2026-02-07T13:27:39.735498"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -16998,7 +16998,7 @@
           "collected_at": "2026-02-07T13:27:43.657626"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -17407,7 +17407,7 @@
           "collected_at": "2026-02-07T13:27:48.087141"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -17604,7 +17604,7 @@
           "collected_at": "2026-02-07T13:27:49.862896"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -17814,7 +17814,7 @@
           "collected_at": "2026-02-07T13:27:51.872508"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -18034,7 +18034,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -18244,7 +18244,7 @@
           "collected_at": "2026-02-08T14:49:32.451765"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -18637,7 +18637,7 @@
           "collected_at": "2026-02-08T14:49:37.292748"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -19046,7 +19046,7 @@
           "collected_at": "2026-02-08T14:49:42.843604"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -19243,7 +19243,7 @@
           "collected_at": "2026-02-08T14:49:44.975749"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -19453,7 +19453,7 @@
           "collected_at": "2026-02-08T14:49:47.583847"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -19673,7 +19673,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -19883,7 +19883,7 @@
           "collected_at": "2026-02-08T15:13:44.258254"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -20276,7 +20276,7 @@
           "collected_at": "2026-02-08T15:13:47.498035"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -20685,7 +20685,7 @@
           "collected_at": "2026-02-08T15:13:51.712234"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -20882,7 +20882,7 @@
           "collected_at": "2026-02-08T15:13:53.076298"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -21092,7 +21092,7 @@
           "collected_at": "2026-02-08T15:13:54.917882"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -21312,7 +21312,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -21522,7 +21522,7 @@
           "collected_at": "2026-02-08T15:19:07.024610"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -21915,7 +21915,7 @@
           "collected_at": "2026-02-08T15:19:11.103825"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -22324,7 +22324,7 @@
           "collected_at": "2026-02-08T15:19:15.920397"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -22521,7 +22521,7 @@
           "collected_at": "2026-02-08T15:19:17.699322"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -22731,7 +22731,7 @@
           "collected_at": "2026-02-08T15:19:20.091410"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -22951,7 +22951,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -23161,7 +23161,7 @@
           "collected_at": "2026-02-08T20:58:26.016111"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -23554,7 +23554,7 @@
           "collected_at": "2026-02-08T20:58:29.375096"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -23963,7 +23963,7 @@
           "collected_at": "2026-02-08T20:58:33.550182"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -24160,7 +24160,7 @@
           "collected_at": "2026-02-08T20:58:35.005682"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -24370,7 +24370,7 @@
           "collected_at": "2026-02-08T20:58:36.910264"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -24590,7 +24590,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -24800,7 +24800,7 @@
           "collected_at": "2026-02-08T21:05:32.337485"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -25193,7 +25193,7 @@
           "collected_at": "2026-02-08T21:05:35.816557"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -25602,7 +25602,7 @@
           "collected_at": "2026-02-08T21:05:40.067841"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -25799,7 +25799,7 @@
           "collected_at": "2026-02-08T21:05:41.588954"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -26009,7 +26009,7 @@
           "collected_at": "2026-02-08T21:05:43.609013"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -26229,7 +26229,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -26439,7 +26439,7 @@
           "collected_at": "2026-02-08T22:54:59.088480"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -26832,7 +26832,7 @@
           "collected_at": "2026-02-08T22:55:02.464811"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -27241,7 +27241,7 @@
           "collected_at": "2026-02-08T22:55:06.572905"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -27438,7 +27438,7 @@
           "collected_at": "2026-02-08T22:55:07.939031"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -27648,7 +27648,7 @@
           "collected_at": "2026-02-08T22:55:09.835997"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -27868,7 +27868,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -28078,7 +28078,7 @@
           "collected_at": "2026-02-08T23:01:49.718606"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -28471,7 +28471,7 @@
           "collected_at": "2026-02-08T23:01:55.533904"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -28880,7 +28880,7 @@
           "collected_at": "2026-02-08T23:02:02.411535"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -29077,7 +29077,7 @@
           "collected_at": "2026-02-08T23:02:05.119140"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -29287,7 +29287,7 @@
           "collected_at": "2026-02-08T23:02:08.384667"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -29507,7 +29507,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -29717,7 +29717,7 @@
           "collected_at": "2026-02-09T00:34:22.823188"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -30110,7 +30110,7 @@
           "collected_at": "2026-02-09T00:34:28.318384"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -30519,7 +30519,7 @@
           "collected_at": "2026-02-09T00:34:34.792630"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -30715,7 +30715,7 @@
           "collected_at": "2026-02-09T00:34:37.367632"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -30925,7 +30925,7 @@
           "collected_at": "2026-02-09T00:34:40.375212"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -31145,7 +31145,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -31355,7 +31355,7 @@
           "collected_at": "2026-02-09T01:47:22.366240"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -31748,7 +31748,7 @@
           "collected_at": "2026-02-09T01:47:25.545723"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -32157,7 +32157,7 @@
           "collected_at": "2026-02-09T01:47:29.604892"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -32353,7 +32353,7 @@
           "collected_at": "2026-02-09T01:47:31.158702"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -32563,7 +32563,7 @@
           "collected_at": "2026-02-09T01:47:32.949560"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -32783,7 +32783,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -32993,7 +32993,7 @@
           "collected_at": "2026-02-09T07:09:24.617658"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -33386,7 +33386,7 @@
           "collected_at": "2026-02-09T07:09:29.455588"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -33795,7 +33795,7 @@
           "collected_at": "2026-02-09T07:09:35.276155"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -33991,7 +33991,7 @@
           "collected_at": "2026-02-09T07:09:37.529036"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -34201,7 +34201,7 @@
           "collected_at": "2026-02-09T07:09:40.391436"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -34421,7 +34421,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -34631,7 +34631,7 @@
           "collected_at": "2026-02-09T11:16:16.152302"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -35012,7 +35012,7 @@
           "collected_at": "2026-02-09T11:16:49.102402"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -35421,7 +35421,7 @@
           "collected_at": "2026-02-09T11:17:25.901270"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -35617,7 +35617,7 @@
           "collected_at": "2026-02-09T11:17:44.494996"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -35827,7 +35827,7 @@
           "collected_at": "2026-02-09T11:18:03.959580"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -36047,7 +36047,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -36245,7 +36245,7 @@
           "collected_at": "2026-02-09T11:26:21.954314"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -36638,7 +36638,7 @@
           "collected_at": "2026-02-09T11:26:53.524671"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -37047,7 +37047,7 @@
           "collected_at": "2026-02-09T11:27:23.870727"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -37243,7 +37243,7 @@
           "collected_at": "2026-02-09T11:27:39.567464"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -37453,7 +37453,7 @@
           "collected_at": "2026-02-09T11:27:53.394319"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -37673,7 +37673,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -37883,7 +37883,7 @@
           "collected_at": "2026-02-09T12:05:52.904256"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -38276,7 +38276,7 @@
           "collected_at": "2026-02-09T12:05:57.346218"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -38685,7 +38685,7 @@
           "collected_at": "2026-02-09T12:06:02.773719"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -38881,7 +38881,7 @@
           "collected_at": "2026-02-09T12:06:04.829955"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -39091,7 +39091,7 @@
           "collected_at": "2026-02-09T12:06:07.595653"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -39311,7 +39311,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -39521,7 +39521,7 @@
           "collected_at": "2026-02-09T12:54:57.900375"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -39914,7 +39914,7 @@
           "collected_at": "2026-02-09T12:55:03.567523"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -40323,7 +40323,7 @@
           "collected_at": "2026-02-09T12:55:10.634674"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -40519,7 +40519,7 @@
           "collected_at": "2026-02-09T12:55:13.264733"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -40729,7 +40729,7 @@
           "collected_at": "2026-02-09T12:55:16.638760"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -40949,7 +40949,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -41159,7 +41159,7 @@
           "collected_at": "2026-02-09T14:22:22.487627"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -41552,7 +41552,7 @@
           "collected_at": "2026-02-09T14:22:27.298121"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -41961,7 +41961,7 @@
           "collected_at": "2026-02-09T14:22:32.889386"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -42157,7 +42157,7 @@
           "collected_at": "2026-02-09T14:22:34.850543"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -42367,7 +42367,7 @@
           "collected_at": "2026-02-09T14:22:37.268931"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -42587,7 +42587,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -42797,7 +42797,7 @@
           "collected_at": "2026-02-09T14:53:17.519001"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -43190,7 +43190,7 @@
           "collected_at": "2026-02-09T14:53:22.581716"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -43599,7 +43599,7 @@
           "collected_at": "2026-02-09T14:53:28.168262"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -43795,7 +43795,7 @@
           "collected_at": "2026-02-09T14:53:30.274546"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -44005,7 +44005,7 @@
           "collected_at": "2026-02-09T14:53:32.930116"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -44225,7 +44225,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -44435,7 +44435,7 @@
           "collected_at": "2026-02-09T15:34:31.739097"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -44828,7 +44828,7 @@
           "collected_at": "2026-02-09T15:34:36.069179"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -45237,7 +45237,7 @@
           "collected_at": "2026-02-09T15:34:41.075929"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -45433,7 +45433,7 @@
           "collected_at": "2026-02-09T15:34:42.934682"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -45643,7 +45643,7 @@
           "collected_at": "2026-02-09T15:34:45.379965"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -45863,7 +45863,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "work_type_metrics": {
             "Bug": {
@@ -46073,7 +46073,7 @@
           "collected_at": "2026-02-09T16:15:50.288331"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "work_type_metrics": {
             "Bug": {
@@ -46466,7 +46466,7 @@
           "collected_at": "2026-02-09T16:15:55.026926"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "work_type_metrics": {
             "Bug": {
@@ -46875,7 +46875,7 @@
           "collected_at": "2026-02-09T16:16:00.472203"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "work_type_metrics": {
             "Bug": {
@@ -47071,7 +47071,7 @@
           "collected_at": "2026-02-09T16:16:02.590254"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "work_type_metrics": {
             "Bug": {
@@ -47281,7 +47281,7 @@
           "collected_at": "2026-02-09T16:16:05.209326"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {

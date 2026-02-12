@@ -5,7 +5,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.1,
@@ -47,7 +47,7 @@
           "collected_at": "2026-02-06T17:19:45.745367"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
@@ -131,7 +131,7 @@
           "collected_at": "2026-02-06T17:19:46.925814"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -215,7 +215,7 @@
           "collected_at": "2026-02-06T17:19:47.660531"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.2,
@@ -257,7 +257,7 @@
           "collected_at": "2026-02-06T17:19:48.055535"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
@@ -299,7 +299,7 @@
           "collected_at": "2026-02-06T17:19:48.570723"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.1,
@@ -350,7 +350,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.1,
@@ -392,7 +392,7 @@
           "collected_at": "2026-02-06T17:38:23.630091"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
@@ -476,7 +476,7 @@
           "collected_at": "2026-02-06T17:38:26.006140"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -560,7 +560,7 @@
           "collected_at": "2026-02-06T17:38:28.027414"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.2,
@@ -602,7 +602,7 @@
           "collected_at": "2026-02-06T17:38:29.101049"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
@@ -644,7 +644,7 @@
           "collected_at": "2026-02-06T17:38:30.044823"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
@@ -695,7 +695,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.2,
@@ -737,7 +737,7 @@
           "collected_at": "2026-02-06T17:46:00.895349"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
@@ -821,7 +821,7 @@
           "collected_at": "2026-02-06T17:46:02.214322"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -905,7 +905,7 @@
           "collected_at": "2026-02-06T17:46:03.455641"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.2,
@@ -947,7 +947,7 @@
           "collected_at": "2026-02-06T17:46:04.067674"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
@@ -989,7 +989,7 @@
           "collected_at": "2026-02-06T17:46:04.709903"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
@@ -1040,7 +1040,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.2,
@@ -1082,7 +1082,7 @@
           "collected_at": "2026-02-06T18:08:15.150464"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
@@ -1166,7 +1166,7 @@
           "collected_at": "2026-02-06T18:08:16.963266"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -1250,7 +1250,7 @@
           "collected_at": "2026-02-06T18:08:18.709533"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.2,
@@ -1292,7 +1292,7 @@
           "collected_at": "2026-02-06T18:08:19.551185"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
@@ -1334,7 +1334,7 @@
           "collected_at": "2026-02-06T18:08:20.404049"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
@@ -1385,7 +1385,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.2,
@@ -1427,7 +1427,7 @@
           "collected_at": "2026-02-06T18:34:33.389217"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
@@ -1511,7 +1511,7 @@
           "collected_at": "2026-02-06T18:34:35.571848"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -1595,7 +1595,7 @@
           "collected_at": "2026-02-06T18:34:37.475064"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.2,
@@ -1637,7 +1637,7 @@
           "collected_at": "2026-02-06T18:34:38.802308"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
@@ -1679,7 +1679,7 @@
           "collected_at": "2026-02-06T18:34:39.871040"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
@@ -1730,7 +1730,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.2,
@@ -1772,7 +1772,7 @@
           "collected_at": "2026-02-06T18:41:07.138572"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.1,
@@ -1856,7 +1856,7 @@
           "collected_at": "2026-02-06T18:41:08.669387"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -1940,7 +1940,7 @@
           "collected_at": "2026-02-06T18:41:10.207835"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.2,
@@ -1982,7 +1982,7 @@
           "collected_at": "2026-02-06T18:41:10.886976"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.4,
@@ -2024,7 +2024,7 @@
           "collected_at": "2026-02-06T18:41:11.589154"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.2,
@@ -2075,7 +2075,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.4,
@@ -2117,7 +2117,7 @@
           "collected_at": "2026-02-06T22:38:43.917895"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.3,
@@ -2201,7 +2201,7 @@
           "collected_at": "2026-02-06T22:38:45.403706"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -2285,7 +2285,7 @@
           "collected_at": "2026-02-06T22:38:46.548751"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.4,
@@ -2327,7 +2327,7 @@
           "collected_at": "2026-02-06T22:38:47.349627"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.6,
@@ -2369,7 +2369,7 @@
           "collected_at": "2026-02-06T22:38:48.233505"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.4,
@@ -2420,7 +2420,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.7,
@@ -2462,7 +2462,7 @@
           "collected_at": "2026-02-07T06:48:25.708277"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.6,
@@ -2546,7 +2546,7 @@
           "collected_at": "2026-02-07T06:48:27.540649"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -2630,7 +2630,7 @@
           "collected_at": "2026-02-07T06:48:29.358656"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 74.7,
@@ -2672,7 +2672,7 @@
           "collected_at": "2026-02-07T06:48:30.230372"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.9,
@@ -2714,7 +2714,7 @@
           "collected_at": "2026-02-07T06:48:31.137293"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.7,
@@ -2765,7 +2765,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.9,
@@ -2807,7 +2807,7 @@
           "collected_at": "2026-02-07T12:26:16.820283"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.9,
@@ -2891,7 +2891,7 @@
           "collected_at": "2026-02-07T12:26:18.311054"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -2975,7 +2975,7 @@
           "collected_at": "2026-02-07T12:26:19.638997"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 75.0,
@@ -3017,7 +3017,7 @@
           "collected_at": "2026-02-07T12:26:20.390226"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 66.2,
@@ -3059,7 +3059,7 @@
           "collected_at": "2026-02-07T12:26:21.142492"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.9,
@@ -3110,7 +3110,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 416.9,
@@ -3152,7 +3152,7 @@
           "collected_at": "2026-02-07T12:45:05.569517"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.9,
@@ -3236,7 +3236,7 @@
           "collected_at": "2026-02-07T12:45:07.029500"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -3320,7 +3320,7 @@
           "collected_at": "2026-02-07T12:45:08.137109"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 75.0,
@@ -3362,7 +3362,7 @@
           "collected_at": "2026-02-07T12:45:08.750921"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 66.2,
@@ -3404,7 +3404,7 @@
           "collected_at": "2026-02-07T12:45:09.388174"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 121.9,
@@ -3455,7 +3455,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 417.0,
@@ -3497,7 +3497,7 @@
           "collected_at": "2026-02-07T13:27:38.312157"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 191.9,
@@ -3581,7 +3581,7 @@
           "collected_at": "2026-02-07T13:27:40.383425"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -3665,7 +3665,7 @@
           "collected_at": "2026-02-07T13:27:42.224954"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 75.0,
@@ -3707,7 +3707,7 @@
           "collected_at": "2026-02-07T13:27:43.149305"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 66.2,
@@ -3749,7 +3749,7 @@
           "collected_at": "2026-02-07T13:27:44.068595"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 122.0,
@@ -3800,7 +3800,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.0,
@@ -3842,7 +3842,7 @@
           "collected_at": "2026-02-08T14:49:20.712363"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.0,
@@ -3926,7 +3926,7 @@
           "collected_at": "2026-02-08T14:49:22.324749"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -4010,7 +4010,7 @@
           "collected_at": "2026-02-08T14:49:23.810558"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.1,
@@ -4052,7 +4052,7 @@
           "collected_at": "2026-02-08T14:49:24.595328"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.3,
@@ -4094,7 +4094,7 @@
           "collected_at": "2026-02-08T14:49:25.394985"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.0,
@@ -4145,7 +4145,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.0,
@@ -4187,7 +4187,7 @@
           "collected_at": "2026-02-08T15:13:45.902537"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.0,
@@ -4271,7 +4271,7 @@
           "collected_at": "2026-02-08T15:13:47.396403"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -4355,7 +4355,7 @@
           "collected_at": "2026-02-08T15:13:48.717444"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.1,
@@ -4397,7 +4397,7 @@
           "collected_at": "2026-02-08T15:13:49.654519"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.3,
@@ -4439,7 +4439,7 @@
           "collected_at": "2026-02-08T15:13:50.410401"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.1,
@@ -4490,7 +4490,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.1,
@@ -4532,7 +4532,7 @@
           "collected_at": "2026-02-08T15:18:59.413099"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.0,
@@ -4616,7 +4616,7 @@
           "collected_at": "2026-02-08T15:19:00.814483"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -4700,7 +4700,7 @@
           "collected_at": "2026-02-08T15:19:01.910426"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.1,
@@ -4742,7 +4742,7 @@
           "collected_at": "2026-02-08T15:19:02.504663"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.3,
@@ -4784,7 +4784,7 @@
           "collected_at": "2026-02-08T15:19:03.296512"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.1,
@@ -4835,7 +4835,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.3,
@@ -4877,7 +4877,7 @@
           "collected_at": "2026-02-08T20:58:21.559842"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.2,
@@ -4961,7 +4961,7 @@
           "collected_at": "2026-02-08T20:58:23.099602"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -5045,7 +5045,7 @@
           "collected_at": "2026-02-08T20:58:24.357263"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.3,
@@ -5087,7 +5087,7 @@
           "collected_at": "2026-02-08T20:58:25.023655"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.5,
@@ -5129,7 +5129,7 @@
           "collected_at": "2026-02-08T20:58:25.769904"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.3,
@@ -5180,7 +5180,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.3,
@@ -5222,7 +5222,7 @@
           "collected_at": "2026-02-08T21:05:26.969354"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 193.2,
@@ -5306,7 +5306,7 @@
           "collected_at": "2026-02-08T21:05:28.244059"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -5390,7 +5390,7 @@
           "collected_at": "2026-02-08T21:05:29.424297"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.3,
@@ -5432,7 +5432,7 @@
           "collected_at": "2026-02-08T21:05:30.013848"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.5,
@@ -5474,7 +5474,7 @@
           "collected_at": "2026-02-08T21:05:30.639523"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 123.3,
@@ -5525,7 +5525,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.3,
@@ -5567,7 +5567,7 @@
           "collected_at": "2026-02-08T22:54:59.407523"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.3,
@@ -5651,7 +5651,7 @@
           "collected_at": "2026-02-08T22:55:01.347713"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -5735,7 +5735,7 @@
           "collected_at": "2026-02-08T22:55:03.116706"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.4,
@@ -5777,7 +5777,7 @@
           "collected_at": "2026-02-08T22:55:04.062404"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.6,
@@ -5819,7 +5819,7 @@
           "collected_at": "2026-02-08T22:55:05.026141"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.0,
@@ -5870,7 +5870,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.3,
@@ -5912,7 +5912,7 @@
           "collected_at": "2026-02-08T23:01:42.904754"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.3,
@@ -5996,7 +5996,7 @@
           "collected_at": "2026-02-08T23:01:44.560193"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -6080,7 +6080,7 @@
           "collected_at": "2026-02-08T23:01:45.994832"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.4,
@@ -6122,7 +6122,7 @@
           "collected_at": "2026-02-08T23:01:46.766456"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.6,
@@ -6164,7 +6164,7 @@
           "collected_at": "2026-02-08T23:01:47.611598"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.0,
@@ -6215,7 +6215,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.4,
@@ -6257,7 +6257,7 @@
           "collected_at": "2026-02-09T00:34:12.970680"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.4,
@@ -6341,7 +6341,7 @@
           "collected_at": "2026-02-09T00:34:14.798875"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -6425,7 +6425,7 @@
           "collected_at": "2026-02-09T00:34:16.356888"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.5,
@@ -6467,7 +6467,7 @@
           "collected_at": "2026-02-09T00:34:17.181067"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
@@ -6509,7 +6509,7 @@
           "collected_at": "2026-02-09T00:34:18.111463"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.1,
@@ -6560,7 +6560,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.4,
@@ -6602,7 +6602,7 @@
           "collected_at": "2026-02-09T01:47:16.632940"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.5,
@@ -6686,7 +6686,7 @@
           "collected_at": "2026-02-09T01:47:18.085129"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -6770,7 +6770,7 @@
           "collected_at": "2026-02-09T01:47:19.217480"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.5,
@@ -6812,7 +6812,7 @@
           "collected_at": "2026-02-09T01:47:19.835826"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
@@ -6854,7 +6854,7 @@
           "collected_at": "2026-02-09T01:47:20.488625"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.1,
@@ -6905,7 +6905,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.7,
@@ -6947,7 +6947,7 @@
           "collected_at": "2026-02-09T07:09:17.938488"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.7,
@@ -7031,7 +7031,7 @@
           "collected_at": "2026-02-09T07:09:19.452898"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -7115,7 +7115,7 @@
           "collected_at": "2026-02-09T07:09:21.071030"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.7,
@@ -7157,7 +7157,7 @@
           "collected_at": "2026-02-09T07:09:21.769154"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.0,
@@ -7199,7 +7199,7 @@
           "collected_at": "2026-02-09T07:09:22.531494"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.3,
@@ -7250,7 +7250,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.8,
@@ -7292,7 +7292,7 @@
           "collected_at": "2026-02-09T11:15:59.916781"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.9,
@@ -7376,7 +7376,7 @@
           "collected_at": "2026-02-09T11:16:26.377388"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -7460,7 +7460,7 @@
           "collected_at": "2026-02-09T11:16:47.536087"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.9,
@@ -7502,7 +7502,7 @@
           "collected_at": "2026-02-09T11:16:54.370795"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.1,
@@ -7544,7 +7544,7 @@
           "collected_at": "2026-02-09T11:17:02.062177"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.5,
@@ -7595,7 +7595,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.8,
@@ -7679,7 +7679,7 @@
           "collected_at": "2026-02-09T11:26:23.730517"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -7763,7 +7763,7 @@
           "collected_at": "2026-02-09T11:26:31.398046"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.9,
@@ -7805,7 +7805,7 @@
           "collected_at": "2026-02-09T11:26:36.586255"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.1,
@@ -7847,7 +7847,7 @@
           "collected_at": "2026-02-09T11:26:43.283052"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.5,
@@ -7898,7 +7898,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.9,
@@ -7940,7 +7940,7 @@
           "collected_at": "2026-02-09T12:05:51.543171"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.9,
@@ -8024,7 +8024,7 @@
           "collected_at": "2026-02-09T12:05:53.806283"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -8108,7 +8108,7 @@
           "collected_at": "2026-02-09T12:05:56.072446"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 76.9,
@@ -8150,7 +8150,7 @@
           "collected_at": "2026-02-09T12:05:57.136277"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.2,
@@ -8192,7 +8192,7 @@
           "collected_at": "2026-02-09T12:05:58.206447"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 81.1,
@@ -8243,7 +8243,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 418.9,
@@ -8285,7 +8285,7 @@
           "collected_at": "2026-02-09T12:54:52.055970"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 186.9,
@@ -8369,7 +8369,7 @@
           "collected_at": "2026-02-09T12:54:54.984086"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -8453,7 +8453,7 @@
           "collected_at": "2026-02-09T12:54:56.923717"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 77.0,
@@ -8495,7 +8495,7 @@
           "collected_at": "2026-02-09T12:54:58.145168"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 68.2,
@@ -8537,7 +8537,7 @@
           "collected_at": "2026-02-09T12:54:59.462531"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.6,
@@ -8588,7 +8588,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 419.0,
@@ -8630,7 +8630,7 @@
           "collected_at": "2026-02-09T14:22:22.035791"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.0,
@@ -8714,7 +8714,7 @@
           "collected_at": "2026-02-09T14:22:24.346998"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -8798,7 +8798,7 @@
           "collected_at": "2026-02-09T14:22:26.395183"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 77.0,
@@ -8840,7 +8840,7 @@
           "collected_at": "2026-02-09T14:22:27.399428"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
@@ -8882,7 +8882,7 @@
           "collected_at": "2026-02-09T14:22:28.476694"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.6,
@@ -8933,7 +8933,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 419.0,
@@ -8975,7 +8975,7 @@
           "collected_at": "2026-02-09T14:53:18.302784"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.0,
@@ -9059,7 +9059,7 @@
           "collected_at": "2026-02-09T14:53:20.850980"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -9143,7 +9143,7 @@
           "collected_at": "2026-02-09T14:53:23.060106"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 77.1,
@@ -9185,7 +9185,7 @@
           "collected_at": "2026-02-09T14:53:24.232880"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
@@ -9227,7 +9227,7 @@
           "collected_at": "2026-02-09T14:53:25.476869"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.6,
@@ -9278,7 +9278,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 419.0,
@@ -9320,7 +9320,7 @@
           "collected_at": "2026-02-09T15:34:26.904379"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.0,
@@ -9404,7 +9404,7 @@
           "collected_at": "2026-02-09T15:34:28.496680"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -9488,7 +9488,7 @@
           "collected_at": "2026-02-09T15:34:29.836368"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 77.1,
@@ -9530,7 +9530,7 @@
           "collected_at": "2026-02-09T15:34:30.551084"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.7,
@@ -9572,7 +9572,7 @@
           "collected_at": "2026-02-09T15:34:31.357702"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.7,
@@ -9623,7 +9623,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 419.0,
@@ -9665,7 +9665,7 @@
           "collected_at": "2026-02-09T16:15:47.290290"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 187.1,
@@ -9749,7 +9749,7 @@
           "collected_at": "2026-02-09T16:15:49.327733"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -9833,7 +9833,7 @@
           "collected_at": "2026-02-09T16:15:51.159402"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 77.1,
@@ -9875,7 +9875,7 @@
           "collected_at": "2026-02-09T16:15:52.108819"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 67.8,
@@ -9917,7 +9917,7 @@
           "collected_at": "2026-02-09T16:15:53.142111"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 102.7,
@@ -9968,7 +9968,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 420.9,
@@ -10010,7 +10010,7 @@
           "collected_at": "2026-02-11T12:06:57.216409"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
             "median_age_days": 181.9,
@@ -10094,7 +10094,7 @@
           "collected_at": "2026-02-11T12:06:57.019855"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "bug_age_distribution": {
             "median_age_days": null,
@@ -10178,7 +10178,7 @@
           "collected_at": "2026-02-11T12:06:57.122340"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
             "median_age_days": 78.9,
@@ -10220,7 +10220,7 @@
           "collected_at": "2026-02-11T12:06:56.970750"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 65.0,
@@ -10262,7 +10262,7 @@
           "collected_at": "2026-02-11T12:06:57.051779"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 83.1,

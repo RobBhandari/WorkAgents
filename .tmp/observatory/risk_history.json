@@ -5,7 +5,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1100,
@@ -294,7 +294,7 @@
           "collected_at": "2026-02-06T09:07:07.075420"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1100,
@@ -796,7 +796,7 @@
           "collected_at": "2026-02-06T09:10:13.264480"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -1111,7 +1111,7 @@
           "collected_at": "2026-02-06T09:11:05.291584"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -1400,7 +1400,7 @@
           "collected_at": "2026-02-06T09:11:20.825228"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -1689,7 +1689,7 @@
           "collected_at": "2026-02-06T09:13:07.082700"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -1987,7 +1987,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1099,
@@ -2276,7 +2276,7 @@
           "collected_at": "2026-02-06T17:39:04.299638"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
@@ -2709,7 +2709,7 @@
           "collected_at": "2026-02-06T17:39:54.325488"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -3024,7 +3024,7 @@
           "collected_at": "2026-02-06T17:40:10.175872"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -3241,7 +3241,7 @@
           "collected_at": "2026-02-06T17:40:13.308315"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -3530,7 +3530,7 @@
           "collected_at": "2026-02-06T17:40:37.668933"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -3828,7 +3828,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1099,
@@ -4117,7 +4117,7 @@
           "collected_at": "2026-02-06T17:46:47.639019"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
@@ -4550,7 +4550,7 @@
           "collected_at": "2026-02-06T17:47:38.575513"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -4865,7 +4865,7 @@
           "collected_at": "2026-02-06T17:47:54.320666"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -5082,7 +5082,7 @@
           "collected_at": "2026-02-06T17:47:57.329651"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -5371,7 +5371,7 @@
           "collected_at": "2026-02-06T17:48:21.087530"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -5669,7 +5669,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1099,
@@ -5958,7 +5958,7 @@
           "collected_at": "2026-02-06T18:08:59.419218"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
@@ -6391,7 +6391,7 @@
           "collected_at": "2026-02-06T18:09:49.305633"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -6706,7 +6706,7 @@
           "collected_at": "2026-02-06T18:10:04.179053"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -6923,7 +6923,7 @@
           "collected_at": "2026-02-06T18:10:07.068972"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -7212,7 +7212,7 @@
           "collected_at": "2026-02-06T18:10:31.856531"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -7510,7 +7510,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1099,
@@ -7799,7 +7799,7 @@
           "collected_at": "2026-02-06T18:35:16.234350"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
@@ -8232,7 +8232,7 @@
           "collected_at": "2026-02-06T18:36:06.967828"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -8547,7 +8547,7 @@
           "collected_at": "2026-02-06T18:36:21.893401"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -8764,7 +8764,7 @@
           "collected_at": "2026-02-06T18:36:24.742087"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -9053,7 +9053,7 @@
           "collected_at": "2026-02-06T18:36:48.966196"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -9351,7 +9351,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1099,
@@ -9640,7 +9640,7 @@
           "collected_at": "2026-02-06T18:42:08.189002"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
@@ -10073,7 +10073,7 @@
           "collected_at": "2026-02-06T18:43:20.320887"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -10388,7 +10388,7 @@
           "collected_at": "2026-02-06T18:43:40.983601"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -10605,7 +10605,7 @@
           "collected_at": "2026-02-06T18:43:45.358238"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -10894,7 +10894,7 @@
           "collected_at": "2026-02-06T18:44:19.687886"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -11192,7 +11192,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1099,
@@ -11481,7 +11481,7 @@
           "collected_at": "2026-02-06T22:39:24.153076"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
@@ -11914,7 +11914,7 @@
           "collected_at": "2026-02-06T22:40:06.338073"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -12229,7 +12229,7 @@
           "collected_at": "2026-02-06T22:40:19.063026"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -12446,7 +12446,7 @@
           "collected_at": "2026-02-06T22:40:21.821724"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -12735,7 +12735,7 @@
           "collected_at": "2026-02-06T22:40:42.401303"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -13033,7 +13033,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1099,
@@ -13322,7 +13322,7 @@
           "collected_at": "2026-02-07T06:49:03.612705"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1099,
@@ -13755,7 +13755,7 @@
           "collected_at": "2026-02-07T06:49:52.319111"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -14070,7 +14070,7 @@
           "collected_at": "2026-02-07T06:50:06.860377"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -14287,7 +14287,7 @@
           "collected_at": "2026-02-07T06:50:09.699406"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -14576,7 +14576,7 @@
           "collected_at": "2026-02-07T06:50:34.250593"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -14874,7 +14874,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1087,
@@ -15163,7 +15163,7 @@
           "collected_at": "2026-02-07T12:27:06.590632"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1087,
@@ -15596,7 +15596,7 @@
           "collected_at": "2026-02-07T12:28:14.705436"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -15911,7 +15911,7 @@
           "collected_at": "2026-02-07T12:28:35.188454"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -16128,7 +16128,7 @@
           "collected_at": "2026-02-07T12:28:39.259204"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -16417,7 +16417,7 @@
           "collected_at": "2026-02-07T12:29:13.330286"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -16715,7 +16715,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1087,
@@ -17004,7 +17004,7 @@
           "collected_at": "2026-02-07T12:46:07.149688"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1087,
@@ -17437,7 +17437,7 @@
           "collected_at": "2026-02-07T12:47:12.269860"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -17752,7 +17752,7 @@
           "collected_at": "2026-02-07T12:47:31.852010"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -17969,7 +17969,7 @@
           "collected_at": "2026-02-07T12:47:36.319244"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -18258,7 +18258,7 @@
           "collected_at": "2026-02-07T12:48:09.847568"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -18556,7 +18556,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1087,
@@ -18845,7 +18845,7 @@
           "collected_at": "2026-02-07T13:28:40.179038"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1087,
@@ -19278,7 +19278,7 @@
           "collected_at": "2026-02-07T13:29:50.316686"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -19593,7 +19593,7 @@
           "collected_at": "2026-02-07T13:30:11.781478"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -19810,7 +19810,7 @@
           "collected_at": "2026-02-07T13:30:16.343656"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 706,
@@ -20099,7 +20099,7 @@
           "collected_at": "2026-02-07T13:30:52.357051"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -20397,7 +20397,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1080,
@@ -20686,7 +20686,7 @@
           "collected_at": "2026-02-08T14:49:54.381379"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1080,
@@ -21119,7 +21119,7 @@
           "collected_at": "2026-02-08T14:50:38.218787"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -21434,7 +21434,7 @@
           "collected_at": "2026-02-08T14:50:50.883766"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -21651,7 +21651,7 @@
           "collected_at": "2026-02-08T14:50:53.569849"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -21940,7 +21940,7 @@
           "collected_at": "2026-02-08T14:51:14.796291"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -22238,7 +22238,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1080,
@@ -22527,7 +22527,7 @@
           "collected_at": "2026-02-08T15:14:17.298394"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1080,
@@ -22960,7 +22960,7 @@
           "collected_at": "2026-02-08T15:14:58.728231"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -23275,7 +23275,7 @@
           "collected_at": "2026-02-08T15:15:11.241713"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -23492,7 +23492,7 @@
           "collected_at": "2026-02-08T15:15:13.835840"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -23781,7 +23781,7 @@
           "collected_at": "2026-02-08T15:15:34.004289"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -24079,7 +24079,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1080,
@@ -24368,7 +24368,7 @@
           "collected_at": "2026-02-08T15:19:33.858712"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1080,
@@ -24801,7 +24801,7 @@
           "collected_at": "2026-02-08T15:20:14.960502"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -25116,7 +25116,7 @@
           "collected_at": "2026-02-08T15:20:27.447924"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -25333,7 +25333,7 @@
           "collected_at": "2026-02-08T15:20:29.860536"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -25622,7 +25622,7 @@
           "collected_at": "2026-02-08T15:20:50.208219"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -25920,7 +25920,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -26209,7 +26209,7 @@
           "collected_at": "2026-02-08T20:59:20.019343"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -26642,7 +26642,7 @@
           "collected_at": "2026-02-08T21:00:22.253616"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -26957,7 +26957,7 @@
           "collected_at": "2026-02-08T21:00:43.490136"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -27174,7 +27174,7 @@
           "collected_at": "2026-02-08T21:00:47.440423"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -27463,7 +27463,7 @@
           "collected_at": "2026-02-08T21:01:19.183941"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -27761,7 +27761,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -28050,7 +28050,7 @@
           "collected_at": "2026-02-08T21:06:05.421876"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -28483,7 +28483,7 @@
           "collected_at": "2026-02-08T21:06:45.460294"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -28798,7 +28798,7 @@
           "collected_at": "2026-02-08T21:06:57.920258"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -29015,7 +29015,7 @@
           "collected_at": "2026-02-08T21:07:00.532306"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -29304,7 +29304,7 @@
           "collected_at": "2026-02-08T21:07:20.410385"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -29602,7 +29602,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -29891,7 +29891,7 @@
           "collected_at": "2026-02-08T22:55:57.900376"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -30324,7 +30324,7 @@
           "collected_at": "2026-02-08T22:57:09.493488"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -30639,7 +30639,7 @@
           "collected_at": "2026-02-08T22:57:31.304173"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -30856,7 +30856,7 @@
           "collected_at": "2026-02-08T22:57:35.525654"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -31145,7 +31145,7 @@
           "collected_at": "2026-02-08T22:58:10.865145"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -31443,7 +31443,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -31732,7 +31732,7 @@
           "collected_at": "2026-02-08T23:02:19.540797"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -32165,7 +32165,7 @@
           "collected_at": "2026-02-08T23:02:59.450335"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -32480,7 +32480,7 @@
           "collected_at": "2026-02-08T23:03:11.890834"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -32697,7 +32697,7 @@
           "collected_at": "2026-02-08T23:03:14.711907"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -32986,7 +32986,7 @@
           "collected_at": "2026-02-08T23:03:34.138718"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -33284,7 +33284,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -33573,7 +33573,7 @@
           "collected_at": "2026-02-09T00:35:20.040175"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -34006,7 +34006,7 @@
           "collected_at": "2026-02-09T00:36:31.832594"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -34321,7 +34321,7 @@
           "collected_at": "2026-02-09T00:36:52.932194"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -34538,7 +34538,7 @@
           "collected_at": "2026-02-09T00:36:57.417724"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -34827,7 +34827,7 @@
           "collected_at": "2026-02-09T00:37:32.259374"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -35125,7 +35125,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -35414,7 +35414,7 @@
           "collected_at": "2026-02-09T01:48:15.989168"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -35847,7 +35847,7 @@
           "collected_at": "2026-02-09T01:49:19.879910"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -36162,7 +36162,7 @@
           "collected_at": "2026-02-09T01:49:39.296572"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -36379,7 +36379,7 @@
           "collected_at": "2026-02-09T01:49:43.561290"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -36668,7 +36668,7 @@
           "collected_at": "2026-02-09T01:50:16.160029"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -36966,7 +36966,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -37255,7 +37255,7 @@
           "collected_at": "2026-02-09T07:10:02.433179"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -37688,7 +37688,7 @@
           "collected_at": "2026-02-09T07:10:46.281412"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -38003,7 +38003,7 @@
           "collected_at": "2026-02-09T07:11:04.089598"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -38220,7 +38220,7 @@
           "collected_at": "2026-02-09T07:11:06.743914"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -38509,7 +38509,7 @@
           "collected_at": "2026-02-09T07:11:32.474106"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -38807,7 +38807,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -39096,7 +39096,7 @@
           "collected_at": "2026-02-09T11:16:26.221814"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -39551,7 +39551,7 @@
           "collected_at": "2026-02-09T11:17:14.749929"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -39866,7 +39866,7 @@
           "collected_at": "2026-02-09T11:17:30.328732"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -40083,7 +40083,7 @@
           "collected_at": "2026-02-09T11:17:33.428288"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -40372,7 +40372,7 @@
           "collected_at": "2026-02-09T11:17:58.914240"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -40670,7 +40670,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -40959,7 +40959,7 @@
           "collected_at": "2026-02-09T11:27:23.258615"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -41384,7 +41384,7 @@
           "collected_at": "2026-02-09T11:28:34.484503"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -41699,7 +41699,7 @@
           "collected_at": "2026-02-09T11:28:54.993535"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -41916,7 +41916,7 @@
           "collected_at": "2026-02-09T11:28:59.370297"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 702,
@@ -42205,7 +42205,7 @@
           "collected_at": "2026-02-09T11:29:36.456813"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -42503,7 +42503,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -42792,7 +42792,7 @@
           "collected_at": "2026-02-09T12:06:33.272999"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -43192,7 +43192,7 @@
           "collected_at": "2026-02-09T12:07:22.688331"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -43507,7 +43507,7 @@
           "collected_at": "2026-02-09T12:07:37.511035"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -43724,7 +43724,7 @@
           "collected_at": "2026-02-09T12:07:40.501551"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
@@ -44013,7 +44013,7 @@
           "collected_at": "2026-02-09T12:08:05.534010"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -44311,7 +44311,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -44600,7 +44600,7 @@
           "collected_at": "2026-02-09T12:55:42.872841"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -45065,7 +45065,7 @@
           "collected_at": "2026-02-09T12:56:42.542949"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -45380,7 +45380,7 @@
           "collected_at": "2026-02-09T12:56:58.098688"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -45597,7 +45597,7 @@
           "collected_at": "2026-02-09T12:57:01.356432"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
@@ -45886,7 +45886,7 @@
           "collected_at": "2026-02-09T12:57:28.170605"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -46184,7 +46184,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -46473,7 +46473,7 @@
           "collected_at": "2026-02-09T14:23:00.636392"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -46938,7 +46938,7 @@
           "collected_at": "2026-02-09T14:23:51.996002"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -47253,7 +47253,7 @@
           "collected_at": "2026-02-09T14:24:07.285371"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -47470,7 +47470,7 @@
           "collected_at": "2026-02-09T14:24:10.179650"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
@@ -47759,7 +47759,7 @@
           "collected_at": "2026-02-09T14:24:31.760393"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -48057,7 +48057,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -48346,7 +48346,7 @@
           "collected_at": "2026-02-09T14:54:01.412583"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -48811,7 +48811,7 @@
           "collected_at": "2026-02-09T14:54:55.675015"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -49126,7 +49126,7 @@
           "collected_at": "2026-02-09T14:55:12.023896"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -49343,7 +49343,7 @@
           "collected_at": "2026-02-09T14:55:15.081054"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
@@ -49632,7 +49632,7 @@
           "collected_at": "2026-02-09T14:55:40.594594"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -49930,7 +49930,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -50219,7 +50219,7 @@
           "collected_at": "2026-02-09T15:35:04.317454"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -50684,7 +50684,7 @@
           "collected_at": "2026-02-09T15:35:52.218526"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -50999,7 +50999,7 @@
           "collected_at": "2026-02-09T15:36:06.010726"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -51216,7 +51216,7 @@
           "collected_at": "2026-02-09T15:36:08.821147"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
@@ -51505,7 +51505,7 @@
           "collected_at": "2026-02-09T15:36:33.381732"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,
@@ -51803,7 +51803,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
             "total_commits": 1078,
@@ -52092,7 +52092,7 @@
           "collected_at": "2026-02-09T16:16:52.832053"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "code_churn": {
             "total_commits": 1078,
@@ -52557,7 +52557,7 @@
           "collected_at": "2026-02-09T16:18:03.964107"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "code_churn": {
             "total_commits": 0,
@@ -52872,7 +52872,7 @@
           "collected_at": "2026-02-09T16:18:25.274308"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "code_churn": {
             "total_commits": 100,
@@ -53089,7 +53089,7 @@
           "collected_at": "2026-02-09T16:18:29.908625"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "code_churn": {
             "total_commits": 701,
@@ -53378,7 +53378,7 @@
           "collected_at": "2026-02-09T16:19:07.172338"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 296,

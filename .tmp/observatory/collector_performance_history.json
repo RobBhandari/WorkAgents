@@ -1,20 +1,104 @@
 {
   "weeks": [
     {
-      "week_date": "2026-02-11",
+      "week_date": "2026-02-12",
       "week_number": 7,
       "collectors": [
         {
-          "timestamp": "2026-02-11T12:06:57.253462+00:00",
+          "timestamp": "2026-02-12T12:26:19.319537+00:00",
           "collector_name": "quality",
-          "execution_time_ms": 10734.93,
+          "execution_time_ms": 10.61,
           "success": true,
-          "project_count": 8,
-          "api_call_count": 39,
+          "project_count": 0,
+          "api_call_count": 0,
           "rate_limit_hits": 0,
           "retry_count": 0,
           "error_message": null,
           "error_type": null
+        },
+        {
+          "timestamp": "2026-02-12T12:26:19.326575+00:00",
+          "collector_name": "quality",
+          "execution_time_ms": 0.0,
+          "success": true,
+          "project_count": 0,
+          "api_call_count": 0,
+          "rate_limit_hits": 0,
+          "retry_count": 0,
+          "error_message": null,
+          "error_type": null
+        },
+        {
+          "timestamp": "2026-02-12T12:26:19.345564+00:00",
+          "collector_name": "quality",
+          "execution_time_ms": 0.01,
+          "success": true,
+          "project_count": 12,
+          "api_call_count": 0,
+          "rate_limit_hits": 0,
+          "retry_count": 0,
+          "error_message": null,
+          "error_type": null
+        },
+        {
+          "timestamp": "2026-02-12T12:26:19.354686+00:00",
+          "collector_name": "deployment",
+          "execution_time_ms": 0.01,
+          "success": false,
+          "project_count": 8,
+          "api_call_count": 0,
+          "rate_limit_hits": 0,
+          "retry_count": 0,
+          "error_message": "Test failure",
+          "error_type": "ValueError"
+        },
+        {
+          "timestamp": "2026-02-12T12:26:19.364822+00:00",
+          "collector_name": "quality",
+          "execution_time_ms": 0.01,
+          "success": true,
+          "project_count": 0,
+          "api_call_count": 0,
+          "rate_limit_hits": 0,
+          "retry_count": 0,
+          "error_message": null,
+          "error_type": null
+        },
+        {
+          "timestamp": "2026-02-12T12:26:19.371472+00:00",
+          "collector_name": "quality",
+          "execution_time_ms": 0.01,
+          "success": true,
+          "project_count": 12,
+          "api_call_count": 0,
+          "rate_limit_hits": 0,
+          "retry_count": 0,
+          "error_message": null,
+          "error_type": null
+        },
+        {
+          "timestamp": "2026-02-12T12:26:19.381622+00:00",
+          "collector_name": "quality",
+          "execution_time_ms": 0.01,
+          "success": true,
+          "project_count": 12,
+          "api_call_count": 3,
+          "rate_limit_hits": 0,
+          "retry_count": 1,
+          "error_message": null,
+          "error_type": null
+        },
+        {
+          "timestamp": "2026-02-12T12:26:19.389553+00:00",
+          "collector_name": "deployment",
+          "execution_time_ms": 0.32,
+          "success": false,
+          "project_count": 0,
+          "api_call_count": 1,
+          "rate_limit_hits": 1,
+          "retry_count": 0,
+          "error_message": "ADO connection timeout",
+          "error_type": "ConnectionError"
         }
       ]
     }

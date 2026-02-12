@@ -24,6 +24,25 @@ PRODUCT_MAPPING = {
     "Legal Product F": "Product F",
     "Legal Product L": "Product L",
 
+    # Underscore variants (for project_key fields)
+    "Access_Legal_Case_Management": "Product_A",
+    "One_Office_&_Financial_Director": "Product_B",
+    "One_Office": "Product_B",
+    "Access_LawFusion": "Product_C",
+    "Access_Legal_Compliance": "Product_E",
+    "Legal_Compliance": "Product_E",
+    "Access_Diversity": "Product_G",
+    "Access_Legal_AI_Services": "Product_H",
+    "Access_Legal_Framework": "Product_I",
+    "Access_MyCalendars": "Product_J",
+    "Legal_InCase": "Product_F",
+    "Legal_Product D": "Product_D",
+    "Learning_Content_Legal": "Product_O",
+
+    # Pipeline/Build names
+    "Build Access Legal Searches": "Build Product A Searches",
+    "Access Legal": "Product A",  # Catch-all for any remaining references
+
     # Product D variants (do these BEFORE "Proclaim" alone)
     "Access Legal Proclaim": "Product D",
     "Access Proclaim": "Product D",
@@ -66,7 +85,7 @@ PRODUCT_MAPPING = {
 
 def genericize_value(value: Any, stats: Dict[str, int]) -> Any:
     """
-    Recursively replace product names in any data structure.
+    Recursively replace product names and sensitive data in any data structure.
 
     Args:
         value: Value to process (can be dict, list, str, or primitive)
@@ -76,7 +95,22 @@ def genericize_value(value: Any, stats: Dict[str, int]) -> Any:
         Genericized value
     """
     if isinstance(value, dict):
-        return {k: genericize_value(v, stats) for k, v in value.items()}
+        # Genericize both keys AND values
+        genericized_dict = {}
+        for k, v in value.items():
+            # Genericize the key
+            genericized_key = k
+            for real_name, generic_name in sorted(
+                PRODUCT_MAPPING.items(), key=lambda x: len(x[0]), reverse=True
+            ):
+                if real_name in genericized_key:
+                    count = genericized_key.count(real_name)
+                    stats[real_name] = stats.get(real_name, 0) + count
+                    genericized_key = genericized_key.replace(real_name, generic_name)
+
+            # Genericize the value recursively
+            genericized_dict[genericized_key] = genericize_value(v, stats)
+        return genericized_dict
     elif isinstance(value, list):
         return [genericize_value(item, stats) for item in value]
     elif isinstance(value, str):
@@ -89,6 +123,21 @@ def genericize_value(value: Any, stats: Dict[str, int]) -> Any:
                 count = genericized.count(real_name)
                 stats[real_name] = stats.get(real_name, 0) + count
                 genericized = genericized.replace(real_name, generic_name)
+
+        # Anonymize email addresses (replace @theaccessgroup.com with @company.com)
+        if "@theaccessgroup.com" in genericized:
+            # Extract name part before @ and create generic email
+            import re
+            email_pattern = r'([a-zA-Z0-9._%+-]+)@theaccessgroup\.com'
+            matches = re.findall(email_pattern, genericized)
+            for match in matches:
+                original_email = f"{match}@theaccessgroup.com"
+                # Convert email to name format (jac.martin -> Jac Martin)
+                name_parts = match.split('.')
+                generic_name = ' '.join(word.capitalize() for word in name_parts)
+                genericized = genericized.replace(original_email, generic_name)
+                stats["email_anonymized"] = stats.get("email_anonymized", 0) + 1
+
         return genericized
     else:
         return value
