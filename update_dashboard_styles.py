@@ -131,6 +131,25 @@ td {
     color: #ffffff !important;
 }
 
+/* Chevron indicators for expandable rows */
+tbody tr.data-row td:first-child {
+    position: relative !important;
+    padding-left: 30px !important;
+}
+
+tbody tr.data-row td:first-child::before {
+    content: '▶';
+    position: absolute;
+    left: 12px;
+    font-size: 0.7rem;
+    color: var(--color-slate-400);
+    transition: transform 0.3s ease;
+}
+
+tbody tr.data-row.expanded td:first-child::before {
+    transform: rotate(90deg);
+}
+
 /* Status badges - Refined colors */
 .status-good { color: var(--color-emerald-500) !important; }
 .status-caution { color: var(--color-amber-500) !important; }
@@ -256,6 +275,11 @@ td {
 
 [data-theme="light"] .detail-metric-value {
     color: var(--color-slate-900) !important;
+}
+
+/* Chevron - Light Mode */
+[data-theme="light"] tbody tr.data-row td:first-child::before {
+    color: var(--color-slate-600) !important;
 }
 
 /* Footer - Light Mode */
