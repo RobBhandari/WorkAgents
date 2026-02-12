@@ -64,7 +64,11 @@ Implemented on 2026-02-12 based on insights report analysis.
 - **Action**: Runs pytest test suite
 - **Benefit**: Prevents committing broken code
 
-**Location**: `C:\Users\Robin.Bhandari\.claude\projects\c--DEV-Agentic-Test\settings.json`
+**Locations**:
+- Skills: `C:\Users\Robin.Bhandari\.claude\skills\` (global)
+- Hooks: `C:\Users\Robin.Bhandari\.claude\projects\c--DEV-Agentic-Test\settings.json` (project-specific)
+
+**Note**: Restart Claude Code to see new skills in the available commands list.
 
 ## 📊 Expected Impact
 
