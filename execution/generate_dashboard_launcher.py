@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Generate Dashboard Launcher (index.html)
+Generate Dashboard Launcher (launcher.html)
 
-Creates the landing page with cards for all available dashboards.
-This serves as the main entry point for the Observatory.
+Creates a hub page with cards for all available dashboards.
+Note: index.html is reserved for Executive Trends Dashboard.
 """
 
 import sys
@@ -25,13 +25,13 @@ def generate_dashboard_launcher(output_path: Path | None = None) -> str:
     Generate dashboard launcher HTML.
 
     Args:
-        output_path: Optional path to write HTML file (defaults to index.html)
+        output_path: Optional path to write HTML file (defaults to launcher.html)
 
     Returns:
         Generated HTML string
     """
     if output_path is None:
-        output_path = Path(".tmp/observatory/dashboards/index.html")
+        output_path = Path(".tmp/observatory/dashboards/launcher.html")
 
     # Define dashboard cards
     dashboards = [
