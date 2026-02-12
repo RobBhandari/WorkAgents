@@ -27,12 +27,12 @@ class TestIntegration:
                AND [System.WorkItemType] = '{work_type}'
                AND [System.CreatedDate] >= '{start_date}'
                ORDER BY [System.Id] ASC""",
-            project="Access Legal",
+            project="Product A",
             work_type="Bug",
             start_date="2026-01-01",
         )
 
-        assert "Access Legal" in query
+        assert "Product A" in query
         assert "Bug" in query
         assert "2026-01-01" in query
         # Ensure no injection
