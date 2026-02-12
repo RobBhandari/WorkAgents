@@ -1,14 +1,16 @@
-{% extends "dashboards/base_dashboard.html" %}
+"""
+Update all dashboard templates with refined minimalist CSS.
 
-{% block title %}70% Reduction Target Dashboard{% endblock %}
-{% block meta_description %}70% reduction target tracking for security and quality{% endblock %}
+This script replaces the old aggressive CSS overrides with the refined,
+subtle minimalist styling from the Executive Trends dashboard (index_MINIMALIST.html).
+"""
 
-{% block header_title %}🎯 70% Reduction Target Dashboard{% endblock %}
-{% block header_subtitle %}Dec 1, 2025 → June 30, 2026{% endblock %}
-{% block footer_context %}70% Reduction Target Tracking{% endblock %}
+from pathlib import Path
 
-{% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
+# Refined minimalist CSS (extracted from index_MINIMALIST.html)
+# NOTE: This is a simplified version that applies to all dashboards
+# Dashboard-specific styles (tables, cards, etc.) will use framework defaults
+REFINED_CSS = """<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -194,105 +196,76 @@ td {
     color: var(--color-slate-600) !important;
 }
 </style>
+"""
 
-{% endblock %}
 
-{% block content %}
-<!-- Security Vulnerabilities Section -->
-<div class="section">
-    <div class="section-header">
-        <div class="section-title">🔒 Security Vulnerabilities (ArmorCode)</div>
-    </div>
+def update_dashboard_template(template_path: Path) -> bool:
+    """
+    Update a single dashboard template with refined CSS.
 
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-label">Baseline</div>
-            <div class="metric-value">{{ security.baseline_count }}</div>
-            <div class="metric-unit">Dec 1, 2025</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-label">Current</div>
-            <div class="metric-value">{{ security.current_count }}</div>
-            <div class="metric-unit">vulnerabilities</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-label">Target</div>
-            <div class="metric-value">{{ security.target_count }}</div>
-            <div class="metric-unit">June 30, 2026</div>
-        </div>
-        <div class="metric-card" style="background: linear-gradient(135deg, {{ security.status_color }}E6 0%, {{ security.status_color }}B3 100%); border: 1px solid {{ security.status_color }}80; box-shadow: 0 2px 8px {{ security.status_color }}40;">
-            <div class="metric-label" style="color: white; opacity: 0.95;">Progress</div>
-            <div class="metric-value" style="color: white;">{{ security.progress_pct|format_percent(1) }}</div>
-            <div class="metric-unit" style="color: white; opacity: 0.9;">toward goal</div>
-        </div>
-    </div>
+    Args:
+        template_path: Path to template file
 
-    <div class="progress-section">
-        <div class="progress-row">
-            <span class="progress-label">Progress from Baseline:</span>
-            <span class="progress-value">{% if security.progress_from_baseline > 0 %}+{% endif %}{{ security.progress_from_baseline|format_number }} vulnerabilities</span>
-        </div>
-        <div class="progress-row">
-            <span class="progress-label">Remaining to Target:</span>
-            <span class="progress-value">{{ security.remaining_to_target|format_number }} vulnerabilities</span>
-        </div>
-        <div class="progress-row">
-            <span class="progress-label">Days Remaining:</span>
-            <span class="progress-value">{{ security.days_remaining }} days ({{ security.weeks_remaining }} weeks)</span>
-        </div>
-        <div class="progress-row">
-            <span class="progress-label">Required Weekly Burn (from now):</span>
-            <span class="progress-value">{{ security.required_weekly_burn|format_number(2) }} vulnerabilities/week</span>
-        </div>
-    </div>
-</div>
+    Returns:
+        True if updated, False if skipped
+    """
+    content = template_path.read_text(encoding="utf-8")
 
-<!-- Bugs Section -->
-<div class="section">
-    <div class="section-header">
-        <div class="section-title">🐛 Bugs (Azure DevOps)</div>
-    </div>
+    # Check if template has extra_css block
+    if "{% block extra_css %}" not in content:
+        print(f"SKIP  Skipping {template_path.name} (no extra_css block)")
+        return False
 
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-label">Baseline</div>
-            <div class="metric-value">{{ bugs.baseline_count }}</div>
-            <div class="metric-unit">Dec 1, 2025</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-label">Current</div>
-            <div class="metric-value">{{ bugs.current_count }}</div>
-            <div class="metric-unit">bugs</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-label">Target</div>
-            <div class="metric-value">{{ bugs.target_count }}</div>
-            <div class="metric-unit">June 30, 2026</div>
-        </div>
-        <div class="metric-card" style="background: linear-gradient(135deg, {{ bugs.status_color }}E6 0%, {{ bugs.status_color }}B3 100%); border: 1px solid {{ bugs.status_color }}80; box-shadow: 0 2px 8px {{ bugs.status_color }}40;">
-            <div class="metric-label" style="color: white; opacity: 0.95;">Progress</div>
-            <div class="metric-value" style="color: white;">{{ bugs.progress_pct|format_percent(1) }}</div>
-            <div class="metric-unit" style="color: white; opacity: 0.9;">toward goal</div>
-        </div>
-    </div>
+    # Find the extra_css block boundaries
+    start_marker = "{% block extra_css %}"
+    end_marker = "{% endblock %}"
 
-    <div class="progress-section">
-        <div class="progress-row">
-            <span class="progress-label">Progress from Baseline:</span>
-            <span class="progress-value">{% if bugs.progress_from_baseline > 0 %}+{% endif %}{{ bugs.progress_from_baseline|format_number }} bugs</span>
-        </div>
-        <div class="progress-row">
-            <span class="progress-label">Remaining to Target:</span>
-            <span class="progress-value">{{ bugs.remaining_to_target|format_number }} bugs</span>
-        </div>
-        <div class="progress-row">
-            <span class="progress-label">Days Remaining:</span>
-            <span class="progress-value">{{ bugs.days_remaining }} days ({{ bugs.weeks_remaining }} weeks)</span>
-        </div>
-        <div class="progress-row">
-            <span class="progress-label">Required Weekly Burn (from now):</span>
-            <span class="progress-value">{{ bugs.required_weekly_burn|format_number(2) }} bugs/week</span>
-        </div>
-    </div>
-</div>
-{% endblock %}
+    start_idx = content.find(start_marker)
+    if start_idx == -1:
+        print(f"SKIP  Skipping {template_path.name} (no extra_css block)")
+        return False
+
+    # Find the corresponding endblock (could be first one after extra_css)
+    search_start = start_idx + len(start_marker)
+    end_idx = content.find(end_marker, search_start)
+
+    if end_idx == -1:
+        print(f"ERROR Error in {template_path.name} (no matching endblock)")
+        return False
+
+    # Reconstruct the template with new CSS
+    before_css = content[:start_idx + len(start_marker)]
+    after_css = content[end_idx:]
+
+    new_content = before_css + "\n" + REFINED_CSS + "\n" + after_css
+
+    # Write updated template
+    template_path.write_text(new_content, encoding="utf-8")
+    print(f"OK Updated {template_path.name}")
+    return True
+
+
+def main():
+    """Update all dashboard templates."""
+    templates_dir = Path("templates/dashboards")
+
+    if not templates_dir.exists():
+        print(f"ERROR Templates directory not found: {templates_dir}")
+        return
+
+    # Find all dashboard templates (excluding base)
+    templates = list(templates_dir.glob("*_dashboard.html"))
+    templates = [t for t in templates if t.name != "base_dashboard.html"]
+
+    print(f"Found {len(templates)} dashboard templates to update\n")
+
+    updated_count = 0
+    for template_path in sorted(templates):
+        if update_dashboard_template(template_path):
+            updated_count += 1
+
+    print(f"\nDone Updated {updated_count}/{len(templates)} dashboard templates")
+
+
+if __name__ == "__main__":
+    main()
