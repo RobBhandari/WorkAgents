@@ -1,0 +1,23 @@
+<div class="aging-heatmap" style="margin: 20px 0;">
+    <div style="display: grid; grid-template-columns: auto repeat({{ age_labels|length }}, 1fr); gap: 4px; align-items: center;">
+        <!-- Header row with age labels -->
+        <div></div>
+        {% for label in age_labels %}
+        <div style="text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); padding: 4px;">
+            {{ label }}
+        </div>
+        {% endfor %}
+
+        <!-- Critical row -->
+        <div style="font-size: 0.875rem; font-weight: 600; color: #ef4444; padding: 8px;">Critical</div>
+        {% for cell in critical_cells %}
+        {{ cell|safe }}
+        {% endfor %}
+
+        <!-- High row -->
+        <div style="font-size: 0.875rem; font-weight: 600; color: #f59e0b; padding: 8px;">High</div>
+        {% for cell in high_cells %}
+        {{ cell|safe }}
+        {% endfor %}
+    </div>
+</div>
