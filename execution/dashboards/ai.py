@@ -14,7 +14,7 @@ Usage:
     from execution.dashboards.ai import generate_ai_dashboard
     from pathlib import Path
 
-    output_path = Path('.tmp/observatory/dashboards/usage_tables_latest.html')
+    output_path = Path('.tmp/observatory/dashboards/ai_contributions_latest.html')
     generate_ai_dashboard(output_path)
 """
 
@@ -53,7 +53,7 @@ def generate_ai_dashboard(output_path: Path | None = None) -> str:
     Example:
         from pathlib import Path
         html = generate_ai_dashboard(
-            Path('.tmp/observatory/dashboards/usage_tables_latest.html')
+            Path('.tmp/observatory/dashboards/ai_contributions_latest.html')
         )
         logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
@@ -288,7 +288,7 @@ if __name__ == "__main__":
     logger.info("AI Contributions Dashboard Generator - Self Test")
 
     try:
-        output_path = Path(".tmp/observatory/dashboards/usage_tables_latest.html")
+        output_path = Path(".tmp/observatory/dashboards/ai_contributions_latest.html")
         html = generate_ai_dashboard(output_path)
 
         logger.info("AI dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)})
