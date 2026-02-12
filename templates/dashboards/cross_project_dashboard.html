@@ -1,105 +1,121 @@
-{% extends "dashboards/base_dashboard.html" %}
-
-{% block title %}Cross-Project Analysis{% endblock %}
-{% block header_title %}Cross-Project Performance Analysis{% endblock %}
-
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-    /* Minimalist Design - Inter Font + Solid Slate Colors */
-    /* IMPORTANT: Override framework styles with !important */
+/* Refined Minimalist Dashboard Styling */
+:root {
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-blue-400: #60a5fa;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-emerald-500: #10b981;
+    --color-amber-500: #f59e0b;
+    --color-red-500: #ef4444;
+    --header-gradient-start: var(--color-slate-900) !important;
+    --header-gradient-end: var(--color-slate-900) !important;
+}
 
-    :root {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
-        font-feature-settings: 'ss01', 'cv11', 'cv05';
-    }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    background: var(--color-slate-900) !important;
+    color: #ffffff !important;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-    /* Override framework header with solid slate background */
-    .header {
-        background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
-        border-radius: 12px !important;
-        padding: 2.5rem !important;
-        margin-bottom: 2rem !important;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2) !important;
-    }
+body .header, .container .header, div.header {
+    background: var(--color-slate-900) !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 64px 32px !important;
+}
 
-    [data-theme="light"] .header {
-        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
-        box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.1) !important;
-    }
+.header h1 {
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+    color: #ffffff !important;
+    font-size: 2.5rem !important;
+}
 
-    .header h1 {
-        color: #f1f5f9 !important;
-        font-size: 2.5rem !important;
-        font-weight: 700 !important;
-        margin: 0 0 0.5rem 0 !important;
-        letter-spacing: -0.025em !important;
-    }
+.header p, .header .subtitle {
+    color: var(--color-slate-400) !important;
+    font-weight: 400 !important;
+}
 
-    [data-theme="light"] .header h1 {
-        color: #0f172a !important;
-    }
+.summary-card, .card, .metric-card {
+    background: var(--color-slate-900) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 8px !important;
+    padding: 24px !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
 
-    .header .subtitle {
-        color: #cbd5e1 !important;
-        font-size: 1.125rem !important;
-    }
+.summary-card:hover, .card:hover, .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
 
-    [data-theme="light"] .header .subtitle {
-        color: #475569 !important;
-    }
+th {
+    background: var(--color-slate-800) !important;
+    color: var(--color-slate-400) !important;
+    padding: 14px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
 
-    .header p {
-        color: #94a3b8 !important;
-        font-size: 0.875rem !important;
-    }
+tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
 
-    [data-theme="light"] .header p {
-        color: #64748b !important;
-    }
+tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
 
-    /* Dark theme colors (solid slate) */
-    [data-theme="dark"] {
-        --exec-bg: #1e293b;
-        --card-bg: #1e293b;
-        --card-hover: #334155;
-        --detail-bg: #334155;
-        --glossary-bg: #1e293b;
-        --glossary-hover: #334155;
-        --border: #475569;
-        --text-primary: #f1f5f9;
-        --text-secondary: #cbd5e1;
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
-    }
+[data-theme="light"] body {
+    background: #ffffff !important;
+    color: var(--color-slate-900) !important;
+}
 
-    /* Light theme colors (solid slate) */
-    [data-theme="light"] {
-        --exec-bg: #f8fafc;
-        --card-bg: #ffffff;
-        --card-hover: #f1f5f9;
-        --detail-bg: #f8fafc;
-        --glossary-bg: #f8fafc;
-        --glossary-hover: #e2e8f0;
-        --border: #cbd5e1;
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
-        --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1);
-    }
+[data-theme="light"] .header {
+    background: #ffffff !important;
+    border-bottom-color: var(--color-slate-200) !important;
+}
 
-    /* Override framework body and container */
-    body {
-        background: #0f172a !important;
-        font-family: 'Inter', sans-serif !important;
-    }
+[data-theme="light"] .header h1 {
+    color: var(--color-slate-900) !important;
+}
 
-    [data-theme="light"] body {
-        background: #f8fafc !important;
-    }
+[data-theme="light"] .header p, [data-theme="light"] .header .subtitle {
+    color: var(--color-slate-600) !important;
+}
 
-    .container {
-        background: transparent !important;
-    }
+[data-theme="light"] .summary-card, [data-theme="light"] .card, [data-theme="light"] .metric-card {
+    background: #ffffff !important;
+    border-color: var(--color-slate-200) !important;
+}
+
+[data-theme="light"] th {
+    background: var(--color-slate-100) !important;
+    color: var(--color-slate-700) !important;
+}
+
+[data-theme="light"] tbody tr:hover {
+    background: var(--color-slate-50) !important;
+}
 </style>
 {% endblock %}
 
