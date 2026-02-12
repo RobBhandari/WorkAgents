@@ -8,283 +8,206 @@
 {% block footer_context %}Deployment Dashboard • Data source: Azure DevOps{% endblock %}
 
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-/* ═══════════════════════════════════════════════════════════════
-   MODERN MINIMALIST - Refined Dashboard Styling
-   Design Direction: Clean, Refined, Professional
-   Inspiration: Stripe, Linear, Modern SaaS dashboards
-   ═══════════════════════════════════════════════════════════════ */
+    /* Summary metrics grid */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
 
-:root {
-    --color-slate-50: #f8fafc;
-    --color-slate-100: #f1f5f9;
-    --color-slate-200: #e2e8f0;
-    --color-slate-300: #cbd5e1;
-    --color-slate-400: #94a3b8;
-    --color-slate-500: #64748b;
-    --color-slate-600: #475569;
-    --color-slate-700: #334155;
-    --color-slate-800: #1e293b;
-    --color-slate-900: #0f172a;
+    .metric-card {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px var(--shadow);
+        border-left: 4px solid #667eea;
+    }
 
-    --color-blue-400: #60a5fa;
-    --color-blue-500: #3b82f6;
-    --color-blue-600: #2563eb;
+    .metric-label {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
 
-    --color-emerald-500: #10b981;
-    --color-amber-500: #f59e0b;
-    --color-red-500: #ef4444;
+    .metric-value {
+        color: var(--text-primary);
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
 
-    --header-gradient-start: var(--color-slate-900) !important;
-    --header-gradient-end: var(--color-slate-900) !important;
-}
+    .metric-detail {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
 
-/* Refined typography - Inter with OpenType features */
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-    background: var(--color-slate-900) !important;
-    color: #ffffff !important;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+    /* Section styling */
+    .section {
+        margin-bottom: 30px;
+    }
 
-/* Sophisticated header */
-body .header,
-.container .header,
-div.header {
-    background: var(--color-slate-900) !important;
-    border: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 64px 32px !important;
-}
+    .section h2 {
+        color: var(--text-primary);
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+    }
 
-.header h1 {
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
-    color: #ffffff !important;
-    text-transform: none !important;
-    font-size: 2.5rem !important;
-}
+    /* Table wrapper */
+    .table-wrapper {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px var(--shadow);
+        overflow-x: auto;
+    }
 
-.header p,
-.header .subtitle {
-    color: var(--color-slate-400) !important;
-    font-weight: 400 !important;
-    text-transform: none !important;
-    letter-spacing: 0 !important;
-}
+    /* Status badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
 
-/* Summary Cards - Refined with subtle borders */
-.summary-card,
-.card {
-    background: var(--color-slate-900) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 8px !important;
-    padding: 24px !important;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
+    .status-good {
+        color: #10b981;
+        font-weight: 600;
+    }
 
-.summary-card:hover,
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-}
+    .status-caution {
+        color: #f59e0b;
+        font-weight: 600;
+    }
 
-/* Tables - Refined styling */
-table {
-    border-collapse: collapse !important;
-}
+    .status-action {
+        color: #ef4444;
+        font-weight: 600;
+    }
 
-th {
-    background: var(--color-slate-800) !important;
-    color: var(--color-slate-400) !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    padding: 14px 16px !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
+    .status-inactive {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
 
-tbody tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    transition: background-color 0.2s ease !important;
-}
+    /* Expandable row styling */
+    .parent-row.expandable {
+        cursor: pointer;
+    }
 
-tbody tr:hover {
-    background: rgba(255, 255, 255, 0.02) !important;
-}
+    .parent-row.expandable:hover {
+        background-color: var(--hover-bg, rgba(102, 126, 234, 0.05));
+    }
 
-td {
-    padding: 12px 16px !important;
-    color: #ffffff !important;
-}
+    .expand-icon {
+        display: inline-block;
+        width: 16px;
+        margin-right: 8px;
+        transition: transform 0.2s ease;
+        color: var(--text-secondary);
+    }
 
-/* Preserve chevron spacing for expandable rows */
-tbody tr.data-row td:first-child {
-    padding-left: 30px !important;
-}
+    .parent-row.expanded .expand-icon {
+        transform: rotate(90deg);
+    }
 
-tbody tr.data-row td:first-child::before {
-    content: '▶';
-    position: absolute;
-    left: 12px;
-    font-size: 0.7rem;
-    color: var(--color-slate-400);
-    transition: transform 0.3s ease;
-}
+    .detail-row {
+        background-color: var(--bg-secondary);
+    }
 
-tbody tr.data-row.expanded td:first-child::before {
-    transform: rotate(90deg);
-}
+    .detail-cell {
+        padding: 0 !important;
+    }
 
-/* Status badges - Refined colors */
-.status-good { color: var(--color-emerald-500) !important; }
-.status-caution { color: var(--color-amber-500) !important; }
-.status-action { color: var(--color-red-500) !important; }
-.status-inactive { color: var(--color-slate-500) !important; }
+    .pipeline-details {
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+        border-left: 3px solid #667eea;
+    }
 
-/* Detail rows - Refined styling */
-.detail-row {
-    display: none;
-}
+    .pipeline-details-title {
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0 0 12px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
-.detail-row.show {
-    display: table-row;
-}
+    .pipeline-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        overflow: hidden;
+        font-size: 0.9em;
+    }
 
-.detail-content {
-    background: var(--color-slate-800) !important;
-    padding: 24px !important;
-    border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
-}
+    .pipeline-table thead {
+        background: rgba(102, 126, 234, 0.1);
+    }
 
-.detail-section {
-    margin-bottom: 20px;
-}
+    .pipeline-table th {
+        padding: 10px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.85em;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
-.detail-section h3,
-.detail-section h4 {
-    color: #ffffff !important;
-    margin-bottom: 12px;
-}
+    .pipeline-table tbody tr {
+        border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.05));
+    }
 
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-}
+    .pipeline-table tbody tr:last-child {
+        border-bottom: none;
+    }
 
-.detail-metric {
-    background: var(--color-slate-900) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 8px !important;
-    padding: 16px !important;
-    color: var(--color-slate-300) !important;
-}
+    .pipeline-table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
 
-.detail-metric-label {
-    font-size: 0.75rem !important;
-    text-transform: uppercase !important;
-    color: var(--color-slate-400) !important;
-    margin-bottom: 8px !important;
-    letter-spacing: 0.05em !important;
-}
+    .pipeline-table td {
+        padding: 10px 12px;
+        color: var(--text-primary);
+    }
 
-.detail-metric-value {
-    font-size: 1.5rem !important;
-    font-weight: 600 !important;
-    color: #ffffff !important;
-}
+    .pipeline-table .pipeline-name {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
 
-/* ═══════════════════════════════════════════════════════════════
-   LIGHT THEME SUPPORT - Complete styling for light mode
-   ═══════════════════════════════════════════════════════════════ */
+    .pipeline-table .success-count {
+        color: #10b981;
+        font-weight: 600;
+    }
 
-[data-theme="light"] body {
-    background: #ffffff !important;
-    color: var(--color-slate-900) !important;
-}
+    .pipeline-table .failed-count {
+        color: #ef4444;
+        font-weight: 600;
+    }
 
-[data-theme="light"] .header {
-    background: #ffffff !important;
-    border-bottom-color: var(--color-slate-200) !important;
-}
+    .pipeline-table .canceled-count {
+        color: #94a3b8;
+        font-weight: 600;
+    }
 
-[data-theme="light"] .header h1 {
-    color: var(--color-slate-900) !important;
-}
+    .pipeline-table .success-rate {
+        font-weight: 600;
+    }
 
-[data-theme="light"] .header p,
-[data-theme="light"] .header .subtitle {
-    color: var(--color-slate-600) !important;
-}
-
-[data-theme="light"] .summary-card,
-[data-theme="light"] .card {
-    background: #ffffff !important;
-    border-color: var(--color-slate-200) !important;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
-}
-
-[data-theme="light"] .summary-card:hover,
-[data-theme="light"] .card:hover {
-    border-color: var(--color-blue-400) !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
-}
-
-[data-theme="light"] th {
-    background: var(--color-slate-100) !important;
-    color: var(--color-slate-700) !important;
-    border-bottom-color: var(--color-slate-200) !important;
-}
-
-[data-theme="light"] tbody tr {
-    border-bottom-color: var(--color-slate-200) !important;
-}
-
-[data-theme="light"] tbody tr:hover {
-    background: var(--color-slate-50) !important;
-}
-
-[data-theme="light"] td {
-    color: var(--color-slate-900) !important;
-}
-
-/* Detail rows - Light Mode */
-[data-theme="light"] .detail-content {
-    background: var(--color-slate-100) !important;
-}
-
-[data-theme="light"] .detail-metric {
-    background: #ffffff !important;
-    border-color: var(--color-slate-200) !important;
-}
-
-[data-theme="light"] .detail-metric-value {
-    color: var(--color-slate-900) !important;
-}
-
-/* Chevron - Light Mode */
-[data-theme="light"] tbody tr.data-row td:first-child::before {
-    color: var(--color-slate-600) !important;
-}
-
-/* Footer - Light Mode */
-[data-theme="light"] .footer p {
-    color: var(--color-slate-600) !important;
-}
+    /* Override framework's ::before chevron since we're using our own expand-icon */
+    tbody tr.parent-row.expandable td:first-child::before {
+        content: none !important;
+    }
 </style>
-
 {% endblock %}
 
 {% block content %}
