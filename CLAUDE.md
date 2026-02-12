@@ -151,7 +151,7 @@ def from_json(data: dict) -> MyMetrics:
 
 ---
 
-## ✅ Quality Gates (ALL 6 Must Pass)
+## ✅ Quality Gates (ALL 7 Must Pass)
 
 **Before EVERY commit, run ALL checks:**
 
@@ -173,11 +173,20 @@ bandit -r execution/ -ll
 
 # Check 6: Documentation build (Sphinx)
 export PYTHONPATH=".:${PYTHONPATH}" && cd docs && sphinx-build -b html . _build/html
+
+# Check 7: Template Security (prevents XSS regressions)
+# Verify autoescape is enabled in template_engine.py
+grep -q 'autoescape=select_autoescape' execution/template_engine.py || { echo "❌ FAIL: Autoescape not configured"; exit 1; }
+# Check for disabled autoescape in templates
+! grep -r "autoescape false" templates/ || { echo "❌ FAIL: Found disabled autoescape"; exit 1; }
+# Verify no inline scripts with template variables (XSS risk)
+! grep -r '<script>.*{{' templates/ || { echo "⚠️  WARNING: Inline scripts with variables - review for XSS"; exit 1; }
+echo "✅ Template security check passed"
 ```
 
 **If ANY check fails:**
 1. Fix the issue IMMEDIATELY in the SAME commit
-2. Do NOT commit until ALL 6 checks pass
+2. Do NOT commit until ALL 7 checks pass
 3. Do NOT use `--no-verify` or skip hooks
 
 ---
@@ -266,7 +275,7 @@ header_gradient_end="#764ba2"    # purple
 ### Pre-Commit Workflow
 - **ALWAYS** run the test suite before committing: `pytest tests/ -v`
 - **ALWAYS** confirm commit AND push status before ending a session
-- All 6 quality gates must pass (Black, Ruff, MyPy, pytest, Bandit, Sphinx)
+- All 7 quality gates must pass (Black, Ruff, MyPy, pytest, Bandit, Sphinx, Template Security)
 
 ### Commit Standards
 - **Branch**: `main` (no feature branches)
