@@ -136,6 +136,59 @@ td {
 .status-action { color: var(--color-red-500) !important; }
 .status-inactive { color: var(--color-slate-500) !important; }
 
+/* Detail rows - Refined styling */
+.detail-row {
+    display: none;
+}
+
+.detail-row.show {
+    display: table-row;
+}
+
+.detail-content {
+    background: var(--color-slate-800) !important;
+    padding: 24px !important;
+    border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.detail-section {
+    margin-bottom: 20px;
+}
+
+.detail-section h3,
+.detail-section h4 {
+    color: #ffffff !important;
+    margin-bottom: 12px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.detail-metric {
+    background: var(--color-slate-900) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
+    color: var(--color-slate-300) !important;
+}
+
+.detail-metric-label {
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    color: var(--color-slate-400) !important;
+    margin-bottom: 8px !important;
+    letter-spacing: 0.05em !important;
+}
+
+.detail-metric-value {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    LIGHT THEME SUPPORT - Complete styling for light mode
    ═══════════════════════════════════════════════════════════════ */
@@ -187,6 +240,20 @@ td {
 }
 
 [data-theme="light"] td {
+    color: var(--color-slate-900) !important;
+}
+
+/* Detail rows - Light Mode */
+[data-theme="light"] .detail-content {
+    background: var(--color-slate-100) !important;
+}
+
+[data-theme="light"] .detail-metric {
+    background: #ffffff !important;
+    border-color: var(--color-slate-200) !important;
+}
+
+[data-theme="light"] .detail-metric-value {
     color: var(--color-slate-900) !important;
 }
 
