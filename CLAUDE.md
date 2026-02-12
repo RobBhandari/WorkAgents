@@ -2,6 +2,43 @@
 
 > **IMPORTANT**: These are STRICT, NON-NEGOTIABLE rules that must be followed for all code changes.
 
+## 🎯 Working Conventions
+
+### Before Implementation
+- **ALWAYS** check existing documentation and pattern files (`dashboard_patterns.md`, `CLAUDE.md`, memory files) for established conventions and UX standards
+- **NEVER** assume patterns - always verify existing patterns first
+- When asked to analyze a document or external input, focus on THAT input - do not explore the codebase unless explicitly asked
+
+### Scope Management
+- When asked to make "minimal" or "cosmetic" changes, preserve ALL existing functionality, data, and features
+- Do NOT remove or simplify logic unless explicitly asked
+- When in doubt, ask before removing anything
+
+### Analysis & Classification
+- When analyzing code (deprecated scripts, dependencies, security alerts), do NOT immediately classify items as "critical" or "false positive" without thorough evidence
+- Present findings as preliminary and verify before making strong claims
+
+## 🔧 Tech Stack
+
+### HTTP Library
+- **ALWAYS** use `httpx` for HTTP requests
+- **NEVER** suggest or introduce `aiohttp` as a dependency
+
+### Environment Variables
+- Use `ARMORCODE_BASE_URL` (not `ARMORCODE_API_URL`)
+- **ALWAYS** verify exact env var names from existing workflow files before referencing them
+
+### Testing
+- Use `pytest` for Python tests
+- Run full test suite before committing
+
+## ☁️ Azure / Infrastructure
+
+### Azure Configuration
+- Do NOT promise immediate results for Azure AD changes
+- Admin consent, app registrations often require admin approval and propagation time
+- **ALWAYS** caveat with potential delays and verification steps
+
 ## 🔒 Security Rules
 
 ### Input Validation & Sanitization
@@ -226,6 +263,12 @@ header_gradient_end="#764ba2"    # purple
 
 ## 🔄 Git Workflow
 
+### Pre-Commit Workflow
+- **ALWAYS** run the test suite before committing: `pytest tests/ -v`
+- **ALWAYS** confirm commit AND push status before ending a session
+- All 6 quality gates must pass (Black, Ruff, MyPy, pytest, Bandit, Sphinx)
+
+### Commit Standards
 - **Branch**: `main` (no feature branches)
 - **Commit Style**: Conventional commits (`feat:`, `fix:`, `chore:`, `refactor:`)
 - **Co-Authored-By**: Always include in commit messages
