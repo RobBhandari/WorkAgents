@@ -5,7 +5,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -456,7 +456,7 @@
           "collected_at": "2026-02-06T17:18:03.294225"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -1127,7 +1127,7 @@
           "collected_at": "2026-02-06T17:18:09.476447"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -1786,7 +1786,7 @@
           "collected_at": "2026-02-06T17:18:13.270040"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -2043,7 +2043,7 @@
           "collected_at": "2026-02-06T17:18:14.060085"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -2370,7 +2370,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -2386,7 +2386,7 @@
           "collected_at": "2026-02-06T17:18:15.981759"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -2789,7 +2789,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -3240,7 +3240,7 @@
           "collected_at": "2026-02-06T17:38:34.551157"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -3911,7 +3911,7 @@
           "collected_at": "2026-02-06T17:38:50.712181"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -4570,7 +4570,7 @@
           "collected_at": "2026-02-06T17:39:00.390997"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -4827,7 +4827,7 @@
           "collected_at": "2026-02-06T17:39:01.544550"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -5154,7 +5154,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -5170,7 +5170,7 @@
           "collected_at": "2026-02-06T17:39:05.792046"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -5573,7 +5573,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -6024,7 +6024,7 @@
           "collected_at": "2026-02-06T17:46:11.376218"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -6695,7 +6695,7 @@
           "collected_at": "2026-02-06T17:46:22.749968"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -7354,7 +7354,7 @@
           "collected_at": "2026-02-06T17:46:29.688148"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -7611,7 +7611,7 @@
           "collected_at": "2026-02-06T17:46:30.705319"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -7938,7 +7938,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -7954,7 +7954,7 @@
           "collected_at": "2026-02-06T17:46:33.868928"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -8357,7 +8357,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -8808,7 +8808,7 @@
           "collected_at": "2026-02-06T18:08:19.873404"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -9479,7 +9479,7 @@
           "collected_at": "2026-02-06T18:08:31.079433"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -10138,7 +10138,7 @@
           "collected_at": "2026-02-06T18:08:37.939462"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -10395,7 +10395,7 @@
           "collected_at": "2026-02-06T18:08:38.773628"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -10722,7 +10722,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -10738,7 +10738,7 @@
           "collected_at": "2026-02-06T18:08:41.994849"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -11141,7 +11141,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -11592,7 +11592,7 @@
           "collected_at": "2026-02-06T18:34:49.653463"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -12263,7 +12263,7 @@
           "collected_at": "2026-02-06T18:35:02.410530"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -12927,7 +12927,7 @@
           "collected_at": "2026-02-06T18:35:10.573290"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -13184,7 +13184,7 @@
           "collected_at": "2026-02-06T18:35:11.805061"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -13511,7 +13511,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -13527,7 +13527,7 @@
           "collected_at": "2026-02-06T18:35:16.227095"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -13930,7 +13930,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -14381,7 +14381,7 @@
           "collected_at": "2026-02-06T18:41:14.919954"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -15052,7 +15052,7 @@
           "collected_at": "2026-02-06T18:41:24.944855"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -15716,7 +15716,7 @@
           "collected_at": "2026-02-06T18:41:31.513007"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -15973,7 +15973,7 @@
           "collected_at": "2026-02-06T18:41:32.295748"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -16300,7 +16300,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -16316,7 +16316,7 @@
           "collected_at": "2026-02-06T18:41:34.981836"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -16719,7 +16719,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -17170,7 +17170,7 @@
           "collected_at": "2026-02-06T22:38:52.802581"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -17841,7 +17841,7 @@
           "collected_at": "2026-02-06T22:39:03.660938"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -18505,7 +18505,7 @@
           "collected_at": "2026-02-06T22:39:10.554360"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -18762,7 +18762,7 @@
           "collected_at": "2026-02-06T22:39:11.546116"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -19089,7 +19089,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -19105,7 +19105,7 @@
           "collected_at": "2026-02-06T22:39:14.933422"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -19508,7 +19508,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -19959,7 +19959,7 @@
           "collected_at": "2026-02-07T06:48:28.983311"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -20630,7 +20630,7 @@
           "collected_at": "2026-02-07T06:48:38.338319"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -21294,7 +21294,7 @@
           "collected_at": "2026-02-07T06:48:44.281431"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -21551,7 +21551,7 @@
           "collected_at": "2026-02-07T06:48:45.168197"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -21878,7 +21878,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -21894,7 +21894,7 @@
           "collected_at": "2026-02-07T06:48:47.839160"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -22297,7 +22297,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -22748,7 +22748,7 @@
           "collected_at": "2026-02-07T12:26:20.558110"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -23419,7 +23419,7 @@
           "collected_at": "2026-02-07T12:26:35.169195"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -24083,7 +24083,7 @@
           "collected_at": "2026-02-07T12:26:44.671146"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -24340,7 +24340,7 @@
           "collected_at": "2026-02-07T12:26:45.699610"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -24667,7 +24667,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -24683,7 +24683,7 @@
           "collected_at": "2026-02-07T12:26:49.743186"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -25086,7 +25086,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -25537,7 +25537,7 @@
           "collected_at": "2026-02-07T12:45:13.146739"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -26208,7 +26208,7 @@
           "collected_at": "2026-02-07T12:45:23.725045"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -26872,7 +26872,7 @@
           "collected_at": "2026-02-07T12:45:30.769823"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -27129,7 +27129,7 @@
           "collected_at": "2026-02-07T12:45:31.546817"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -27456,7 +27456,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -27472,7 +27472,7 @@
           "collected_at": "2026-02-07T12:45:34.449125"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -27875,7 +27875,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -28326,7 +28326,7 @@
           "collected_at": "2026-02-07T13:27:50.409989"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -28997,7 +28997,7 @@
           "collected_at": "2026-02-07T13:28:05.047764"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -29661,7 +29661,7 @@
           "collected_at": "2026-02-07T13:28:14.056380"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -29918,7 +29918,7 @@
           "collected_at": "2026-02-07T13:28:15.081213"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -30245,7 +30245,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -30261,7 +30261,7 @@
           "collected_at": "2026-02-07T13:28:19.140793"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -30664,7 +30664,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -31115,7 +31115,7 @@
           "collected_at": "2026-02-08T14:49:25.499936"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -31786,7 +31786,7 @@
           "collected_at": "2026-02-08T14:49:35.812352"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -32450,7 +32450,7 @@
           "collected_at": "2026-02-08T14:49:42.383784"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -32707,7 +32707,7 @@
           "collected_at": "2026-02-08T14:49:43.172468"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -33034,7 +33034,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -33050,7 +33050,7 @@
           "collected_at": "2026-02-08T14:49:45.971779"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -33453,7 +33453,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -33904,7 +33904,7 @@
           "collected_at": "2026-02-08T15:13:54.167869"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -34575,7 +34575,7 @@
           "collected_at": "2026-02-08T15:14:06.173344"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -35239,7 +35239,7 @@
           "collected_at": "2026-02-08T15:14:13.593041"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -35496,7 +35496,7 @@
           "collected_at": "2026-02-08T15:14:14.407026"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -35823,7 +35823,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -35839,7 +35839,7 @@
           "collected_at": "2026-02-08T15:14:17.700589"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -36242,7 +36242,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -36693,7 +36693,7 @@
           "collected_at": "2026-02-08T15:19:16.999656"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -37364,7 +37364,7 @@
           "collected_at": "2026-02-08T15:19:32.665579"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -38028,7 +38028,7 @@
           "collected_at": "2026-02-08T15:19:42.629420"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -38285,7 +38285,7 @@
           "collected_at": "2026-02-08T15:19:43.870534"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -38612,7 +38612,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -38628,7 +38628,7 @@
           "collected_at": "2026-02-08T15:19:47.870129"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -39031,7 +39031,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -39482,7 +39482,7 @@
           "collected_at": "2026-02-08T20:58:37.220016"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -40153,7 +40153,7 @@
           "collected_at": "2026-02-08T20:58:52.231634"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -40817,7 +40817,7 @@
           "collected_at": "2026-02-08T20:59:01.048973"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -41074,7 +41074,7 @@
           "collected_at": "2026-02-08T20:59:02.325427"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -41401,7 +41401,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -41417,7 +41417,7 @@
           "collected_at": "2026-02-08T20:59:06.103424"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -41820,7 +41820,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -42271,7 +42271,7 @@
           "collected_at": "2026-02-08T21:05:35.528312"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -42942,7 +42942,7 @@
           "collected_at": "2026-02-08T21:05:44.699031"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -43606,7 +43606,7 @@
           "collected_at": "2026-02-08T21:05:50.730935"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -43863,7 +43863,7 @@
           "collected_at": "2026-02-08T21:05:51.433513"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -44190,7 +44190,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -44206,7 +44206,7 @@
           "collected_at": "2026-02-08T21:05:54.073321"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -44609,7 +44609,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -45060,7 +45060,7 @@
           "collected_at": "2026-02-08T22:55:04.265579"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -45731,7 +45731,7 @@
           "collected_at": "2026-02-08T22:55:13.570375"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -46395,7 +46395,7 @@
           "collected_at": "2026-02-08T22:55:19.590462"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -46652,7 +46652,7 @@
           "collected_at": "2026-02-08T22:55:20.280955"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -46979,7 +46979,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -46995,7 +46995,7 @@
           "collected_at": "2026-02-08T22:55:23.159098"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -47398,7 +47398,7 @@
       "week_number": 6,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -47849,7 +47849,7 @@
           "collected_at": "2026-02-08T23:01:49.677622"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -48520,7 +48520,7 @@
           "collected_at": "2026-02-08T23:01:59.658795"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -49184,7 +49184,7 @@
           "collected_at": "2026-02-08T23:02:05.968297"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -49441,7 +49441,7 @@
           "collected_at": "2026-02-08T23:02:06.726731"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -49768,7 +49768,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -49784,7 +49784,7 @@
           "collected_at": "2026-02-08T23:02:09.306463"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -50187,7 +50187,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -50638,7 +50638,7 @@
           "collected_at": "2026-02-09T00:34:21.203301"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -51309,7 +51309,7 @@
           "collected_at": "2026-02-09T00:34:30.562694"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -51973,7 +51973,7 @@
           "collected_at": "2026-02-09T00:34:36.333104"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -52230,7 +52230,7 @@
           "collected_at": "2026-02-09T00:34:37.021504"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -52557,7 +52557,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -52573,7 +52573,7 @@
           "collected_at": "2026-02-09T00:34:39.898168"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -52976,7 +52976,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -53427,7 +53427,7 @@
           "collected_at": "2026-02-09T01:47:30.655761"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -54098,7 +54098,7 @@
           "collected_at": "2026-02-09T01:47:44.875943"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -54762,7 +54762,7 @@
           "collected_at": "2026-02-09T01:47:53.982833"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -55019,7 +55019,7 @@
           "collected_at": "2026-02-09T01:47:55.277963"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -55346,7 +55346,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -55362,7 +55362,7 @@
           "collected_at": "2026-02-09T01:47:59.260500"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -55765,7 +55765,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 746,
@@ -56210,7 +56210,7 @@
           "collected_at": "2026-02-09T07:09:29.896650"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -56881,7 +56881,7 @@
           "collected_at": "2026-02-09T07:09:40.135992"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -57545,7 +57545,7 @@
           "collected_at": "2026-02-09T07:09:47.072060"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -57802,7 +57802,7 @@
           "collected_at": "2026-02-09T07:09:47.993581"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 89,
@@ -58129,7 +58129,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -58145,7 +58145,7 @@
           "collected_at": "2026-02-09T07:09:50.746000"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -58548,7 +58548,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -59219,7 +59219,7 @@
           "collected_at": "2026-02-09T11:16:18.751239"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -59893,7 +59893,7 @@
           "collected_at": "2026-02-09T11:16:38.260234"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -60150,7 +60150,7 @@
           "collected_at": "2026-02-09T11:16:44.524567"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 90,
@@ -60477,7 +60477,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -60493,7 +60493,7 @@
           "collected_at": "2026-02-09T11:16:53.857842"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 755,
@@ -60896,7 +60896,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 747,
@@ -61341,7 +61341,7 @@
           "collected_at": "2026-02-09T11:26:23.668993"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -62012,7 +62012,7 @@
           "collected_at": "2026-02-09T11:26:38.396860"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -62686,7 +62686,7 @@
           "collected_at": "2026-02-09T11:26:50.898952"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 90,
@@ -63013,7 +63013,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -63029,7 +63029,7 @@
           "collected_at": "2026-02-09T11:26:55.965928"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 755,
@@ -63432,7 +63432,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 747,
@@ -63877,7 +63877,7 @@
           "collected_at": "2026-02-09T12:05:59.395252"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -64548,7 +64548,7 @@
           "collected_at": "2026-02-09T12:06:11.140824"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -65222,7 +65222,7 @@
           "collected_at": "2026-02-09T12:06:19.174473"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -65479,7 +65479,7 @@
           "collected_at": "2026-02-09T12:06:20.321864"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 90,
@@ -65806,7 +65806,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -65822,7 +65822,7 @@
           "collected_at": "2026-02-09T12:06:24.169540"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -66225,7 +66225,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 747,
@@ -66670,7 +66670,7 @@
           "collected_at": "2026-02-09T12:54:59.061435"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -67341,7 +67341,7 @@
           "collected_at": "2026-02-09T12:55:09.676574"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -68005,7 +68005,7 @@
           "collected_at": "2026-02-09T12:55:16.797345"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -68262,7 +68262,7 @@
           "collected_at": "2026-02-09T12:55:17.822495"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 90,
@@ -68589,7 +68589,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -68605,7 +68605,7 @@
           "collected_at": "2026-02-09T12:55:21.392262"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -69008,7 +69008,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 747,
@@ -69453,7 +69453,7 @@
           "collected_at": "2026-02-09T14:22:30.789509"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -70124,7 +70124,7 @@
           "collected_at": "2026-02-09T14:22:42.231511"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -70783,7 +70783,7 @@
           "collected_at": "2026-02-09T14:22:49.976279"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -71040,7 +71040,7 @@
           "collected_at": "2026-02-09T14:22:50.963819"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 92,
@@ -71367,7 +71367,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -71383,7 +71383,7 @@
           "collected_at": "2026-02-09T14:22:55.438097"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -71786,7 +71786,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 747,
@@ -72231,7 +72231,7 @@
           "collected_at": "2026-02-09T14:53:20.294411"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -72902,7 +72902,7 @@
           "collected_at": "2026-02-09T14:53:30.519972"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -73561,7 +73561,7 @@
           "collected_at": "2026-02-09T14:53:37.383060"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -73818,7 +73818,7 @@
           "collected_at": "2026-02-09T14:53:38.399694"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 92,
@@ -74145,7 +74145,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -74161,7 +74161,7 @@
           "collected_at": "2026-02-09T14:53:42.139163"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -74564,7 +74564,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 747,
@@ -75009,7 +75009,7 @@
           "collected_at": "2026-02-09T15:34:33.921066"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -75680,7 +75680,7 @@
           "collected_at": "2026-02-09T15:34:43.801307"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -76339,7 +76339,7 @@
           "collected_at": "2026-02-09T15:34:50.334254"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -76596,7 +76596,7 @@
           "collected_at": "2026-02-09T15:34:51.158792"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 91,
@@ -76923,7 +76923,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -76939,7 +76939,7 @@
           "collected_at": "2026-02-09T15:34:54.120754"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -77342,7 +77342,7 @@
       "week_number": 7,
       "projects": [
         {
-          "project_key": "Access_Legal_Case_Management",
+          "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
             "unassigned_count": 747,
@@ -77787,7 +77787,7 @@
           "collected_at": "2026-02-09T16:16:03.176164"
         },
         {
-          "project_key": "One_Office",
+          "project_key": "Product_B",
           "project_name": "Product B",
           "unassigned": {
             "unassigned_count": 214,
@@ -78458,7 +78458,7 @@
           "collected_at": "2026-02-09T16:16:19.722099"
         },
         {
-          "project_key": "Learning_Content_Legal",
+          "project_key": "Product_O",
           "project_name": "Product O",
           "unassigned": {
             "unassigned_count": 685,
@@ -79127,7 +79127,7 @@
           "collected_at": "2026-02-09T16:16:29.801024"
         },
         {
-          "project_key": "Legal_Compliance",
+          "project_key": "Product_E",
           "project_name": "Product E",
           "unassigned": {
             "unassigned_count": 53,
@@ -79384,7 +79384,7 @@
           "collected_at": "2026-02-09T16:16:30.971696"
         },
         {
-          "project_key": "Legal_InCase",
+          "project_key": "Product_F",
           "project_name": "Product F",
           "unassigned": {
             "unassigned_count": 91,
@@ -79711,7 +79711,7 @@
                 "commits": 7
               },
               {
-                "developer": "jac.martin@theaccessgroup.com",
+                "developer": "Jac Martin",
                 "active_days": 5,
                 "commits": 5
               },
@@ -79727,7 +79727,7 @@
           "collected_at": "2026-02-09T16:16:35.319571"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
