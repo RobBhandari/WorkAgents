@@ -1,0 +1,530 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* Refined Minimalist Dashboard Styling */
+:root {
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-blue-400: #60a5fa;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-emerald-500: #10b981;
+    --color-amber-500: #f59e0b;
+    --color-red-500: #ef4444;
+    --header-gradient-start: var(--color-slate-900) !important;
+    --header-gradient-end: var(--color-slate-900) !important;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    background: var(--color-slate-900) !important;
+    color: #ffffff !important;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body .header, .container .header, div.header {
+    background: var(--color-slate-900) !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 64px 32px !important;
+}
+
+.header h1 {
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+    color: #ffffff !important;
+    font-size: 2.5rem !important;
+}
+
+.header p, .header .subtitle {
+    color: var(--color-slate-400) !important;
+    font-weight: 400 !important;
+}
+
+.summary-card, .card, .metric-card {
+    background: var(--color-slate-900) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 8px !important;
+    padding: 24px !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.summary-card:hover, .card:hover, .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+th {
+    background: var(--color-slate-800) !important;
+    color: var(--color-slate-400) !important;
+    padding: 14px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+[data-theme="light"] body {
+    background: #ffffff !important;
+    color: var(--color-slate-900) !important;
+}
+
+[data-theme="light"] .header {
+    background: #ffffff !important;
+    border-bottom-color: var(--color-slate-200) !important;
+}
+
+[data-theme="light"] .header h1 {
+    color: var(--color-slate-900) !important;
+}
+
+[data-theme="light"] .header p, [data-theme="light"] .header .subtitle {
+    color: var(--color-slate-600) !important;
+}
+
+[data-theme="light"] .summary-card, [data-theme="light"] .card, [data-theme="light"] .metric-card {
+    background: #ffffff !important;
+    border-color: var(--color-slate-200) !important;
+}
+
+[data-theme="light"] th {
+    background: var(--color-slate-100) !important;
+    color: var(--color-slate-700) !important;
+}
+
+[data-theme="light"] tbody tr:hover {
+    background: var(--color-slate-50) !important;
+}
+</style>
+
+<script>
+    // Toggle collapsible vulnerabilities section (nested within expanded row)
+    function toggleVulnerabilities(header) {
+        const content = header.nextElementSibling;
+        const h4 = header.querySelector('h4');
+
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            h4.textContent = h4.textContent.replace('▶', '▼');
+        } else {
+            content.style.display = 'none';
+            h4.textContent = h4.textContent.replace('▼', '▶');
+        }
+    }
+
+    // Toggle description expansion on click
+    function toggleDescription(cell) {
+        const fullText = cell.getAttribute('data-full-text');
+        const shortText = cell.getAttribute('data-short-text');
+
+        if (cell.classList.contains('expanded')) {
+            cell.textContent = shortText;
+            cell.classList.remove('expanded');
+        } else {
+            cell.textContent = fullText;
+            cell.classList.add('expanded');
+        }
+    }
+
+    // Search/filter vulnerabilities table
+    function filterVulnerabilities(input) {
+        const searchTerm = input.value.toLowerCase();
+        const table = input.closest('.collapsible-content').querySelector('.vuln-table');
+        const rows = table.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    }
+
+    // Filter by severity
+    function filterSeverity(button, severity) {
+        const content = button.closest('.collapsible-content');
+        const rows = content.querySelectorAll('.vuln-table tbody tr');
+
+        // Update active button
+        content.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        // Filter rows
+        rows.forEach(row => {
+            if (severity === 'all' || row.dataset.severity === severity) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+
+<!-- Summary cards -->
+<div class="section">
+    <h2>Overview</h2>
+    <div class="summary-grid">
+        <div class="summary-card ">
+    <div class="label">Total Vulnerabilities</div>
+    <div class="value">281</div>
+    <div class="explanation">Across 12 products</div>
+</div>
+        <div class="summary-card rag-red">
+    <div class="label">Critical</div>
+    <div class="value">10</div>
+    <div class="explanation">4 products affected</div>
+</div>
+        <div class="summary-card rag-amber">
+    <div class="label">High</div>
+    <div class="value">271</div>
+    <div class="explanation">12 products affected</div>
+</div>
+        <div class="summary-card ">
+    <div class="label">Critical + High</div>
+    <div class="value">281</div>
+    <div class="explanation">70% reduction target</div>
+</div>
+    </div>
+</div>
+
+<!-- Products table -->
+<div class="section">
+    <h2>Vulnerabilities by Product</h2>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Total</th>
+                    <th>Critical</th>
+                    <th>High</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-1', this)">
+                    <td>
+                        <strong>Product A</strong>
+                    </td>
+                    <td>67</td>
+                    <td class="critical">1</td>
+                    <td class="high">66</td>
+                    <td>
+                        <span class="status-badge status-action">
+                            Critical
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-1" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-2', this)">
+                    <td>
+                        <strong>Product B</strong>
+                    </td>
+                    <td>15</td>
+                    <td class="">0</td>
+                    <td class="high">15</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            High Risk
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-2" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-3', this)">
+                    <td>
+                        <strong>Product C</strong>
+                    </td>
+                    <td>15</td>
+                    <td class="">0</td>
+                    <td class="high">15</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            High Risk
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-3" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-4', this)">
+                    <td>
+                        <strong>Product E</strong>
+                    </td>
+                    <td>68</td>
+                    <td class="critical">2</td>
+                    <td class="high">66</td>
+                    <td>
+                        <span class="status-badge status-action">
+                            Critical
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-4" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-5', this)">
+                    <td>
+                        <strong>Product F</strong>
+                    </td>
+                    <td>5</td>
+                    <td class="">0</td>
+                    <td class="high">5</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            Attention
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-5" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-6', this)">
+                    <td>
+                        <strong>Product G</strong>
+                    </td>
+                    <td>2</td>
+                    <td class="">0</td>
+                    <td class="high">2</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            Attention
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-6" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-7', this)">
+                    <td>
+                        <strong>Product H</strong>
+                    </td>
+                    <td>12</td>
+                    <td class="critical">2</td>
+                    <td class="high">10</td>
+                    <td>
+                        <span class="status-badge status-action">
+                            Critical
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-7" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-8', this)">
+                    <td>
+                        <strong>Product I</strong>
+                    </td>
+                    <td>30</td>
+                    <td class="">0</td>
+                    <td class="high">30</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            High Risk
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-8" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-9', this)">
+                    <td>
+                        <strong>Product J</strong>
+                    </td>
+                    <td>13</td>
+                    <td class="">0</td>
+                    <td class="high">13</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            High Risk
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-9" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-10', this)">
+                    <td>
+                        <strong>Product K</strong>
+                    </td>
+                    <td>26</td>
+                    <td class="critical">5</td>
+                    <td class="high">21</td>
+                    <td>
+                        <span class="status-badge status-action">
+                            Critical
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-10" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-11', this)">
+                    <td>
+                        <strong>Product L</strong>
+                    </td>
+                    <td>15</td>
+                    <td class="">0</td>
+                    <td class="high">15</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            High Risk
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-11" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" onclick="toggleDetail('detail-12', this)">
+                    <td>
+                        <strong>Product M</strong>
+                    </td>
+                    <td>13</td>
+                    <td class="">0</td>
+                    <td class="high">13</td>
+                    <td>
+                        <span class="status-badge status-caution">
+                            High Risk
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-12" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Glossary (optional) -->
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>Metric Definitions</h3>
+        <span id="glossary-toggle" class="glossary-toggle">▼</span>
+    </div>
+    <div id="glossary-content" class="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">Critical</div>
+            <div class="glossary-definition">
+                Vulnerabilities that require immediate attention and can lead to complete system compromise.
+            </div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">High</div>
+            <div class="glossary-definition">
+                Significant vulnerabilities that should be resolved within 30 days.
+            </div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">70% Reduction Target</div>
+            <div class="glossary-definition">
+                Goal to reduce Critical+High vulnerabilities by 70% from baseline (Jan 1, 2026) by June 30, 2026.
+            </div>
+        </div>
+    </div>
+</div>
