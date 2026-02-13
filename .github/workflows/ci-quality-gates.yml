@@ -141,19 +141,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          # Skip legacy tests that depend on removed azure-devops SDK or have dependency issues
-          pytest tests/ -v --cov=execution --cov-report=term --cov-report=xml \
-            --ignore=tests/collectors/test_ado_collaboration_metrics.py \
-            --ignore=tests/collectors/test_ado_connection.py \
-            --ignore=tests/collectors/test_ado_ownership_metrics.py \
-            --ignore=tests/collectors/test_ado_quality_metrics.py \
-            --ignore=tests/collectors/test_ado_risk_metrics.py \
-            --ignore=tests/collectors/test_ado_deployment_metrics.py \
-            --ignore=tests/collectors/test_ado_flow_metrics.py \
-            --ignore=tests/collectors/test_armorcode_loader.py \
-            --ignore=tests/collectors/test_async_ado_collector.py \
-            --ignore=tests/collectors/test_async_armorcode_collector.py \
-            --ignore=tests/dashboards/test_trends_legacy.py
+          pytest tests/ -v --cov=execution --cov-report=term --cov-report=xml
 
       - name: Coverage check
         run: |
