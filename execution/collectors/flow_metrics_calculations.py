@@ -286,7 +286,7 @@ def calculate_aging_items(
             )
 
     # Sort by age (oldest first)
-    aging_items.sort(key=lambda x: x["age_days"], reverse=True)
+    aging_items.sort(key=lambda x: x["age_days"] or 0, reverse=True)
 
     return {
         "count": len(aging_items),
