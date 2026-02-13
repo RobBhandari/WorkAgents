@@ -245,10 +245,77 @@ echo "✅ Template security check passed"
 
 ## 🧪 Testing Requirements
 
+### Test-Driven Development (TDD) - MANDATORY
+
+**CRITICAL**: Writing tests is NOT optional. Follow this workflow for ALL code changes:
+
+#### Code + Test Workflow (ALWAYS Follow)
+
+1. **Before Writing Code**:
+   - Write the test FIRST (or immediately after writing the function)
+   - Think about edge cases, error conditions, and expected behavior
+   - Consider: "What would catch this bug if I made a mistake?"
+
+2. **Test Case Requirements**:
+   - **Happy path**: Normal operation with valid inputs
+   - **Edge cases**: Empty inputs, nulls, boundary values
+   - **Error conditions**: Invalid inputs, missing files, network failures
+   - **Data structure variations**: Test dictionaries, lists, nested structures
+   - **Key vs Value processing**: If processing dicts, test BOTH keys and values
+
+3. **Test File Location**:
+   - `execution/` code → `tests/` (mirror directory structure)
+   - `scripts/` code → `tests/scripts/` (MUST be tested despite being in scripts/)
+   - Utilities in `execution/utils/` → `tests/utils/`
+
+4. **Coverage Requirements**:
+   - **New code**: >80% coverage (no exceptions)
+   - **Modified code**: Update existing tests + maintain coverage
+   - **Bug fixes**: Add regression test that would have caught the bug
+
+5. **Example - What Proper Testing Catches**:
+   ```python
+   # BAD - No test for dictionary keys
+   def transform_data(data):
+       return {k: process(v) for k, v in data.items()}  # Only processes VALUES
+
+   # GOOD - Test would catch this
+   def test_transform_dictionary_keys():
+       data = {"Product A": {"count": 5}}
+       result = transform_data(data)
+       assert "Product A" not in result  # Would FAIL if keys not processed
+       assert "Real Name" in result      # Forces correct implementation
+   ```
+
+#### Real Example from This Codebase
+
+**Bug**: De-genericization only processed dictionary VALUES, not KEYS
+**Impact**: Product names in keys (like `{"Product G": {...}}`) weren't converted
+**Root Cause**: No test for dictionary key processing
+**Lesson**: If we'd written this test first, bug would never have existed
+
+**Test that would have caught it**:
+```python
+def test_translate_dictionary_keys_and_values():
+    """Ensure BOTH keys and values are translated in nested dicts"""
+    mapping = {"Product G": "Access Diversity"}
+    data = {
+        "product_breakdown": {
+            "Product G": {"status": "Good"},  # Key must be translated
+        }
+    }
+    result = translate_value(data, mapping, {}, "reverse")
+
+    # These assertions would have FAILED with old code
+    assert "Access Diversity" in result["product_breakdown"]
+    assert "Product G" not in result["product_breakdown"]
+```
+
 ### Test Coverage
 - **ALWAYS** write tests for new features
 - **ALWAYS** update tests when modifying function signatures
 - Mock external dependencies (file I/O, API calls, `Path.exists()`)
+- Run tests locally BEFORE committing: `pytest tests/ -v --cov=execution`
 
 ### Test Structure
 ```python
