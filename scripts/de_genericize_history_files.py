@@ -86,7 +86,21 @@ def de_genericize_value(value: Any, stats: Dict[str, int]) -> Any:
         De-genericized value
     """
     if isinstance(value, dict):
-        return {k: de_genericize_value(v, stats) for k, v in value.items()}
+        # De-genericize both keys AND values
+        de_genericized_dict = {}
+        for k, v in value.items():
+            # De-genericize the key
+            de_genericized_key = k
+            for generic_name, real_name in sorted(
+                REVERSE_MAPPING.items(), key=lambda x: len(x[0]), reverse=True
+            ):
+                if generic_name in de_genericized_key:
+                    de_genericized_key = de_genericized_key.replace(generic_name, real_name)
+                    stats[generic_name] = stats.get(generic_name, 0) + 1
+
+            # De-genericize the value recursively
+            de_genericized_dict[de_genericized_key] = de_genericize_value(v, stats)
+        return de_genericized_dict
     elif isinstance(value, list):
         return [de_genericize_value(item, stats) for item in value]
     elif isinstance(value, str):
