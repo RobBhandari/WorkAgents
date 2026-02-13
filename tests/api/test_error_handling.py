@@ -176,14 +176,14 @@ class TestDataNotFound:
 
     def test_missing_quality_data_returns_404(self, client, auth, monkeypatch):
         """Missing quality data file should return 404."""
+
         # Mock the loader to raise FileNotFoundError instead of replacing Path class
         def mock_load_latest(self):
             raise FileNotFoundError("Quality history not found: .tmp/observatory/quality_history.json")
 
         # Patch the loader's method instead of the entire Path class
         monkeypatch.setattr(
-            "execution.collectors.ado_quality_loader.ADOQualityLoader.load_latest_metrics",
-            mock_load_latest
+            "execution.collectors.ado_quality_loader.ADOQualityLoader.load_latest_metrics", mock_load_latest
         )
 
         response = client.get("/api/v1/metrics/quality/latest", auth=auth)
@@ -197,14 +197,14 @@ class TestDataNotFound:
 
     def test_missing_security_data_returns_404(self, client, auth, monkeypatch):
         """Missing security data file should return 404."""
+
         # Mock the loader to raise FileNotFoundError instead of replacing Path class
         def mock_load_latest(self):
             raise FileNotFoundError("Security history not found: .tmp/observatory/security_history.json")
 
         # Patch the loader's method instead of the entire Path class
         monkeypatch.setattr(
-            "execution.collectors.armorcode_loader.ArmorCodeLoader.load_latest_metrics",
-            mock_load_latest
+            "execution.collectors.armorcode_loader.ArmorCodeLoader.load_latest_metrics", mock_load_latest
         )
 
         response = client.get("/api/v1/metrics/security/latest", auth=auth)
