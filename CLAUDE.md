@@ -209,13 +209,13 @@ def from_json(data: dict) -> MyMetrics:
 
 ```bash
 # Check 1: Black formatting
-black --check execution/domain execution/dashboards/components execution/collectors tests/
+black --check execution/domain execution/dashboards/components execution/collectors scripts/ tests/
 
 # Check 2: Ruff linting
-ruff check execution/ tests/
+ruff check execution/ scripts/ tests/
 
 # Check 3: Type hints (MyPy)
-mypy execution/ tests/
+mypy execution/ scripts/ tests/
 
 # Check 4: Unit tests (pytest)
 pytest tests/ -v
