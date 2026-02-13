@@ -269,21 +269,33 @@ class TestGenerateExecutiveSummary:
         mock_loader_instance.load_latest_metrics.return_value = {}
         mock_loader.return_value = mock_loader_instance
 
-        # Mock the data loading methods directly
+        # Mock the data loading methods directly with complete data structures
         with patch.object(
             ExecutiveSummaryGenerator,
             "_load_quality_data",
-            return_value={"weeks": sample_quality_data},
+            return_value={
+                "open_bugs": 35,
+                "closed_this_week": 10,
+                "created_this_week": 5,
+                "net_change": -5,
+                "weeks": sample_quality_data,
+            },
         ):
             with patch.object(
                 ExecutiveSummaryGenerator,
                 "_load_security_data",
-                return_value={},
+                return_value={
+                    "total_vulnerabilities": 25,
+                    "critical": 2,
+                    "high": 6,
+                    "critical_high": 8,
+                    "products": {},
+                },
             ):
                 with patch.object(
                     ExecutiveSummaryGenerator,
                     "_load_flow_data",
-                    return_value=[],
+                    return_value={"avg_lead_time_p50": 7.5, "projects": [], "weeks": []},
                 ):
                     generator = ExecutiveSummaryGenerator()
                     output_file = tmp_path / "executive.html"
