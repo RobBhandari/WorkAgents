@@ -18,9 +18,7 @@ SHARED COMPONENTS:
 
 import sys
 from pathlib import Path
-from typing import Dict
 
-# Import shared translation utilities
 from execution.utils.product_name_translator import (
     load_mapping_file,
     translate_history_file,
