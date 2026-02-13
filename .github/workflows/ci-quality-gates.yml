@@ -8,12 +8,14 @@ on:
     branches: [main, develop]
     paths:
       - 'execution/**/*.py'
+      - 'scripts/**/*.py'
       - 'tests/**/*.py'
       - '.github/workflows/ci-quality-gates.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'execution/**/*.py'
+      - 'scripts/**/*.py'
       - 'tests/**/*.py'
 
 jobs:
@@ -36,14 +38,14 @@ jobs:
 
       - name: Run Ruff linter
         run: |
-          echo "Linting modular code (domain, dashboards/components, collectors, api, tests)..."
-          ruff check execution/domain execution/dashboards/components execution/collectors execution/api tests/ --exit-non-zero-on-fix
+          echo "Linting modular code (domain, dashboards/components, collectors, api, scripts, tests)..."
+          ruff check execution/domain execution/dashboards/components execution/collectors execution/api scripts/ tests/ --exit-non-zero-on-fix
           echo "✅ Ruff linting passed"
 
       - name: Run Black formatter
         run: |
-          echo "Checking formatting on modular code..."
-          black --check execution/domain execution/dashboards/components execution/collectors execution/api tests/
+          echo "Checking formatting on modular code and scripts..."
+          black --check execution/domain execution/dashboards/components execution/collectors execution/api scripts/ tests/
           echo "✅ Black formatting passed"
 
   # Job 2: Architecture Governance
@@ -112,6 +114,9 @@ jobs:
           echo "Type checking API..."
           mypy execution/api --ignore-missing-imports --check-untyped-defs
 
+          echo "Type checking scripts..."
+          mypy scripts/ --ignore-missing-imports --check-untyped-defs
+
           echo "✅ Type checking passed"
 
   # Job 4: Unit Tests
@@ -176,8 +181,8 @@ jobs:
 
       - name: Run Bandit security scanner
         run: |
-          echo "Scanning modular code for security issues..."
-          bandit -r execution/domain execution/dashboards/components execution/collectors execution/api -ll
+          echo "Scanning modular code and scripts for security issues..."
+          bandit -r execution/domain execution/dashboards/components execution/collectors execution/api scripts/ -ll
           echo "✅ Security scan passed"
 
   # Summary Job
