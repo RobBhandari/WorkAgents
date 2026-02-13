@@ -26,9 +26,7 @@ from execution.utils.product_name_translator import (
 
 # Load reverse mapping from file (created from GitHub Secret in CI/CD)
 try:
-    REVERSE_MAPPING = load_mapping_file(
-        Path(".product_mapping.json"), direction="reverse"
-    )
+    REVERSE_MAPPING = load_mapping_file(Path(".product_mapping.json"), direction="reverse")
 except SystemExit:
     # Re-raise SystemExit to allow proper script termination
     raise
@@ -63,9 +61,7 @@ def de_genericize_history_file(file_path: Path) -> bool:
             for generic, count in sorted(stats.items()):
                 print(f"   {generic} -> {REVERSE_MAPPING[generic]}: {count}x")
         else:
-            print(
-                f"[INFO]  {file_path.name}: No generic names found (already real names)"
-            )
+            print(f"[INFO]  {file_path.name}: No generic names found (already real names)")
 
         return True
 

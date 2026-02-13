@@ -24,9 +24,7 @@ from execution.utils.product_name_translator import (
 
 # Load forward mapping at module level
 try:
-    PRODUCT_MAPPING = load_mapping_file(
-        Path(".product_mapping_forward.json"), direction="forward"
-    )
+    PRODUCT_MAPPING = load_mapping_file(Path(".product_mapping_forward.json"), direction="forward")
 except SystemExit:
     # Re-raise SystemExit to allow proper script termination
     raise
@@ -48,9 +46,7 @@ def genericize_history_file(file_path: Path) -> dict[str, int]:
     print(f"Processing {file_path.name}...")
 
     # Use shared translator (no fail_on_unmapped for forward direction)
-    stats = translate_history_file(
-        file_path, PRODUCT_MAPPING, direction="forward", fail_on_unmapped=False
-    )
+    stats = translate_history_file(file_path, PRODUCT_MAPPING, direction="forward", fail_on_unmapped=False)
 
     return stats
 
