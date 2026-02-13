@@ -264,21 +264,26 @@ class TestGenerateExecutiveSummary:
     @patch("execution.dashboards.executive.ArmorCodeLoader")
     def test_generate_dashboard_success(self, mock_loader, mock_framework, mock_render, sample_quality_data, tmp_path):
         """Should generate complete executive dashboard"""
-        # Mock the actual structure that the loader expects
-        mock_quality_history = {"weeks": sample_quality_data}
-        mock_quality = json.dumps(mock_quality_history)
+        # Mock ArmorCodeLoader to return empty security metrics
+        mock_loader_instance = Mock()
+        mock_loader_instance.load_latest_metrics.return_value = {}
+        mock_loader.return_value = mock_loader_instance
 
-        with patch("pathlib.Path.open", mock_open(read_data=mock_quality)):
-            with patch("pathlib.Path.exists", return_value=True):
-                generator = ExecutiveSummaryGenerator()
-                output_file = tmp_path / "executive.html"
+        # Mock the data loading methods directly
+        with patch.object(
+            ExecutiveSummaryGenerator, "_load_quality_data", return_value={"weeks": sample_quality_data}
+        ):
+            with patch.object(ExecutiveSummaryGenerator, "_load_security_data", return_value={}):
+                with patch.object(ExecutiveSummaryGenerator, "_load_flow_data", return_value=[]):
+                    generator = ExecutiveSummaryGenerator()
+                    output_file = tmp_path / "executive.html"
 
-                with patch("pathlib.Path.write_text") as mock_write:
-                    html = generator.generate(output_file)
+                    with patch("pathlib.Path.write_text") as mock_write:
+                        html = generator.generate(output_file)
 
-                assert isinstance(html, str)
-                assert len(html) > 0
-                mock_render.assert_called_once()
+                    assert isinstance(html, str)
+                    assert len(html) > 0
+                    mock_render.assert_called_once()
 
     @patch("execution.dashboards.executive.render_dashboard", return_value="<html>Dashboard</html>")
     @patch("execution.dashboards.executive.ArmorCodeLoader")

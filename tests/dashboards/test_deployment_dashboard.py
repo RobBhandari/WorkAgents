@@ -18,11 +18,8 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-try:
-    from tests.test_config import TEST_PRODUCTS
-except ImportError:
-    # Fallback to example config if test_config.py doesn't exist
-    from tests.test_config_example import TEST_PRODUCTS
+# Import real product names from test config
+from tests.test_config import TEST_PRODUCTS
 
 from execution.dashboards.deployment import (
     _build_context,
