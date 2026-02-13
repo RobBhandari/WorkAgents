@@ -162,10 +162,7 @@ def test_translate_nested_dictionaries(reverse_mapping):
     # Check all levels were translated
     assert "Access Diversity" in result["level1"]
     assert "Product G" not in result["level1"]
-    assert (
-        result["level1"]["Access Diversity"]["level2"]["description"]
-        == "Access Legal AI Services features"
-    )
+    assert result["level1"]["Access Diversity"]["level2"]["description"] == "Access Legal AI Services features"
     assert "Eclipse" in result["level1"]["Access Diversity"]["level2"]
 
 
@@ -216,10 +213,7 @@ def test_translate_string_multiple_occurrences(reverse_mapping):
 
     result = translate_value(text, reverse_mapping, stats, direction="reverse")
 
-    assert (
-        result
-        == "Access Diversity and Access Legal AI Services are using Eclipse"
-    )
+    assert result == "Access Diversity and Access Legal AI Services are using Eclipse"
     assert stats["Product G"] == 1
     assert stats["Product H"] == 1
     assert stats["Product K"] == 1
@@ -294,9 +288,7 @@ def test_fail_loud_on_unmapped_generic_key(reverse_mapping):
     stats: dict[str, int] = {}
 
     with pytest.raises(ValueError, match="UNMAPPED GENERIC PRODUCTS FOUND"):
-        translate_value(
-            data, reverse_mapping, stats, direction="reverse", fail_on_unmapped=True
-        )
+        translate_value(data, reverse_mapping, stats, direction="reverse", fail_on_unmapped=True)
 
 
 def test_fail_loud_on_unmapped_generic_value(reverse_mapping):
@@ -305,9 +297,7 @@ def test_fail_loud_on_unmapped_generic_value(reverse_mapping):
     stats: dict[str, int] = {}
 
     with pytest.raises(ValueError, match="UNMAPPED GENERIC PRODUCTS FOUND"):
-        translate_value(
-            data, reverse_mapping, stats, direction="reverse", fail_on_unmapped=True
-        )
+        translate_value(data, reverse_mapping, stats, direction="reverse", fail_on_unmapped=True)
 
 
 def test_no_fail_when_fail_on_unmapped_disabled(reverse_mapping):
@@ -316,9 +306,7 @@ def test_no_fail_when_fail_on_unmapped_disabled(reverse_mapping):
     stats: dict[str, int] = {}
 
     # Should NOT raise (fail_on_unmapped=False)
-    result = translate_value(
-        data, reverse_mapping, stats, direction="reverse", fail_on_unmapped=False
-    )
+    result = translate_value(data, reverse_mapping, stats, direction="reverse", fail_on_unmapped=False)
 
     # Product Z should remain unchanged
     assert result["description"] == "Product Z deployment"
@@ -333,9 +321,7 @@ def test_check_unmapped_generics_helper():
         _check_unmapped_generics("Product Z found", mapping, "test context")
 
     # Should NOT raise for mapped product
-    _check_unmapped_generics(
-        "Product A found", mapping, "test context"
-    )  # No exception
+    _check_unmapped_generics("Product A found", mapping, "test context")  # No exception
 
 
 # ============================================================================
@@ -394,9 +380,7 @@ def test_translate_history_file_success(reverse_mapping, sample_history_data, tm
     history_file.write_text(json.dumps(sample_history_data))
 
     # Translate the file
-    stats = translate_history_file(
-        history_file, reverse_mapping, direction="reverse", fail_on_unmapped=False
-    )
+    stats = translate_history_file(history_file, reverse_mapping, direction="reverse", fail_on_unmapped=False)
 
     # Verify file was modified
     result_data = json.loads(history_file.read_text())
@@ -541,9 +525,7 @@ def test_integration_security_history_structure(reverse_mapping):
     }
 
     stats: dict[str, int] = {}
-    result = translate_value(
-        security_history, reverse_mapping, stats, direction="reverse"
-    )
+    result = translate_value(security_history, reverse_mapping, stats, direction="reverse")
 
     # Verify ALL product names in keys were translated
     product_breakdown = result["weeks"][0]["metrics"]["product_breakdown"]
