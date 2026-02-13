@@ -271,10 +271,16 @@ class TestGenerateExecutiveSummary:
 
         # Mock the data loading methods directly
         with patch.object(
-            ExecutiveSummaryGenerator, "_load_quality_data", return_value={"weeks": sample_quality_data}
+            ExecutiveSummaryGenerator,
+            "_load_quality_data",
+            return_value={"weeks": sample_quality_data},
         ):
-            with patch.object(ExecutiveSummaryGenerator, "_load_security_data", return_value={}):
-                with patch.object(ExecutiveSummaryGenerator, "_load_flow_data", return_value=[]):
+            with patch.object(
+                ExecutiveSummaryGenerator, "_load_security_data", return_value={}
+            ):
+                with patch.object(
+                    ExecutiveSummaryGenerator, "_load_flow_data", return_value=[]
+                ):
                     generator = ExecutiveSummaryGenerator()
                     output_file = tmp_path / "executive.html"
 
