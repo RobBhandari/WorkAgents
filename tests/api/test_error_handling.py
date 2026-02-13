@@ -174,21 +174,17 @@ class TestErrorMessageFormats:
 class TestDataNotFound:
     """Tests for cases where data files don't exist."""
 
-    def test_missing_quality_data_returns_404(self, client, auth, monkeypatch, tmp_path):
+    def test_missing_quality_data_returns_404(self, client, auth, monkeypatch):
         """Missing quality data file should return 404."""
-        # Mock the file path to a non-existent location
-        fake_path = tmp_path / "nonexistent" / "quality_history.json"
+        # Mock the loader to raise FileNotFoundError instead of replacing Path class
+        def mock_load_latest(self):
+            raise FileNotFoundError("Quality history not found: .tmp/observatory/quality_history.json")
 
-        # Patch the Path constructor in the loader module
-        from pathlib import Path as RealPath
-
-        def mock_path(path_str):
-            if "quality_history" in str(path_str):
-                return fake_path
-            return RealPath(path_str)
-
-        # Patch pathlib.Path in the loader module where it's used
-        monkeypatch.setattr("execution.collectors.ado_quality_loader.pathlib.Path", mock_path)
+        # Patch the loader's method instead of the entire Path class
+        monkeypatch.setattr(
+            "execution.collectors.ado_quality_loader.ADOQualityLoader.load_latest_metrics",
+            mock_load_latest
+        )
 
         response = client.get("/api/v1/metrics/quality/latest", auth=auth)
 
@@ -199,20 +195,17 @@ class TestDataNotFound:
         assert "detail" in data
         assert "not found" in data["detail"].lower() or "run collectors" in data["detail"].lower()
 
-    def test_missing_security_data_returns_404(self, client, auth, monkeypatch, tmp_path):
+    def test_missing_security_data_returns_404(self, client, auth, monkeypatch):
         """Missing security data file should return 404."""
-        fake_path = tmp_path / "nonexistent" / "security_history.json"
+        # Mock the load function to raise FileNotFoundError instead of replacing Path class
+        def mock_load_security(*args, **kwargs):
+            raise FileNotFoundError("Security history not found: .tmp/observatory/security_history.json")
 
-        # Patch the Path constructor in the loader module
-        from pathlib import Path as RealPath
-
-        def mock_path(path_str):
-            if "security_history" in str(path_str):
-                return fake_path
-            return RealPath(path_str)
-
-        # Patch pathlib.Path in the loader module where it's used
-        monkeypatch.setattr("execution.collectors.armorcode_loader.pathlib.Path", mock_path)
+        # Patch the loader function instead of the entire Path class
+        monkeypatch.setattr(
+            "execution.collectors.armorcode_loader.load_security_metrics",
+            mock_load_security
+        )
 
         response = client.get("/api/v1/metrics/security/latest", auth=auth)
 
