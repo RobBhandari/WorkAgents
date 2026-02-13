@@ -7,17 +7,17 @@ caught the dictionary key translation bug that occurred in production.
 """
 
 import json
-import pytest
 from pathlib import Path
-from typing import Dict
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import Mock, mock_open, patch
+
+import pytest
 
 from execution.utils.product_name_translator import (
-    translate_value,
-    translate_history_file,
-    load_mapping_file,
-    _check_unmapped_generics,
     _anonymize_emails,
+    _check_unmapped_generics,
+    load_mapping_file,
+    translate_history_file,
+    translate_value,
 )
 
 
@@ -27,7 +27,7 @@ from execution.utils.product_name_translator import (
 
 
 @pytest.fixture
-def forward_mapping() -> Dict[str, str]:
+def forward_mapping() -> dict[str, str]:
     """Forward mapping: real names -> generic names (for genericization)."""
     return {
         "Access Legal Case Management": "Product A",
@@ -39,7 +39,7 @@ def forward_mapping() -> Dict[str, str]:
 
 
 @pytest.fixture
-def reverse_mapping() -> Dict[str, str]:
+def reverse_mapping() -> dict[str, str]:
     """Reverse mapping: generic names -> real names (for de-genericization)."""
     return {
         "Product A": "Access Legal Case Management",
@@ -88,7 +88,7 @@ def test_translate_dictionary_keys_reverse(reverse_mapping):
             "Product H": {"count": 3},
         }
     }
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(data, reverse_mapping, stats, direction="reverse")
 
@@ -111,7 +111,7 @@ def test_translate_dictionary_keys_forward(forward_mapping):
             "Eclipse": {"count": 3},
         }
     }
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(data, forward_mapping, stats, direction="forward")
 
@@ -132,7 +132,7 @@ def test_translate_dictionary_values(reverse_mapping):
         "description": "Product G deployment",
         "product": "Product H",
     }
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(data, reverse_mapping, stats, direction="reverse")
 
@@ -157,7 +157,7 @@ def test_translate_nested_dictionaries(reverse_mapping):
             }
         }
     }
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(data, reverse_mapping, stats, direction="reverse")
 
@@ -179,7 +179,7 @@ def test_translate_nested_dictionaries(reverse_mapping):
 def test_translate_list_of_strings(reverse_mapping):
     """Test translation of product names in lists."""
     data = {"products": ["Product G", "Product H", "Product K"]}
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(data, reverse_mapping, stats, direction="reverse")
 
@@ -198,7 +198,7 @@ def test_translate_list_of_dicts(reverse_mapping):
             {"name": "Product H", "count": 3},
         ]
     }
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(data, reverse_mapping, stats, direction="reverse")
 
@@ -214,7 +214,7 @@ def test_translate_list_of_dicts(reverse_mapping):
 def test_translate_string_multiple_occurrences(reverse_mapping):
     """Test string with multiple product name occurrences."""
     text = "Product G and Product H are using Product K"
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(text, reverse_mapping, stats, direction="reverse")
 
@@ -231,7 +231,7 @@ def test_translate_string_partial_match_avoided(forward_mapping):
     """Test that partial matches don't cause incorrect replacements."""
     # "Access Legal Case Management" should match before "Access"
     text = "Access Legal Case Management system"
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(text, forward_mapping, stats, direction="forward")
 
@@ -247,7 +247,7 @@ def test_translate_string_partial_match_avoided(forward_mapping):
 def test_anonymize_emails_forward(forward_mapping):
     """Test email anonymization during genericization."""
     text = "Created by jac.martin@theaccessgroup.com"
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(text, forward_mapping, stats, direction="forward")
 
@@ -259,7 +259,7 @@ def test_anonymize_emails_forward(forward_mapping):
 def test_anonymize_multiple_emails_forward(forward_mapping):
     """Test multiple email anonymization."""
     text = "Authors: john.doe@theaccessgroup.com, jane.smith@theaccessgroup.com"
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(text, forward_mapping, stats, direction="forward")
 
@@ -272,7 +272,7 @@ def test_anonymize_multiple_emails_forward(forward_mapping):
 def test_no_email_anonymization_reverse(reverse_mapping):
     """Test that reverse translation does NOT anonymize emails."""
     text = "Created by jac.martin@theaccessgroup.com"
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     result = translate_value(text, reverse_mapping, stats, direction="reverse")
 
@@ -293,7 +293,7 @@ def test_fail_loud_on_unmapped_generic_key(reverse_mapping):
             "Product Z": {"count": 5},  # Not in mapping
         }
     }
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     with pytest.raises(ValueError, match="UNMAPPED GENERIC PRODUCTS FOUND"):
         translate_value(
@@ -304,7 +304,7 @@ def test_fail_loud_on_unmapped_generic_key(reverse_mapping):
 def test_fail_loud_on_unmapped_generic_value(reverse_mapping):
     """Test fail-loud validation when unmapped generic product in value."""
     data = {"description": "Product Z deployment"}  # Not in mapping
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     with pytest.raises(ValueError, match="UNMAPPED GENERIC PRODUCTS FOUND"):
         translate_value(
@@ -315,7 +315,7 @@ def test_fail_loud_on_unmapped_generic_value(reverse_mapping):
 def test_no_fail_when_fail_on_unmapped_disabled(reverse_mapping):
     """Test that unmapped products are silently ignored when fail_on_unmapped=False."""
     data = {"description": "Product Z deployment"}
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     # Should NOT raise (fail_on_unmapped=False)
     result = translate_value(
@@ -347,7 +347,7 @@ def test_check_unmapped_generics_helper():
 
 def test_translate_empty_dict(reverse_mapping):
     """Test translation of empty dictionary."""
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
     result = translate_value({}, reverse_mapping, stats, direction="reverse")
     assert result == {}
     assert stats == {}
@@ -355,14 +355,14 @@ def test_translate_empty_dict(reverse_mapping):
 
 def test_translate_empty_list(reverse_mapping):
     """Test translation of empty list."""
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
     result = translate_value([], reverse_mapping, stats, direction="reverse")
     assert result == []
 
 
 def test_translate_empty_string(reverse_mapping):
     """Test translation of empty string."""
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
     result = translate_value("", reverse_mapping, stats, direction="reverse")
     assert result == ""
 
@@ -370,7 +370,7 @@ def test_translate_empty_string(reverse_mapping):
 def test_translate_none_values(reverse_mapping):
     """Test translation preserves None values."""
     data = {"value": None, "count": 0}
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
     result = translate_value(data, reverse_mapping, stats, direction="reverse")
     assert result["value"] is None
     assert result["count"] == 0
@@ -379,7 +379,7 @@ def test_translate_none_values(reverse_mapping):
 def test_translate_numeric_values(reverse_mapping):
     """Test translation preserves numeric values."""
     data = {"count": 42, "percentage": 85.5, "active": True}
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
     result = translate_value(data, reverse_mapping, stats, direction="reverse")
     assert result == data  # Should be unchanged
 
@@ -542,7 +542,7 @@ def test_integration_security_history_structure(reverse_mapping):
         ]
     }
 
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
     result = translate_value(
         security_history, reverse_mapping, stats, direction="reverse"
     )
