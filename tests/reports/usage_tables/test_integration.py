@@ -29,7 +29,7 @@ def sample_team_data():
         {
             "Name": ["Alice Smith", "Bob Jones", "Charlie Brown"],
             "Job Title": ["Engineer", "Manager", "Analyst"],
-            "Software Company": ["TARGET_TEAM", "TARGET_TEAM", "TARGET_TEAM"],
+            "Software Company": ["LGL", "LGL", "LGL"],
             "Claude Access": ["Yes", "No", "Yes"],
             "Claude 30 day usage": [150, 10, 75],
             "Devin Access": ["Yes", "Yes", "No"],
@@ -231,8 +231,8 @@ class TestEndToEndWorkflow:
 
             # Verify output
             captured = capsys.readouterr()
-            assert "SUCCESS: AI Tools Usage Report Generated" in captured.out
-            assert "Total Team Users: 3" in captured.out
+            assert "SUCCESS: LGL AI Tools Usage Report Generated" in captured.out
+            assert "Total LGL Users: 3" in captured.out
             assert "Claude Active Users: 3" in captured.out
 
             # Verify HTML was generated
@@ -327,7 +327,7 @@ class TestPipelineIntegration:
             {
                 "Name": ["Alice", "Bob", "Charlie", "Diana"],
                 "Job Title": ["Engineer", "Manager", "Analyst", "Director"],
-                "Software Company": ["TARGET_TEAM", "TARGET_TEAM", "OTHER_TEAM", "TARGET_TEAM"],
+                "Software Company": ["LGL", "LGL", "OTHER_TEAM", "LGL"],
                 "Claude Access": ["Yes", "No", "Yes", "Yes"],
                 "Claude 30 day usage": [150, 10, 200, 100],
                 "Devin Access": ["Yes", "Yes", "No", "Yes"],
@@ -354,7 +354,7 @@ class TestPipelineIntegration:
             with open(output_file, encoding="utf-8") as f:
                 html = f.read()
 
-            # Verify only TARGET_TEAM users are included
+            # Verify only LGL users are included
             assert "Alice" in html
             assert "Bob" in html
             assert "Diana" in html
