@@ -71,7 +71,7 @@ def main():
     print(f"Found {len(history_files)} history files to process\n")
 
     # Process each file
-    total_stats = {}
+    total_stats: dict[str, int] = {}
     for file_path in sorted(history_files):
         stats = genericize_history_file(file_path)
 
