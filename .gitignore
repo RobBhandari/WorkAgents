@@ -25,6 +25,11 @@ execution/check_area_paths.py
 execution/check_armorcode_creator.py
 execution/verify_incase_closed.py
 
+# SECURITY: Product name mapping files (created from GitHub Secrets in CI/CD)
+# These must NOT be committed to public repo as they expose all product names
+.product_mapping.json
+.product_mapping_forward.json
+
 # Claude local settings backup
 .claude/settings.local.json.bak
 
