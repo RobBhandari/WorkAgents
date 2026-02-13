@@ -276,10 +276,14 @@ class TestGenerateExecutiveSummary:
             return_value={"weeks": sample_quality_data},
         ):
             with patch.object(
-                ExecutiveSummaryGenerator, "_load_security_data", return_value={}
+                ExecutiveSummaryGenerator,
+                "_load_security_data",
+                return_value={},
             ):
                 with patch.object(
-                    ExecutiveSummaryGenerator, "_load_flow_data", return_value=[]
+                    ExecutiveSummaryGenerator,
+                    "_load_flow_data",
+                    return_value=[],
                 ):
                     generator = ExecutiveSummaryGenerator()
                     output_file = tmp_path / "executive.html"
