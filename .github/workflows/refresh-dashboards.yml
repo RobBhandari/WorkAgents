@@ -135,7 +135,27 @@ jobs:
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           echo "🔓 Converting Product A, B, C back to real product names..."
-          python scripts/de_genericize_history_files.py || echo "⚠️  No history files to de-genericize (first run or not found)"
+
+          # Check if directory and files exist
+          echo "📂 Checking .tmp/observatory directory..."
+          ls -la .tmp/observatory/*.json 2>&1 | head -10 || echo "⚠️  No JSON files found"
+
+          # Show sample product names BEFORE de-genericization
+          echo "📊 Sample product names BEFORE de-genericization:"
+          grep -h "Product [A-Z]" .tmp/observatory/security_history.json 2>/dev/null | head -3 || echo "No generic names found"
+
+          # Run de-genericization (fail loudly if it fails)
+          if ! python scripts/de_genericize_history_files.py; then
+            echo "❌ ERROR: De-genericization failed!"
+            echo "This means Azure dashboards will show generic names (Product A, B, C) instead of real names."
+            echo "Check the de_genericize_history_files.py script for errors."
+            exit 1
+          fi
+
+          # Verify conversion worked
+          echo "📊 Sample product names AFTER de-genericization:"
+          grep -h "Eclipse\|Access Legal" .tmp/observatory/security_history.json 2>/dev/null | head -3 || echo "⚠️  WARNING: Still showing generic names!"
+
           echo "✅ History files now have REAL names - collectors will append with real names"
 
       - name: Collect ${{ matrix.collector.name }}
