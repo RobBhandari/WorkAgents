@@ -14,7 +14,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from execution.collectors.ado_connection import get_ado_connection, get_wit_client
+from execution.collectors.ado_connection import (
+    get_ado_connection,
+    get_wit_client,
+)
 
 
 class TestGetAdoConnection:

@@ -19,7 +19,10 @@ SHARED COMPONENTS:
 import sys
 from pathlib import Path
 
-from execution.utils.product_name_translator import load_mapping_file, translate_history_file
+from execution.utils.product_name_translator import (
+    load_mapping_file,
+    translate_history_file,
+)
 
 
 # Load reverse mapping from file (created from GitHub Secret in CI/CD)
