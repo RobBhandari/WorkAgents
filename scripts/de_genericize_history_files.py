@@ -24,7 +24,6 @@ from execution.utils.product_name_translator import (
     translate_history_file,
 )
 
-
 # Load reverse mapping from file (created from GitHub Secret in CI/CD)
 try:
     REVERSE_MAPPING = load_mapping_file(
