@@ -3,6 +3,11 @@ Genericize product names in history files for public repository.
 
 This script replaces real product names with generic placeholders (Product A, B, C, etc.)
 in all history JSON files to prepare for public GitHub repository.
+
+SECURITY NOTE:
+- Product name mappings are loaded from .product_mapping_forward.json (not committed to git)
+- In CI/CD, this file is created from GitHub Secrets
+- Never commit the mapping file - it contains sensitive product information
 """
 
 import json
@@ -10,77 +15,53 @@ import sys
 from pathlib import Path
 from typing import Any, Dict
 
-# Product name mapping (real name -> generic name)
-# IMPORTANT: Ordered from most specific to least specific to avoid partial matches
-PRODUCT_MAPPING = {
-    # Fix partially-genericized names (from previous runs)
-    "Access Legal Product D": "Product D",
-    "Access Legal Product F": "Product F",
-    "Access Legal Product L": "Product L",
-    "Access Product D": "Product D",
-    "Access Product F": "Product F",
-    "Access Product L": "Product L",
-    "Legal Product D": "Product D",
-    "Legal Product F": "Product F",
-    "Legal Product L": "Product L",
 
-    # Underscore variants (for project_key fields)
-    "Access_Legal_Case_Management": "Product_A",
-    "One_Office_&_Financial_Director": "Product_B",
-    "One_Office": "Product_B",
-    "Access_LawFusion": "Product_C",
-    "Access_Legal_Compliance": "Product_E",
-    "Legal_Compliance": "Product_E",
-    "Access_Diversity": "Product_G",
-    "Access_Legal_AI_Services": "Product_H",
-    "Access_Legal_Framework": "Product_I",
-    "Access_MyCalendars": "Product_J",
-    "Legal_InCase": "Product_F",
-    "Legal_Product D": "Product_D",
-    "Learning_Content_Legal": "Product_O",
+def load_forward_mapping() -> Dict[str, str]:
+    """
+    Load forward mapping (real name -> generic name) from file.
 
-    # Pipeline/Build names
-    "Build Access Legal Searches": "Build Product A Searches",
-    "Access Legal": "Product A",  # Catch-all for any remaining references
+    Returns:
+        Dictionary mapping real names to generic names
 
-    # Product D variants (do these BEFORE "Proclaim" alone)
-    "Access Legal Proclaim": "Product D",
-    "Access Proclaim": "Product D",
-    "Legal Proclaim": "Product D",
-    "Proclaim Portals - Eclipse": "Product N",
-    "Proclaim": "Product D",
+    Raises:
+        FileNotFoundError: If mapping file doesn't exist
+        ValueError: If mapping file is invalid
+    """
+    mapping_file = Path(".product_mapping_forward.json")
 
-    # Product F variants (do these BEFORE "inCase" alone)
-    "Access Legal InCase": "Product F",
-    "Access Legal inCase": "Product F",
-    "Access InCase": "Product F",
-    "Access inCase": "Product F",
-    "Legal InCase": "Product F",
-    "Legal inCase": "Product F",
-    "inCase": "Product F",
+    if not mapping_file.exists():
+        print(f"[ERROR] Forward mapping file not found: {mapping_file}")
+        print("In CI/CD, this file should be created from PRODUCT_NAME_MAPPING_FORWARD secret")
+        print("Locally, create it with: echo '$MAPPING_JSON' > .product_mapping_forward.json")
+        sys.exit(1)
 
-    # Product L variants (do these BEFORE "Legal Bricks" alone)
-    "Access LegalBricks": "Product L",
-    "Access Legal Bricks": "Product L",
-    "LegalBricks": "Product L",
-    "Legal Bricks": "Product L",
+    try:
+        with open(mapping_file, "r", encoding="utf-8") as f:
+            mapping = json.load(f)
 
-    # Other products (specific to general)
-    "Access Legal Case Management": "Product A",
-    "One Office & Financial Director": "Product B",
-    "One Office": "Product B",
-    "Access LawFusion": "Product C",
-    "LawFusion": "Product C",
-    "Law Fusion": "Product C",
-    "Access Legal Compliance": "Product E",
-    "Access Diversity": "Product G",
-    "Access Legal AI Services": "Product H",
-    "Access Legal Framework": "Product I",
-    "Access MyCalendars": "Product J",
-    "Eclipse": "Product K",
-    "Legal Workspace": "Product M",
-    "Learning Content Legal": "Product O",
-}
+        if not isinstance(mapping, dict):
+            raise ValueError("Mapping file must contain a JSON object")
+
+        print(f"[OK] Loaded {len(mapping)} product mappings from {mapping_file}")
+        return mapping
+
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] Invalid JSON in mapping file: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"[ERROR] Failed to load mapping file: {e}")
+        sys.exit(1)
+
+
+# Load mapping at module level
+try:
+    PRODUCT_MAPPING = load_forward_mapping()
+except SystemExit:
+    # Re-raise SystemExit to allow proper script termination
+    raise
+except Exception as e:
+    print(f"[FATAL] Unexpected error loading forward mapping: {e}")
+    sys.exit(1)
 
 
 def genericize_value(value: Any, stats: Dict[str, int]) -> Any:
