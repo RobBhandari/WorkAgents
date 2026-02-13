@@ -5,32 +5,73 @@ This script replaces generic placeholders (Product A, B, C, etc.) with real prod
 to prepare fresh data for Azure deployment with real names visible.
 
 This is the REVERSE of genericize_history_files.py.
+
+SECURITY NOTE:
+- Product name mappings are loaded from .product_mapping.json (not committed to git)
+- In CI/CD, this file is created from GitHub Secrets
+- Never commit the mapping file - it contains sensitive product information
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict
 
-# Reverse mapping (generic name -> real name)
-# This is the OPPOSITE of the genericization mapping
-REVERSE_MAPPING = {
-    "Product A": "Access Legal Case Management",
-    "Product B": "One Office & Financial Director",
-    "Product C": "Access LawFusion",
-    "Product D": "Access Legal Proclaim",
-    "Product E": "Access Legal Compliance",
-    "Product F": "Access Legal InCase",
-    "Product G": "Access Diversity",
-    "Product H": "Access Legal AI Services",
-    "Product I": "Access Legal Framework",
-    "Product J": "Access MyCalendars",
-    "Product K": "Eclipse",
-    "Product L": "Access LegalBricks",
-    "Product M": "Legal Workspace",
-    "Product N": "Proclaim Portals - Eclipse",
-    "Product O": "Learning Content Legal",
-}
+# Load reverse mapping from file (created from GitHub Secret in CI/CD)
+def load_reverse_mapping() -> Dict[str, str]:
+    """
+    Load reverse mapping from .product_mapping.json file.
+
+    Returns:
+        Dictionary mapping generic names to real names
+
+    Raises:
+        FileNotFoundError: If mapping file doesn't exist
+        ValueError: If mapping file is invalid
+    """
+    mapping_file = Path(".product_mapping.json")
+
+    if not mapping_file.exists():
+        print(f"[ERROR] Mapping file not found: {mapping_file}")
+        print("In CI/CD, this file should be created from PRODUCT_NAME_MAPPING secret")
+        print("Locally, create it with: echo '$MAPPING_JSON' > .product_mapping.json")
+        sys.exit(1)
+
+    try:
+        with open(mapping_file, "r", encoding="utf-8") as f:
+            mapping = json.load(f)
+
+        if not isinstance(mapping, dict):
+            raise ValueError("Mapping file must contain a JSON object")
+
+        # Validate structure (keys should be "Product X", values should be non-empty strings)
+        for key, value in mapping.items():
+            if not key.startswith("Product "):
+                print(f"[WARN] Unexpected key in mapping: {key}")
+            if not isinstance(value, str) or not value:
+                raise ValueError(f"Invalid mapping value for key: {key}")
+
+        print(f"[OK] Loaded {len(mapping)} product mappings from {mapping_file}")
+        return mapping
+
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] Invalid JSON in mapping file: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"[ERROR] Failed to load mapping file: {e}")
+        sys.exit(1)
+
+
+# Load mapping at module level
+try:
+    REVERSE_MAPPING = load_reverse_mapping()
+except SystemExit:
+    # Re-raise SystemExit to allow proper script termination
+    raise
+except Exception as e:
+    print(f"[FATAL] Unexpected error loading reverse mapping: {e}")
+    sys.exit(1)
 
 
 def de_genericize_value(value: Any, stats: Dict[str, int]) -> Any:

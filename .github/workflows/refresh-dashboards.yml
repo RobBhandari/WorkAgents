@@ -131,6 +131,25 @@ jobs:
             exit 1
           fi
 
+      - name: Create product name mapping from secret (for de-genericization)
+        run: |
+          echo "🔐 Creating product name mapping from GitHub Secret..."
+          echo '${{ secrets.PRODUCT_NAME_MAPPING }}' > .product_mapping.json
+
+          # Verify mapping file was created
+          if [ ! -f .product_mapping.json ]; then
+            echo "❌ ERROR: Failed to create mapping file"
+            exit 1
+          fi
+
+          # Verify it's valid JSON (without exposing content)
+          if ! python -c "import json; json.load(open('.product_mapping.json'))" 2>/dev/null; then
+            echo "❌ ERROR: Mapping file is not valid JSON"
+            exit 1
+          fi
+
+          echo "✅ Product mapping file created successfully"
+
       - name: De-genericize history files (reverse Product A → Real Names)
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
@@ -154,7 +173,7 @@ jobs:
 
           # Verify conversion worked
           echo "📊 Sample product names AFTER de-genericization:"
-          grep -h "Eclipse\|Access Legal" .tmp/observatory/security_history.json 2>/dev/null | head -3 || echo "⚠️  WARNING: Still showing generic names!"
+          head -100 .tmp/observatory/security_history.json | grep -E "\"[A-Z][a-z]+ [A-Z]|Eclipse\"" | head -3 || echo "⚠️  WARNING: Still showing generic names!"
 
           echo "✅ History files now have REAL names - collectors will append with real names"
 
@@ -434,11 +453,36 @@ jobs:
           echo "🔒 Access is now protected with Azure AD authentication"
           echo "🌐 Your team can access at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net/"
 
+      - name: Create forward mapping from secret (for genericization)
+        run: |
+          echo "🔐 Creating forward product mapping from GitHub Secret..."
+          echo '${{ secrets.PRODUCT_NAME_MAPPING_FORWARD }}' > .product_mapping_forward.json
+
+          # Verify mapping file was created and is valid JSON
+          if [ ! -f .product_mapping_forward.json ]; then
+            echo "❌ ERROR: Failed to create forward mapping file"
+            exit 1
+          fi
+
+          if ! python -c "import json; json.load(open('.product_mapping_forward.json'))" 2>/dev/null; then
+            echo "❌ ERROR: Forward mapping file is not valid JSON"
+            exit 1
+          fi
+
+          echo "✅ Forward product mapping file created successfully"
+
       - name: Genericize History Files Before Commit
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           echo "🔒 Genericizing product names in history files for public repo..."
-          python scripts/genericize_history_files.py || echo "Warning: Genericization script had issues, but continuing..."
+
+          if ! python scripts/genericize_history_files.py; then
+            echo "❌ ERROR: Genericization failed!"
+            echo "Cannot commit history files without genericization (security risk)"
+            exit 1
+          fi
+
+          echo "✅ History files genericized successfully"
 
       - name: Validate History Files Before Commit
         run: |
