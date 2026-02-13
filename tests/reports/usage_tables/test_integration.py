@@ -119,7 +119,7 @@ class TestHtmlReportGeneration:
         assert "Charlie Brown" in html
         assert "Claude Usage (Last 30 Days)" in html
         assert "Devin Usage (Last 30 Days)" in html
-        assert "Total Team Users" in html
+        assert "Total LGL Users" in html
 
         # Verify statistics
         assert "3" in html  # Total users
