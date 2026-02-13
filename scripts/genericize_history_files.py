@@ -16,9 +16,7 @@ SHARED COMPONENTS:
 
 import sys
 from pathlib import Path
-from typing import Dict
 
-# Import shared translation utilities
 from execution.utils.product_name_translator import (
     load_mapping_file,
     translate_history_file,
@@ -38,7 +36,7 @@ except Exception as e:
     sys.exit(1)
 
 
-def genericize_history_file(file_path: Path) -> Dict[str, int]:
+def genericize_history_file(file_path: Path) -> dict[str, int]:
     """
     Genericize a single history file.
 
@@ -89,7 +87,7 @@ def main():
     print("✅ GENERICIZATION COMPLETE")
     print(f"{'='*70}")
     print(f"Files processed: {len(history_files)}")
-    print(f"\nReplacements made:")
+    print("\nReplacements made:")
 
     if total_stats:
         for product, count in sorted(total_stats.items(), key=lambda x: x[1], reverse=True):
