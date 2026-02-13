@@ -22,7 +22,6 @@ from execution.utils.product_name_translator import (
     translate_history_file,
 )
 
-
 # Load forward mapping at module level
 try:
     PRODUCT_MAPPING = load_mapping_file(

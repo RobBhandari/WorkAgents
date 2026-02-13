@@ -197,14 +197,14 @@ class TestDataNotFound:
 
     def test_missing_security_data_returns_404(self, client, auth, monkeypatch):
         """Missing security data file should return 404."""
-        # Mock the load function to raise FileNotFoundError instead of replacing Path class
-        def mock_load_security(*args, **kwargs):
+        # Mock the loader to raise FileNotFoundError instead of replacing Path class
+        def mock_load_latest(self):
             raise FileNotFoundError("Security history not found: .tmp/observatory/security_history.json")
 
-        # Patch the loader function instead of the entire Path class
+        # Patch the loader's method instead of the entire Path class
         monkeypatch.setattr(
-            "execution.collectors.armorcode_loader.load_security_metrics",
-            mock_load_security
+            "execution.collectors.armorcode_loader.ArmorCodeLoader.load_latest_metrics",
+            mock_load_latest
         )
 
         response = client.get("/api/v1/metrics/security/latest", auth=auth)
