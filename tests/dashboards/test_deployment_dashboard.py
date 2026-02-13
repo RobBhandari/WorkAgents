@@ -18,8 +18,11 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-# Import real product names from test config
-from tests.test_config import TEST_PRODUCTS
+try:
+    from tests.test_config import TEST_PRODUCTS
+except ImportError:
+    # Fallback to example config if test_config.py doesn't exist (e.g., in CI)
+    from tests.test_config_example import TEST_PRODUCTS
 
 from execution.dashboards.deployment import (
     _build_context,
@@ -173,7 +176,7 @@ class TestDomainModelConversion:
         project_data = sample_deployment_data["weeks"][0]["projects"][0]
         metrics = from_json(project_data)
 
-        assert metrics.project_name == "OneOffice"
+        assert metrics.project_name == TEST_PRODUCTS["product1"]
         assert metrics.deployment_frequency.total_successful_builds == 100
         assert metrics.deployment_frequency.deployments_per_week == 7.7
         assert metrics.build_success_rate.success_rate_pct == 90.9
@@ -279,7 +282,7 @@ class TestBuildProjectRows:
         rows = _build_project_rows(sample_metrics_list, sample_raw_projects)
 
         # Should be sorted by deployments per week (descending)
-        assert rows[0]["name"] == "OneOffice"  # 7.7/week
+        assert rows[0]["name"] == TEST_PRODUCTS["product1"]  # 7.7/week
         assert rows[1]["name"] == "API Gateway"  # 3.8/week
         assert rows[2]["name"] == "Inactive Project"  # 0.0/week
 
