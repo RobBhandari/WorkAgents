@@ -23,6 +23,12 @@ from execution.utils.ado_batch_utils import (
     batch_fetch_work_items,
 )
 
+# Skip all tests in this file - testing deprecated azure-devops SDK code
+pytestmark = pytest.mark.skip(
+    reason="Deprecated: batch_fetch_work_items() requires azure-devops SDK which was removed. "
+    "Use batch_fetch_work_items_rest() instead. See execution/DEPRECATED.md for migration."
+)
+
 # ============================================================================
 # Test Fixtures
 # ============================================================================
