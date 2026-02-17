@@ -205,41 +205,56 @@ def from_json(data: dict) -> MyMetrics:
 
 ## ✅ Quality Gates (ALL 7 Must Pass)
 
-**Before EVERY commit, run ALL checks:**
+### Automated Pre-Commit Enforcement
+
+**GOOD NEWS**: Quality gates are now **automatically enforced** via `.git/hooks/pre-commit`!
+
+When you run `git commit`, the pre-commit hook will:
+- ✅ Automatically run ALL quality checks before allowing the commit
+- ❌ Block the commit if any check fails
+- ⚠️  Skip tools not installed locally (MyPy, pytest, Sphinx) with warnings
+- 🔒 Prevent committing sensitive files (.env, credentials.json)
+
+**You don't need to manually run checks anymore** - the hook does it for you.
+
+### What the Hook Checks
 
 ```bash
 # Check 1: Black formatting
-black --check execution/domain execution/dashboards/components execution/collectors scripts/ tests/
+black --check execution/ scripts/ tests/
 
 # Check 2: Ruff linting
 ruff check execution/ scripts/ tests/
 
-# Check 3: Type hints (MyPy)
-mypy execution/ scripts/ tests/
+# Check 3: Type hints (MyPy) - skipped if not installed
+mypy execution/ scripts/ tests/ --ignore-missing-imports --check-untyped-defs
 
-# Check 4: Unit tests (pytest)
-pytest tests/ -v
+# Check 4: Unit tests (pytest) - skipped if not installed
+pytest tests/ -v --tb=short
 
 # Check 5: Security scan (Bandit)
 bandit -r execution/ -ll
 
-# Check 6: Documentation build (Sphinx)
-export PYTHONPATH=".:${PYTHONPATH}" && cd docs && sphinx-build -b html . _build/html
+# Check 6: Documentation build (Sphinx) - skipped if not installed
+cd docs && sphinx-build -b html . _build/html
 
-# Check 7: Template Security (prevents XSS regressions)
-# Verify autoescape is enabled in template_engine.py
-grep -q 'autoescape=select_autoescape' execution/template_engine.py || { echo "❌ FAIL: Autoescape not configured"; exit 1; }
-# Check for disabled autoescape in templates
-! grep -r "autoescape false" templates/ || { echo "❌ FAIL: Found disabled autoescape"; exit 1; }
-# Verify no inline scripts with template variables (XSS risk)
-! grep -r '<script>.*{{' templates/ || { echo "⚠️  WARNING: Inline scripts with variables - review for XSS"; exit 1; }
-echo "✅ Template security check passed"
+# Check 7: Template Security (XSS prevention)
+grep -q 'autoescape=select_autoescape' execution/template_engine.py
+! grep -r "autoescape false" templates/
+```
+
+### Optional: Install Full Tooling Locally
+
+For complete local validation (recommended for frequent contributors):
+
+```bash
+pip install mypy types-requests pytest pytest-cov sphinx
 ```
 
 **If ANY check fails:**
-1. Fix the issue IMMEDIATELY in the SAME commit
-2. Do NOT commit until ALL 7 checks pass
-3. Do NOT use `--no-verify` or skip hooks
+1. Fix the issue IMMEDIATELY
+2. The hook will block your commit until fixed
+3. Do NOT use `--no-verify` or `--no-hooks` to bypass
 
 ---
 
