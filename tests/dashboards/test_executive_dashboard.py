@@ -2,21 +2,19 @@
 Tests for Executive Summary Dashboard Generator
 
 Tests cover:
-- Multi-source data loading (quality, security, flow)
+- Multi-source API data querying (quality, security, flow)
 - Cross-metric summary calculation
 - Attention item identification
-- Trend analysis
 """
 
 import json
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import AsyncMock, Mock, mock_open, patch
 
 import pytest
 
 from execution.dashboards.executive import ExecutiveSummaryGenerator
-from execution.domain.security import SecurityMetrics
 
 
 @pytest.fixture
@@ -77,81 +75,110 @@ def sample_baseline_data():
     }
 
 
-class TestLoadExecutiveData:
-    """Tests for loading data from multiple sources"""
+class TestQueryExecutiveData:
+    """Tests for querying data from API sources"""
 
-    def test_load_quality_data_from_history(self, sample_quality_data):
-        """Should load quality data from JSON file"""
-        # Mock the actual structure that the loader expects
-        mock_quality_history = {
-            "weeks": sample_quality_data,
-            "open_bugs": 306,
-            "closed_this_week": 0,
-            "created_this_week": 0,
+    @pytest.mark.asyncio
+    async def test_query_quality_data_from_api(self):
+        """Should query quality data from ADO API"""
+        generator = ExecutiveSummaryGenerator()
+
+        # Mock discovery data and API responses
+        mock_discovery = {"projects": [{"project_name": "TestProject"}]}
+        mock_quality_result = {
+            "open_bugs_count": 35,
+            "closed_last_week": 10,
+            "created_last_week": 5,
         }
-        mock_data = json.dumps(mock_quality_history)
 
-        with patch("pathlib.Path.open", mock_open(read_data=mock_data)):
+        with patch("execution.dashboards.executive.load_json_with_recovery", return_value=mock_discovery):
             with patch("pathlib.Path.exists", return_value=True):
-                generator = ExecutiveSummaryGenerator()
-                data = generator._load_all_data()
+                with patch(
+                    "execution.dashboards.executive.collect_quality_metrics_for_project",
+                    return_value=mock_quality_result,
+                ):
+                    with patch("execution.dashboards.executive.get_ado_rest_client"):
+                        data = await generator._query_quality_data()
 
-                assert "quality" in data
-                assert data["quality"] is not None
-                assert "open_bugs" in data["quality"]
-                assert "weeks" in data["quality"]
+                        assert data is not None
+                        assert "open_bugs" in data
+                        assert "net_change" in data
+                        assert data["open_bugs"] == 35
 
-    def test_load_security_data(self, sample_security_data):
-        """Should load security data from API"""
-        with patch("execution.dashboards.executive.ArmorCodeLoader") as mock_loader:
-            # Create SecurityMetrics objects matching the expected structure
-            mock_metrics = {
-                "Product1": SecurityMetrics(
-                    timestamp=datetime.now(),
-                    project="Product1",
-                    total_vulnerabilities=42,
-                    critical=5,
-                    high=12,
-                    medium=20,
-                    low=5,
-                ),
-                "Product2": SecurityMetrics(
-                    timestamp=datetime.now(),
-                    project="Product2",
-                    total_vulnerabilities=25,
-                    critical=2,
-                    high=6,
-                    medium=10,
-                    low=7,
-                ),
-            }
-            mock_instance = Mock()
-            mock_instance.load_latest_metrics.return_value = mock_metrics
-            mock_loader.return_value = mock_instance
+    @pytest.mark.asyncio
+    async def test_query_security_data_from_api(self):
+        """Should query security data from ArmorCode API"""
+        generator = ExecutiveSummaryGenerator()
 
-            generator = ExecutiveSummaryGenerator()
-            data = generator._load_all_data()
+        # Mock baseline and API responses
+        mock_baseline = {"products": {"Product1": {}, "Product2": {}}}
 
-            assert "security" in data
+        mock_vulnerabilities = [
+            Mock(severity="CRITICAL", is_production=True),
+            Mock(severity="CRITICAL", is_production=True),
+            Mock(severity="HIGH", is_production=True),
+            Mock(severity="HIGH", is_production=True),
+            Mock(severity="HIGH", is_production=True),
+        ]
 
-    def test_handle_missing_data_files(self):
-        """Should handle missing data files gracefully"""
-        with patch("pathlib.Path.read_text", side_effect=FileNotFoundError("File not found")):
-            generator = ExecutiveSummaryGenerator()
-            data = generator._load_all_data()
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data=json.dumps(mock_baseline))):
+                with patch("execution.dashboards.executive.ArmorCodeVulnerabilityLoader") as mock_loader_class:
+                    mock_loader = Mock()
+                    mock_loader.load_vulnerabilities_for_products.return_value = mock_vulnerabilities
+                    mock_loader_class.return_value = mock_loader
 
-            # Should return empty/default data instead of crashing
-            assert isinstance(data, dict)
+                    data = await generator._query_security_data()
 
-    def test_load_flow_data_from_history(self, sample_flow_data):
-        """Should load flow metrics from JSON file"""
-        mock_data = json.dumps(sample_flow_data)
+                    assert data is not None
+                    assert "critical" in data
+                    assert "high" in data
+                    assert data["critical"] == 2
+                    assert data["high"] == 3
 
-        with patch("pathlib.Path.read_text", return_value=mock_data):
-            generator = ExecutiveSummaryGenerator()
-            data = generator._load_all_data()
+    @pytest.mark.asyncio
+    async def test_query_flow_data_from_api(self):
+        """Should query flow data from ADO API"""
+        generator = ExecutiveSummaryGenerator()
 
-            assert "flow" in data
+        # Mock discovery data and API responses
+        mock_discovery = {"projects": [{"project_name": "TestProject"}]}
+        mock_flow_result = {"lead_time_p50": 7.5}
+
+        with patch("execution.dashboards.executive.load_json_with_recovery", return_value=mock_discovery):
+            with patch("pathlib.Path.exists", return_value=True):
+                with patch(
+                    "execution.dashboards.executive.collect_flow_metrics_for_project",
+                    return_value=mock_flow_result,
+                ):
+                    with patch("execution.dashboards.executive.get_ado_rest_client"):
+                        data = await generator._query_flow_data()
+
+                        assert data is not None
+                        assert "avg_lead_time_p50" in data
+                        assert data["avg_lead_time_p50"] == 7.5
+
+    @pytest.mark.asyncio
+    async def test_handle_missing_discovery_file(self):
+        """Should handle missing discovery file gracefully"""
+        generator = ExecutiveSummaryGenerator()
+
+        with patch("pathlib.Path.exists", return_value=False):
+            data = await generator._query_quality_data()
+            assert data is None
+
+    @pytest.mark.asyncio
+    async def test_handle_api_failures(self):
+        """Should handle API failures gracefully"""
+        generator = ExecutiveSummaryGenerator()
+
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch(
+                "execution.dashboards.executive.load_json_with_recovery",
+                side_effect=Exception("API Error"),
+            ):
+                data = await generator._query_quality_data()
+                assert data is None
 
 
 class TestCalculateExecutiveSummary:
@@ -257,97 +284,86 @@ class TestGenerateAttentionItems:
 class TestGenerateExecutiveSummary:
     """Tests for full dashboard generation"""
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.executive.render_dashboard", return_value="<html>Executive Dashboard</html>")
     @patch(
         "execution.dashboards.executive.get_dashboard_framework", return_value=("<style></style>", "<script></script>")
     )
-    @patch("execution.dashboards.executive.ArmorCodeLoader")
-    def test_generate_dashboard_success(self, mock_loader, mock_framework, mock_render, sample_quality_data, tmp_path):
+    async def test_generate_dashboard_success(self, mock_framework, mock_render, tmp_path):
         """Should generate complete executive dashboard"""
-        # Mock ArmorCodeLoader to return empty security metrics
-        mock_loader_instance = Mock()
-        mock_loader_instance.load_latest_metrics.return_value = {}
-        mock_loader.return_value = mock_loader_instance
-
-        # Mock the data loading methods directly with complete data structures
+        # Mock the data query methods directly with complete data structures
         with patch.object(
             ExecutiveSummaryGenerator,
-            "_load_quality_data",
+            "_query_quality_data",
             return_value={
                 "open_bugs": 35,
                 "closed_this_week": 10,
                 "created_this_week": 5,
                 "net_change": -5,
-                "weeks": sample_quality_data,
             },
         ):
             with patch.object(
                 ExecutiveSummaryGenerator,
-                "_load_security_data",
+                "_query_security_data",
                 return_value={
                     "total_vulnerabilities": 25,
                     "critical": 2,
                     "high": 6,
                     "critical_high": 8,
-                    "products": {},
                 },
             ):
                 with patch.object(
                     ExecutiveSummaryGenerator,
-                    "_load_flow_data",
-                    return_value={"avg_lead_time_p50": 7.5, "projects": [], "weeks": []},
+                    "_query_flow_data",
+                    return_value={"avg_lead_time_p50": 7.5},
                 ):
                     generator = ExecutiveSummaryGenerator()
                     output_file = tmp_path / "executive.html"
 
                     with patch("pathlib.Path.write_text") as mock_write:
-                        html = generator.generate(output_file)
+                        html = await generator.generate(output_file)
 
                     assert isinstance(html, str)
                     assert len(html) > 0
                     mock_render.assert_called_once()
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.executive.render_dashboard", return_value="<html>Dashboard</html>")
-    @patch("execution.dashboards.executive.ArmorCodeLoader")
-    def test_generate_with_trends(self, mock_loader, mock_render, sample_quality_data):
-        """Should include trend indicators in dashboard"""
-        # Mock trend data showing improvement
-        mock_quality = json.dumps(sample_quality_data)
+    async def test_generate_missing_data_graceful(self, mock_render):
+        """Should handle missing data gracefully"""
+        with patch.object(ExecutiveSummaryGenerator, "_query_quality_data", return_value=None):
+            with patch.object(ExecutiveSummaryGenerator, "_query_security_data", return_value=None):
+                with patch.object(ExecutiveSummaryGenerator, "_query_flow_data", return_value=None):
+                    generator = ExecutiveSummaryGenerator()
 
-        with patch("pathlib.Path.read_text", return_value=mock_quality):
-            generator = ExecutiveSummaryGenerator()
-            html = generator.generate()
+                    # Should not raise exception
+                    html = await generator.generate()
+                    assert len(html) > 0
 
-            # Should have called render with context including trends
-            call_args = mock_render.call_args
-            assert call_args is not None
-
-    @patch("execution.dashboards.executive.render_dashboard", return_value="<html>Dashboard</html>")
-    def test_generate_missing_data_graceful(self, mock_render):
-        """Should handle missing data files gracefully"""
-        with patch("pathlib.Path.read_text", side_effect=FileNotFoundError()):
-            generator = ExecutiveSummaryGenerator()
-
-            # Should not raise exception
-            html = generator.generate()
-            assert len(html) > 0
-
+    @pytest.mark.asyncio
     @patch("execution.dashboards.executive.render_dashboard", return_value="<html>Exec</html>")
-    @patch("execution.dashboards.executive.ArmorCodeLoader")
-    def test_build_context_structure(self, mock_loader, mock_render, sample_quality_data):
+    async def test_build_context_structure(self, mock_render):
         """Should build context with expected structure"""
-        mock_quality = json.dumps(sample_quality_data)
+        with patch.object(
+            ExecutiveSummaryGenerator,
+            "_query_quality_data",
+            return_value={"open_bugs": 35, "net_change": -5, "closed_this_week": 10, "created_this_week": 5},
+        ):
+            with patch.object(
+                ExecutiveSummaryGenerator,
+                "_query_security_data",
+                return_value={"critical": 2, "high": 6, "critical_high": 8},
+            ):
+                with patch.object(ExecutiveSummaryGenerator, "_query_flow_data", return_value=None):
+                    generator = ExecutiveSummaryGenerator()
+                    await generator.generate()
 
-        with patch("pathlib.Path.read_text", return_value=mock_quality):
-            generator = ExecutiveSummaryGenerator()
-            generator.generate()
+                    # Check render was called with proper context structure
+                    call_args = mock_render.call_args
+                    assert call_args[0][0] == "dashboards/executive_summary.html"
+                    context = call_args[0][1]
 
-            # Check render was called with proper context structure
-            call_args = mock_render.call_args
-            assert call_args[0][0] == "dashboards/executive_summary.html"
-            context = call_args[0][1]
-
-            # Context should have key sections
-            expected_keys = ["framework_css", "last_updated"]
-            for key in expected_keys:
-                assert key in context or len(context) > 0  # Verify context exists
+                    # Context should have key sections
+                    expected_keys = ["framework_css", "generation_date"]
+                    for key in expected_keys:
+                        assert key in context
