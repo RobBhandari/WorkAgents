@@ -148,9 +148,9 @@ def create_app() -> FastAPI:
         if any(not data.get("fresh", False) for data in health_status["data_freshness"].values()):
             health_status["status"] = "degraded"
 
-        status_code = 200 if health_status["status"] == "healthy" else 503
-
-        return JSONResponse(content=health_status, status_code=status_code)
+        # Always return 200 - the API is operational even if data is stale
+        # The status field in the response body indicates data freshness
+        return JSONResponse(content=health_status, status_code=200)
 
     # ============================================================
     # Quality Metrics Endpoints

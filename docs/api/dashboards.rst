@@ -6,7 +6,7 @@ Dashboard generators create HTML reports using Jinja2 templates and domain model
 Dashboard Framework
 -------------------
 
-.. automodule:: execution.dashboard_framework
+.. automodule:: execution.framework
    :members:
    :undoc-members:
    :show-inheritance:
