@@ -13,10 +13,10 @@ import pytest
 from execution.dashboards.ai import (
     _build_context,
     _calculate_summary,
-    _get_author_stats,
-    _get_project_stats,
+    _get_author_stats_from_prs,
+    _get_project_stats_from_prs,
     _load_devin_analysis,
-    _load_risk_metrics,
+    _query_pr_data,
     generate_ai_dashboard,
 )
 
@@ -65,21 +65,15 @@ class TestDataLoaders:
 
         assert "Devin analysis file not found" in str(exc_info.value)
 
-    def test_load_risk_metrics_success(self, tmp_path, monkeypatch):
-        """Test successful loading of risk metrics"""
-        risk_data = {
-            "weeks": [
+    @pytest.mark.asyncio
+    async def test_query_pr_data_success(self, tmp_path, monkeypatch):
+        """Test successful querying of PR data from API"""
+        # Create mock project discovery file
+        discovery_data = {
+            "projects": [
                 {
-                    "week_ending": "2026-01-31",
-                    "projects": [
-                        {
-                            "project_name": "TestProject",
-                            "raw_prs": [
-                                {"created_by": "Alice", "pr_id": 1},
-                                {"created_by": "Bob", "pr_id": 2},
-                            ],
-                        }
-                    ],
+                    "project_name": "TestProject",
+                    "ado_project_name": "TestProject",
                 }
             ]
         }
@@ -87,8 +81,8 @@ class TestDataLoaders:
         # Create temp directory structure
         temp_observatory = tmp_path / ".tmp" / "observatory"
         temp_observatory.mkdir(parents=True)
-        risk_file = temp_observatory / "risk_history.json"
-        risk_file.write_text(json.dumps(risk_data))
+        discovery_file = temp_observatory / "project_discovery.json"
+        discovery_file.write_text(json.dumps(discovery_data))
 
         # Change to temp directory so relative paths work
         import os
@@ -97,88 +91,79 @@ class TestDataLoaders:
         os.chdir(tmp_path)
 
         try:
-            result = _load_risk_metrics()
-            assert result is not None
-            assert "weeks" in result
+            # Mock the REST client and query functions
+            from unittest.mock import AsyncMock, MagicMock
+
+            mock_client = MagicMock()
+            mock_client.get_repositories = AsyncMock(return_value={"value": [{"id": "repo1", "name": "TestRepo"}]})
+
+            monkeypatch.setattr("execution.dashboards.ai.get_ado_rest_client", lambda: mock_client)
+            monkeypatch.setattr(
+                "execution.dashboards.ai.GitTransformer.transform_repositories_response",
+                lambda x: [{"id": "repo1", "name": "TestRepo"}],
+            )
+            monkeypatch.setattr(
+                "execution.dashboards.ai.query_pull_requests",
+                AsyncMock(return_value=[{"pr_id": 1, "created_by": "Alice"}]),
+            )
+
+            result = await _query_pr_data()
+            assert isinstance(result, list)
+            assert len(result) > 0
+            assert result[0]["project_name"] == "TestProject"
         finally:
             os.chdir(original_cwd)
 
-    def test_load_risk_metrics_not_found(self, monkeypatch):
-        """Test handling when risk metrics file doesn't exist"""
-        monkeypatch.setattr("os.path.exists", lambda x: False)
+    def test_query_pr_data_no_discovery(self, monkeypatch):
+        """Test error handling when project discovery file doesn't exist"""
+        monkeypatch.setattr("pathlib.Path.exists", lambda x: False)
 
-        result = _load_risk_metrics()
-        assert result is None
+        import asyncio
+
+        with pytest.raises(FileNotFoundError):
+            asyncio.run(_query_pr_data())
 
 
 class TestStatsCalculation:
     """Tests for statistics calculation functions"""
 
-    def test_get_author_stats(self):
-        """Test author statistics calculation"""
-        risk_data = {
-            "weeks": [
-                {
-                    "projects": [
-                        {
-                            "raw_prs": [
-                                {"created_by": "Alice"},
-                                {"created_by": "Bob"},
-                                {"created_by": "Alice"},
-                                {"created_by": "Devin AI"},
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
+    def test_get_author_stats_from_prs(self):
+        """Test author statistics calculation from PR data"""
+        pr_data = [
+            {"created_by": "Alice"},
+            {"created_by": "Bob"},
+            {"created_by": "Alice"},
+            {"created_by": "Devin AI"},
+        ]
 
-        result = _get_author_stats(risk_data)
+        result = _get_author_stats_from_prs(pr_data)
         assert result["Alice"] == 2
         assert result["Bob"] == 1
         assert result["Devin AI"] == 1
 
-    def test_get_author_stats_no_data(self):
+    def test_get_author_stats_from_prs_no_data(self):
         """Test author stats with no data"""
-        assert _get_author_stats(None) == {}
-        assert _get_author_stats({}) == {}
+        assert _get_author_stats_from_prs([]) == {}
 
-    def test_get_project_stats(self):
-        """Test project statistics calculation"""
-        risk_data = {
-            "weeks": [
-                {
-                    "projects": [
-                        {
-                            "project_name": "ProjectA",
-                            "raw_prs": [
-                                {"created_by": "Alice"},
-                                {"created_by": "Devin AI"},
-                                {"created_by": "Bob"},
-                            ],
-                        },
-                        {
-                            "project_name": "ProjectB",
-                            "raw_prs": [
-                                {"created_by": "devin integration"},
-                                {"created_by": "Charlie"},
-                            ],
-                        },
-                    ]
-                }
-            ]
-        }
+    def test_get_project_stats_from_prs(self):
+        """Test project statistics calculation from PR data"""
+        pr_data = [
+            {"project_name": "ProjectA", "created_by": "Alice"},
+            {"project_name": "ProjectA", "created_by": "Devin AI"},
+            {"project_name": "ProjectA", "created_by": "Bob"},
+            {"project_name": "ProjectB", "created_by": "devin integration"},
+            {"project_name": "ProjectB", "created_by": "Charlie"},
+        ]
 
-        result = _get_project_stats(risk_data)
+        result = _get_project_stats_from_prs(pr_data)
         assert result["ProjectA"]["total"] == 3
         assert result["ProjectA"]["devin"] == 1
         assert result["ProjectB"]["total"] == 2
         assert result["ProjectB"]["devin"] == 1
 
-    def test_get_project_stats_no_data(self):
+    def test_get_project_stats_from_prs_no_data(self):
         """Test project stats with no data"""
-        assert _get_project_stats(None) == {}
-        assert _get_project_stats({}) == {}
+        assert _get_project_stats_from_prs([]) == {}
 
     def test_calculate_summary(self):
         """Test summary statistics calculation"""
@@ -314,9 +299,9 @@ class TestDashboardGeneration:
     """Tests for main dashboard generation"""
 
     @patch("execution.dashboards.ai._load_devin_analysis")
-    @patch("execution.dashboards.ai._load_risk_metrics")
+    @patch("execution.dashboards.ai._query_pr_data")
     @patch("execution.dashboards.ai.render_dashboard")
-    def test_generate_ai_dashboard_success(self, mock_render, mock_risk, mock_analysis, tmp_path):
+    def test_generate_ai_dashboard_success(self, mock_render, mock_query_pr, mock_analysis, tmp_path):
         """Test successful dashboard generation"""
         # Setup mocks
         mock_analysis.return_value = {
@@ -329,30 +314,30 @@ class TestDashboardGeneration:
             "devin_prs": [],
         }
 
-        mock_risk.return_value = {
-            "weeks": [
-                {
-                    "projects": [
-                        {
-                            "project_name": "TestProject",
-                            "raw_prs": [{"created_by": "Alice"}],
-                        }
-                    ]
-                }
+        # Mock async function
+        from unittest.mock import AsyncMock
+
+        mock_query_pr.return_value = [
+            {"project_name": "TestProject", "created_by": "Alice"},
+        ]
+
+        # Patch asyncio.run to execute the coroutine
+        with patch("asyncio.run") as mock_async_run:
+            mock_async_run.return_value = [
+                {"project_name": "TestProject", "created_by": "Alice"},
             ]
-        }
 
-        mock_render.return_value = "<html>Dashboard HTML</html>"
+            mock_render.return_value = "<html>Dashboard HTML</html>"
 
-        output_path = tmp_path / "ai_dashboard.html"
-        html = generate_ai_dashboard(output_path)
+            output_path = tmp_path / "ai_dashboard.html"
+            html = generate_ai_dashboard(output_path)
 
-        # Verify
-        assert html == "<html>Dashboard HTML</html>"
-        assert output_path.exists()
-        assert mock_render.called
-        assert mock_analysis.called
-        assert mock_risk.called
+            # Verify
+            assert html == "<html>Dashboard HTML</html>"
+            assert output_path.exists()
+            assert mock_render.called
+            assert mock_analysis.called
+            assert mock_async_run.called
 
     @patch("execution.dashboards.ai._load_devin_analysis")
     def test_generate_ai_dashboard_missing_data(self, mock_analysis):
@@ -363,9 +348,8 @@ class TestDashboardGeneration:
             generate_ai_dashboard()
 
     @patch("execution.dashboards.ai._load_devin_analysis")
-    @patch("execution.dashboards.ai._load_risk_metrics")
     @patch("execution.dashboards.ai.render_dashboard")
-    def test_generate_ai_dashboard_no_output_path(self, mock_render, mock_risk, mock_analysis):
+    def test_generate_ai_dashboard_no_output_path(self, mock_render, mock_analysis):
         """Test dashboard generation without writing to file"""
         mock_analysis.return_value = {
             "summary": {
@@ -377,10 +361,12 @@ class TestDashboardGeneration:
             "devin_prs": [],
         }
 
-        mock_risk.return_value = None
-        mock_render.return_value = "<html>Dashboard</html>"
+        # Mock asyncio.run to return PR data
+        with patch("asyncio.run") as mock_async_run:
+            mock_async_run.return_value = []
+            mock_render.return_value = "<html>Dashboard</html>"
 
-        html = generate_ai_dashboard(output_path=None)
+            html = generate_ai_dashboard(output_path=None)
 
-        assert html == "<html>Dashboard</html>"
-        assert mock_render.called
+            assert html == "<html>Dashboard</html>"
+            assert mock_render.called

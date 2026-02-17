@@ -7,6 +7,8 @@ Generates AI vs Human contributions dashboard showing:
     - Project-level breakdown
     - Recent AI PR activity
 
+Queries Azure DevOps API directly for fresh PR metrics data.
+
 This replaces the original 708-line generate_ai_dashboard.py with a
 clean, maintainable implementation of ~220 lines.
 
@@ -18,16 +20,19 @@ Usage:
     generate_ai_dashboard(output_path)
 """
 
+import asyncio
 import json
 import os
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from execution.collectors.ado_collaboration_metrics import query_pull_requests
+from execution.collectors.ado_rest_client import get_ado_rest_client
+from execution.collectors.ado_rest_transformers import GitTransformer
 from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
-
-# Import dependencies
+from execution.domain.constants import flow_metrics
 from execution.framework import get_dashboard_framework
 from execution.utils.error_handling import log_and_raise
 
@@ -39,7 +44,7 @@ def generate_ai_dashboard(output_path: Path | None = None) -> str:
     Generate AI contributions dashboard HTML.
 
     This is the main entry point for generating the AI dashboard.
-    It loads data, processes it, and renders the HTML template.
+    It queries Azure DevOps API directly for fresh PR metrics data.
 
     Args:
         output_path: Optional path to write HTML file
@@ -59,12 +64,18 @@ def generate_ai_dashboard(output_path: Path | None = None) -> str:
     """
     logger.info("Generating AI contributions dashboard")
 
-    # Step 1: Load data
-    logger.info("Loading Devin analysis and risk metrics")
+    # Step 1: Query ADO API for fresh PR data
+    logger.info("Querying Azure DevOps API for PR metrics")
+    pr_data = asyncio.run(_query_pr_data())
+    logger.info("PR data loaded", extra={"total_prs": len(pr_data)})
+
+    # Step 1b: Load Devin analysis
+    logger.info("Loading Devin analysis")
     analysis = _load_devin_analysis()
-    risk_data = _load_risk_metrics()
-    author_stats = _get_author_stats(risk_data)
-    project_stats = _get_project_stats(risk_data)
+
+    # Extract author and project stats from fresh PR data
+    author_stats = _get_author_stats_from_prs(pr_data)
+    project_stats = _get_project_stats_from_prs(pr_data)
     logger.info(
         "AI contribution data loaded", extra={"author_count": len(author_stats), "project_count": len(project_stats)}
     )
@@ -113,73 +124,121 @@ def _load_devin_analysis() -> dict[str, Any]:
         return result
 
 
-def _load_risk_metrics() -> dict[str, Any] | None:
+async def _query_pr_data() -> list[dict]:
     """
-    Load risk metrics for author stats (optional).
+    Query Azure DevOps API for fresh PR metrics data.
 
     Returns:
-        Risk data dictionary or None if not available
+        List of PR dictionaries with author and project information
+
+    Raises:
+        FileNotFoundError: If project discovery file doesn't exist
     """
-    risk_file = ".tmp/observatory/risk_history.json"
+    # Load project discovery data
+    discovery_path = Path(".tmp/observatory/project_discovery.json")
 
-    if not os.path.exists(risk_file):
-        return None
+    if not discovery_path.exists():
+        raise FileNotFoundError(
+            f"Project discovery not found at {discovery_path}\n"
+            "Run: python execution/collectors/ado_project_discovery.py"
+        )
 
-    with open(risk_file, encoding="utf-8") as f:
-        result: dict[str, Any] = json.load(f)
-        return result
+    with open(discovery_path, encoding="utf-8") as f:
+        discovery_data = json.load(f)
+
+    projects = discovery_data.get("projects", [])
+    if not projects:
+        raise ValueError("No projects found in discovery data")
+
+    logger.info(f"Querying PR metrics for {len(projects)} projects")
+
+    # Get REST client
+    rest_client = get_ado_rest_client()
+
+    # Configuration for collector
+    config = {
+        "lookback_days": flow_metrics.LOOKBACK_DAYS,
+    }
+
+    # Query PRs for all projects concurrently
+    all_prs = []
+
+    for project in projects:
+        project_name = project.get("project_name", "Unknown")
+        ado_project_name = project.get("ado_project_name", project_name)
+
+        # Get repositories via REST API
+        try:
+            repos_response = await rest_client.get_repositories(project=ado_project_name)
+            repos = GitTransformer.transform_repositories_response(repos_response)
+            logger.info(f"Found {len(repos)} repositories for {project_name}")
+        except Exception as e:
+            logger.warning("API error getting repositories", extra={"project": ado_project_name, "error": str(e)})
+            continue
+
+        # Query PRs for all repos in this project
+        pr_tasks = [
+            query_pull_requests(rest_client, ado_project_name, repo["id"], days=config["lookback_days"])
+            for repo in repos
+        ]
+
+        pr_results = await asyncio.gather(*pr_tasks, return_exceptions=True)
+
+        # Aggregate PRs from all repos
+        for repo, result in zip(repos, pr_results, strict=True):
+            if isinstance(result, Exception):
+                logger.error(
+                    "Error collecting PRs",
+                    extra={"project": project_name, "repo": repo.get("name", "Unknown"), "error": str(result)},
+                )
+            else:
+                # Add project name to each PR
+                for pr in result:
+                    pr["project_name"] = project_name
+                all_prs.extend(result)
+
+    logger.info(f"Collected {len(all_prs)} PRs across all projects")
+    return all_prs
 
 
-def _get_author_stats(risk_data: dict[str, Any] | None) -> dict[str, int]:
+def _get_author_stats_from_prs(pr_data: list[dict]) -> dict[str, int]:
     """
-    Calculate author contribution statistics from risk data.
+    Calculate author contribution statistics from PR data.
 
     Args:
-        risk_data: Risk metrics dictionary
+        pr_data: List of PR dictionaries from ADO API
 
     Returns:
         Dictionary mapping author name to PR count
     """
-    if not risk_data or "weeks" not in risk_data:
-        return {}
-
-    latest_week = risk_data["weeks"][-1]
     author_stats: dict[str, int] = defaultdict(int)
 
-    for project in latest_week.get("projects", []):
-        raw_prs = project.get("raw_prs", [])
-        for pr in raw_prs:
-            author = pr.get("created_by", "Unknown")
-            author_stats[author] += 1
+    for pr in pr_data:
+        author = pr.get("created_by", "Unknown")
+        author_stats[author] += 1
 
     return dict(author_stats)
 
 
-def _get_project_stats(risk_data: dict[str, Any] | None) -> dict[str, dict[str, int]]:
+def _get_project_stats_from_prs(pr_data: list[dict]) -> dict[str, dict[str, int]]:
     """
-    Calculate per-project Devin contribution stats.
+    Calculate per-project Devin contribution stats from PR data.
 
     Args:
-        risk_data: Risk metrics dictionary
+        pr_data: List of PR dictionaries from ADO API
 
     Returns:
         Dictionary mapping project name to stats (total, devin count)
     """
-    if not risk_data or "weeks" not in risk_data:
-        return {}
-
-    latest_week = risk_data["weeks"][-1]
     project_stats: dict[str, dict[str, int]] = defaultdict(lambda: {"total": 0, "devin": 0})
 
-    for project in latest_week.get("projects", []):
-        project_name = project["project_name"]
-        raw_prs = project.get("raw_prs", [])
+    for pr in pr_data:
+        project_name = pr.get("project_name", "Unknown")
+        project_stats[project_name]["total"] += 1
 
-        for pr in raw_prs:
-            project_stats[project_name]["total"] += 1
-            author = pr.get("created_by", "").lower()
-            if "devin" in author:
-                project_stats[project_name]["devin"] += 1
+        author = pr.get("created_by", "").lower()
+        if "devin" in author:
+            project_stats[project_name]["devin"] += 1
 
     return dict(project_stats)
 
