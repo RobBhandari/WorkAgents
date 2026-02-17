@@ -161,7 +161,7 @@ async def _query_pr_data() -> list[dict]:
     }
 
     # Query PRs for all projects concurrently
-    all_prs = []
+    all_prs: list[dict[str, Any]] = []
 
     for project in projects:
         project_name = project.get("project_name", "Unknown")
@@ -191,7 +191,7 @@ async def _query_pr_data() -> list[dict]:
                     "Error collecting PRs",
                     extra={"project": project_name, "repo": repo.get("name", "Unknown"), "error": str(result)},
                 )
-            else:
+            elif isinstance(result, list):
                 # Add project name to each PR
                 for pr in result:
                     pr["project_name"] = project_name
