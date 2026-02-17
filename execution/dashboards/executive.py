@@ -172,7 +172,7 @@ class ExecutiveSummaryGenerator:
 
             logger.info(
                 "Quality data queried",
-                extra={"open_bugs": total_open, "closed": total_closed, "created": total_created},
+                extra={"open_bugs": total_open, "closed": total_closed, "bugs_created": total_created},
             )
 
             return {
@@ -182,7 +182,7 @@ class ExecutiveSummaryGenerator:
                 "net_change": total_closed - total_created,
             }
 
-        except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
+        except Exception as e:
             return log_and_return_default(  # type: ignore[no-any-return]
                 logger, e, context={"source": "ADO Quality API"}, default_value=None, error_type="Quality data query"
             )
@@ -231,7 +231,7 @@ class ExecutiveSummaryGenerator:
                 "critical_high": total_critical + total_high,
             }
 
-        except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError) as e:
+        except Exception as e:
             return log_and_return_default(  # type: ignore[no-any-return]
                 logger,
                 e,
@@ -291,7 +291,7 @@ class ExecutiveSummaryGenerator:
 
             return {"avg_lead_time_p50": avg_lead_time}
 
-        except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
+        except Exception as e:
             return log_and_return_default(  # type: ignore[no-any-return]
                 logger, e, context={"source": "ADO Flow API"}, default_value=None, error_type="Flow data query"
             )
@@ -316,7 +316,7 @@ class ExecutiveSummaryGenerator:
             if self.baseline_vulns_file.exists():
                 with open(self.baseline_vulns_file, encoding="utf-8") as f:
                     baseline_vulns = json.load(f).get("total_vulnerabilities", 0)
-        except (OSError, json.JSONDecodeError, KeyError) as e:
+        except Exception as e:
             logger.warning(f"Failed to load baseline data: {e}")
             return None
 
@@ -533,6 +533,6 @@ if __name__ == "__main__":
             "Executive summary generated successfully", extra={"output": str(output_path), "html_size": len(html)}
         )
 
-    except (OSError, ValueError, KeyError) as e:
+    except Exception as e:
         logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
         raise
