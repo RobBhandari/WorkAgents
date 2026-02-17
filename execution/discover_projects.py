@@ -77,7 +77,8 @@ def discover_projects(baseline_dir: str = "data", product_mapping: dict[str, str
 
             # Normalize name to standard format: "Project_A" → "Product A"
             # This handles variations in baseline format while maintaining consistency with mapping
-            normalized_name = baseline_project_name.replace("Project ", "Product ").replace("_", " ")
+            # CRITICAL: Replace underscores FIRST, then replace word (order matters!)
+            normalized_name = baseline_project_name.replace("_", " ").replace("Project ", "Product ")
 
             # De-genericize if mapping exists
             if product_mapping and normalized_name in product_mapping:
