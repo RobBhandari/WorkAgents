@@ -39,7 +39,7 @@ from execution.dashboards.renderer import render_dashboard
 from execution.domain.constants import flow_metrics
 from execution.framework import get_dashboard_framework
 from execution.utils.error_handling import log_and_return_default
-from execution.utils.json_utils import load_json_with_recovery
+from execution.utils_atomic_json import load_json_with_recovery
 
 logger = get_logger(__name__)
 
