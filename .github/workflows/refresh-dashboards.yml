@@ -40,9 +40,8 @@ jobs:
           echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
 
           # Project-specific baselines (if configured)
-          if [[ -n "${{ secrets.BASELINE_ADO_PROJECTS }}" ]]; then
-            echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
-          fi
+          # Note: No if-test needed - jq will handle empty input gracefully
+          echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
 
           echo "✅ Baseline files created"
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
@@ -127,9 +126,8 @@ jobs:
           echo '${{ secrets.BASELINE_ARMORCODE }}' > data/armorcode_baseline.json
 
           # Project-specific baselines (if configured)
-          if [[ -n "${{ secrets.BASELINE_ADO_PROJECTS }}" ]]; then
-            echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
-          fi
+          # Note: No if-test needed - jq will handle empty input gracefully
+          echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
 
           echo "✅ Baseline files created"
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
@@ -267,9 +265,8 @@ jobs:
           echo '${{ secrets.BASELINE_ARMORCODE }}' > data/armorcode_baseline.json
 
           # Project-specific baselines (if configured)
-          if [[ -n "${{ secrets.BASELINE_ADO_PROJECTS }}" ]]; then
-            echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
-          fi
+          # Note: No if-test needed - jq will handle empty input gracefully
+          echo '${{ secrets.BASELINE_ADO_PROJECTS }}' | jq -r '.projects[]? | .baseline_file as $file | .baseline_data | "echo '\''\(. | @json)'\'' > data/\($file)"' | bash || true
 
           echo "✅ Baseline files created"
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
