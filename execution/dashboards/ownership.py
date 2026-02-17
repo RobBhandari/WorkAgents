@@ -100,12 +100,11 @@ def _load_discovery_data() -> dict[str, Any]:
     Raises:
         FileNotFoundError: If discovery file doesn't exist
     """
-    discovery_file = ".tmp/observatory/discovery_data.json"
+    discovery_file = ".tmp/observatory/ado_structure.json"
 
     if not Path(discovery_file).exists():
         raise FileNotFoundError(
-            f"Discovery data file not found: {discovery_file}\n"
-            "Run: python execution/collectors/ado_project_discovery.py"
+            f"Discovery data file not found: {discovery_file}\n" "Run: python execution/discover_projects.py"
         )
 
     with open(discovery_file, encoding="utf-8") as f:
