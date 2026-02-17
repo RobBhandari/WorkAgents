@@ -127,7 +127,7 @@ class TestLoadCollaborationData:
     @pytest.mark.asyncio
     async def test_load_collaboration_data_no_projects(self):
         """Test handling when no projects are in discovery data"""
-        discovery_data = {"projects": []}
+        discovery_data: dict[str, list] = {"projects": []}
         discovery_json = json.dumps(discovery_data)
 
         with patch("pathlib.Path.exists", return_value=True):

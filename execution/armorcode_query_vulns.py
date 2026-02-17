@@ -16,11 +16,12 @@ import logging
 import os
 import sys
 from datetime import datetime
+from typing import Any
 
 from dotenv import load_dotenv
 from requests.exceptions import RequestException
 
-from execution.core import get_config
+from execution.config import get_config
 from execution.http_client import get
 
 # Load environment variables from .env file
@@ -61,7 +62,8 @@ def load_baseline() -> dict:
         baseline = json.load(f)
 
     logger.info(f"Baseline loaded: {baseline['vulnerability_count']} vulnerabilities on {baseline['baseline_date']}")
-    return baseline
+    result: dict[Any, Any] = baseline
+    return result
 
 
 def load_tracking_history() -> dict:
@@ -83,7 +85,8 @@ def load_tracking_history() -> dict:
         tracking = json.load(f)
 
     logger.info(f"Loaded {len(tracking.get('queries', []))} previous queries")
-    return tracking
+    result: dict[Any, Any] = tracking
+    return result
 
 
 def save_tracking_history(tracking: dict):

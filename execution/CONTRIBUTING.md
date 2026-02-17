@@ -166,7 +166,8 @@ execution/
 **Import examples**:
 ```python
 # Infrastructure
-from execution.core import get_config, get, post
+from execution.config import get_config
+from execution.http_client import get, post
 
 # Domain models
 from execution.domain.quality import Bug, QualityMetrics

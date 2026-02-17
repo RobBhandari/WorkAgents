@@ -111,7 +111,7 @@ class TestQueryExecutiveData:
         generator = ExecutiveSummaryGenerator()
 
         # Mock baseline and API responses
-        mock_baseline = {"products": {"Product1": {}, "Product2": {}}}
+        mock_baseline: dict[str, dict[str, dict[str, dict]]] = {"products": {"Product1": {}, "Product2": {}}}
 
         mock_vulnerabilities = [
             Mock(severity="CRITICAL", is_production=True),

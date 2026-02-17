@@ -241,7 +241,7 @@ class TestCalculatePortfolioSummary:
 
     def test_calculate_summary_empty_projects(self):
         """Test summary with empty projects list"""
-        week_data = {"projects": []}
+        week_data: dict[str, list] = {"projects": []}
 
         summary = calculate_portfolio_summary(week_data)
 
@@ -427,6 +427,8 @@ class TestFormatProjectRow:
         project = sample_flow_data["projects"][0]
         row = format_project_row(project, "Bug")
 
+        # Verify row is not None before accessing
+        assert row is not None
         assert not row["has_cleanup"]  # Sample has is_cleanup_effort=False
         assert row["cleanup_pct"] == "6.7"
 
@@ -442,6 +444,8 @@ class TestFormatProjectRow:
         project = sample_flow_data["projects"][0]
         row = format_project_row(project, "Bug")
 
+        # Verify row is not None before accessing
+        assert row is not None
         assert "status_html" in row
         assert "status_tooltip" in row
         assert "status_priority" in row
@@ -680,7 +684,7 @@ class TestEdgeCases:
 
     def test_summary_with_no_projects(self):
         """Test summary calculation with no projects"""
-        week_data = {"projects": []}
+        week_data: dict[str, list] = {"projects": []}
 
         summary = calculate_portfolio_summary(week_data)
 

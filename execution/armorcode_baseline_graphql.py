@@ -15,7 +15,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from http_client import post
 
-from execution.core import get_config
+from execution.config import get_config
 
 # Load environment variables
 load_dotenv()

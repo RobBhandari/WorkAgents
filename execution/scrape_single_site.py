@@ -20,8 +20,8 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from requests.exceptions import HTTPError, Timeout
 
-from execution.core import get_config
 from execution.http_client import get
+from execution.secure_config import get_config
 
 # Load environment variables
 load_dotenv()
@@ -38,7 +38,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_TIMEOUT = int(get_config().get("SCRAPE_TIMEOUT"))
+DEFAULT_TIMEOUT = int(get_config().get_optional_env("SCRAPE_TIMEOUT", "30") or "30")
 MAX_RETRIES = 3
 MAX_PAGE_SIZE = 10 * 1024 * 1024  # 10MB
 USER_AGENTS = [
@@ -90,7 +90,7 @@ def scrape_website(url: str, selectors: dict[str, str] | None = None, respect_ro
 
     Raises:
         ValueError: If URL is invalid
-        RuntimeError: If scraping fails
+        RuntimeError: If scraping fails or all retries exhausted
     """
     logger.info(f"Starting scrape of {url}")
 
@@ -137,7 +137,7 @@ def scrape_website(url: str, selectors: dict[str, str] | None = None, respect_ro
             soup = BeautifulSoup(response.content, "lxml")
 
             # Extract data based on selectors
-            extracted_data = {}
+            extracted_data: dict[str, str | list[str] | None] = {}
             for field_name, selector in selectors.items():
                 elements = soup.select(selector)
                 if elements:
@@ -182,6 +182,9 @@ def scrape_website(url: str, selectors: dict[str, str] | None = None, respect_ro
                 raise RuntimeError(f"Scraping failed: {e}") from e
             logger.warning(f"Attempt {attempt + 1} failed: {e}")
             time.sleep(1)
+
+    # If we exhaust all retries without returning
+    raise RuntimeError(f"Failed to scrape {url} after {MAX_RETRIES} attempts")
 
 
 def parse_arguments():
