@@ -2,7 +2,7 @@
 Tests for Deployment Dashboard Generator
 
 Tests cover:
-- Data loading
+- Data querying from ADO API
 - Domain model conversion (from_json)
 - Summary calculation
 - Summary card generation
@@ -12,9 +12,10 @@ Tests cover:
 - Error handling
 """
 
+import asyncio
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
 import pytest
 
@@ -29,7 +30,7 @@ from execution.dashboards.deployment import (
     _build_project_rows,
     _build_summary_cards,
     _calculate_summary,
-    _load_deployment_data,
+    _query_deployment_data,
     generate_deployment_dashboard,
 )
 from execution.domain.deployment import DeploymentMetrics, from_json
@@ -133,39 +134,68 @@ def sample_raw_projects(sample_deployment_data):
     return latest_week["projects"]
 
 
-class TestLoadDeploymentData:
-    """Test _load_deployment_data function"""
+@pytest.fixture
+def sample_discovery_data():
+    """Sample ADO discovery data"""
+    return {
+        "projects": [
+            {"project_name": TEST_PRODUCTS["product1"], "ado_project_name": TEST_PRODUCTS["product1"]},
+            {"project_name": "API Gateway", "ado_project_name": "API Gateway"},
+            {"project_name": "Inactive Project", "ado_project_name": "Inactive Project"},
+        ]
+    }
 
-    def test_load_deployment_data_success(self, sample_deployment_data):
-        """Test successful loading of deployment data"""
-        with patch("builtins.open", mock_open(read_data=json.dumps(sample_deployment_data))):
+
+class TestQueryDeploymentData:
+    """Test _query_deployment_data function"""
+
+    @pytest.mark.asyncio
+    async def test_query_deployment_data_success(self, sample_deployment_data, sample_discovery_data):
+        """Test successful querying of deployment data from ADO"""
+        # Mock discovery file
+        discovery_json = json.dumps(sample_discovery_data)
+
+        # Mock raw project results
+        raw_projects = sample_deployment_data["weeks"][0]["projects"]
+
+        with patch("builtins.open", mock_open(read_data=discovery_json)):
             with patch("pathlib.Path.exists", return_value=True):
-                metrics_list, raw_projects, collection_date = _load_deployment_data()
+                with patch(
+                    "execution.dashboards.deployment.get_ado_rest_client", return_value=MagicMock()
+                ) as mock_client:
+                    with patch(
+                        "execution.dashboards.deployment._collect_project_metrics",
+                        side_effect=[raw_projects[0], raw_projects[1], raw_projects[2]],
+                    ):
+                        metrics_list, projects, collection_date = await _query_deployment_data()
 
-                assert len(metrics_list) == 3
-                assert len(raw_projects) == 3
-                assert collection_date == "2026-02-06"
-                assert isinstance(metrics_list[0], DeploymentMetrics)
-                assert isinstance(raw_projects[0], dict)
+                        assert len(metrics_list) == 3
+                        assert len(projects) == 3
+                        assert isinstance(metrics_list[0], DeploymentMetrics)
+                        assert isinstance(projects[0], dict)
+                        # Collection date should be today's date
+                        assert len(collection_date) == 10  # YYYY-MM-DD format
 
-    def test_load_deployment_data_file_not_found(self):
-        """Test FileNotFoundError when history file doesn't exist"""
+    @pytest.mark.asyncio
+    async def test_query_deployment_data_file_not_found(self):
+        """Test FileNotFoundError when discovery file doesn't exist"""
         with patch("pathlib.Path.exists", return_value=False):
             with pytest.raises(FileNotFoundError) as exc_info:
-                _load_deployment_data()
+                await _query_deployment_data()
 
-            assert "Deployment history file not found" in str(exc_info.value)
+            assert "Discovery data file not found" in str(exc_info.value)
 
-    def test_load_deployment_data_no_weeks(self):
-        """Test ValueError when weeks array is empty"""
-        empty_data: dict[str, list] = {"weeks": []}
+    @pytest.mark.asyncio
+    async def test_query_deployment_data_no_projects(self):
+        """Test ValueError when projects array is empty"""
+        empty_data = {"projects": []}
 
         with patch("builtins.open", mock_open(read_data=json.dumps(empty_data))):
             with patch("pathlib.Path.exists", return_value=True):
                 with pytest.raises(ValueError) as exc_info:
-                    _load_deployment_data()
+                    await _query_deployment_data()
 
-                assert "No deployment data" in str(exc_info.value)
+                assert "No projects found" in str(exc_info.value)
 
 
 class TestDomainModelConversion:
@@ -380,62 +410,66 @@ class TestBuildContext:
 class TestGenerateDeploymentDashboard:
     """Test generate_deployment_dashboard function"""
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.deployment.render_dashboard")
-    @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_success(
-        self, mock_load, mock_render, sample_metrics_list, sample_raw_projects
+    @patch("execution.dashboards.deployment._query_deployment_data")
+    async def test_generate_deployment_dashboard_success(
+        self, mock_query, mock_render, sample_metrics_list, sample_raw_projects
     ):
         """Test successful dashboard generation"""
         # Setup mocks
-        mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
+        mock_query.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
         mock_render.return_value = "<html>Test Dashboard</html>"
 
         # Generate dashboard
-        html = generate_deployment_dashboard()
+        html = await generate_deployment_dashboard()
 
         # Verify calls
-        mock_load.assert_called_once()
+        mock_query.assert_called_once()
         mock_render.assert_called_once()
 
         # Verify output
         assert html == "<html>Test Dashboard</html>"
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.deployment.render_dashboard")
-    @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_with_output_path(
-        self, mock_load, mock_render, sample_metrics_list, sample_raw_projects, tmp_path
+    @patch("execution.dashboards.deployment._query_deployment_data")
+    async def test_generate_deployment_dashboard_with_output_path(
+        self, mock_query, mock_render, sample_metrics_list, sample_raw_projects, tmp_path
     ):
         """Test dashboard generation with output file"""
         # Setup mocks
-        mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
+        mock_query.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
         mock_render.return_value = "<html>Test Dashboard</html>"
 
         # Generate dashboard with output path
         output_path = tmp_path / "deployment_dashboard.html"
-        html = generate_deployment_dashboard(output_path)
+        html = await generate_deployment_dashboard(output_path)
 
         # Verify file was written
         assert output_path.exists()
         assert output_path.read_text(encoding="utf-8") == "<html>Test Dashboard</html>"
 
-    @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_file_not_found(self, mock_load):
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.deployment._query_deployment_data")
+    async def test_generate_deployment_dashboard_file_not_found(self, mock_query):
         """Test dashboard generation with missing data file"""
         # Setup mock to raise FileNotFoundError
-        mock_load.side_effect = FileNotFoundError("Deployment history file not found")
+        mock_query.side_effect = FileNotFoundError("Discovery data file not found")
 
         # Verify exception is raised
         with pytest.raises(FileNotFoundError):
-            generate_deployment_dashboard()
+            await generate_deployment_dashboard()
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.deployment.render_dashboard")
-    @patch("execution.dashboards.deployment._load_deployment_data")
-    def test_generate_deployment_dashboard_output_format(
-        self, mock_load, mock_render, sample_metrics_list, sample_raw_projects
+    @patch("execution.dashboards.deployment._query_deployment_data")
+    async def test_generate_deployment_dashboard_output_format(
+        self, mock_query, mock_render, sample_metrics_list, sample_raw_projects
     ):
         """Test dashboard output contains expected content"""
         # Setup mocks
-        mock_load.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
+        mock_query.return_value = (sample_metrics_list, sample_raw_projects, "2026-02-06")
         mock_render.return_value = """
         <html>
             <h1>Deployment Dashboard</h1>
@@ -448,7 +482,7 @@ class TestGenerateDeploymentDashboard:
         """
 
         # Generate dashboard
-        html = generate_deployment_dashboard()
+        html = await generate_deployment_dashboard()
 
         # Verify content
         assert "Deployment Dashboard" in html

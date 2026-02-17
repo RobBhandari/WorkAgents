@@ -5,23 +5,34 @@ Generates DORA metrics deployment dashboard using:
     - Domain models (DeploymentMetrics)
     - Reusable components (metric cards)
     - Jinja2 templates (XSS-safe)
+    - Direct Azure DevOps API queries (no history file dependency)
 
 This replaces the original 436-line generate_deployment_dashboard.py with a
-clean, maintainable implementation of ~140 lines.
+clean, maintainable implementation that queries ADO directly.
 
 Usage:
+    import asyncio
     from execution.dashboards.deployment import generate_deployment_dashboard
     from pathlib import Path
 
     output_path = Path('.tmp/observatory/dashboards/deployment_dashboard.html')
-    generate_deployment_dashboard(output_path)
+    asyncio.run(generate_deployment_dashboard(output_path))
 """
 
+import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
 
 # Import domain models and utilities
+from execution.collectors.ado_deployment_metrics import (
+    calculate_build_duration,
+    calculate_build_success_rate,
+    calculate_deployment_frequency,
+    calculate_lead_time_for_changes,
+    query_builds,
+)
+from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.deployment import DeploymentMetrics, from_json
@@ -31,12 +42,12 @@ from execution.utils.error_handling import log_and_raise
 logger = get_logger(__name__)
 
 
-def generate_deployment_dashboard(output_path: Path | None = None) -> str:
+async def generate_deployment_dashboard(output_path: Path | None = None) -> str:
     """
-    Generate deployment DORA metrics dashboard HTML.
+    Generate deployment DORA metrics dashboard HTML by querying Azure DevOps API directly.
 
     This is the main entry point for generating the deployment dashboard.
-    It loads data, processes it, and renders the HTML template.
+    It queries ADO for fresh deployment data, processes it, and renders the HTML template.
 
     Args:
         output_path: Optional path to write HTML file
@@ -45,20 +56,21 @@ def generate_deployment_dashboard(output_path: Path | None = None) -> str:
         Generated HTML string
 
     Raises:
-        FileNotFoundError: If deployment_history.json doesn't exist
+        FileNotFoundError: If discovery data (ado_structure.json) doesn't exist
 
     Example:
+        import asyncio
         from pathlib import Path
-        html = generate_deployment_dashboard(
+        html = await generate_deployment_dashboard(
             Path('.tmp/observatory/dashboards/deployment_dashboard.html')
         )
         logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating deployment dashboard")
 
-    # Step 1: Load data
-    logger.info("Loading deployment data")
-    metrics_list, raw_projects, collection_date = _load_deployment_data()
+    # Step 1: Query fresh deployment data from ADO
+    logger.info("Querying deployment data from Azure DevOps API")
+    metrics_list, raw_projects, collection_date = await _query_deployment_data()
     logger.info("Deployment data loaded", extra={"project_count": len(metrics_list)})
 
     # Step 2: Calculate summary statistics
@@ -83,38 +95,125 @@ def generate_deployment_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_deployment_data() -> tuple[list[DeploymentMetrics], list[dict], str]:
+async def _query_deployment_data() -> tuple[list[DeploymentMetrics], list[dict], str]:
     """
-    Load deployment metrics from history file.
+    Query fresh deployment metrics from Azure DevOps API.
 
     Returns:
         Tuple of (metrics_list, raw_project_data, collection_date)
 
     Raises:
-        FileNotFoundError: If deployment_history.json doesn't exist
+        FileNotFoundError: If discovery data (ado_structure.json) doesn't exist
     """
-    history_file = Path(".tmp/observatory/deployment_history.json")
+    # Load discovery data to get project list
+    discovery_file = Path(".tmp/observatory/ado_structure.json")
 
-    if not history_file.exists():
+    if not discovery_file.exists():
         raise FileNotFoundError(
-            f"Deployment history file not found: {history_file}\n" "Run: python execution/ado_deployment_metrics.py"
+            f"Discovery data file not found: {discovery_file}\n" "Run: python execution/collectors/ado_discovery.py"
         )
 
-    with open(history_file, encoding="utf-8") as f:
-        data = json.load(f)
+    with open(discovery_file, encoding="utf-8") as f:
+        discovery_data = json.load(f)
 
-    if not data.get("weeks"):
-        raise ValueError("No deployment data found in history")
+    projects = discovery_data.get("projects", [])
 
-    # Get latest week data
-    latest_week = data["weeks"][-1]
-    projects = latest_week.get("projects", [])
-    collection_date = latest_week.get("week_date", "Unknown")
+    if not projects:
+        raise ValueError("No projects found in discovery data")
+
+    # Get ADO REST client
+    rest_client = get_ado_rest_client()
+
+    # Query deployment metrics for all projects concurrently
+    lookback_days = 90
+    tasks = [_collect_project_metrics(rest_client, project, lookback_days) for project in projects]
+    raw_projects = await asyncio.gather(*tasks)
+
+    # Filter out any None results (failed collections)
+    raw_projects = [p for p in raw_projects if p is not None]
 
     # Convert to domain models
-    metrics_list = [from_json(project) for project in projects]
+    metrics_list = [from_json(project) for project in raw_projects]
 
-    return metrics_list, projects, collection_date
+    # Collection date is today
+    collection_date = datetime.now().strftime("%Y-%m-%d")
+
+    return metrics_list, raw_projects, collection_date
+
+
+async def _collect_project_metrics(rest_client, project: dict, lookback_days: int) -> dict | None:
+    """
+    Collect deployment metrics for a single project.
+
+    Args:
+        rest_client: Azure DevOps REST API client
+        project: Project metadata from discovery
+        lookback_days: Period to analyze (days)
+
+    Returns:
+        Project metrics dictionary or None if collection fails
+    """
+    project_name = project["project_name"]
+    ado_project_name = project.get("ado_project_name", project_name)
+
+    try:
+        logger.info(f"Collecting metrics for {project_name}")
+
+        # Query builds
+        builds = await query_builds(rest_client, ado_project_name, days=lookback_days)
+
+        if not builds:
+            logger.warning(f"No builds found for {project_name}")
+            # Return zero metrics instead of None
+            return {
+                "project_name": project_name,
+                "deployment_frequency": {
+                    "total_successful_builds": 0,
+                    "deployments_per_week": 0.0,
+                    "lookback_days": lookback_days,
+                    "pipeline_count": 0,
+                },
+                "build_success_rate": {
+                    "total_builds": 0,
+                    "succeeded": 0,
+                    "failed": 0,
+                    "canceled": 0,
+                    "partially_succeeded": 0,
+                    "success_rate_pct": 0.0,
+                    "by_result": {},
+                    "by_pipeline": {},
+                },
+                "build_duration": {
+                    "sample_size": 0,
+                    "median_minutes": 0.0,
+                    "p85_minutes": 0.0,
+                    "min_minutes": 0.0,
+                    "max_minutes": 0.0,
+                },
+                "lead_time_for_changes": {
+                    "sample_size": 0,
+                    "median_hours": 0.0,
+                    "p85_hours": 0.0,
+                },
+            }
+
+        # Calculate metrics
+        deployment_frequency = calculate_deployment_frequency(builds, lookback_days)
+        build_success_rate = calculate_build_success_rate(builds)
+        build_duration = calculate_build_duration(builds)
+        lead_time = await calculate_lead_time_for_changes(rest_client, ado_project_name, builds)
+
+        return {
+            "project_name": project_name,
+            "deployment_frequency": deployment_frequency,
+            "build_success_rate": build_success_rate,
+            "build_duration": build_duration,
+            "lead_time_for_changes": lead_time,
+        }
+
+    except Exception as e:
+        logger.error(f"Error collecting metrics for {project_name}: {e}")
+        return None
 
 
 def _calculate_summary(metrics_list: list[DeploymentMetrics]) -> dict:
@@ -358,29 +457,33 @@ def _build_project_rows(metrics_list: list[DeploymentMetrics], raw_projects: lis
 if __name__ == "__main__":
     logger.info("Deployment Dashboard Generator - Self Test")
 
-    try:
-        output_path = Path(".tmp/observatory/dashboards/deployment_dashboard.html")
-        html = generate_deployment_dashboard(output_path)
+    async def main():
+        try:
+            output_path = Path(".tmp/observatory/dashboards/deployment_dashboard.html")
+            html = await generate_deployment_dashboard(output_path)
 
-        logger.info(
-            "Deployment dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
-        )
+            logger.info(
+                "Deployment dashboard generated successfully",
+                extra={"output": str(output_path), "html_size": len(html)},
+            )
 
-        # Verify output
-        if output_path.exists():
-            file_size = output_path.stat().st_size
-            logger.info("Output file verified", extra={"file_size": file_size})
-        else:
-            logger.warning("Output file not created")
+            # Verify output
+            if output_path.exists():
+                file_size = output_path.stat().st_size
+                logger.info("Output file verified", extra={"file_size": file_size})
+            else:
+                logger.warning("Output file not created")
 
-    except FileNotFoundError as e:
-        logger.error("Deployment data file not found", extra={"error": str(e)})
-        logger.info("Run data collection first: python execution/ado_deployment_metrics.py")
+        except FileNotFoundError as e:
+            logger.error("Discovery data file not found", extra={"error": str(e)})
+            logger.info("Run data discovery first: python execution/collectors/ado_discovery.py")
 
-    except Exception as e:
-        log_and_raise(
-            logger,
-            e,
-            context={"output_path": str(output_path)},
-            error_type="Dashboard generation",
-        )
+        except Exception as e:
+            log_and_raise(
+                logger,
+                e,
+                context={"output_path": str(output_path)},
+                error_type="Dashboard generation",
+            )
+
+    asyncio.run(main())
