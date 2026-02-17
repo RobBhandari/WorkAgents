@@ -777,9 +777,7 @@ class TestGenerateSecurityDashboard:
     @patch("execution.dashboards.security._convert_vulnerabilities_to_metrics")
     @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security._load_baseline_products")
-    def test_generate_dashboard_empty_products(
-        self, mock_load_baseline, mock_loader_class, mock_convert, mock_render
-    ):
+    def test_generate_dashboard_empty_products(self, mock_load_baseline, mock_loader_class, mock_convert, mock_render):
         """Test dashboard generation with no vulnerabilities"""
         # Setup mocks
         mock_load_baseline.return_value = ["Product1"]
