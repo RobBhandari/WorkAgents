@@ -86,8 +86,13 @@ def main():
 
     if total_stats:
         for product, count in sorted(total_stats.items(), key=lambda x: x[1], reverse=True):
-            generic_name = PRODUCT_MAPPING[product]
-            print(f"  • '{product}' → '{generic_name}' ({count} occurrences)")
+            if product in PRODUCT_MAPPING:
+                # Actual product name translation
+                generic_name = PRODUCT_MAPPING[product]
+                print(f"  • '{product}' → '{generic_name}' ({count} occurrences)")
+            else:
+                # Special stats (e.g., 'email_anonymized')
+                print(f"  • {product}: {count} occurrences")
     else:
         print("  • No product names found (files may already be genericized)")
 
