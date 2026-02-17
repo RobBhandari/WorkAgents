@@ -107,24 +107,30 @@ class TestStatusCalculation:
         result = _calculate_ownership_status(15.0)
 
         assert result["priority"] == 2  # Low priority (good)
-        assert "Low Unassigned" in result["status_html"]
-        assert "#10b981" in result["status_html"]  # Green color
+        status_html_value = result["status_html"]
+        assert isinstance(status_html_value, str)
+        assert "Low Unassigned" in status_html_value
+        assert "#10b981" in status_html_value  # Green color
 
     def test_calculate_ownership_status_medium_unassigned(self):
         """Test status for medium unassigned percentage"""
         result = _calculate_ownership_status(35.0)
 
         assert result["priority"] == 1  # Medium priority
-        assert "Medium Unassigned" in result["status_html"]
-        assert "#f59e0b" in result["status_html"]  # Amber color
+        status_html_value = result["status_html"]
+        assert isinstance(status_html_value, str)
+        assert "Medium Unassigned" in status_html_value
+        assert "#f59e0b" in status_html_value  # Amber color
 
     def test_calculate_ownership_status_high_unassigned(self):
         """Test status for high unassigned percentage"""
         result = _calculate_ownership_status(65.0)
 
         assert result["priority"] == 0  # High priority (needs action)
-        assert "High Unassigned" in result["status_html"]
-        assert "#ef4444" in result["status_html"]  # Red color
+        status_html_value = result["status_html"]
+        assert isinstance(status_html_value, str)
+        assert "High Unassigned" in status_html_value
+        assert "#ef4444" in status_html_value  # Red color
 
     def test_get_work_type_rag_status_good(self):
         """Test RAG status for good work type assignment"""

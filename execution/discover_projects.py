@@ -10,6 +10,7 @@ import glob
 import json
 import os
 from datetime import datetime
+from typing import Any
 
 
 def discover_projects(baseline_dir: str = "data") -> list[dict]:
@@ -22,7 +23,7 @@ def discover_projects(baseline_dir: str = "data") -> list[dict]:
     Returns:
         List of project dictionaries with metadata
     """
-    projects = []
+    projects: list[dict] = []
     baseline_pattern = os.path.join(baseline_dir, "baseline_*.json")
     baseline_files = glob.glob(baseline_pattern)
 
@@ -101,7 +102,8 @@ def load_discovered_projects(discovery_file: str = ".tmp/observatory/ado_structu
     with open(discovery_file, encoding="utf-8") as f:
         discovery_data = json.load(f)
 
-    return discovery_data.get("projects", [])
+    projects: list[dict[Any, Any]] = discovery_data.get("projects", [])
+    return projects
 
 
 if __name__ == "__main__":

@@ -32,7 +32,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def main(input_param: str, optional_param: str = None) -> dict:
+def main(input_param: str, optional_param: str | None = None) -> dict:
     """
     Main function that performs the core logic.
 

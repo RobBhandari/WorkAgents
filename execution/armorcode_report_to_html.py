@@ -16,6 +16,7 @@ import logging
 import os
 import sys
 from datetime import datetime
+from typing import Any
 
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -58,7 +59,8 @@ def load_query_data(json_file: str) -> dict:
         data = json.load(f)
 
     logger.info("Query data loaded successfully")
-    return data
+    result: dict[Any, Any] = data
+    return result
 
 
 def load_tracking_history() -> list:
@@ -77,7 +79,8 @@ def load_tracking_history() -> list:
     with open(tracking_file, encoding="utf-8") as f:
         tracking = json.load(f)
 
-    return tracking.get("queries", [])
+    queries: list[Any] = tracking.get("queries", [])
+    return queries
 
 
 def generate_html_report(data: dict, tracking_history: list) -> str:
@@ -109,7 +112,7 @@ def generate_html_report(data: dict, tracking_history: list) -> str:
         high_count = sum(1 for v in vulnerabilities if v.get("severity") == "HIGH")
 
         # Count by product
-        product_counts = {}
+        product_counts: dict[str, int] = {}
         for v in vulnerabilities:
             product = v.get("product", "Unknown")
             product_counts[product] = product_counts.get(product, 0) + 1

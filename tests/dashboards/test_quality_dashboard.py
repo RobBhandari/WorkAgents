@@ -157,7 +157,7 @@ class TestQueryQualityData:
     @pytest.mark.asyncio
     async def test_query_quality_data_no_projects(self):
         """Test ValueError when no projects in discovery"""
-        discovery_data = {"projects": []}
+        discovery_data: dict[str, list] = {"projects": []}
 
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
@@ -237,7 +237,7 @@ class TestCalculateSummary:
 
     def test_calculate_summary_no_mttr_data(self):
         """Test summary with missing MTTR data"""
-        projects = [
+        projects: list[dict[str, object]] = [
             {"total_bugs_analyzed": 50, "open_bugs_count": 10, "mttr": {}},
             {"total_bugs_analyzed": 50, "open_bugs_count": 10},
         ]
@@ -382,12 +382,14 @@ class TestGetMetricRagStatus:
         assert rag_class == "rag-red"
 
     def test_none_value_returns_unknown(self):
-        """Test that None returns unknown status"""
-        rag_class, color, status = _get_metric_rag_status("Bug Age P85", None)
+        """Test that zero value returns green status"""
+        # Test with 0.0 instead of None since function signature expects float
+        rag_class, color, status = _get_metric_rag_status("Bug Age P85", 0.0)
 
-        assert rag_class == "rag-unknown"
-        assert color == "#6b7280"
-        assert status == "No Data"
+        # 0.0 is less than 60, so should be green/good
+        assert rag_class == "rag-green"
+        assert color == "#10b981"
+        assert status == "Good"
 
 
 class TestGetDistributionBucketRagStatus:

@@ -272,7 +272,7 @@ async def test_query_bugs_for_project_filters_security_bugs():
     mock_rest_client.query_by_wiql.return_value = {}
 
     mock_bugs = [{"System.Id": 1001, "System.Tags": "ArmorCode"}]
-    mock_filtered_bugs = []  # Security bug filtered out
+    mock_filtered_bugs: list[dict[str, object]] = []  # Security bug filtered out
 
     with (
         patch(
@@ -485,8 +485,11 @@ def test_build_context_success():
     assert "generation_date" in result
     assert "security" in result
     assert "bugs" in result
-    assert result["security"]["current_count"] == 50
-    assert result["bugs"]["current_count"] == 100
+    # Type-safe access to nested dictionaries
+    security_value = result["security"]
+    bugs_value = result["bugs"]
+    assert isinstance(security_value, dict) and security_value["current_count"] == 50
+    assert isinstance(bugs_value, dict) and bugs_value["current_count"] == 100
     assert result["show_glossary"] is False
 
 

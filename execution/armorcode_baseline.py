@@ -20,7 +20,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from requests.exceptions import RequestException
 
-from execution.core import get_config
+from execution.config import get_config
 from execution.http_client import get
 
 # Load environment variables from .env file

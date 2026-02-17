@@ -22,7 +22,7 @@ from azure.devops.connection import Connection
 from dotenv import load_dotenv
 from msrest.authentication import BasicAuthentication
 
-from execution.core import get_config
+from execution.config import get_config
 from execution.security import WIQLValidator
 
 # Load environment variables

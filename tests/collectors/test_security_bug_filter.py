@@ -84,7 +84,7 @@ class TestIsSecurityBug:
 
     def test_is_not_security_bug_missing_fields(self):
         """Test that bugs with missing fields are not detected as security bugs"""
-        work_item = {}
+        work_item: dict[str, object] = {}
 
         assert is_security_bug(work_item) is False
 

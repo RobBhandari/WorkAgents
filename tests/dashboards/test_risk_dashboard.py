@@ -161,7 +161,7 @@ class TestQueryRiskData:
     @pytest.mark.asyncio
     async def test_query_risk_data_no_projects(self):
         """Test ValueError when no projects in discovery data"""
-        discovery_data = {"projects": []}
+        discovery_data: dict[str, list] = {"projects": []}
 
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
@@ -253,7 +253,7 @@ class TestCalculateSummary:
 
     def test_calculate_summary_no_code_churn_data(self):
         """Test summary with missing code_churn data"""
-        projects = [
+        projects: list[dict[str, object]] = [
             {"project_name": "Empty Project 1"},
             {"project_name": "Empty Project 2", "code_churn": {}},
         ]

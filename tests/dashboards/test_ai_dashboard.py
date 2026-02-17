@@ -239,9 +239,9 @@ class TestContextBuilder:
 
     def test_build_context_chart_data(self):
         """Test chart data formatting"""
-        analysis = {"summary": {}, "devin_prs": []}
+        analysis: dict[str, object] = {"summary": {}, "devin_prs": []}
         author_stats = {"Alice": 50, "Bob": 30, "Charlie": 20}
-        project_stats = {}
+        project_stats: dict[str, dict[str, int]] = {}
         summary_stats = {
             "total_prs": 100,
             "devin_prs": 0,

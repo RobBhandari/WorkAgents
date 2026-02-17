@@ -71,7 +71,7 @@ class TestWIQLValidator:
     def test_project_name_invalid_type(self):
         """Test that non-string types are rejected"""
         with pytest.raises(ValidationError, match="must be string"):
-            WIQLValidator.validate_project_name(123)
+            WIQLValidator.validate_project_name(123)  # type: ignore[arg-type]
 
     def test_project_name_special_chars(self):
         """Test that special characters are rejected"""
