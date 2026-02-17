@@ -103,12 +103,11 @@ async def _query_risk_data() -> dict:
     from execution.domain.constants import flow_metrics
 
     # Load project discovery data
-    discovery_path = Path(".tmp/observatory/project_discovery.json")
+    discovery_path = Path(".tmp/observatory/ado_structure.json")
 
     if not discovery_path.exists():
         raise FileNotFoundError(
-            f"Project discovery not found at {discovery_path}\n"
-            "Run: python execution/collectors/ado_project_discovery.py"
+            f"Project discovery not found at {discovery_path}\n" "Run: python execution/discover_projects.py"
         )
 
     with open(discovery_path, encoding="utf-8") as f:
