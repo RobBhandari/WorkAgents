@@ -7,6 +7,8 @@ Generates delivery risk dashboard using:
     - Module coupling (co-changing files)
     - Jinja2 templates (XSS-safe)
 
+Queries Azure DevOps API directly for fresh risk metrics data.
+
 This replaces the original 574-line generate_risk_dashboard.py with a
 clean, maintainable implementation of ~180 lines.
 
@@ -18,16 +20,16 @@ Usage:
     generate_risk_dashboard(output_path)
 """
 
+import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from execution.collectors.ado_risk_metrics import collect_risk_metrics_for_project
 from execution.core import get_logger
 from execution.dashboards.components.cards import metric_card
 from execution.dashboards.renderer import render_dashboard
-
-# Import framework and rendering
 from execution.framework import get_dashboard_framework
 from execution.template_engine import render_template
 from execution.utils.error_handling import log_and_raise
@@ -40,7 +42,7 @@ def generate_risk_dashboard(output_path: Path | None = None) -> str:
     Generate delivery risk dashboard HTML.
 
     This is the main entry point for generating the risk dashboard.
-    It loads data, processes it, and renders the HTML template.
+    It queries Azure DevOps API directly for fresh risk metrics data.
 
     Args:
         output_path: Optional path to write HTML file
@@ -49,7 +51,7 @@ def generate_risk_dashboard(output_path: Path | None = None) -> str:
         Generated HTML string
 
     Raises:
-        FileNotFoundError: If risk_history.json doesn't exist
+        FileNotFoundError: If project discovery file doesn't exist
 
     Example:
         from pathlib import Path
@@ -60,9 +62,9 @@ def generate_risk_dashboard(output_path: Path | None = None) -> str:
     """
     logger.info("Generating risk dashboard")
 
-    # Step 1: Load data
-    logger.info("Loading risk data")
-    risk_data = _load_risk_data()
+    # Step 1: Query ADO API for fresh data
+    logger.info("Querying Azure DevOps API for risk metrics")
+    risk_data = asyncio.run(_query_risk_data())
     logger.info("Risk data loaded", extra={"project_count": len(risk_data["projects"])})
 
     # Step 2: Calculate summary statistics
@@ -87,31 +89,70 @@ def generate_risk_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_risk_data() -> dict:
+async def _query_risk_data() -> dict:
     """
-    Load risk metrics from history file.
+    Query Azure DevOps API for fresh risk metrics data.
 
     Returns:
-        Dictionary with most recent week's data
+        Dictionary with current week's risk data
 
     Raises:
-        FileNotFoundError: If risk_history.json doesn't exist
-        ValueError: If no weeks data available
+        FileNotFoundError: If project discovery file doesn't exist
     """
-    history_path = Path(".tmp/observatory/risk_history.json")
+    from execution.collectors.ado_rest_client import get_ado_rest_client
+    from execution.domain.constants import flow_metrics
 
-    if not history_path.exists():
-        raise FileNotFoundError(f"Risk history not found at {history_path}")
+    # Load project discovery data
+    discovery_path = Path(".tmp/observatory/project_discovery.json")
 
-    with open(history_path, encoding="utf-8") as f:
-        data = json.load(f)
+    if not discovery_path.exists():
+        raise FileNotFoundError(
+            f"Project discovery not found at {discovery_path}\n"
+            "Run: python execution/collectors/ado_project_discovery.py"
+        )
 
-    if not data.get("weeks"):
-        raise ValueError("No weeks data available in risk_history.json")
+    with open(discovery_path, encoding="utf-8") as f:
+        discovery_data = json.load(f)
 
-    # Return most recent week
-    last_week: dict[Any, Any] = data["weeks"][-1]
-    return last_week
+    projects = discovery_data.get("projects", [])
+    if not projects:
+        raise ValueError("No projects found in discovery data")
+
+    logger.info(f"Querying risk metrics for {len(projects)} projects")
+
+    # Get REST client
+    rest_client = get_ado_rest_client()
+
+    # Configuration for collector
+    config = {
+        "lookback_days": flow_metrics.LOOKBACK_DAYS,
+    }
+
+    # Query risk metrics for all projects concurrently
+    tasks = [collect_risk_metrics_for_project(rest_client, project, config) for project in projects]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter out exceptions and collect successful results
+    project_metrics = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            logger.error(
+                "Error collecting metrics",
+                extra={"project": project.get("project_name", "Unknown"), "error": str(result)},
+            )
+        else:
+            project_metrics.append(result)
+
+    # Build week data structure
+    now = datetime.now()
+    week_data = {
+        "week_date": now.strftime("%Y-%m-%d"),
+        "week_number": now.isocalendar()[1],
+        "projects": project_metrics,
+    }
+
+    return week_data
 
 
 def _calculate_summary(projects: list[dict]) -> dict:
@@ -451,8 +492,8 @@ if __name__ == "__main__":
             logger.warning("Output file not created")
 
     except FileNotFoundError as e:
-        logger.error("Risk data file not found", extra={"error": str(e)})
-        logger.info("Run data collection first: python execution/ado_risk_metrics.py")
+        logger.error("Project discovery file not found", extra={"error": str(e)})
+        logger.info("Run project discovery first: python execution/collectors/ado_project_discovery.py")
 
     except Exception as e:
         log_and_raise(
