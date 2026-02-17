@@ -42,7 +42,7 @@ class TestDataLoaders:
         # Create temp directory structure
         temp_observatory = tmp_path / ".tmp" / "observatory"
         temp_observatory.mkdir(parents=True)
-        discovery_file = temp_observatory / "discovery_data.json"
+        discovery_file = temp_observatory / "ado_structure.json"
         discovery_file.write_text(json.dumps(discovery_data))
 
         # Change to temp directory so relative paths work
