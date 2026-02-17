@@ -562,6 +562,7 @@ jobs:
           if ! git diff --staged --quiet; then
             echo "📝 Committing genericized history files..."
             git commit -m "Update metrics history (genericized) - $(date +'%Y-%m-%d')"
+            git pull --rebase
             git push
             echo "✅ History files committed and pushed to public repo"
           else
