@@ -72,12 +72,16 @@ def discover_projects(baseline_dir: str = "data", product_mapping: dict[str, str
             filename = os.path.basename(baseline_file)
             project_key = filename.replace("baseline_", "").replace(".json", "")
 
-            # Get project name from baseline (might be genericized like "Product A")
+            # Get project name from baseline (might be genericized like "Product A" or "Project_A")
             baseline_project_name = baseline_data.get("project", project_key.replace("_", " "))
 
+            # Normalize name to standard format: "Project_A" → "Product A"
+            # This handles variations in baseline format while maintaining consistency with mapping
+            normalized_name = baseline_project_name.replace("Project ", "Product ").replace("_", " ")
+
             # De-genericize if mapping exists
-            if product_mapping and baseline_project_name in product_mapping:
-                real_project_name = product_mapping[baseline_project_name]
+            if product_mapping and normalized_name in product_mapping:
+                real_project_name = product_mapping[normalized_name]
                 print(f"  🔓 De-genericizing: {baseline_project_name} → {real_project_name}")
             else:
                 real_project_name = baseline_project_name
