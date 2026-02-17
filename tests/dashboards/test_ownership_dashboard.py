@@ -1,12 +1,12 @@
 """
 Tests for Ownership Dashboard
 
-Tests the refactored ownership dashboard generator.
+Tests the refactored ownership dashboard generator that queries ADO API directly.
 """
 
 import json
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -17,6 +17,7 @@ from execution.dashboards.ownership import (
     _calculate_summary,
     _generate_ownership_drilldown_html,
     _get_work_type_rag_status,
+    _load_discovery_data,
     _load_ownership_data,
     generate_ownership_dashboard,
 )
@@ -25,26 +26,15 @@ from execution.dashboards.ownership import (
 class TestDataLoaders:
     """Tests for data loading functions"""
 
-    def test_load_ownership_data_success(self, tmp_path, monkeypatch):
-        """Test successful loading of ownership data"""
-        # Create mock ownership history file
-        ownership_data = {
-            "weeks": [
+    def test_load_discovery_data_success(self, tmp_path, monkeypatch):
+        """Test successful loading of discovery data"""
+        # Create mock discovery data file
+        discovery_data = {
+            "projects": [
                 {
-                    "week_number": 5,
-                    "week_date": "2026-02-07",
-                    "projects": [
-                        {
-                            "project_name": "TestProject",
-                            "total_items_analyzed": 100,
-                            "unassigned": {"unassigned_count": 20, "unassigned_pct": 20.0},
-                            "assignment_distribution": {
-                                "assignee_count": 5,
-                                "top_assignees": [],
-                                "load_imbalance_ratio": 2.0,
-                            },
-                        }
-                    ],
+                    "project_name": "TestProject",
+                    "project_key": "test-project",
+                    "ado_project_name": "TestProject",
                 }
             ]
         }
@@ -52,8 +42,8 @@ class TestDataLoaders:
         # Create temp directory structure
         temp_observatory = tmp_path / ".tmp" / "observatory"
         temp_observatory.mkdir(parents=True)
-        history_file = temp_observatory / "ownership_history.json"
-        history_file.write_text(json.dumps(ownership_data))
+        discovery_file = temp_observatory / "discovery_data.json"
+        discovery_file.write_text(json.dumps(discovery_data))
 
         # Change to temp directory so relative paths work
         import os
@@ -62,20 +52,51 @@ class TestDataLoaders:
         os.chdir(tmp_path)
 
         try:
-            result = _load_ownership_data()
-            assert result["week_number"] == 5
+            result = _load_discovery_data()
             assert len(result["projects"]) == 1
+            assert result["projects"][0]["project_name"] == "TestProject"
         finally:
             os.chdir(original_cwd)
 
-    def test_load_ownership_data_not_found(self, monkeypatch):
-        """Test error handling when ownership file doesn't exist"""
-        monkeypatch.setattr("os.path.exists", lambda x: False)
+    def test_load_discovery_data_not_found(self, tmp_path, monkeypatch):
+        """Test error handling when discovery file doesn't exist"""
+        import os
 
-        with pytest.raises(FileNotFoundError) as exc_info:
-            _load_ownership_data()
+        original_cwd = os.getcwd()
+        os.chdir(tmp_path)
 
-        assert "Ownership history file not found" in str(exc_info.value)
+        try:
+            with pytest.raises(FileNotFoundError) as exc_info:
+                _load_discovery_data()
+
+            assert "Discovery data file not found" in str(exc_info.value)
+        finally:
+            os.chdir(original_cwd)
+
+    @patch("execution.dashboards.ownership._collect_ownership_metrics")
+    def test_load_ownership_data_with_api_call(self, mock_collect):
+        """Test loading ownership data through ADO API call"""
+        mock_collect.return_value = {
+            "week_number": 5,
+            "week_date": "2026-02-07",
+            "projects": [
+                {
+                    "project_name": "TestProject",
+                    "total_items_analyzed": 100,
+                    "unassigned": {"unassigned_count": 20, "unassigned_pct": 20.0},
+                    "assignment_distribution": {
+                        "assignee_count": 5,
+                        "top_assignees": [],
+                        "load_imbalance_ratio": 2.0,
+                    },
+                }
+            ],
+        }
+
+        result = _load_ownership_data()
+        assert result["week_number"] == 5
+        assert len(result["projects"]) == 1
+        assert mock_collect.called
 
 
 class TestStatusCalculation:
@@ -306,8 +327,8 @@ class TestDashboardGeneration:
 
     @patch("execution.dashboards.ownership._load_ownership_data")
     def test_generate_ownership_dashboard_missing_data(self, mock_load):
-        """Test dashboard generation with missing data file"""
-        mock_load.side_effect = FileNotFoundError("Ownership history file not found")
+        """Test dashboard generation with missing discovery file"""
+        mock_load.side_effect = FileNotFoundError("Discovery data file not found")
 
         with pytest.raises(FileNotFoundError):
             generate_ownership_dashboard()

@@ -7,8 +7,7 @@ Generates ownership metrics dashboard showing:
     - Team load balancing
     - Work type segmentation
 
-This replaces the original 631-line generate_ownership_dashboard.py with a
-clean, maintainable implementation of ~200 lines.
+Queries Azure DevOps API directly for fresh ownership data.
 
 Usage:
     from execution.dashboards.ownership import generate_ownership_dashboard
@@ -18,28 +17,32 @@ Usage:
     generate_ownership_dashboard(output_path)
 """
 
+import asyncio
 import json
-import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from execution.collectors.ado_ownership_metrics import collect_ownership_metrics_for_project
+from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
-
-# Import dependencies
 from execution.framework import get_dashboard_framework
 from execution.template_engine import render_template
-from execution.utils.error_handling import log_and_raise
+from execution.utils.error_handling import log_and_continue, log_and_raise
 
 logger = get_logger(__name__)
 
 
 def generate_ownership_dashboard(output_path: Path | None = None) -> str:
     """
-    Generate ownership metrics dashboard HTML.
+    Generate ownership metrics dashboard HTML by querying Azure DevOps API directly.
 
-    This is the main entry point for generating the ownership dashboard.
-    It loads data, processes it, and renders the HTML template.
+    Main entry point for ownership dashboard generation. Follows 4-stage pipeline:
+    1. Query Azure DevOps API directly for fresh ownership data
+    2. Calculate summary statistics
+    3. Build template context
+    4. Render HTML template
 
     Args:
         output_path: Optional path to write HTML file
@@ -48,7 +51,8 @@ def generate_ownership_dashboard(output_path: Path | None = None) -> str:
         Generated HTML string
 
     Raises:
-        FileNotFoundError: If ownership_history.json doesn't exist
+        FileNotFoundError: If discovery_data.json doesn't exist
+        ValueError: If no projects found or all collections failed
 
     Example:
         from pathlib import Path
@@ -86,28 +90,102 @@ def generate_ownership_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_ownership_data() -> dict[str, Any]:
+def _load_discovery_data() -> dict[str, Any]:
     """
-    Load ownership metrics from history file.
+    Load discovery data with project configurations.
 
     Returns:
-        Most recent week's ownership data
+        Discovery data dictionary
 
     Raises:
-        FileNotFoundError: If history file doesn't exist
+        FileNotFoundError: If discovery file doesn't exist
     """
-    history_file = ".tmp/observatory/ownership_history.json"
+    discovery_file = ".tmp/observatory/discovery_data.json"
 
-    if not os.path.exists(history_file):
+    if not Path(discovery_file).exists():
         raise FileNotFoundError(
-            f"Ownership history file not found: {history_file}\nRun: python execution/ado_ownership_metrics.py"
+            f"Discovery data file not found: {discovery_file}\n"
+            "Run: python execution/collectors/ado_project_discovery.py"
         )
 
-    with open(history_file, encoding="utf-8") as f:
+    with open(discovery_file, encoding="utf-8") as f:
         data: dict[str, Any] = json.load(f)
 
-    result: dict[str, Any] = data["weeks"][-1]  # Most recent week
-    return result
+    return data
+
+
+async def _collect_ownership_metrics() -> dict[str, Any]:
+    """
+    Query Azure DevOps API directly for ownership metrics across all projects.
+
+    Returns:
+        Dictionary with current ownership data for all projects
+
+    Raises:
+        FileNotFoundError: If discovery data doesn't exist
+        httpx.HTTPStatusError: If ADO API calls fail
+    """
+    logger.info("Loading discovery data")
+    discovery_data = _load_discovery_data()
+    projects = discovery_data.get("projects", [])
+
+    if not projects:
+        raise ValueError("No projects found in discovery data")
+
+    logger.info(f"Querying ADO API for {len(projects)} projects")
+
+    # Get REST client and config
+    rest_client = get_ado_rest_client()
+    config_dict = {"lookback_days": 90}  # Standard lookback period
+
+    # Collect metrics for all projects concurrently
+    tasks = [collect_ownership_metrics_for_project(rest_client, project, config_dict) for project in projects]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter successful results
+    project_metrics: list[dict[str, Any]] = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            log_and_continue(
+                logger,
+                result,  # type: ignore[arg-type]
+                context={
+                    "project_name": project["project_name"],
+                    "project_key": project.get("project_key"),
+                },
+                error_type="Project ownership metrics collection",
+            )
+        else:
+            project_metrics.append(result)  # type: ignore[arg-type]
+
+    if not project_metrics:
+        raise ValueError("Failed to collect metrics from any project")
+
+    # Build current week data structure
+    now = datetime.now()
+    week_data = {
+        "week_date": now.strftime("%Y-%m-%d"),
+        "week_number": now.isocalendar()[1],
+        "projects": project_metrics,
+    }
+
+    logger.info(f"Successfully collected metrics from {len(project_metrics)} projects")
+    return week_data
+
+
+def _load_ownership_data() -> dict[str, Any]:
+    """
+    Load ownership metrics by querying Azure DevOps API directly.
+
+    Returns:
+        Current ownership data for all projects
+
+    Raises:
+        FileNotFoundError: If discovery data doesn't exist
+        ValueError: If no projects found or all collections failed
+    """
+    # Run async collection in sync context
+    return asyncio.run(_collect_ownership_metrics())
 
 
 def _calculate_summary(ownership_data: dict[str, Any]) -> dict[str, Any]:
@@ -369,8 +447,11 @@ if __name__ == "__main__":
             logger.warning("Output file not created")
 
     except FileNotFoundError as e:
-        logger.error("Ownership data file not found", extra={"error": str(e)})
-        logger.info("Run data collection first: python execution/ado_ownership_metrics.py")
+        logger.error("Discovery data file not found", extra={"error": str(e)})
+        logger.info("Run project discovery first: python execution/collectors/ado_project_discovery.py")
+
+    except ValueError as e:
+        logger.error("Failed to collect ownership metrics", extra={"error": str(e)})
 
     except Exception as e:
         log_and_raise(
