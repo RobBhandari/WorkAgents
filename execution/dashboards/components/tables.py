@@ -27,7 +27,8 @@ def data_table(
     Returns:
         HTML string for data table
 
-    Example:
+    Example::
+
         headers = ["Product", "Bugs", "Status"]
         rows = [
             ["API", "5", "Good"],
@@ -53,16 +54,18 @@ def expandable_row_table(headers: list[str], rows: list[dict]) -> str:
 
     Args:
         headers: List of column headers
-        rows: List of row dictionaries with 'cells' and 'details' keys
-              Each dict should have:
-                - 'cells': List of cell values for main row
-                - 'details': HTML string for detail content
-                - 'id': Unique identifier for the row
+        rows: List of row dictionaries with 'cells' and 'details' keys.
+            Each dict should have:
+
+            - 'cells': List of cell values for main row
+            - 'details': HTML string for detail content
+            - 'id': Unique identifier for the row
 
     Returns:
         HTML string for expandable table
 
-    Example:
+    Example::
+
         rows = [
             {
                 'id': 'row1',
@@ -90,7 +93,8 @@ def summary_table(data: list[dict]) -> str:
     Returns:
         HTML string for summary table
 
-    Example:
+    Example::
+
         data = [
             {'label': 'Total Bugs', 'value': '42'},
             {'label': 'Open Bugs', 'value': '15'},

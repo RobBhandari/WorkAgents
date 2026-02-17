@@ -12,7 +12,8 @@ Package Structure:
     - responsive.py: Utilities, badges, accessibility
     - javascript.py: Interactive functionality
 
-Usage:
+Usage::
+
     from execution.framework import get_dashboard_framework
 
     css, javascript = get_dashboard_framework(
@@ -22,18 +23,6 @@ Usage:
         include_expandable_rows=True,
         include_glossary=True
     )
-
-    html = f'''
-    <head>
-        {css}
-        <style>/* Dashboard-specific CSS */</style>
-    </head>
-    <body>
-        <!-- content -->
-        {javascript}
-        <script>/* Dashboard-specific JS */</script>
-    </body>
-    '''
 """
 
 from .base_styles import get_base_styles
@@ -67,7 +56,8 @@ def get_dashboard_framework(
     Returns:
         Tuple of (css_string, javascript_string) ready to inject into HTML
 
-    Example:
+    Example::
+
         css, js = get_dashboard_framework(
             header_gradient_start='#6366f1',
             header_gradient_end='#4f46e5',
