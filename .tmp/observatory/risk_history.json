@@ -58950,7 +58950,7 @@
           "collected_at": "2026-02-17T21:46:31.709218"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "code_churn": {
             "total_commits": 271,
@@ -59526,6 +59526,1948 @@
           },
           "repository_count": 56,
           "collected_at": "2026-02-17T21:46:32.759058"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-17",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "code_churn": {
+            "total_commits": 1066,
+            "total_file_changes": 4305,
+            "unique_files_touched": 671,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 87
+              },
+              {
+                "path": "/XCode",
+                "change_count": 20
+              },
+              {
+                "path": "/XCode/iTime-iOS",
+                "change_count": 20
+              },
+              {
+                "path": "/app",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management/src",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management/src/features",
+                "change_count": 20
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Business",
+                "change_count": 19
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "change_count": 17
+              },
+              {
+                "path": "/src/pages",
+                "change_count": 17
+              },
+              {
+                "path": "/src/app",
+                "change_count": 17
+              },
+              {
+                "path": "/app/src",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk/co",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk/co/dpssoftware",
+                "change_count": 16
+              }
+            ],
+            "avg_changes_per_commit": 4.038461538461538
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 671,
+            "single_owner_count": 442,
+            "two_owner_count": 210,
+            "multi_owner_count": 19,
+            "single_owner_pct": 65.9,
+            "single_owner_files": [
+              {
+                "path": "/azure-pipelines-access-evo.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/azure-pipelines-alcm-evo.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/azure-pipelines.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ActiveCheckoutsByCategory",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ActiveCheckoutsByCategory/active.checkouts.by.category.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateClient",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateClient/add.update.client.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateMatter/add.update.matter.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateTimeRecord",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateTimeRecord/add.update.time.record.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AmlCheckAsync",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AmlCheckAsync/aml.check.async.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanCheckedOutFiles",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanCheckedOutFiles/clean.checked.out.files.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanDriveArtifacts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanDriveArtifacts/clean.drive.artifacts.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ContactsOnfileCount",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ContactsOnfileCount/contacts.onfile.count.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/DeleteTimeRecord",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/DeleteTimeRecord/delete.time.record.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 28313,
+            "top_coupled_pairs": [
+              {
+                "file1": "/XCode",
+                "file2": "/XCode/iTime-iOS",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src/features",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management/src",
+                "file2": "/inventory-management/src/features",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Business",
+                "co_change_count": 19
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/pages",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/app",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java",
+                "co_change_count": 16
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 56,
+          "collected_at": "2026-02-17T22:40:37.152782"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "code_churn": {
+            "total_commits": 103,
+            "total_file_changes": 180,
+            "unique_files_touched": 23,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 20
+              },
+              {
+                "path": "/src/lawfusion-sql",
+                "change_count": 17
+              },
+              {
+                "path": "/src/lawfusion-vb6",
+                "change_count": 14
+              },
+              {
+                "path": "/src/lawfusion-sql/SQLServer",
+                "change_count": 11
+              },
+              {
+                "path": "/src/lawfusion-sql/Product Areas",
+                "change_count": 11
+              },
+              {
+                "path": "/src/lawfusion-sql/Product Areas/Upgrade Program",
+                "change_count": 11
+              },
+              {
+                "path": "/src/lawfusion-sql/Product Areas/Upgrade Program/crt_upgradeprocs_2022_wizards.sql",
+                "change_count": 11
+              },
+              {
+                "path": "/src/lawfusion-vb6/SLSUpgrade_wizards",
+                "change_count": 11
+              },
+              {
+                "path": "/src/lawfusion-vb6/SLSUpgrade_wizards/clsBus.cls",
+                "change_count": 11
+              },
+              {
+                "path": "/src/lawfusion-sql/SQLServer/crt_getprocs_wizards.sql",
+                "change_count": 6
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/CCBilling",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/CCBilling/CCBilling",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/CCBilling/CCBilling/clsCrimeLGFSBill.vb",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade/LACCodeGeneration.vb",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade/frmMain.vb",
+                "change_count": 5
+              },
+              {
+                "path": "/src/lawfusion-sql/SQLServer/crt_wrkprocs.sql",
+                "change_count": 5
+              },
+              {
+                "path": "/package-lock.json",
+                "change_count": 3
+              }
+            ],
+            "avg_changes_per_commit": 1.7475728155339805
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 23,
+            "single_owner_count": 9,
+            "two_owner_count": 12,
+            "multi_owner_count": 2,
+            "single_owner_pct": 39.1,
+            "single_owner_files": [
+              {
+                "path": "/src/lawfusion-desktop-dotnet",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/CCBilling",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/CCBilling/CCBilling",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/CCBilling/CCBilling/clsCrimeLGFSBill.vb",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade/LACCodeGeneration.vb",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-desktop-dotnet/LSCUpgrade/LSCUpgrade/frmMain.vb",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/lawfusion-sql/SQLServer/crt_wrkprocs.sql",
+                "owner": "Devin Azure DevOps Integration"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 162,
+            "top_coupled_pairs": [
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-sql",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-sql/SQLServer",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql",
+                "file2": "/src/lawfusion-sql/SQLServer",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-sql/Product Areas",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-sql/Product Areas/Upgrade Program",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-sql/Product Areas/Upgrade Program/crt_upgradeprocs_2022_wizards.sql",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6/SLSUpgrade_wizards",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/lawfusion-vb6/SLSUpgrade_wizards/clsBus.cls",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql",
+                "file2": "/src/lawfusion-sql/Product Areas",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql",
+                "file2": "/src/lawfusion-sql/Product Areas/Upgrade Program",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql",
+                "file2": "/src/lawfusion-sql/Product Areas/Upgrade Program/crt_upgradeprocs_2022_wizards.sql",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql",
+                "file2": "/src/lawfusion-vb6",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql",
+                "file2": "/src/lawfusion-vb6/SLSUpgrade_wizards",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql",
+                "file2": "/src/lawfusion-vb6/SLSUpgrade_wizards/clsBus.cls",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql/Product Areas",
+                "file2": "/src/lawfusion-sql/Product Areas/Upgrade Program",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql/Product Areas",
+                "file2": "/src/lawfusion-sql/Product Areas/Upgrade Program/crt_upgradeprocs_2022_wizards.sql",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql/Product Areas",
+                "file2": "/src/lawfusion-vb6",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql/Product Areas",
+                "file2": "/src/lawfusion-vb6/SLSUpgrade_wizards",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src/lawfusion-sql/Product Areas",
+                "file2": "/src/lawfusion-vb6/SLSUpgrade_wizards/clsBus.cls",
+                "co_change_count": 11
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 20,
+          "collected_at": "2026-02-17T22:40:37.069305"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "code_churn": {
+            "total_commits": 0,
+            "total_file_changes": 0,
+            "unique_files_touched": 0,
+            "hot_paths": [],
+            "avg_changes_per_commit": 0
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 0,
+            "single_owner_count": 0,
+            "two_owner_count": 0,
+            "multi_owner_count": 0,
+            "single_owner_pct": 0,
+            "single_owner_files": []
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 0,
+            "top_coupled_pairs": [],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 1,
+          "collected_at": "2026-02-17T22:40:13.674770"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "code_churn": {
+            "total_commits": 317,
+            "total_file_changes": 2541,
+            "unique_files_touched": 1484,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 31
+              },
+              {
+                "path": "/frontend",
+                "change_count": 20
+              },
+              {
+                "path": "/Product L.TestSpecflow",
+                "change_count": 20
+              },
+              {
+                "path": "/frontend/src",
+                "change_count": 18
+              },
+              {
+                "path": "/frontend/src/components",
+                "change_count": 15
+              },
+              {
+                "path": "/src/Public",
+                "change_count": 15
+              },
+              {
+                "path": "/frontend/src/pages",
+                "change_count": 11
+              },
+              {
+                "path": "/src/Product L.Dashboard",
+                "change_count": 11
+              },
+              {
+                "path": "/Product L.TestSpecflow/PageObjects",
+                "change_count": 11
+              },
+              {
+                "path": "/src/Tests",
+                "change_count": 10
+              },
+              {
+                "path": "/Product L.TestSpecflow/PageObjects/ClientPortal",
+                "change_count": 10
+              },
+              {
+                "path": "/frontend/src/App.tsx",
+                "change_count": 8
+              },
+              {
+                "path": "/src/Public/Product L.Web.SolicitorPortal",
+                "change_count": 8
+              },
+              {
+                "path": "/src/Public/Product L.Web.SolicitorPortal/Controllers",
+                "change_count": 8
+              },
+              {
+                "path": "/src/Public/Product L.Web.FrontEnd",
+                "change_count": 7
+              },
+              {
+                "path": "/src/Public/Product L.Web.FrontEnd/projects",
+                "change_count": 7
+              },
+              {
+                "path": "/src/Public/Product L.Web.FrontEnd/projects/SolicitorPortal",
+                "change_count": 7
+              },
+              {
+                "path": "/src/Public/Product L.Web.FrontEnd/projects/SolicitorPortal/src",
+                "change_count": 7
+              },
+              {
+                "path": "/src/Public/Product L.Web.FrontEnd/projects/SolicitorPortal/src/app",
+                "change_count": 7
+              },
+              {
+                "path": "/src/Public/Product L.Web.FrontEnd/projects/SolicitorPortal/src/app/cases",
+                "change_count": 7
+              }
+            ],
+            "avg_changes_per_commit": 8.015772870662461
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 1484,
+            "single_owner_count": 1222,
+            "two_owner_count": 224,
+            "multi_owner_count": 38,
+            "single_owner_pct": 82.3,
+            "single_owner_files": [
+              {
+                "path": "/DRAG_AND_DROP_IMPLEMENTATION.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/DRAG_DROP_SUMMARY.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/package-lock.json",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/package.json",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/widgets",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/widgets/WidgetContainer.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/pages",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/pages/home.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/CUSTOMIZABLE_HOME_PAGE.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/HOME_PAGE_SUMMARY.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/WIDGET_SYSTEM_GUIDE.md",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/App.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/AddWidgetDialog.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/Sidebar.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/widgets/AlertsSummaryWidget.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/widgets/PerformanceChartWidget.tsx",
+                "owner": "James Harris"
+              },
+              {
+                "path": "/frontend/src/components/widgets/PinnedItemsWidget.tsx",
+                "owner": "James Harris"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 4365,
+            "top_coupled_pairs": [
+              {
+                "file1": "/frontend",
+                "file2": "/frontend/src",
+                "co_change_count": 18
+              },
+              {
+                "file1": "/frontend",
+                "file2": "/frontend/src/components",
+                "co_change_count": 15
+              },
+              {
+                "file1": "/frontend/src",
+                "file2": "/frontend/src/components",
+                "co_change_count": 15
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Public",
+                "co_change_count": 15
+              },
+              {
+                "file1": "/frontend",
+                "file2": "/frontend/src/pages",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/frontend/src",
+                "file2": "/frontend/src/pages",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Product L.Dashboard",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/Product L.TestSpecflow",
+                "file2": "/Product L.TestSpecflow/PageObjects",
+                "co_change_count": 11
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Tests",
+                "co_change_count": 10
+              },
+              {
+                "file1": "/Product L.TestSpecflow",
+                "file2": "/Product L.TestSpecflow/PageObjects/ClientPortal",
+                "co_change_count": 10
+              },
+              {
+                "file1": "/Product L.TestSpecflow/PageObjects",
+                "file2": "/Product L.TestSpecflow/PageObjects/ClientPortal",
+                "co_change_count": 10
+              },
+              {
+                "file1": "/frontend/src/components",
+                "file2": "/frontend/src/pages",
+                "co_change_count": 9
+              },
+              {
+                "file1": "/frontend",
+                "file2": "/frontend/src/App.tsx",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/frontend/src",
+                "file2": "/frontend/src/App.tsx",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Public/Product L.Web.SolicitorPortal",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/Public/Product L.Web.SolicitorPortal/Controllers",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/src/Public",
+                "file2": "/src/Public/Product L.Web.SolicitorPortal",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/src/Public",
+                "file2": "/src/Public/Product L.Web.SolicitorPortal/Controllers",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/src/Public/Product L.Web.SolicitorPortal",
+                "file2": "/src/Public/Product L.Web.SolicitorPortal/Controllers",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/frontend/src/App.tsx",
+                "file2": "/frontend/src/components",
+                "co_change_count": 7
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 37,
+          "collected_at": "2026-02-17T22:40:37.588977"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "code_churn": {
+            "total_commits": 100,
+            "total_file_changes": 161,
+            "unique_files_touched": 41,
+            "hot_paths": [
+              {
+                "path": "/Portal",
+                "change_count": 16
+              },
+              {
+                "path": "/Portal/User Interface HTML5",
+                "change_count": 8
+              },
+              {
+                "path": "/Portal/SSOPortal",
+                "change_count": 6
+              },
+              {
+                "path": "/Access.Grc.Riliance.Database",
+                "change_count": 6
+              },
+              {
+                "path": "/Portal/SSOPortal/Web.config",
+                "change_count": 5
+              },
+              {
+                "path": "/Portal/User Interface HTML5/spa",
+                "change_count": 5
+              },
+              {
+                "path": "/Portal/User Interface HTML5/spa/package-lock.json",
+                "change_count": 5
+              },
+              {
+                "path": "/Portal/User Interface HTML5/spa/package.json",
+                "change_count": 5
+              },
+              {
+                "path": "/Access.Grc.Riliance.Database/Web.config",
+                "change_count": 5
+              },
+              {
+                "path": "/Access.Grc.Riliance.Api",
+                "change_count": 4
+              },
+              {
+                "path": "/Access.Grc.Riliance.Database/Access.Grc.Riliance.Database.csproj",
+                "change_count": 4
+              },
+              {
+                "path": "/Access.Grc.Riliance.Database/packages.config",
+                "change_count": 4
+              },
+              {
+                "path": "/Portal/User Interface HTML5/Web.config",
+                "change_count": 4
+              },
+              {
+                "path": "/RegistrationAdmin",
+                "change_count": 4
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS",
+                "change_count": 4
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src",
+                "change_count": 4
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components",
+                "change_count": 4
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components/modals",
+                "change_count": 4
+              },
+              {
+                "path": "/Portal/SSOPortal/RateLimitingModule.cs",
+                "change_count": 3
+              },
+              {
+                "path": "/Access.Grc.Riliance.Api/Controllers",
+                "change_count": 3
+              }
+            ],
+            "avg_changes_per_commit": 1.61
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 41,
+            "single_owner_count": 2,
+            "two_owner_count": 37,
+            "multi_owner_count": 2,
+            "single_owner_pct": 4.9,
+            "single_owner_files": [
+              {
+                "path": "/Portal/SSOPortal/SSOPortal.csproj",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/Portal/ComplianceUserInterfaceEDS/src/components/audit-record-view.tsx",
+                "owner": "Devin Azure DevOps Integration"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 184,
+            "top_coupled_pairs": [
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/User Interface HTML5",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/SSOPortal",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/SSOPortal/Web.config",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal/SSOPortal",
+                "file2": "/Portal/SSOPortal/Web.config",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/User Interface HTML5/spa",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/User Interface HTML5/spa/package-lock.json",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/User Interface HTML5/spa/package.json",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal/User Interface HTML5",
+                "file2": "/Portal/User Interface HTML5/spa",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal/User Interface HTML5",
+                "file2": "/Portal/User Interface HTML5/spa/package-lock.json",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal/User Interface HTML5",
+                "file2": "/Portal/User Interface HTML5/spa/package.json",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal/User Interface HTML5/spa",
+                "file2": "/Portal/User Interface HTML5/spa/package-lock.json",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal/User Interface HTML5/spa",
+                "file2": "/Portal/User Interface HTML5/spa/package.json",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Portal/User Interface HTML5/spa/package-lock.json",
+                "file2": "/Portal/User Interface HTML5/spa/package.json",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Access.Grc.Riliance.Database",
+                "file2": "/Access.Grc.Riliance.Database/Web.config",
+                "co_change_count": 5
+              },
+              {
+                "file1": "/Access.Grc.Riliance.Database",
+                "file2": "/Access.Grc.Riliance.Database/Access.Grc.Riliance.Database.csproj",
+                "co_change_count": 4
+              },
+              {
+                "file1": "/Access.Grc.Riliance.Database",
+                "file2": "/Access.Grc.Riliance.Database/packages.config",
+                "co_change_count": 4
+              },
+              {
+                "file1": "/Access.Grc.Riliance.Database/Access.Grc.Riliance.Database.csproj",
+                "file2": "/Access.Grc.Riliance.Database/packages.config",
+                "co_change_count": 4
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/Portal/User Interface HTML5/Web.config",
+                "co_change_count": 4
+              },
+              {
+                "file1": "/Portal",
+                "file2": "/RegistrationAdmin",
+                "co_change_count": 4
+              },
+              {
+                "file1": "/Portal/User Interface HTML5",
+                "file2": "/Portal/User Interface HTML5/Web.config",
+                "co_change_count": 4
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 2,
+          "collected_at": "2026-02-17T22:40:36.028923"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "code_churn": {
+            "total_commits": 706,
+            "total_file_changes": 1700,
+            "unique_files_touched": 463,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 40
+              },
+              {
+                "path": "/app",
+                "change_count": 34
+              },
+              {
+                "path": "/stores",
+                "change_count": 20
+              },
+              {
+                "path": "/src/routes",
+                "change_count": 20
+              },
+              {
+                "path": "/src/routes/organisation",
+                "change_count": 20
+              },
+              {
+                "path": "/src/routes/organisation/cases",
+                "change_count": 18
+              },
+              {
+                "path": "/package.json",
+                "change_count": 18
+              },
+              {
+                "path": "/Product F",
+                "change_count": 18
+              },
+              {
+                "path": "/app/src",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main",
+                "change_count": 16
+              },
+              {
+                "path": "/src/main",
+                "change_count": 16
+              },
+              {
+                "path": "/src/routes/organisation/cases/$caseId.tsx",
+                "change_count": 14
+              },
+              {
+                "path": "/src/routes/organisation/cases/-case-messages-list.tsx",
+                "change_count": 14
+              },
+              {
+                "path": "/yarn.lock",
+                "change_count": 14
+              },
+              {
+                "path": "/src/main/resources",
+                "change_count": 14
+              },
+              {
+                "path": "/modules",
+                "change_count": 14
+              },
+              {
+                "path": "/app/src/main/java",
+                "change_count": 13
+              },
+              {
+                "path": "/app/src/main/java/app",
+                "change_count": 13
+              },
+              {
+                "path": "/app/src/main/java/app/lavatech",
+                "change_count": 13
+              },
+              {
+                "path": "/app/src/main/java/app/lavatech/incase",
+                "change_count": 13
+              }
+            ],
+            "avg_changes_per_commit": 2.407932011331445
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 463,
+            "single_owner_count": 80,
+            "two_owner_count": 325,
+            "multi_owner_count": 58,
+            "single_owner_pct": 17.3,
+            "single_owner_files": [
+              {
+                "path": "/components",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/Modals",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/Modals/WebView",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/Modals/WebView/CreateWebViewConfigurationModal.vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/Modals/WebView/CreateWebViewModal.vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/Organisation",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/Organisation/WebView",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/Organisation/WebView/WebViewStatus.vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/components/SideBar.vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation/cases",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation/cases/[id].vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation/webview-configurations",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation/webview-configurations/[id].vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation/webview-configurations/index.vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation/webviews",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/pages/organisation/webviews/[id].vue",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/stores/webviewConfigurations.ts",
+                "owner": "Ben Keenan"
+              },
+              {
+                "path": "/stores/webviewTrackings.ts",
+                "owner": "Ben Keenan"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 3482,
+            "top_coupled_pairs": [
+              {
+                "file1": "/src",
+                "file2": "/src/routes",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/routes/organisation",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/src/routes",
+                "file2": "/src/routes/organisation",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/routes/organisation/cases",
+                "co_change_count": 18
+              },
+              {
+                "file1": "/src/routes",
+                "file2": "/src/routes/organisation/cases",
+                "co_change_count": 18
+              },
+              {
+                "file1": "/src/routes/organisation",
+                "file2": "/src/routes/organisation/cases",
+                "co_change_count": 18
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app/src",
+                "file2": "/app/src/main",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/main",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/routes/organisation/cases/$caseId.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/routes",
+                "file2": "/src/routes/organisation/cases/$caseId.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/routes/organisation",
+                "file2": "/src/routes/organisation/cases/$caseId.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/routes/organisation/cases",
+                "file2": "/src/routes/organisation/cases/$caseId.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/routes/organisation/cases/-case-messages-list.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/routes",
+                "file2": "/src/routes/organisation/cases/-case-messages-list.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/routes/organisation",
+                "file2": "/src/routes/organisation/cases/-case-messages-list.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src/routes/organisation/cases",
+                "file2": "/src/routes/organisation/cases/-case-messages-list.tsx",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/package.json",
+                "file2": "/yarn.lock",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/main/resources",
+                "co_change_count": 14
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 18,
+          "collected_at": "2026-02-17T22:40:37.067991"
+        },
+        {
+          "project_key": "Legal_Product D",
+          "project_name": "Product D",
+          "code_churn": {
+            "total_commits": 271,
+            "total_file_changes": 1487,
+            "unique_files_touched": 1069,
+            "hot_paths": [
+              {
+                "path": "/.pipelines",
+                "change_count": 17
+              },
+              {
+                "path": "/.azure-pipelines",
+                "change_count": 16
+              },
+              {
+                "path": "/.azure-pipelines/release-pipeline.yml",
+                "change_count": 16
+              },
+              {
+                "path": "/Product D",
+                "change_count": 16
+              },
+              {
+                "path": "/.pipelines/azure-pipelines.yml",
+                "change_count": 14
+              },
+              {
+                "path": "/.pipelines/azure-pipelines-production.yml",
+                "change_count": 9
+              },
+              {
+                "path": "/Product D/Objects",
+                "change_count": 8
+              },
+              {
+                "path": "/Powershell",
+                "change_count": 6
+              },
+              {
+                "path": "/Powershell/Install-Product DHotfix.ps1",
+                "change_count": 6
+              },
+              {
+                "path": "/Powershell/Install-Progress-Product DHotfix.ps1",
+                "change_count": 6
+              },
+              {
+                "path": "/ODBC",
+                "change_count": 6
+              },
+              {
+                "path": "/ODBC/Add-ODBCBroker.ps1",
+                "change_count": 6
+              },
+              {
+                "path": "/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "change_count": 6
+              },
+              {
+                "path": "/ODBC/Grant-ODBCUserPermissions.ps1",
+                "change_count": 6
+              },
+              {
+                "path": "/ODBC/USER-GUIDE.md",
+                "change_count": 6
+              },
+              {
+                "path": "/Progress-and-Product D-Hotfix-UserManual.md",
+                "change_count": 6
+              },
+              {
+                "path": "/pdf2svg",
+                "change_count": 6
+              },
+              {
+                "path": "/pdf2svg/pom.xml",
+                "change_count": 6
+              },
+              {
+                "path": "/TouchPoint",
+                "change_count": 6
+              },
+              {
+                "path": "/TouchPoint/WebServices",
+                "change_count": 6
+              }
+            ],
+            "avg_changes_per_commit": 5.487084870848708
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 1069,
+            "single_owner_count": 1053,
+            "two_owner_count": 14,
+            "multi_owner_count": 2,
+            "single_owner_pct": 98.5,
+            "single_owner_files": [
+              {
+                "path": "/3rdParty",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7-zip.chm",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7-zip.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7z.exe",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7z.sfx",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7zCon.sfx",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7zFM.exe",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7zG.exe",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/7zip_pad.xml",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/7zAES.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/AES.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/BZip2.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/Branch.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/Copy.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/Deflate.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/LZMA.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/PPMd.dll",
+                "owner": "Daniel Wood"
+              },
+              {
+                "path": "/3rdParty/7-Zip/Codecs/Rar29.dll",
+                "owner": "Daniel Wood"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 853,
+            "top_coupled_pairs": [
+              {
+                "file1": "/.azure-pipelines",
+                "file2": "/.azure-pipelines/release-pipeline.yml",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/.pipelines",
+                "file2": "/.pipelines/azure-pipelines.yml",
+                "co_change_count": 14
+              },
+              {
+                "file1": "/.pipelines",
+                "file2": "/.pipelines/azure-pipelines-production.yml",
+                "co_change_count": 9
+              },
+              {
+                "file1": "/.pipelines/azure-pipelines-production.yml",
+                "file2": "/.pipelines/azure-pipelines.yml",
+                "co_change_count": 9
+              },
+              {
+                "file1": "/Product D",
+                "file2": "/Product D/Objects",
+                "co_change_count": 8
+              },
+              {
+                "file1": "/Powershell",
+                "file2": "/Powershell/Install-Product DHotfix.ps1",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/Powershell",
+                "file2": "/Powershell/Install-Progress-Product DHotfix.ps1",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/Powershell/Install-Product DHotfix.ps1",
+                "file2": "/Powershell/Install-Progress-Product DHotfix.ps1",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC",
+                "file2": "/ODBC/Add-ODBCBroker.ps1",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC",
+                "file2": "/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC",
+                "file2": "/ODBC/Grant-ODBCUserPermissions.ps1",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC",
+                "file2": "/ODBC/USER-GUIDE.md",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC",
+                "file2": "/Progress-and-Product D-Hotfix-UserManual.md",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC/Add-ODBCBroker.ps1",
+                "file2": "/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC/Add-ODBCBroker.ps1",
+                "file2": "/ODBC/Grant-ODBCUserPermissions.ps1",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC/Add-ODBCBroker.ps1",
+                "file2": "/ODBC/USER-GUIDE.md",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC/Add-ODBCBroker.ps1",
+                "file2": "/Progress-and-Product D-Hotfix-UserManual.md",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "file2": "/ODBC/Grant-ODBCUserPermissions.ps1",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "file2": "/ODBC/USER-GUIDE.md",
+                "co_change_count": 6
+              },
+              {
+                "file1": "/ODBC/Grant-ODBCUserPermissions-UserManual.md",
+                "file2": "/Progress-and-Product D-Hotfix-UserManual.md",
+                "co_change_count": 6
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 18,
+          "collected_at": "2026-02-17T22:40:37.385434"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "code_churn": {
+            "total_commits": 1066,
+            "total_file_changes": 4305,
+            "unique_files_touched": 671,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 87
+              },
+              {
+                "path": "/XCode",
+                "change_count": 20
+              },
+              {
+                "path": "/XCode/iTime-iOS",
+                "change_count": 20
+              },
+              {
+                "path": "/app",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management/src",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management/src/features",
+                "change_count": 20
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Business",
+                "change_count": 19
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "change_count": 17
+              },
+              {
+                "path": "/src/pages",
+                "change_count": 17
+              },
+              {
+                "path": "/src/app",
+                "change_count": 17
+              },
+              {
+                "path": "/app/src",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk/co",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk/co/dpssoftware",
+                "change_count": 16
+              }
+            ],
+            "avg_changes_per_commit": 4.038461538461538
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 671,
+            "single_owner_count": 442,
+            "two_owner_count": 210,
+            "multi_owner_count": 19,
+            "single_owner_pct": 65.9,
+            "single_owner_files": [
+              {
+                "path": "/azure-pipelines-access-evo.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/azure-pipelines-alcm-evo.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/azure-pipelines.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ActiveCheckoutsByCategory",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ActiveCheckoutsByCategory/active.checkouts.by.category.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateClient",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateClient/add.update.client.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateMatter/add.update.matter.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateTimeRecord",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateTimeRecord/add.update.time.record.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AmlCheckAsync",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AmlCheckAsync/aml.check.async.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanCheckedOutFiles",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanCheckedOutFiles/clean.checked.out.files.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanDriveArtifacts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanDriveArtifacts/clean.drive.artifacts.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ContactsOnfileCount",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ContactsOnfileCount/contacts.onfile.count.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/DeleteTimeRecord",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/DeleteTimeRecord/delete.time.record.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 28313,
+            "top_coupled_pairs": [
+              {
+                "file1": "/XCode",
+                "file2": "/XCode/iTime-iOS",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src/features",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management/src",
+                "file2": "/inventory-management/src/features",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Business",
+                "co_change_count": 19
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/pages",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/app",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java",
+                "co_change_count": 16
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 56,
+          "collected_at": "2026-02-17T22:40:37.216227"
         }
       ],
       "config": {

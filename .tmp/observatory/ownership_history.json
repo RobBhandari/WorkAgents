@@ -87107,7 +87107,7 @@
           "collected_at": "2026-02-17T21:46:04.321601"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "unassigned": {
             "unassigned_count": 756,
@@ -87876,6 +87876,2828 @@
           },
           "total_items_analyzed": 271,
           "collected_at": "2026-02-17T21:46:04.384782"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-17",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "unassigned": {
+            "unassigned_count": 680,
+            "total_items": 1544,
+            "unassigned_pct": 44.0,
+            "items": [
+              {
+                "id": 1848327,
+                "title": "9. Implement FAS Interim Claims Manager (Optional) - NOT MVP",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-09-18T12:54:50.813Z"
+              },
+              {
+                "id": 1848344,
+                "title": "3. Implement Claim 1A (including FAS) Upload to CCMS (update EPIC)",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-09-18T12:59:17.107Z"
+              },
+              {
+                "id": 1871526,
+                "title": "8. Implement Action Buttons (Save, Case Management, OK, Cancel)",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A",
+                "created_date": "2025-10-03T15:46:06.003Z"
+              },
+              {
+                "id": 1874805,
+                "title": "No Warning Message received when Anticipated Costs is set on the Matter Screen in ALCM",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A",
+                "created_date": "2025-10-07T09:17:50.96Z"
+              },
+              {
+                "id": 1888178,
+                "title": "Update Copilot API Response for Widget Integration",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-10-10T14:11:44.617Z"
+              },
+              {
+                "id": 1888182,
+                "title": "Implement Copilot Link Types for ALCM Integration",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-10-10T14:12:51.413Z"
+              },
+              {
+                "id": 1888190,
+                "title": "Handle Widget Instance Navigation",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-10-10T14:16:10.65Z"
+              },
+              {
+                "id": 1888191,
+                "title": "Support External Case Opening via Widget Communication",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-10-10T14:17:02.567Z"
+              },
+              {
+                "id": 1888192,
+                "title": "Enhance Case Routing for Widget Integration",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-10-10T14:17:52.73Z"
+              },
+              {
+                "id": 1895725,
+                "title": "ALCM - Dragging email with attachments will charge attachments (letter in) even if rate category is marked to be 0 rated.",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\Bugs",
+                "created_date": "2025-10-16T13:52:33.407Z"
+              },
+              {
+                "id": 1897435,
+                "title": "Cloud Config - Store Evo User ID",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-10-17T13:58:36.55Z"
+              },
+              {
+                "id": 1898084,
+                "title": "Filterable Financial Columns",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-10-19T10:03:52.227Z"
+              },
+              {
+                "id": 1898085,
+                "title": "Complete Excel Export",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-10-19T10:04:59.87Z"
+              },
+              {
+                "id": 1901075,
+                "title": "Replace TripleDES with AES-256 for stronger encryption",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A",
+                "created_date": "2025-10-21T11:01:38.22Z"
+              },
+              {
+                "id": 1918231,
+                "title": "Manchester City Council - External emails send with uncharged ticked shows time entry but incorrect units",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\Bugs",
+                "created_date": "2025-10-31T16:23:15.87Z"
+              },
+              {
+                "id": 1921891,
+                "title": "US 1.1.1: E-Chit CRUD API Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-11-04T11:58:06.72Z"
+              },
+              {
+                "id": 1921892,
+                "title": "US 1.1.2: E-Chit Authorization Workflow E2E Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-11-04T11:58:10.78Z"
+              },
+              {
+                "id": 1921893,
+                "title": "US 1.2.1: Legal Aid Rate Files API Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-11-04T11:58:14.897Z"
+              },
+              {
+                "id": 1921894,
+                "title": "US 1.2.2: LGFS Complete Workflow Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-11-04T11:58:18.773Z"
+              },
+              {
+                "id": 1921895,
+                "title": "US 1.2.3: AGFS Complete Workflow Testing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Feature Squad",
+                "created_date": "2025-11-04T11:58:22.753Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 79,
+              "features": 424,
+              "tasks": 177
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 70,
+            "top_assignees": [
+              [
+                "Unassigned",
+                680
+              ],
+              [
+                "Gayani Nimalka <GNimalka@dpssoftware.onmicrosoft.com>",
+                128
+              ],
+              [
+                "Suren Gamage",
+                90
+              ],
+              [
+                "Nimasha Soyza",
+                35
+              ],
+              [
+                "Damith Premarathne",
+                35
+              ],
+              [
+                "Lushan Don Fransiskuge Don",
+                34
+              ],
+              [
+                "Niranga DeZoysa",
+                33
+              ],
+              [
+                "Lakmal Siyambalage",
+                32
+              ],
+              [
+                "Dilantha Perera",
+                30
+              ],
+              [
+                "Linda Brook",
+                30
+              ]
+            ],
+            "load_imbalance_ratio": 680.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 16,
+            "areas": [
+              {
+                "area_path": "Product A\\Xperate",
+                "total_items": 4,
+                "unassigned_items": 4,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product A\\Feature Squad\\Services",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product A\\Bugs",
+                "total_items": 63,
+                "unassigned_items": 58,
+                "unassigned_pct": 92.1
+              },
+              {
+                "area_path": "Product A\\SaaS Squad",
+                "total_items": 32,
+                "unassigned_items": 26,
+                "unassigned_pct": 81.2
+              },
+              {
+                "area_path": "Product A\\Cipher Squad",
+                "total_items": 16,
+                "unassigned_items": 12,
+                "unassigned_pct": 75.0
+              },
+              {
+                "area_path": "Product A\\Workspace Squad",
+                "total_items": 188,
+                "unassigned_items": 119,
+                "unassigned_pct": 63.3
+              },
+              {
+                "area_path": "Product A\\Feature Squad",
+                "total_items": 192,
+                "unassigned_items": 86,
+                "unassigned_pct": 44.8
+              },
+              {
+                "area_path": "Product A",
+                "total_items": 637,
+                "unassigned_items": 258,
+                "unassigned_pct": 40.5
+              },
+              {
+                "area_path": "Product A\\Triage",
+                "total_items": 20,
+                "unassigned_items": 8,
+                "unassigned_pct": 40.0
+              },
+              {
+                "area_path": "Product A\\Elsa Squad",
+                "total_items": 77,
+                "unassigned_items": 28,
+                "unassigned_pct": 36.4
+              },
+              {
+                "area_path": "Product A\\Cipher Squad\\Evo",
+                "total_items": 6,
+                "unassigned_items": 2,
+                "unassigned_pct": 33.3
+              },
+              {
+                "area_path": "Product A\\Task Force",
+                "total_items": 134,
+                "unassigned_items": 44,
+                "unassigned_pct": 32.8
+              },
+              {
+                "area_path": "Product A\\Feature Squad\\Bugs",
+                "total_items": 96,
+                "unassigned_items": 30,
+                "unassigned_pct": 31.2
+              },
+              {
+                "area_path": "Product A\\Task Force\\Bugs",
+                "total_items": 12,
+                "unassigned_items": 3,
+                "unassigned_pct": 25.0
+              },
+              {
+                "area_path": "Product A\\IWS",
+                "total_items": 57,
+                "unassigned_items": 1,
+                "unassigned_pct": 1.8
+              },
+              {
+                "area_path": "Product A\\DevOps Squad",
+                "total_items": 9,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 145,
+              "unassigned": 79,
+              "assigned": 66,
+              "unassigned_pct": 54.5
+            },
+            "User Story": {
+              "total": 859,
+              "unassigned": 424,
+              "assigned": 435,
+              "unassigned_pct": 49.4
+            },
+            "Task": {
+              "total": 540,
+              "unassigned": 177,
+              "assigned": 363,
+              "unassigned_pct": 32.8
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 19,
+            "total_commits": 1066,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin AI",
+                "active_days": 43,
+                "commits": 1066
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 30,
+                "commits": 1066
+              },
+              {
+                "developer": "Rahul Garg",
+                "active_days": 7,
+                "commits": 1066
+              },
+              {
+                "developer": "Mohamed Zufry",
+                "active_days": 5,
+                "commits": 1066
+              },
+              {
+                "developer": "Lushan Don Fransiskuge Don",
+                "active_days": 4,
+                "commits": 1066
+              },
+              {
+                "developer": "Kanishka Hewapathirana",
+                "active_days": 4,
+                "commits": 1066
+              },
+              {
+                "developer": "Lushan jayanath",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "M Zufry",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Lakmal Siyambalage",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Nimasha Soyza",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Gabriel Tanase",
+                "active_days": 2,
+                "commits": 1066
+              },
+              {
+                "developer": "Damith Premarathne",
+                "active_days": 2,
+                "commits": 1066
+              },
+              {
+                "developer": "unknown",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "tgabrielc",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Gabriel Tanase",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Sam-Ridgwell",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Dilantha Perera",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Lak",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Chathurika Rathnayaka Mudiyanselage",
+                "active_days": 1,
+                "commits": 1066
+              }
+            ],
+            "avg_active_days": 6.1
+          },
+          "total_items_analyzed": 1544,
+          "collected_at": "2026-02-17T22:40:18.909438"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "unassigned": {
+            "unassigned_count": 213,
+            "total_items": 249,
+            "unassigned_pct": 85.5,
+            "items": [
+              {
+                "id": 2807,
+                "title": "Modify existing login provider that uses 2FA",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-02-10T17:02:07.123Z"
+              },
+              {
+                "id": 3447,
+                "title": "Nominal Maintenance - Delete Nominal Account",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-03-08T16:13:58.217Z"
+              },
+              {
+                "id": 3502,
+                "title": "Job Story - Automate Build For Setup Year",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-03-09T18:19:58.19Z"
+              },
+              {
+                "id": 3717,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-03-18T18:30:27.36Z"
+              },
+              {
+                "id": 3718,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-03-18T18:31:23.483Z"
+              },
+              {
+                "id": 4052,
+                "title": "sls00122.exe - Investigate How This Program Is Used",
+                "type": "Task",
+                "state": "Active",
+                "area_path": "Product C",
+                "created_date": "2022-03-30T13:01:19.947Z"
+              },
+              {
+                "id": 4218,
+                "title": "Alter Legal Fusion Desktop Application Login Code",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-04-05T12:11:17.727Z"
+              },
+              {
+                "id": 4233,
+                "title": "Pre-production Testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-04-05T20:05:24.657Z"
+              },
+              {
+                "id": 4574,
+                "title": "Call each endpoint via swagger/postman and make code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-04-21T16:00:02.337Z"
+              },
+              {
+                "id": 4575,
+                "title": "Test endpoints within pre-production",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-04-21T16:00:20.6Z"
+              },
+              {
+                "id": 5180,
+                "title": "Acquire Icon from UX team",
+                "type": "Task",
+                "state": "Active",
+                "area_path": "Product C",
+                "created_date": "2022-05-05T09:22:05.243Z"
+              },
+              {
+                "id": 5183,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-05T09:24:19.13Z"
+              },
+              {
+                "id": 5184,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-05T09:24:24.62Z"
+              },
+              {
+                "id": 5185,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-05T09:24:49.677Z"
+              },
+              {
+                "id": 5186,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-05T09:24:57.343Z"
+              },
+              {
+                "id": 5187,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-05T09:25:01.127Z"
+              },
+              {
+                "id": 5188,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-05T09:25:06.387Z"
+              },
+              {
+                "id": 5234,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-06T13:07:43.883Z"
+              },
+              {
+                "id": 5235,
+                "title": "Pre-production testing",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-06T13:08:54.26Z"
+              },
+              {
+                "id": 5258,
+                "title": "Code changes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product C",
+                "created_date": "2022-05-06T13:42:36.04Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 15,
+              "features": 61,
+              "tasks": 137
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 9,
+            "top_assignees": [
+              [
+                "Unassigned",
+                213
+              ],
+              [
+                "Luke Hirst",
+                9
+              ],
+              [
+                "Rich Stoddart",
+                7
+              ],
+              [
+                "Mark Parker",
+                7
+              ],
+              [
+                "James Sprangle",
+                4
+              ],
+              [
+                "Stefan Ivanoiu",
+                4
+              ],
+              [
+                "Jan Hyde",
+                2
+              ],
+              [
+                "Lawrence Paine",
+                1
+              ],
+              [
+                "Adam Lonsdale",
+                1
+              ],
+              [
+                "Danielle Park",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 213.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 5,
+            "areas": [
+              {
+                "area_path": "Product C\\Bugs\\Support Team",
+                "total_items": 3,
+                "unassigned_items": 3,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product C\\Bugs\\Armorcode",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product C\\Bugs\\Product and Engineering",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product C\\Triage",
+                "total_items": 25,
+                "unassigned_items": 23,
+                "unassigned_pct": 92.0
+              },
+              {
+                "area_path": "Product C",
+                "total_items": 219,
+                "unassigned_items": 185,
+                "unassigned_pct": 84.5
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 16,
+              "unassigned": 15,
+              "assigned": 1,
+              "unassigned_pct": 93.8
+            },
+            "User Story": {
+              "total": 66,
+              "unassigned": 61,
+              "assigned": 5,
+              "unassigned_pct": 92.4
+            },
+            "Task": {
+              "total": 167,
+              "unassigned": 137,
+              "assigned": 30,
+              "unassigned_pct": 82.0
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 3,
+            "total_commits": 103,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 7,
+                "commits": 103
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 7,
+                "commits": 103
+              },
+              {
+                "developer": "Jan Hyde",
+                "active_days": 1,
+                "commits": 103
+              }
+            ],
+            "avg_active_days": 5.0
+          },
+          "total_items_analyzed": 249,
+          "collected_at": "2026-02-17T22:40:14.352739"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "unassigned": {
+            "unassigned_count": 674,
+            "total_items": 953,
+            "unassigned_pct": 70.7,
+            "items": [
+              {
+                "id": 1988797,
+                "title": "01 COFA Define Research",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988798,
+                "title": "Research/Prepare for SME kick off (LD)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988799,
+                "title": "Kick Off and Content Scoping Workshop with SME (LD,Lead,MMP,SME)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988800,
+                "title": "02 COFA Define Outline",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988801,
+                "title": "Create Course Outline v0.1",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988802,
+                "title": "03 COFA Define MMP Kick Off",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988803,
+                "title": "Concept ideas generation (MMP)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988804,
+                "title": "04 COFA Define QA1 Outline Review",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988805,
+                "title": "Peer Review Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988806,
+                "title": "05 COFA Define QA1 Outline SME Review",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988807,
+                "title": "SME Review",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988808,
+                "title": "06 COFA Define QA1 Outline Amends",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988809,
+                "title": "Create Course Outline v1.0 (LD Sign off)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988810,
+                "title": "Lead Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988811,
+                "title": "MMP or DD Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988813,
+                "title": "Source Contributors/Actors and Location",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988814,
+                "title": "08 COFA Define MMP Approve Contributors",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988815,
+                "title": "Briefing Contributors/Actors and Final Confirmation (MMP/Lead/LD)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988816,
+                "title": "LD/Lead Sign off",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              },
+              {
+                "id": 1988817,
+                "title": "Set up suppliers",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product O",
+                "created_date": "2025-12-15T14:49:12.6Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 0,
+              "features": 90,
+              "tasks": 584
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 12,
+            "top_assignees": [
+              [
+                "Unassigned",
+                674
+              ],
+              [
+                "Doug Cush",
+                46
+              ],
+              [
+                "Joe Watson",
+                45
+              ],
+              [
+                "Patrick Herald",
+                42
+              ],
+              [
+                "Sian Riley",
+                39
+              ],
+              [
+                "Jack Moore",
+                34
+              ],
+              [
+                "Louise Hodkiss",
+                30
+              ],
+              [
+                "Almina Robinson",
+                22
+              ],
+              [
+                "Brian Rogers",
+                10
+              ],
+              [
+                "Nathan Ashton",
+                5
+              ]
+            ],
+            "load_imbalance_ratio": 674.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 1,
+            "areas": [
+              {
+                "area_path": "Product O",
+                "total_items": 953,
+                "unassigned_items": 674,
+                "unassigned_pct": 70.7
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0
+            },
+            "User Story": {
+              "total": 139,
+              "unassigned": 90,
+              "assigned": 49,
+              "unassigned_pct": 64.7
+            },
+            "Task": {
+              "total": 814,
+              "unassigned": 584,
+              "assigned": 230,
+              "unassigned_pct": 71.7
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 0,
+            "total_commits": 0,
+            "lookback_days": 90,
+            "developers": [],
+            "avg_active_days": null
+          },
+          "total_items_analyzed": 953,
+          "collected_at": "2026-02-17T22:40:15.332821"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "unassigned": {
+            "unassigned_count": 161,
+            "total_items": 253,
+            "unassigned_pct": 63.6,
+            "items": [
+              {
+                "id": 15265,
+                "title": "Start asking for more details before we start working on support items",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L",
+                "created_date": "2022-10-14T10:15:10.783Z"
+              },
+              {
+                "id": 15266,
+                "title": "Talk to someone in Admin to get buy in for them to reproduce the issue on an environment so that they understand what details we need",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L",
+                "created_date": "2022-10-14T10:19:15.547Z"
+              },
+              {
+                "id": 15270,
+                "title": "Find out if someone can own documentation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L",
+                "created_date": "2022-10-14T10:37:54.42Z"
+              },
+              {
+                "id": 15271,
+                "title": "Create a process for API documentation that uses templates and has an owner to approve it for cohesion",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L",
+                "created_date": "2022-10-14T10:40:01.92Z"
+              },
+              {
+                "id": 18415,
+                "title": "Address search glitchy",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Websites\\API",
+                "created_date": "2022-11-22T09:47:12.523Z"
+              },
+              {
+                "id": 18476,
+                "title": "LA - AP1 - Entering Applicants Lender information",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2022-11-22T13:34:26.397Z"
+              },
+              {
+                "id": 18493,
+                "title": "LA - AP1 - Adding/Removing proprietors if application involves a transfer application",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2022-11-22T15:42:07.547Z"
+              },
+              {
+                "id": 21015,
+                "title": "LA - AP1 - Selecting what the application affects",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2022-11-24T12:17:02.517Z"
+              },
+              {
+                "id": 21114,
+                "title": "Revisit how support items get raised (fill out form?)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L",
+                "created_date": "2022-11-25T11:48:00.59Z"
+              },
+              {
+                "id": 27130,
+                "title": "QA",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Integrations\\CMS Integrations",
+                "created_date": "2022-12-14T09:03:03.837Z"
+              },
+              {
+                "id": 50173,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Bufonite",
+                "created_date": "2023-01-10T09:22:14.8Z"
+              },
+              {
+                "id": 66774,
+                "title": "LA - AP1 - Adding additional title numbers (document registration)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2023-01-24T15:04:48.053Z"
+              },
+              {
+                "id": 66775,
+                "title": "LA - AP1 - Removing title numbers (document registation)",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2023-01-24T15:06:12.863Z"
+              },
+              {
+                "id": 87522,
+                "title": "Update Web SDK",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2023-02-20T16:51:32.893Z"
+              },
+              {
+                "id": 87524,
+                "title": "Implement Web SDK event recording",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2023-02-20T16:51:50.03Z"
+              },
+              {
+                "id": 87526,
+                "title": "Install FE New Relic agent",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2023-02-20T16:52:10.647Z"
+              },
+              {
+                "id": 87529,
+                "title": "Investigate cause with new information from previous tasks",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Onyx",
+                "created_date": "2023-02-20T16:52:25.21Z"
+              },
+              {
+                "id": 93130,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Bufonite",
+                "created_date": "2023-02-24T10:53:10.027Z"
+              },
+              {
+                "id": 119352,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Bufonite",
+                "created_date": "2023-03-13T15:57:18.243Z"
+              },
+              {
+                "id": 125496,
+                "title": "Update release notes",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product L\\Websites\\Solicitor Portal",
+                "created_date": "2023-03-21T16:57:19.017Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 8,
+              "features": 53,
+              "tasks": 100
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 16,
+            "top_assignees": [
+              [
+                "Unassigned",
+                161
+              ],
+              [
+                "Liam Cox",
+                22
+              ],
+              [
+                "Patrick Ivan",
+                12
+              ],
+              [
+                "Joseph Smith",
+                11
+              ],
+              [
+                "Craig Freeman",
+                9
+              ],
+              [
+                "James Harris",
+                8
+              ],
+              [
+                "George Atodiresei",
+                7
+              ],
+              [
+                "James Matthews",
+                6
+              ],
+              [
+                "Nikko Liceralde",
+                4
+              ],
+              [
+                "Michael Ashford",
+                3
+              ]
+            ],
+            "load_imbalance_ratio": 161.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 11,
+            "areas": [
+              {
+                "area_path": "Product L\\Websites\\API",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product L\\Onyx",
+                "total_items": 31,
+                "unassigned_items": 25,
+                "unassigned_pct": 80.6
+              },
+              {
+                "area_path": "Product L\\Bufonite",
+                "total_items": 46,
+                "unassigned_items": 34,
+                "unassigned_pct": 73.9
+              },
+              {
+                "area_path": "Product L",
+                "total_items": 107,
+                "unassigned_items": 76,
+                "unassigned_pct": 71.0
+              },
+              {
+                "area_path": "Product L\\Websites\\Solicitor Portal",
+                "total_items": 13,
+                "unassigned_items": 9,
+                "unassigned_pct": 69.2
+              },
+              {
+                "area_path": "Product L\\Obsidian",
+                "total_items": 3,
+                "unassigned_items": 2,
+                "unassigned_pct": 66.7
+              },
+              {
+                "area_path": "Product L\\Integrations\\CMS Integrations",
+                "total_items": 6,
+                "unassigned_items": 3,
+                "unassigned_pct": 50.0
+              },
+              {
+                "area_path": "Product L\\Services",
+                "total_items": 16,
+                "unassigned_items": 7,
+                "unassigned_pct": 43.8
+              },
+              {
+                "area_path": "Product L\\Support Team",
+                "total_items": 8,
+                "unassigned_items": 3,
+                "unassigned_pct": 37.5
+              },
+              {
+                "area_path": "Product L\\Websites\\Admin Portal",
+                "total_items": 18,
+                "unassigned_items": 1,
+                "unassigned_pct": 5.6
+              },
+              {
+                "area_path": "Product L\\Services\\Biometrics",
+                "total_items": 4,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 13,
+              "unassigned": 8,
+              "assigned": 5,
+              "unassigned_pct": 61.5
+            },
+            "User Story": {
+              "total": 71,
+              "unassigned": 53,
+              "assigned": 18,
+              "unassigned_pct": 74.6
+            },
+            "Task": {
+              "total": 169,
+              "unassigned": 100,
+              "assigned": 69,
+              "unassigned_pct": 59.2
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 14,
+            "total_commits": 317,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "James Harris",
+                "active_days": 14,
+                "commits": 317
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 12,
+                "commits": 317
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 10,
+                "commits": 317
+              },
+              {
+                "developer": "Patrick Ivan",
+                "active_days": 5,
+                "commits": 317
+              },
+              {
+                "developer": "Automation Tester",
+                "active_days": 3,
+                "commits": 317
+              },
+              {
+                "developer": "Paul Cox",
+                "active_days": 3,
+                "commits": 317
+              },
+              {
+                "developer": "James M",
+                "active_days": 2,
+                "commits": 317
+              },
+              {
+                "developer": "Asif Durrani",
+                "active_days": 2,
+                "commits": 317
+              },
+              {
+                "developer": "Andreea Rad",
+                "active_days": 2,
+                "commits": 317
+              },
+              {
+                "developer": "James Matthews",
+                "active_days": 1,
+                "commits": 317
+              },
+              {
+                "developer": "Jordan Wallwork",
+                "active_days": 1,
+                "commits": 317
+              },
+              {
+                "developer": "Liviu Bichescu",
+                "active_days": 1,
+                "commits": 317
+              },
+              {
+                "developer": "Michael Ashford",
+                "active_days": 1,
+                "commits": 317
+              },
+              {
+                "developer": "George Atodiresei",
+                "active_days": 1,
+                "commits": 317
+              }
+            ],
+            "avg_active_days": 4.1
+          },
+          "total_items_analyzed": 253,
+          "collected_at": "2026-02-17T22:40:15.107903"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "unassigned": {
+            "unassigned_count": 47,
+            "total_items": 70,
+            "unassigned_pct": 67.1,
+            "items": [
+              {
+                "id": 203330,
+                "title": "ADE Integration - Add Complaint Types Data View - ACOM-195",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2023-05-10T13:03:26.45Z"
+              },
+              {
+                "id": 203341,
+                "title": "Fletcher Day - Audits Questions Report - Answer charts tab displaying the wrong data - ACOM-176",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2023-05-10T13:09:14.853Z"
+              },
+              {
+                "id": 203346,
+                "title": "Diversity Site - Ability to destroy client data - ACOM-129",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2023-05-10T13:09:59.9Z"
+              },
+              {
+                "id": 203347,
+                "title": "Pentest Report R2326: 2021: Uploaded Files Not Virus Scanned",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2023-05-10T13:10:19.977Z"
+              },
+              {
+                "id": 294210,
+                "title": "Pentest 2023: Uploaded File not Scanned for Malware",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2023-06-28T08:15:11.157Z"
+              },
+              {
+                "id": 319883,
+                "title": "Dynamic Query for Task List View",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2023-07-12T09:44:39.98Z"
+              },
+              {
+                "id": 1012896,
+                "title": "Deploy Copilot API to Preprod Environment AF:1012884",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-06-04T09:19:16.87Z"
+              },
+              {
+                "id": 1012897,
+                "title": "Deploy Copilot API to Preprod Environment DEV:1012884",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-06-04T09:19:17.077Z"
+              },
+              {
+                "id": 1012898,
+                "title": "Deploy Copilot API to Preprod Environment TEST:1012884",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-06-04T09:19:17.277Z"
+              },
+              {
+                "id": 1301540,
+                "title": "Automate - Delete Module Record - User does not have Task(s) in Feed",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-08-26T07:01:35.773Z"
+              },
+              {
+                "id": 1301542,
+                "title": "Automate - Complete Task - User does not have Task in Feed",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-08-26T07:02:46.28Z"
+              },
+              {
+                "id": 1345429,
+                "title": "Add Notes to Data Exports",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-09-12T16:28:38.673Z"
+              },
+              {
+                "id": 1376160,
+                "title": "Convert Textarea Fields to Richtext Editor",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-09-30T07:52:09.783Z"
+              },
+              {
+                "id": 1440258,
+                "title": "Internal Admin users unable to adjust passwords",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-11-12T20:07:09.77Z"
+              },
+              {
+                "id": 1440790,
+                "title": "Give/Remove access to [module] for [user]",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-11-13T10:38:42.097Z"
+              },
+              {
+                "id": 1440795,
+                "title": "Reassign [tasks] from [User A] to [User B]",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-11-13T10:39:54.047Z"
+              },
+              {
+                "id": 1441743,
+                "title": "How many [complaints] or [type] are there?",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-11-13T19:31:36.4Z"
+              },
+              {
+                "id": 1441744,
+                "title": "How many [records] for [entity] in [timescale] exist?",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-11-13T19:38:25.04Z"
+              },
+              {
+                "id": 1481627,
+                "title": "CoPilot | Search Update | Client Feedback",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-12-12T17:27:36.183Z"
+              },
+              {
+                "id": 1481629,
+                "title": "CoPilot | Search Update | Data Access Requests",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product E",
+                "created_date": "2024-12-12T17:33:24.107Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 2,
+              "features": 38,
+              "tasks": 7
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 3,
+            "top_assignees": [
+              [
+                "Unassigned",
+                47
+              ],
+              [
+                "Norbert Sentes",
+                13
+              ],
+              [
+                "Darius Onet",
+                9
+              ],
+              [
+                "Lushan Don Fransiskuge Don",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 47.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 1,
+            "areas": [
+              {
+                "area_path": "Product E",
+                "total_items": 70,
+                "unassigned_items": 47,
+                "unassigned_pct": 67.1
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 11,
+              "unassigned": 2,
+              "assigned": 9,
+              "unassigned_pct": 18.2
+            },
+            "User Story": {
+              "total": 46,
+              "unassigned": 38,
+              "assigned": 8,
+              "unassigned_pct": 82.6
+            },
+            "Task": {
+              "total": 13,
+              "unassigned": 7,
+              "assigned": 6,
+              "unassigned_pct": 53.8
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 4,
+            "total_commits": 100,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Darius Onet",
+                "active_days": 1,
+                "commits": 100
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 1,
+                "commits": 100
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 1,
+                "commits": 100
+              },
+              {
+                "developer": "Norbert.Sentes",
+                "active_days": 1,
+                "commits": 100
+              }
+            ],
+            "avg_active_days": 1.0
+          },
+          "total_items_analyzed": 70,
+          "collected_at": "2026-02-17T22:40:12.185732"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "unassigned": {
+            "unassigned_count": 104,
+            "total_items": 184,
+            "unassigned_pct": 56.5,
+            "items": [
+              {
+                "id": 1585040,
+                "title": "[MAIN-200] Preparing a release",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F\\Web Admin",
+                "created_date": "2023-10-02T15:59:45.803Z"
+              },
+              {
+                "id": 1773232,
+                "title": "Messages Endpoint returns 500 when no messages",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product F\\Triage",
+                "created_date": "2025-07-21T15:06:25.187Z"
+              },
+              {
+                "id": 1794939,
+                "title": "Tidy old PHP code",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-06T07:09:32.723Z"
+              },
+              {
+                "id": 1807902,
+                "title": "Test Support Case",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F\\Product F Support Team",
+                "created_date": "2025-08-15T13:21:50.463Z"
+              },
+              {
+                "id": 1810791,
+                "title": "Prevent Unintended AWS S3 Usage in Unit and Feature Tests",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-19T10:14:11.827Z"
+              },
+              {
+                "id": 1810818,
+                "title": "Fake S3 Storage in all test folders other than Integration",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-19T10:28:31.483Z"
+              },
+              {
+                "id": 1810830,
+                "title": "Write Integration Tests for AWS S3 Connectivity",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-19T10:31:58.44Z"
+              },
+              {
+                "id": 1814811,
+                "title": "Improve Logging Quality and Relevance",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-21T14:07:05.96Z"
+              },
+              {
+                "id": 1814825,
+                "title": "Analyze and Filter Optimizely Logs",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-21T14:17:28.36Z"
+              },
+              {
+                "id": 1814839,
+                "title": "Resolve PHP Warning for Dynamic Property Creation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-21T14:25:29.96Z"
+              },
+              {
+                "id": 1815360,
+                "title": "Improve Static Analysis Workflow with Qodana",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T06:57:04.033Z"
+              },
+              {
+                "id": 1815383,
+                "title": "Add Qodana Baseline File for API",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T07:16:11.653Z"
+              },
+              {
+                "id": 1815390,
+                "title": "Implement Qodana for Android Project",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T07:18:25.8Z"
+              },
+              {
+                "id": 1815868,
+                "title": "Maintain Up-to-Date Testing Tools for API",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T09:56:52.74Z"
+              },
+              {
+                "id": 1815875,
+                "title": "[API] Upgrade Pest to Version 4",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T09:58:15.743Z"
+              },
+              {
+                "id": 1815983,
+                "title": "Fix Incorrect Checkbox Rendering on Android",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T10:38:45.873Z"
+              },
+              {
+                "id": 1815988,
+                "title": "Fix Checkbox UI on Android",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T10:42:10.553Z"
+              },
+              {
+                "id": 1816554,
+                "title": "Improve API Test Pipeline performance",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T15:22:54.017Z"
+              },
+              {
+                "id": 1816557,
+                "title": "[API] Shard the pest test suite",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T15:24:30.53Z"
+              },
+              {
+                "id": 1816559,
+                "title": "Investigate with the team running ADO about getting more powerful agents",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product F",
+                "created_date": "2025-08-22T15:27:46.693Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 23,
+              "features": 30,
+              "tasks": 51
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 7,
+            "top_assignees": [
+              [
+                "Unassigned",
+                104
+              ],
+              [
+                "Andrei Croitoru Rusan",
+                42
+              ],
+              [
+                "Ben Keenan",
+                19
+              ],
+              [
+                "Danny Booth",
+                8
+              ],
+              [
+                "Samuel Kwao",
+                5
+              ],
+              [
+                "Jac Martin",
+                3
+              ],
+              [
+                "Ned Ashley",
+                2
+              ],
+              [
+                "Devin Azure DevOps Integration",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 104.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 7,
+            "areas": [
+              {
+                "area_path": "Product F\\Web Admin",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product F\\Triage",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product F\\New App Requests",
+                "total_items": 5,
+                "unassigned_items": 5,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product F\\Product F Support Team",
+                "total_items": 18,
+                "unassigned_items": 12,
+                "unassigned_pct": 66.7
+              },
+              {
+                "area_path": "Product F",
+                "total_items": 141,
+                "unassigned_items": 79,
+                "unassigned_pct": 56.0
+              },
+              {
+                "area_path": "Product F\\Support Requests",
+                "total_items": 6,
+                "unassigned_items": 2,
+                "unassigned_pct": 33.3
+              },
+              {
+                "area_path": "Product F\\Feature Requests",
+                "total_items": 12,
+                "unassigned_items": 4,
+                "unassigned_pct": 33.3
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 31,
+              "unassigned": 23,
+              "assigned": 8,
+              "unassigned_pct": 74.2
+            },
+            "User Story": {
+              "total": 60,
+              "unassigned": 30,
+              "assigned": 30,
+              "unassigned_pct": 50.0
+            },
+            "Task": {
+              "total": 93,
+              "unassigned": 51,
+              "assigned": 42,
+              "unassigned_pct": 54.8
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 9,
+            "total_commits": 706,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 32,
+                "commits": 706
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 29,
+                "commits": 706
+              },
+              {
+                "developer": "Ben Keenan",
+                "active_days": 27,
+                "commits": 706
+              },
+              {
+                "developer": "ben",
+                "active_days": 20,
+                "commits": 706
+              },
+              {
+                "developer": "Andrei CroitoruRusan",
+                "active_days": 14,
+                "commits": 706
+              },
+              {
+                "developer": "Andrei Croitoru Rusan",
+                "active_days": 11,
+                "commits": 706
+              },
+              {
+                "developer": "Ned Ashley",
+                "active_days": 6,
+                "commits": 706
+              },
+              {
+                "developer": "Jac Martin",
+                "active_days": 4,
+                "commits": 706
+              },
+              {
+                "developer": "Jac Martin",
+                "active_days": 2,
+                "commits": 706
+              }
+            ],
+            "avg_active_days": 16.1
+          },
+          "total_items_analyzed": 184,
+          "collected_at": "2026-02-17T22:40:12.635506"
+        },
+        {
+          "project_key": "Legal_Product D",
+          "project_name": "Product D",
+          "unassigned": {
+            "unassigned_count": 756,
+            "total_items": 1167,
+            "unassigned_pct": 64.8,
+            "items": [
+              {
+                "id": 1924417,
+                "title": "Document interface contracts",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-05T14:35:49.503Z"
+              },
+              {
+                "id": 1924698,
+                "title": "Initiate User Migration Flow",
+                "type": "User Story",
+                "state": "Active",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-05T16:02:51.473Z"
+              },
+              {
+                "id": 1924710,
+                "title": "Handle Migration Errors and Edge Cases",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-05T16:06:22.677Z"
+              },
+              {
+                "id": 1935414,
+                "title": "Case Archive & Restore issue",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-11T09:45:47.95Z"
+              },
+              {
+                "id": 1938364,
+                "title": "Dev",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-12T11:05:42.473Z"
+              },
+              {
+                "id": 1938365,
+                "title": "QA",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-12T11:05:48.95Z"
+              },
+              {
+                "id": 1939342,
+                "title": "Pdata refactor -holder user story",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-12T17:02:39.807Z"
+              },
+              {
+                "id": 1944025,
+                "title": "HF41000 HF351 - Exploratory Testing/Visual bugs",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-14T13:40:20.763Z"
+              },
+              {
+                "id": 1949232,
+                "title": "HF40009: Unable to highlight multiple history items in folder view",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-18T16:38:36.743Z"
+              },
+              {
+                "id": 1951816,
+                "title": "Post incoming mail error",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product D\\Triage",
+                "created_date": "2025-11-20T08:36:56.277Z"
+              },
+              {
+                "id": 1958950,
+                "title": "VAT Adjustments in VAT Management - Posting user not recorded",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-11-24T17:11:53.957Z"
+              },
+              {
+                "id": 1959552,
+                "title": "Add UI element for Migration Mode initiation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product D\\Product D Chevin",
+                "created_date": "2025-11-25T09:20:00.797Z"
+              },
+              {
+                "id": 1959557,
+                "title": "Update documentation and provide test cases.",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product D\\Product D Chevin",
+                "created_date": "2025-11-25T09:20:30.353Z"
+              },
+              {
+                "id": 1967674,
+                "title": "Send an Advanced Report (1st phase of 64bit)",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-12-01T14:53:29.527Z"
+              },
+              {
+                "id": 1967675,
+                "title": "Create an Advanced report",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-12-01T14:53:50.117Z"
+              },
+              {
+                "id": 1973567,
+                "title": "QA",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-12-04T11:27:42.753Z"
+              },
+              {
+                "id": 1973569,
+                "title": "Documentation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-12-04T11:27:52.99Z"
+              },
+              {
+                "id": 1979969,
+                "title": "Create equivalent to FindLeaksBeforeAndAfter.w which uses OpenEdge.Core.Util.LeakCheck",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-12-09T10:03:40.817Z"
+              },
+              {
+                "id": 1983185,
+                "title": "Product K | Touchpoint | Change this code to not construct the path from file name entry of an archive.",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-12-10T19:24:05.66Z"
+              },
+              {
+                "id": 1983186,
+                "title": "Product K | Touchpoint | Change this code to not construct the path from user-controlled data.",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product D\\Product D Features",
+                "created_date": "2025-12-10T19:24:16.2Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 11,
+              "features": 393,
+              "tasks": 352
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 24,
+            "top_assignees": [
+              [
+                "Unassigned",
+                756
+              ],
+              [
+                "Nicola Roberts",
+                119
+              ],
+              [
+                "Linda Brook",
+                101
+              ],
+              [
+                "Ivan Barker",
+                58
+              ],
+              [
+                "Tim Barlow",
+                23
+              ],
+              [
+                "Alex Barr",
+                19
+              ],
+              [
+                "Barbara Davies",
+                19
+              ],
+              [
+                "Simon Gudgin",
+                10
+              ],
+              [
+                "Nicky Jayia",
+                9
+              ],
+              [
+                "Mark Hillyard",
+                8
+              ]
+            ],
+            "load_imbalance_ratio": 756.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 10,
+            "areas": [
+              {
+                "area_path": "Product D\\QA-Team",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product D\\POT Go",
+                "total_items": 3,
+                "unassigned_items": 3,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product D\\LB Connect - Product D",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product D\\Review",
+                "total_items": 160,
+                "unassigned_items": 158,
+                "unassigned_pct": 98.8
+              },
+              {
+                "area_path": "Product D\\Product D Chevin",
+                "total_items": 39,
+                "unassigned_items": 38,
+                "unassigned_pct": 97.4
+              },
+              {
+                "area_path": "Product D\\Product D VPN Testing",
+                "total_items": 32,
+                "unassigned_items": 30,
+                "unassigned_pct": 93.8
+              },
+              {
+                "area_path": "Product D\\CMSCentral",
+                "total_items": 56,
+                "unassigned_items": 49,
+                "unassigned_pct": 87.5
+              },
+              {
+                "area_path": "Product D\\Triage",
+                "total_items": 7,
+                "unassigned_items": 6,
+                "unassigned_pct": 85.7
+              },
+              {
+                "area_path": "Product D\\Product D Features",
+                "total_items": 490,
+                "unassigned_items": 404,
+                "unassigned_pct": 82.4
+              },
+              {
+                "area_path": "Product D\\IWS",
+                "total_items": 378,
+                "unassigned_items": 66,
+                "unassigned_pct": 17.5
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 17,
+              "unassigned": 11,
+              "assigned": 6,
+              "unassigned_pct": 64.7
+            },
+            "User Story": {
+              "total": 539,
+              "unassigned": 393,
+              "assigned": 146,
+              "unassigned_pct": 72.9
+            },
+            "Task": {
+              "total": 611,
+              "unassigned": 352,
+              "assigned": 259,
+              "unassigned_pct": 57.6
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 14,
+            "total_commits": 271,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "David Robinson",
+                "active_days": 11,
+                "commits": 271
+              },
+              {
+                "developer": "Daniel Wood",
+                "active_days": 10,
+                "commits": 271
+              },
+              {
+                "developer": "Barbara Davies",
+                "active_days": 9,
+                "commits": 271
+              },
+              {
+                "developer": "Devin AI",
+                "active_days": 8,
+                "commits": 271
+              },
+              {
+                "developer": "Alex Barr",
+                "active_days": 7,
+                "commits": 271
+              },
+              {
+                "developer": "Simon Earnshaw",
+                "active_days": 6,
+                "commits": 271
+              },
+              {
+                "developer": "Stuart Kenyon",
+                "active_days": 4,
+                "commits": 271
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 2,
+                "commits": 271
+              },
+              {
+                "developer": "Paula Hayden",
+                "active_days": 1,
+                "commits": 271
+              },
+              {
+                "developer": "PaulaHayden",
+                "active_days": 1,
+                "commits": 271
+              },
+              {
+                "developer": "Mark Hillyard",
+                "active_days": 1,
+                "commits": 271
+              },
+              {
+                "developer": "Bryan Trolley",
+                "active_days": 1,
+                "commits": 271
+              },
+              {
+                "developer": "TrillBe",
+                "active_days": 1,
+                "commits": 271
+              },
+              {
+                "developer": "StuartK",
+                "active_days": 1,
+                "commits": 271
+              }
+            ],
+            "avg_active_days": 4.5
+          },
+          "total_items_analyzed": 1167,
+          "collected_at": "2026-02-17T22:40:16.702738"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "unassigned": {
+            "unassigned_count": 192,
+            "total_items": 271,
+            "unassigned_pct": 70.8,
+            "items": [
+              {
+                "id": 1634569,
+                "title": "Risk Field - DPS Reports - Client Listing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-04-07T15:34:37.457Z"
+              },
+              {
+                "id": 1634574,
+                "title": "Risk Field - DPS Report - Matter Listing",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-04-07T15:37:26.427Z"
+              },
+              {
+                "id": 1659987,
+                "title": "Multiple email attach - date not set",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-04-30T10:05:53.647Z"
+              },
+              {
+                "id": 1662470,
+                "title": "**BL16 Purpose Codes - not shown on Echit Print out IF Supplier is included",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-05-02T08:05:59.283Z"
+              },
+              {
+                "id": 1672783,
+                "title": "Purpose Codes - Allocating Purpose Codes to Imported EChits",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-12T12:27:20.52Z"
+              },
+              {
+                "id": 1674319,
+                "title": "DATA ISSUE **Wolferstans - Control Inspect Balances - Firm Invoices differences - 65901948",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-05-13T12:11:34.483Z"
+              },
+              {
+                "id": 1678662,
+                "title": "Token Management",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:15:16.523Z"
+              },
+              {
+                "id": 1678664,
+                "title": "Security Improvements",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:15:37.763Z"
+              },
+              {
+                "id": 1678665,
+                "title": "Authentication Flow",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:15:58.123Z"
+              },
+              {
+                "id": 1678667,
+                "title": "User-Facing Error Handling",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:17:01.537Z"
+              },
+              {
+                "id": 1678668,
+                "title": "Edge Cases",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:17:36.22Z"
+              },
+              {
+                "id": 1678670,
+                "title": "Logging & Debugging",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:17:57.087Z"
+              },
+              {
+                "id": 1678671,
+                "title": "Feedback & Transitions",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:18:19.78Z"
+              },
+              {
+                "id": 1678673,
+                "title": "Accessibility",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:18:36.847Z"
+              },
+              {
+                "id": 1678675,
+                "title": "Mobile & Responsive Support",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:19:03.793Z"
+              },
+              {
+                "id": 1678676,
+                "title": "Code Documentation",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:19:28.467Z"
+              },
+              {
+                "id": 1678678,
+                "title": "Developer Experience",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-15T13:19:46.847Z"
+              },
+              {
+                "id": 1689405,
+                "title": "Remove Previewer Switch in Favour of Alternative Previewer",
+                "type": "User Story",
+                "state": "Active",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-22T15:39:38.627Z"
+              },
+              {
+                "id": 1690925,
+                "title": "Render and populate Email Card in the Outlook Add-in interface",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-05-23T15:13:01.24Z"
+              },
+              {
+                "id": 1707013,
+                "title": "Analyse DPSConfig tool’s architecture to identify coupling and dependencies",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-06-05T09:00:53Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 38,
+              "features": 91,
+              "tasks": 63
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 12,
+            "top_assignees": [
+              [
+                "Unassigned",
+                192
+              ],
+              [
+                "Sam Ridgwell",
+                31
+              ],
+              [
+                "Mark Perry",
+                16
+              ],
+              [
+                "Mark Parker",
+                13
+              ],
+              [
+                "Gayani Peramuna Arachchige",
+                5
+              ],
+              [
+                "Michele Lines",
+                3
+              ],
+              [
+                "Nimasha Soyza",
+                3
+              ],
+              [
+                "Jan Hyde",
+                2
+              ],
+              [
+                "Shazzad Miah",
+                2
+              ],
+              [
+                "Kim Williams",
+                1
+              ]
+            ],
+            "load_imbalance_ratio": 192.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 3,
+            "areas": [
+              {
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "total_items": 201,
+                "unassigned_items": 148,
+                "unassigned_pct": 73.6
+              },
+              {
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "total_items": 69,
+                "unassigned_items": 44,
+                "unassigned_pct": 63.8
+              },
+              {
+                "area_path": "Product A\\OneOffice and Financial Director\\Backlog\\Bucket List",
+                "total_items": 1,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 53,
+              "unassigned": 38,
+              "assigned": 15,
+              "unassigned_pct": 71.7
+            },
+            "User Story": {
+              "total": 103,
+              "unassigned": 91,
+              "assigned": 12,
+              "unassigned_pct": 88.3
+            },
+            "Task": {
+              "total": 115,
+              "unassigned": 63,
+              "assigned": 52,
+              "unassigned_pct": 54.8
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 19,
+            "total_commits": 1066,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin AI",
+                "active_days": 43,
+                "commits": 1066
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 30,
+                "commits": 1066
+              },
+              {
+                "developer": "Rahul Garg",
+                "active_days": 7,
+                "commits": 1066
+              },
+              {
+                "developer": "Mohamed Zufry",
+                "active_days": 5,
+                "commits": 1066
+              },
+              {
+                "developer": "Lushan Don Fransiskuge Don",
+                "active_days": 4,
+                "commits": 1066
+              },
+              {
+                "developer": "Kanishka Hewapathirana",
+                "active_days": 4,
+                "commits": 1066
+              },
+              {
+                "developer": "Lushan jayanath",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "M Zufry",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Lakmal Siyambalage",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Nimasha Soyza",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Gabriel Tanase",
+                "active_days": 2,
+                "commits": 1066
+              },
+              {
+                "developer": "Damith Premarathne",
+                "active_days": 2,
+                "commits": 1066
+              },
+              {
+                "developer": "unknown",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "tgabrielc",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Gabriel Tanase",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Sam-Ridgwell",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Dilantha Perera",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Lak",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Chathurika Rathnayaka Mudiyanselage",
+                "active_days": 1,
+                "commits": 1066
+              }
+            ],
+            "avg_active_days": 6.1
+          },
+          "total_items_analyzed": 271,
+          "collected_at": "2026-02-17T22:40:14.333351"
         }
       ],
       "config": {
