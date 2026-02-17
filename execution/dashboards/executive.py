@@ -104,9 +104,9 @@ class ExecutiveSummaryGenerator:
         flow_task = self._query_flow_data()
 
         results = await asyncio.gather(quality_task, security_task, flow_task, return_exceptions=True)
-        quality_data: dict[str, Any] | BaseException = results[0]
-        security_data: dict[str, Any] | BaseException = results[1]
-        flow_data: dict[str, Any] | BaseException = results[2]
+        quality_data: dict[str, Any] | None | BaseException = results[0]
+        security_data: dict[str, Any] | None | BaseException = results[1]
+        flow_data: dict[str, Any] | None | BaseException = results[2]
 
         # Handle exceptions
         quality_result: dict[str, Any] | None = None
