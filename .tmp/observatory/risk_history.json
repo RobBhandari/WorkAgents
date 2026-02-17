@@ -53670,6 +53670,304 @@
       "config": {
         "lookback_days": 90
       }
+    },
+    {
+      "week_date": "2026-02-17",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Project_A",
+          "project_name": "Product A",
+          "code_churn": {
+            "total_commits": 1066,
+            "total_file_changes": 4305,
+            "unique_files_touched": 671,
+            "hot_paths": [
+              {
+                "path": "/src",
+                "change_count": 87
+              },
+              {
+                "path": "/XCode",
+                "change_count": 20
+              },
+              {
+                "path": "/XCode/iTime-iOS",
+                "change_count": 20
+              },
+              {
+                "path": "/app",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management/src",
+                "change_count": 20
+              },
+              {
+                "path": "/inventory-management/src/features",
+                "change_count": 20
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Business",
+                "change_count": 19
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "change_count": 17
+              },
+              {
+                "path": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "change_count": 17
+              },
+              {
+                "path": "/src/pages",
+                "change_count": 17
+              },
+              {
+                "path": "/src/app",
+                "change_count": 17
+              },
+              {
+                "path": "/app/src",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk/co",
+                "change_count": 16
+              },
+              {
+                "path": "/app/src/main/java/uk/co/dpssoftware",
+                "change_count": 16
+              }
+            ],
+            "avg_changes_per_commit": 4.038461538461538
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 671,
+            "single_owner_count": 442,
+            "two_owner_count": 210,
+            "multi_owner_count": 19,
+            "single_owner_pct": 65.9,
+            "single_owner_files": [
+              {
+                "path": "/azure-pipelines-access-evo.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/azure-pipelines-alcm-evo.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/azure-pipelines.yml",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ActiveCheckoutsByCategory",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ActiveCheckoutsByCategory/active.checkouts.by.category.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateClient",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateClient/add.update.client.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateMatter/add.update.matter.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateTimeRecord",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AddUpdateTimeRecord/add.update.time.record.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AmlCheckAsync",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/AmlCheckAsync/aml.check.async.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanCheckedOutFiles",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanCheckedOutFiles/clean.checked.out.files.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanDriveArtifacts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/CleanDriveArtifacts/clean.drive.artifacts.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ContactsOnfileCount",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/ContactsOnfileCount/contacts.onfile.count.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/DeleteTimeRecord",
+                "owner": "Devin Azure DevOps Integration"
+              },
+              {
+                "path": "/src/API/DeleteTimeRecord/delete.time.record.request.ts",
+                "owner": "Devin Azure DevOps Integration"
+              }
+            ]
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 28313,
+            "top_coupled_pairs": [
+              {
+                "file1": "/XCode",
+                "file2": "/XCode/iTime-iOS",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management",
+                "file2": "/inventory-management/src/features",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/inventory-management/src",
+                "file2": "/inventory-management/src/features",
+                "co_change_count": 20
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Business",
+                "co_change_count": 19
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src/AccessGroup.ALCM.Tests/Business/Services",
+                "file2": "/src/AccessGroup.ALCM.Tests/Business/Services/MatterServiceTests.cs",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/pages",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/src",
+                "file2": "/src/app",
+                "co_change_count": 17
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main",
+                "co_change_count": 16
+              },
+              {
+                "file1": "/app",
+                "file2": "/app/src/main/java",
+                "co_change_count": 16
+              }
+            ],
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 56,
+          "collected_at": "2026-02-17T18:45:52.118713"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
     }
   ]
 }
