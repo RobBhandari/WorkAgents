@@ -117,7 +117,9 @@ class SecureHTTPClient:
         """
         kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.delete(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 119
+        return requests.delete(
+            url, **kwargs
+        )  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 119
 
     @staticmethod
     def patch(url: str, **kwargs) -> requests.Response:
@@ -137,7 +139,9 @@ class SecureHTTPClient:
         """
         kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.patch(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 139
+        return requests.patch(
+            url, **kwargs
+        )  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 139
 
 
 # Convenience functions (can be imported directly)

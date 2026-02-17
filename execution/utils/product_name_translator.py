@@ -18,13 +18,13 @@ DRY PRINCIPLE:
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 
 def translate_value(
     value: Any,
-    mapping: Dict[str, str],
-    stats: Dict[str, int],
+    mapping: dict[str, str],
+    stats: dict[str, int],
     direction: str = "forward",
     fail_on_unmapped: bool = False,
 ) -> Any:
@@ -57,9 +57,7 @@ def translate_value(
         for k, v in value.items():
             # Translate the key
             translated_key = k
-            for source_name, target_name in sorted(
-                mapping.items(), key=lambda x: len(x[0]), reverse=True
-            ):
+            for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
                 if source_name in translated_key:
                     count = translated_key.count(source_name)
                     stats[source_name] = stats.get(source_name, 0) + count
@@ -70,23 +68,16 @@ def translate_value(
                 _check_unmapped_generics(translated_key, mapping, "dictionary key")
 
             # Translate the value recursively
-            translated_dict[translated_key] = translate_value(
-                v, mapping, stats, direction, fail_on_unmapped
-            )
+            translated_dict[translated_key] = translate_value(v, mapping, stats, direction, fail_on_unmapped)
         return translated_dict
 
     elif isinstance(value, list):
-        return [
-            translate_value(item, mapping, stats, direction, fail_on_unmapped)
-            for item in value
-        ]
+        return [translate_value(item, mapping, stats, direction, fail_on_unmapped) for item in value]
 
     elif isinstance(value, str):
         # Replace product names (longest first to avoid partial matches)
         translated = value
-        for source_name, target_name in sorted(
-            mapping.items(), key=lambda x: len(x[0]), reverse=True
-        ):
+        for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
             if source_name in translated:
                 count = translated.count(source_name)
                 stats[source_name] = stats.get(source_name, 0) + count
@@ -105,7 +96,7 @@ def translate_value(
         return value
 
 
-def _check_unmapped_generics(text: str, mapping: Dict[str, str], context: str) -> None:
+def _check_unmapped_generics(text: str, mapping: dict[str, str], context: str) -> None:
     """
     Check if text contains unmapped generic product names and fail loudly.
 
@@ -139,7 +130,7 @@ def _check_unmapped_generics(text: str, mapping: Dict[str, str], context: str) -
             )
 
 
-def _anonymize_emails(text: str, stats: Dict[str, int]) -> str:
+def _anonymize_emails(text: str, stats: dict[str, int]) -> str:
     """
     Anonymize email addresses (replace @theaccessgroup.com with name format).
 
@@ -169,10 +160,10 @@ def _anonymize_emails(text: str, stats: Dict[str, int]) -> str:
 
 def translate_history_file(
     file_path: Path,
-    mapping: Dict[str, str],
+    mapping: dict[str, str],
     direction: str = "forward",
     fail_on_unmapped: bool = False,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """
     Translate product names in a single history JSON file.
 
@@ -191,11 +182,11 @@ def translate_history_file(
         json.JSONDecodeError: If file is not valid JSON
     """
     # Load JSON
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
     # Track replacements
-    stats: Dict[str, int] = {}
+    stats: dict[str, int] = {}
 
     # Translate all values
     translated_data = translate_value(data, mapping, stats, direction, fail_on_unmapped)
@@ -207,7 +198,7 @@ def translate_history_file(
     return stats
 
 
-def load_mapping_file(file_path: Path, direction: str = "forward") -> Dict[str, str]:
+def load_mapping_file(file_path: Path, direction: str = "forward") -> dict[str, str]:
     """
     Load product name mapping from JSON file.
 
@@ -223,14 +214,12 @@ def load_mapping_file(file_path: Path, direction: str = "forward") -> Dict[str, 
     """
     if not file_path.exists():
         print(f"[ERROR] Mapping file not found: {file_path}")
-        print(
-            f"In CI/CD, this file should be created from GitHub Secrets"
-        )
+        print("In CI/CD, this file should be created from GitHub Secrets")
         print(f"Locally, create it with: echo '$MAPPING_JSON' > {file_path}")
         sys.exit(1)
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             mapping = json.load(f)
 
         if not isinstance(mapping, dict):
