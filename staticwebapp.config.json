@@ -24,7 +24,7 @@
   },
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["*.{css,scss,js,png,gif,ico,jpg,svg,json}"]
+    "exclude": ["*.{css,scss,js,png,gif,ico,jpg,svg,json,html}"]
   },
   "globalHeaders": {
     "cache-control": "no-cache, no-store, must-revalidate"
