@@ -23,6 +23,7 @@ import asyncio
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
 from execution.collectors.ado_rest_transformers import WorkItemTransformer
@@ -151,7 +152,8 @@ def _load_discovery_data() -> dict:
     projects = discovery_data.get("projects", [])
     logger.info(f"Loaded {len(projects)} projects from discovery")
 
-    return discovery_data
+    discovery_data_typed: dict[Any, Any] = discovery_data
+    return discovery_data_typed
 
 
 async def _query_current_state(baselines: dict[str, dict]) -> dict[str, int]:
@@ -241,7 +243,7 @@ async def _query_current_ado_bugs() -> int:
     for project, result in zip(projects, results, strict=False):
         if isinstance(result, Exception):
             logger.error(f"Error querying bugs for {project['project_name']}: {result}")
-        else:
+        elif isinstance(result, int):
             total_bugs += result
 
     logger.info(f"Current ADO bugs (all projects): {total_bugs}")

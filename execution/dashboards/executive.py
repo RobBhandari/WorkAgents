@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any
 
 # Import infrastructure and domain models
-from execution.collectors.ado_flow_metrics import AGING_THRESHOLD_DAYS, LOOKBACK_DAYS, collect_flow_metrics_for_project
+from execution.collectors.ado_flow_metrics import collect_flow_metrics_for_project
 from execution.collectors.ado_quality_metrics import collect_quality_metrics_for_project
 from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
@@ -36,6 +36,7 @@ from execution.core import get_logger
 from execution.dashboards.components.cards import metric_card
 from execution.dashboards.components.charts import trend_indicator
 from execution.dashboards.renderer import render_dashboard
+from execution.domain.constants import flow_metrics
 from execution.framework import get_dashboard_framework
 from execution.utils.error_handling import log_and_return_default
 from execution.utils.json_utils import load_json_with_recovery
@@ -107,19 +108,25 @@ class ExecutiveSummaryGenerator:
         )
 
         # Handle exceptions
+        quality_result: dict[str, Any] | None = None
         if isinstance(quality_data, Exception):
             logger.error("Failed to query quality data", extra={"error": str(quality_data)})
-            quality_data = None
+        elif isinstance(quality_data, dict):
+            quality_result = quality_data
 
+        security_result: dict[str, Any] | None = None
         if isinstance(security_data, Exception):
             logger.error("Failed to query security data", extra={"error": str(security_data)})
-            security_data = None
+        elif isinstance(security_data, dict):
+            security_result = security_data
 
+        flow_result: dict[str, Any] | None = None
         if isinstance(flow_data, Exception):
             logger.error("Failed to query flow data", extra={"error": str(flow_data)})
-            flow_data = None
+        elif isinstance(flow_data, dict):
+            flow_result = flow_data
 
-        return {"quality": quality_data, "security": security_data, "flow": flow_data}
+        return {"quality": quality_result, "security": security_result, "flow": flow_result}
 
     async def _query_quality_data(self) -> dict[str, Any] | None:
         """Query quality/bug metrics from ADO API"""
@@ -151,7 +158,7 @@ class ExecutiveSummaryGenerator:
             for project, result in zip(projects, results, strict=True):
                 if isinstance(result, Exception):
                     logger.warning(f"Failed quality query for {project.get('project_name')}: {result}")
-                else:
+                elif isinstance(result, dict):
                     project_metrics.append(result)
 
             if not project_metrics:
@@ -251,7 +258,10 @@ class ExecutiveSummaryGenerator:
 
             # Get REST client and config
             rest_client = get_ado_rest_client()
-            config = {"lookback_days": LOOKBACK_DAYS, "aging_threshold_days": AGING_THRESHOLD_DAYS}
+            config = {
+                "lookback_days": flow_metrics.LOOKBACK_DAYS,
+                "aging_threshold_days": flow_metrics.AGING_THRESHOLD_DAYS,
+            }
 
             # Query metrics for all projects concurrently
             tasks = [collect_flow_metrics_for_project(rest_client, project, config) for project in projects]
@@ -262,7 +272,7 @@ class ExecutiveSummaryGenerator:
             for project, result in zip(projects, results, strict=True):
                 if isinstance(result, Exception):
                     logger.warning(f"Failed flow query for {project.get('project_name')}: {result}")
-                else:
+                elif isinstance(result, dict):
                     project_metrics.append(result)
 
             if not project_metrics:
