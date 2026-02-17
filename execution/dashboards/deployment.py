@@ -23,6 +23,7 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 # Import domain models and utilities
 from execution.collectors.ado_deployment_metrics import (
@@ -130,15 +131,15 @@ async def _query_deployment_data() -> tuple[list[DeploymentMetrics], list[dict],
     raw_projects = await asyncio.gather(*tasks)
 
     # Filter out any None results (failed collections)
-    raw_projects = [p for p in raw_projects if p is not None]
+    raw_projects_filtered: list[dict[Any, Any]] = [p for p in raw_projects if p is not None]
 
     # Convert to domain models
-    metrics_list = [from_json(project) for project in raw_projects]
+    metrics_list = [from_json(project) for project in raw_projects_filtered]
 
     # Collection date is today
     collection_date = datetime.now().strftime("%Y-%m-%d")
 
-    return metrics_list, raw_projects, collection_date
+    return metrics_list, raw_projects_filtered, collection_date
 
 
 async def _collect_project_metrics(rest_client, project: dict, lookback_days: int) -> dict | None:

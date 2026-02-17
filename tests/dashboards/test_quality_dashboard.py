@@ -131,10 +131,12 @@ class TestQueryQualityData:
                 with patch("execution.dashboards.quality.get_ado_rest_client"):
                     with patch(
                         "execution.dashboards.quality.collect_quality_metrics_for_project",
-                        side_effect=[
-                            AsyncMock(return_value=mock_project_metrics[0])(),
-                            AsyncMock(return_value=mock_project_metrics[1])(),
-                        ],
+                        new=AsyncMock(
+                            side_effect=[
+                                mock_project_metrics[0],
+                                mock_project_metrics[1],
+                            ]
+                        ),
                     ):
                         data = await _query_quality_data()
 

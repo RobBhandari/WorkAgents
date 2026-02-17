@@ -138,7 +138,7 @@ class TestQueryRiskData:
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
                 with patch("execution.dashboards.risk.collect_risk_metrics_for_project") as mock_collect:
-                    with patch("execution.dashboards.risk.get_ado_rest_client"):
+                    with patch("execution.collectors.ado_rest_client.get_ado_rest_client"):
                         # Mock the collector to return sample project data
                         mock_collect.return_value = sample_risk_data["projects"][0]
 
@@ -183,7 +183,7 @@ class TestQueryRiskData:
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
                 with patch("execution.dashboards.risk.collect_risk_metrics_for_project") as mock_collect:
-                    with patch("execution.dashboards.risk.get_ado_rest_client"):
+                    with patch("execution.collectors.ado_rest_client.get_ado_rest_client"):
                         # First project succeeds, second fails
                         mock_collect.side_effect = [
                             {"project_name": "Project 1", "code_churn": {}},

@@ -93,7 +93,7 @@ async def _collect_flow_data() -> dict[str, Any]:
                 "Failed to collect metrics for project",
                 extra={"project_name": project["project_name"], "error": str(result)},
             )
-        else:
+        elif isinstance(result, dict):
             project_metrics.append(result)
 
     logger.info("Flow data collected", extra={"successful_projects": len(project_metrics)})
