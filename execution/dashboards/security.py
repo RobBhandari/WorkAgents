@@ -6,8 +6,7 @@ Generates security vulnerability dashboard using:
     - Reusable components (cards, tables)
     - Jinja2 templates (XSS-safe)
 
-This replaces the original 1833-line generate_security_dashboard.py with a
-clean, maintainable implementation of <300 lines.
+Queries ArmorCode API directly for fresh Production-only vulnerability data.
 
 Usage:
     from execution.dashboards.security import generate_security_dashboard
@@ -17,11 +16,17 @@ Usage:
     generate_security_dashboard(output_path)
 """
 
+import json
+import os
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
 # Import domain models
-from execution.collectors.armorcode_loader import ArmorCodeLoader
+from execution.collectors.armorcode_vulnerability_loader import (
+    ArmorCodeVulnerabilityLoader,
+    VulnerabilityDetail,
+)
 from execution.core import get_logger
 from execution.dashboards.components.cards import metric_card, summary_card
 from execution.dashboards.renderer import render_dashboard
@@ -33,20 +38,106 @@ from execution.utils.error_handling import log_and_raise
 logger = get_logger(__name__)
 
 
+def _load_baseline_products() -> list[str]:
+    """
+    Load product names from ArmorCode baseline file.
+
+    Returns:
+        List of product names to track
+
+    Raises:
+        FileNotFoundError: If baseline file doesn't exist
+        ValueError: If baseline has invalid format
+    """
+    # Try data/ folder first (CI/CD), then .tmp/ (local dev)
+    baseline_paths = [
+        Path("data/armorcode_baseline.json"),
+        Path(".tmp/armorcode_baseline.json"),
+    ]
+
+    for baseline_path in baseline_paths:
+        if baseline_path.exists():
+            logger.info(f"Loading baseline from {baseline_path}")
+            with open(baseline_path, encoding="utf-8") as f:
+                baseline = json.load(f)
+
+            products = baseline.get("products", [])
+            if not products:
+                raise ValueError(f"No products found in baseline: {baseline_path}")
+
+            logger.info(f"Tracking {len(products)} products from baseline")
+            return products
+
+    raise FileNotFoundError(
+        "ArmorCode baseline not found. Expected:\n"
+        "  - data/armorcode_baseline.json (CI/CD)\n"
+        "  - .tmp/armorcode_baseline.json (local dev)\n"
+        "Run: python execution/armorcode_baseline.py"
+    )
+
+
+def _convert_vulnerabilities_to_metrics(
+    vulnerabilities: list[VulnerabilityDetail],
+) -> dict[str, SecurityMetrics]:
+    """
+    Convert list of vulnerabilities to SecurityMetrics by product.
+
+    Args:
+        vulnerabilities: List of vulnerability details from ArmorCode API
+
+    Returns:
+        Dictionary mapping product name to SecurityMetrics
+    """
+    # Group vulnerabilities by product and count by severity
+    product_counts: dict[str, dict[str, int]] = defaultdict(
+        lambda: {"critical": 0, "high": 0, "medium": 0, "low": 0, "total": 0}
+    )
+
+    for vuln in vulnerabilities:
+        product = vuln.product
+        severity = vuln.severity.upper()
+
+        product_counts[product]["total"] += 1
+        if severity == "CRITICAL":
+            product_counts[product]["critical"] += 1
+        elif severity == "HIGH":
+            product_counts[product]["high"] += 1
+        elif severity == "MEDIUM":
+            product_counts[product]["medium"] += 1
+        elif severity == "LOW":
+            product_counts[product]["low"] += 1
+
+    # Convert to SecurityMetrics domain models
+    metrics_by_product = {}
+    for product_name, counts in product_counts.items():
+        metrics = SecurityMetrics(
+            timestamp=datetime.now(),
+            project=product_name,
+            total_vulnerabilities=counts["total"],
+            critical=counts["critical"],
+            high=counts["high"],
+            medium=counts["medium"],
+            low=counts["low"],
+        )
+        metrics_by_product[product_name] = metrics
+
+    return metrics_by_product
+
+
 def generate_security_dashboard(output_path: Path | None = None) -> str:
     """
     Generate security vulnerabilities dashboard HTML.
 
     Main entry point for security dashboard generation. Follows 4-stage pipeline:
-    1. Load data from ArmorCode history
+    1. Query ArmorCode API directly for fresh Production-only data
     2. Calculate summary statistics
     3. Build template context
     4. Render HTML template
 
     :param output_path: Optional path to write HTML file (creates parent directories if needed)
     :returns: Fully rendered HTML string
-    :raises FileNotFoundError: If security_history.json doesn't exist
-    :raises ValueError: If history file has invalid format
+    :raises FileNotFoundError: If baseline file doesn't exist
+    :raises ValueError: If baseline has invalid format
 
     Example:
         >>> from pathlib import Path
@@ -58,10 +149,17 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
     """
     logger.info("Generating security dashboard")
 
-    # Step 1: Load data
-    logger.info("Loading security data")
-    loader = ArmorCodeLoader()
-    metrics_by_product = loader.load_latest_metrics()
+    # Step 1: Query ArmorCode API directly for fresh Production-only data
+    logger.info("Loading product list from baseline")
+    products = _load_baseline_products()
+
+    logger.info("Querying ArmorCode API for Production vulnerabilities")
+    loader = ArmorCodeVulnerabilityLoader()
+    vulnerabilities = loader.load_vulnerabilities_for_products(products, filter_environment=True)  # Production only
+    logger.info(f"Retrieved {len(vulnerabilities)} Production vulnerabilities from ArmorCode API")
+
+    logger.info("Converting vulnerabilities to metrics by product")
+    metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
     logger.info("Security data loaded", extra={"product_count": len(metrics_by_product)})
 
     # Step 2: Calculate summary statistics
