@@ -61,7 +61,7 @@ def _load_baseline_products() -> list[str]:
             with open(baseline_path, encoding="utf-8") as f:
                 baseline = json.load(f)
 
-            products = baseline.get("products", [])
+            products: list[str] = baseline.get("products", [])
             if not products:
                 raise ValueError(f"No products found in baseline: {baseline_path}")
 

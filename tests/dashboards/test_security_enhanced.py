@@ -83,7 +83,7 @@ class TestLoadSecurityData:
     """Tests for loading security data from ArmorCode API"""
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("execution.dashboards.security_enhanced.generate_product_detail_page")
     @patch("pathlib.Path.write_text")
@@ -92,16 +92,14 @@ class TestLoadSecurityData:
         mock_write,
         mock_detail_page,
         mock_framework,
-        mock_loader_class,
+        mock_load_baseline,
         mock_vuln_loader_class,
         sample_security_products,
         sample_vulnerabilities,
     ):
         """Should load products from ArmorCode API"""
-        # Setup metrics loader
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_products
-        mock_loader_class.return_value = mock_loader
+        # Setup baseline loader
+        mock_load_baseline.return_value = ["Web Application", "Mobile App"]
 
         # Setup vulnerability loader
         mock_vuln_loader = Mock()
@@ -117,27 +115,25 @@ class TestLoadSecurityData:
         html, count = generate_security_dashboard_enhanced()
 
         assert count == 0  # No detail pages (using expandable rows)
-        mock_loader.load_latest_metrics.assert_called_once()
+        mock_load_baseline.assert_called_once()
 
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
-    def test_load_products_api_failure(self, mock_loader_class):
-        """Should handle API failure gracefully"""
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.side_effect = Exception("API connection failed")
-        mock_loader_class.return_value = mock_loader
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    def test_load_products_api_failure(self, mock_load_baseline):
+        """Should handle baseline loading failure gracefully"""
+        mock_load_baseline.side_effect = FileNotFoundError("Baseline not found")
 
-        with pytest.raises(Exception, match="API connection failed"):
-            generate_security_dashboard_enhanced()
+        # Should return empty result, not raise
+        html, count = generate_security_dashboard_enhanced()
+        assert html == ""
+        assert count == 0
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
-    def test_load_products_empty_list(self, mock_write, mock_framework, mock_loader_class, mock_vuln_loader_class):
+    def test_load_products_empty_list(self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class):
         """Should handle empty product list"""
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = {}
-        mock_loader_class.return_value = mock_loader
+        mock_load_baseline.return_value = []
 
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_for_products.return_value = []
@@ -176,23 +172,21 @@ class TestGenerateProductDetailPage:
 
     @patch("execution.dashboards.security_enhanced.generate_product_detail_page")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_detail_pages_created_for_each_product(
         self,
         mock_write,
         mock_framework,
-        mock_loader_class,
+        mock_load_baseline,
         mock_vuln_loader_class,
         mock_detail_generator,
         sample_security_products,
         sample_vulnerabilities,
     ):
         """Should create detail page for each product"""
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_products
-        mock_loader_class.return_value = mock_loader
+        mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
 
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_for_products.return_value = sample_vulnerabilities
@@ -219,23 +213,21 @@ class TestGenerateProductDetailPage:
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced.generate_product_detail_page")
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_detail_page_includes_vulnerabilities(
         self,
         mock_write,
         mock_framework,
-        mock_loader_class,
+        mock_load_baseline,
         mock_detail_generator,
         mock_vuln_loader_class,
         sample_security_products,
         sample_vulnerabilities,
     ):
         """Should load vulnerabilities for detail pages"""
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_products
-        mock_loader_class.return_value = mock_loader
+        mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
 
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_for_products.return_value = sample_vulnerabilities
@@ -264,7 +256,7 @@ class TestGenerateSecurityDashboardEnhanced:
     """Tests for full dashboard generation"""
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("execution.dashboards.security_enhanced.generate_product_detail_page")
     @patch("pathlib.Path.write_text")
@@ -273,15 +265,13 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_write,
         mock_detail,
         mock_framework,
-        mock_loader_class,
+        mock_load_baseline,
         mock_vuln_loader_class,
         sample_security_products,
         sample_vulnerabilities,
     ):
         """Should generate complete dashboard HTML"""
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_products
-        mock_loader_class.return_value = mock_loader
+        mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
 
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_for_products.return_value = sample_vulnerabilities
@@ -308,7 +298,7 @@ class TestGenerateSecurityDashboardEnhanced:
         assert "Web Application" in html
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("execution.dashboards.security_enhanced.generate_product_detail_page")
     @patch("pathlib.Path.write_text")
@@ -317,16 +307,14 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_write,
         mock_detail,
         mock_framework,
-        mock_loader_class,
+        mock_load_baseline,
         mock_vuln_loader_class,
         sample_security_products,
         sample_vulnerabilities,
         tmp_path,
     ):
         """Should write HTML to specified output directory"""
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_products
-        mock_loader_class.return_value = mock_loader
+        mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
 
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_for_products.return_value = sample_vulnerabilities
@@ -352,12 +340,12 @@ class TestGenerateSecurityDashboardEnhanced:
         assert mock_write.call_count == 1  # Only main dashboard
 
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced.ArmorCodeLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("execution.dashboards.security_enhanced.generate_product_detail_page")
     @patch("pathlib.Path.write_text")
     def test_handles_missing_data_gracefully(
-        self, mock_write, mock_detail, mock_framework, mock_loader_class, mock_vuln_loader_class
+        self, mock_write, mock_detail, mock_framework, mock_load_baseline, mock_vuln_loader_class
     ):
         """Should handle missing optional fields in product data"""
         incomplete_product = {
@@ -371,9 +359,7 @@ class TestGenerateSecurityDashboardEnhanced:
             )
         }
 
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = incomplete_product
-        mock_loader_class.return_value = mock_loader
+        mock_load_baseline.return_value = ["Incomplete Product"]
 
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_for_products.return_value = []
