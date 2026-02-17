@@ -7,38 +7,42 @@ Generates collaboration metrics dashboard showing PR review metrics:
     - PR size (commits)
     - Composite status based on thresholds
 
-This replaces the original 533-line generate_collaboration_dashboard.py with a
-clean, maintainable implementation of ~170 lines.
+Queries Azure DevOps API directly for fresh data (no history file dependency).
 
 Usage:
+    import asyncio
     from execution.dashboards.collaboration import generate_collaboration_dashboard
     from pathlib import Path
 
     output_path = Path('.tmp/observatory/dashboards/collaboration.html')
-    generate_collaboration_dashboard(output_path)
+    asyncio.run(generate_collaboration_dashboard(output_path))
 """
 
+import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
 
+from execution.collectors.ado_collaboration_metrics import collect_collaboration_metrics_for_project
+from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.core import get_logger
 from execution.dashboards.components.cards import metric_card
 from execution.dashboards.renderer import render_dashboard
 
 # Import framework components
 from execution.framework import get_dashboard_framework
+from execution.secure_config import get_config
 from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
 
-def generate_collaboration_dashboard(output_path: Path | None = None) -> str:
+async def generate_collaboration_dashboard(output_path: Path | None = None) -> str:
     """
-    Generate collaboration dashboard HTML.
+    Generate collaboration dashboard HTML by querying Azure DevOps API directly.
 
     This is the main entry point for generating the collaboration dashboard.
-    It loads PR metrics data, processes it, and renders the HTML template.
+    It queries ADO for fresh PR metrics data, processes it, and renders the HTML template.
 
     Args:
         output_path: Optional path to write HTML file
@@ -47,21 +51,23 @@ def generate_collaboration_dashboard(output_path: Path | None = None) -> str:
         Generated HTML string
 
     Raises:
-        FileNotFoundError: If collaboration_history.json doesn't exist
+        ValueError: If ADO REST client initialization fails
+        SystemExit: If discovery file not found
 
     Example:
+        import asyncio
         from pathlib import Path
-        html = generate_collaboration_dashboard(
+        html = await generate_collaboration_dashboard(
             Path('.tmp/observatory/dashboards/collaboration.html')
         )
         logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
-    logger.info("Generating collaboration dashboard")
+    logger.info("Generating collaboration dashboard from ADO API")
 
-    # Step 1: Load data
-    logger.info("Loading collaboration data")
-    data = _load_collaboration_data()
-    logger.info("Collaboration data loaded", extra={"project_count": len(data["projects"])})
+    # Step 1: Load data from ADO API
+    logger.info("Querying Azure DevOps API for collaboration metrics")
+    data = await _load_collaboration_data()
+    logger.info("Collaboration data loaded from ADO", extra={"project_count": len(data["projects"])})
 
     # Step 2: Calculate summary statistics
     logger.info("Calculating summary metrics")
@@ -85,35 +91,69 @@ def generate_collaboration_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_collaboration_data() -> dict:
+async def _load_collaboration_data() -> dict:
     """
-    Load collaboration metrics history from JSON file.
+    Load collaboration metrics by querying Azure DevOps API directly.
 
     Returns:
-        Latest week data with projects
+        Fresh collaboration data with projects
 
     Raises:
-        FileNotFoundError: If collaboration_history.json doesn't exist
-        ValueError: If no weeks data is found
+        SystemExit: If discovery file not found
+        ValueError: If ADO REST client initialization fails
     """
-    history_file = Path(".tmp/observatory/collaboration_history.json")
+    # Load discovery data to get project list
+    discovery_file = Path(".tmp/observatory/ado_structure.json")
 
-    if not history_file.exists():
+    if not discovery_file.exists():
         raise FileNotFoundError(
-            f"Collaboration history not found: {history_file}\n" "Run: python execution/ado_collaboration_metrics.py"
+            f"Discovery file not found: {discovery_file}\n" "Run: python execution/collectors/discover_projects.py"
         )
 
-    with open(history_file, encoding="utf-8") as f:
-        history_data = json.load(f)
+    with open(discovery_file, encoding="utf-8") as f:
+        discovery_data = json.load(f)
 
-    if not history_data.get("weeks"):
-        raise ValueError("No weeks data found in collaboration history")
+    projects = discovery_data.get("projects", [])
 
-    # Return latest week data
-    latest_week = history_data["weeks"][-1]
+    if not projects:
+        logger.warning("No projects found in discovery data")
+        return {
+            "week_date": datetime.now().strftime("%Y-%m-%d"),
+            "projects": [],
+        }
+
+    # Get configuration
+    config = get_config()
+    lookback_days = config.get("lookback_days", 90)
+
+    # Initialize ADO REST client
+    logger.info("Connecting to Azure DevOps REST API...")
+    rest_client = get_ado_rest_client()
+    logger.info("Connected to ADO REST API")
+
+    # Collect metrics for all projects concurrently
+    logger.info(f"Collecting collaboration metrics for {len(projects)} projects (concurrent execution)...")
+
+    tasks = [
+        collect_collaboration_metrics_for_project(rest_client, project, {"lookback_days": lookback_days})
+        for project in projects
+    ]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Filter successful results
+    project_metrics = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            logger.error(f"Error collecting metrics for {project.get('project_name', 'Unknown')}: {result}")
+        else:
+            project_metrics.append(result)
+
+    logger.info(f"Successfully collected metrics for {len(project_metrics)}/{len(projects)} projects")
+
     return {
-        "week_date": latest_week.get("week_date", "Unknown"),
-        "projects": latest_week.get("projects", []),
+        "week_date": datetime.now().strftime("%Y-%m-%d"),
+        "projects": project_metrics,
     }
 
 
@@ -394,29 +434,33 @@ def _calculate_composite_status(
 if __name__ == "__main__":
     logger.info("Collaboration Dashboard Generator - Self Test")
 
-    try:
-        output_path = Path(".tmp/observatory/dashboards/collaboration_dashboard.html")
-        html = generate_collaboration_dashboard(output_path)
+    async def main():
+        try:
+            output_path = Path(".tmp/observatory/dashboards/collaboration_dashboard.html")
+            html = await generate_collaboration_dashboard(output_path)
 
-        logger.info(
-            "Collaboration dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
-        )
+            logger.info(
+                "Collaboration dashboard generated successfully",
+                extra={"output": str(output_path), "html_size": len(html)},
+            )
 
-        # Verify output
-        if output_path.exists():
-            file_size = output_path.stat().st_size
-            logger.info("Output file verified", extra={"file_size": file_size})
-        else:
-            logger.warning("Output file not created")
+            # Verify output
+            if output_path.exists():
+                file_size = output_path.stat().st_size
+                logger.info("Output file verified", extra={"file_size": file_size})
+            else:
+                logger.warning("Output file not created")
 
-    except FileNotFoundError as e:
-        logger.error("Collaboration data file not found", extra={"error": str(e)})
-        logger.info("Run data collection first: python execution/ado_collaboration_metrics.py")
+        except FileNotFoundError as e:
+            logger.error("Discovery file not found", extra={"error": str(e)})
+            logger.info("Run discovery first: python execution/collectors/discover_projects.py")
 
-    except Exception as e:
-        log_and_raise(
-            logger,
-            e,
-            context={"output_path": str(output_path), "operation": "dashboard_generation"},
-            error_type="Collaboration dashboard generation",
-        )
+        except Exception as e:
+            log_and_raise(
+                logger,
+                e,
+                context={"output_path": str(output_path), "operation": "dashboard_generation"},
+                error_type="Collaboration dashboard generation",
+            )
+
+    asyncio.run(main())

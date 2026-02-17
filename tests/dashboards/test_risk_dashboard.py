@@ -25,7 +25,7 @@ from execution.dashboards.risk import (
     _calculate_activity_level,
     _calculate_summary,
     _generate_drilldown_html,
-    _load_risk_data,
+    _query_risk_data,
     generate_risk_dashboard,
 )
 
@@ -119,55 +119,82 @@ def temp_risk_file(tmp_path):
     return tmp_path / "risk_history.json"
 
 
-class TestLoadRiskData:
-    """Test loading risk data from file"""
+class TestQueryRiskData:
+    """Test querying risk data from ADO API"""
 
-    def test_load_risk_data_success(self, sample_risk_data):
-        """Test successful loading of risk data"""
-        history_data = {"weeks": [sample_risk_data]}
-
-        with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                data = _load_risk_data()
-
-                assert data["week_number"] == 6
-                assert data["week_date"] == "2026-02-06"
-                assert len(data["projects"]) == 3
-
-    def test_load_risk_data_file_not_found(self):
-        """Test FileNotFoundError when history file doesn't exist"""
-        with patch("pathlib.Path.exists", return_value=False):
-            with pytest.raises(FileNotFoundError) as exc_info:
-                _load_risk_data()
-
-            assert "Risk history not found" in str(exc_info.value)
-
-    def test_load_risk_data_no_weeks(self):
-        """Test ValueError when weeks array is empty"""
-        history_data = {"weeks": []}
-
-        with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                with pytest.raises(ValueError) as exc_info:
-                    _load_risk_data()
-
-                assert "No weeks data" in str(exc_info.value)
-
-    def test_load_risk_data_returns_latest_week(self):
-        """Test that loading returns the most recent week"""
-        history_data = {
-            "weeks": [
-                {"week_number": 5, "week_date": "2026-01-30", "projects": []},
-                {"week_number": 6, "week_date": "2026-02-06", "projects": []},
+    @pytest.mark.asyncio
+    async def test_query_risk_data_success(self, sample_risk_data):
+        """Test successful querying of risk data from API"""
+        discovery_data = {
+            "projects": [
+                {
+                    "project_key": "API_Gateway",
+                    "project_name": "API Gateway",
+                    "ado_project_name": "API Gateway",
+                }
             ]
         }
 
         with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                data = _load_risk_data()
+            with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
+                with patch("execution.dashboards.risk.collect_risk_metrics_for_project") as mock_collect:
+                    with patch("execution.dashboards.risk.get_ado_rest_client"):
+                        # Mock the collector to return sample project data
+                        mock_collect.return_value = sample_risk_data["projects"][0]
 
-                assert data["week_number"] == 6
-                assert data["week_date"] == "2026-02-06"
+                        data = await _query_risk_data()
+
+                        assert "week_number" in data
+                        assert "week_date" in data
+                        assert len(data["projects"]) == 1
+                        assert data["projects"][0]["project_name"] == "API Gateway"
+
+    @pytest.mark.asyncio
+    async def test_query_risk_data_file_not_found(self):
+        """Test FileNotFoundError when discovery file doesn't exist"""
+        with patch("pathlib.Path.exists", return_value=False):
+            with pytest.raises(FileNotFoundError) as exc_info:
+                await _query_risk_data()
+
+            assert "Project discovery not found" in str(exc_info.value)
+
+    @pytest.mark.asyncio
+    async def test_query_risk_data_no_projects(self):
+        """Test ValueError when no projects in discovery data"""
+        discovery_data = {"projects": []}
+
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
+                with pytest.raises(ValueError) as exc_info:
+                    await _query_risk_data()
+
+                assert "No projects found" in str(exc_info.value)
+
+    @pytest.mark.asyncio
+    async def test_query_risk_data_handles_exceptions(self):
+        """Test that API exceptions are handled gracefully"""
+        discovery_data = {
+            "projects": [
+                {"project_key": "Project1", "project_name": "Project 1"},
+                {"project_key": "Project2", "project_name": "Project 2"},
+            ]
+        }
+
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
+                with patch("execution.dashboards.risk.collect_risk_metrics_for_project") as mock_collect:
+                    with patch("execution.dashboards.risk.get_ado_rest_client"):
+                        # First project succeeds, second fails
+                        mock_collect.side_effect = [
+                            {"project_name": "Project 1", "code_churn": {}},
+                            Exception("API error"),
+                        ]
+
+                        data = await _query_risk_data()
+
+                        # Should only have 1 successful project
+                        assert len(data["projects"]) == 1
+                        assert data["projects"][0]["project_name"] == "Project 1"
 
 
 class TestCalculateSummary:
@@ -499,24 +526,24 @@ class TestBuildContext:
 class TestGenerateRiskDashboard:
     """Test main dashboard generation function"""
 
-    @patch("execution.dashboards.risk._load_risk_data")
+    @patch("execution.dashboards.risk.asyncio.run")
     @patch("execution.dashboards.risk.render_dashboard")
-    def test_generate_dashboard_success(self, mock_render, mock_load, sample_risk_data):
+    def test_generate_dashboard_success(self, mock_render, mock_asyncio_run, sample_risk_data):
         """Test successful dashboard generation"""
-        mock_load.return_value = sample_risk_data
+        mock_asyncio_run.return_value = sample_risk_data
         mock_render.return_value = "<html>Dashboard</html>"
 
         html = generate_risk_dashboard()
 
         assert html == "<html>Dashboard</html>"
-        mock_load.assert_called_once()
+        mock_asyncio_run.assert_called_once()
         mock_render.assert_called_once()
 
-    @patch("execution.dashboards.risk._load_risk_data")
+    @patch("execution.dashboards.risk.asyncio.run")
     @patch("execution.dashboards.risk.render_dashboard")
-    def test_generate_dashboard_with_output_path(self, mock_render, mock_load, sample_risk_data, tmp_path):
+    def test_generate_dashboard_with_output_path(self, mock_render, mock_asyncio_run, sample_risk_data, tmp_path):
         """Test dashboard generation with file output"""
-        mock_load.return_value = sample_risk_data
+        mock_asyncio_run.return_value = sample_risk_data
         mock_render.return_value = "<html>Dashboard</html>"
 
         output_path = tmp_path / "risk.html"
@@ -525,10 +552,10 @@ class TestGenerateRiskDashboard:
         assert output_path.exists()
         assert output_path.read_text(encoding="utf-8") == "<html>Dashboard</html>"
 
-    @patch("execution.dashboards.risk._load_risk_data")
-    def test_generate_dashboard_file_not_found(self, mock_load):
-        """Test dashboard generation with missing data file"""
-        mock_load.side_effect = FileNotFoundError("Risk history not found")
+    @patch("execution.dashboards.risk.asyncio.run")
+    def test_generate_dashboard_file_not_found(self, mock_asyncio_run):
+        """Test dashboard generation with missing discovery file"""
+        mock_asyncio_run.side_effect = FileNotFoundError("Project discovery not found")
 
         with pytest.raises(FileNotFoundError):
             generate_risk_dashboard()

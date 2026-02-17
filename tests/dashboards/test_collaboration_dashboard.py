@@ -7,13 +7,13 @@ Tests cover:
 - Context building
 - Project row generation
 - Composite status determination
-- Data loading
+- Data loading from ADO API
 - Error handling
 """
 
 import json
 from pathlib import Path
-from unittest.mock import mock_open, patch
+from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 
 import pytest
 
@@ -72,54 +72,93 @@ def sample_collaboration_data():
     }
 
 
-class TestLoadCollaborationData:
-    """Test loading collaboration data from file"""
+@pytest.fixture
+def mock_discovery_data():
+    """Sample discovery data for testing"""
+    return {
+        "projects": [
+            {
+                "project_name": "API Gateway",
+                "project_key": "api",
+                "ado_project_name": "API Gateway",
+            },
+            {
+                "project_name": "Web App",
+                "project_key": "web",
+                "ado_project_name": "Web App",
+            },
+        ]
+    }
 
-    def test_load_collaboration_data_success(self, sample_collaboration_data):
-        """Test successful loading of collaboration data"""
-        history_data = {"weeks": [sample_collaboration_data]}
+
+class TestLoadCollaborationData:
+    """Test loading collaboration data from ADO API"""
+
+    @pytest.mark.asyncio
+    async def test_load_collaboration_data_success(self, sample_collaboration_data, mock_discovery_data):
+        """Test successful loading of collaboration data from ADO API"""
+        discovery_json = json.dumps(mock_discovery_data)
 
         with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                data = _load_collaboration_data()
+            with patch("builtins.open", mock_open(read_data=discovery_json)):
+                with patch("execution.dashboards.collaboration.get_ado_rest_client") as mock_client:
+                    with patch(
+                        "execution.dashboards.collaboration.collect_collaboration_metrics_for_project"
+                    ) as mock_collect:
+                        # Mock the collector to return project metrics
+                        mock_collect.side_effect = sample_collaboration_data["projects"]
 
-                assert data["week_date"] == "2026-02-07"
-                assert len(data["projects"]) == 2
+                        data = await _load_collaboration_data()
 
-    def test_load_collaboration_data_file_not_found(self):
-        """Test FileNotFoundError when history file doesn't exist"""
+                        assert "week_date" in data
+                        assert len(data["projects"]) == 2
+                        assert data["projects"][0]["project_name"] == "API Gateway"
+
+    @pytest.mark.asyncio
+    async def test_load_collaboration_data_file_not_found(self):
+        """Test FileNotFoundError when discovery file doesn't exist"""
         with patch("pathlib.Path.exists", return_value=False):
             with pytest.raises(FileNotFoundError) as exc_info:
-                _load_collaboration_data()
+                await _load_collaboration_data()
 
-            assert "Collaboration history not found" in str(exc_info.value)
-            assert "ado_collaboration_metrics.py" in str(exc_info.value)
+            assert "Discovery file not found" in str(exc_info.value)
+            assert "discover_projects.py" in str(exc_info.value)
 
-    def test_load_collaboration_data_no_weeks(self):
-        """Test ValueError when weeks array is empty"""
-        history_data = {"weeks": []}
-
-        with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                with pytest.raises(ValueError) as exc_info:
-                    _load_collaboration_data()
-
-                assert "No weeks data" in str(exc_info.value)
-
-    def test_load_collaboration_data_returns_latest_week(self):
-        """Test that loading returns the most recent week"""
-        history_data = {
-            "weeks": [
-                {"week_date": "2026-01-31", "projects": []},
-                {"week_date": "2026-02-07", "projects": []},
-            ]
-        }
+    @pytest.mark.asyncio
+    async def test_load_collaboration_data_no_projects(self):
+        """Test handling when no projects are in discovery data"""
+        discovery_data = {"projects": []}
+        discovery_json = json.dumps(discovery_data)
 
         with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                data = _load_collaboration_data()
+            with patch("builtins.open", mock_open(read_data=discovery_json)):
+                data = await _load_collaboration_data()
 
-                assert data["week_date"] == "2026-02-07"
+                assert len(data["projects"]) == 0
+                assert "week_date" in data
+
+    @pytest.mark.asyncio
+    async def test_load_collaboration_data_handles_api_errors(self, mock_discovery_data):
+        """Test handling of API errors during collection"""
+        discovery_json = json.dumps(mock_discovery_data)
+
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data=discovery_json)):
+                with patch("execution.dashboards.collaboration.get_ado_rest_client"):
+                    with patch(
+                        "execution.dashboards.collaboration.collect_collaboration_metrics_for_project"
+                    ) as mock_collect:
+                        # Simulate one project failing
+                        mock_collect.side_effect = [
+                            {"project_name": "API Gateway", "total_prs_analyzed": 50},
+                            Exception("API Error"),
+                        ]
+
+                        data = await _load_collaboration_data()
+
+                        # Should have 1 successful project
+                        assert len(data["projects"]) == 1
+                        assert data["projects"][0]["project_name"] == "API Gateway"
 
 
 class TestCalculateSummary:
@@ -411,39 +450,44 @@ class TestBuildContext:
 class TestGenerateCollaborationDashboard:
     """Test main dashboard generation function"""
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.collaboration._load_collaboration_data")
     @patch("execution.dashboards.collaboration.render_dashboard")
-    def test_generate_dashboard_success(self, mock_render, mock_load, sample_collaboration_data):
+    async def test_generate_dashboard_success(self, mock_render, mock_load, sample_collaboration_data):
         """Test successful dashboard generation"""
         mock_load.return_value = sample_collaboration_data
         mock_render.return_value = "<html>Dashboard</html>"
 
-        html = generate_collaboration_dashboard()
+        html = await generate_collaboration_dashboard()
 
         assert html == "<html>Dashboard</html>"
         mock_load.assert_called_once()
         mock_render.assert_called_once()
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.collaboration._load_collaboration_data")
     @patch("execution.dashboards.collaboration.render_dashboard")
-    def test_generate_dashboard_with_output_path(self, mock_render, mock_load, sample_collaboration_data, tmp_path):
+    async def test_generate_dashboard_with_output_path(
+        self, mock_render, mock_load, sample_collaboration_data, tmp_path
+    ):
         """Test dashboard generation with file output"""
         mock_load.return_value = sample_collaboration_data
         mock_render.return_value = "<html>Dashboard</html>"
 
         output_path = tmp_path / "collaboration.html"
-        html = generate_collaboration_dashboard(output_path)
+        html = await generate_collaboration_dashboard(output_path)
 
         assert output_path.exists()
         assert output_path.read_text(encoding="utf-8") == "<html>Dashboard</html>"
 
+    @pytest.mark.asyncio
     @patch("execution.dashboards.collaboration._load_collaboration_data")
-    def test_generate_dashboard_file_not_found(self, mock_load):
-        """Test dashboard generation with missing data file"""
-        mock_load.side_effect = FileNotFoundError("Collaboration history not found")
+    async def test_generate_dashboard_file_not_found(self, mock_load):
+        """Test dashboard generation with missing discovery file"""
+        mock_load.side_effect = FileNotFoundError("Discovery file not found")
 
         with pytest.raises(FileNotFoundError):
-            generate_collaboration_dashboard()
+            await generate_collaboration_dashboard()
 
 
 class TestEdgeCases:
