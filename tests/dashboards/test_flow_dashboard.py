@@ -2,7 +2,7 @@
 Tests for Flow Dashboard Generator
 
 Tests cover:
-- Data loading (FlowDataLoader)
+- Data collection from ADO API (_collect_flow_data)
 - Portfolio summary calculation
 - Status determination
 - Summary card generation
@@ -14,13 +14,12 @@ Tests cover:
 - Error handling
 """
 
-import json
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from execution.dashboards.flow import FlowDataLoader, _build_context, generate_flow_dashboard
+from execution.dashboards.flow import _build_context, _collect_flow_data, generate_flow_dashboard
 from execution.dashboards.flow_helpers import (
     build_project_tables,
     build_summary_cards,
@@ -29,6 +28,17 @@ from execution.dashboards.flow_helpers import (
     calculate_status,
     format_project_row,
 )
+
+
+@pytest.fixture
+def mock_discovery_data():
+    """Mock discovery data"""
+    return {
+        "projects": [
+            {"project_name": "OneOffice", "project_key": "oneoffice", "ado_project_name": "OneOffice"},
+            {"project_name": "API Gateway", "project_key": "api-gateway", "ado_project_name": "API Gateway"},
+        ]
+    }
 
 
 @pytest.fixture
@@ -88,74 +98,93 @@ def sample_flow_data():
     }
 
 
-@pytest.fixture
-def temp_flow_file(tmp_path):
-    """Create a temporary flow history file"""
-    return tmp_path / "flow_history.json"
+class TestCollectFlowData:
+    """Test _collect_flow_data function"""
 
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.flow.load_json_with_recovery")
+    @patch("execution.dashboards.flow.get_ado_rest_client")
+    @patch("execution.dashboards.flow.collect_flow_metrics_for_project")
+    @patch("execution.dashboards.flow.Path.exists")
+    async def test_collect_flow_data_success(
+        self, mock_exists, mock_collect, mock_get_client, mock_load_json, mock_discovery_data
+    ):
+        """Test successful data collection"""
+        # Setup mocks
+        mock_exists.return_value = True
+        mock_load_json.return_value = mock_discovery_data
+        mock_rest_client = MagicMock()
+        mock_get_client.return_value = mock_rest_client
 
-class TestFlowDataLoader:
-    """Test FlowDataLoader class"""
+        # Mock project metrics
+        project_metrics = [
+            {"project_name": "OneOffice", "total_open": 100, "total_closed_90d": 50},
+            {"project_name": "API Gateway", "total_open": 75, "total_closed_90d": 30},
+        ]
+        mock_collect.side_effect = project_metrics
 
-    def test_init_default_path(self):
-        """Test initialization with default path"""
-        loader = FlowDataLoader()
+        # Execute
+        result = await _collect_flow_data()
 
-        assert loader.history_file == Path(".tmp/observatory/flow_history.json")
+        # Verify
+        assert "week_date" in result
+        assert "week_number" in result
+        assert "projects" in result
+        assert len(result["projects"]) == 2
+        assert result["projects"][0]["project_name"] == "OneOffice"
+        assert mock_collect.call_count == 2
 
-    def test_init_custom_path(self):
-        """Test initialization with custom path"""
-        custom_path = Path("custom/path/flow.json")
-        loader = FlowDataLoader(custom_path)
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.flow.Path.exists")
+    async def test_collect_flow_data_missing_discovery(self, mock_exists):
+        """Test error when discovery data is missing"""
+        mock_exists.return_value = False
 
-        assert loader.history_file == custom_path
+        with pytest.raises(FileNotFoundError) as exc_info:
+            await _collect_flow_data()
 
-    def test_load_latest_week_success(self, sample_flow_data):
-        """Test successful loading of latest week"""
-        history_data = {"weeks": [sample_flow_data]}
+        assert "Discovery data not found" in str(exc_info.value)
 
-        with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-            loader = FlowDataLoader()
-            data = loader.load_latest_week()
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.flow.load_json_with_recovery")
+    @patch("execution.dashboards.flow.Path.exists")
+    async def test_collect_flow_data_no_projects(self, mock_exists, mock_load_json):
+        """Test error when no projects in discovery data"""
+        mock_exists.return_value = True
+        mock_load_json.return_value = {"projects": []}
 
-            assert data["week_number"] == 6
-            assert data["week_date"] == "2026-02-06"
-            assert len(data["projects"]) == 2
+        with pytest.raises(ValueError) as exc_info:
+            await _collect_flow_data()
 
-    def test_load_latest_week_file_not_found(self):
-        """Test FileNotFoundError when history file doesn't exist"""
-        loader = FlowDataLoader(Path("nonexistent.json"))
+        assert "No projects found" in str(exc_info.value)
 
-        with pytest.raises(FileNotFoundError):
-            loader.load_latest_week()
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.flow.load_json_with_recovery")
+    @patch("execution.dashboards.flow.get_ado_rest_client")
+    @patch("execution.dashboards.flow.collect_flow_metrics_for_project")
+    @patch("execution.dashboards.flow.Path.exists")
+    async def test_collect_flow_data_with_failures(
+        self, mock_exists, mock_collect, mock_get_client, mock_load_json, mock_discovery_data
+    ):
+        """Test data collection with some project failures"""
+        # Setup mocks
+        mock_exists.return_value = True
+        mock_load_json.return_value = mock_discovery_data
+        mock_rest_client = MagicMock()
+        mock_get_client.return_value = mock_rest_client
 
-    def test_load_latest_week_no_weeks(self):
-        """Test ValueError when weeks array is empty"""
-        history_data = {"weeks": []}
+        # Mock one success, one failure
+        mock_collect.side_effect = [
+            {"project_name": "OneOffice", "total_open": 100, "total_closed_90d": 50},
+            Exception("API call failed"),
+        ]
 
-        with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-            loader = FlowDataLoader()
+        # Execute
+        result = await _collect_flow_data()
 
-            with pytest.raises(ValueError) as exc_info:
-                loader.load_latest_week()
-
-            assert "No weeks data" in str(exc_info.value)
-
-    def test_load_latest_week_returns_most_recent(self):
-        """Test that loading returns the most recent week"""
-        history_data = {
-            "weeks": [
-                {"week_number": 5, "week_date": "2026-01-30", "projects": []},
-                {"week_number": 6, "week_date": "2026-02-06", "projects": []},
-            ]
-        }
-
-        with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-            loader = FlowDataLoader()
-            data = loader.load_latest_week()
-
-            assert data["week_number"] == 6
-            assert data["week_date"] == "2026-02-06"
+        # Verify - should only have 1 successful project
+        assert len(result["projects"]) == 1
+        assert result["projects"][0]["project_name"] == "OneOffice"
 
 
 class TestCalculatePortfolioSummary:
@@ -585,45 +614,42 @@ class TestBuildContext:
 class TestGenerateFlowDashboard:
     """Test main dashboard generation function"""
 
-    @patch("execution.dashboards.flow.FlowDataLoader")
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.flow._collect_flow_data")
     @patch("execution.dashboards.flow.render_dashboard")
-    def test_generate_dashboard_success(self, mock_render, mock_loader_class, sample_flow_data):
+    async def test_generate_dashboard_success(self, mock_render, mock_collect, sample_flow_data):
         """Test successful dashboard generation"""
-        mock_loader = MagicMock()
-        mock_loader.load_latest_week.return_value = sample_flow_data
-        mock_loader_class.return_value = mock_loader
+        mock_collect.return_value = sample_flow_data
         mock_render.return_value = "<html>Dashboard</html>"
 
-        html = generate_flow_dashboard()
+        html = await generate_flow_dashboard()
 
         assert html == "<html>Dashboard</html>"
-        mock_loader.load_latest_week.assert_called_once()
+        mock_collect.assert_called_once()
         mock_render.assert_called_once()
 
-    @patch("execution.dashboards.flow.FlowDataLoader")
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.flow._collect_flow_data")
     @patch("execution.dashboards.flow.render_dashboard")
-    def test_generate_dashboard_with_output_path(self, mock_render, mock_loader_class, sample_flow_data, tmp_path):
+    async def test_generate_dashboard_with_output_path(self, mock_render, mock_collect, sample_flow_data, tmp_path):
         """Test dashboard generation with file output"""
-        mock_loader = MagicMock()
-        mock_loader.load_latest_week.return_value = sample_flow_data
-        mock_loader_class.return_value = mock_loader
+        mock_collect.return_value = sample_flow_data
         mock_render.return_value = "<html>Dashboard</html>"
 
         output_path = tmp_path / "flow.html"
-        html = generate_flow_dashboard(output_path)
+        html = await generate_flow_dashboard(output_path)
 
         assert output_path.exists()
         assert output_path.read_text(encoding="utf-8") == "<html>Dashboard</html>"
 
-    @patch("execution.dashboards.flow.FlowDataLoader")
-    def test_generate_dashboard_file_not_found(self, mock_loader_class):
-        """Test dashboard generation with missing data file"""
-        mock_loader = MagicMock()
-        mock_loader.load_latest_week.side_effect = FileNotFoundError("Flow history not found")
-        mock_loader_class.return_value = mock_loader
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.flow._collect_flow_data")
+    async def test_generate_dashboard_collection_failure(self, mock_collect):
+        """Test dashboard generation with data collection failure"""
+        mock_collect.side_effect = FileNotFoundError("Discovery data not found")
 
         with pytest.raises(FileNotFoundError):
-            generate_flow_dashboard()
+            await generate_flow_dashboard()
 
 
 class TestEdgeCases:
