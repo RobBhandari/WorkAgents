@@ -427,9 +427,9 @@ jobs:
         run: |
           mkdir -p .tmp/observatory/dashboards
 
-          # Copy all dashboard HTML files
+          # Copy all dashboard HTML files (artifacts contain full .tmp path)
           if [ -d "dashboard-artifacts" ]; then
-            cp -r dashboard-artifacts/* .tmp/observatory/dashboards/ 2>/dev/null || true
+            find dashboard-artifacts -name "*.html" -exec cp {} .tmp/observatory/dashboards/ \;
             echo "✅ Dashboards prepared for deployment"
             ls -la .tmp/observatory/dashboards/
           else
