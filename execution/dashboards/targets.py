@@ -3,41 +3,46 @@ Target Dashboard Generator - Refactored
 
 Generates 70% reduction target tracking dashboard using:
     - Jinja2 templates (XSS-safe)
+    - Direct API queries for current metrics (no stale history files)
     - Clean separation of data loading and presentation
     - Reusable metric calculation functions
 
 This replaces the original 633-line generate_target_dashboard.py with a
-clean, maintainable implementation of ~200 lines.
+clean, maintainable implementation that queries APIs directly.
 
 Usage:
     from execution.dashboards.targets import generate_targets_dashboard
     from pathlib import Path
+    import asyncio
 
     output_path = Path('.tmp/observatory/dashboards/target_dashboard.html')
-    generate_targets_dashboard(output_path)
+    html = asyncio.run(generate_targets_dashboard(output_path))
 """
 
+import asyncio
 import json
-import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
+from execution.collectors.ado_rest_client import AzureDevOpsRESTClient, get_ado_rest_client
+from execution.collectors.ado_rest_transformers import WorkItemTransformer
+from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
+from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
-
-# Import dependencies
 from execution.framework import get_dashboard_framework
+from execution.security import WIQLValidator
 from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
 
-def generate_targets_dashboard(output_path: Path | None = None) -> str:
+async def generate_targets_dashboard(output_path: Path | None = None) -> str:
     """
     Generate 70% reduction target tracking dashboard HTML.
 
     This is the main entry point for generating the targets dashboard.
-    It loads baseline data, queries current state, calculates progress,
+    It loads baseline data, queries current state from APIs, calculates progress,
     and renders the HTML template.
 
     Args:
@@ -47,13 +52,14 @@ def generate_targets_dashboard(output_path: Path | None = None) -> str:
         Generated HTML string
 
     Raises:
-        FileNotFoundError: If baseline files or history files don't exist
+        FileNotFoundError: If baseline files don't exist
 
     Example:
         from pathlib import Path
-        html = generate_targets_dashboard(
+        import asyncio
+        html = asyncio.run(generate_targets_dashboard(
             Path('.tmp/observatory/dashboards/target_dashboard.html')
-        )
+        ))
         logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating 70% reduction target dashboard")
@@ -62,9 +68,9 @@ def generate_targets_dashboard(output_path: Path | None = None) -> str:
     logger.info("Loading baseline data")
     baselines = _load_baselines()
 
-    # Step 2: Query current state
-    logger.info("Querying current metrics")
-    current_state = _query_current_state()
+    # Step 2: Query current state from APIs
+    logger.info("Querying current metrics from APIs")
+    current_state = await _query_current_state(baselines)
 
     # Step 3: Calculate summary metrics
     logger.info("Calculating progress metrics")
@@ -122,99 +128,210 @@ def _load_baselines() -> dict[str, dict]:
     return {"security": security_baseline, "bugs": bugs_baseline}
 
 
-def _query_current_state() -> dict[str, int]:
+def _load_discovery_data() -> dict:
     """
-    Query current vulnerability and bug counts from history files.
+    Load project discovery data from ADO structure file.
+
+    Returns:
+        Dictionary with project list
+
+    Raises:
+        FileNotFoundError: If discovery file doesn't exist
+    """
+    discovery_path = Path(".tmp/observatory/ado_structure.json")
+
+    if not discovery_path.exists():
+        raise FileNotFoundError(
+            f"Discovery file not found: {discovery_path}\n" "Run: python execution/discover_projects.py"
+        )
+
+    with open(discovery_path, encoding="utf-8") as f:
+        discovery_data = json.load(f)
+
+    projects = discovery_data.get("projects", [])
+    logger.info(f"Loaded {len(projects)} projects from discovery")
+
+    return discovery_data
+
+
+async def _query_current_state(baselines: dict[str, dict]) -> dict[str, int]:
+    """
+    Query current vulnerability and bug counts from APIs.
+
+    Args:
+        baselines: Baseline data containing product lists
 
     Returns:
         Dictionary with current counts for security and bugs
 
     Raises:
-        FileNotFoundError: If history files don't exist
+        FileNotFoundError: If required config files don't exist
     """
-    # Query security vulnerabilities from security_history.json
-    security_count = _query_current_armorcode_vulns()
+    # Query security vulnerabilities and bugs concurrently
+    security_task = _query_current_armorcode_vulns(baselines["security"]["products"])
+    bugs_task = _query_current_ado_bugs()
 
-    # Query bugs from quality_history.json
-    bugs_count = _query_current_ado_bugs()
+    security_count, bugs_count = await asyncio.gather(security_task, bugs_task)
 
     return {"security": security_count, "bugs": bugs_count}
 
 
-def _query_current_armorcode_vulns() -> int:
+async def _query_current_armorcode_vulns(product_names: list[str]) -> int:
     """
-    Query current HIGH + CRITICAL vulnerabilities from security_history.json.
+    Query current HIGH + CRITICAL vulnerabilities from ArmorCode API.
+
+    Args:
+        product_names: List of product names to query
 
     Returns:
-        Current vulnerability count
+        Current vulnerability count (Production only)
 
     Raises:
-        FileNotFoundError: If security_history.json doesn't exist
-        ValueError: If data is malformed
+        Exception: If API query fails
     """
-    security_history_file = Path(".tmp/observatory/security_history.json")
+    logger.info(f"Querying ArmorCode API for {len(product_names)} products (Production only)")
 
-    if not security_history_file.exists():
-        logger.warning(f"Security history file not found: {security_history_file}")
-        logger.warning("Run: python execution/armorcode_weekly_query.py")
-        raise FileNotFoundError(f"Security history not found: {security_history_file}")
+    # Initialize loader and query API
+    loader = ArmorCodeVulnerabilityLoader()
+    vulnerabilities = loader.load_vulnerabilities_for_products(product_names, filter_environment=True)
 
-    with open(security_history_file, encoding="utf-8") as f:
-        data = json.load(f)
+    # Count HIGH + CRITICAL only
+    critical_high_vulns = [v for v in vulnerabilities if v.is_critical_or_high]
+    total_vulns = len(critical_high_vulns)
 
-    # Get latest week's data
-    if not data.get("weeks") or len(data["weeks"]) == 0:
-        raise ValueError("No weeks data found in security_history.json")
+    critical_count = sum(1 for v in critical_high_vulns if v.is_critical)
+    high_count = sum(1 for v in critical_high_vulns if v.is_high)
 
-    latest_week = data["weeks"][-1]
-    metrics = latest_week["metrics"]
-
-    # Get total HIGH + CRITICAL vulnerabilities
-    total_vulns: int = metrics["current_total"]
-
-    logger.info(f"Current ArmorCode vulnerabilities: {total_vulns}")
-    logger.info(f"  Week: {latest_week['week_date']}")
-    logger.info(f"  Critical: {metrics['severity_breakdown']['critical']}")
-    logger.info(f"  High: {metrics['severity_breakdown']['high']}")
+    logger.info(f"Current ArmorCode vulnerabilities (Production): {total_vulns}")
+    logger.info(f"  Critical: {critical_count}")
+    logger.info(f"  High: {high_count}")
 
     return total_vulns
 
 
-def _query_current_ado_bugs() -> int:
+async def _query_current_ado_bugs() -> int:
     """
-    Query current open bugs from quality_history.json.
+    Query current open bugs from ADO API across all projects.
 
     Returns:
-        Current bug count
+        Current bug count (excluding security bugs)
 
     Raises:
-        FileNotFoundError: If quality_history.json doesn't exist
-        ValueError: If data is malformed
+        Exception: If API query fails
     """
-    quality_history_file = Path(".tmp/observatory/quality_history.json")
+    logger.info("Querying ADO API for open bugs across all projects")
 
-    if not quality_history_file.exists():
-        logger.warning(f"Quality history file not found: {quality_history_file}")
-        logger.warning("Run: python execution/ado_quality_metrics.py")
-        raise FileNotFoundError(f"Quality history not found: {quality_history_file}")
+    # Load discovery data to get project list
+    discovery_data = _load_discovery_data()
+    projects = discovery_data.get("projects", [])
 
-    with open(quality_history_file, encoding="utf-8") as f:
-        data = json.load(f)
+    if not projects:
+        logger.warning("No projects found in discovery data")
+        return 0
 
-    # Get latest week's data
-    if not data.get("weeks") or len(data["weeks"]) == 0:
-        raise ValueError("No weeks data found in quality_history.json")
+    # Get REST client
+    rest_client = get_ado_rest_client()
 
-    latest_week = data["weeks"][-1]
+    # Query bugs for each project concurrently
+    tasks = [_query_bugs_for_project(rest_client, project) for project in projects]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # Sum open_bugs_count across all projects
-    total_bugs: int = sum(p["open_bugs_count"] for p in latest_week["projects"])
+    # Sum up bug counts
+    total_bugs = 0
+    for project, result in zip(projects, results, strict=False):
+        if isinstance(result, Exception):
+            logger.error(f"Error querying bugs for {project['project_name']}: {result}")
+        else:
+            total_bugs += result
 
-    logger.info(f"Current ADO bugs: {total_bugs}")
-    logger.info(f"  Week: {latest_week['week_date']}")
-    logger.info(f"  Projects: {len(latest_week['projects'])}")
+    logger.info(f"Current ADO bugs (all projects): {total_bugs}")
+    logger.info(f"  Projects queried: {len(projects)}")
 
     return total_bugs
+
+
+async def _query_bugs_for_project(rest_client: AzureDevOpsRESTClient, project: dict) -> int:
+    """
+    Query open bugs for a single project.
+
+    Args:
+        rest_client: Azure DevOps REST client
+        project: Project metadata dictionary
+
+    Returns:
+        Open bug count for this project (excluding security bugs)
+    """
+    project_name = project["project_name"]
+    ado_project_name = project.get("ado_project_name", project_name)
+    area_path_filter = project.get("area_path_filter")
+
+    logger.info(f"  Querying bugs for: {project_name}")
+
+    # Validate project name
+    safe_project = WIQLValidator.validate_project_name(ado_project_name)
+
+    # Build area path filter clause
+    area_filter_clause = ""
+    if area_path_filter:
+        if area_path_filter.startswith("EXCLUDE:"):
+            path = area_path_filter.replace("EXCLUDE:", "")
+            safe_path = WIQLValidator.validate_area_path(path)
+            area_filter_clause = f"AND [System.AreaPath] NOT UNDER '{safe_path}'"
+        elif area_path_filter.startswith("INCLUDE:"):
+            path = area_path_filter.replace("INCLUDE:", "")
+            safe_path = WIQLValidator.validate_area_path(path)
+            area_filter_clause = f"AND [System.AreaPath] UNDER '{safe_path}'"
+
+    # WIQL query for open bugs
+    wiql_query = f"""SELECT [System.Id]
+        FROM WorkItems
+        WHERE [System.TeamProject] = '{safe_project}'
+          AND [System.WorkItemType] = 'Bug'
+          AND [System.State] <> 'Closed'
+          AND [System.State] <> 'Removed'
+          AND ([Microsoft.VSTS.Common.Triage] <> 'Rejected' OR [Microsoft.VSTS.Common.Triage] = '')
+          {area_filter_clause}
+        ORDER BY [System.CreatedDate] DESC
+        """  # nosec B608 - Inputs validated by WIQLValidator
+
+    try:
+        # Execute query
+        response = await rest_client.query_by_wiql(project=safe_project, wiql_query=wiql_query)
+
+        # Transform response
+        wiql_result = WorkItemTransformer.transform_wiql_response(response)
+        work_items = wiql_result.work_items
+
+        if not work_items:
+            logger.info(f"    {project_name}: 0 open bugs")
+            return 0
+
+        # Get bug IDs
+        bug_ids = [item.id for item in work_items]
+
+        # Fetch bug details to filter security bugs
+        from execution.utils.ado_batch_utils import batch_fetch_work_items_rest
+
+        bugs_raw, failed_ids = await batch_fetch_work_items_rest(
+            rest_client,
+            item_ids=bug_ids,
+            fields=["System.Id", "System.Tags", "System.Title"],
+            logger=logger,
+        )
+
+        bugs = WorkItemTransformer.transform_work_items_response({"value": bugs_raw})
+
+        # Filter out security bugs (to avoid double-counting)
+        filtered_bugs, excluded_count = filter_security_bugs(bugs)
+
+        bug_count = len(filtered_bugs)
+        logger.info(f"    {project_name}: {bug_count} open bugs (excluded {excluded_count} security bugs)")
+
+        return bug_count
+
+    except Exception as e:
+        logger.error(f"    Error querying bugs for {project_name}: {e}")
+        return 0
 
 
 def _calculate_summary(baselines: dict[str, dict], current_state: dict[str, int]) -> dict[str, dict]:
@@ -376,7 +493,7 @@ if __name__ == "__main__":
 
     try:
         output_path = Path(".tmp/observatory/dashboards/target_dashboard.html")
-        html = generate_targets_dashboard(output_path)
+        html = asyncio.run(generate_targets_dashboard(output_path))
 
         logger.info(
             "Target dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
@@ -391,9 +508,7 @@ if __name__ == "__main__":
 
     except FileNotFoundError as e:
         logger.error("Target data file not found", extra={"error": str(e)})
-        logger.info(
-            "Run data collection first: python execution/armorcode_weekly_query.py, python execution/ado_quality_metrics.py"
-        )
+        logger.info("Check baseline files exist: data/armorcode_baseline.json, data/baseline.json")
 
     except Exception as e:
         log_and_raise(
