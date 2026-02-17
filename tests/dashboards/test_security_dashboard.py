@@ -697,25 +697,34 @@ class TestGenerateSecurityDashboard:
 
     @patch("execution.dashboards.security.render_template")
     @patch("execution.dashboards.security.render_dashboard")
-    @patch("execution.dashboards.security.ArmorCodeLoader")
-    def test_generate_dashboard_success(self, mock_loader_class, mock_render, mock_template, sample_security_metrics):
+    @patch("execution.dashboards.security._convert_vulnerabilities_to_metrics")
+    @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
+    @patch("execution.dashboards.security._load_baseline_products")
+    def test_generate_dashboard_success(
+        self,
+        mock_load_baseline,
+        mock_loader_class,
+        mock_convert,
+        mock_render,
+        mock_template,
+        sample_security_metrics,
+    ):
         """Test successful dashboard generation"""
-        # Setup mock loader
+        # Setup mocks
+        mock_load_baseline.return_value = ["Product1", "Product2"]
         mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_metrics
+        mock_loader.load_vulnerabilities_for_products.return_value = []
         mock_loader_class.return_value = mock_loader
-
-        # Mock all template rendering calls
+        mock_convert.return_value = sample_security_metrics
         mock_template.return_value = "<div>Mock HTML</div>"
-
-        # Setup mock render
         mock_render.return_value = "<html>Security Dashboard</html>"
 
         # Generate dashboard
         html = generate_security_dashboard()
 
         # Verify calls
-        mock_loader.load_latest_metrics.assert_called_once()
+        mock_load_baseline.assert_called_once()
+        mock_loader.load_vulnerabilities_for_products.assert_called_once()
         mock_render.assert_called_once()
 
         # Verify output
@@ -723,16 +732,26 @@ class TestGenerateSecurityDashboard:
 
     @patch("execution.dashboards.security.render_template")
     @patch("execution.dashboards.security.render_dashboard")
-    @patch("execution.dashboards.security.ArmorCodeLoader")
+    @patch("execution.dashboards.security._convert_vulnerabilities_to_metrics")
+    @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
+    @patch("execution.dashboards.security._load_baseline_products")
     def test_generate_dashboard_with_output_path(
-        self, mock_loader_class, mock_render, mock_template, sample_security_metrics, tmp_path
+        self,
+        mock_load_baseline,
+        mock_loader_class,
+        mock_convert,
+        mock_render,
+        mock_template,
+        sample_security_metrics,
+        tmp_path,
     ):
         """Test dashboard generation with file output"""
         # Setup mocks
+        mock_load_baseline.return_value = ["Product1"]
         mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_metrics
+        mock_loader.load_vulnerabilities_for_products.return_value = []
         mock_loader_class.return_value = mock_loader
-
+        mock_convert.return_value = sample_security_metrics
         mock_template.return_value = "<div>Mock HTML</div>"
         mock_render.return_value = "<html>Security Dashboard</html>"
 
@@ -744,27 +763,30 @@ class TestGenerateSecurityDashboard:
         assert output_path.exists()
         assert output_path.read_text(encoding="utf-8") == "<html>Security Dashboard</html>"
 
-    @patch("execution.dashboards.security.ArmorCodeLoader")
-    def test_generate_dashboard_file_not_found(self, mock_loader_class):
-        """Test dashboard generation with missing data file"""
+    @patch("execution.dashboards.security._load_baseline_products")
+    def test_generate_dashboard_file_not_found(self, mock_load_baseline):
+        """Test dashboard generation with missing baseline file"""
         # Setup mock to raise FileNotFoundError
-        mock_loader = Mock()
-        mock_loader.load_latest_metrics.side_effect = FileNotFoundError("Security history not found")
-        mock_loader_class.return_value = mock_loader
+        mock_load_baseline.side_effect = FileNotFoundError("Baseline not found")
 
         # Verify exception is raised
-        with pytest.raises(FileNotFoundError, match="Security history not found"):
+        with pytest.raises(FileNotFoundError, match="Baseline not found"):
             generate_security_dashboard()
 
     @patch("execution.dashboards.security.render_dashboard")
-    @patch("execution.dashboards.security.ArmorCodeLoader")
-    def test_generate_dashboard_empty_products(self, mock_loader_class, mock_render):
-        """Test dashboard generation with no products"""
-        # Setup mock with empty products
+    @patch("execution.dashboards.security._convert_vulnerabilities_to_metrics")
+    @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
+    @patch("execution.dashboards.security._load_baseline_products")
+    def test_generate_dashboard_empty_products(
+        self, mock_load_baseline, mock_loader_class, mock_convert, mock_render
+    ):
+        """Test dashboard generation with no vulnerabilities"""
+        # Setup mocks
+        mock_load_baseline.return_value = ["Product1"]
         mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = {}
+        mock_loader.load_vulnerabilities_for_products.return_value = []
         mock_loader_class.return_value = mock_loader
-
+        mock_convert.return_value = {}
         mock_render.return_value = "<html>Empty Dashboard</html>"
 
         # Should not raise exception
@@ -774,16 +796,26 @@ class TestGenerateSecurityDashboard:
 
     @patch("execution.dashboards.security.render_template")
     @patch("execution.dashboards.security.render_dashboard")
-    @patch("execution.dashboards.security.ArmorCodeLoader")
+    @patch("execution.dashboards.security._convert_vulnerabilities_to_metrics")
+    @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
+    @patch("execution.dashboards.security._load_baseline_products")
     def test_generate_dashboard_creates_parent_directory(
-        self, mock_loader_class, mock_render, mock_template, sample_security_metrics, tmp_path
+        self,
+        mock_load_baseline,
+        mock_loader_class,
+        mock_convert,
+        mock_render,
+        mock_template,
+        sample_security_metrics,
+        tmp_path,
     ):
         """Test that parent directories are created if needed"""
         # Setup mocks
+        mock_load_baseline.return_value = ["Product1"]
         mock_loader = Mock()
-        mock_loader.load_latest_metrics.return_value = sample_security_metrics
+        mock_loader.load_vulnerabilities_for_products.return_value = []
         mock_loader_class.return_value = mock_loader
-
+        mock_convert.return_value = sample_security_metrics
         mock_template.return_value = "<div>Mock HTML</div>"
         mock_render.return_value = "<html>Security Dashboard</html>"
 
