@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 
-def validate_history_file(file_path: str, required_fields: list = None) -> tuple:
+def validate_history_file(file_path: str, required_fields: list | None = None) -> tuple:
     """
     Validate a single history file.
 

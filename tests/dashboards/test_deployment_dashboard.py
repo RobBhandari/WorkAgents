@@ -188,7 +188,7 @@ class TestQueryDeploymentData:
     @pytest.mark.asyncio
     async def test_query_deployment_data_no_projects(self):
         """Test ValueError when projects array is empty"""
-        empty_data = {"projects": []}
+        empty_data: dict[str, list] = {"projects": []}
 
         with patch("builtins.open", mock_open(read_data=json.dumps(empty_data))):
             with patch("pathlib.Path.exists", return_value=True):

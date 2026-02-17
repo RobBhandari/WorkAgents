@@ -56,8 +56,8 @@ def generate_html_report(json_file: str, output_file: str) -> str:
             data = json.load(f)
 
         # Step 2: Calculate statistics
-        state_counts = {}
-        priority_counts = {}
+        state_counts: dict[str, int] = {}
+        priority_counts: dict[str, int] = {}
         for bug in data["bugs"]:
             state = bug["state"]
             priority = bug.get("priority", "N/A")

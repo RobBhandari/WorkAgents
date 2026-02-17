@@ -31,7 +31,7 @@ class TestMetricSnapshot:
     def test_metric_snapshot_invalid_timestamp(self):
         """Test MetricSnapshot raises error for invalid timestamp"""
         with pytest.raises(TypeError, match="timestamp must be datetime"):
-            MetricSnapshot(timestamp="2026-02-07")
+            MetricSnapshot(timestamp="2026-02-07")  # type: ignore[arg-type]
 
 
 class TestTrendData:
@@ -321,6 +321,7 @@ class TestTrendData:
         assert len(smoothed.timestamps) == 5
 
         # Label should indicate smoothing
+        assert smoothed.label is not None
         assert "SMA-3" in smoothed.label
 
         # Values should be smoothed
@@ -339,6 +340,7 @@ class TestTrendData:
         assert len(smoothed.timestamps) == 5
 
         # Label should indicate smoothing
+        assert smoothed.label is not None
         assert "EMA-7" in smoothed.label
 
         # First value always same
