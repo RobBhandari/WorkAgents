@@ -186,6 +186,7 @@ jobs:
           ADO_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
           ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+          ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           python execution/${{ matrix.collector.script }}
@@ -346,6 +347,7 @@ jobs:
         env:
           ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
           ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+          ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           python execution/dashboards/${{ matrix.dashboard.script }}
