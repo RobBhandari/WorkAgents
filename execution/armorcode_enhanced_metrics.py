@@ -180,6 +180,10 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
                       product {{
                         name
                       }}
+                      environment {{
+                        name
+                        id
+                      }}
                     }}
                     pageInfo {{
                       hasNext
@@ -268,6 +272,10 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], 
                       id
                       severity
                       status
+                      environment {{
+                        name
+                        id
+                      }}
                     }}
                     pageInfo {{
                       hasNext
@@ -303,6 +311,43 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], 
     except Exception as e:
         logger.error(f"Failed to query closed vulnerabilities: {e}")
         return {"findings": [], "total_count": 0}
+
+
+def filter_production_findings(findings: list[dict]) -> list[dict]:
+    """
+    Filter findings to include only Production environment.
+
+    Args:
+        findings: List of vulnerability findings with environment field
+
+    Returns:
+        Filtered list containing only Production environment findings
+    """
+    production_findings = []
+    filtered_count = 0
+
+    for finding in findings:
+        # Extract environment name from nested object
+        environment_obj = finding.get("environment")
+        if environment_obj:
+            if isinstance(environment_obj, dict):
+                env_name = environment_obj.get("name", "").upper()
+            else:
+                env_name = str(environment_obj).upper()
+        else:
+            env_name = ""
+
+        # Include only Production environment
+        if env_name == "PRODUCTION":
+            production_findings.append(finding)
+        else:
+            filtered_count += 1
+
+    logger.info(
+        f"Environment filter: {len(production_findings)} Production, {filtered_count} filtered out (non-Production)"
+    )
+
+    return production_findings
 
 
 def calculate_mttr(closed_findings: list[dict]) -> dict:
@@ -464,6 +509,13 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
     closed_vulns = query_closed_vulnerabilities_graphql(
         base_url, product_ids, lookback_days=config.get("lookback_days", 90)
     )
+
+    # Filter to Production environment only
+    logger.info("Applying Production environment filter...")
+    current_vulns["findings"] = filter_production_findings(current_vulns["findings"])
+    current_vulns["total_count"] = len(current_vulns["findings"])
+    closed_vulns["findings"] = filter_production_findings(closed_vulns["findings"])
+    closed_vulns["total_count"] = len(closed_vulns["findings"])
 
     # Calculate metrics
     try:
