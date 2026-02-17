@@ -22,11 +22,14 @@ Usage:
 
 import json
 import os
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-from execution.collectors.armorcode_loader import ArmorCodeLoader
-from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
+from execution.collectors.armorcode_vulnerability_loader import (
+    ArmorCodeVulnerabilityLoader,
+    VulnerabilityDetail,
+)
 from execution.core import get_logger
 from execution.dashboards.components.aging_heatmap import generate_aging_heatmap
 from execution.dashboards.components.cards import summary_card
@@ -37,6 +40,92 @@ from execution.framework import get_dashboard_framework
 from execution.utils.error_handling import log_and_return_default
 
 logger = get_logger(__name__)
+
+
+def _load_baseline_products() -> list[str]:
+    """
+    Load product names from ArmorCode baseline file.
+
+    Returns:
+        List of product names to track
+
+    Raises:
+        FileNotFoundError: If baseline file doesn't exist
+        ValueError: If baseline has invalid format
+    """
+    # Try data/ folder first (CI/CD), then .tmp/ (local dev)
+    baseline_paths = [
+        Path("data/armorcode_baseline.json"),
+        Path(".tmp/armorcode_baseline.json"),
+    ]
+
+    for baseline_path in baseline_paths:
+        if baseline_path.exists():
+            logger.info(f"Loading baseline from {baseline_path}")
+            with open(baseline_path, encoding="utf-8") as f:
+                baseline = json.load(f)
+
+            products = baseline.get("products", [])
+            if not products:
+                raise ValueError(f"No products found in baseline: {baseline_path}")
+
+            logger.info(f"Tracking {len(products)} products from baseline")
+            return products
+
+    raise FileNotFoundError(
+        "ArmorCode baseline not found. Expected:\n"
+        "  - data/armorcode_baseline.json (CI/CD)\n"
+        "  - .tmp/armorcode_baseline.json (local dev)\n"
+        "Run: python execution/armorcode_baseline.py"
+    )
+
+
+def _convert_vulnerabilities_to_metrics(
+    vulnerabilities: list[VulnerabilityDetail],
+) -> dict[str, SecurityMetrics]:
+    """
+    Convert list of vulnerabilities to SecurityMetrics by product.
+
+    Args:
+        vulnerabilities: List of vulnerability details from ArmorCode API
+
+    Returns:
+        Dictionary mapping product name to SecurityMetrics
+    """
+    # Group vulnerabilities by product and count by severity
+    product_counts: dict[str, dict[str, int]] = defaultdict(
+        lambda: {"critical": 0, "high": 0, "medium": 0, "low": 0, "total": 0}
+    )
+
+    for vuln in vulnerabilities:
+        product = vuln.product
+        severity = vuln.severity.upper()
+
+        product_counts[product]["total"] += 1
+        if severity == "CRITICAL":
+            product_counts[product]["critical"] += 1
+        elif severity == "HIGH":
+            product_counts[product]["high"] += 1
+        elif severity == "MEDIUM":
+            product_counts[product]["medium"] += 1
+        elif severity == "LOW":
+            product_counts[product]["low"] += 1
+
+    # Convert to SecurityMetrics domain models
+    metrics_by_product = {}
+    for product_name, counts in product_counts.items():
+        metrics = SecurityMetrics(
+            timestamp=datetime.now(),
+            project=product_name,
+            total_vulnerabilities=counts["total"],
+            critical=counts["critical"],
+            high=counts["high"],
+            medium=counts["medium"],
+            low=counts["low"],
+        )
+        metrics_by_product[product_name] = metrics
+
+    return metrics_by_product
 
 
 def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tuple[str, int]:
@@ -60,37 +149,36 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     logger.info("Enhanced Security Dashboard Generator")
 
-    # Step 1: Load ArmorCode summary data
-    logger.info("Loading ArmorCode summary data")
+    # Step 1: Query ArmorCode API directly for fresh Production-only data
+    logger.info("Loading product list from baseline")
     try:
-        loader = ArmorCodeLoader()
-        metrics_by_product = loader.load_latest_metrics()
-        logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
+        products = _load_baseline_products()
     except FileNotFoundError as e:
         logger.warning(
-            "ArmorCode data loading failed, returning empty result: No ArmorCode data found in security_history.json",
+            "ArmorCode baseline not found, returning empty result",
             extra={
-                "error_type": "ArmorCode data loading",
+                "error_type": "Baseline loading",
                 "exception_class": e.__class__.__name__,
-                "context": {"output_dir": str(output_dir), "expected_file": "security_history.json"},
+                "context": {"output_dir": str(output_dir)},
                 "default_value": "('', 0)",
             },
         )
-        logger.info("Run: python execution/armorcode_enhanced_metrics.py")
+        logger.info("Run: python execution/armorcode_baseline.py")
         return "", 0
 
-    # Step 2: Get product names with vulnerabilities
-    product_names = [name for name, metrics in metrics_by_product.items() if metrics.total_vulnerabilities > 0]
-    logger.info("Products with vulnerabilities identified", extra={"count": len(product_names)})
-
-    # Step 3: Query individual vulnerabilities via GraphQL
-    logger.info("Querying individual vulnerability details via GraphQL")
+    logger.info("Querying ArmorCode API for Production vulnerabilities")
     vuln_loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities = vuln_loader.load_vulnerabilities_for_products(product_names)
-    logger.info("Vulnerability details retrieved", extra={"vuln_count": len(vulnerabilities)})
+    vulnerabilities = vuln_loader.load_vulnerabilities_for_products(products, filter_environment=True)
+    logger.info(f"Retrieved {len(vulnerabilities)} Production vulnerabilities from ArmorCode API")
 
-    # Group vulnerabilities by product
+    # Step 2: Convert vulnerabilities to metrics by product
+    logger.info("Converting vulnerabilities to metrics by product")
+    metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
+    logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
+
+    # Step 3: Group vulnerabilities by product for expandable rows
     vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
+    logger.info("Vulnerabilities grouped by product")
 
     # Step 4: Generate main dashboard HTML
     logger.info("Generating main dashboard")
