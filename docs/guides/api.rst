@@ -363,11 +363,10 @@ Error Handling
 HTTP Status Codes
 ~~~~~~~~~~~~~~~~~
 
-* ``200 OK``: Success
+* ``200 OK``: Success (health endpoint always returns 200 even with stale data)
 * ``401 Unauthorized``: Invalid credentials
 * ``404 Not Found``: Resource not found (data not collected yet)
 * ``500 Internal Server Error``: Server error
-* ``503 Service Unavailable``: Unhealthy (stale data)
 
 Example Error Response
 ~~~~~~~~~~~~~~~~~~~~~~
