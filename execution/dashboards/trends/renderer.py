@@ -60,7 +60,7 @@ class TrendsRenderer:
 
         framework_css, framework_js = get_dashboard_framework(
             header_gradient_start="#0f172a",  # Flat slate background
-            header_gradient_end="#0f172a",    # Flat slate background
+            header_gradient_end="#0f172a",  # Flat slate background
             include_table_scroll=True,
             include_expandable_rows=False,
             include_glossary=False,

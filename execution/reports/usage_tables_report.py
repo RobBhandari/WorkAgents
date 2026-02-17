@@ -1496,7 +1496,9 @@ def main():
         devin_df = prepare_devin_data(lgl_df)
 
         # Step 5: Generate HTML report
-        output_file = generate_html_report_with_data(claude_df=claude_df, devin_df=devin_df, output_file=args.output_file)
+        output_file = generate_html_report_with_data(
+            claude_df=claude_df, devin_df=devin_df, output_file=args.output_file
+        )
 
         print(f"\n{'='*70}")
         print("SUCCESS: LGL AI Tools Usage Report Generated")
@@ -1511,8 +1513,6 @@ def main():
 
         # Open in browser if requested
         if args.open:
-            import webbrowser
-
             webbrowser.open(f"file://{os.path.abspath(output_file)}")
             logger.info("Opened report in browser")
 
