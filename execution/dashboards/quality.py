@@ -140,7 +140,7 @@ async def _query_quality_data() -> dict[str, Any]:
     for project, result in zip(projects, results, strict=True):
         if isinstance(result, Exception):
             logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
-        else:
+        elif isinstance(result, dict):
             project_metrics.append(result)
 
     if not project_metrics:

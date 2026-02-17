@@ -124,7 +124,7 @@ async def _load_collaboration_data() -> dict:
 
     # Get configuration
     config = get_config()
-    lookback_days = config.get("lookback_days", 90)
+    lookback_days = int(config.get_optional_env("LOOKBACK_DAYS", "90"))
 
     # Initialize ADO REST client
     logger.info("Connecting to Azure DevOps REST API...")
