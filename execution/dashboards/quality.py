@@ -1,8 +1,8 @@
 """
 Quality Dashboard Generator - Refactored
 
-Generates quality metrics dashboard using:
-    - Data from ado_quality_loader
+Generates quality metrics dashboard by querying Azure DevOps API directly:
+    - Queries ADO API for fresh quality metrics
     - Reusable components (cards, metrics)
     - Jinja2 templates (XSS-safe)
 
@@ -17,32 +17,35 @@ Usage:
     from pathlib import Path
 
     output_path = Path('.tmp/observatory/dashboards/quality_dashboard.html')
-    generate_quality_dashboard(output_path)
+    html = await generate_quality_dashboard(output_path)
 """
 
+import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from execution.collectors.ado_quality_metrics import collect_quality_metrics_for_project
+from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.core import get_logger
 from execution.dashboards.quality_legacy import build_summary_cards, generate_distribution_section
 from execution.dashboards.renderer import render_dashboard
 
 # Import infrastructure
 from execution.framework import get_dashboard_framework
+from execution.secure_config import get_config
 from execution.template_engine import render_template
-from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
 
-def generate_quality_dashboard(output_path: Path | None = None) -> str:
+async def generate_quality_dashboard(output_path: Path | None = None) -> str:
     """
-    Generate quality dashboard HTML.
+    Generate quality dashboard HTML by querying Azure DevOps API.
 
     This is the main entry point for generating the quality dashboard.
-    It loads data, processes it, and renders the HTML template.
+    It queries ADO API for fresh data, processes it, and renders the HTML template.
 
     Args:
         output_path: Optional path to write HTML file
@@ -51,22 +54,23 @@ def generate_quality_dashboard(output_path: Path | None = None) -> str:
         Generated HTML string
 
     Raises:
-        FileNotFoundError: If quality_history.json doesn't exist
+        FileNotFoundError: If discovery data doesn't exist
+        Exception: If API query fails
 
     Example:
         from pathlib import Path
-        html = generate_quality_dashboard(
+        html = await generate_quality_dashboard(
             Path('.tmp/observatory/dashboards/quality_dashboard.html')
         )
         logger.info("Dashboard generated", extra={"html_size": len(html)})
     """
     logger.info("Generating quality dashboard")
 
-    # Step 1: Load data
-    logger.info("Loading quality data")
-    quality_data = _load_quality_data()
+    # Step 1: Query data from ADO API
+    logger.info("Querying quality data from Azure DevOps API")
+    quality_data = await _query_quality_data()
     logger.info(
-        "Quality data loaded",
+        "Quality data queried",
         extra={"week_number": quality_data["week_number"], "week_date": quality_data["week_date"]},
     )
 
@@ -92,29 +96,66 @@ def generate_quality_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _load_quality_data() -> dict[str, Any]:
+async def _query_quality_data() -> dict[str, Any]:
     """
-    Load quality metrics from history file.
+    Query quality metrics from Azure DevOps API.
+
+    Queries fresh data from ADO for all discovered projects and returns
+    metrics in the format expected by the dashboard.
 
     Returns:
         Dictionary with week data and projects
 
     Raises:
-        FileNotFoundError: If quality_history.json doesn't exist
+        FileNotFoundError: If discovery data doesn't exist
+        Exception: If API query fails
     """
-    history_file = Path(".tmp/observatory/quality_history.json")
-    if not history_file.exists():
-        raise FileNotFoundError(f"Quality history not found: {history_file}")
+    # Load discovery data
+    discovery_path = Path(".tmp/observatory/ado_structure.json")
+    if not discovery_path.exists():
+        raise FileNotFoundError(
+            f"Discovery data not found: {discovery_path}. Run: python execution/discover_projects.py"
+        )
 
-    with open(history_file, encoding="utf-8") as f:
-        data: dict[str, Any] = json.load(f)
+    with open(discovery_path, encoding="utf-8") as f:
+        discovery_data: dict[str, Any] = json.load(f)
 
-    if not data.get("weeks"):
-        raise ValueError("No weeks data in quality history")
+    projects = discovery_data.get("projects", [])
+    if not projects:
+        raise ValueError("No projects found in discovery data")
 
-    # Return most recent week
-    result: dict[str, Any] = data["weeks"][-1]
-    return result
+    logger.info(f"Found {len(projects)} projects in discovery data")
+
+    # Get REST client and config
+    rest_client = get_ado_rest_client()
+    config = {"lookback_days": 90}  # Standard lookback period
+
+    # Query metrics for all projects concurrently
+    logger.info("Querying quality metrics for all projects (concurrent)")
+    tasks = [collect_quality_metrics_for_project(rest_client, project, config) for project in projects]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Process results, filtering out exceptions
+    project_metrics: list[dict[str, Any]] = []
+    for project, result in zip(projects, results, strict=True):
+        if isinstance(result, Exception):
+            logger.error(f"Error collecting metrics for {project['project_name']}: {result}")
+        else:
+            project_metrics.append(result)
+
+    if not project_metrics:
+        raise Exception("Failed to collect metrics from any project")
+
+    # Build week data structure
+    now = datetime.now()
+    week_data = {
+        "week_number": now.isocalendar()[1],
+        "week_date": now.strftime("%Y-%m-%d"),
+        "projects": project_metrics,
+    }
+
+    logger.info(f"Successfully queried metrics for {len(project_metrics)} projects")
+    return week_data
 
 
 def _calculate_summary(projects: list[dict[str, Any]]) -> dict[str, Any]:
@@ -432,30 +473,29 @@ def _get_metric_rag_status(metric_name: str, value: float) -> tuple[str, str, st
 if __name__ == "__main__":
     logger.info("Quality Dashboard Generator - Self Test")
 
-    try:
-        output_path = Path(".tmp/observatory/dashboards/quality_dashboard.html")
-        html = generate_quality_dashboard(output_path)
+    async def test_main() -> None:
+        try:
+            output_path = Path(".tmp/observatory/dashboards/quality_dashboard.html")
+            html = await generate_quality_dashboard(output_path)
 
-        logger.info(
-            "Quality dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
-        )
+            logger.info(
+                "Quality dashboard generated successfully", extra={"output": str(output_path), "html_size": len(html)}
+            )
 
-        # Verify output
-        if output_path.exists():
-            file_size = output_path.stat().st_size
-            logger.info("Output file verified", extra={"file_size": file_size})
-        else:
-            logger.warning("Output file not created")
+            # Verify output
+            if output_path.exists():
+                file_size = output_path.stat().st_size
+                logger.info("Output file verified", extra={"file_size": file_size})
+            else:
+                logger.warning("Output file not created")
 
-    except FileNotFoundError as e:
-        logger.error("Quality data file not found", extra={"error": str(e)})
-        logger.info("Run data collection first: python execution/collectors/ado_quality_metrics.py")
-        raise
+        except FileNotFoundError as e:
+            logger.error("Discovery data file not found", extra={"error": str(e)})
+            logger.info("Run discovery first: python execution/discover_projects.py")
+            raise
 
-    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
-        log_and_raise(
-            logger,
-            e,
-            context={"output_path": str(output_path) if output_path else None},
-            error_type="Dashboard generation",
-        )
+        except Exception as e:
+            logger.error("Dashboard generation failed", extra={"error": str(e)}, exc_info=True)
+            raise
+
+    asyncio.run(test_main())

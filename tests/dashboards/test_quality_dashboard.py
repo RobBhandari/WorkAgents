@@ -13,7 +13,7 @@ Tests cover:
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, mock_open, patch
 
 import pytest
 
@@ -24,7 +24,7 @@ from execution.dashboards.quality import (
     _calculate_summary,
     _generate_drilldown_html,
     _get_metric_rag_status,
-    _load_quality_data,
+    _query_quality_data,
     generate_quality_dashboard,
 )
 from execution.dashboards.quality_legacy import (
@@ -102,60 +102,82 @@ def sample_quality_data():
 
 
 @pytest.fixture
+def sample_discovery_data():
+    """Sample discovery data for testing"""
+    return {
+        "projects": [
+            {"project_name": "API Gateway", "project_key": "api-gateway"},
+            {"project_name": "Web App", "project_key": "web-app"},
+        ]
+    }
+
+
+@pytest.fixture
 def temp_quality_file(tmp_path):
     """Create a temporary quality history file"""
     return tmp_path / "quality_history.json"
 
 
-class TestLoadQualityData:
-    """Test loading quality data from file"""
+class TestQueryQualityData:
+    """Test querying quality data from ADO API"""
 
-    def test_load_quality_data_success(self, sample_quality_data):
-        """Test successful loading of quality data"""
-        history_data = {"weeks": [sample_quality_data]}
+    @pytest.mark.asyncio
+    async def test_query_quality_data_success(self, sample_discovery_data, sample_quality_data):
+        """Test successful querying of quality data from ADO API"""
+        mock_project_metrics = sample_quality_data["projects"]
 
         with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                data = _load_quality_data()
+            with patch("builtins.open", mock_open(read_data=json.dumps(sample_discovery_data))):
+                with patch("execution.dashboards.quality.get_ado_rest_client"):
+                    with patch(
+                        "execution.dashboards.quality.collect_quality_metrics_for_project",
+                        side_effect=[
+                            AsyncMock(return_value=mock_project_metrics[0])(),
+                            AsyncMock(return_value=mock_project_metrics[1])(),
+                        ],
+                    ):
+                        data = await _query_quality_data()
 
-                assert data["week_number"] == 5
-                assert data["week_date"] == "2026-02-07"
-                assert len(data["projects"]) == 2
+                        assert data["week_number"] > 0
+                        assert data["week_date"]
+                        assert len(data["projects"]) == 2
+                        assert data["projects"][0]["project_name"] == "API Gateway"
 
-    def test_load_quality_data_file_not_found(self):
-        """Test FileNotFoundError when history file doesn't exist"""
+    @pytest.mark.asyncio
+    async def test_query_quality_data_file_not_found(self):
+        """Test FileNotFoundError when discovery file doesn't exist"""
         with patch("pathlib.Path.exists", return_value=False):
             with pytest.raises(FileNotFoundError) as exc_info:
-                _load_quality_data()
+                await _query_quality_data()
 
-            assert "Quality history not found" in str(exc_info.value)
+            assert "Discovery data not found" in str(exc_info.value)
 
-    def test_load_quality_data_no_weeks(self):
-        """Test ValueError when weeks array is empty"""
-        history_data = {"weeks": []}
+    @pytest.mark.asyncio
+    async def test_query_quality_data_no_projects(self):
+        """Test ValueError when no projects in discovery"""
+        discovery_data = {"projects": []}
 
         with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
+            with patch("builtins.open", mock_open(read_data=json.dumps(discovery_data))):
                 with pytest.raises(ValueError) as exc_info:
-                    _load_quality_data()
+                    await _query_quality_data()
 
-                assert "No weeks data" in str(exc_info.value)
+                assert "No projects found" in str(exc_info.value)
 
-    def test_load_quality_data_returns_latest_week(self):
-        """Test that loading returns the most recent week"""
-        history_data = {
-            "weeks": [
-                {"week_number": 4, "week_date": "2026-01-31", "projects": []},
-                {"week_number": 5, "week_date": "2026-02-07", "projects": []},
-            ]
-        }
-
+    @pytest.mark.asyncio
+    async def test_query_quality_data_handles_exceptions(self, sample_discovery_data):
+        """Test that API exceptions are handled gracefully"""
         with patch("pathlib.Path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(history_data))):
-                data = _load_quality_data()
+            with patch("builtins.open", mock_open(read_data=json.dumps(sample_discovery_data))):
+                with patch("execution.dashboards.quality.get_ado_rest_client"):
+                    with patch(
+                        "execution.dashboards.quality.collect_quality_metrics_for_project",
+                        side_effect=[Exception("API Error"), Exception("API Error")],
+                    ):
+                        with pytest.raises(Exception) as exc_info:
+                            await _query_quality_data()
 
-                assert data["week_number"] == 5
-                assert data["week_date"] == "2026-02-07"
+                        assert "Failed to collect metrics" in str(exc_info.value)
 
 
 class TestCalculateSummary:
@@ -540,39 +562,42 @@ class TestBuildContext:
 class TestGenerateQualityDashboard:
     """Test main dashboard generation function"""
 
-    @patch("execution.dashboards.quality._load_quality_data")
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.quality._query_quality_data")
     @patch("execution.dashboards.quality.render_dashboard")
-    def test_generate_dashboard_success(self, mock_render, mock_load, sample_quality_data):
+    async def test_generate_dashboard_success(self, mock_render, mock_query, sample_quality_data):
         """Test successful dashboard generation"""
-        mock_load.return_value = sample_quality_data
+        mock_query.return_value = sample_quality_data
         mock_render.return_value = "<html>Dashboard</html>"
 
-        html = generate_quality_dashboard()
+        html = await generate_quality_dashboard()
 
         assert html == "<html>Dashboard</html>"
-        mock_load.assert_called_once()
+        mock_query.assert_called_once()
         mock_render.assert_called_once()
 
-    @patch("execution.dashboards.quality._load_quality_data")
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.quality._query_quality_data")
     @patch("execution.dashboards.quality.render_dashboard")
-    def test_generate_dashboard_with_output_path(self, mock_render, mock_load, sample_quality_data, tmp_path):
+    async def test_generate_dashboard_with_output_path(self, mock_render, mock_query, sample_quality_data, tmp_path):
         """Test dashboard generation with file output"""
-        mock_load.return_value = sample_quality_data
+        mock_query.return_value = sample_quality_data
         mock_render.return_value = "<html>Dashboard</html>"
 
         output_path = tmp_path / "quality.html"
-        html = generate_quality_dashboard(output_path)
+        html = await generate_quality_dashboard(output_path)
 
         assert output_path.exists()
         assert output_path.read_text(encoding="utf-8") == "<html>Dashboard</html>"
 
-    @patch("execution.dashboards.quality._load_quality_data")
-    def test_generate_dashboard_file_not_found(self, mock_load):
-        """Test dashboard generation with missing data file"""
-        mock_load.side_effect = FileNotFoundError("Quality history not found")
+    @pytest.mark.asyncio
+    @patch("execution.dashboards.quality._query_quality_data")
+    async def test_generate_dashboard_file_not_found(self, mock_query):
+        """Test dashboard generation with missing discovery file"""
+        mock_query.side_effect = FileNotFoundError("Discovery data not found")
 
         with pytest.raises(FileNotFoundError):
-            generate_quality_dashboard()
+            await generate_quality_dashboard()
 
 
 class TestEdgeCases:
