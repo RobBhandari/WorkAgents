@@ -345,6 +345,10 @@ jobs:
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
         if: steps.verify.outcome == 'success' || matrix.dashboard.name == 'AI Usage'
         env:
+          AZURE_DEVOPS_ORG_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          ADO_ORGANIZATION_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
+          ADO_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
           ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
           ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}
