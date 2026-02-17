@@ -98,6 +98,14 @@ def discover_projects(baseline_dir: str = "data", product_mapping: dict[str, str
                 "discovered_at": datetime.now().isoformat(),
             }
 
+            # Include ado_project_name if present (for shared projects like One Office)
+            if "ado_project_name" in baseline_data:
+                project["ado_project_name"] = baseline_data["ado_project_name"]
+
+            # Include area_path_filter if present (for filtering work items)
+            if "area_path_filter" in baseline_data:
+                project["area_path_filter"] = baseline_data["area_path_filter"]
+
             projects.append(project)
             print(
                 f"  ✓ {project['project_name']}: {project['baseline_count']} bugs (baseline: {project['baseline_date']})"
