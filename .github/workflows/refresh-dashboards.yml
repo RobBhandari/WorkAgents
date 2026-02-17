@@ -47,6 +47,25 @@ jobs:
           echo "✅ Baseline files created"
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
 
+      - name: Create product name mapping from secret (for de-genericization)
+        run: |
+          echo "🔐 Creating product name mapping from GitHub Secret..."
+          echo '${{ secrets.PRODUCT_NAME_MAPPING }}' > .product_mapping.json
+
+          # Verify mapping file was created
+          if [ ! -f .product_mapping.json ]; then
+            echo "❌ ERROR: Failed to create mapping file"
+            exit 1
+          fi
+
+          # Verify it's valid JSON (without exposing content)
+          if ! python -c "import json; json.load(open('.product_mapping.json'))" 2>/dev/null; then
+            echo "❌ ERROR: Mapping file is not valid JSON"
+            exit 1
+          fi
+
+          echo "✅ Product mapping file created successfully"
+
       - name: Discover Projects
         env:
           AZURE_DEVOPS_ORG_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}

@@ -10,19 +10,48 @@ import glob
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 
-def discover_projects(baseline_dir: str = "data") -> list[dict]:
+def load_product_mapping(mapping_file: str = ".product_mapping.json") -> dict[str, str]:
+    """
+    Load product name mapping for de-genericization.
+
+    Args:
+        mapping_file: Path to mapping file (default: .product_mapping.json)
+
+    Returns:
+        Dictionary mapping genericized names to real names
+    """
+    if not Path(mapping_file).exists():
+        print(f"[INFO] No product mapping found at {mapping_file}, using baseline names as-is")
+        return {}
+
+    try:
+        with open(mapping_file, encoding="utf-8") as f:
+            mapping: dict[str, str] = json.load(f)
+        print(f"[INFO] Loaded product mapping with {len(mapping)} entries")
+        return mapping
+    except Exception as e:
+        print(f"[WARNING] Failed to load product mapping: {e}")
+        return {}
+
+
+def discover_projects(baseline_dir: str = "data", product_mapping: dict[str, str] | None = None) -> list[dict]:
     """
     Discover projects from baseline files.
 
     Args:
         baseline_dir: Directory containing baseline_*.json files (default: data)
+        product_mapping: Optional mapping to de-genericize project names
 
     Returns:
         List of project dictionaries with metadata
     """
+    if product_mapping is None:
+        product_mapping = {}
+
     projects: list[dict] = []
     baseline_pattern = os.path.join(baseline_dir, "baseline_*.json")
     baseline_files = glob.glob(baseline_pattern)
@@ -43,10 +72,20 @@ def discover_projects(baseline_dir: str = "data") -> list[dict]:
             filename = os.path.basename(baseline_file)
             project_key = filename.replace("baseline_", "").replace(".json", "")
 
+            # Get project name from baseline (might be genericized like "Product A")
+            baseline_project_name = baseline_data.get("project", project_key.replace("_", " "))
+
+            # De-genericize if mapping exists
+            if product_mapping and baseline_project_name in product_mapping:
+                real_project_name = product_mapping[baseline_project_name]
+                print(f"  🔓 De-genericizing: {baseline_project_name} → {real_project_name}")
+            else:
+                real_project_name = baseline_project_name
+
             # Build project metadata
             project = {
                 "project_key": project_key,
-                "project_name": baseline_data.get("project", project_key.replace("_", " ")),
+                "project_name": real_project_name,  # Use de-genericized name
                 "organization": baseline_data.get("organization", ""),
                 "baseline_file": baseline_file,
                 "baseline_date": baseline_data.get("baseline_date"),
@@ -119,8 +158,11 @@ if __name__ == "__main__":
     print("Director Observatory - Project Discovery\n")
     print("=" * 60)
 
+    # Load product mapping for de-genericization (if exists)
+    product_mapping = load_product_mapping()
+
     # Discover projects from baseline files
-    projects = discover_projects()
+    projects = discover_projects(product_mapping=product_mapping)
 
     if not projects:
         print("\nWARNING: No projects discovered. Make sure baseline files exist in .tmp/")
