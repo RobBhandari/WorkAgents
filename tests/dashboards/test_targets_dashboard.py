@@ -2,9 +2,9 @@
 Tests for Target Dashboard Generator
 
 Tests cover:
-- Dashboard generation
+- Dashboard generation (async)
 - Baseline loading
-- Current state querying
+- Current state querying from APIs (async)
 - Summary calculation
 - Metric calculation (progress, status, burn rate)
 - Context building
@@ -13,7 +13,7 @@ Tests cover:
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, mock_open, patch
 
 import pytest
 
@@ -22,6 +22,8 @@ from execution.dashboards.targets import (
     _calculate_metrics,
     _calculate_summary,
     _load_baselines,
+    _load_discovery_data,
+    _query_bugs_for_project,
     _query_current_ado_bugs,
     _query_current_armorcode_vulns,
     _query_current_state,
@@ -39,6 +41,7 @@ def sample_security_baseline():
         "total_vulnerabilities": 100,
         "target_vulnerabilities": 30,
         "reduction_percentage": 70,
+        "products": ["Product A", "Product B"],
     }
 
 
@@ -56,52 +59,25 @@ def sample_bugs_baseline():
 
 
 @pytest.fixture
-def sample_security_history():
-    """Sample security history data for testing"""
+def sample_discovery_data():
+    """Sample discovery data for testing"""
     return {
-        "weeks": [
+        "discovered_at": "2026-02-01T15:54:50.551684",
+        "project_count": 2,
+        "projects": [
             {
-                "week_number": 1,
-                "week_date": "2026-01-05",
-                "metrics": {
-                    "current_total": 95,
-                    "severity_breakdown": {"critical": 10, "high": 85, "medium": 30, "low": 15},
-                },
+                "project_key": "Project_A",
+                "project_name": "Project A",
+                "organization": "https://dev.azure.com/test-org",
             },
             {
-                "week_number": 2,
-                "week_date": "2026-02-01",
-                "metrics": {
-                    "current_total": 85,
-                    "severity_breakdown": {"critical": 8, "high": 77, "medium": 25, "low": 12},
-                },
+                "project_key": "Project_B",
+                "project_name": "Project B",
+                "organization": "https://dev.azure.com/test-org",
+                "ado_project_name": "Project B ADO",
+                "area_path_filter": "EXCLUDE:Project B\\Archive",
             },
-        ]
-    }
-
-
-@pytest.fixture
-def sample_quality_history():
-    """Sample quality history data for testing"""
-    return {
-        "weeks": [
-            {
-                "week_number": 1,
-                "week_date": "2026-01-05",
-                "projects": [
-                    {"project_name": "API Gateway", "open_bugs_count": 75},
-                    {"project_name": "Web App", "open_bugs_count": 50},
-                ],
-            },
-            {
-                "week_number": 2,
-                "week_date": "2026-02-01",
-                "projects": [
-                    {"project_name": "API Gateway", "open_bugs_count": 70},
-                    {"project_name": "Web App", "open_bugs_count": 45},
-                ],
-            },
-        ]
+        ],
     }
 
 
@@ -140,70 +116,205 @@ def test_load_baselines_missing_bugs_file():
             _load_baselines()
 
 
-# Test: _query_current_armorcode_vulns
-def test_query_current_armorcode_vulns_success(sample_security_history):
-    """Test successful querying of current vulnerabilities"""
+# Test: _load_discovery_data
+def test_load_discovery_data_success(sample_discovery_data):
+    """Test successful loading of discovery data"""
     with (
         patch("pathlib.Path.exists", return_value=True),
-        patch("builtins.open", mock_open(read_data=json.dumps(sample_security_history))),
+        patch("builtins.open", mock_open(read_data=json.dumps(sample_discovery_data))),
     ):
-        result = _query_current_armorcode_vulns()
+        result = _load_discovery_data()
 
-        # Should return latest week's total
-        assert result == 85
+        assert result["project_count"] == 2
+        assert len(result["projects"]) == 2
+        assert result["projects"][0]["project_name"] == "Project A"
 
 
-def test_query_current_armorcode_vulns_missing_file():
-    """Test FileNotFoundError when security history is missing"""
+def test_load_discovery_data_missing_file():
+    """Test FileNotFoundError when discovery file is missing"""
     with patch("pathlib.Path.exists", return_value=False):
-        with pytest.raises(FileNotFoundError, match="Security history not found"):
-            _query_current_armorcode_vulns()
+        with pytest.raises(FileNotFoundError, match="Discovery file not found"):
+            _load_discovery_data()
 
 
-def test_query_current_armorcode_vulns_no_weeks():
-    """Test ValueError when no weeks data found"""
-    with (
-        patch("pathlib.Path.exists", return_value=True),
-        patch("builtins.open", mock_open(read_data=json.dumps({"weeks": []}))),
-    ):
-        with pytest.raises(ValueError, match="No weeks data found"):
-            _query_current_armorcode_vulns()
+# Test: _query_current_armorcode_vulns
+@pytest.mark.asyncio
+async def test_query_current_armorcode_vulns_success():
+    """Test successful querying of current vulnerabilities from API"""
+    # Mock vulnerabilities
+    mock_vuln_critical = Mock()
+    mock_vuln_critical.is_critical_or_high = True
+    mock_vuln_critical.is_critical = True
+    mock_vuln_critical.is_high = False
+
+    mock_vuln_high = Mock()
+    mock_vuln_high.is_critical_or_high = True
+    mock_vuln_high.is_critical = False
+    mock_vuln_high.is_high = True
+
+    mock_vuln_medium = Mock()
+    mock_vuln_medium.is_critical_or_high = False
+
+    mock_loader = Mock()
+    mock_loader.load_vulnerabilities_for_products.return_value = [
+        mock_vuln_critical,
+        mock_vuln_high,
+        mock_vuln_high,
+        mock_vuln_medium,
+    ]
+
+    with patch("execution.dashboards.targets.ArmorCodeVulnerabilityLoader", return_value=mock_loader):
+        result = await _query_current_armorcode_vulns(["Product A", "Product B"])
+
+        # Should return only critical + high (3)
+        assert result == 3
+        mock_loader.load_vulnerabilities_for_products.assert_called_once_with(
+            ["Product A", "Product B"], filter_environment=True
+        )
 
 
 # Test: _query_current_ado_bugs
-def test_query_current_ado_bugs_success(sample_quality_history):
-    """Test successful querying of current bugs"""
+@pytest.mark.asyncio
+async def test_query_current_ado_bugs_success(sample_discovery_data):
+    """Test successful querying of current bugs from ADO API"""
     with (
-        patch("pathlib.Path.exists", return_value=True),
-        patch("builtins.open", mock_open(read_data=json.dumps(sample_quality_history))),
+        patch("execution.dashboards.targets._load_discovery_data", return_value=sample_discovery_data),
+        patch("execution.dashboards.targets.get_ado_rest_client") as mock_get_client,
+        patch("execution.dashboards.targets._query_bugs_for_project", new_callable=AsyncMock) as mock_query_bugs,
     ):
-        result = _query_current_ado_bugs()
+        mock_query_bugs.side_effect = [50, 65]  # Two projects return 50 and 65 bugs
 
-        # Should return latest week's total (70 + 45 = 115)
+        result = await _query_current_ado_bugs()
+
+        # Should return sum of both projects (115)
         assert result == 115
+        assert mock_query_bugs.call_count == 2
 
 
-def test_query_current_ado_bugs_missing_file():
-    """Test FileNotFoundError when quality history is missing"""
-    with patch("pathlib.Path.exists", return_value=False):
-        with pytest.raises(FileNotFoundError, match="Quality history not found"):
-            _query_current_ado_bugs()
-
-
-def test_query_current_ado_bugs_no_weeks():
-    """Test ValueError when no weeks data found"""
+@pytest.mark.asyncio
+async def test_query_current_ado_bugs_with_errors(sample_discovery_data):
+    """Test querying bugs handles project errors gracefully"""
     with (
-        patch("pathlib.Path.exists", return_value=True),
-        patch("builtins.open", mock_open(read_data=json.dumps({"weeks": []}))),
+        patch("execution.dashboards.targets._load_discovery_data", return_value=sample_discovery_data),
+        patch("execution.dashboards.targets.get_ado_rest_client"),
+        patch("execution.dashboards.targets._query_bugs_for_project", new_callable=AsyncMock) as mock_query_bugs,
     ):
-        with pytest.raises(ValueError, match="No weeks data found"):
-            _query_current_ado_bugs()
+        # First project succeeds, second fails
+        mock_query_bugs.side_effect = [50, Exception("API error")]
+
+        result = await _query_current_ado_bugs()
+
+        # Should return only the successful project's count
+        assert result == 50
+
+
+@pytest.mark.asyncio
+async def test_query_current_ado_bugs_no_projects():
+    """Test querying bugs returns 0 when no projects found"""
+    with patch("execution.dashboards.targets._load_discovery_data", return_value={"projects": []}):
+        result = await _query_current_ado_bugs()
+        assert result == 0
+
+
+# Test: _query_bugs_for_project
+@pytest.mark.asyncio
+async def test_query_bugs_for_project_success():
+    """Test successful bug query for a single project"""
+    project = {"project_name": "Test Project", "ado_project_name": "Test Project ADO"}
+
+    mock_rest_client = AsyncMock()
+
+    # Mock WIQL response
+    mock_work_item_1 = Mock()
+    mock_work_item_1.id = 1001
+    mock_work_item_2 = Mock()
+    mock_work_item_2.id = 1002
+
+    mock_wiql_result = Mock()
+    mock_wiql_result.work_items = [mock_work_item_1, mock_work_item_2]
+
+    mock_rest_client.query_by_wiql.return_value = {}
+
+    # Mock bug details
+    mock_bugs = [{"System.Id": 1001, "System.Tags": ""}, {"System.Id": 1002, "System.Tags": ""}]
+
+    with (
+        patch(
+            "execution.dashboards.targets.WorkItemTransformer.transform_wiql_response", return_value=mock_wiql_result
+        ),
+        patch(
+            "execution.utils.ado_batch_utils.batch_fetch_work_items_rest", new_callable=AsyncMock
+        ) as mock_batch_fetch,
+        patch("execution.dashboards.targets.WorkItemTransformer.transform_work_items_response", return_value=mock_bugs),
+        patch("execution.dashboards.targets.filter_security_bugs", return_value=(mock_bugs, 0)),
+    ):
+        mock_batch_fetch.return_value = (mock_bugs, [])
+
+        result = await _query_bugs_for_project(mock_rest_client, project)
+
+        assert result == 2
+        mock_rest_client.query_by_wiql.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_query_bugs_for_project_filters_security_bugs():
+    """Test bug query filters out security bugs"""
+    project = {"project_name": "Test Project"}
+
+    mock_rest_client = AsyncMock()
+
+    mock_work_item = Mock()
+    mock_work_item.id = 1001
+
+    mock_wiql_result = Mock()
+    mock_wiql_result.work_items = [mock_work_item]
+
+    mock_rest_client.query_by_wiql.return_value = {}
+
+    mock_bugs = [{"System.Id": 1001, "System.Tags": "ArmorCode"}]
+    mock_filtered_bugs = []  # Security bug filtered out
+
+    with (
+        patch(
+            "execution.dashboards.targets.WorkItemTransformer.transform_wiql_response", return_value=mock_wiql_result
+        ),
+        patch(
+            "execution.utils.ado_batch_utils.batch_fetch_work_items_rest", new_callable=AsyncMock
+        ) as mock_batch_fetch,
+        patch("execution.dashboards.targets.WorkItemTransformer.transform_work_items_response", return_value=mock_bugs),
+        patch("execution.dashboards.targets.filter_security_bugs", return_value=(mock_filtered_bugs, 1)),
+    ):
+        mock_batch_fetch.return_value = (mock_bugs, [])
+
+        result = await _query_bugs_for_project(mock_rest_client, project)
+
+        # Should return 0 after filtering
+        assert result == 0
+
+
+@pytest.mark.asyncio
+async def test_query_bugs_for_project_no_bugs():
+    """Test bug query returns 0 when no bugs found"""
+    project = {"project_name": "Test Project"}
+
+    mock_rest_client = AsyncMock()
+
+    mock_wiql_result = Mock()
+    mock_wiql_result.work_items = []
+
+    mock_rest_client.query_by_wiql.return_value = {}
+
+    with patch(
+        "execution.dashboards.targets.WorkItemTransformer.transform_wiql_response", return_value=mock_wiql_result
+    ):
+        result = await _query_bugs_for_project(mock_rest_client, project)
+        assert result == 0
 
 
 # Test: _calculate_metrics
 def test_calculate_metrics_on_track():
     """Test metric calculation when on track"""
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     with patch("execution.dashboards.targets.datetime") as mock_datetime:
         # Mock current date to be 15 weeks (105 days) into the target period
@@ -379,13 +490,37 @@ def test_build_context_success():
     assert result["show_glossary"] is False
 
 
+# Test: _query_current_state
+@pytest.mark.asyncio
+async def test_query_current_state_success():
+    """Test successful querying of current state from APIs"""
+    baselines = {"security": {"products": ["Product A"]}, "bugs": {}}
+
+    with (
+        patch(
+            "execution.dashboards.targets._query_current_armorcode_vulns", new_callable=AsyncMock
+        ) as mock_query_vulns,
+        patch("execution.dashboards.targets._query_current_ado_bugs", new_callable=AsyncMock) as mock_query_bugs,
+    ):
+        mock_query_vulns.return_value = 85
+        mock_query_bugs.return_value = 115
+
+        result = await _query_current_state(baselines)
+
+        assert result["security"] == 85
+        assert result["bugs"] == 115
+        mock_query_vulns.assert_called_once_with(["Product A"])
+        mock_query_bugs.assert_called_once()
+
+
 # Test: generate_targets_dashboard (integration test)
+@pytest.mark.asyncio
 @patch("execution.dashboards.targets._load_baselines")
-@patch("execution.dashboards.targets._query_current_state")
+@patch("execution.dashboards.targets._query_current_state", new_callable=AsyncMock)
 @patch("execution.dashboards.targets._calculate_summary")
 @patch("execution.dashboards.targets._build_context")
 @patch("execution.dashboards.targets.render_dashboard")
-def test_generate_targets_dashboard_success(
+async def test_generate_targets_dashboard_success(
     mock_render, mock_build_context, mock_calculate_summary, mock_query_state, mock_load_baselines
 ):
     """Test successful dashboard generation (integration)"""
@@ -413,7 +548,7 @@ def test_generate_targets_dashboard_success(
     mock_render.return_value = "<html>Mock Dashboard</html>"
 
     # Execute
-    html = generate_targets_dashboard()
+    html = await generate_targets_dashboard()
 
     # Verify
     assert html == "<html>Mock Dashboard</html>"
@@ -424,41 +559,11 @@ def test_generate_targets_dashboard_success(
     mock_render.assert_called_once()
 
 
+@pytest.mark.asyncio
 @patch("execution.dashboards.targets._load_baselines")
-def test_generate_targets_dashboard_missing_baselines(mock_load_baselines):
+async def test_generate_targets_dashboard_missing_baselines(mock_load_baselines):
     """Test dashboard generation fails when baselines are missing"""
     mock_load_baselines.side_effect = FileNotFoundError("Security baseline not found")
 
     with pytest.raises(FileNotFoundError, match="Security baseline not found"):
-        generate_targets_dashboard()
-
-
-@patch("execution.dashboards.targets._load_baselines")
-@patch("execution.dashboards.targets._query_current_state")
-def test_generate_targets_dashboard_missing_history(mock_query_state, mock_load_baselines):
-    """Test dashboard generation fails when history files are missing"""
-    mock_load_baselines.return_value = {
-        "security": {"total_vulnerabilities": 100},
-        "bugs": {"open_count": 200},
-    }
-
-    mock_query_state.side_effect = FileNotFoundError("Security history not found")
-
-    with pytest.raises(FileNotFoundError, match="Security history not found"):
-        generate_targets_dashboard()
-
-
-# Test: _query_current_state
-@patch("execution.dashboards.targets._query_current_armorcode_vulns")
-@patch("execution.dashboards.targets._query_current_ado_bugs")
-def test_query_current_state_success(mock_query_bugs, mock_query_vulns):
-    """Test successful querying of current state"""
-    mock_query_vulns.return_value = 85
-    mock_query_bugs.return_value = 115
-
-    result = _query_current_state()
-
-    assert result["security"] == 85
-    assert result["bugs"] == 115
-    mock_query_vulns.assert_called_once()
-    mock_query_bugs.assert_called_once()
+        await generate_targets_dashboard()

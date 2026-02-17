@@ -5,57 +5,61 @@ Generates executive-level health dashboard combining:
     - Quality metrics (bugs, flow)
     - Security metrics (vulnerabilities)
     - Target progress (70% reduction)
-    - Attention items and trends
+    - Attention items
+
+Queries APIs directly for fresh current metrics.
 
 This replaces the original 1483-line generate_executive_summary.py with a
-clean, maintainable implementation of ~350 lines.
+clean, maintainable implementation querying APIs directly.
 
 Usage:
+    import asyncio
     from execution.dashboards.executive import generate_executive_summary
     from pathlib import Path
 
     output_path = Path('.tmp/observatory/dashboards/executive.html')
-    generate_executive_summary(output_path)
+    html = asyncio.run(generate_executive_summary(output_path))
 """
 
+import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 # Import infrastructure and domain models
-from execution.collectors.armorcode_loader import ArmorCodeLoader
+from execution.collectors.ado_flow_metrics import AGING_THRESHOLD_DAYS, LOOKBACK_DAYS, collect_flow_metrics_for_project
+from execution.collectors.ado_quality_metrics import collect_quality_metrics_for_project
+from execution.collectors.ado_rest_client import get_ado_rest_client
+from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
 from execution.core import get_logger
-from execution.dashboards.components.cards import attention_item_card, metric_card
-from execution.dashboards.components.charts import sparkline, trend_indicator
+from execution.dashboards.components.cards import metric_card
+from execution.dashboards.components.charts import trend_indicator
 from execution.dashboards.renderer import render_dashboard
-from execution.domain.flow import FlowMetrics
-from execution.domain.quality import QualityMetrics
-from execution.domain.security import SecurityMetrics
 from execution.framework import get_dashboard_framework
 from execution.utils.error_handling import log_and_return_default
+from execution.utils.json_utils import load_json_with_recovery
 
 logger = get_logger(__name__)
 
 
 class ExecutiveSummaryGenerator:
     """
-    Generates executive summary dashboard from multiple data sources.
+    Generates executive summary dashboard from multiple API sources.
 
-    Combines quality, security, and flow metrics into a single
-    high-level health view for directors and executives.
+    Queries APIs directly for current metrics across quality, security, and flow.
+    Combines into a single high-level health view for directors and executives.
     """
 
     def __init__(self) -> None:
-        """Initialize generator with file paths"""
-        self.quality_file = Path(".tmp/observatory/quality_history.json")
-        self.security_file = Path(".tmp/observatory/security_history.json")
-        self.flow_file = Path(".tmp/observatory/flow_history.json")
+        """Initialize generator with baseline file paths"""
         self.baseline_bugs_file = Path("data/baseline.json")
         self.baseline_vulns_file = Path("data/armorcode_baseline.json")
+        self.discovery_file = Path(".tmp/observatory/ado_structure.json")
 
-    def generate(self, output_path: Path | None = None) -> str:
+    async def generate(self, output_path: Path | None = None) -> str:
         """
-        Generate executive summary HTML.
+        Generate executive summary HTML by querying APIs.
 
         Args:
             output_path: Optional path to write HTML file
@@ -63,11 +67,11 @@ class ExecutiveSummaryGenerator:
         Returns:
             Generated HTML string
         """
-        logger.info("Generating executive summary")
+        logger.info("Generating executive summary (querying APIs directly)")
 
-        # Step 1: Load all data sources
-        logger.info("Loading metrics from all sources")
-        all_data = self._load_all_data()
+        # Step 1: Query all data sources from APIs
+        logger.info("Querying metrics from all API sources")
+        all_data = await self._query_all_data()
 
         # Step 2: Calculate target progress
         logger.info("Calculating 70% reduction target progress")
@@ -91,117 +95,197 @@ class ExecutiveSummaryGenerator:
         logger.info("Executive summary generated", extra={"html_size": len(html)})
         return html
 
-    def _load_all_data(self) -> dict:
-        """Load data from all sources"""
-        data = {
-            "quality": self._load_quality_data(),
-            "security": self._load_security_data(),
-            "flow": self._load_flow_data(),
-        }
-        return data
+    async def _query_all_data(self) -> dict[str, Any]:
+        """Query data from all API sources concurrently"""
+        # Execute all queries concurrently
+        quality_task = self._query_quality_data()
+        security_task = self._query_security_data()
+        flow_task = self._query_flow_data()
 
-    def _load_quality_data(self) -> dict | None:
-        """Load quality/bug metrics"""
-        if not self.quality_file.exists():
-            logger.warning("Quality history not found")
-            return None
+        quality_data, security_data, flow_data = await asyncio.gather(
+            quality_task, security_task, flow_task, return_exceptions=True
+        )
 
+        # Handle exceptions
+        if isinstance(quality_data, Exception):
+            logger.error("Failed to query quality data", extra={"error": str(quality_data)})
+            quality_data = None
+
+        if isinstance(security_data, Exception):
+            logger.error("Failed to query security data", extra={"error": str(security_data)})
+            security_data = None
+
+        if isinstance(flow_data, Exception):
+            logger.error("Failed to query flow data", extra={"error": str(flow_data)})
+            flow_data = None
+
+        return {"quality": quality_data, "security": security_data, "flow": flow_data}
+
+    async def _query_quality_data(self) -> dict[str, Any] | None:
+        """Query quality/bug metrics from ADO API"""
         try:
-            with open(self.quality_file, encoding="utf-8") as f:
-                data = json.load(f)
-            weeks = data.get("weeks", [])
-            if not weeks:
+            logger.info("Querying quality metrics from Azure DevOps API")
+
+            # Load discovery data
+            if not self.discovery_file.exists():
+                logger.warning(f"Discovery data not found: {self.discovery_file}")
                 return None
 
-            latest = weeks[-1]
-            projects = latest.get("projects", [])
+            discovery_data = load_json_with_recovery(str(self.discovery_file))
+            projects = discovery_data.get("projects", [])
+
+            if not projects:
+                logger.warning("No projects found in discovery data")
+                return None
+
+            # Get REST client and config
+            rest_client = get_ado_rest_client()
+            config = {"lookback_days": 90}
+
+            # Query metrics for all projects concurrently
+            tasks = [collect_quality_metrics_for_project(rest_client, project, config) for project in projects]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Filter out exceptions and aggregate
+            project_metrics: list[dict[str, Any]] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    logger.warning(f"Failed quality query for {project.get('project_name')}: {result}")
+                else:
+                    project_metrics.append(result)
+
+            if not project_metrics:
+                return None
 
             # Aggregate across projects
-            total_open = sum(p.get("open_bugs_count", 0) for p in projects)
-            total_closed = sum(p.get("closed_last_week", 0) for p in projects)
-            total_created = sum(p.get("created_last_week", 0) for p in projects)
+            total_open = sum(p.get("open_bugs_count", 0) for p in project_metrics)
+            total_closed = sum(p.get("closed_last_week", 0) for p in project_metrics)
+            total_created = sum(p.get("created_last_week", 0) for p in project_metrics)
+
+            logger.info(
+                "Quality data queried",
+                extra={"open_bugs": total_open, "closed": total_closed, "created": total_created},
+            )
 
             return {
                 "open_bugs": total_open,
                 "closed_this_week": total_closed,
                 "created_this_week": total_created,
                 "net_change": total_closed - total_created,
-                "weeks": weeks,
             }
-        except (OSError, json.JSONDecodeError, KeyError, TypeError) as e:
+
+        except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
             return log_and_return_default(  # type: ignore[no-any-return]
-                logger,
-                e,
-                context={"file": str(self.quality_file)},
-                default_value=None,
-                error_type="Quality data loading",
+                logger, e, context={"source": "ADO Quality API"}, default_value=None, error_type="Quality data query"
             )
 
-    def _load_security_data(self) -> dict | None:
-        """Load security vulnerability metrics"""
+    async def _query_security_data(self) -> dict[str, Any] | None:
+        """Query security vulnerability metrics from ArmorCode API (Production only)"""
         try:
-            loader = ArmorCodeLoader(self.security_file)
-            metrics = loader.load_latest_metrics()
+            logger.info("Querying security metrics from ArmorCode API (Production only)")
 
-            # Aggregate across products
-            total_vulns = sum(m.total_vulnerabilities for m in metrics.values())
-            total_critical = sum(m.critical for m in metrics.values())
-            total_high = sum(m.high for m in metrics.values())
-
-            return {
-                "total_vulnerabilities": total_vulns,
-                "critical": total_critical,
-                "high": total_high,
-                "critical_high": total_critical + total_high,
-                "products": metrics,
-            }
-        except FileNotFoundError:
-            logger.warning("Security history not found")
-            return None
-        except (OSError, json.JSONDecodeError, KeyError, AttributeError) as e:
-            return log_and_return_default(  # type: ignore[no-any-return]
-                logger,
-                e,
-                context={"file": str(self.security_file)},
-                default_value=None,
-                error_type="Security data loading",
-            )
-
-    def _load_flow_data(self) -> dict | None:
-        """Load flow/velocity metrics"""
-        if not self.flow_file.exists():
-            logger.warning("Flow history not found")
-            return None
-
-        try:
-            with open(self.flow_file, encoding="utf-8") as f:
-                data = json.load(f)
-            weeks = data.get("weeks", [])
-            if not weeks:
+            # Load baseline to get product list
+            if not self.baseline_vulns_file.exists():
+                logger.warning(f"Baseline file not found: {self.baseline_vulns_file}")
                 return None
 
-            latest = weeks[-1]
-            projects = latest.get("projects", [])
+            with open(self.baseline_vulns_file, encoding="utf-8") as f:
+                baseline_data = json.load(f)
 
-            # Aggregate lead times
+            products = list(baseline_data.get("products", {}).keys())
+            if not products:
+                logger.warning("No products found in baseline")
+                return None
+
+            # Query ArmorCode API for Production vulnerabilities only
+            loader = ArmorCodeVulnerabilityLoader()
+            vulnerabilities = loader.load_vulnerabilities_for_products(products, filter_environment=True)
+
+            logger.info(f"Retrieved {len(vulnerabilities)} Production vulnerabilities from ArmorCode API")
+
+            # Count by severity
+            total_critical = sum(1 for v in vulnerabilities if v.severity == "CRITICAL")
+            total_high = sum(1 for v in vulnerabilities if v.severity == "HIGH")
+            total_medium = sum(1 for v in vulnerabilities if v.severity == "MEDIUM")
+            total_low = sum(1 for v in vulnerabilities if v.severity == "LOW")
+
+            logger.info(
+                "Security data queried",
+                extra={"critical": total_critical, "high": total_high, "total": len(vulnerabilities)},
+            )
+
+            return {
+                "total_vulnerabilities": len(vulnerabilities),
+                "critical": total_critical,
+                "high": total_high,
+                "medium": total_medium,
+                "low": total_low,
+                "critical_high": total_critical + total_high,
+            }
+
+        except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError) as e:
+            return log_and_return_default(  # type: ignore[no-any-return]
+                logger,
+                e,
+                context={"source": "ArmorCode API"},
+                default_value=None,
+                error_type="Security data query",
+            )
+
+    async def _query_flow_data(self) -> dict[str, Any] | None:
+        """Query flow/velocity metrics from ADO API"""
+        try:
+            logger.info("Querying flow metrics from Azure DevOps API")
+
+            # Load discovery data
+            if not self.discovery_file.exists():
+                logger.warning(f"Discovery data not found: {self.discovery_file}")
+                return None
+
+            discovery_data = load_json_with_recovery(str(self.discovery_file))
+            projects = discovery_data.get("projects", [])
+
+            if not projects:
+                logger.warning("No projects found in discovery data")
+                return None
+
+            # Get REST client and config
+            rest_client = get_ado_rest_client()
+            config = {"lookback_days": LOOKBACK_DAYS, "aging_threshold_days": AGING_THRESHOLD_DAYS}
+
+            # Query metrics for all projects concurrently
+            tasks = [collect_flow_metrics_for_project(rest_client, project, config) for project in projects]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Filter out exceptions and aggregate
+            project_metrics: list[dict[str, Any]] = []
+            for project, result in zip(projects, results, strict=True):
+                if isinstance(result, Exception):
+                    logger.warning(f"Failed flow query for {project.get('project_name')}: {result}")
+                else:
+                    project_metrics.append(result)
+
+            if not project_metrics:
+                return None
+
+            # Aggregate lead times across projects
             all_lead_times = []
-            for proj in projects:
+            for proj in project_metrics:
                 if proj.get("lead_time_p50"):
                     all_lead_times.append(proj["lead_time_p50"])
 
             avg_lead_time = sum(all_lead_times) / len(all_lead_times) if all_lead_times else None
 
-            return {"avg_lead_time_p50": avg_lead_time, "projects": projects, "weeks": weeks}
-        except (OSError, json.JSONDecodeError, KeyError, TypeError) as e:
+            logger.info("Flow data queried", extra={"avg_lead_time_p50": avg_lead_time})
+
+            return {"avg_lead_time_p50": avg_lead_time}
+
+        except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
             return log_and_return_default(  # type: ignore[no-any-return]
-                logger,
-                e,
-                context={"file": str(self.flow_file)},
-                default_value=None,
-                error_type="Flow data loading",
+                logger, e, context={"source": "ADO Flow API"}, default_value=None, error_type="Flow data query"
             )
 
-    def _calculate_target_progress(self, all_data: dict) -> dict | None:
+    def _calculate_target_progress(self, all_data: dict[str, Any]) -> dict[str, Any] | None:
         """Calculate 70% reduction target progress"""
         quality = all_data.get("quality")
         security = all_data.get("security")
@@ -213,13 +297,17 @@ class ExecutiveSummaryGenerator:
         baseline_bugs = 0
         baseline_vulns = 0
 
-        if self.baseline_bugs_file.exists():
-            with open(self.baseline_bugs_file) as f:
-                baseline_bugs = json.load(f).get("open_count", 0)
+        try:
+            if self.baseline_bugs_file.exists():
+                with open(self.baseline_bugs_file, encoding="utf-8") as f:
+                    baseline_bugs = json.load(f).get("open_count", 0)
 
-        if self.baseline_vulns_file.exists():
-            with open(self.baseline_vulns_file) as f:
-                baseline_vulns = json.load(f).get("total_vulnerabilities", 0)
+            if self.baseline_vulns_file.exists():
+                with open(self.baseline_vulns_file, encoding="utf-8") as f:
+                    baseline_vulns = json.load(f).get("total_vulnerabilities", 0)
+        except (OSError, json.JSONDecodeError, KeyError) as e:
+            logger.warning(f"Failed to load baseline data: {e}")
+            return None
 
         if baseline_bugs == 0 or baseline_vulns == 0:
             return None
@@ -259,9 +347,9 @@ class ExecutiveSummaryGenerator:
         progress = (reduction_achieved / reduction_needed) * 100
         return max(0, min(100, progress))  # Clamp to 0-100
 
-    def _identify_attention_items(self, all_data: dict) -> list[dict]:
+    def _identify_attention_items(self, all_data: dict[str, Any]) -> list[dict[str, Any]]:
         """Identify items requiring executive attention"""
-        items = []
+        items: list[dict[str, Any]] = []
 
         quality = all_data.get("quality")
         security = all_data.get("security")
@@ -302,7 +390,9 @@ class ExecutiveSummaryGenerator:
 
         return items
 
-    def _build_context(self, all_data: dict, target_progress: dict | None, attention_items: list[dict]) -> dict:
+    def _build_context(
+        self, all_data: dict[str, Any], target_progress: dict[str, Any] | None, attention_items: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Build template context"""
         # Get framework
         framework_css, framework_js = get_dashboard_framework(
@@ -323,10 +413,9 @@ class ExecutiveSummaryGenerator:
             "metric_cards": metric_cards,
             "attention_items": attention_items,
             "health_areas": health_areas,
-            "trends": [],  # TODO: Implement trend sparklines
         }
 
-    def _build_metric_cards(self, all_data: dict) -> list[str]:
+    def _build_metric_cards(self, all_data: dict[str, Any]) -> list[str]:
         """Build metric cards"""
         cards = []
 
@@ -371,9 +460,9 @@ class ExecutiveSummaryGenerator:
 
         return cards
 
-    def _build_health_areas(self, all_data: dict) -> list[dict]:
+    def _build_health_areas(self, all_data: dict[str, Any]) -> list[dict[str, Any]]:
         """Build health status by area"""
-        areas = []
+        areas: list[dict[str, Any]] = []
 
         quality = all_data.get("quality")
         if quality:
@@ -415,10 +504,10 @@ class ExecutiveSummaryGenerator:
 
 
 # Convenience function
-def generate_executive_summary(output_path: Path | None = None) -> str:
-    """Generate executive summary dashboard"""
+async def generate_executive_summary(output_path: Path | None = None) -> str:
+    """Generate executive summary dashboard by querying APIs directly"""
     generator = ExecutiveSummaryGenerator()
-    return generator.generate(output_path)
+    return await generator.generate(output_path)
 
 
 # Self-test
@@ -427,7 +516,7 @@ if __name__ == "__main__":
 
     try:
         output_path = Path(".tmp/observatory/dashboards/executive.html")
-        html = generate_executive_summary(output_path)
+        html = asyncio.run(generate_executive_summary(output_path))
 
         logger.info(
             "Executive summary generated successfully", extra={"output": str(output_path), "html_size": len(html)}
