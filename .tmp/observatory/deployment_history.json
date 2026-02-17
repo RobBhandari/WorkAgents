@@ -35376,6 +35376,251 @@
       "config": {
         "lookback_days": 90
       }
+    },
+    {
+      "week_date": "2026-02-17",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Project_A",
+          "project_name": "Product A",
+          "deployment_frequency": {
+            "total_successful_builds": 363,
+            "lookback_days": 90,
+            "deployments_per_week": 28.23,
+            "by_pipeline": {
+              "ALCM-Automation-E2E": 60,
+              "ALCM-V3-CD": 54,
+              "ALCM-V2-CD": 73,
+              "ALCM-Mend-V2": 21,
+              "ALCM-MLS-Mend-Sonar": 15,
+              "ALCM-MLS-CD": 15,
+              "ALCM-FE-CD": 60,
+              "ALCM-Mend-FE": 27,
+              "ALCM-Safechat-Mend": 6,
+              "ALCM-WebQuoteBE-CD": 1,
+              "LEG-CloudConfig-BE": 2,
+              "ALCM-Mend-V3": 3,
+              "ALCM-API-CD": 5,
+              "ALCM Automation (Playwright) - UAT Env": 3,
+              "ALCM-API": 5,
+              "ALCM-Mend-APIs": 3,
+              "ALCM-Mend-Android": 3,
+              "ALCM-Identity": 3,
+              "ALCM-IdentityServer-CD": 2,
+              "ALCM-Mend-Identity": 2
+            },
+            "pipeline_count": 20
+          },
+          "build_success_rate": {
+            "total_builds": 585,
+            "succeeded": 363,
+            "failed": 157,
+            "canceled": 59,
+            "partially_succeeded": 6,
+            "success_rate_pct": 62.1,
+            "by_result": {
+              "failed": 157,
+              "succeeded": 363,
+              "canceled": 59,
+              "partiallySucceeded": 6
+            },
+            "by_pipeline": {
+              "ALCM-Automation-E2E": {
+                "failed": 78,
+                "succeeded": 60,
+                "canceled": 5
+              },
+              "ALCM-Mend-V3": {
+                "failed": 25,
+                "succeeded": 3
+              },
+              "ALCM-V3-CD": {
+                "succeeded": 54,
+                "failed": 13
+              },
+              "ALCM-V2-CD": {
+                "succeeded": 73,
+                "failed": 20,
+                "canceled": 1
+              },
+              "ALCM-Mend-V2": {
+                "succeeded": 21
+              },
+              "ALCM-MLS-Mend-Sonar": {
+                "succeeded": 15,
+                "failed": 1
+              },
+              "ALCM-MLS-CD": {
+                "succeeded": 15,
+                "partiallySucceeded": 5,
+                "failed": 2,
+                "canceled": 1
+              },
+              "ALCM-FE-CD": {
+                "succeeded": 60,
+                "failed": 15
+              },
+              "ALCM-Mend-FE": {
+                "succeeded": 27
+              },
+              "ALCM-Safechat-Mend": {
+                "succeeded": 6,
+                "failed": 1
+              },
+              "ALCM-iOS-Sonar-Mend": {
+                "canceled": 31
+              },
+              "ALCM Automation (Playwright) - UAT Env": {
+                "canceled": 20,
+                "succeeded": 3
+              },
+              "ALCM-WebQuoteBE-CD": {
+                "succeeded": 1,
+                "canceled": 1
+              },
+              "ALCM-tfsec": {
+                "partiallySucceeded": 1
+              },
+              "Access-EVO-Automation-E2E": {
+                "failed": 2
+              },
+              "LEG-CloudConfig-BE": {
+                "succeeded": 2
+              },
+              "ALCM-API-CD": {
+                "succeeded": 5
+              },
+              "ALCM-API": {
+                "succeeded": 5
+              },
+              "ALCM-Mend-APIs": {
+                "succeeded": 3
+              },
+              "ALCM-Mend-Android": {
+                "succeeded": 3
+              },
+              "ALCM-Identity": {
+                "succeeded": 3
+              },
+              "ALCM-IdentityServer-CD": {
+                "succeeded": 2
+              },
+              "ALCM-Mend-Identity": {
+                "succeeded": 2
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 531,
+            "median_minutes": 18.1,
+            "p85_minutes": 30265.3,
+            "p95_minutes": 31696.4,
+            "min_minutes": 0.4,
+            "max_minutes": 43272.5,
+            "by_pipeline": {
+              "ALCM-Automation-E2E": {
+                "count": 143,
+                "median_minutes": 10.6
+              },
+              "ALCM-Mend-V3": {
+                "count": 28,
+                "median_minutes": 24.5
+              },
+              "ALCM-V3-CD": {
+                "count": 67,
+                "median_minutes": 28862.5
+              },
+              "ALCM-V2-CD": {
+                "count": 93,
+                "median_minutes": 16.4
+              },
+              "ALCM-Mend-V2": {
+                "count": 21,
+                "median_minutes": 8.9
+              },
+              "ALCM-MLS-Mend-Sonar": {
+                "count": 14,
+                "median_minutes": 7.1
+              },
+              "ALCM-MLS-CD": {
+                "count": 23,
+                "median_minutes": 28820.6
+              },
+              "ALCM-FE-CD": {
+                "count": 75,
+                "median_minutes": 28838.8
+              },
+              "ALCM-Mend-FE": {
+                "count": 27,
+                "median_minutes": 1.5
+              },
+              "ALCM-Safechat-Mend": {
+                "count": 7,
+                "median_minutes": 19.1
+              },
+              "ALCM-WebQuoteBE-CD": {
+                "count": 2,
+                "median_minutes": 3322.7
+              },
+              "ALCM-tfsec": {
+                "count": 1,
+                "median_minutes": 0.4
+              },
+              "Access-EVO-Automation-E2E": {
+                "count": 2,
+                "median_minutes": 27.9
+              },
+              "LEG-CloudConfig-BE": {
+                "count": 2,
+                "median_minutes": 2.9
+              },
+              "ALCM-API-CD": {
+                "count": 5,
+                "median_minutes": 5.2
+              },
+              "ALCM Automation (Playwright) - UAT Env": {
+                "count": 3,
+                "median_minutes": 39.3
+              },
+              "ALCM-API": {
+                "count": 5,
+                "median_minutes": 3.0
+              },
+              "ALCM-Mend-APIs": {
+                "count": 3,
+                "median_minutes": 2.0
+              },
+              "ALCM-Mend-Android": {
+                "count": 3,
+                "median_minutes": 14.9
+              },
+              "ALCM-Identity": {
+                "count": 3,
+                "median_minutes": 1.1
+              },
+              "ALCM-IdentityServer-CD": {
+                "count": 2,
+                "median_minutes": 3.6
+              },
+              "ALCM-Mend-Identity": {
+                "count": 2,
+                "median_minutes": 2.3
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 47,
+            "median_hours": 0.2,
+            "p85_hours": 507.7,
+            "p95_hours": 528.3
+          },
+          "collected_at": "2026-02-17T18:45:47.620960"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
     }
   ]
 }

@@ -47495,6 +47495,709 @@
         "lookback_days": 90,
         "aging_threshold_days": 30
       }
+    },
+    {
+      "week_date": "2026-02-17",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Project_A",
+          "project_name": "Product A",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 240,
+              "closed_count_90d": 111,
+              "wip": 240,
+              "lead_time": {
+                "p50": 160.9,
+                "p85": 458.6,
+                "p95": 773.5,
+                "sample_size": 111,
+                "raw_values": [
+                  886.1424361111111,
+                  806.1061723032408,
+                  845.1904557523148,
+                  823.8848508796295,
+                  784.2106290509258,
+                  793.1201353356482,
+                  762.811984837963,
+                  594.698967673611,
+                  590.3278400462963,
+                  588.2473236921296
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 106.8,
+                  "p85": 248.6,
+                  "p95": 313.7,
+                  "closed_count": 89,
+                  "sample_size": 89
+                },
+                "cleanup": {
+                  "p50": 524.7,
+                  "p85": 804.2,
+                  "p95": 844.1,
+                  "closed_count": 22,
+                  "sample_size": 22,
+                  "avg_age_years": 1.6
+                },
+                "indicators": {
+                  "cleanup_percentage": 19.8,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": true,
+                  "total_closed": 111,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 223,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 39855,
+                    "title": "P3 2 3985: Team Talk Sound Recorder3 - Freezing application",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 1140.2,
+                    "created_date": "2023-01-04T14:42:55.747Z"
+                  },
+                  {
+                    "id": 137265,
+                    "title": "Template text size no showing on Emails",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 1112.4,
+                    "created_date": "2023-02-01T09:59:06.747Z"
+                  },
+                  {
+                    "id": 181242,
+                    "title": "Neves and Atkins Dellow - Emails sometimes going into Drafts",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 1035.2,
+                    "created_date": "2023-04-19T14:08:27.577Z"
+                  },
+                  {
+                    "id": 190453,
+                    "title": "To field not showing suggested emails",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 1028.1,
+                    "created_date": "2023-04-26T16:24:28.117Z"
+                  },
+                  {
+                    "id": 214932,
+                    "title": "2 0003975: HBPL - Email saved into File History is different to email appear in sent items for Spitfire mail",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 1007.4,
+                    "created_date": "2023-05-17T10:12:10.94Z"
+                  },
+                  {
+                    "id": 219083,
+                    "title": "**P3 3 Dragging Calendar items into a DPS case crashing Outlook",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 1005.2,
+                    "created_date": "2023-05-19T13:49:12.497Z"
+                  },
+                  {
+                    "id": 267947,
+                    "title": "TA6 and TA10 forms formatting issue within PDF Viewer",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 979.4,
+                    "created_date": "2023-06-14T09:45:51.803Z"
+                  },
+                  {
+                    "id": 320055,
+                    "title": "Gudgeons - Email text size changes randomly",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 951.3,
+                    "created_date": "2023-07-12T11:22:33.61Z"
+                  },
+                  {
+                    "id": 320685,
+                    "title": "Gudgeons - Text formatting disappears when running template as an attachment on email",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 951.1,
+                    "created_date": "2023-07-12T16:18:31.67Z"
+                  },
+                  {
+                    "id": 429351,
+                    "title": "**BL1 Dragging emails opens up matter without showing the 'new entry screen' - DPS Outlook",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 854.3,
+                    "created_date": "2023-10-17T10:56:04.78Z"
+                  },
+                  {
+                    "id": 431070,
+                    "title": "London Borough of Hackney - Unable to reply or forward emails",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 853.2,
+                    "created_date": "2023-10-18T12:49:34.053Z"
+                  },
+                  {
+                    "id": 486649,
+                    "title": "Commands (SV, FE, FL, FN) do not work when the template coding is called by the LL command",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 826.2,
+                    "created_date": "2023-11-14T14:30:45.777Z"
+                  },
+                  {
+                    "id": 498002,
+                    "title": "MoJ Public Guardian Office - File store error",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 816.1,
+                    "created_date": "2023-11-24T16:21:09.813Z"
+                  },
+                  {
+                    "id": 536821,
+                    "title": "SEA & SEB Commands with templates are not completing the \"Last Done\" & \"Done By\" fields.",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 791.1,
+                    "created_date": "2023-12-19T17:03:45.57Z"
+                  },
+                  {
+                    "id": 554022,
+                    "title": "Carriage returns appear as and#xA in MLS notes",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 770.1,
+                    "created_date": "2024-01-09T15:41:03.043Z"
+                  },
+                  {
+                    "id": 583689,
+                    "title": "FD: TM Group - Web Integration placing search information into incorrect section of echit - Neves - 65088008",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 749.4,
+                    "created_date": "2024-01-30T10:02:00.423Z"
+                  },
+                  {
+                    "id": 615596,
+                    "title": "DDA Ledger Print missing transactions giving wrong balances - 65211172",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 733.3,
+                    "created_date": "2024-02-15T12:40:21.5Z"
+                  },
+                  {
+                    "id": 620777,
+                    "title": "AGFS Worked Billed report not showing the correct figures for ALCM Cases",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 727.4,
+                    "created_date": "2024-02-21T09:22:56.197Z"
+                  },
+                  {
+                    "id": 626152,
+                    "title": "When replying to an email via the diary, the sender is a recipient",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 725.3,
+                    "created_date": "2024-02-23T11:41:32.303Z"
+                  },
+                  {
+                    "id": 626207,
+                    "title": "Total number of clients displayed rather than number of live clients",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 725.3,
+                    "created_date": "2024-02-23T12:11:24.777Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 111,
+                "lookback_days": 90,
+                "per_week": 8.6
+              },
+              "cycle_time_variance": {
+                "sample_size": 111,
+                "std_dev_days": 222.6,
+                "coefficient_of_variation": 102.6,
+                "mean_days": 217.1
+              },
+              "excluded_security_bugs": {
+                "open": 1,
+                "closed": 28
+              }
+            },
+            "User Story": {
+              "open_count": 1015,
+              "closed_count_90d": 283,
+              "wip": 1015,
+              "lead_time": {
+                "p50": 2.0,
+                "p85": 35.3,
+                "p95": 122.0,
+                "sample_size": 283,
+                "raw_values": [
+                  455.1748565625,
+                  365.35827488425923,
+                  257.30915096064814,
+                  176.95398946759258,
+                  166.8123928587963,
+                  166.81154722222223,
+                  174.82925390046296,
+                  81.27966045138889,
+                  102.07701322916667,
+                  122.17294444444445
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 2.0,
+                  "p85": 35.3,
+                  "p95": 111.8,
+                  "closed_count": 279,
+                  "sample_size": 279
+                },
+                "cleanup": {
+                  "p50": 378.0,
+                  "p85": 420.4,
+                  "p95": 443.6,
+                  "closed_count": 4,
+                  "sample_size": 4,
+                  "avg_age_years": 1.1
+                },
+                "indicators": {
+                  "cleanup_percentage": 1.4,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 283,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 946,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 140933,
+                    "title": "Project Conversion",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2822.2,
+                    "created_date": "2018-05-28T13:30:42.097Z"
+                  },
+                  {
+                    "id": 141067,
+                    "title": "Add-in refactor to multi environment switch",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2819.6,
+                    "created_date": "2018-05-31T05:07:48.85Z"
+                  },
+                  {
+                    "id": 139094,
+                    "title": "Billing guide report - initial setup",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2814.5,
+                    "created_date": "2018-06-05T07:46:27.91Z"
+                  },
+                  {
+                    "id": 138946,
+                    "title": "E-Chit implementation",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2813.4,
+                    "created_date": "2018-06-06T09:40:19.703Z"
+                  },
+                  {
+                    "id": 141068,
+                    "title": "Send documents to MLS - Backend Implementation",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2812.6,
+                    "created_date": "2018-06-07T05:20:11.5Z"
+                  },
+                  {
+                    "id": 141069,
+                    "title": "Share document via MLS",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2798.5,
+                    "created_date": "2018-06-21T05:39:20.66Z"
+                  },
+                  {
+                    "id": 141059,
+                    "title": "Predicted E-mail",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2791.4,
+                    "created_date": "2018-06-28T09:42:37.443Z"
+                  },
+                  {
+                    "id": 141054,
+                    "title": "Should change the indicated msg as readable",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2751.5,
+                    "created_date": "2018-08-07T06:51:56.82Z"
+                  },
+                  {
+                    "id": 141038,
+                    "title": "Share & add other user's mail box",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2741.5,
+                    "created_date": "2018-08-17T07:00:13.477Z"
+                  },
+                  {
+                    "id": 141050,
+                    "title": "Client Creation : add post code search button",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2741.4,
+                    "created_date": "2018-08-17T09:57:09.203Z"
+                  },
+                  {
+                    "id": 141023,
+                    "title": "Changes to sending new email",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2724.3,
+                    "created_date": "2018-09-03T11:50:17.593Z"
+                  },
+                  {
+                    "id": 141036,
+                    "title": "Time Recorded : Have a new button to group by date",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2724.3,
+                    "created_date": "2018-09-03T11:33:28.843Z"
+                  },
+                  {
+                    "id": 141035,
+                    "title": "Time Record",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2720.6,
+                    "created_date": "2018-09-07T04:29:41.183Z"
+                  },
+                  {
+                    "id": 139198,
+                    "title": "Global document search",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2717.3,
+                    "created_date": "2018-09-10T10:25:18.54Z"
+                  },
+                  {
+                    "id": 140891,
+                    "title": "Group Load More in My task",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2715.4,
+                    "created_date": "2018-09-12T07:58:20.63Z"
+                  },
+                  {
+                    "id": 140890,
+                    "title": "Group Load More in FileHistory",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2715.4,
+                    "created_date": "2018-09-12T07:57:53.753Z"
+                  },
+                  {
+                    "id": 141026,
+                    "title": "change address layout (Item 1)",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2710.3,
+                    "created_date": "2018-09-17T11:09:23.923Z"
+                  },
+                  {
+                    "id": 141015,
+                    "title": "Global document search",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2668.3,
+                    "created_date": "2018-10-29T12:10:23.32Z"
+                  },
+                  {
+                    "id": 140852,
+                    "title": "Client Creation / Documents : Still Documents view in outsidein mode. Should change",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2658.4,
+                    "created_date": "2018-11-08T09:58:02.487Z"
+                  },
+                  {
+                    "id": 141005,
+                    "title": "AGFS : Basic html layout",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2650.4,
+                    "created_date": "2018-11-16T08:22:29.107Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 283,
+                "lookback_days": 90,
+                "per_week": 22.0
+              },
+              "cycle_time_variance": {
+                "sample_size": 283,
+                "std_dev_days": 59.9,
+                "coefficient_of_variation": 246.2,
+                "mean_days": 24.3
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 655,
+              "closed_count_90d": 945,
+              "wip": 655,
+              "lead_time": {
+                "p50": 0.7,
+                "p85": 7.0,
+                "p95": 20.7,
+                "sample_size": 945,
+                "raw_values": [
+                  34.03969324074074,
+                  31.073578819444442,
+                  27.534505057870373,
+                  26.079454699074073,
+                  18.83967824074074,
+                  15.080979942129629,
+                  19.07603988425926,
+                  20.740704363425927,
+                  20.7400653125,
+                  12.997717060185185
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 0.7,
+                  "p85": 7.0,
+                  "p95": 20.6,
+                  "closed_count": 944,
+                  "sample_size": 944
+                },
+                "cleanup": {
+                  "p50": 636.0,
+                  "p85": 636.0,
+                  "p95": 636.0,
+                  "closed_count": 1,
+                  "sample_size": 1,
+                  "avg_age_years": 1.7
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.1,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 945,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 570,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 158610,
+                    "title": "Use new Spitfire login field instead of email address field for sign in",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1960.3,
+                    "created_date": "2020-10-06T12:09:31.983Z"
+                  },
+                  {
+                    "id": 158632,
+                    "title": "enable widget setting",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1504.6,
+                    "created_date": "2022-01-05T05:04:55.333Z"
+                  },
+                  {
+                    "id": 158711,
+                    "title": "Investigating",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1491.3,
+                    "created_date": "2022-01-18T12:17:43.14Z"
+                  },
+                  {
+                    "id": 158650,
+                    "title": "Back End Dev",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1490.3,
+                    "created_date": "2022-01-19T12:33:34.143Z"
+                  },
+                  {
+                    "id": 158651,
+                    "title": "Back End Dev",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1490.3,
+                    "created_date": "2022-01-19T12:31:41.567Z"
+                  },
+                  {
+                    "id": 158649,
+                    "title": "Backend developments",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1461.1,
+                    "created_date": "2022-02-17T17:29:07.483Z"
+                  },
+                  {
+                    "id": 158709,
+                    "title": "Table creation for the save note update informations",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1448.6,
+                    "created_date": "2022-03-02T04:20:50.767Z"
+                  },
+                  {
+                    "id": 158703,
+                    "title": "Investigation",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1447.4,
+                    "created_date": "2022-03-03T08:37:22.603Z"
+                  },
+                  {
+                    "id": 158707,
+                    "title": "Testing",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1440.4,
+                    "created_date": "2022-03-10T08:46:05.41Z"
+                  },
+                  {
+                    "id": 158706,
+                    "title": "security Testing",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1440.3,
+                    "created_date": "2022-03-10T10:55:24.01Z"
+                  },
+                  {
+                    "id": 158705,
+                    "title": "Frontend dev",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1434.3,
+                    "created_date": "2022-03-16T11:58:35.95Z"
+                  },
+                  {
+                    "id": 158633,
+                    "title": "Investigation on angular tag component integration JavaScript",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1427.4,
+                    "created_date": "2022-03-23T09:25:56.373Z"
+                  },
+                  {
+                    "id": 158698,
+                    "title": "My Matters Widget Data Styling",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1427.4,
+                    "created_date": "2022-03-23T09:17:15.287Z"
+                  },
+                  {
+                    "id": 158700,
+                    "title": "Css style integration like spitfire application",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1425.2,
+                    "created_date": "2022-03-25T13:55:24.223Z"
+                  },
+                  {
+                    "id": 158704,
+                    "title": "Tag component integration to angular app",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1425.2,
+                    "created_date": "2022-03-25T14:16:37.39Z"
+                  },
+                  {
+                    "id": 158702,
+                    "title": "Sample application code review and finalize",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1422.6,
+                    "created_date": "2022-03-28T04:50:25.647Z"
+                  },
+                  {
+                    "id": 158697,
+                    "title": "Go through tag component form and find out resources in CSS",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1422.5,
+                    "created_date": "2022-03-28T05:39:13.093Z"
+                  },
+                  {
+                    "id": 158699,
+                    "title": "Compare text box component feasibility analysis",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1422.5,
+                    "created_date": "2022-03-28T05:41:27.87Z"
+                  },
+                  {
+                    "id": 158701,
+                    "title": "Find tag component source code CSS",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1422.5,
+                    "created_date": "2022-03-28T05:39:44.167Z"
+                  },
+                  {
+                    "id": 158634,
+                    "title": "Prepare Documentation tag Component integration UI",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1400.4,
+                    "created_date": "2022-04-19T08:58:20.22Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 945,
+                "lookback_days": 90,
+                "per_week": 73.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 945,
+                "std_dev_days": 27.3,
+                "coefficient_of_variation": 447.4,
+                "mean_days": 6.1
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 1910,
+          "total_closed_90d": 1339,
+          "collected_at": "2026-02-17T18:45:46.730172"
+        }
+      ],
+      "config": {
+        "lookback_days": 90,
+        "aging_threshold_days": 30
+      }
     }
   ]
 }
