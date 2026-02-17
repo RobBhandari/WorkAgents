@@ -80124,6 +80124,488 @@
       "config": {
         "lookback_days": 90
       }
+    },
+    {
+      "week_date": "2026-02-17",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Project_A",
+          "project_name": "Product A",
+          "unassigned": {
+            "unassigned_count": 872,
+            "total_items": 1815,
+            "unassigned_pct": 48.0,
+            "items": [
+              {
+                "id": 1976250,
+                "title": "Sign and Share not holding hyperlink in bill template pdf conversion 68111246",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-12-05T15:20:46.84Z"
+              },
+              {
+                "id": 1981405,
+                "title": "ALCM: Legal Compliance Integration AF:1970455",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-12-10T05:07:38.78Z"
+              },
+              {
+                "id": 1981406,
+                "title": "ALCM: Legal Compliance Integration DEV:1970455",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-12-10T05:07:39.287Z"
+              },
+              {
+                "id": 1981407,
+                "title": "ALCM: Legal Compliance Integration TEST:1970455",
+                "type": "Task",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-12-10T05:07:39.76Z"
+              },
+              {
+                "id": 1986051,
+                "title": "Dragging multiple items(Choosing NO)  into closed matter shows first item with a single [C] but other items then show with two [C]",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-12-12T09:38:25.727Z"
+              },
+              {
+                "id": 1986327,
+                "title": "Dragging multiple items (PDFs, Documents etc) and choosing 'No' then changing the file note only changes the first item. (Emails work)",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-12-12T11:19:14.323Z"
+              },
+              {
+                "id": 1986341,
+                "title": "Dragging in a folder with a document (PDF or Word doc etc) will show a ‘MemoryStream or path is null’ error",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-12-12T11:28:34.037Z"
+              },
+              {
+                "id": 1986369,
+                "title": "Dragging an email with attachments (That are also emails) with another email will make the attachments go in without a .msg file extension",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-12-12T11:42:04.867Z"
+              },
+              {
+                "id": 1990136,
+                "title": "Dragging and dropping multiple emails with attachments, amending attachment note / folder doesn't work",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2025-12-16T12:27:08.937Z"
+              },
+              {
+                "id": 1991305,
+                "title": "Create Public Law Certificated Class",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-12-17T09:50:40.473Z"
+              },
+              {
+                "id": 1991310,
+                "title": "Create Community Care Certificated Class",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-12-17T09:51:54.007Z"
+              },
+              {
+                "id": 1991312,
+                "title": "CMRF Generation Includes Public Law and Community Care Legal Help Matters",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2025-12-17T09:53:11.64Z"
+              },
+              {
+                "id": 1992921,
+                "title": "InfoTrack Integration - Place an order",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-12-18T08:59:39.363Z"
+              },
+              {
+                "id": 1992937,
+                "title": "InfoTrack Integration - Track/View Orders",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-12-18T09:09:52.147Z"
+              },
+              {
+                "id": 1993246,
+                "title": "InfoTrack Integration - Completed Searches",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-12-18T10:34:47.74Z"
+              },
+              {
+                "id": 1993722,
+                "title": "InfoTrack Integration - Automatic E-chit generation",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\Task Force",
+                "created_date": "2025-12-18T12:18:19.08Z"
+              },
+              {
+                "id": 2000954,
+                "title": "Save and Restore Column Widths for e-Chit Requests Tab",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2026-01-02T11:42:46.083Z"
+              },
+              {
+                "id": 2000959,
+                "title": "Hide and Show Columns in e-Chit Requests Tab",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2026-01-02T11:47:54.06Z"
+              },
+              {
+                "id": 2000961,
+                "title": "Reset Column Layout to Defaults",
+                "type": "User Story",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "created_date": "2026-01-02T11:50:41.863Z"
+              },
+              {
+                "id": 2002112,
+                "title": "DPS Oneoffice - Selecting a class using keyboard arrows doesn't update 'Work Type' list drop down",
+                "type": "Bug",
+                "state": "New",
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "created_date": "2026-01-05T13:18:52.293Z"
+              }
+            ],
+            "by_type": {
+              "bugs": 117,
+              "features": 515,
+              "tasks": 240
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 76,
+            "top_assignees": [
+              [
+                "Unassigned",
+                872
+              ],
+              [
+                "Gayani Nimalka <GNimalka@dpssoftware.onmicrosoft.com>",
+                128
+              ],
+              [
+                "Suren Gamage",
+                90
+              ],
+              [
+                "Nimasha Soyza",
+                38
+              ],
+              [
+                "Damith Premarathne",
+                35
+              ],
+              [
+                "Lushan Don Fransiskuge Don",
+                34
+              ],
+              [
+                "Niranga DeZoysa",
+                33
+              ],
+              [
+                "Lakmal Siyambalage",
+                32
+              ],
+              [
+                "Sam Ridgwell",
+                31
+              ],
+              [
+                "Dilantha Perera",
+                30
+              ]
+            ],
+            "load_imbalance_ratio": 872.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 19,
+            "areas": [
+              {
+                "area_path": "Product A\\Xperate",
+                "total_items": 4,
+                "unassigned_items": 4,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product A\\Feature Squad\\Services",
+                "total_items": 1,
+                "unassigned_items": 1,
+                "unassigned_pct": 100.0
+              },
+              {
+                "area_path": "Product A\\Bugs",
+                "total_items": 63,
+                "unassigned_items": 58,
+                "unassigned_pct": 92.1
+              },
+              {
+                "area_path": "Product A\\SaaS Squad",
+                "total_items": 32,
+                "unassigned_items": 26,
+                "unassigned_pct": 81.2
+              },
+              {
+                "area_path": "Product A\\Cipher Squad",
+                "total_items": 16,
+                "unassigned_items": 12,
+                "unassigned_pct": 75.0
+              },
+              {
+                "area_path": "Product A\\OneOffice and Financial Director",
+                "total_items": 201,
+                "unassigned_items": 148,
+                "unassigned_pct": 73.6
+              },
+              {
+                "area_path": "Product A\\OneOffice and Financial Director\\Bugs",
+                "total_items": 69,
+                "unassigned_items": 44,
+                "unassigned_pct": 63.8
+              },
+              {
+                "area_path": "Product A\\Workspace Squad",
+                "total_items": 188,
+                "unassigned_items": 119,
+                "unassigned_pct": 63.3
+              },
+              {
+                "area_path": "Product A\\Feature Squad",
+                "total_items": 192,
+                "unassigned_items": 86,
+                "unassigned_pct": 44.8
+              },
+              {
+                "area_path": "Product A",
+                "total_items": 637,
+                "unassigned_items": 258,
+                "unassigned_pct": 40.5
+              },
+              {
+                "area_path": "Product A\\Triage",
+                "total_items": 20,
+                "unassigned_items": 8,
+                "unassigned_pct": 40.0
+              },
+              {
+                "area_path": "Product A\\Elsa Squad",
+                "total_items": 77,
+                "unassigned_items": 28,
+                "unassigned_pct": 36.4
+              },
+              {
+                "area_path": "Product A\\Cipher Squad\\Evo",
+                "total_items": 6,
+                "unassigned_items": 2,
+                "unassigned_pct": 33.3
+              },
+              {
+                "area_path": "Product A\\Task Force",
+                "total_items": 134,
+                "unassigned_items": 44,
+                "unassigned_pct": 32.8
+              },
+              {
+                "area_path": "Product A\\Feature Squad\\Bugs",
+                "total_items": 96,
+                "unassigned_items": 30,
+                "unassigned_pct": 31.2
+              },
+              {
+                "area_path": "Product A\\Task Force\\Bugs",
+                "total_items": 12,
+                "unassigned_items": 3,
+                "unassigned_pct": 25.0
+              },
+              {
+                "area_path": "Product A\\IWS",
+                "total_items": 57,
+                "unassigned_items": 1,
+                "unassigned_pct": 1.8
+              },
+              {
+                "area_path": "Product A\\OneOffice and Financial Director\\Backlog\\Bucket List",
+                "total_items": 1,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              },
+              {
+                "area_path": "Product A\\DevOps Squad",
+                "total_items": 9,
+                "unassigned_items": 0,
+                "unassigned_pct": 0.0
+              }
+            ]
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 198,
+              "unassigned": 117,
+              "assigned": 81,
+              "unassigned_pct": 59.1
+            },
+            "User Story": {
+              "total": 962,
+              "unassigned": 515,
+              "assigned": 447,
+              "unassigned_pct": 53.5
+            },
+            "Task": {
+              "total": 655,
+              "unassigned": 240,
+              "assigned": 415,
+              "unassigned_pct": 36.6
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 19,
+            "total_commits": 1066,
+            "lookback_days": 90,
+            "developers": [
+              {
+                "developer": "Devin AI",
+                "active_days": 43,
+                "commits": 1066
+              },
+              {
+                "developer": "Devin Azure DevOps Integration",
+                "active_days": 30,
+                "commits": 1066
+              },
+              {
+                "developer": "Rahul Garg",
+                "active_days": 7,
+                "commits": 1066
+              },
+              {
+                "developer": "Mohamed Zufry",
+                "active_days": 5,
+                "commits": 1066
+              },
+              {
+                "developer": "Lushan Don Fransiskuge Don",
+                "active_days": 4,
+                "commits": 1066
+              },
+              {
+                "developer": "Kanishka Hewapathirana",
+                "active_days": 4,
+                "commits": 1066
+              },
+              {
+                "developer": "Lushan jayanath",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "M Zufry",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Lakmal Siyambalage",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Nimasha Soyza",
+                "active_days": 3,
+                "commits": 1066
+              },
+              {
+                "developer": "Gabriel Tanase",
+                "active_days": 2,
+                "commits": 1066
+              },
+              {
+                "developer": "Damith Premarathne",
+                "active_days": 2,
+                "commits": 1066
+              },
+              {
+                "developer": "unknown",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "tgabrielc",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Gabriel Tanase",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Sam-Ridgwell",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Dilantha Perera",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Lak",
+                "active_days": 1,
+                "commits": 1066
+              },
+              {
+                "developer": "Chathurika Rathnayaka Mudiyanselage",
+                "active_days": 1,
+                "commits": 1066
+              }
+            ],
+            "avg_active_days": 6.1
+          },
+          "total_items_analyzed": 1815,
+          "collected_at": "2026-02-17T18:45:49.298762"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
     }
   ]
 }

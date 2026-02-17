@@ -7075,6 +7075,46 @@
       "config": {
         "lookback_days": 90
       }
+    },
+    {
+      "week_date": "2026-02-17",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Project_A",
+          "project_name": "Product A",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 456,
+            "median_hours": 0.6,
+            "p85_hours": 20.3,
+            "p95_hours": 69.6
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.0,
+            "max_iterations": 2
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 2.0,
+            "p85_commits": 3.0,
+            "p95_commits": 3.0,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 456,
+          "repository_count": 56,
+          "collected_at": "2026-02-17T18:45:46.230224"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
     }
   ]
 }
