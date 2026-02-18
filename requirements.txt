@@ -30,6 +30,7 @@ pytest-asyncio>=1.3.0,<2.0  # For async test support
 
 # Observability
 sentry-sdk>=1.40.0,<2.0  # Error tracking and performance monitoring
+structlog>=24.1.0,<25.0  # Structured logging for agents and collectors
 
 # REST API
 fastapi>=0.128.7,<1.0  # Modern async web framework (updated to latest: 0.128.7)
