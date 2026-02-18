@@ -124,14 +124,16 @@
         white-space: nowrap;
     }
 
-    /* Sortable column headers */
-    .vuln-table th.sortable {
+    /* Sortable column headers (vuln tables + top-level product table) */
+    .vuln-table th.sortable,
+    .data-table th.sortable {
         cursor: pointer;
         user-select: none;
         white-space: nowrap;
     }
 
-    .vuln-table th.sortable:hover {
+    .vuln-table th.sortable:hover,
+    .data-table th.sortable:hover {
         background: var(--bg-tertiary);
     }
 
@@ -551,6 +553,55 @@
         }
         rows.forEach(r => tbody.appendChild(r));
     }
+
+    // Sort top-level product table by column (asc → desc → original, 3-state cycle)
+    // Sorts parent+detail row PAIRS together so expanded content stays attached.
+    function sortProductTable(th) {
+        const table = th.closest('table');
+        const tbody = table.querySelector('tbody');
+        const headers = Array.from(th.closest('tr').querySelectorAll('th'));
+        const colIndex = headers.indexOf(th);
+        const isNumeric = th.dataset.type === 'number';
+
+        const cur = th.dataset.sort || 'none';
+        const next = cur === 'none' ? 'asc' : cur === 'asc' ? 'desc' : 'none';
+
+        headers.forEach(h => {
+            h.dataset.sort = 'none';
+            const ind = h.querySelector('.sort-indicator');
+            if (ind) ind.textContent = '';
+        });
+        th.dataset.sort = next;
+        const ind = th.querySelector('.sort-indicator');
+        if (ind) ind.textContent = next === 'asc' ? '▲' : next === 'desc' ? '▼' : '';
+
+        // Capture parent+detail pairs BEFORE any DOM moves
+        const pairs = Array.from(tbody.querySelectorAll('tr.data-row')).map(parentRow => {
+            const sibling = parentRow.nextElementSibling;
+            return {
+                parentRow,
+                detailRow: (sibling && sibling.classList.contains('detail-row')) ? sibling : null
+            };
+        });
+
+        if (next === 'none') {
+            pairs.sort((a, b) => (parseInt(a.parentRow.dataset.idx) || 0) - (parseInt(b.parentRow.dataset.idx) || 0));
+        } else {
+            pairs.sort((a, b) => {
+                const aVal = a.parentRow.cells[colIndex] ? a.parentRow.cells[colIndex].textContent.trim() : '';
+                const bVal = b.parentRow.cells[colIndex] ? b.parentRow.cells[colIndex].textContent.trim() : '';
+                const cmp = isNumeric
+                    ? (parseFloat(aVal) || 0) - (parseFloat(bVal) || 0)
+                    : aVal.localeCompare(bVal);
+                return next === 'asc' ? cmp : -cmp;
+            });
+        }
+
+        pairs.forEach(({ parentRow, detailRow }) => {
+            tbody.appendChild(parentRow);
+            if (detailRow) tbody.appendChild(detailRow);
+        });
+    }
 </script>
 {% endblock %}
 
@@ -572,17 +623,17 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Product</th>
-                    <th>Total</th>
-                    <th>Critical</th>
-                    <th>High</th>
-                    <th>Status</th>
+                    <th class="sortable" onclick="sortProductTable(this)">Product <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-type="number" onclick="sortProductTable(this)">Total <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-type="number" onclick="sortProductTable(this)">Critical <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-type="number" onclick="sortProductTable(this)">High <span class="sort-indicator"></span></th>
+                    <th class="sortable" onclick="sortProductTable(this)">Status <span class="sort-indicator"></span></th>
                 </tr>
             </thead>
             <tbody>
             {% for product in products %}
                 <!-- Parent row - clickable to expand -->
-                <tr class="data-row" onclick="toggleDetail('detail-{{ loop.index }}', this)">
+                <tr class="data-row" data-idx="{{ loop.index0 }}" onclick="toggleDetail('detail-{{ loop.index }}', this)">
                     <td>
                         <strong>{{ product.name }}</strong>
                     </td>
