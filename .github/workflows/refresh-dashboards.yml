@@ -89,7 +89,7 @@ jobs:
     strategy:
       matrix:
         collector:
-          - { name: 'Quality Metrics', script: 'collectors/ado_quality_metrics.py', outputs: 'quality_history.json' }
+          - { name: 'Quality Metrics', script: 'AGENT:quality', outputs: 'quality_history.json' }
           - { name: 'Flow Metrics', script: 'collectors/ado_flow_metrics.py', outputs: 'flow_history.json' }
           - { name: 'Ownership Metrics', script: 'collectors/ado_ownership_metrics.py', outputs: 'ownership_history.json' }
           - { name: 'Risk Metrics', script: 'collectors/ado_risk_metrics.py', outputs: 'risk_history.json' }
@@ -206,7 +206,17 @@ jobs:
           ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
-          python execution/${{ matrix.collector.script }}
+
+          # Check if this is an agent (marked with AGENT: prefix)
+          if [[ "${{ matrix.collector.script }}" == AGENT:* ]]; then
+            SCRIPT="${{ matrix.collector.script }}"
+            AGENT_NAME="${SCRIPT#AGENT:}"
+            echo "🤖 Running autonomous agent: $AGENT_NAME"
+            python -m agents.run_agent --agent "$AGENT_NAME"
+          else
+            echo "📊 Running legacy collector: ${{ matrix.collector.script }}"
+            python execution/${{ matrix.collector.script }}
+          fi
 
       - name: Upload metrics artifacts
         uses: actions/upload-artifact@v4
