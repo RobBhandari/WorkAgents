@@ -232,7 +232,6 @@ jobs:
           - { name: 'Collaboration', script: 'collaboration.py' }
           - { name: 'Security', script: 'security_enhanced.py' }
           - { name: 'Targets', script: 'targets.py' }
-          - { name: 'AI Usage', script: 'ai.py' }
           - { name: 'Trends', script: '../generate_trends_dashboard.py' }
           - { name: 'Executive', script: 'executive.py' }
       fail-fast: false
@@ -338,11 +337,6 @@ jobs:
               # These dashboards aggregate all history files
               REQUIRED_FILE="quality_history.json"  # Just check if any exists
               ;;
-            "AI Usage")
-              # AI Usage doesn't require history files
-              echo "✅ AI Usage dashboard doesn't require history files"
-              exit 0
-              ;;
             *)
               echo "⚠️  Unknown dashboard type"
               exit 0
@@ -359,7 +353,7 @@ jobs:
           fi
 
       - name: Generate ${{ matrix.dashboard.name }} Dashboard
-        if: steps.verify.outcome == 'success' || matrix.dashboard.name == 'AI Usage'
+        if: steps.verify.outcome == 'success'
         env:
           AZURE_DEVOPS_ORG_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
