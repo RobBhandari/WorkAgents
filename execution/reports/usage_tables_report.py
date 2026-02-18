@@ -870,7 +870,7 @@ def generate_interactive_html(output_file: str) -> str:
         .import-button {{
             position: fixed;
             top: 20px;
-            right: 80px;
+            right: 180px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -891,6 +891,14 @@ def generate_interactive_html(output_file: str) -> str:
 
         .import-button:active {{
             transform: translateY(0);
+        }}
+
+        /* Mobile responsive: Stack import button below theme toggle */
+        @media (max-width: 767px) {{
+            .import-button {{
+                right: 16px;
+                top: 70px;  /* Below theme toggle */
+            }}
         }}
 
         #file-input {{
