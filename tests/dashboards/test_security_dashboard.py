@@ -172,7 +172,7 @@ class TestBuildSummaryCards:
         assert len(cards) == 4
 
     def test_build_summary_cards_total_vulnerabilities(self):
-        """Test total vulnerabilities card content"""
+        """Test priority findings card content (Critical + High)"""
         summary_stats = {
             "total_vulnerabilities": 80,
             "total_critical": 7,
@@ -185,10 +185,10 @@ class TestBuildSummaryCards:
 
         cards = _build_summary_cards(summary_stats)
 
-        # First card should be total vulnerabilities
-        assert "Total Vulnerabilities" in cards[0]
-        assert "80" in cards[0]
-        assert "3 products" in cards[0]
+        # First card should be priority findings (Critical + High)
+        assert "Priority Findings" in cards[0]
+        assert "27" in cards[0]
+        assert "Critical + High severity" in cards[0]
 
     def test_build_summary_cards_critical_red_when_present(self):
         """Test critical card is red when critical vulns exist"""

@@ -284,12 +284,12 @@ def _build_summary_cards(summary_stats: dict) -> list[str]:
     """
     cards = []
 
-    # Total vulnerabilities
+    # Priority findings (Critical + High only)
     cards.append(
         metric_card(
-            title="Total Vulnerabilities",
-            value=str(summary_stats["total_vulnerabilities"]),
-            subtitle=f"Across {summary_stats['product_count']} products",
+            title="Priority Findings",
+            value=str(summary_stats["critical_high_total"]),
+            subtitle="Critical + High severity",
         )
     )
 
@@ -315,10 +315,12 @@ def _build_summary_cards(summary_stats: dict) -> list[str]:
         )
     )
 
-    # Critical + High (70% reduction target)
+    # Products count
     cards.append(
         metric_card(
-            title="Critical + High", value=str(summary_stats["critical_high_total"]), subtitle="70% reduction target"
+            title="Products",
+            value=str(summary_stats["product_count"]),
+            subtitle="Monitored products",
         )
     )
 
