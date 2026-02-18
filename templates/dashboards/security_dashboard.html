@@ -37,31 +37,35 @@
     .bucket-summary-table td.critical { color: #dc2626; font-weight: 700; }
     .bucket-summary-table td.high { color: #ea580c; font-weight: 700; }
 
-    /* Per-bucket collapsible sections */
-    .bucket-section {
-        margin-bottom: 12px;
-    }
-
-    .bucket-section-header {
-        display: flex;
-        align-items: center;
+    /* Expandable bucket rows */
+    .bucket-row.expandable {
         cursor: pointer;
-        padding: 10px 14px;
+        user-select: none;
+        transition: background 0.15s;
+    }
+
+    .bucket-row.expandable:hover {
         background: var(--bg-secondary);
-        border-radius: 6px;
-        transition: background 0.2s;
     }
 
-    .bucket-section-header:hover { background: var(--bg-tertiary); }
-
-    .bucket-section-header h4 {
-        margin: 0;
-        font-size: 0.95rem;
-        color: var(--text-primary);
+    .bucket-arrow {
+        display: inline-block;
+        font-size: 0.75rem;
+        margin-right: 6px;
     }
 
-    .bucket-section-content {
-        padding: 12px 0 0 0;
+    .bucket-detail-row > td {
+        padding: 12px 16px;
+        background: var(--bg-secondary);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .no-findings {
+        text-align: center;
+        color: var(--text-secondary);
+        padding: 16px;
+        font-style: italic;
+        font-size: 0.9rem;
     }
 
     /* Vulnerability table */
@@ -396,16 +400,18 @@
 
 {% block extra_js %}
 <script>
-    // Toggle bucket vulnerability section open/closed
-    function toggleVulnerabilities(header) {
-        const content = header.nextElementSibling;
-        const h4 = header.querySelector('h4');
-        if (content.style.display === 'none') {
-            content.style.display = 'block';
-            h4.innerHTML = h4.innerHTML.replace('&#9658;', '&#9660;');
-        } else {
-            content.style.display = 'none';
-            h4.innerHTML = h4.innerHTML.replace('&#9660;', '&#9658;');
+    // Toggle inline bucket detail row open/closed
+    function toggleBucketDetail(row) {
+        const detailRow = row.nextElementSibling;
+        const arrow = row.querySelector('.bucket-arrow');
+        if (detailRow && detailRow.classList.contains('bucket-detail-row')) {
+            if (detailRow.style.display === 'none') {
+                detailRow.style.display = 'table-row';
+                if (arrow) arrow.innerHTML = '&#9660;';
+            } else {
+                detailRow.style.display = 'none';
+                if (arrow) arrow.innerHTML = '&#9658;';
+            }
         }
     }
 </script>
