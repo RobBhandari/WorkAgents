@@ -78983,7 +78983,7 @@
           "collected_at": "2026-02-18T00:40:55.875523"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "work_type_metrics": {
             "Bug": {
@@ -80295,6 +80295,4812 @@
           "total_open": 283,
           "total_closed_90d": 273,
           "collected_at": "2026-02-18T00:40:56.381485"
+        }
+      ],
+      "config": {
+        "lookback_days": 90,
+        "aging_threshold_days": 30
+      }
+    },
+    {
+      "week_date": "2026-02-18",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 183,
+              "closed_count_90d": 76,
+              "wip": 183,
+              "lead_time": {
+                "p50": 167.2,
+                "p85": 474.2,
+                "p95": 768.2,
+                "sample_size": 76,
+                "raw_values": [
+                  806.1061723032408,
+                  823.8848508796295,
+                  784.2106290509258,
+                  793.1201353356482,
+                  762.811984837963,
+                  594.698967673611,
+                  590.3278400462963,
+                  588.2473236921296,
+                  510.75722136574075,
+                  524.3644621527778
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 76.9,
+                  "p85": 273.4,
+                  "p95": 319.8,
+                  "closed_count": 59,
+                  "sample_size": 59
+                },
+                "cleanup": {
+                  "p50": 524.4,
+                  "p85": 789.6,
+                  "p95": 809.7,
+                  "closed_count": 17,
+                  "sample_size": 17,
+                  "avg_age_years": 1.6
+                },
+                "indicators": {
+                  "cleanup_percentage": 22.4,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": true,
+                  "total_closed": 76,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 172,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 137265,
+                    "title": "Template text size no showing on Emails",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 1112.6,
+                    "created_date": "2023-02-01T09:59:06.747Z"
+                  },
+                  {
+                    "id": 181242,
+                    "title": "Neves and Atkins Dellow - Emails sometimes going into Drafts",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 1035.4,
+                    "created_date": "2023-04-19T14:08:27.577Z"
+                  },
+                  {
+                    "id": 190453,
+                    "title": "To field not showing suggested emails",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 1028.4,
+                    "created_date": "2023-04-26T16:24:28.117Z"
+                  },
+                  {
+                    "id": 214932,
+                    "title": "2 0003975: HBPL - Email saved into File History is different to email appear in sent items for Spitfire mail",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 1007.6,
+                    "created_date": "2023-05-17T10:12:10.94Z"
+                  },
+                  {
+                    "id": 267947,
+                    "title": "TA6 and TA10 forms formatting issue within PDF Viewer",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 979.6,
+                    "created_date": "2023-06-14T09:45:51.803Z"
+                  },
+                  {
+                    "id": 320055,
+                    "title": "Gudgeons - Email text size changes randomly",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 951.6,
+                    "created_date": "2023-07-12T11:22:33.61Z"
+                  },
+                  {
+                    "id": 320685,
+                    "title": "Gudgeons - Text formatting disappears when running template as an attachment on email",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 951.4,
+                    "created_date": "2023-07-12T16:18:31.67Z"
+                  },
+                  {
+                    "id": 431070,
+                    "title": "London Borough of Hackney - Unable to reply or forward emails",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 853.5,
+                    "created_date": "2023-10-18T12:49:34.053Z"
+                  },
+                  {
+                    "id": 486649,
+                    "title": "Commands (SV, FE, FL, FN) do not work when the template coding is called by the LL command",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 826.4,
+                    "created_date": "2023-11-14T14:30:45.777Z"
+                  },
+                  {
+                    "id": 498002,
+                    "title": "MoJ Public Guardian Office - File store error",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 816.4,
+                    "created_date": "2023-11-24T16:21:09.813Z"
+                  },
+                  {
+                    "id": 536821,
+                    "title": "SEA & SEB Commands with templates are not completing the \"Last Done\" & \"Done By\" fields.",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 791.3,
+                    "created_date": "2023-12-19T17:03:45.57Z"
+                  },
+                  {
+                    "id": 554022,
+                    "title": "Carriage returns appear as and#xA in MLS notes",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 770.4,
+                    "created_date": "2024-01-09T15:41:03.043Z"
+                  },
+                  {
+                    "id": 583689,
+                    "title": "FD: TM Group - Web Integration placing search information into incorrect section of echit - Neves - 65088008",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 749.6,
+                    "created_date": "2024-01-30T10:02:00.423Z"
+                  },
+                  {
+                    "id": 615596,
+                    "title": "DDA Ledger Print missing transactions giving wrong balances - 65211172",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 733.5,
+                    "created_date": "2024-02-15T12:40:21.5Z"
+                  },
+                  {
+                    "id": 620777,
+                    "title": "AGFS Worked Billed report not showing the correct figures for ALCM Cases",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 727.6,
+                    "created_date": "2024-02-21T09:22:56.197Z"
+                  },
+                  {
+                    "id": 626152,
+                    "title": "When replying to an email via the diary, the sender is a recipient",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 725.5,
+                    "created_date": "2024-02-23T11:41:32.303Z"
+                  },
+                  {
+                    "id": 626207,
+                    "title": "Total number of clients displayed rather than number of live clients",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 725.5,
+                    "created_date": "2024-02-23T12:11:24.777Z"
+                  },
+                  {
+                    "id": 655335,
+                    "title": "DPP Law - Template with bullet points do not show ",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 707.6,
+                    "created_date": "2024-03-12T09:27:01.413Z"
+                  },
+                  {
+                    "id": 655519,
+                    "title": "DPP Law - Billing Request Archived Nominal Selection",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 707.6,
+                    "created_date": "2024-03-12T10:14:18.453Z"
+                  },
+                  {
+                    "id": 810417,
+                    "title": "Unable to close Matter in ALCM after running W/O to clear the outstanding WIP - 05900591",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 677.6,
+                    "created_date": "2024-04-11T10:28:41.013Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 76,
+                "lookback_days": 90,
+                "per_week": 5.9
+              },
+              "cycle_time_variance": {
+                "sample_size": 76,
+                "std_dev_days": 226.6,
+                "coefficient_of_variation": 99.7,
+                "mean_days": 227.4
+              },
+              "excluded_security_bugs": {
+                "open": 1,
+                "closed": 28
+              }
+            },
+            "User Story": {
+              "open_count": 904,
+              "closed_count_90d": 238,
+              "wip": 904,
+              "lead_time": {
+                "p50": 1.1,
+                "p85": 29.9,
+                "p95": 87.5,
+                "sample_size": 238,
+                "raw_values": [
+                  166.8123928587963,
+                  166.81154722222223,
+                  174.82925390046296,
+                  111.76470373842594,
+                  102.07701322916667,
+                  90.86592037037036,
+                  100.86611458333334,
+                  91.5145080324074,
+                  73.94295798611111,
+                  86.90363680555555
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 1.1,
+                  "p85": 29.9,
+                  "p95": 87.5,
+                  "closed_count": 238,
+                  "sample_size": 238
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 238,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 858,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 140933,
+                    "title": "Project Conversion",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2822.5,
+                    "created_date": "2018-05-28T13:30:42.097Z"
+                  },
+                  {
+                    "id": 141067,
+                    "title": "Add-in refactor to multi environment switch",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2819.8,
+                    "created_date": "2018-05-31T05:07:48.85Z"
+                  },
+                  {
+                    "id": 139094,
+                    "title": "Billing guide report - initial setup",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2814.7,
+                    "created_date": "2018-06-05T07:46:27.91Z"
+                  },
+                  {
+                    "id": 138946,
+                    "title": "E-Chit implementation",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2813.6,
+                    "created_date": "2018-06-06T09:40:19.703Z"
+                  },
+                  {
+                    "id": 141068,
+                    "title": "Send documents to MLS - Backend Implementation",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2812.8,
+                    "created_date": "2018-06-07T05:20:11.5Z"
+                  },
+                  {
+                    "id": 141069,
+                    "title": "Share document via MLS",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2798.8,
+                    "created_date": "2018-06-21T05:39:20.66Z"
+                  },
+                  {
+                    "id": 141059,
+                    "title": "Predicted E-mail",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2791.6,
+                    "created_date": "2018-06-28T09:42:37.443Z"
+                  },
+                  {
+                    "id": 141054,
+                    "title": "Should change the indicated msg as readable",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2751.8,
+                    "created_date": "2018-08-07T06:51:56.82Z"
+                  },
+                  {
+                    "id": 141038,
+                    "title": "Share & add other user's mail box",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2741.7,
+                    "created_date": "2018-08-17T07:00:13.477Z"
+                  },
+                  {
+                    "id": 141050,
+                    "title": "Client Creation : add post code search button",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2741.6,
+                    "created_date": "2018-08-17T09:57:09.203Z"
+                  },
+                  {
+                    "id": 141036,
+                    "title": "Time Recorded : Have a new button to group by date",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2724.6,
+                    "created_date": "2018-09-03T11:33:28.843Z"
+                  },
+                  {
+                    "id": 141023,
+                    "title": "Changes to sending new email",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2724.5,
+                    "created_date": "2018-09-03T11:50:17.593Z"
+                  },
+                  {
+                    "id": 141035,
+                    "title": "Time Record",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2720.8,
+                    "created_date": "2018-09-07T04:29:41.183Z"
+                  },
+                  {
+                    "id": 139198,
+                    "title": "Global document search",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2717.6,
+                    "created_date": "2018-09-10T10:25:18.54Z"
+                  },
+                  {
+                    "id": 140890,
+                    "title": "Group Load More in FileHistory",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2715.7,
+                    "created_date": "2018-09-12T07:57:53.753Z"
+                  },
+                  {
+                    "id": 140891,
+                    "title": "Group Load More in My task",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2715.7,
+                    "created_date": "2018-09-12T07:58:20.63Z"
+                  },
+                  {
+                    "id": 141026,
+                    "title": "change address layout (Item 1)",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 2710.6,
+                    "created_date": "2018-09-17T11:09:23.923Z"
+                  },
+                  {
+                    "id": 141015,
+                    "title": "Global document search",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2668.5,
+                    "created_date": "2018-10-29T12:10:23.32Z"
+                  },
+                  {
+                    "id": 140852,
+                    "title": "Client Creation / Documents : Still Documents view in outsidein mode. Should change",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2658.6,
+                    "created_date": "2018-11-08T09:58:02.487Z"
+                  },
+                  {
+                    "id": 141005,
+                    "title": "AGFS : Basic html layout",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2650.7,
+                    "created_date": "2018-11-16T08:22:29.107Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 238,
+                "lookback_days": 90,
+                "per_week": 18.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 238,
+                "std_dev_days": 35.2,
+                "coefficient_of_variation": 232.0,
+                "mean_days": 15.2
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 540,
+              "closed_count_90d": 742,
+              "wip": 540,
+              "lead_time": {
+                "p50": 0.7,
+                "p85": 7.7,
+                "p95": 22.7,
+                "sample_size": 742,
+                "raw_values": [
+                  635.9696727662036,
+                  34.03969324074074,
+                  31.073578819444442,
+                  22.756174375,
+                  27.534505057870373,
+                  21.001265046296297,
+                  21.001180590277777,
+                  26.079454699074073,
+                  12.93287982638889,
+                  18.83967824074074
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 0.7,
+                  "p85": 7.1,
+                  "p95": 21.8,
+                  "closed_count": 741,
+                  "sample_size": 741
+                },
+                "cleanup": {
+                  "p50": 636.0,
+                  "p85": 636.0,
+                  "p95": 636.0,
+                  "closed_count": 1,
+                  "sample_size": 1,
+                  "avg_age_years": 1.7
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.1,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 742,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 487,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 158610,
+                    "title": "Use new Spitfire login field instead of email address field for sign in",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1960.5,
+                    "created_date": "2020-10-06T12:09:31.983Z"
+                  },
+                  {
+                    "id": 158632,
+                    "title": "enable widget setting",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1504.8,
+                    "created_date": "2022-01-05T05:04:55.333Z"
+                  },
+                  {
+                    "id": 158711,
+                    "title": "Investigating",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1491.5,
+                    "created_date": "2022-01-18T12:17:43.14Z"
+                  },
+                  {
+                    "id": 158650,
+                    "title": "Back End Dev",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1490.5,
+                    "created_date": "2022-01-19T12:33:34.143Z"
+                  },
+                  {
+                    "id": 158651,
+                    "title": "Back End Dev",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1490.5,
+                    "created_date": "2022-01-19T12:31:41.567Z"
+                  },
+                  {
+                    "id": 158649,
+                    "title": "Backend developments",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1461.3,
+                    "created_date": "2022-02-17T17:29:07.483Z"
+                  },
+                  {
+                    "id": 158709,
+                    "title": "Table creation for the save note update informations",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1448.9,
+                    "created_date": "2022-03-02T04:20:50.767Z"
+                  },
+                  {
+                    "id": 158703,
+                    "title": "Investigation",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1447.7,
+                    "created_date": "2022-03-03T08:37:22.603Z"
+                  },
+                  {
+                    "id": 158707,
+                    "title": "Testing",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1440.7,
+                    "created_date": "2022-03-10T08:46:05.41Z"
+                  },
+                  {
+                    "id": 158706,
+                    "title": "security Testing",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1440.6,
+                    "created_date": "2022-03-10T10:55:24.01Z"
+                  },
+                  {
+                    "id": 158705,
+                    "title": "Frontend dev",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1434.5,
+                    "created_date": "2022-03-16T11:58:35.95Z"
+                  },
+                  {
+                    "id": 158698,
+                    "title": "My Matters Widget Data Styling",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1427.7,
+                    "created_date": "2022-03-23T09:17:15.287Z"
+                  },
+                  {
+                    "id": 158633,
+                    "title": "Investigation on angular tag component integration JavaScript",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1427.6,
+                    "created_date": "2022-03-23T09:25:56.373Z"
+                  },
+                  {
+                    "id": 158700,
+                    "title": "Css style integration like spitfire application",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1425.5,
+                    "created_date": "2022-03-25T13:55:24.223Z"
+                  },
+                  {
+                    "id": 158704,
+                    "title": "Tag component integration to angular app",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1425.4,
+                    "created_date": "2022-03-25T14:16:37.39Z"
+                  },
+                  {
+                    "id": 158697,
+                    "title": "Go through tag component form and find out resources in CSS",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1422.8,
+                    "created_date": "2022-03-28T05:39:13.093Z"
+                  },
+                  {
+                    "id": 158699,
+                    "title": "Compare text box component feasibility analysis",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1422.8,
+                    "created_date": "2022-03-28T05:41:27.87Z"
+                  },
+                  {
+                    "id": 158701,
+                    "title": "Find tag component source code CSS",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1422.8,
+                    "created_date": "2022-03-28T05:39:44.167Z"
+                  },
+                  {
+                    "id": 158702,
+                    "title": "Sample application code review and finalize",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1422.8,
+                    "created_date": "2022-03-28T04:50:25.647Z"
+                  },
+                  {
+                    "id": 158634,
+                    "title": "Prepare Documentation tag Component integration UI",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1400.7,
+                    "created_date": "2022-04-19T08:58:20.22Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 742,
+                "lookback_days": 90,
+                "per_week": 57.7
+              },
+              "cycle_time_variance": {
+                "sample_size": 742,
+                "std_dev_days": 30.4,
+                "coefficient_of_variation": 447.2,
+                "mean_days": 6.8
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 1627,
+          "total_closed_90d": 1056,
+          "collected_at": "2026-02-18T00:53:15.657602"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 11,
+              "closed_count_90d": 0,
+              "wip": 11,
+              "lead_time": {
+                "p50": null,
+                "p85": null,
+                "p95": null,
+                "sample_size": 0,
+                "raw_values": []
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 0,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 10,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 812085,
+                    "title": "Wizards - Client Reference Being Re-used After Deletion",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 677.4,
+                    "created_date": "2024-04-11T14:46:27.637Z"
+                  },
+                  {
+                    "id": 1254661,
+                    "title": "Accounts Desktop: Batch Journals - Error Occurs When Closed Nominal Is Selected",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 575.6,
+                    "created_date": "2024-07-22T09:19:35.353Z"
+                  },
+                  {
+                    "id": 1401613,
+                    "title": "Richard Nelson - Preview Pane Issue",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 488.4,
+                    "created_date": "2024-10-17T15:58:15.38Z"
+                  },
+                  {
+                    "id": 1410334,
+                    "title": "Preview Pane crashing on Word Documents",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 482.4,
+                    "created_date": "2024-10-23T16:20:45.263Z"
+                  },
+                  {
+                    "id": 1488820,
+                    "title": "Investigation: Include Closed Items tick box on Contact Search",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 426.4,
+                    "created_date": "2024-12-18T16:12:33.053Z"
+                  },
+                  {
+                    "id": 1619610,
+                    "title": "Details box when creating a new expense in the draft billing is not updating if expense code is changed.",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 326.6,
+                    "created_date": "2025-03-28T10:54:21.25Z"
+                  },
+                  {
+                    "id": 1652993,
+                    "title": "Time Recording - Rate Codes in Add-in",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 299.6,
+                    "created_date": "2025-04-24T10:50:24.273Z"
+                  },
+                  {
+                    "id": 1689495,
+                    "title": "Notes - Procedure File Maintenance - Default Note Description For Time Details",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 271.3,
+                    "created_date": "2025-05-22T16:42:51.18Z"
+                  },
+                  {
+                    "id": 1727315,
+                    "title": "Case Tracker - Document removed from Out-Tray of case still shows on Case Tracker",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 242.4,
+                    "created_date": "2025-06-20T15:36:10.06Z"
+                  },
+                  {
+                    "id": 1873955,
+                    "title": "Cashflow reporting- Not producing as expected with the values.",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 134.3,
+                    "created_date": "2025-10-06T17:04:32.21Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 0,
+                "lookback_days": 90,
+                "per_week": 0.0
+              },
+              "cycle_time_variance": {
+                "sample_size": 0,
+                "std_dev_days": null,
+                "coefficient_of_variation": null
+              },
+              "excluded_security_bugs": {
+                "open": 5,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 67,
+              "closed_count_90d": 2,
+              "wip": 67,
+              "lead_time": {
+                "p50": 286.1,
+                "p85": 337.2,
+                "p95": 351.9,
+                "sample_size": 2,
+                "raw_values": [
+                  359.17407711805555,
+                  212.94187564814817
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 286.1,
+                  "p85": 337.2,
+                  "p95": 351.9,
+                  "closed_count": 2,
+                  "sample_size": 2
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 2,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 67,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 961,
+                    "title": "23408 - Add Audit Trail for All FileSystem Modifications\r",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:00:05.36Z"
+                  },
+                  {
+                    "id": 1050,
+                    "title": "23664 - Wizards: Changes to New Address screen\r",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:00:55.49Z"
+                  },
+                  {
+                    "id": 1106,
+                    "title": "23739 - Document Bundler: Add FE and Partner initials fields as merge fields for index\r",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:01:50.61Z"
+                  },
+                  {
+                    "id": 1124,
+                    "title": "23765 - Case Attachment: RTA Medical Reports\r",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:04:25.1Z"
+                  },
+                  {
+                    "id": 1144,
+                    "title": "23790 - Case Navigator: Allow User to Customise Inactive days\r",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:04:55.523Z"
+                  },
+                  {
+                    "id": 1145,
+                    "title": "23791 - Case Navigator: Allow User to search based on Last Matter Posting\r",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:04:55.76Z"
+                  },
+                  {
+                    "id": 1738,
+                    "title": "R&D: API Layer",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1558.6,
+                    "created_date": "2021-11-12T10:23:39.513Z"
+                  },
+                  {
+                    "id": 1819,
+                    "title": "Document Bundler: Make standard address fields available as exports",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1553.5,
+                    "created_date": "2021-11-17T14:02:09.703Z"
+                  },
+                  {
+                    "id": 2483,
+                    "title": "Access Workspace Single Sign On - Complete Bulk Migration Template",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1483.6,
+                    "created_date": "2022-01-26T10:11:37.237Z"
+                  },
+                  {
+                    "id": 2484,
+                    "title": "Access Workspace Single Sign On - Import Users",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1483.6,
+                    "created_date": "2022-01-26T10:12:50.45Z"
+                  },
+                  {
+                    "id": 2495,
+                    "title": "Allen Hoole - Venues on Matter Setup",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1483.4,
+                    "created_date": "2022-01-26T14:48:33.37Z"
+                  },
+                  {
+                    "id": 2504,
+                    "title": "Add 'Created By' to Draft Bill Details screen",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1482.3,
+                    "created_date": "2022-01-27T16:49:54.97Z"
+                  },
+                  {
+                    "id": 2781,
+                    "title": "Time And Expense Manager - Remove Duplicate Project",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1468.5,
+                    "created_date": "2022-02-10T12:33:40.983Z"
+                  },
+                  {
+                    "id": 3447,
+                    "title": "Nominal Maintenance - Delete Nominal Account",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1442.4,
+                    "created_date": "2022-03-08T16:13:58.217Z"
+                  },
+                  {
+                    "id": 3502,
+                    "title": "Job Story - Automate Build For Setup Year",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1441.3,
+                    "created_date": "2022-03-09T18:19:58.19Z"
+                  },
+                  {
+                    "id": 5617,
+                    "title": "Interest Calculator - Discrepancy on splitting interest",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1377.6,
+                    "created_date": "2022-05-12T10:45:44.243Z"
+                  },
+                  {
+                    "id": 5722,
+                    "title": "Time and Expense Manager - write time off by value",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1373.5,
+                    "created_date": "2022-05-16T12:40:00.397Z"
+                  },
+                  {
+                    "id": 5819,
+                    "title": "Draft Billing - Add Reject Reason",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1371.6,
+                    "created_date": "2022-05-18T10:08:16.403Z"
+                  },
+                  {
+                    "id": 6165,
+                    "title": "Contact Wizard - Prevent more than one second contact being added",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1363.6,
+                    "created_date": "2022-05-26T10:56:12.973Z"
+                  },
+                  {
+                    "id": 8585,
+                    "title": ".NET Wizards - Remove Wizards Check",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1314.6,
+                    "created_date": "2022-07-14T10:02:21.153Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 2,
+                "lookback_days": 90,
+                "per_week": 0.2
+              },
+              "cycle_time_variance": {
+                "sample_size": 2,
+                "std_dev_days": 103.4,
+                "coefficient_of_variation": 36.1,
+                "mean_days": 286.1
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 167,
+              "closed_count_90d": 1,
+              "wip": 167,
+              "lead_time": {
+                "p50": 314.9,
+                "p85": 314.9,
+                "p95": 314.9,
+                "sample_size": 1,
+                "raw_values": [
+                  314.882225625
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 314.9,
+                  "p85": 314.9,
+                  "p95": 314.9,
+                  "closed_count": 1,
+                  "sample_size": 1
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 1,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 167,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 929,
+                    "title": "22961 - VAT OOB: VAT Return transaction viewer\r",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T14:22:28.03Z"
+                  },
+                  {
+                    "id": 978,
+                    "title": "23456 - Specification: Immigration: £500 cap not enforced\r",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:00:09.1Z"
+                  },
+                  {
+                    "id": 1011,
+                    "title": "23571 - Assessed Claims Manager : Crown Court Upload Validation Bug\r",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:00:19.513Z"
+                  },
+                  {
+                    "id": 1041,
+                    "title": "23645 - System Saved Layouts: .NET Memory Management\r",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:00:44.55Z"
+                  },
+                  {
+                    "id": 1085,
+                    "title": "23710 - A2A Release 7 - Amount in Dispute Investigation\r",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:01:21.287Z"
+                  },
+                  {
+                    "id": 1091,
+                    "title": "23718 - Matter Maintenance: Error Accessing Mailings Tab\r",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:01:25.693Z"
+                  },
+                  {
+                    "id": 1121,
+                    "title": "23762 - Column Headers displaying as SQL code\r",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1600.4,
+                    "created_date": "2021-10-01T15:04:21.56Z"
+                  },
+                  {
+                    "id": 1261,
+                    "title": "6. Pre-prod test",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1597.4,
+                    "created_date": "2021-10-04T14:56:22.927Z"
+                  },
+                  {
+                    "id": 1291,
+                    "title": "System testing",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1596.3,
+                    "created_date": "2021-10-05T17:05:06.187Z"
+                  },
+                  {
+                    "id": 1383,
+                    "title": "Pull Request Review",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1586.1,
+                    "created_date": "2021-10-15T21:25:59.97Z"
+                  },
+                  {
+                    "id": 1385,
+                    "title": "Pull Request Review",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1586.1,
+                    "created_date": "2021-10-15T21:26:33.357Z"
+                  },
+                  {
+                    "id": 1386,
+                    "title": "Compile in release (unable to QA)",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1586.1,
+                    "created_date": "2021-10-15T21:27:14.453Z"
+                  },
+                  {
+                    "id": 1387,
+                    "title": "Compile in release (unable to QA)",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1586.1,
+                    "created_date": "2021-10-15T21:27:23.18Z"
+                  },
+                  {
+                    "id": 1388,
+                    "title": "Compile in release (unable to QA)",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1586.1,
+                    "created_date": "2021-10-15T21:27:37.99Z"
+                  },
+                  {
+                    "id": 1389,
+                    "title": "Pull Request Review",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1586.1,
+                    "created_date": "2021-10-15T21:28:04.757Z"
+                  },
+                  {
+                    "id": 1400,
+                    "title": "Test with Dan/Gary - Copy",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1583.5,
+                    "created_date": "2021-10-18T12:54:02.847Z"
+                  },
+                  {
+                    "id": 1401,
+                    "title": "Generate updated release with changes - Copy",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1583.5,
+                    "created_date": "2021-10-18T12:54:05.95Z"
+                  },
+                  {
+                    "id": 1402,
+                    "title": "All code changes as agreed - Copy",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1583.5,
+                    "created_date": "2021-10-18T12:54:17.297Z"
+                  },
+                  {
+                    "id": 1408,
+                    "title": "Technical discussion regarding implementation",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1583.5,
+                    "created_date": "2021-10-18T13:31:32.383Z"
+                  },
+                  {
+                    "id": 1438,
+                    "title": "Pre-production testing",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1582.7,
+                    "created_date": "2021-10-19T08:18:35.793Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 1,
+                "lookback_days": 90,
+                "per_week": 0.1
+              },
+              "cycle_time_variance": {
+                "sample_size": 1,
+                "std_dev_days": null,
+                "coefficient_of_variation": null
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 245,
+          "total_closed_90d": 3,
+          "collected_at": "2026-02-18T00:53:15.218896"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 0,
+              "closed_count_90d": 5,
+              "wip": 0,
+              "lead_time": {
+                "p50": 0.9,
+                "p85": 11.1,
+                "p95": 18.3,
+                "sample_size": 5,
+                "raw_values": [
+                  0.02485008101851852,
+                  3.949271099537037,
+                  21.895070717592592,
+                  0.006398298611111111,
+                  0.9489292361111111
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 0.9,
+                  "p85": 11.1,
+                  "p95": 18.3,
+                  "closed_count": 5,
+                  "sample_size": 5
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 5,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 0,
+                "threshold_days": 30,
+                "items": []
+              },
+              "throughput": {
+                "closed_count": 5,
+                "lookback_days": 90,
+                "per_week": 0.4
+              },
+              "cycle_time_variance": {
+                "sample_size": 5,
+                "std_dev_days": 9.4,
+                "coefficient_of_variation": 174.9,
+                "mean_days": 5.4
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 141,
+              "closed_count_90d": 85,
+              "wip": 141,
+              "lead_time": {
+                "p50": 39.0,
+                "p85": 81.7,
+                "p95": 114.8,
+                "sample_size": 85,
+                "raw_values": [
+                  125.9662036226852,
+                  124.79095482638888,
+                  118.89986686342591,
+                  63.24634135416667,
+                  48.159184340277776,
+                  48.15878310185185,
+                  48.15872148148148,
+                  48.22002866898148,
+                  49.27473328703704,
+                  54.25900266203704
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 39.0,
+                  "p85": 81.7,
+                  "p95": 114.8,
+                  "closed_count": 85,
+                  "sample_size": 85
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 85,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 96,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1570632,
+                    "title": "07 COFA Define MMP Source Contributors",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 355.7,
+                    "created_date": "2025-02-27T08:54:41.257Z"
+                  },
+                  {
+                    "id": 1752886,
+                    "title": "7 How to be a COFA QA2 Script Review",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752887,
+                    "title": "8 How to be a COFA QA2 Script SME Review",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752888,
+                    "title": "9 How to be a COFA QA2 Script Amends",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752889,
+                    "title": "10 How to be a COFA Storyboard",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752890,
+                    "title": "11 How to be a COFA Animation",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752891,
+                    "title": "12 How to be a COFA Build",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752892,
+                    "title": "13 How to be a COFA Graphics",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752893,
+                    "title": "14 How to be a COFA QA3 Media Review",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752894,
+                    "title": "15 How to be a COFA QA3 Build Amends",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752895,
+                    "title": "16 How to be a COFA QA4 BuildPlatform Testing",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752896,
+                    "title": "18 How to be a COFA QA5 Final Lead/Product Sign off",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752897,
+                    "title": "17 How to be a COFA QA4 BuildPlatform Amends",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752901,
+                    "title": "How to be a COFA MMP Pre-Production",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752902,
+                    "title": "How to be a COFA MMP Filming",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752903,
+                    "title": "How to be a COFA MMP Editing",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1752904,
+                    "title": "6 How to be a COFA Script",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 223.5,
+                    "created_date": "2025-07-09T13:44:22.623Z"
+                  },
+                  {
+                    "id": 1800937,
+                    "title": "04 AML Refresher  QA1 Post SME review amends",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 190.5,
+                    "created_date": "2025-08-11T12:56:02.99Z"
+                  },
+                  {
+                    "id": 1800939,
+                    "title": "10 AML Refresher Full Build",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 190.5,
+                    "created_date": "2025-08-11T12:56:03.493Z"
+                  },
+                  {
+                    "id": 1800942,
+                    "title": "11 AML Refresher QA3/4 Full Build and Platform review",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 190.5,
+                    "created_date": "2025-08-11T12:56:03.707Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 85,
+                "lookback_days": 90,
+                "per_week": 6.6
+              },
+              "cycle_time_variance": {
+                "sample_size": 85,
+                "std_dev_days": 34.1,
+                "coefficient_of_variation": 80.0,
+                "mean_days": 42.7
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 814,
+              "closed_count_90d": 78,
+              "wip": 814,
+              "lead_time": {
+                "p50": 27.2,
+                "p85": 79.9,
+                "p95": 118.9,
+                "sample_size": 78,
+                "raw_values": [
+                  56.094397847222226,
+                  80.91017303240741,
+                  82.01651527777777,
+                  82.01679197916665,
+                  83.9595193287037,
+                  50.15552025462963,
+                  118.05933280092593,
+                  119.95718831018519,
+                  56.128793055555555,
+                  56.06944634259259
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 27.2,
+                  "p85": 79.9,
+                  "p95": 118.9,
+                  "closed_count": 78,
+                  "sample_size": 78
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 78,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 771,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 266257,
+                    "title": "Avoiding Bribery Risk in Law Firms FY24 - Scripting V1.0",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 980.7,
+                    "created_date": "2023-06-13T08:21:39.32Z"
+                  },
+                  {
+                    "id": 266260,
+                    "title": "UK GDPR 2023 Estate Agents - Phase 1 - Course Outline",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 980.7,
+                    "created_date": "2023-06-13T08:22:35.077Z"
+                  },
+                  {
+                    "id": 266261,
+                    "title": "UK GDPR 2023 Law Firms - Phase 1 - Course Outline ",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 980.7,
+                    "created_date": "2023-06-13T08:23:03.257Z"
+                  },
+                  {
+                    "id": 294334,
+                    "title": "ESG (Placeholder Title) (Course - New - FY23) - Phase 2 - Platform QA",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.7,
+                    "created_date": "2023-06-28T09:03:23.387Z"
+                  },
+                  {
+                    "id": 294336,
+                    "title": "ESG (Placeholder Title) (Course - New - FY23) - Phase 2 - Launch Activities",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.7,
+                    "created_date": "2023-06-28T09:03:49.413Z"
+                  },
+                  {
+                    "id": 294339,
+                    "title": "ESG (Placeholder Title) (Course - New - FY23) - Phase 2 - Release",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.7,
+                    "created_date": "2023-06-28T09:04:56.65Z"
+                  },
+                  {
+                    "id": 294426,
+                    "title": "Anti-Money Laundering for Estate Agents (Course - Evolve - FY24) - Scripting V1.0",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:31:32.157Z"
+                  },
+                  {
+                    "id": 294427,
+                    "title": "Anti-Money Laundering for Estate Agents (Course - Evolve - FY24) - Assessment",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:32:00.727Z"
+                  },
+                  {
+                    "id": 294452,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Scoping and Course Outline",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:42:48.8Z"
+                  },
+                  {
+                    "id": 294453,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Scripting V0.1",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:43:25.59Z"
+                  },
+                  {
+                    "id": 294459,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Scripting V1.0",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:43:55.447Z"
+                  },
+                  {
+                    "id": 294482,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Assessment",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:44:28.463Z"
+                  },
+                  {
+                    "id": 294551,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - MMP Scoping",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:45:44.51Z"
+                  },
+                  {
+                    "id": 294618,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Alpha Build",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:48:02.57Z"
+                  },
+                  {
+                    "id": 294619,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Beta Build",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:48:32.36Z"
+                  },
+                  {
+                    "id": 294620,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Final Build",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:48:59.073Z"
+                  },
+                  {
+                    "id": 294623,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Alpha Graphics",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:49:40.33Z"
+                  },
+                  {
+                    "id": 294627,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Animations",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:50:09.877Z"
+                  },
+                  {
+                    "id": 294628,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Alpha QA",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:50:39.43Z"
+                  },
+                  {
+                    "id": 294630,
+                    "title": "Anti-Facilitating Tax Evasion for Estate Agents (Course - Evolve - FY24) - Beta QA",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 965.6,
+                    "created_date": "2023-06-28T09:51:09.463Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 78,
+                "lookback_days": 90,
+                "per_week": 6.1
+              },
+              "cycle_time_variance": {
+                "sample_size": 78,
+                "std_dev_days": 33.5,
+                "coefficient_of_variation": 82.9,
+                "mean_days": 40.4
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 955,
+          "total_closed_90d": 168,
+          "collected_at": "2026-02-18T00:53:15.287216"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 11,
+              "closed_count_90d": 54,
+              "wip": 11,
+              "lead_time": {
+                "p50": 2.5,
+                "p85": 11.3,
+                "p95": 30.2,
+                "sample_size": 54,
+                "raw_values": [
+                  75.87363518518518,
+                  31.004940474537037,
+                  10.81765787037037,
+                  5.000621099537037,
+                  6.950653206018519,
+                  14.090683136574075,
+                  12.262161527777778,
+                  3.8725234953703707,
+                  1.048478125,
+                  2.9818334490740743
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 2.5,
+                  "p85": 11.3,
+                  "p95": 30.2,
+                  "closed_count": 54,
+                  "sample_size": 54
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 54,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 1,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 2014979,
+                    "title": "Change money type from double to decimal",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 34.7,
+                    "created_date": "2026-01-14T09:08:46.79Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 54,
+                "lookback_days": 90,
+                "per_week": 4.2
+              },
+              "cycle_time_variance": {
+                "sample_size": 54,
+                "std_dev_days": 12.3,
+                "coefficient_of_variation": 189.5,
+                "mean_days": 6.5
+              },
+              "excluded_security_bugs": {
+                "open": 6,
+                "closed": 10
+              }
+            },
+            "User Story": {
+              "open_count": 77,
+              "closed_count_90d": 143,
+              "wip": 77,
+              "lead_time": {
+                "p50": 7.1,
+                "p85": 60.5,
+                "p95": 102.0,
+                "sample_size": 143,
+                "raw_values": [
+                  294.0323235648148,
+                  111.93901686342592,
+                  76.02558777777777,
+                  118.81547438657407,
+                  147.01563796296296,
+                  73.77658672453704,
+                  51.77833422453703,
+                  93.97417333333334,
+                  45.12501469907407,
+                  45.09982827546297
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 7.1,
+                  "p85": 60.5,
+                  "p95": 102.0,
+                  "closed_count": 143,
+                  "sample_size": 143
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 143,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 39,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 563979,
+                    "title": "Client title not preserved during some quote creation journeys",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 762.4,
+                    "created_date": "2024-01-17T15:06:44.777Z"
+                  },
+                  {
+                    "id": 1358669,
+                    "title": "Clients - Documents section",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 517.4,
+                    "created_date": "2024-09-18T14:36:31.467Z"
+                  },
+                  {
+                    "id": 1404533,
+                    "title": "Creating a new case file in referrer portal for new and existing clients",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 484.6,
+                    "created_date": "2024-10-21T10:46:38.32Z"
+                  },
+                  {
+                    "id": 1404892,
+                    "title": "Order AML search",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 484.5,
+                    "created_date": "2024-10-21T13:04:59.25Z"
+                  },
+                  {
+                    "id": 1404901,
+                    "title": "Order Biometric ID check",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 484.5,
+                    "created_date": "2024-10-21T13:08:04.023Z"
+                  },
+                  {
+                    "id": 1404933,
+                    "title": "Generating a quote from a new or existing case",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 484.5,
+                    "created_date": "2024-10-21T13:17:04.25Z"
+                  },
+                  {
+                    "id": 1419364,
+                    "title": "New case created when a solicitor generates a referrered quote",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 475.6,
+                    "created_date": "2024-10-30T10:34:57.13Z"
+                  },
+                  {
+                    "id": 1421998,
+                    "title": "Reporting - View client contacts",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 474.5,
+                    "created_date": "2024-10-31T13:37:12.34Z"
+                  },
+                  {
+                    "id": 1421999,
+                    "title": "Adding an existing client to a case",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 474.5,
+                    "created_date": "2024-10-31T13:37:25.367Z"
+                  },
+                  {
+                    "id": 1536819,
+                    "title": "LB connect and manual button doesn't work",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 379.6,
+                    "created_date": "2025-02-03T10:32:21.963Z"
+                  },
+                  {
+                    "id": 1625796,
+                    "title": "PEPs and SANs check integration",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 322.6,
+                    "created_date": "2025-04-01T10:30:33.87Z"
+                  },
+                  {
+                    "id": 1625821,
+                    "title": "Confirm client following a refer AML result",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 322.6,
+                    "created_date": "2025-04-01T10:37:16.027Z"
+                  },
+                  {
+                    "id": 1628432,
+                    "title": "Update PDF report to align with UX/UI requirements",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 321.4,
+                    "created_date": "2025-04-02T15:49:29.183Z"
+                  },
+                  {
+                    "id": 1629610,
+                    "title": "Spike - Review the API and create a high-level architecture design",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 320.6,
+                    "created_date": "2025-04-03T10:00:05.84Z"
+                  },
+                  {
+                    "id": 1640623,
+                    "title": "API to call new HMLR endpoints.",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 312.7,
+                    "created_date": "2025-04-11T08:53:30.1Z"
+                  },
+                  {
+                    "id": 1640626,
+                    "title": "UI submission form",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 312.7,
+                    "created_date": "2025-04-11T08:55:27.9Z"
+                  },
+                  {
+                    "id": 1640640,
+                    "title": "AP1 Post Submission",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 312.7,
+                    "created_date": "2025-04-11T08:59:36.767Z"
+                  },
+                  {
+                    "id": 1640651,
+                    "title": "Automatically populate Application details",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 312.7,
+                    "created_date": "2025-04-11T09:05:05.4Z"
+                  },
+                  {
+                    "id": 1693627,
+                    "title": "GP - Be able to create quote partnerships per branch",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 266.4,
+                    "created_date": "2025-05-27T15:07:16.75Z"
+                  },
+                  {
+                    "id": 1794682,
+                    "title": "Landmark API updates",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 196.3,
+                    "created_date": "2025-08-05T17:34:40.15Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 143,
+                "lookback_days": 90,
+                "per_week": 11.1
+              },
+              "cycle_time_variance": {
+                "sample_size": 143,
+                "std_dev_days": 40.6,
+                "coefficient_of_variation": 147.0,
+                "mean_days": 27.6
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 169,
+              "closed_count_90d": 2,
+              "wip": 169,
+              "lead_time": {
+                "p50": 13.6,
+                "p85": 23.2,
+                "p95": 25.9,
+                "sample_size": 2,
+                "raw_values": [
+                  27.294118333333333,
+                  4.1782407407407405e-05
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 13.6,
+                  "p85": 23.2,
+                  "p95": 25.9,
+                  "closed_count": 2,
+                  "sample_size": 2
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 2,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 168,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 3124,
+                    "title": "Review Identitem branch for functionality",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1457.4,
+                    "created_date": "2022-02-21T16:02:21.1Z"
+                  },
+                  {
+                    "id": 3125,
+                    "title": "Informal documentation of functionality and any code quality issues / recommendations",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1457.4,
+                    "created_date": "2022-02-21T16:02:53.883Z"
+                  },
+                  {
+                    "id": 3127,
+                    "title": "Document preferred provider endpoints within devops wiki",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1457.3,
+                    "created_date": "2022-02-21T17:10:06.047Z"
+                  },
+                  {
+                    "id": 3391,
+                    "title": "Document contacts within devops wiki",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1443.5,
+                    "created_date": "2022-03-07T11:52:38.97Z"
+                  },
+                  {
+                    "id": 3420,
+                    "title": "Consolidate styling and remove anything not used",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1443.4,
+                    "created_date": "2022-03-07T16:24:47.737Z"
+                  },
+                  {
+                    "id": 3421,
+                    "title": "Revert to default Angular build budgets",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1443.4,
+                    "created_date": "2022-03-07T16:25:33.74Z"
+                  },
+                  {
+                    "id": 3422,
+                    "title": "Icons are all static images. Investigate bringing those over or switching to icons if theyre just pictures of icons.",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1443.4,
+                    "created_date": "2022-03-07T16:26:38.2Z"
+                  },
+                  {
+                    "id": 3802,
+                    "title": "Add information to email body",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1428.4,
+                    "created_date": "2022-03-22T14:08:46.72Z"
+                  },
+                  {
+                    "id": 3870,
+                    "title": "Display name change request on overview tab",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1425.6,
+                    "created_date": "2022-03-25T09:42:20.397Z"
+                  },
+                  {
+                    "id": 3872,
+                    "title": "Display name change request on documents tab",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1425.6,
+                    "created_date": "2022-03-25T09:42:52.283Z"
+                  },
+                  {
+                    "id": 3873,
+                    "title": "Display name change request on matters tab",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1425.6,
+                    "created_date": "2022-03-25T09:42:56.763Z"
+                  },
+                  {
+                    "id": 3874,
+                    "title": "Display name change request on client details tab",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1425.6,
+                    "created_date": "2022-03-25T09:43:20.363Z"
+                  },
+                  {
+                    "id": 3875,
+                    "title": "Update dob based on passport",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1425.6,
+                    "created_date": "2022-03-25T09:43:59.337Z"
+                  },
+                  {
+                    "id": 3879,
+                    "title": "Investigate and document",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1425.6,
+                    "created_date": "2022-03-25T09:51:59.21Z"
+                  },
+                  {
+                    "id": 3880,
+                    "title": "Test result of enabling this",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1425.6,
+                    "created_date": "2022-03-25T09:52:35.023Z"
+                  },
+                  {
+                    "id": 4128,
+                    "title": "Investigate which endpoints each page uses and edit to return the order name change",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1415.6,
+                    "created_date": "2022-04-04T10:20:21.443Z"
+                  },
+                  {
+                    "id": 4129,
+                    "title": "Confirm if we need a new email or update the existing Document uploaded email",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1415.6,
+                    "created_date": "2022-04-04T10:21:40.6Z"
+                  },
+                  {
+                    "id": 4536,
+                    "title": "Creating Page Layouts with CSS to build responsive navigation",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 1399.4,
+                    "created_date": "2022-04-20T14:28:16.84Z"
+                  },
+                  {
+                    "id": 4838,
+                    "title": "Admin Portal - Case Summary Page - All Orders Listing Page",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1391.6,
+                    "created_date": "2022-04-28T09:29:11.917Z"
+                  },
+                  {
+                    "id": 4839,
+                    "title": "Admin Portal - Case Summary Page - Case Summary Page",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1391.6,
+                    "created_date": "2022-04-28T09:29:49.893Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 2,
+                "lookback_days": 90,
+                "per_week": 0.2
+              },
+              "cycle_time_variance": {
+                "sample_size": 2,
+                "std_dev_days": 19.3,
+                "coefficient_of_variation": 141.4,
+                "mean_days": 13.6
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 257,
+          "total_closed_90d": 199,
+          "collected_at": "2026-02-18T00:53:15.662532"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 6,
+              "closed_count_90d": 6,
+              "wip": 6,
+              "lead_time": {
+                "p50": 10.2,
+                "p85": 53.4,
+                "p95": 115.7,
+                "sample_size": 6,
+                "raw_values": [
+                  146.92127805555558,
+                  22.173394641203704,
+                  0.4678013888888889,
+                  0.8517887268518519,
+                  19.461225729166667,
+                  0.17219309027777777
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 10.2,
+                  "p85": 53.4,
+                  "p95": 115.7,
+                  "closed_count": 6,
+                  "sample_size": 6
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 6,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 5,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1725196,
+                    "title": "Copilot | Audits | Advanced audit insights",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 243.6,
+                    "created_date": "2025-06-19T10:21:15.27Z"
+                  },
+                  {
+                    "id": 1958393,
+                    "title": "Advanced search not working - 68024544",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 85.5,
+                    "created_date": "2025-11-24T13:26:32.05Z"
+                  },
+                  {
+                    "id": 2021409,
+                    "title": "ArmorCode - IIS Short Filename Enumeration",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 32.5,
+                    "created_date": "2026-01-16T12:09:25.507Z"
+                  },
+                  {
+                    "id": 2021510,
+                    "title": "ArmorCode - Insecure Direct Object Reference",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 32.5,
+                    "created_date": "2026-01-16T12:10:22.167Z"
+                  },
+                  {
+                    "id": 2021524,
+                    "title": "ArmorCode - Lack of rate limit",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 32.5,
+                    "created_date": "2026-01-16T12:11:38.083Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 6,
+                "lookback_days": 90,
+                "per_week": 0.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 6,
+                "std_dev_days": 57.3,
+                "coefficient_of_variation": 181.0,
+                "mean_days": 31.7
+              },
+              "excluded_security_bugs": {
+                "open": 6,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 46,
+              "closed_count_90d": 16,
+              "wip": 46,
+              "lead_time": {
+                "p50": 32.2,
+                "p85": 59.2,
+                "p95": 135.9,
+                "sample_size": 16,
+                "raw_values": [
+                  265.06027789351856,
+                  92.88406021990741,
+                  32.90579934027778,
+                  32.902824189814815,
+                  32.902778472222224,
+                  32.24976917824074,
+                  32.249073726851854,
+                  68.01832546296296,
+                  8.284662997685185,
+                  32.22828912037037
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 32.2,
+                  "p85": 59.2,
+                  "p95": 135.9,
+                  "closed_count": 16,
+                  "sample_size": 16
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 16,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 46,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 203330,
+                    "title": "ADE Integration - Add Complaint Types Data View - ACOM-195",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1014.5,
+                    "created_date": "2023-05-10T13:03:26.45Z"
+                  },
+                  {
+                    "id": 203341,
+                    "title": "Fletcher Day - Audits Questions Report - Answer charts tab displaying the wrong data - ACOM-176",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1014.5,
+                    "created_date": "2023-05-10T13:09:14.853Z"
+                  },
+                  {
+                    "id": 203346,
+                    "title": "Diversity Site - Ability to destroy client data - ACOM-129",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1014.5,
+                    "created_date": "2023-05-10T13:09:59.9Z"
+                  },
+                  {
+                    "id": 203347,
+                    "title": "Pentest Report R2326: 2021: Uploaded Files Not Virus Scanned",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1014.5,
+                    "created_date": "2023-05-10T13:10:19.977Z"
+                  },
+                  {
+                    "id": 294210,
+                    "title": "Pentest 2023: Uploaded File not Scanned for Malware",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 965.7,
+                    "created_date": "2023-06-28T08:15:11.157Z"
+                  },
+                  {
+                    "id": 319883,
+                    "title": "Dynamic Query for Task List View",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 951.6,
+                    "created_date": "2023-07-12T09:44:39.98Z"
+                  },
+                  {
+                    "id": 1301540,
+                    "title": "Automate - Delete Module Record - User does not have Task(s) in Feed",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 540.7,
+                    "created_date": "2024-08-26T07:01:35.773Z"
+                  },
+                  {
+                    "id": 1301542,
+                    "title": "Automate - Complete Task - User does not have Task in Feed",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 540.7,
+                    "created_date": "2024-08-26T07:02:46.28Z"
+                  },
+                  {
+                    "id": 1345429,
+                    "title": "Add Notes to Data Exports",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 523.4,
+                    "created_date": "2024-09-12T16:28:38.673Z"
+                  },
+                  {
+                    "id": 1376160,
+                    "title": "Convert Textarea Fields to Richtext Editor",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 505.7,
+                    "created_date": "2024-09-30T07:52:09.783Z"
+                  },
+                  {
+                    "id": 1440258,
+                    "title": "Internal Admin users unable to adjust passwords",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 462.2,
+                    "created_date": "2024-11-12T20:07:09.77Z"
+                  },
+                  {
+                    "id": 1440790,
+                    "title": "Give/Remove access to [module] for [user]",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 461.6,
+                    "created_date": "2024-11-13T10:38:42.097Z"
+                  },
+                  {
+                    "id": 1440795,
+                    "title": "Reassign [tasks] from [User A] to [User B]",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 461.6,
+                    "created_date": "2024-11-13T10:39:54.047Z"
+                  },
+                  {
+                    "id": 1441743,
+                    "title": "How many [complaints] or [type] are there?",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 461.2,
+                    "created_date": "2024-11-13T19:31:36.4Z"
+                  },
+                  {
+                    "id": 1441744,
+                    "title": "How many [records] for [entity] in [timescale] exist?",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 461.2,
+                    "created_date": "2024-11-13T19:38:25.04Z"
+                  },
+                  {
+                    "id": 1481627,
+                    "title": "CoPilot | Search Update | Client Feedback",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 432.3,
+                    "created_date": "2024-12-12T17:27:36.183Z"
+                  },
+                  {
+                    "id": 1481629,
+                    "title": "CoPilot | Search Update | Data Access Requests",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 432.3,
+                    "created_date": "2024-12-12T17:33:24.107Z"
+                  },
+                  {
+                    "id": 1481637,
+                    "title": "CoPilot | Search Update | Gift/Hospitality Register",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 432.3,
+                    "created_date": "2024-12-12T17:41:25.04Z"
+                  },
+                  {
+                    "id": 1481642,
+                    "title": "CoPilot | Search Update | Money Laundering Records",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 432.3,
+                    "created_date": "2024-12-12T17:44:36.85Z"
+                  },
+                  {
+                    "id": 1481645,
+                    "title": "CoPilot | Search Update | Referrals",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 432.3,
+                    "created_date": "2024-12-12T18:02:40.56Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 16,
+                "lookback_days": 90,
+                "per_week": 1.2
+              },
+              "cycle_time_variance": {
+                "sample_size": 16,
+                "std_dev_days": 63.1,
+                "coefficient_of_variation": 139.6,
+                "mean_days": 45.2
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 13,
+              "closed_count_90d": 0,
+              "wip": 13,
+              "lead_time": {
+                "p50": null,
+                "p85": null,
+                "p95": null,
+                "sample_size": 0,
+                "raw_values": []
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 0,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 13,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1012896,
+                    "title": "Deploy Copilot API to Preprod Environment AF:1012884",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 623.6,
+                    "created_date": "2024-06-04T09:19:16.87Z"
+                  },
+                  {
+                    "id": 1012897,
+                    "title": "Deploy Copilot API to Preprod Environment DEV:1012884",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 623.6,
+                    "created_date": "2024-06-04T09:19:17.077Z"
+                  },
+                  {
+                    "id": 1012898,
+                    "title": "Deploy Copilot API to Preprod Environment TEST:1012884",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 623.6,
+                    "created_date": "2024-06-04T09:19:17.277Z"
+                  },
+                  {
+                    "id": 1634058,
+                    "title": "CoPilot | Search Update | Breach Reporting AF:1481577",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 316.6,
+                    "created_date": "2025-04-07T11:32:31.437Z"
+                  },
+                  {
+                    "id": 1634059,
+                    "title": "CoPilot | Search Update | Breach Reporting DEV:1481577",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 316.6,
+                    "created_date": "2025-04-07T11:32:31.67Z"
+                  },
+                  {
+                    "id": 1634060,
+                    "title": "CoPilot | Search Update | Breach Reporting TEST:1481577",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 316.6,
+                    "created_date": "2025-04-07T11:32:31.903Z"
+                  },
+                  {
+                    "id": 1670494,
+                    "title": "Dev investigation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 284.6,
+                    "created_date": "2025-05-09T10:57:31.413Z"
+                  },
+                  {
+                    "id": 1906800,
+                    "title": "Side menu consistency",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 117.5,
+                    "created_date": "2025-10-23T13:45:59.53Z"
+                  },
+                  {
+                    "id": 1906801,
+                    "title": "Side menu item not fully visible",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 117.5,
+                    "created_date": "2025-10-23T13:46:21.89Z"
+                  },
+                  {
+                    "id": 1906806,
+                    "title": "Disable Dark mode on Modals",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 117.5,
+                    "created_date": "2025-10-23T13:47:39.503Z"
+                  },
+                  {
+                    "id": 1906807,
+                    "title": "Implement Filters",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 117.5,
+                    "created_date": "2025-10-23T13:47:56.967Z"
+                  },
+                  {
+                    "id": 1906808,
+                    "title": "Show borders for all components rather than having one",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 117.5,
+                    "created_date": "2025-10-23T13:48:38.89Z"
+                  },
+                  {
+                    "id": 1964026,
+                    "title": "Compliance CMS API Integration Configuration Setup",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 82.6,
+                    "created_date": "2025-11-27T11:05:25.183Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 0,
+                "lookback_days": 90,
+                "per_week": 0.0
+              },
+              "cycle_time_variance": {
+                "sample_size": 0,
+                "std_dev_days": null,
+                "coefficient_of_variation": null
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 65,
+          "total_closed_90d": 22,
+          "collected_at": "2026-02-18T00:53:15.446387"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 19,
+              "closed_count_90d": 20,
+              "wip": 19,
+              "lead_time": {
+                "p50": 8.0,
+                "p85": 903.8,
+                "p95": 1086.1,
+                "sample_size": 20,
+                "raw_values": [
+                  1086.069726111111,
+                  1086.066209375,
+                  903.8414916319445,
+                  903.8041123148149,
+                  899.8454306712962,
+                  899.8438766203703,
+                  182.94252122685185,
+                  124.85501821759259,
+                  48.93118854166667,
+                  0.04406550925925926
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 5.5,
+                  "p85": 52.7,
+                  "p95": 145.2,
+                  "closed_count": 14,
+                  "sample_size": 14
+                },
+                "cleanup": {
+                  "p50": 903.8,
+                  "p85": 1086.1,
+                  "p95": 1086.1,
+                  "closed_count": 6,
+                  "sample_size": 6,
+                  "avg_age_years": 2.6
+                },
+                "indicators": {
+                  "cleanup_percentage": 30.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 20,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 14,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1773232,
+                    "title": "Messages Endpoint returns 500 when no messages",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 211.4,
+                    "created_date": "2025-07-21T15:06:25.187Z"
+                  },
+                  {
+                    "id": 1829237,
+                    "title": "Restrict Cases to only allow one process to be attached.",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 166.6,
+                    "created_date": "2025-09-04T09:29:00.963Z"
+                  },
+                  {
+                    "id": 1874787,
+                    "title": "Remove check for user when resending ID Link",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 133.7,
+                    "created_date": "2025-10-07T09:12:22.1Z"
+                  },
+                  {
+                    "id": 1935703,
+                    "title": "Unbundled Report Issue",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 98.6,
+                    "created_date": "2025-11-11T10:58:36.987Z"
+                  },
+                  {
+                    "id": 1949336,
+                    "title": "Flaky Tests",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 91.3,
+                    "created_date": "2025-11-18T17:41:14.91Z"
+                  },
+                  {
+                    "id": 1961577,
+                    "title": "Name cannot include special characters",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 83.7,
+                    "created_date": "2025-11-26T08:45:11.77Z"
+                  },
+                  {
+                    "id": 1963286,
+                    "title": "Fix for new items being marked as deleted",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 83.2,
+                    "created_date": "2025-11-26T20:11:59.683Z"
+                  },
+                  {
+                    "id": 1970340,
+                    "title": "ID Checks page filters",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 76.7,
+                    "created_date": "2025-12-03T08:15:25.497Z"
+                  },
+                  {
+                    "id": 1970341,
+                    "title": "ID Checks sorting",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 76.7,
+                    "created_date": "2025-12-03T08:16:10.167Z"
+                  },
+                  {
+                    "id": 1973643,
+                    "title": "Id Checks Questionnaires are set to completed when they are in a resubmission state on SumSub",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 75.6,
+                    "created_date": "2025-12-04T11:34:34.907Z"
+                  },
+                  {
+                    "id": 1973713,
+                    "title": "Add a command to identify id checks in the incorrect state",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 75.5,
+                    "created_date": "2025-12-04T11:50:05.96Z"
+                  },
+                  {
+                    "id": 1986650,
+                    "title": "Duplicate Questionnaire Entries",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 67.4,
+                    "created_date": "2025-12-12T14:05:55.427Z"
+                  },
+                  {
+                    "id": 1990243,
+                    "title": "CVE-2025-67735 | netty-codec-http-4.1.128.Final.jar",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 63.5,
+                    "created_date": "2025-12-16T13:17:07.907Z"
+                  },
+                  {
+                    "id": 1992146,
+                    "title": "Self-DDOS when user is not authorized",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 62.4,
+                    "created_date": "2025-12-17T14:34:57.55Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 20,
+                "lookback_days": 90,
+                "per_week": 1.6
+              },
+              "cycle_time_variance": {
+                "sample_size": 20,
+                "std_dev_days": 444.7,
+                "coefficient_of_variation": 144.0,
+                "mean_days": 308.8
+              },
+              "excluded_security_bugs": {
+                "open": 16,
+                "closed": 10
+              }
+            },
+            "User Story": {
+              "open_count": 60,
+              "closed_count_90d": 14,
+              "wip": 60,
+              "lead_time": {
+                "p50": 21.0,
+                "p85": 102.1,
+                "p95": 105.4,
+                "sample_size": 14,
+                "raw_values": [
+                  92.979634375,
+                  103.85438594907409,
+                  108.25159895833333,
+                  101.9736832523148,
+                  29.108199768518517,
+                  16.08339560185185,
+                  9.995360648148148,
+                  9.935965659722221,
+                  20.93226388888889,
+                  17.86940027777778
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 21.0,
+                  "p85": 102.1,
+                  "p95": 105.4,
+                  "closed_count": 14,
+                  "sample_size": 14
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 14,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 44,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1585040,
+                    "title": "[MAIN-200] Preparing a release",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 869.4,
+                    "created_date": "2023-10-02T15:59:45.803Z"
+                  },
+                  {
+                    "id": 1794939,
+                    "title": "Tidy old PHP code",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 195.7,
+                    "created_date": "2025-08-06T07:09:32.723Z"
+                  },
+                  {
+                    "id": 1806988,
+                    "title": "Tickets Selected for next sprint",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 187.4,
+                    "created_date": "2025-08-14T15:11:06.033Z"
+                  },
+                  {
+                    "id": 1807750,
+                    "title": "Create New Bugs & Tasks Within Here [Dev Triage Needed]",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 186.6,
+                    "created_date": "2025-08-15T11:13:50.163Z"
+                  },
+                  {
+                    "id": 1807786,
+                    "title": "As a Nova user I want to filter Users by Organisation",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 186.5,
+                    "created_date": "2025-08-15T11:43:58.003Z"
+                  },
+                  {
+                    "id": 1810791,
+                    "title": "Prevent Unintended AWS S3 Usage in Unit and Feature Tests",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 182.6,
+                    "created_date": "2025-08-19T10:14:11.827Z"
+                  },
+                  {
+                    "id": 1814811,
+                    "title": "Improve Logging Quality and Relevance",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 180.4,
+                    "created_date": "2025-08-21T14:07:05.96Z"
+                  },
+                  {
+                    "id": 1815360,
+                    "title": "Improve Static Analysis Workflow with Qodana",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 179.7,
+                    "created_date": "2025-08-22T06:57:04.033Z"
+                  },
+                  {
+                    "id": 1815868,
+                    "title": "Maintain Up-to-Date Testing Tools for API",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 179.6,
+                    "created_date": "2025-08-22T09:56:52.74Z"
+                  },
+                  {
+                    "id": 1815983,
+                    "title": "Fix Incorrect Checkbox Rendering on Android",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 179.6,
+                    "created_date": "2025-08-22T10:38:45.873Z"
+                  },
+                  {
+                    "id": 1816554,
+                    "title": "Improve API Test Pipeline performance",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 179.4,
+                    "created_date": "2025-08-22T15:22:54.017Z"
+                  },
+                  {
+                    "id": 1820624,
+                    "title": "Deferred Edge Case Issues",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 174.4,
+                    "created_date": "2025-08-27T16:24:32.9Z"
+                  },
+                  {
+                    "id": 1822800,
+                    "title": "Ready for Development",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 172.6,
+                    "created_date": "2025-08-29T10:30:18.433Z"
+                  },
+                  {
+                    "id": 1822820,
+                    "title": "ADO Improvements - Q1",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 172.6,
+                    "created_date": "2025-08-29T10:38:22.573Z"
+                  },
+                  {
+                    "id": 1830534,
+                    "title": "AWS",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 165.7,
+                    "created_date": "2025-09-05T08:31:17.96Z"
+                  },
+                  {
+                    "id": 1848096,
+                    "title": "iOS 26 - Liquid Glass",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 152.6,
+                    "created_date": "2025-09-18T11:24:21.257Z"
+                  },
+                  {
+                    "id": 1851466,
+                    "title": "Retro Actions",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 148.7,
+                    "created_date": "2025-09-22T09:16:14.633Z"
+                  },
+                  {
+                    "id": 1864729,
+                    "title": "Push Notification Improvements",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 140.4,
+                    "created_date": "2025-09-30T15:02:47.817Z"
+                  },
+                  {
+                    "id": 1872333,
+                    "title": "Tenancy Talks",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 134.7,
+                    "created_date": "2025-10-06T08:21:06.697Z"
+                  },
+                  {
+                    "id": 1899737,
+                    "title": "Ensure Tests are running on ADO",
+                    "state": "Active",
+                    "type": "User Story",
+                    "age_days": 120.5,
+                    "created_date": "2025-10-20T11:45:05.917Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 14,
+                "lookback_days": 90,
+                "per_week": 1.1
+              },
+              "cycle_time_variance": {
+                "sample_size": 14,
+                "std_dev_days": 41.1,
+                "coefficient_of_variation": 92.3,
+                "mean_days": 44.5
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 93,
+              "closed_count_90d": 97,
+              "wip": 93,
+              "lead_time": {
+                "p50": 14.0,
+                "p85": 44.7,
+                "p95": 84.5,
+                "sample_size": 97,
+                "raw_values": [
+                  119.81401038194444,
+                  90.79243800925926,
+                  101.9621434837963,
+                  82.8728952199074,
+                  67.80647773148148,
+                  63.8549844212963,
+                  61.77798271990741,
+                  50.03596994212963,
+                  27.83516616898148,
+                  26.679956400462963
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 14.0,
+                  "p85": 44.7,
+                  "p95": 84.5,
+                  "closed_count": 97,
+                  "sample_size": 97
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 97,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 67,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1793723,
+                    "title": "[Address PR Comments] Make code more readable",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 196.6,
+                    "created_date": "2025-08-05T11:01:42.93Z"
+                  },
+                  {
+                    "id": 1794941,
+                    "title": "[API] Convert Constant classes to Enums",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 195.7,
+                    "created_date": "2025-08-06T07:10:23.38Z"
+                  },
+                  {
+                    "id": 1807902,
+                    "title": "Test Support Case",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 186.5,
+                    "created_date": "2025-08-15T13:21:50.463Z"
+                  },
+                  {
+                    "id": 1810818,
+                    "title": "Fake S3 Storage in all test folders other than Integration",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 182.6,
+                    "created_date": "2025-08-19T10:28:31.483Z"
+                  },
+                  {
+                    "id": 1810830,
+                    "title": "Write Integration Tests for AWS S3 Connectivity",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 182.6,
+                    "created_date": "2025-08-19T10:31:58.44Z"
+                  },
+                  {
+                    "id": 1814825,
+                    "title": "Analyze and Filter Optimizely Logs",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 180.4,
+                    "created_date": "2025-08-21T14:17:28.36Z"
+                  },
+                  {
+                    "id": 1814839,
+                    "title": "Resolve PHP Warning for Dynamic Property Creation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 180.4,
+                    "created_date": "2025-08-21T14:25:29.96Z"
+                  },
+                  {
+                    "id": 1815383,
+                    "title": "Add Qodana Baseline File for API",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 179.7,
+                    "created_date": "2025-08-22T07:16:11.653Z"
+                  },
+                  {
+                    "id": 1815390,
+                    "title": "Implement Qodana for Android Project",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 179.7,
+                    "created_date": "2025-08-22T07:18:25.8Z"
+                  },
+                  {
+                    "id": 1815875,
+                    "title": "[API] Upgrade Pest to Version 4",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 179.6,
+                    "created_date": "2025-08-22T09:58:15.743Z"
+                  },
+                  {
+                    "id": 1815988,
+                    "title": "Fix Checkbox UI on Android",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 179.6,
+                    "created_date": "2025-08-22T10:42:10.553Z"
+                  },
+                  {
+                    "id": 1816557,
+                    "title": "[API] Shard the pest test suite",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 179.4,
+                    "created_date": "2025-08-22T15:24:30.53Z"
+                  },
+                  {
+                    "id": 1816559,
+                    "title": "Investigate with the team running ADO about getting more powerful agents",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 179.4,
+                    "created_date": "2025-08-22T15:27:46.693Z"
+                  },
+                  {
+                    "id": 1816563,
+                    "title": "[API] Improve efficiency of the test pipeline",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 179.4,
+                    "created_date": "2025-08-22T15:29:46.213Z"
+                  },
+                  {
+                    "id": 1818049,
+                    "title": "[Admin Portal] SumSub Indication of failed reasons",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 175.7,
+                    "created_date": "2025-08-26T08:57:09.51Z"
+                  },
+                  {
+                    "id": 1818080,
+                    "title": "Applicant Failure stops ID checks from processing",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 175.7,
+                    "created_date": "2025-08-26T09:05:29.89Z"
+                  },
+                  {
+                    "id": 1818116,
+                    "title": "Amend code/wording for downloading attachments",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 175.6,
+                    "created_date": "2025-08-26T09:18:03.12Z"
+                  },
+                  {
+                    "id": 1820618,
+                    "title": "Questionnaire Rule Issue",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 174.4,
+                    "created_date": "2025-08-27T16:19:25.063Z"
+                  },
+                  {
+                    "id": 1821209,
+                    "title": "Gorvins Client first login email sent to Chadwick Lawrence",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 173.7,
+                    "created_date": "2025-08-28T09:10:57.877Z"
+                  },
+                  {
+                    "id": 1822841,
+                    "title": "Limit creation of duplicate accounts with the same email",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 172.6,
+                    "created_date": "2025-08-29T10:44:04.147Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 97,
+                "lookback_days": 90,
+                "per_week": 7.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 97,
+                "std_dev_days": 25.6,
+                "coefficient_of_variation": 116.1,
+                "mean_days": 22.0
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 172,
+          "total_closed_90d": 131,
+          "collected_at": "2026-02-18T00:53:15.474912"
+        },
+        {
+          "project_key": "Legal_Product D",
+          "project_name": "Product D",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 16,
+              "closed_count_90d": 88,
+              "wip": 16,
+              "lead_time": {
+                "p50": 21.5,
+                "p85": 102.4,
+                "p95": 223.9,
+                "sample_size": 88,
+                "raw_values": [
+                  276.16866312499997,
+                  234.27877508101852,
+                  235.03792589120368,
+                  247.87657655092593,
+                  209.24719413194444,
+                  231.82678893518516,
+                  195.87351697916665,
+                  193.97462912037037,
+                  126.88378434027778,
+                  202.91207546296297
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 21.5,
+                  "p85": 102.4,
+                  "p95": 223.9,
+                  "closed_count": 88,
+                  "sample_size": 88
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 88,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 11,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1256923,
+                    "title": "PDF form formatting altered when saving when multiline enabled",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 574.7,
+                    "created_date": "2024-07-23T08:28:49.473Z"
+                  },
+                  {
+                    "id": 1352641,
+                    "title": "DEBUG: Table Process Issue in word based memo - need debugging",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 519.4,
+                    "created_date": "2024-09-16T14:26:36.963Z"
+                  },
+                  {
+                    "id": 1468192,
+                    "title": "DEBUG: MIWH - Invalid Handle errors doing miwhupdate via task server",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 441.6,
+                    "created_date": "2024-12-03T11:30:42.18Z"
+                  },
+                  {
+                    "id": 1612681,
+                    "title": "DEBUG: MIWH history entries not removed when case is archived",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 330.4,
+                    "created_date": "2025-03-24T15:17:38.66Z"
+                  },
+                  {
+                    "id": 1657187,
+                    "title": "DEBUG: MIWH Templates error adding Optiontype fields",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 294.7,
+                    "created_date": "2025-04-29T08:07:03.403Z"
+                  },
+                  {
+                    "id": 1657291,
+                    "title": "HF351 Case Type indexing gives permission errors when run via task server",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 294.7,
+                    "created_date": "2025-04-29T08:42:12.797Z"
+                  },
+                  {
+                    "id": 1856164,
+                    "title": "MIWH - Correspondent data missing in SQL but appears in Product D",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 146.3,
+                    "created_date": "2025-09-24T16:29:24.047Z"
+                  },
+                  {
+                    "id": 1878776,
+                    "title": "Documents not imported when using ProPostIncomingMail through Yorkshire Software",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 132.5,
+                    "created_date": "2025-10-08T13:59:11.777Z"
+                  },
+                  {
+                    "id": 1951816,
+                    "title": "Post incoming mail error",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 89.7,
+                    "created_date": "2025-11-20T08:36:56.277Z"
+                  },
+                  {
+                    "id": 2003726,
+                    "title": "Dynamic Database large amount of text not appearing ",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 42.6,
+                    "created_date": "2026-01-06T11:00:49.047Z"
+                  },
+                  {
+                    "id": 2007671,
+                    "title": "HF35123 Emails imported through Email Diary Import crashing Product D",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 40.5,
+                    "created_date": "2026-01-08T13:55:55.043Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 88,
+                "lookback_days": 90,
+                "per_week": 6.8
+              },
+              "cycle_time_variance": {
+                "sample_size": 88,
+                "std_dev_days": 68.4,
+                "coefficient_of_variation": 148.4,
+                "mean_days": 46.1
+              },
+              "excluded_security_bugs": {
+                "open": 2,
+                "closed": 12
+              }
+            },
+            "User Story": {
+              "open_count": 551,
+              "closed_count_90d": 318,
+              "wip": 551,
+              "lead_time": {
+                "p50": 10.2,
+                "p85": 79.0,
+                "p95": 344.0,
+                "sample_size": 318,
+                "raw_values": [
+                  1086.9578788194444,
+                  945.0150922916667,
+                  939.9647585648148,
+                  362.18369591435186,
+                  362.1705849189815,
+                  357.07532842592593,
+                  356.99949756944443,
+                  356.29464255787036,
+                  349.0878687847222,
+                  348.30988905092596
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 9.7,
+                  "p85": 78.6,
+                  "p95": 336.0,
+                  "closed_count": 315,
+                  "sample_size": 315
+                },
+                "cleanup": {
+                  "p50": 945.0,
+                  "p85": 1044.4,
+                  "p95": 1072.8,
+                  "closed_count": 3,
+                  "sample_size": 3,
+                  "avg_age_years": 2.7
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.9,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 318,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 494,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 279039,
+                    "title": "Compact - LB - Dialogs need a .NET waitfor statement",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2917.4,
+                    "created_date": "2018-02-22T16:04:10.93Z"
+                  },
+                  {
+                    "id": 279081,
+                    "title": "Task Popups - Requires more detail",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2916.5,
+                    "created_date": "2018-02-23T12:09:09.18Z"
+                  },
+                  {
+                    "id": 279082,
+                    "title": "Names/Correspondents table fields deleted flag",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2912.3,
+                    "created_date": "2018-02-27T17:15:16.497Z"
+                  },
+                  {
+                    "id": 279083,
+                    "title": "Cost Category Default based on System matrix",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2906.5,
+                    "created_date": "2018-03-05T11:41:46.67Z"
+                  },
+                  {
+                    "id": 279084,
+                    "title": "Replace 32 bit OCX Controls",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2905.4,
+                    "created_date": "2018-03-06T14:37:21.127Z"
+                  },
+                  {
+                    "id": 279085,
+                    "title": "Case and Correspondent deletion",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2903.5,
+                    "created_date": "2018-03-08T12:19:23.04Z"
+                  },
+                  {
+                    "id": 279087,
+                    "title": "System Parameters Load on login",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2899.5,
+                    "created_date": "2018-03-12T11:41:30.75Z"
+                  },
+                  {
+                    "id": 279119,
+                    "title": "DTSearch Version Update",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2870.6,
+                    "created_date": "2018-04-10T11:13:15.517Z"
+                  },
+                  {
+                    "id": 279089,
+                    "title": "Calendar reminders while loading the menu",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2868.7,
+                    "created_date": "2018-04-12T08:17:52.04Z"
+                  },
+                  {
+                    "id": 279035,
+                    "title": "DTSearch toolset",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2861.6,
+                    "created_date": "2018-04-19T10:48:54.367Z"
+                  },
+                  {
+                    "id": 279090,
+                    "title": "House Keeping data clear downs and one offs",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2861.6,
+                    "created_date": "2018-04-19T09:32:43.78Z"
+                  },
+                  {
+                    "id": 279088,
+                    "title": "QUOTE: Product D send email Tag",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2812.3,
+                    "created_date": "2018-06-07T17:01:02.753Z"
+                  },
+                  {
+                    "id": 279079,
+                    "title": "SNI Webservices",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2798.5,
+                    "created_date": "2018-06-21T11:49:01.63Z"
+                  },
+                  {
+                    "id": 279064,
+                    "title": "Quote: Update emails in Outlook with case Ref on DragnDrop",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2798.3,
+                    "created_date": "2018-06-21T16:36:12.577Z"
+                  },
+                  {
+                    "id": 279059,
+                    "title": "Add a timestamp in the log",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2787.3,
+                    "created_date": "2018-07-02T16:36:36.857Z"
+                  },
+                  {
+                    "id": 279075,
+                    "title": "Medical Reports - IM as Secure Docs",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2784.7,
+                    "created_date": "2018-07-05T08:05:23.77Z"
+                  },
+                  {
+                    "id": 279076,
+                    "title": "JSON template insert functionality",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2778.3,
+                    "created_date": "2018-07-11T16:39:22.387Z"
+                  },
+                  {
+                    "id": 279043,
+                    "title": "JSON templates for Case Import / Export",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2773.5,
+                    "created_date": "2018-07-16T13:59:04.77Z"
+                  },
+                  {
+                    "id": 279077,
+                    "title": "JSON Template in a Template",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2772.4,
+                    "created_date": "2018-07-17T14:21:26.12Z"
+                  },
+                  {
+                    "id": 279078,
+                    "title": "Multi Access to handle Multi IP address machines",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 2762.7,
+                    "created_date": "2018-07-27T08:52:31.783Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 318,
+                "lookback_days": 90,
+                "per_week": 24.7
+              },
+              "cycle_time_variance": {
+                "sample_size": 318,
+                "std_dev_days": 129.5,
+                "coefficient_of_variation": 221.8,
+                "mean_days": 58.4
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 611,
+              "closed_count_90d": 319,
+              "wip": 611,
+              "lead_time": {
+                "p50": 6.3,
+                "p85": 60.8,
+                "p95": 62.9,
+                "sample_size": 319,
+                "raw_values": [
+                  101.17634317129631,
+                  60.845577164351845,
+                  60.85901296296296,
+                  60.858924108796295,
+                  62.92102175925926,
+                  62.92078333333333,
+                  62.93447506944444,
+                  62.93403711805556,
+                  62.057708877314816,
+                  62.05667318287037
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 6.3,
+                  "p85": 60.8,
+                  "p95": 62.9,
+                  "closed_count": 319,
+                  "sample_size": 319
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 319,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 540,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 270023,
+                    "title": "Setup proclaim dev environment so that we can deploy proclaim changes.",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1825.6,
+                    "created_date": "2021-02-18T09:17:27.42Z"
+                  },
+                  {
+                    "id": 270022,
+                    "title": "UX/UI",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1819.4,
+                    "created_date": "2021-02-24T14:31:10.497Z"
+                  },
+                  {
+                    "id": 270021,
+                    "title": "Meeting to discuss",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1812.5,
+                    "created_date": "2021-03-03T12:19:39.643Z"
+                  },
+                  {
+                    "id": 270008,
+                    "title": "Dev",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1730.4,
+                    "created_date": "2021-05-24T15:09:13.137Z"
+                  },
+                  {
+                    "id": 269995,
+                    "title": "Dev",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1728.6,
+                    "created_date": "2021-05-26T10:12:05.317Z"
+                  },
+                  {
+                    "id": 270007,
+                    "title": "Dev",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1728.6,
+                    "created_date": "2021-05-26T09:40:51.933Z"
+                  },
+                  {
+                    "id": 269969,
+                    "title": "Testing",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:41:15.5Z"
+                  },
+                  {
+                    "id": 269970,
+                    "title": "Dev",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:41:04.947Z"
+                  },
+                  {
+                    "id": 269971,
+                    "title": "Testing",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:40:40.1Z"
+                  },
+                  {
+                    "id": 269972,
+                    "title": "Dev",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:40:30.067Z"
+                  },
+                  {
+                    "id": 269997,
+                    "title": "Implementation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:38:25.837Z"
+                  },
+                  {
+                    "id": 269998,
+                    "title": "UAT",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:36:51.7Z"
+                  },
+                  {
+                    "id": 269999,
+                    "title": "Implementation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:36:40.63Z"
+                  },
+                  {
+                    "id": 270000,
+                    "title": "Implementation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:36:00.867Z"
+                  },
+                  {
+                    "id": 270001,
+                    "title": "Implementation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:34:39.297Z"
+                  },
+                  {
+                    "id": 270002,
+                    "title": "Implementation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:31:28.223Z"
+                  },
+                  {
+                    "id": 270003,
+                    "title": "UAT",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:29:59.197Z"
+                  },
+                  {
+                    "id": 270004,
+                    "title": "Implementation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:29:46.11Z"
+                  },
+                  {
+                    "id": 270005,
+                    "title": "UAT",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:26:44.177Z"
+                  },
+                  {
+                    "id": 270006,
+                    "title": "Implementation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1707.7,
+                    "created_date": "2021-06-16T07:26:02.663Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 319,
+                "lookback_days": 90,
+                "per_week": 24.8
+              },
+              "cycle_time_variance": {
+                "sample_size": 319,
+                "std_dev_days": 26.5,
+                "coefficient_of_variation": 133.4,
+                "mean_days": 19.9
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 1178,
+          "total_closed_90d": 725,
+          "collected_at": "2026-02-18T00:53:15.643624"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 57,
+              "closed_count_90d": 35,
+              "wip": 57,
+              "lead_time": {
+                "p50": 135.0,
+                "p85": 350.7,
+                "p95": 621.0,
+                "sample_size": 35,
+                "raw_values": [
+                  886.1424361111111,
+                  845.1904557523148,
+                  524.9656138078703,
+                  441.32242337962964,
+                  511.15214166666664,
+                  361.99320721064817,
+                  246.09913888888892,
+                  218.3158852199074,
+                  213.0978093402778,
+                  166.92554996527778
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 113.3,
+                  "p85": 216.5,
+                  "p95": 247.8,
+                  "closed_count": 30,
+                  "sample_size": 30
+                },
+                "cleanup": {
+                  "p50": 525.0,
+                  "p85": 861.6,
+                  "p95": 878.0,
+                  "closed_count": 5,
+                  "sample_size": 5,
+                  "avg_age_years": 1.8
+                },
+                "indicators": {
+                  "cleanup_percentage": 14.3,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 35,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 51,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 39855,
+                    "title": "P3 2 3985: Team Talk Sound Recorder3 - Freezing application",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 1140.4,
+                    "created_date": "2023-01-04T14:42:55.747Z"
+                  },
+                  {
+                    "id": 219083,
+                    "title": "**P3 3 Dragging Calendar items into a DPS case crashing Outlook",
+                    "state": "Resolved",
+                    "type": "Bug",
+                    "age_days": 1005.5,
+                    "created_date": "2023-05-19T13:49:12.497Z"
+                  },
+                  {
+                    "id": 429351,
+                    "title": "**BL1 Dragging emails opens up matter without showing the 'new entry screen' - DPS Outlook",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 854.6,
+                    "created_date": "2023-10-17T10:56:04.78Z"
+                  },
+                  {
+                    "id": 952948,
+                    "title": "P4 1 Samuels - Dragging email after searching for it does not display the pop-up window",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 659.4,
+                    "created_date": "2024-04-29T16:13:47.707Z"
+                  },
+                  {
+                    "id": 1014576,
+                    "title": "P3 18 Merali Beedle - Random Matters attached to clients",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 622.6,
+                    "created_date": "2024-06-05T09:46:33.46Z"
+                  },
+                  {
+                    "id": 1060692,
+                    "title": "**BL11 Exception while deleting a user from OneOffice Config Tool",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 613.6,
+                    "created_date": "2024-06-14T09:45:27.947Z"
+                  },
+                  {
+                    "id": 1268393,
+                    "title": "**BL3 Multiline spacing on messages",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 566.6,
+                    "created_date": "2024-07-31T11:04:56.403Z"
+                  },
+                  {
+                    "id": 1274283,
+                    "title": "**BL2 Carter Osborne - PDF form importer error",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 561.4,
+                    "created_date": "2024-08-05T16:12:49.517Z"
+                  },
+                  {
+                    "id": 1286869,
+                    "title": "BL8 Archived Nominals Appearing on Nominal Movement Report when selecting Include Nominals with no movement and Hide Archived Nominals",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 551.6,
+                    "created_date": "2024-08-15T10:30:06.307Z"
+                  },
+                  {
+                    "id": 1494963,
+                    "title": "**P3 7 Sign & Share signature shift",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 420.4,
+                    "created_date": "2024-12-24T15:47:41.143Z"
+                  },
+                  {
+                    "id": 1506907,
+                    "title": "BL10 DPS Oneoffice - Levenes - Int32 parse error when downloading Official Injury Claims list",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 404.7,
+                    "created_date": "2025-01-09T09:01:09.61Z"
+                  },
+                  {
+                    "id": 1527458,
+                    "title": "**P3 8 Echit - Receipt Type field doesn’t seem to work as expected",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 389.4,
+                    "created_date": "2025-01-24T16:11:49.22Z"
+                  },
+                  {
+                    "id": 1535749,
+                    "title": "**P3 11 Levenes Solicitors - Pressing \"Send Cancellation\" on a calendar meeting invite will cause a COM Object error",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 382.3,
+                    "created_date": "2025-01-31T16:33:22.843Z"
+                  },
+                  {
+                    "id": 1662470,
+                    "title": "**BL16 Purpose Codes - not shown on Echit Print out IF Supplier is included",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 291.7,
+                    "created_date": "2025-05-02T08:05:59.283Z"
+                  },
+                  {
+                    "id": 1663339,
+                    "title": "Failing client risk assessment does not send email",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 291.4,
+                    "created_date": "2025-05-02T15:24:52.15Z"
+                  },
+                  {
+                    "id": 1674319,
+                    "title": "DATA ISSUE **Wolferstans - Control Inspect Balances - Firm Invoices differences - 65901948",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 280.5,
+                    "created_date": "2025-05-13T12:11:34.483Z"
+                  },
+                  {
+                    "id": 1709118,
+                    "title": "BL32 DPSCOnfig Security profile settings 'View all groups' & 'View all users in groups' shows message for 'My matters' section if no groups are setup",
+                    "state": "Active",
+                    "type": "Bug",
+                    "age_days": 256.6,
+                    "created_date": "2025-06-06T10:40:41.14Z"
+                  },
+                  {
+                    "id": 1720039,
+                    "title": "P3 25 Part 1 - Excel Export - Billing guide changes appear to have created bug - 67232207",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 246.5,
+                    "created_date": "2025-06-16T12:52:49.76Z"
+                  },
+                  {
+                    "id": 1728550,
+                    "title": "BL17 Logs folder showing on Client desktops (should created in the \"ClientTempDirectory\")",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 239.6,
+                    "created_date": "2025-06-23T10:37:46.837Z"
+                  },
+                  {
+                    "id": 1742739,
+                    "title": "P3 13 Errors when using the 'Attach Emails' within a shared mailbox",
+                    "state": "New",
+                    "type": "Bug",
+                    "age_days": 230.6,
+                    "created_date": "2025-07-02T09:39:16.217Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 35,
+                "lookback_days": 90,
+                "per_week": 2.7
+              },
+              "cycle_time_variance": {
+                "sample_size": 35,
+                "std_dev_days": 215.2,
+                "coefficient_of_variation": 110.5,
+                "mean_days": 194.7
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 111,
+              "closed_count_90d": 45,
+              "wip": 111,
+              "lead_time": {
+                "p50": 17.1,
+                "p85": 123.4,
+                "p95": 375.5,
+                "sample_size": 45,
+                "raw_values": [
+                  455.1748565625,
+                  378.0001763541667,
+                  377.99472461805556,
+                  365.35827488425923,
+                  257.30915096064814,
+                  176.95398946759258,
+                  81.27966045138889,
+                  122.17294444444445,
+                  125.2078295486111,
+                  122.1686266550926
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 17.0,
+                  "p85": 122.0,
+                  "p95": 125.2,
+                  "closed_count": 41,
+                  "sample_size": 41
+                },
+                "cleanup": {
+                  "p50": 378.0,
+                  "p85": 420.4,
+                  "p95": 443.6,
+                  "closed_count": 4,
+                  "sample_size": 4,
+                  "avg_age_years": 1.1
+                },
+                "indicators": {
+                  "cleanup_percentage": 8.9,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 45,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 88,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 1727,
+                    "title": "FD: Fee Earner performance report - Elaine Parkes - 05260105",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1559.4,
+                    "created_date": "2021-11-11T14:12:36.27Z"
+                  },
+                  {
+                    "id": 2320,
+                    "title": "FD: Bulk matter Closure Script - Missing Contract matters - LBHF - 06689488 ENHANCEMENT with PM ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1495.6,
+                    "created_date": "2022-01-14T11:21:48.523Z"
+                  },
+                  {
+                    "id": 6409,
+                    "title": "FD: Balance Reports Options Enhancement",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1352.7,
+                    "created_date": "2022-06-06T08:27:57.763Z"
+                  },
+                  {
+                    "id": 12303,
+                    "title": "Create .MSI version of DPSSetup installer",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1259.4,
+                    "created_date": "2022-09-07T14:28:38.59Z"
+                  },
+                  {
+                    "id": 24033,
+                    "title": "BOTH: Update DPS File Control XML as a part of a pipeline build",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1162.4,
+                    "created_date": "2022-12-13T14:11:29.717Z"
+                  },
+                  {
+                    "id": 69213,
+                    "title": "FD: INTERNAL STORY : Make sure public methods have XML comments",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1114.3,
+                    "created_date": "2023-01-30T17:08:19.423Z"
+                  },
+                  {
+                    "id": 69215,
+                    "title": "FD: INTERNAL STORY : Make sure public methods have XML comments",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1114.3,
+                    "created_date": "2023-01-30T17:09:46.52Z"
+                  },
+                  {
+                    "id": 162229,
+                    "title": "FD: FY23 Q4 Enhancement - Import of CSV - Anticipated Expense Import & Viewing in the grid  (ON HOLD as Per Bishu) ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1042.4,
+                    "created_date": "2023-04-12T15:52:02.5Z"
+                  },
+                  {
+                    "id": 164251,
+                    "title": "FD: FY23 Q4 Enhancement - Import of CSV - Anticipated Expense - Validation on import (ON HOLD as Per Bishu) ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1042.3,
+                    "created_date": "2023-04-12T16:37:42.063Z"
+                  },
+                  {
+                    "id": 219282,
+                    "title": "FD: FY2024 Q1 - Access to the closure routine ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1005.4,
+                    "created_date": "2023-05-19T16:17:29.373Z"
+                  },
+                  {
+                    "id": 219283,
+                    "title": "FD: FY24 Q1 Identification of criteria of files to close ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1005.4,
+                    "created_date": "2023-05-19T16:18:46.463Z"
+                  },
+                  {
+                    "id": 219284,
+                    "title": "FD: FY24 Q1 Screen to view and process matters to be closed ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1005.4,
+                    "created_date": "2023-05-19T16:19:43.927Z"
+                  },
+                  {
+                    "id": 219285,
+                    "title": "FD: FY24 Q1 - Closure Validation ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1005.4,
+                    "created_date": "2023-05-19T16:20:43.53Z"
+                  },
+                  {
+                    "id": 219286,
+                    "title": "FD: FY24 Q1 Error on Closure ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 1005.4,
+                    "created_date": "2023-05-19T16:22:04.637Z"
+                  },
+                  {
+                    "id": 351443,
+                    "title": "Technical Efficiency - Removal iText# - Bundling - Creating a PDF bundle",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 917.6,
+                    "created_date": "2023-08-15T09:57:53.187Z"
+                  },
+                  {
+                    "id": 422882,
+                    "title": "FD: FY24 Q2 - Investigation of why a CDS6 bill cannot be reversed ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 860.5,
+                    "created_date": "2023-10-11T11:46:46.347Z"
+                  },
+                  {
+                    "id": 423058,
+                    "title": "FD: FY25 Q2  Finding out why the CDS6 bills cannot be reversed ",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 860.5,
+                    "created_date": "2023-10-11T13:17:07.51Z"
+                  },
+                  {
+                    "id": 476923,
+                    "title": "Technical Efficiency - Removal iText# Implementation - Adding PDF meta data",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 833.4,
+                    "created_date": "2023-11-07T14:30:33.11Z"
+                  },
+                  {
+                    "id": 476932,
+                    "title": "Technical Efficiency - Removal iText# Implementation - Creating a title page",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 833.4,
+                    "created_date": "2023-11-07T14:32:07.327Z"
+                  },
+                  {
+                    "id": 476942,
+                    "title": "Technical Efficiency - Removal iText# Implementation - Creating index and adding strikethrough text",
+                    "state": "New",
+                    "type": "User Story",
+                    "age_days": 833.4,
+                    "created_date": "2023-11-07T14:35:31.317Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 45,
+                "lookback_days": 90,
+                "per_week": 3.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 45,
+                "std_dev_days": 116.1,
+                "coefficient_of_variation": 159.5,
+                "mean_days": 72.8
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 115,
+              "closed_count_90d": 193,
+              "wip": 115,
+              "lead_time": {
+                "p50": 0.9,
+                "p85": 4.8,
+                "p95": 14.5,
+                "sample_size": 193,
+                "raw_values": [
+                  29.242708796296295,
+                  77.82465694444444,
+                  68.01122878472222,
+                  0.0012477662037037036,
+                  4.814291122685185,
+                  10.88535917824074,
+                  10.885001273148148,
+                  4.815663425925926,
+                  4.815522916666667,
+                  10.95886832175926
+                ]
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 0.9,
+                  "p85": 4.8,
+                  "p95": 14.5,
+                  "closed_count": 193,
+                  "sample_size": 193
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 193,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 83,
+                "threshold_days": 30,
+                "items": [
+                  {
+                    "id": 8740,
+                    "title": "UI - Implement progress bar",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1310.5,
+                    "created_date": "2022-07-18T13:50:36.29Z"
+                  },
+                  {
+                    "id": 8741,
+                    "title": "Implement async / await logic when zipping",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1310.5,
+                    "created_date": "2022-07-18T13:51:08.293Z"
+                  },
+                  {
+                    "id": 8743,
+                    "title": "UI - Config program - Implement toggle",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1310.5,
+                    "created_date": "2022-07-18T13:52:03.223Z"
+                  },
+                  {
+                    "id": 8744,
+                    "title": "Save setting away to database",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1310.5,
+                    "created_date": "2022-07-18T13:52:34.273Z"
+                  },
+                  {
+                    "id": 12305,
+                    "title": "Create .MSI installer script using WiX toolset",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1259.4,
+                    "created_date": "2022-09-07T14:34:22.417Z"
+                  },
+                  {
+                    "id": 12306,
+                    "title": "Test .MSI Installer against existing .exe installer",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1259.4,
+                    "created_date": "2022-09-07T14:34:41.08Z"
+                  },
+                  {
+                    "id": 12307,
+                    "title": "Add new .MSI installer script to CI pipeline",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1259.4,
+                    "created_date": "2022-09-07T14:35:04.14Z"
+                  },
+                  {
+                    "id": 67430,
+                    "title": "Discuss Current Design Overview with Team in the Review meeting on 25/01/23",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1119.5,
+                    "created_date": "2023-01-25T13:08:01.867Z"
+                  },
+                  {
+                    "id": 67431,
+                    "title": "Decouple the UI from Business Logic: So that the creation and Modification of the Bundle Layout Structure is independent of the UI and the Business Logic",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1119.5,
+                    "created_date": "2023-01-25T13:10:56.323Z"
+                  },
+                  {
+                    "id": 67433,
+                    "title": "Redesign/Restructure the bundle processing as a service API that could be deployed independently as \"Bundle As A Service\" (BAAS)",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 1119.5,
+                    "created_date": "2023-01-25T13:12:40.743Z"
+                  },
+                  {
+                    "id": 659880,
+                    "title": "Technical Efficiency - Removal iText# Implementation - Adding a page to a PDF AF:476910",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 705.4,
+                    "created_date": "2024-03-14T16:03:35.95Z"
+                  },
+                  {
+                    "id": 659881,
+                    "title": "Technical Efficiency - Removal iText# Implementation - Adding a page to a PDF DEV:476910",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 705.4,
+                    "created_date": "2024-03-14T16:03:36.21Z"
+                  },
+                  {
+                    "id": 659882,
+                    "title": "Technical Efficiency - Removal iText# Implementation - Adding a page to a PDF TEST:476910",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 705.4,
+                    "created_date": "2024-03-14T16:03:36.45Z"
+                  },
+                  {
+                    "id": 1484765,
+                    "title": "SDK Development",
+                    "state": "Active",
+                    "type": "Task",
+                    "age_days": 428.4,
+                    "created_date": "2024-12-16T15:40:24.097Z"
+                  },
+                  {
+                    "id": 1484768,
+                    "title": "Authentication Feature Switch (Config Tool)",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 428.4,
+                    "created_date": "2024-12-16T15:40:59.863Z"
+                  },
+                  {
+                    "id": 1484771,
+                    "title": "SDK Integration",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 428.4,
+                    "created_date": "2024-12-16T15:41:09.583Z"
+                  },
+                  {
+                    "id": 1484772,
+                    "title": "Acceptance Tests",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 428.4,
+                    "created_date": "2024-12-16T15:41:21.99Z"
+                  },
+                  {
+                    "id": 1484774,
+                    "title": "Documentation",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 428.4,
+                    "created_date": "2024-12-16T15:41:31.85Z"
+                  },
+                  {
+                    "id": 1519169,
+                    "title": "Prospect CRM Integration FY25 Q3: Extending the ALCM Matters API to provide the necessary endpoints to financial data AF:1467977",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 396.5,
+                    "created_date": "2025-01-17T12:25:56.767Z"
+                  },
+                  {
+                    "id": 1519170,
+                    "title": "Prospect CRM Integration FY25 Q3: Extending the ALCM Matters API to provide the necessary endpoints to financial data DEV:1467977",
+                    "state": "New",
+                    "type": "Task",
+                    "age_days": 396.5,
+                    "created_date": "2025-01-17T12:25:56.933Z"
+                  }
+                ]
+              },
+              "throughput": {
+                "closed_count": 193,
+                "lookback_days": 90,
+                "per_week": 15.0
+              },
+              "cycle_time_variance": {
+                "sample_size": 193,
+                "std_dev_days": 9.5,
+                "coefficient_of_variation": 261.6,
+                "mean_days": 3.6
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 283,
+          "total_closed_90d": 273,
+          "collected_at": "2026-02-18T00:53:15.315496"
         }
       ],
       "config": {
