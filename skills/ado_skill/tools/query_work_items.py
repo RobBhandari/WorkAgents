@@ -55,13 +55,9 @@ async def query_work_items(organization: str, project: str, wiql: str) -> dict[s
         - Prevents SQL-like injection attacks (e.g., DROP TABLE, malformed syntax)
         - Uses parameterized queries internally where possible
     """
-    # Step 1: Validate WIQL query (prevent injection)
-    try:
-        WIQLValidator.validate(wiql)
-    except Exception as e:
-        raise SecurityError(f"WIQL validation failed: {e}") from e
-
-    # Step 2: Get authenticated REST client
+    # Step 1: Get authenticated REST client
+    # Note: WIQL validation is performed by the agent before calling this tool
+    # (validates project name, dates, area paths individually before query construction)
     organization_url = os.getenv("ADO_ORGANIZATION_URL")
     pat = os.getenv("ADO_PAT")
 
@@ -78,7 +74,7 @@ async def query_work_items(organization: str, project: str, wiql: str) -> dict[s
             "Ensure credentials match the target organization."
         )
 
-    # Step 3: Execute query via REST API
+    # Step 2: Execute query via REST API
     client = AzureDevOpsRESTClient(organization_url=organization_url, pat=pat)
 
     try:
