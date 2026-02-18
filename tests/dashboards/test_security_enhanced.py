@@ -197,6 +197,23 @@ class TestGenerateBucketExpandedContent:
         html = _generate_bucket_expanded_content(sample_vulnerabilities)
         assert "vuln-table" in html
 
+    def test_html_contains_source_column(self, sample_vulnerabilities):
+        """Source column header should appear in the vuln table."""
+        html = _generate_bucket_expanded_content(sample_vulnerabilities)
+        assert "Source" in html
+
+    def test_html_contains_search_filter_bar(self, sample_vulnerabilities):
+        """Search/filter bar should appear when bucket has vulns."""
+        html = _generate_bucket_expanded_content(sample_vulnerabilities)
+        assert "bucket-filter-bar" in html
+        assert "Search vulnerabilities" in html
+
+    def test_html_contains_sortable_headers(self, sample_vulnerabilities):
+        """Vuln table headers should be sortable."""
+        html = _generate_bucket_expanded_content(sample_vulnerabilities)
+        assert "sortable" in html
+        assert "sortBucketTable" in html
+
     def test_prisma_cloud_redlock_goes_to_cloud(self):
         """Prisma Cloud Redlock → CLOUD bucket row."""
         vulns = [_make_vuln("HIGH", "Prisma Cloud Redlock")]

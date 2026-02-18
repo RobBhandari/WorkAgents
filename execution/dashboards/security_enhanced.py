@@ -423,16 +423,49 @@ def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
         high_cls = ' class="high"' if high > 0 else ""
 
         rows = []
-        for v in vulns:
+        for idx, v in enumerate(vulns):
             sev = v.severity.lower()
             rows.append(
-                f'<tr><td><span class="badge badge-{sev}">{_escape_html(v.severity)}</span></td>'
+                f'<tr data-severity="{sev}" data-idx="{idx}">'
+                f'<td><span class="badge badge-{sev}">{_escape_html(v.severity)}</span></td>'
+                f'<td class="vuln-source">{_escape_html(v.source or "")}</td>'
                 f"<td>{_escape_html(v.status)}</td>"
                 f"<td>{v.age_days}</td>"
                 f"<td>{_escape_html(v.title or '')}</td>"
                 f'<td class="vuln-id">{_escape_html(v.id)}</td></tr>'
             )
         vuln_rows = "\n".join(rows)
+
+        search_bar = (
+            f'<div class="bucket-filter-bar">'
+            f'<input type="text" class="bucket-search-input" placeholder="Search vulnerabilities..."'
+            f' oninput="filterBucketVulns(this)">'
+            f'<div class="bucket-filter-buttons">'
+            f'<button class="active" data-sev="all"'
+            f" onclick=\"filterBucketSeverity(this,'all')\">All ({total})</button>"
+            f'<button data-sev="critical"'
+            f" onclick=\"filterBucketSeverity(this,'critical')\">Critical ({critical})</button>"
+            f'<button data-sev="high"'
+            f" onclick=\"filterBucketSeverity(this,'high')\">High ({high})</button>"
+            f"</div></div>"
+        )
+
+        thead = (
+            "<thead><tr>"
+            '<th class="sortable" onclick="sortBucketTable(this)">'
+            'Severity <span class="sort-indicator"></span></th>'
+            '<th class="sortable" onclick="sortBucketTable(this)">'
+            'Source <span class="sort-indicator"></span></th>'
+            '<th class="sortable" onclick="sortBucketTable(this)">'
+            'Status <span class="sort-indicator"></span></th>'
+            '<th class="sortable" data-type="number" onclick="sortBucketTable(this)">'
+            'Age (Days) <span class="sort-indicator"></span></th>'
+            '<th class="sortable" onclick="sortBucketTable(this)">'
+            'Title <span class="sort-indicator"></span></th>'
+            '<th class="sortable" onclick="sortBucketTable(this)">'
+            'ID <span class="sort-indicator"></span></th>'
+            "</tr></thead>"
+        )
 
         table_body += (
             f'<tr class="bucket-row expandable" onclick="toggleBucketDetail(this)">'
@@ -443,8 +476,9 @@ def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
             f"</tr>"
             f'<tr class="bucket-detail-row" style="display:none;">'
             f'<td colspan="4">'
+            f"{search_bar}"
             f'<table class="vuln-table">'
-            f"<thead><tr><th>Severity</th><th>Status</th><th>Age (Days)</th><th>Title</th><th>ID</th></tr></thead>"
+            f"{thead}"
             f"<tbody>{vuln_rows}</tbody>"
             f"</table>"
             f"</td>"

@@ -68,6 +68,79 @@
         font-size: 0.9rem;
     }
 
+    /* Search/filter bar per bucket */
+    .bucket-filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0 12px 0;
+        flex-wrap: wrap;
+    }
+
+    .bucket-search-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 7px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    .bucket-search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    .bucket-filter-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .bucket-filter-buttons button {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.15s;
+    }
+
+    .bucket-filter-buttons button.active,
+    .bucket-filter-buttons button:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .vuln-source {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    /* Sortable column headers */
+    .vuln-table th.sortable {
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .vuln-table th.sortable:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .sort-indicator {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-left: 4px;
+    }
+
     /* Vulnerability table */
     .vuln-table {
         width: 100%;
@@ -413,6 +486,70 @@
                 if (arrow) arrow.innerHTML = '&#9658;';
             }
         }
+    }
+
+    // Filter bucket vuln table by text (combined with active severity filter)
+    function filterBucketVulns(input) {
+        const td = input.closest('td');
+        const text = input.value.toLowerCase();
+        const activeBtn = td.querySelector('.bucket-filter-buttons button.active');
+        const sev = activeBtn ? (activeBtn.dataset.sev || 'all') : 'all';
+        td.querySelectorAll('.vuln-table tbody tr').forEach(row => {
+            const matchText = !text || row.textContent.toLowerCase().includes(text);
+            const matchSev = sev === 'all' || row.dataset.severity === sev;
+            row.style.display = (matchText && matchSev) ? '' : 'none';
+        });
+    }
+
+    // Filter bucket vuln table by severity (combined with active text search)
+    function filterBucketSeverity(btn, sev) {
+        const td = btn.closest('td');
+        td.querySelectorAll('.bucket-filter-buttons button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        btn.dataset.sev = sev;
+        const input = td.querySelector('.bucket-search-input');
+        const text = input ? input.value.toLowerCase() : '';
+        td.querySelectorAll('.vuln-table tbody tr').forEach(row => {
+            const matchText = !text || row.textContent.toLowerCase().includes(text);
+            const matchSev = sev === 'all' || row.dataset.severity === sev;
+            row.style.display = (matchText && matchSev) ? '' : 'none';
+        });
+    }
+
+    // Sort bucket vuln table by column (asc → desc → original, 3-state cycle)
+    function sortBucketTable(th) {
+        const table = th.closest('table');
+        const tbody = table.querySelector('tbody');
+        const headers = Array.from(th.closest('tr').querySelectorAll('th'));
+        const colIndex = headers.indexOf(th);
+        const isNumeric = th.dataset.type === 'number';
+
+        const cur = th.dataset.sort || 'none';
+        const next = cur === 'none' ? 'asc' : cur === 'asc' ? 'desc' : 'none';
+
+        headers.forEach(h => {
+            h.dataset.sort = 'none';
+            const ind = h.querySelector('.sort-indicator');
+            if (ind) ind.textContent = '';
+        });
+        th.dataset.sort = next;
+        const ind = th.querySelector('.sort-indicator');
+        if (ind) ind.textContent = next === 'asc' ? '▲' : next === 'desc' ? '▼' : '';
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        if (next === 'none') {
+            rows.sort((a, b) => (parseInt(a.dataset.idx) || 0) - (parseInt(b.dataset.idx) || 0));
+        } else {
+            rows.sort((a, b) => {
+                const aVal = a.cells[colIndex] ? a.cells[colIndex].textContent.trim() : '';
+                const bVal = b.cells[colIndex] ? b.cells[colIndex].textContent.trim() : '';
+                const cmp = isNumeric
+                    ? (parseFloat(aVal) || 0) - (parseFloat(bVal) || 0)
+                    : aVal.localeCompare(bVal);
+                return next === 'asc' ? cmp : -cmp;
+            });
+        }
+        rows.forEach(r => tbody.appendChild(r));
     }
 </script>
 {% endblock %}
