@@ -235,11 +235,12 @@ class TestGenerateBucketExpandedContent:
         assert "9,999" in html
 
     def test_unavailable_note_when_no_fetched_vulns_for_bucket(self):
-        """Non-expandable row shown when bucket_counts has bucket but 0 fetched vulns."""
+        """Expandable row shown when bucket_counts has bucket but 0 fetched vulns."""
         accurate = {"INFRASTRUCTURE": {"total": 100, "critical": 10, "high": 90}}
         html = _generate_bucket_expanded_content([], bucket_counts=accurate)
         assert "beyond the 500-result limit" in html
         assert "INFRASTRUCTURE" in html
+        assert "bucket-row expandable" in html  # Row is still expandable (shows note on click)
 
 
 # ---------------------------------------------------------------------------
