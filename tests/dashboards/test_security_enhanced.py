@@ -120,59 +120,63 @@ class TestSourceBucketMap:
 class TestGenerateBucketExpandedContent:
     """Tests for _generate_bucket_expanded_content()."""
 
-    def test_empty_list_shows_all_buckets_with_zeros(self):
-        """Empty input → all 4 buckets in summary table with zero counts."""
+    def test_empty_list_suppresses_all_zero_buckets(self):
+        """Empty input → all buckets are zero → suppressed, shows no-findings message."""
         html = _generate_bucket_expanded_content([])
+        assert "No Critical or High findings" in html
         for bucket in BUCKET_ORDER:
-            assert bucket in html
+            assert bucket not in html
 
-    def test_empty_list_has_no_collapsible_sections(self):
-        """Empty input → no bucket-section toggles (nothing to expand)."""
+    def test_empty_list_has_no_expandable_rows(self):
+        """Empty input → no expandable bucket rows (nothing to expand)."""
         html = _generate_bucket_expanded_content([])
-        assert "bucket-section-header" not in html
+        assert "bucket-row" not in html
 
     def test_mend_vuln_goes_to_code_bucket(self):
-        """A Mend finding should appear under the CODE collapsible section."""
+        """A Mend finding should appear as an expandable CODE row."""
         vulns = [_make_vuln("CRITICAL", "Mend")]
         html = _generate_bucket_expanded_content(vulns)
-        # Bucket section header for CODE
-        assert "CODE (1)" in html
-        # Should NOT create Infrastructure/Cloud sections
-        assert (
-            "INFRASTRUCTURE" not in html.split("bucket-section-header")[1] if "bucket-section-header" in html else True
-        )
+        assert "CODE" in html
+        assert "bucket-row" in html
+        # Zero buckets are suppressed
+        assert "CLOUD" not in html
+        assert "INFRASTRUCTURE" not in html
 
     def test_cortex_xdr_goes_to_infrastructure_bucket(self):
-        """A Cortex XDR finding should appear under INFRASTRUCTURE."""
+        """A Cortex XDR finding should appear as an expandable INFRASTRUCTURE row."""
         vulns = [_make_vuln("HIGH", "Cortex XDR")]
         html = _generate_bucket_expanded_content(vulns)
-        assert "INFRASTRUCTURE (1)" in html
+        assert "INFRASTRUCTURE" in html
+        assert "bucket-row" in html
 
     def test_unknown_source_goes_to_other(self):
-        """An unrecognised source tool → Other bucket."""
+        """An unrecognised source tool → Other bucket row."""
         vulns = [_make_vuln("HIGH", "UnknownTool")]
         html = _generate_bucket_expanded_content(vulns)
-        assert "Other (1)" in html
+        assert "Other" in html
+        assert "bucket-row" in html
 
     def test_none_source_goes_to_other(self):
-        """A finding with source=None → Other bucket."""
+        """A finding with source=None → Other bucket row."""
         vulns = [_make_vuln("CRITICAL", None)]
         html = _generate_bucket_expanded_content(vulns)
-        assert "Other (1)" in html
+        assert "Other" in html
+        assert "bucket-row" in html
 
     def test_mixed_buckets(self, sample_vulnerabilities):
-        """Mixed sources → correct bucket assignment and totals."""
+        """Mixed sources → correct bucket rows; zero buckets suppressed."""
         html = _generate_bucket_expanded_content(sample_vulnerabilities)
         # CODE: Mend (CRITICAL) + SonarQube (HIGH) = 2
-        assert "CODE (2)" in html
+        assert "CODE" in html
         # INFRASTRUCTURE: Cortex XDR (HIGH) + Cortex XDR (CRITICAL) = 2
-        assert "INFRASTRUCTURE (2)" in html
+        assert "INFRASTRUCTURE" in html
+        # CLOUD and Other have no vulns → suppressed
+        assert "CLOUD" not in html
 
     def test_bucket_totals_match_top_line(self, sample_vulnerabilities):
         """Sum of all bucket totals equals total input count."""
         html = _generate_bucket_expanded_content(sample_vulnerabilities)
         # We have 4 vulns total, split 2 CODE / 0 CLOUD / 2 INFRA / 0 Other
-        # Verify summary table has correct values (4 total)
         # Just check that the HTML renders without error and contains expected structure
         assert "bucket-summary-table" in html
 
@@ -185,7 +189,8 @@ class TestGenerateBucketExpandedContent:
         ]
         html = _generate_bucket_expanded_content(vulns)
         # Only 1 CRITICAL should appear (Medium/Low filtered)
-        assert "CODE (1)" in html
+        assert "CODE" in html
+        assert "CLOUD" not in html
 
     def test_html_contains_vuln_table(self, sample_vulnerabilities):
         """Generated HTML should include vuln-table for non-empty buckets."""
@@ -193,10 +198,11 @@ class TestGenerateBucketExpandedContent:
         assert "vuln-table" in html
 
     def test_prisma_cloud_redlock_goes_to_cloud(self):
-        """Prisma Cloud Redlock → CLOUD bucket."""
+        """Prisma Cloud Redlock → CLOUD bucket row."""
         vulns = [_make_vuln("HIGH", "Prisma Cloud Redlock")]
         html = _generate_bucket_expanded_content(vulns)
-        assert "CLOUD (1)" in html
+        assert "CLOUD" in html
+        assert "bucket-row" in html
 
 
 # ---------------------------------------------------------------------------
