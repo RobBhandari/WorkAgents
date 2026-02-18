@@ -31,11 +31,9 @@ from execution.collectors.armorcode_vulnerability_loader import (
     VulnerabilityDetail,
 )
 from execution.core import get_logger
-from execution.dashboards.components.aging_heatmap import generate_aging_heatmap
 from execution.dashboards.components.cards import summary_card
 from execution.dashboards.renderer import render_dashboard
-from execution.dashboards.security_detail_page import generate_product_detail_page
-from execution.domain.security import SecurityMetrics
+from execution.domain.security import BUCKET_ORDER, SOURCE_BUCKET_MAP, SecurityMetrics
 from execution.framework import get_dashboard_framework
 from execution.utils.error_handling import log_and_return_default
 
@@ -174,6 +172,19 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     # Step 2: Convert vulnerabilities to metrics by product
     logger.info("Converting vulnerabilities to metrics by product")
     metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
+
+    # Ensure all baseline products appear (even those with 0 Critical/High)
+    for product_name in products:
+        if product_name not in metrics_by_product:
+            metrics_by_product[product_name] = SecurityMetrics(
+                timestamp=datetime.now(),
+                project=product_name,
+                total_vulnerabilities=0,
+                critical=0,
+                high=0,
+                medium=0,
+                low=0,
+            )
     logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
 
     # Step 3: Group vulnerabilities by product for expandable rows
@@ -304,9 +315,6 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
     # Build product rows with expandable content
     products = []
     for product_name, metrics in sorted(metrics_by_product.items()):
-        if metrics.total_vulnerabilities == 0:
-            continue
-
         # Determine status using standard status classes
         if metrics.critical >= 5:
             status = "Critical"
@@ -329,7 +337,7 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
         vulns = vulns_by_product.get(product_name, [])
 
         # Generate expanded content HTML
-        expanded_html = _generate_expanded_content(product_name, metrics, vulns)
+        expanded_html = _generate_bucket_expanded_content(vulns)
 
         products.append(
             {
@@ -380,111 +388,77 @@ def _escape_html(text: str) -> str:
     )
 
 
-def _generate_expanded_content(product_name: str, metrics: SecurityMetrics, vulnerabilities: list) -> str:
+def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
     """
-    Generate HTML for expanded row content with aging metrics + collapsible vulnerabilities.
+    Generate expanded row HTML: bucket summary table + per-bucket collapsible vuln tables.
 
     Args:
-        product_name: Product name
-        metrics: SecurityMetrics object
-        vulnerabilities: List of VulnerabilityDetail objects
+        vulnerabilities: List of VulnerabilityDetail objects for this product
 
     Returns:
-        HTML string for expanded row content
+        HTML string for the expanded row content
     """
-    # Filter to only Critical and High vulnerabilities (case-insensitive)
-    filtered_vulns = [v for v in vulnerabilities if v.severity.upper() in ["CRITICAL", "HIGH"]]
+    filtered = [v for v in vulnerabilities if v.severity.upper() in ("CRITICAL", "HIGH")]
 
-    # Part 1: Aging Heatmap - Compact modern UX (only C+H)
-    aging_html = generate_aging_heatmap(filtered_vulns)
+    # Group by bucket
+    buckets: dict[str, list] = {b: [] for b in BUCKET_ORDER}
+    for vuln in filtered:
+        bucket = SOURCE_BUCKET_MAP.get(vuln.source or "", "Other")
+        buckets[bucket].append(vuln)
 
-    # Part 2: Collapsible Vulnerabilities Section (only C+H)
-    if not filtered_vulns:
-        vulns_section = """
-        <div class="detail-section">
-            <div class="collapsible-header">
-                <h4>No Critical or High Vulnerabilities Found</h4>
-            </div>
+    # Build bucket summary table
+    summary_rows = ""
+    for bucket_name in BUCKET_ORDER:
+        vulns = buckets[bucket_name]
+        total = len(vulns)
+        critical = sum(1 for v in vulns if v.severity.upper() == "CRITICAL")
+        high = total - critical
+        crit_cls = ' class="critical"' if critical > 0 else ""
+        high_cls = ' class="high"' if high > 0 else ""
+        summary_rows += (
+            f"<tr><td><strong>{bucket_name}</strong></td>"
+            f"<td>{total}</td>"
+            f"<td{crit_cls}>{critical}</td>"
+            f"<td{high_cls}>{high}</td></tr>"
+        )
+
+    html = f"""<div class="detail-section">
+        <table class="bucket-summary-table">
+            <thead><tr><th>Finding Type</th><th>Total</th><th>Critical</th><th>High</th></tr></thead>
+            <tbody>{summary_rows}</tbody>
+        </table>
+    </div>"""
+
+    # Add collapsible vuln section for each non-empty bucket
+    for bucket_name in BUCKET_ORDER:
+        vulns = buckets[bucket_name]
+        if not vulns:
+            continue
+        rows = []
+        for v in vulns:
+            sev = v.severity.lower()
+            rows.append(
+                f'<tr><td><span class="badge badge-{sev}">{_escape_html(v.severity)}</span></td>'
+                f"<td>{_escape_html(v.status)}</td>"
+                f"<td>{v.age_days}</td>"
+                f"<td>{_escape_html(v.title or '')}</td>"
+                f'<td class="vuln-id">{_escape_html(v.id)}</td></tr>'
+            )
+        vuln_rows = "\n".join(rows)
+        html += f"""
+    <div class="bucket-section">
+        <div class="bucket-section-header" onclick="toggleVulnerabilities(this)">
+            <h4>&#9658; {bucket_name} ({len(vulns)})</h4>
         </div>
-        """
-    else:
-        vuln_rows_html = _generate_vulnerability_table_rows(filtered_vulns)
-        # Count by severity for filter buttons
-        critical_count = sum(1 for v in filtered_vulns if v.severity == "CRITICAL")
-        high_count = sum(1 for v in filtered_vulns if v.severity == "HIGH")
-
-        vulns_section = f"""
-        <div class="detail-section">
-            <div class="collapsible-header" onclick="toggleVulnerabilities(this)">
-                <h4>▶ Vulnerabilities ({len(filtered_vulns)})</h4>
-            </div>
-            <div class="collapsible-content" style="display: none;">
-                <div class="vuln-filters">
-                    <input type="text" placeholder="Search vulnerabilities..."
-                           onkeyup="filterVulnerabilities(this)">
-                    <button class="active" onclick="filterSeverity(this, 'all')">All ({len(filtered_vulns)})</button>
-                    <button onclick="filterSeverity(this, 'critical')">Critical ({critical_count})</button>
-                    <button onclick="filterSeverity(this, 'high')">High ({high_count})</button>
-                </div>
-                <table class="vuln-table">
-                    <thead>
-                        <tr>
-                            <th>Severity</th>
-                            <th>Status</th>
-                            <th>Age (Days)</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>ID</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {vuln_rows_html}
-                    </tbody>
-                </table>
-            </div>
+        <div class="bucket-section-content" style="display: none;">
+            <table class="vuln-table">
+                <thead><tr><th>Severity</th><th>Status</th><th>Age (Days)</th><th>Title</th><th>ID</th></tr></thead>
+                <tbody>{vuln_rows}</tbody>
+            </table>
         </div>
-        """
+    </div>"""
 
-    return aging_html + vulns_section
-
-
-def _generate_vulnerability_table_rows(vulnerabilities: list) -> str:
-    """
-    Generate HTML table rows for vulnerabilities.
-
-    Args:
-        vulnerabilities: List of VulnerabilityDetail or Vulnerability objects
-
-    Returns:
-        HTML string with table rows
-    """
-    rows = []
-    for vuln in vulnerabilities:
-        severity_class = vuln.severity.lower()
-        # Get description - VulnerabilityDetail has description, Vulnerability doesn't
-        desc_text = getattr(vuln, "description", "") or ""
-        desc = _escape_html(desc_text)
-        desc_short = desc[:100] + "..." if len(desc) > 100 else desc
-
-        # Make description clickable if truncated
-        if len(desc) > 100:
-            desc_cell = f'<td class="description clickable" onclick="toggleDescription(this)" data-full-text="{desc}" data-short-text="{desc_short}" title="Click to expand">{desc_short}</td>'
-        else:
-            desc_cell = f'<td class="description">{desc_short}</td>'
-
-        row = f"""
-        <tr data-severity="{severity_class}">
-            <td><span class="badge badge-{severity_class}">{_escape_html(vuln.severity)}</span></td>
-            <td>{_escape_html(vuln.status)}</td>
-            <td>{vuln.age_days}</td>
-            <td>{_escape_html(vuln.title or "")}</td>
-            {desc_cell}
-            <td class="vuln-id">{_escape_html(vuln.id)}</td>
-        </tr>
-        """
-        rows.append(row)
-
-    return "\n".join(rows)
+    return html
 
 
 def main() -> None:
