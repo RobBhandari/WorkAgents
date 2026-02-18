@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import sys
+import time
 from datetime import datetime
 
 # Load environment variables
@@ -193,7 +194,20 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
                 }}
                 """
 
-                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
+                _max_retries = 3
+                for _attempt in range(_max_retries + 1):
+                    response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
+                    if response.status_code != 429:
+                        break
+                    retry_after = int(response.headers.get("Retry-After", 60))
+                    if _attempt < _max_retries:
+                        logger.warning(
+                            f"Rate limited (429) on product {product_id} page {page} - "
+                            f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
+                        )
+                        time.sleep(retry_after)
+                    else:
+                        logger.error(f"Rate limited (429) on product {product_id} - max retries exceeded")
                 response.raise_for_status()
 
                 data = response.json()
@@ -284,7 +298,20 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], 
                 }}
                 """
 
-                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
+                _max_retries = 3
+                for _attempt in range(_max_retries + 1):
+                    response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
+                    if response.status_code != 429:
+                        break
+                    retry_after = int(response.headers.get("Retry-After", 60))
+                    if _attempt < _max_retries:
+                        logger.warning(
+                            f"Rate limited (429) on closed vulns product {product_id} page {page} - "
+                            f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
+                        )
+                        time.sleep(retry_after)
+                    else:
+                        logger.error(f"Rate limited (429) on closed vulns product {product_id} - max retries exceeded")
                 response.raise_for_status()
 
                 data = response.json()
