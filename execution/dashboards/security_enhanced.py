@@ -390,7 +390,10 @@ def _escape_html(text: str) -> str:
 
 def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
     """
-    Generate expanded row HTML: bucket summary table + per-bucket collapsible vuln tables.
+    Generate expanded row HTML: inline expandable bucket rows within a single table.
+
+    Each non-zero bucket is a clickable row that expands inline to show individual
+    vulnerability details. Zero-total buckets are suppressed entirely.
 
     Args:
         vulnerabilities: List of VulnerabilityDetail objects for this product
@@ -406,34 +409,19 @@ def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
         bucket = SOURCE_BUCKET_MAP.get(vuln.source or "", "Other")
         buckets[bucket].append(vuln)
 
-    # Build bucket summary table
-    summary_rows = ""
+    # Build table body — only non-zero buckets
+    table_body = ""
     for bucket_name in BUCKET_ORDER:
         vulns = buckets[bucket_name]
         total = len(vulns)
+        if total == 0:
+            continue  # Suppress zero-total rows
+
         critical = sum(1 for v in vulns if v.severity.upper() == "CRITICAL")
         high = total - critical
         crit_cls = ' class="critical"' if critical > 0 else ""
         high_cls = ' class="high"' if high > 0 else ""
-        summary_rows += (
-            f"<tr><td><strong>{bucket_name}</strong></td>"
-            f"<td>{total}</td>"
-            f"<td{crit_cls}>{critical}</td>"
-            f"<td{high_cls}>{high}</td></tr>"
-        )
 
-    html = f"""<div class="detail-section">
-        <table class="bucket-summary-table">
-            <thead><tr><th>Finding Type</th><th>Total</th><th>Critical</th><th>High</th></tr></thead>
-            <tbody>{summary_rows}</tbody>
-        </table>
-    </div>"""
-
-    # Add collapsible vuln section for each non-empty bucket
-    for bucket_name in BUCKET_ORDER:
-        vulns = buckets[bucket_name]
-        if not vulns:
-            continue
         rows = []
         for v in vulns:
             sev = v.severity.lower()
@@ -445,20 +433,33 @@ def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
                 f'<td class="vuln-id">{_escape_html(v.id)}</td></tr>'
             )
         vuln_rows = "\n".join(rows)
-        html += f"""
-    <div class="bucket-section">
-        <div class="bucket-section-header" onclick="toggleVulnerabilities(this)">
-            <h4>&#9658; {bucket_name} ({len(vulns)})</h4>
-        </div>
-        <div class="bucket-section-content" style="display: none;">
-            <table class="vuln-table">
-                <thead><tr><th>Severity</th><th>Status</th><th>Age (Days)</th><th>Title</th><th>ID</th></tr></thead>
-                <tbody>{vuln_rows}</tbody>
-            </table>
-        </div>
-    </div>"""
 
-    return html
+        table_body += (
+            f'<tr class="bucket-row expandable" onclick="toggleBucketDetail(this)">'
+            f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
+            f"<td>{total}</td>"
+            f"<td{crit_cls}>{critical}</td>"
+            f"<td{high_cls}>{high}</td>"
+            f"</tr>"
+            f'<tr class="bucket-detail-row" style="display:none;">'
+            f'<td colspan="4">'
+            f'<table class="vuln-table">'
+            f"<thead><tr><th>Severity</th><th>Status</th><th>Age (Days)</th><th>Title</th><th>ID</th></tr></thead>"
+            f"<tbody>{vuln_rows}</tbody>"
+            f"</table>"
+            f"</td>"
+            f"</tr>"
+        )
+
+    if not table_body:
+        table_body = '<tr><td colspan="4" class="no-findings">' "No Critical or High findings" "</td></tr>"
+
+    return f"""<div class="detail-section">
+        <table class="bucket-summary-table">
+            <thead><tr><th>Finding Type</th><th>Total</th><th>Critical</th><th>High</th></tr></thead>
+            <tbody>{table_body}</tbody>
+        </table>
+    </div>"""
 
 
 def main() -> None:
