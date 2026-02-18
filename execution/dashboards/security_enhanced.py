@@ -416,8 +416,8 @@ def _generate_bucket_expanded_content(
         # No fetched detail for this bucket (truncated beyond 500-record limit)
         if fetched_count == 0:
             table_body += (
-                f'<tr class="bucket-row">'
-                f"<td><strong>{bucket_name}</strong></td>"
+                f'<tr class="bucket-row expandable" onclick="toggleBucketDetail(this)">'
+                f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
                 f"<td>{total}</td><td{crit_cls}>{critical}</td><td{high_cls}>{high}</td>"
                 f'</tr><tr class="bucket-detail-row" style="display:none;">'
                 f'<td colspan="4" class="vuln-table-note">'
