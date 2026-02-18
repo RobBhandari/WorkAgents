@@ -12,6 +12,22 @@ from dataclasses import dataclass
 
 from .metrics import MetricSnapshot
 
+# Source tool → bucket mapping for security dashboard grouping
+SOURCE_BUCKET_MAP: dict[str, str] = {
+    "Mend": "CODE",
+    "SonarQube": "CODE",
+    "Custom-Pentest": "CODE",
+    "Prisma Cloud Twistlock": "CLOUD",
+    "Prisma Cloud Redlock": "CLOUD",
+    "Prisma Cloud Compute": "CLOUD",
+    "Cortex XDR": "INFRASTRUCTURE",
+    "Tenable Infrastructure": "INFRASTRUCTURE",
+    "Tenable Vulnerability Management": "INFRASTRUCTURE",
+    "AppCheck": "INFRASTRUCTURE",
+    "BitSight": "INFRASTRUCTURE",
+}
+BUCKET_ORDER: list[str] = ["CODE", "CLOUD", "INFRASTRUCTURE", "Other"]
+
 
 @dataclass
 class Vulnerability:
