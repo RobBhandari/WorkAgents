@@ -221,6 +221,26 @@ class TestGenerateBucketExpandedContent:
         assert "CLOUD" in html
         assert "bucket-row" in html
 
+    def test_bucket_counts_override_fetched_header(self, sample_vulnerabilities):
+        """bucket_counts accurate totals appear in bucket header row, not fetched count."""
+        accurate = {"CODE": {"total": 999, "critical": 50, "high": 949}}
+        html = _generate_bucket_expanded_content(sample_vulnerabilities, bucket_counts=accurate)
+        assert "999" in html
+
+    def test_truncation_note_shown_when_fetched_less_than_accurate(self, sample_vulnerabilities):
+        """Truncation note appears when fetched count is less than accurate total."""
+        accurate = {"CODE": {"total": 9999, "critical": 5, "high": 9994}}
+        html = _generate_bucket_expanded_content(sample_vulnerabilities, bucket_counts=accurate)
+        assert "vuln-table-note" in html
+        assert "9,999" in html
+
+    def test_unavailable_note_when_no_fetched_vulns_for_bucket(self):
+        """Non-expandable row shown when bucket_counts has bucket but 0 fetched vulns."""
+        accurate = {"INFRASTRUCTURE": {"total": 100, "critical": 10, "high": 90}}
+        html = _generate_bucket_expanded_content([], bucket_counts=accurate)
+        assert "beyond the 500-result limit" in html
+        assert "INFRASTRUCTURE" in html
+
 
 # ---------------------------------------------------------------------------
 # generate_security_dashboard_enhanced (integration)
@@ -245,7 +265,7 @@ class TestLoadSecurityData:
         """Should load products from ArmorCode API."""
         mock_load_baseline.return_value = ["Web Application", "Mobile App"]
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_for_products.return_value = sample_vulnerabilities
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -271,7 +291,7 @@ class TestLoadSecurityData:
         """Should handle empty product list."""
         mock_load_baseline.return_value = []
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_for_products.return_value = []
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = ([], {})
         mock_vuln_loader.group_by_product.return_value = {}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -295,9 +315,10 @@ class TestZeroVulnProducts:
         mock_load_baseline.return_value = ["Proclaim", "Web Application"]
         mock_vuln_loader = Mock()
         # Only Web Application has vulns; Proclaim returns nothing
-        mock_vuln_loader.load_vulnerabilities_for_products.return_value = [
-            _make_vuln("CRITICAL", "Mend", product="Web Application")
-        ]
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (
+            [_make_vuln("CRITICAL", "Mend", product="Web Application")],
+            {},
+        )
         mock_vuln_loader.group_by_product.return_value = {
             "Web Application": [_make_vuln("CRITICAL", "Mend", product="Web Application")]
         }
@@ -323,7 +344,7 @@ class TestGenerateSecurityDashboardEnhanced:
         """Should generate complete dashboard HTML."""
         mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_for_products.return_value = sample_vulnerabilities
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style>.card{}</style>", "<script></script>")
@@ -345,7 +366,7 @@ class TestGenerateSecurityDashboardEnhanced:
         """Should write exactly one HTML file (main dashboard only)."""
         mock_load_baseline.return_value = ["Web Application"]
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_for_products.return_value = sample_vulnerabilities
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
