@@ -12644,7 +12644,7 @@
           "collected_at": "2026-02-18T00:53:13.792133"
         },
         {
-          "project_key": "Legal_Product D",
+          "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
             "median_age_days": 111.1,
