@@ -246,6 +246,9 @@ def _calculate_summary(metrics_by_product: dict) -> dict:
     # Count products with vulnerabilities
     products_with_vulns = sum(1 for m in metrics_by_product.values() if m.total_vulnerabilities > 0)
 
+    # Calculate critical + high total
+    critical_high_total = total_critical + total_high
+
     # Overall status determination
     if total_critical == 0 and total_high <= 10:
         status = "good"
@@ -262,6 +265,7 @@ def _calculate_summary(metrics_by_product: dict) -> dict:
         "total_critical": total_critical,
         "total_high": total_high,
         "total_medium": total_medium,
+        "critical_high_total": critical_high_total,
         "products_with_vulns": products_with_vulns,
         "status": status,
         "status_text": status_text,
@@ -291,7 +295,7 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
 
     # Build summary cards using component function
     summary_cards = [
-        summary_card("Total Findings", str(summary_stats["total_vulns"])),
+        summary_card("Priority Findings", str(summary_stats["critical_high_total"])),
         summary_card("Critical", str(summary_stats["total_critical"]), css_class="critical"),
         summary_card("High", str(summary_stats["total_high"]), css_class="high"),
         summary_card("Products", str(summary_stats["products_with_vulns"])),
