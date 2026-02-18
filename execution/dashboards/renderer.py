@@ -165,7 +165,9 @@ def format_percent(value: Any, decimals: int = 1) -> str:
     """
     try:
         num = float(value)
-        return f"{num:.{decimals}f}%"
+        # Use explicit format() method instead of f-string for reliability
+        format_spec = f"{{:.{decimals}f}}%"
+        return format_spec.format(num)
     except (ValueError, TypeError):
         return str(value)
 
