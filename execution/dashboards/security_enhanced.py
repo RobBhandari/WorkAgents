@@ -164,13 +164,13 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
         logger.info("Run: python execution/armorcode_baseline.py")
         return "", 0
 
-    logger.info("Querying ArmorCode API for Production vulnerabilities")
+    logger.info("Querying ArmorCode API (hybrid: capped detail + accurate counts)")
     vuln_loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities = vuln_loader.load_vulnerabilities_for_products(products, filter_environment=True)
-    logger.info(f"Retrieved {len(vulnerabilities)} Production vulnerabilities from ArmorCode API")
+    vulnerabilities, bucket_counts_by_product = vuln_loader.load_vulnerabilities_hybrid(
+        products, filter_environment=True, max_per_product=500
+    )
+    logger.info(f"Retrieved {len(vulnerabilities)} vulnerabilities (capped at 500/product)")
 
-    # Step 2: Convert vulnerabilities to metrics by product
-    logger.info("Converting vulnerabilities to metrics by product")
     metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
 
     # Ensure all baseline products appear (even those with 0 Critical/High)
@@ -187,55 +187,25 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
             )
     logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
 
-    # Step 3: Group vulnerabilities by product for expandable rows
     vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
-    logger.info("Vulnerabilities grouped by product")
+    main_html = _generate_main_dashboard_html(metrics_by_product, vulns_by_product, bucket_counts_by_product)
 
-    # Step 4: Generate main dashboard HTML
-    logger.info("Generating main dashboard")
-    main_html = _generate_main_dashboard_html(metrics_by_product, vulns_by_product)
-
-    # Write main dashboard
     main_file = output_dir / "security_dashboard.html"
     main_file.write_text(main_html, encoding="utf-8")
-    logger.info("Main dashboard written", extra={"path": str(main_file)})
-
-    # Step 4: Summary
-    logger.info(
-        "Security dashboard generated successfully",
-        extra={
-            "main_size": len(main_html),
-            "features": [
-                "Product summary table with expandable rows",
-                "Click rows to expand vulnerability details inline",
-                "Aging metrics displayed in expanded rows",
-                "Collapsible vulnerability table with search/filter",
-                "Dark mode with toggle",
-            ],
-        },
-    )
+    logger.info("Security dashboard written", extra={"path": str(main_file)})
 
     return main_html, 0  # No detail pages generated
 
 
-def _generate_main_dashboard_html(metrics_by_product: dict, vulns_by_product: dict) -> str:
-    """
-    Generate main dashboard HTML using 4-stage pipeline.
-
-    Stage 1: Load Data (already done - passed as parameters)
-    Stage 2: Calculate Summary
-    Stage 3: Build Context
-    Stage 4: Render Template
-    """
-    # Stage 2: Calculate summary statistics
+def _generate_main_dashboard_html(
+    metrics_by_product: dict,
+    vulns_by_product: dict,
+    bucket_counts_by_product: dict,
+) -> str:
+    """Generate main dashboard HTML using 4-stage pipeline."""
     summary_stats = _calculate_summary(metrics_by_product)
-
-    # Stage 3: Build context for template
-    context = _build_context(metrics_by_product, vulns_by_product, summary_stats)
-
-    # Stage 4: Render template
-    html = render_dashboard("dashboards/security_dashboard.html", context)
-    return html
+    context = _build_context(metrics_by_product, vulns_by_product, summary_stats, bucket_counts_by_product)
+    return render_dashboard("dashboards/security_dashboard.html", context)
 
 
 def _calculate_summary(metrics_by_product: dict) -> dict:
@@ -283,18 +253,13 @@ def _calculate_summary(metrics_by_product: dict) -> dict:
     }
 
 
-def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_stats: dict) -> dict:
-    """
-    Stage 3: Build template context.
-
-    Args:
-        metrics_by_product: Dict of product name -> SecurityMetrics
-        vulns_by_product: Dict of product name -> List of vulnerabilities
-        summary_stats: Summary statistics from _calculate_summary()
-
-    Returns:
-        Dictionary with template variables
-    """
+def _build_context(
+    metrics_by_product: dict,
+    vulns_by_product: dict,
+    summary_stats: dict,
+    bucket_counts_by_product: dict,
+) -> dict:
+    """Stage 3: Build template context."""
     # Get framework CSS/JS (enable expandable rows)
     framework_css, framework_js = get_dashboard_framework(
         header_gradient_start="#667eea",
@@ -333,18 +298,25 @@ def _build_context(metrics_by_product: dict, vulns_by_product: dict, summary_sta
             status_class = "good"
             status_priority = 3  # Lowest priority
 
-        # Get vulnerabilities for this product
         vulns = vulns_by_product.get(product_name, [])
+        product_bucket_counts = bucket_counts_by_product.get(product_name)
 
-        # Generate expanded content HTML
-        expanded_html = _generate_bucket_expanded_content(vulns)
+        # Use accurate counts from API when fetched set is truncated (>500 total)
+        if product_bucket_counts:
+            display_critical = sum(b["critical"] for b in product_bucket_counts.values())
+            display_high = sum(b["high"] for b in product_bucket_counts.values())
+        else:
+            display_critical = metrics.critical
+            display_high = metrics.high
+
+        expanded_html = _generate_bucket_expanded_content(vulns, bucket_counts=product_bucket_counts)
 
         products.append(
             {
                 "name": product_name,
-                "total": metrics.critical + metrics.high,
-                "critical": metrics.critical,
-                "high": metrics.high,
+                "total": display_critical + display_high,
+                "critical": display_critical,
+                "high": display_high,
                 "medium": metrics.medium,
                 "status": status,
                 "status_class": status_class,
@@ -388,39 +360,77 @@ def _escape_html(text: str) -> str:
     )
 
 
-def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
+def _generate_bucket_expanded_content(
+    vulnerabilities: list,
+    bucket_counts: dict | None = None,
+) -> str:
     """
     Generate expanded row HTML: inline expandable bucket rows within a single table.
 
-    Each non-zero bucket is a clickable row that expands inline to show individual
-    vulnerability details. Zero-total buckets are suppressed entirely.
-
     Args:
-        vulnerabilities: List of VulnerabilityDetail objects for this product
-
-    Returns:
-        HTML string for the expanded row content
+        vulnerabilities: List of VulnerabilityDetail objects for this product (may be capped at 500)
+        bucket_counts: Accurate {bucket: {total, critical, high}} from API count queries.
+                      When None, counts are derived from the fetched vulnerabilities list.
     """
     filtered = [v for v in vulnerabilities if v.severity.upper() in ("CRITICAL", "HIGH")]
 
-    # Group by bucket
-    buckets: dict[str, list] = {b: [] for b in BUCKET_ORDER}
+    # Group fetched vulns by bucket
+    fetched_buckets: dict[str, list] = {b: [] for b in BUCKET_ORDER}
     for vuln in filtered:
-        bucket = SOURCE_BUCKET_MAP.get(vuln.source or "", "Other")
-        buckets[bucket].append(vuln)
+        fetched_buckets[SOURCE_BUCKET_MAP.get(vuln.source or "", "Other")].append(vuln)
 
-    # Build table body — only non-zero buckets
+    # Determine which buckets are active: from accurate counts if available, else from fetched
+    active_buckets = set(bucket_counts.keys()) if bucket_counts else {b for b, v in fetched_buckets.items() if v}
+
+    thead = (
+        "<thead><tr>"
+        '<th class="sortable" onclick="sortBucketTable(this)">Severity <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">Source <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">Status <span class="sort-indicator"></span></th>'
+        '<th class="sortable" data-type="number" onclick="sortBucketTable(this)">Age (Days) <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">Title <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">ID <span class="sort-indicator"></span></th>'
+        "</tr></thead>"
+    )
+
     table_body = ""
     for bucket_name in BUCKET_ORDER:
-        vulns = buckets[bucket_name]
-        total = len(vulns)
-        if total == 0:
-            continue  # Suppress zero-total rows
+        if bucket_name not in active_buckets:
+            continue
 
-        critical = sum(1 for v in vulns if v.severity.upper() == "CRITICAL")
-        high = total - critical
+        vulns = fetched_buckets[bucket_name]
+        fetched_count = len(vulns)
+
+        # Use accurate counts if provided, else derive from fetched
+        if bucket_counts and bucket_name in bucket_counts:
+            acc = bucket_counts[bucket_name]
+            total, critical, high = acc["total"], acc["critical"], acc["high"]
+        else:
+            total = fetched_count
+            critical = sum(1 for v in vulns if v.severity.upper() == "CRITICAL")
+            high = total - critical
+
         crit_cls = ' class="critical"' if critical > 0 else ""
         high_cls = ' class="high"' if high > 0 else ""
+
+        # No fetched detail for this bucket (truncated beyond 500-record limit)
+        if fetched_count == 0:
+            table_body += (
+                f'<tr class="bucket-row">'
+                f"<td><strong>{bucket_name}</strong></td>"
+                f"<td>{total}</td><td{crit_cls}>{critical}</td><td{high_cls}>{high}</td>"
+                f'</tr><tr class="bucket-detail-row" style="display:none;">'
+                f'<td colspan="4" class="vuln-table-note">'
+                f"&#9888; Detail unavailable &mdash; findings are beyond the 500-result limit.</td></tr>"
+            )
+            continue
+
+        # Truncation note when fetched < accurate total
+        truncation_note = ""
+        if fetched_count < total:
+            truncation_note = (
+                f'<p class="vuln-table-note">&#9888; Top {fetched_count:,} of {total:,} findings shown.</p>'
+            )
 
         rows = []
         for idx, v in enumerate(vulns):
@@ -434,37 +444,19 @@ def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
                 f"<td>{_escape_html(v.title or '')}</td>"
                 f'<td class="vuln-id">{_escape_html(v.id)}</td></tr>'
             )
-        vuln_rows = "\n".join(rows)
 
         search_bar = (
             f'<div class="bucket-filter-bar">'
             f'<input type="text" class="bucket-search-input" placeholder="Search vulnerabilities..."'
             f' oninput="filterBucketVulns(this)">'
             f'<div class="bucket-filter-buttons">'
-            f'<button class="active" data-sev="all"'
-            f" onclick=\"filterBucketSeverity(this,'all')\">All ({total})</button>"
-            f'<button data-sev="critical"'
-            f" onclick=\"filterBucketSeverity(this,'critical')\">Critical ({critical})</button>"
-            f'<button data-sev="high"'
-            f" onclick=\"filterBucketSeverity(this,'high')\">High ({high})</button>"
+            f'<button class="active" data-sev="all" onclick="filterBucketSeverity(this,\'all\')">'
+            f"All ({fetched_count})</button>"
+            f'<button data-sev="critical" onclick="filterBucketSeverity(this,\'critical\')">'
+            f"Critical ({sum(1 for v in vulns if v.severity.upper() == 'CRITICAL')})</button>"
+            f'<button data-sev="high" onclick="filterBucketSeverity(this,\'high\')">'
+            f"High ({sum(1 for v in vulns if v.severity.upper() == 'HIGH')})</button>"
             f"</div></div>"
-        )
-
-        thead = (
-            "<thead><tr>"
-            '<th class="sortable" onclick="sortBucketTable(this)">'
-            'Severity <span class="sort-indicator"></span></th>'
-            '<th class="sortable" onclick="sortBucketTable(this)">'
-            'Source <span class="sort-indicator"></span></th>'
-            '<th class="sortable" onclick="sortBucketTable(this)">'
-            'Status <span class="sort-indicator"></span></th>'
-            '<th class="sortable" data-type="number" onclick="sortBucketTable(this)">'
-            'Age (Days) <span class="sort-indicator"></span></th>'
-            '<th class="sortable" onclick="sortBucketTable(this)">'
-            'Title <span class="sort-indicator"></span></th>'
-            '<th class="sortable" onclick="sortBucketTable(this)">'
-            'ID <span class="sort-indicator"></span></th>'
-            "</tr></thead>"
         )
 
         table_body += (
@@ -475,25 +467,21 @@ def _generate_bucket_expanded_content(vulnerabilities: list) -> str:
             f"<td{high_cls}>{high}</td>"
             f"</tr>"
             f'<tr class="bucket-detail-row" style="display:none;">'
-            f'<td colspan="4">'
-            f"{search_bar}"
-            f'<table class="vuln-table">'
-            f"{thead}"
-            f"<tbody>{vuln_rows}</tbody>"
-            f"</table>"
-            f"</td>"
-            f"</tr>"
+            f'<td colspan="4">{truncation_note}{search_bar}'
+            f'<table class="vuln-table">{thead}<tbody>{"".join(rows)}</tbody></table>'
+            f"</td></tr>"
         )
 
     if not table_body:
-        table_body = '<tr><td colspan="4" class="no-findings">' "No Critical or High findings" "</td></tr>"
+        table_body = '<tr><td colspan="4" class="no-findings">No Critical or High findings</td></tr>'
 
-    return f"""<div class="detail-section">
-        <table class="bucket-summary-table">
-            <thead><tr><th>Finding Type</th><th>Total</th><th>Critical</th><th>High</th></tr></thead>
-            <tbody>{table_body}</tbody>
-        </table>
-    </div>"""
+    return (
+        '<div class="detail-section">'
+        '<table class="bucket-summary-table">'
+        "<thead><tr><th>Finding Type</th><th>Total</th><th>Critical</th><th>High</th></tr></thead>"
+        f"<tbody>{table_body}</tbody>"
+        "</table></div>"
+    )
 
 
 def main() -> None:
