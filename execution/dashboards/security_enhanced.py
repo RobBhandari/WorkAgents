@@ -190,11 +190,42 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
     main_html = _generate_main_dashboard_html(metrics_by_product, vulns_by_product, bucket_counts_by_product)
 
+    # Patch history JSON so index.html reads the same live-accurate count
+    acc_c = sum(
+        sum(b["critical"] for b in bkt.values()) if (bkt := bucket_counts_by_product.get(pn)) else m.critical
+        for pn, m in metrics_by_product.items()
+    )
+    acc_h = sum(
+        sum(b["high"] for b in bkt.values()) if (bkt := bucket_counts_by_product.get(pn)) else m.high
+        for pn, m in metrics_by_product.items()
+    )
+    _update_history_current_total(Path(".tmp/observatory/security_history.json"), acc_c, acc_h)
+
     main_file = output_dir / "security_dashboard.html"
     main_file.write_text(main_html, encoding="utf-8")
     logger.info("Security dashboard written", extra={"path": str(main_file)})
 
     return main_html, 0  # No detail pages generated
+
+
+def _update_history_current_total(history_path: Path, critical: int, high: int) -> None:
+    """Patch the latest history entry with the live-computed accurate total."""
+    if not history_path.exists():
+        return
+    try:
+        d = json.loads(history_path.read_text(encoding="utf-8"))
+        if not d.get("weeks"):
+            return
+        m = d["weeks"][-1].setdefault("metrics", {})
+        m["current_total"] = critical + high
+        m.setdefault("severity_breakdown", {}).update({"critical": critical, "high": high, "total": critical + high})
+        history_path.write_text(json.dumps(d, indent=2), encoding="utf-8")
+        logger.info(
+            "Security history patched with live count",
+            extra={"critical": critical, "high": high, "total": critical + high},
+        )
+    except Exception as e:
+        logger.warning("History patch skipped: %s", e)
 
 
 def _generate_main_dashboard_html(
