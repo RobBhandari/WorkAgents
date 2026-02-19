@@ -155,12 +155,14 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
 
     all_findings = []
+    accurate_total = 0  # Sum of totalElements across products (uncapped)
 
     try:
         # Query each product separately (matches armorcode_weekly_query.py logic)
         for product_id in product_ids:
             page = 1
             has_next = True
+            product_total = 0  # totalElements from page 1 for this product
 
             while has_next:
                 query = f"""
@@ -223,6 +225,10 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
 
                     all_findings.extend(page_findings)
                     has_next = page_info.get("hasNext", False)
+
+                    if page == 1:  # Capture accurate total from first page (uncapped)
+                        product_total = page_info.get("totalElements", 0)
+
                     page += 1
 
                     if page > 100:
@@ -231,9 +237,13 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
                 else:
                     break
 
-        logger.info(f"Found {len(all_findings)} total current HIGH/CRITICAL vulnerabilities")
+            accurate_total += product_total
 
-        return {"findings": all_findings, "total_count": len(all_findings)}
+        logger.info(
+            f"Found {len(all_findings)} fetched / {accurate_total} accurate total HIGH/CRITICAL vulnerabilities"
+        )
+
+        return {"findings": all_findings, "total_count": accurate_total}
 
     except (ConnectionError, TimeoutError) as e:
         logger.error(f"Network error querying current vulnerabilities: {e}")
@@ -537,10 +547,10 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
         base_url, product_ids, lookback_days=config.get("lookback_days", 90)
     )
 
-    # Filter to Production environment only
-    logger.info("Applying Production environment filter...")
+    # Filter findings to Production environment (for breakdown calculations)
+    # total_count is preserved as the accurate totalElements sum (all environments)
+    logger.info("Applying Production environment filter to findings...")
     current_vulns["findings"] = filter_production_findings(current_vulns["findings"])
-    current_vulns["total_count"] = len(current_vulns["findings"])
     closed_vulns["findings"] = filter_production_findings(closed_vulns["findings"])
     closed_vulns["total_count"] = len(closed_vulns["findings"])
 
