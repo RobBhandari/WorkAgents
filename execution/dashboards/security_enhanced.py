@@ -279,6 +279,7 @@ def _calculate_summary(metrics_by_product: dict) -> dict:
         "total_medium": total_medium,
         "critical_high_total": critical_high_total,
         "products_with_vulns": products_with_vulns,
+        "product_count": len(metrics_by_product),
         "status": status,
         "status_text": status_text,
     }
@@ -310,7 +311,7 @@ def _build_context(
         summary_card("Priority Findings", str(acc_critical + acc_high)),
         summary_card("Critical", str(acc_critical), css_class="critical"),
         summary_card("High", str(acc_high), css_class="high"),
-        summary_card("Products", str(summary_stats["products_with_vulns"])),
+        summary_card("Products", str(summary_stats["product_count"])),
     ]
 
     # Build product rows with expandable content
