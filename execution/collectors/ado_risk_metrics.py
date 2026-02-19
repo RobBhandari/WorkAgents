@@ -147,10 +147,8 @@ async def query_recent_commits(
         # Transform to simplified format
         commits = GitTransformer.transform_commits_response(response)
 
-        # Limit to 100 most recent commits for performance
-        commits = commits[:100]
-
         # Fetch file changes concurrently for sample commits (PARALLEL EXECUTION)
+        # Note: COMMIT_DETAIL_LIMIT (line below) limits expensive file-detail API calls
         sample_limit = min(sampling_config.COMMIT_DETAIL_LIMIT, len(commits))
 
         # Create tasks for commits that need file details

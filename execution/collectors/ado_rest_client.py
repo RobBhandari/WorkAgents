@@ -532,7 +532,12 @@ class AzureDevOpsRESTClient:
         return await self._handle_api_call("GET", url)
 
     async def get_commits(
-        self, project: str, repository_id: str, from_date: str | None = None, to_date: str | None = None
+        self,
+        project: str,
+        repository_id: str,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        top: int = 1000,
     ) -> dict[str, Any]:
         """
         Get commits for repository.
@@ -544,6 +549,7 @@ class AzureDevOpsRESTClient:
             repository_id: Repository ID or name
             from_date: Optional start date filter (ISO 8601)
             to_date: Optional end date filter (ISO 8601)
+            top: Maximum commits to return (default 1000; ADO default is 100)
 
         Returns:
             Commits response:
@@ -558,7 +564,7 @@ class AzureDevOpsRESTClient:
                 ]
             }
         """
-        params = {"api-version": self.API_VERSION}
+        params: dict[str, Any] = {"api-version": self.API_VERSION, "$top": top}
         if from_date:
             params["searchCriteria.fromDate"] = from_date
         if to_date:
