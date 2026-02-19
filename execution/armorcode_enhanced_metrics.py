@@ -187,7 +187,7 @@ def _query_count_only(
         response.raise_for_status()
         data = response.json()
         if "data" in data and "findings" in data["data"]:
-            return data["data"]["findings"].get("pageInfo", {}).get("totalElements", 0)
+            return int(data["data"]["findings"].get("pageInfo", {}).get("totalElements", 0))
     except (ConnectionError, TimeoutError) as e:
         logger.warning(f"Network error in count query: {e}")
     except (KeyError, ValueError, json.JSONDecodeError) as e:
