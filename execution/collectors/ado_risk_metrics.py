@@ -187,93 +187,10 @@ async def query_recent_commits(
         return []
 
 
-async def query_pull_requests(
-    rest_client: AzureDevOpsRESTClient, project_name: str, repo_id: str, days: int = flow_metrics.LOOKBACK_DAYS
-) -> list[dict]:
-    """
-    Query recent pull requests to analyze PR size.
-
-    Args:
-        rest_client: Azure DevOps REST API client
-        project_name: ADO project name
-        repo_id: Repository ID
-        days: Lookback period in days
-
-    Returns:
-        List of PR data
-    """
-    try:
-        # Query completed PRs via REST API
-        response = await rest_client.get_pull_requests(project=project_name, repository_id=repo_id, status="completed")
-
-        # Transform to simplified format
-        prs = GitTransformer.transform_pull_requests_response(response)
-
-        # Filter by date
-        cutoff_date = datetime.now(datetime.now().astimezone().tzinfo) - timedelta(days=days)
-
-        filtered_prs = []
-        for pr in prs:
-            created_date_str = pr.get("creation_date")
-            if created_date_str:
-                try:
-                    created_date = datetime.fromisoformat(created_date_str.replace("Z", "+00:00"))
-                    if created_date < cutoff_date:
-                        continue
-                except ValueError:
-                    continue
-
-            filtered_prs.append(pr)
-
-        # Get commit counts concurrently for all PRs (PARALLEL EXECUTION)
-        async def get_pr_commit_count(pr: dict) -> tuple[dict, int]:
-            try:
-                response = await rest_client.get_pull_request_commits(
-                    project=project_name, repository_id=repo_id, pull_request_id=pr["pull_request_id"]
-                )
-                commit_count = len(response.get("value", []))
-                return pr, commit_count
-            except Exception as e:
-                logger.debug(
-                    "Could not get PR commits (PR may be old/deleted)",
-                    extra={"pr_id": pr.get("pull_request_id"), "repo_id": repo_id, "error": str(e)},
-                )
-                return pr, 0
-
-        commit_count_tasks = [get_pr_commit_count(pr) for pr in filtered_prs]
-        commit_count_results = await asyncio.gather(*commit_count_tasks, return_exceptions=True)
-
-        # Build PR data with commit counts
-        pr_data = []
-        for result in commit_count_results:
-            if isinstance(result, Exception):
-                continue
-
-            pr, commit_count = result  # type: ignore[misc]
-            pr_data.append(
-                {
-                    "pr_id": pr.get("pull_request_id"),
-                    "title": pr.get("title"),
-                    "created_date": pr.get("creation_date"),
-                    "closed_date": pr.get("closed_date"),
-                    "commit_count": commit_count,
-                    "status": "completed",
-                    "created_by": pr.get("created_by", "Unknown"),
-                    "created_by_email": None,  # Not in REST transform
-                    "source_branch": None,  # Not in REST transform
-                    "description": None,  # Not in REST transform
-                }
-            )
-
-        return pr_data
-
-    except Exception as e:
-        logger.warning(
-            "API error querying PRs",
-            extra={"project": project_name, "repo_id": repo_id, "days": days, "error": str(e)},
-        )
-        return []
-
+# REMOVED: query_pull_requests
+# Reason: Was written to support analyze_pr_sizes() which was subsequently removed.
+# Risk metrics are 100% commit-based (churn, knowledge distribution, module coupling).
+# No PR data feeds into any output metric.
 
 # REMOVED: query_reopened_bugs
 # Reason: Assumes bugs with state='Active' and recent StateChangeDate were "reopened".

@@ -141,6 +141,9 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
     - status: ["OPEN", "CONFIRMED"]
     - product: specific product IDs from baseline
 
+    All product IDs are batched into a single GraphQL query (instead of one call
+    per product), reducing API calls from ~13×N pages to N pages total.
+
     Args:
         base_url: ArmorCode API base URL
         product_ids: List of product IDs to query
@@ -149,95 +152,92 @@ def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str])
         Dictionary with vulnerability data
     """
     logger.info("Querying current HIGH and CRITICAL vulnerabilities via GraphQL...")
-    logger.info(f"Products: {len(product_ids)}")
+    logger.info(f"Products: {len(product_ids)} (batched in single query)")
 
     headers = get_armorcode_headers()
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
 
     all_findings = []
-    accurate_total = 0  # Sum of totalElements across products (uncapped)
+    accurate_total = 0  # totalElements from page 1 (uncapped, all environments)
+
+    # Batch all product IDs into a single query — reduces API calls ~13x
+    all_product_ids_str = ", ".join(product_ids)
 
     try:
-        # Query each product separately (matches armorcode_weekly_query.py logic)
-        for product_id in product_ids:
-            page = 1
-            has_next = True
-            product_total = 0  # totalElements from page 1 for this product
+        page = 1
+        has_next = True
 
-            while has_next:
-                query = f"""
-                {{
-                  findings(
-                    page: {page}
-                    size: 100
-                    findingFilter: {{
-                      product: [{product_id}]
-                      severity: [High, Critical]
-                      status: ["OPEN", "CONFIRMED"]
-                    }}
-                  ) {{
-                    findings {{
-                      id
-                      severity
-                      status
-                      product {{
-                        name
-                      }}
-                      environment {{
-                        name
-                        id
-                      }}
-                    }}
-                    pageInfo {{
-                      hasNext
-                      totalElements
-                    }}
+        while has_next:
+            query = f"""
+            {{
+              findings(
+                page: {page}
+                size: 100
+                findingFilter: {{
+                  product: [{all_product_ids_str}]
+                  severity: [High, Critical]
+                  status: ["OPEN", "CONFIRMED"]
+                }}
+              ) {{
+                findings {{
+                  id
+                  severity
+                  status
+                  product {{
+                    name
+                  }}
+                  environment {{
+                    name
                   }}
                 }}
-                """
+                pageInfo {{
+                  hasNext
+                  totalElements
+                }}
+              }}
+            }}
+            """
 
-                _max_retries = 3
-                for _attempt in range(_max_retries + 1):
-                    response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
-                    if response.status_code != 429:
-                        break
-                    retry_after = int(response.headers.get("Retry-After", 60))
-                    if _attempt < _max_retries:
-                        logger.warning(
-                            f"Rate limited (429) on product {product_id} page {page} - "
-                            f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
-                        )
-                        time.sleep(retry_after)
-                    else:
-                        logger.error(f"Rate limited (429) on product {product_id} - max retries exceeded")
-                response.raise_for_status()
-
-                data = response.json()
-
-                if "errors" in data:
-                    logger.error(f"GraphQL error for product {product_id}: {data['errors']}")
+            _max_retries = 3
+            for _attempt in range(_max_retries + 1):
+                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
+                if response.status_code != 429:
                     break
-
-                if "data" in data and "findings" in data["data"]:
-                    findings_data = data["data"]["findings"]
-                    page_findings = findings_data.get("findings", [])
-                    page_info = findings_data.get("pageInfo", {})
-
-                    all_findings.extend(page_findings)
-                    has_next = page_info.get("hasNext", False)
-
-                    if page == 1:  # Capture accurate total from first page (uncapped)
-                        product_total = page_info.get("totalElements", 0)
-
-                    page += 1
-
-                    if page > 100:
-                        logger.warning(f"Reached page limit for product {product_id}")
-                        break
+                retry_after = int(response.headers.get("Retry-After", 60))
+                if _attempt < _max_retries:
+                    logger.warning(
+                        f"Rate limited (429) on page {page} - "
+                        f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
+                    )
+                    time.sleep(retry_after)
                 else:
-                    break
+                    logger.error(f"Rate limited (429) on page {page} - max retries exceeded")
+            response.raise_for_status()
 
-            accurate_total += product_total
+            data = response.json()
+
+            if "errors" in data:
+                logger.error(f"GraphQL error on page {page}: {data['errors']}")
+                break
+
+            if "data" in data and "findings" in data["data"]:
+                findings_data = data["data"]["findings"]
+                page_findings = findings_data.get("findings", [])
+                page_info = findings_data.get("pageInfo", {})
+
+                all_findings.extend(page_findings)
+                has_next = page_info.get("hasNext", False)
+
+                if page == 1:  # Capture accurate total from first page (uncapped)
+                    accurate_total = page_info.get("totalElements", 0)
+
+                page += 1
+
+                if page > 100:
+                    logger.warning("Reached page limit (100) for batched query")
+                    break
+            else:
+                break
 
         logger.info(
             f"Found {len(all_findings)} fetched / {accurate_total} accurate total HIGH/CRITICAL vulnerabilities"
@@ -258,6 +258,8 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], 
     Query recently closed HIGH and CRITICAL vulnerabilities using GraphQL API.
 
     Note: Date fields not available in GraphQL schema, so MTTR calculation disabled for now.
+    All product IDs are batched into a single query (2 pages max), reducing API calls
+    from 2×N products to 2 total.
 
     Args:
         base_url: ArmorCode API base URL
@@ -275,71 +277,72 @@ def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], 
 
     all_findings = []
 
-    try:
-        for product_id in product_ids:
-            page = 1
-            has_next = True
+    # Batch all product IDs into a single query — reduces API calls ~13x
+    all_product_ids_str = ", ".join(product_ids)
 
-            while has_next and page <= 2:  # Limit to 2 pages for closed findings (200 items)
-                query = f"""
-                {{
-                  findings(
-                    page: {page}
-                    size: 100
-                    findingFilter: {{
-                      product: [{product_id}]
-                      severity: [High, Critical]
-                      status: ["CLOSED", "RESOLVED", "FIXED"]
-                    }}
-                  ) {{
-                    findings {{
-                      id
-                      severity
-                      status
-                      environment {{
-                        name
-                        id
-                      }}
-                    }}
-                    pageInfo {{
-                      hasNext
-                    }}
+    try:
+        page = 1
+        has_next = True
+
+        while has_next and page <= 2:  # Limit to 2 pages total (200 items sample)
+            query = f"""
+            {{
+              findings(
+                page: {page}
+                size: 100
+                findingFilter: {{
+                  product: [{all_product_ids_str}]
+                  severity: [High, Critical]
+                  status: ["CLOSED", "RESOLVED", "FIXED"]
+                }}
+              ) {{
+                findings {{
+                  id
+                  severity
+                  status
+                  environment {{
+                    name
                   }}
                 }}
-                """
+                pageInfo {{
+                  hasNext
+                }}
+              }}
+            }}
+            """
 
-                _max_retries = 3
-                for _attempt in range(_max_retries + 1):
-                    response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
-                    if response.status_code != 429:
-                        break
-                    retry_after = int(response.headers.get("Retry-After", 60))
-                    if _attempt < _max_retries:
-                        logger.warning(
-                            f"Rate limited (429) on closed vulns product {product_id} page {page} - "
-                            f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
-                        )
-                        time.sleep(retry_after)
-                    else:
-                        logger.error(f"Rate limited (429) on closed vulns product {product_id} - max retries exceeded")
-                response.raise_for_status()
-
-                data = response.json()
-
-                if "errors" in data:
+            _max_retries = 3
+            for _attempt in range(_max_retries + 1):
+                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
+                if response.status_code != 429:
                     break
-
-                if "data" in data and "findings" in data["data"]:
-                    findings_data = data["data"]["findings"]
-                    page_findings = findings_data.get("findings", [])
-                    page_info = findings_data.get("pageInfo", {})
-
-                    all_findings.extend(page_findings)
-
-                    has_next = page_info.get("hasNext", False)
-                    page += 1
+                retry_after = int(response.headers.get("Retry-After", 60))
+                if _attempt < _max_retries:
+                    logger.warning(
+                        f"Rate limited (429) on closed vulns page {page} - "
+                        f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
+                    )
+                    time.sleep(retry_after)
                 else:
-                    break
+                    logger.error(f"Rate limited (429) on closed vulns page {page} - max retries exceeded")
+            response.raise_for_status()
+
+            data = response.json()
+
+            if "errors" in data:
+                break
+
+            if "data" in data and "findings" in data["data"]:
+                findings_data = data["data"]["findings"]
+                page_findings = findings_data.get("findings", [])
+                page_info = findings_data.get("pageInfo", {})
+
+                all_findings.extend(page_findings)
+
+                has_next = page_info.get("hasNext", False)
+                page += 1
+            else:
+                break
 
         logger.info(f"Found ~{len(all_findings)} closed vulnerabilities (limited sample, no date filtering)")
 
