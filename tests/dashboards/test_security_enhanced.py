@@ -357,14 +357,22 @@ class TestGenerateSecurityDashboardEnhanced:
         assert count == 0
         assert "Web Application" in html
 
+    @patch("execution.dashboards.security_enhanced._update_history_current_total")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_write_to_output_directory(
-        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, sample_vulnerabilities, tmp_path
+        self,
+        mock_write,
+        mock_framework,
+        mock_load_baseline,
+        mock_vuln_loader_class,
+        mock_update_history,
+        sample_vulnerabilities,
+        tmp_path,
     ):
-        """Should write exactly one HTML file (main dashboard only)."""
+        """Should write exactly one HTML file (main dashboard only, no detail pages)."""
         mock_load_baseline.return_value = ["Web Application"]
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {})
