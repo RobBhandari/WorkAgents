@@ -132,118 +132,146 @@ def get_product_ids_from_baseline(baseline: dict) -> list[str]:
     return product_ids
 
 
-def query_current_vulnerabilities_graphql(base_url: str, product_ids: list[str]) -> dict:
+def _query_count_only(
+    graphql_url: str,
+    headers: dict,
+    product_ids_str: str,
+    severities: str,
+    statuses: str = '["OPEN", "CONFIRMED"]',
+) -> int:
     """
-    Query current HIGH and CRITICAL vulnerabilities using GraphQL API.
+    Query page 1 with size=1 to get totalElements without fetching finding details.
 
-    Matches the same filters as armorcode_weekly_query.py:
-    - severity: [High, Critical]
-    - status: ["OPEN", "CONFIRMED"]
-    - product: specific product IDs from baseline
+    Uses size=1 to minimise response payload — only pageInfo.totalElements is needed.
+    Includes 429 retry logic identical to the main query functions.
 
-    All product IDs are batched into a single GraphQL query (instead of one call
-    per product), reducing API calls from ~13×N pages to N pages total.
+    Args:
+        graphql_url: GraphQL endpoint URL
+        headers: Authorization headers
+        product_ids_str: Comma-separated product IDs for the filter
+        severities: GraphQL severity filter string, e.g. "[High, Critical]"
+        statuses: GraphQL status filter string
+
+    Returns:
+        totalElements count, or 0 on any error
+    """
+    query = f"""
+    {{
+      findings(
+        page: 1
+        size: 1
+        findingFilter: {{
+          product: [{product_ids_str}]
+          severity: {severities}
+          status: {statuses}
+        }}
+      ) {{
+        findings {{ id }}
+        pageInfo {{ totalElements }}
+      }}
+    }}
+    """
+    _max_retries = 3
+    try:
+        for _attempt in range(_max_retries + 1):
+            response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
+            if response.status_code != 429:
+                break
+            retry_after = int(response.headers.get("Retry-After", 60))
+            if _attempt < _max_retries:
+                logger.warning(
+                    f"Rate limited on count query - waiting {retry_after}s "
+                    f"(attempt {_attempt + 1}/{_max_retries})..."
+                )
+                time.sleep(retry_after)
+        response.raise_for_status()
+        data = response.json()
+        if "data" in data and "findings" in data["data"]:
+            return data["data"]["findings"].get("pageInfo", {}).get("totalElements", 0)
+    except (ConnectionError, TimeoutError) as e:
+        logger.warning(f"Network error in count query: {e}")
+    except (KeyError, ValueError, json.JSONDecodeError) as e:
+        logger.warning(f"Invalid response in count query: {e}")
+    return 0
+
+
+def query_current_vulnerabilities_graphql(
+    base_url: str,
+    product_ids: list[str],
+    product_id_to_name: dict[str, str] | None = None,
+) -> dict:
+    """
+    Query accurate vulnerability counts using targeted page-1 queries.
+
+    Replaces full pagination (100+ pages for 12k+ findings) with targeted
+    totalElements lookups — 2 + N×2 API calls instead of 100+ pages.
+
+    Queries made:
+    - 1 call: all products [High, Critical] → accurate overall total
+    - 1 call: all products [Critical] only → accurate critical count
+    - N×2 calls (if product_id_to_name provided): per-product total + critical
+
+    Total: 2 + N×2 calls (e.g. 30 for 14 products) vs previous ~129 pages.
+    No pagination → no rate-limit exposure.
 
     Args:
         base_url: ArmorCode API base URL
         product_ids: List of product IDs to query
+        product_id_to_name: Optional ID→name mapping for per-product breakdown.
+                            When None, product_breakdown is returned empty.
 
     Returns:
-        Dictionary with vulnerability data
+        Dictionary with pre-computed counts (findings list is always empty):
+        {
+            "findings": [],
+            "total_count": N,
+            "severity_breakdown": {"critical": C, "high": H, "total": N},
+            "product_breakdown": {"Product A": {"critical": C, "high": H, "total": T}, ...},
+        }
     """
     logger.info("Querying current HIGH and CRITICAL vulnerabilities via GraphQL...")
     logger.info(f"Products: {len(product_ids)} (batched in single query)")
 
     headers = get_armorcode_headers()
     graphql_url = f"{base_url.rstrip('/')}/api/graphql"
-
-    all_findings = []
-    accurate_total = 0  # totalElements from page 1 (uncapped, all environments)
-
-    # Batch all product IDs into a single query — reduces API calls ~13x
     all_product_ids_str = ", ".join(product_ids)
 
     try:
-        page = 1
-        has_next = True
+        # 1. Accurate overall total (HIGH + CRITICAL, all products)
+        accurate_total = _query_count_only(graphql_url, headers, all_product_ids_str, "[High, Critical]")
 
-        while has_next:
-            query = f"""
-            {{
-              findings(
-                page: {page}
-                size: 100
-                findingFilter: {{
-                  product: [{all_product_ids_str}]
-                  severity: [High, Critical]
-                  status: ["OPEN", "CONFIRMED"]
-                }}
-              ) {{
-                findings {{
-                  id
-                  severity
-                  status
-                  product {{
-                    name
-                  }}
-                  environment {{
-                    name
-                  }}
-                }}
-                pageInfo {{
-                  hasNext
-                  totalElements
-                }}
-              }}
-            }}
-            """
+        # 2. Accurate critical count — high is the remainder
+        accurate_critical = _query_count_only(graphql_url, headers, all_product_ids_str, "[Critical]")
+        accurate_high = accurate_total - accurate_critical
 
-            _max_retries = 3
-            for _attempt in range(_max_retries + 1):
-                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
-                if response.status_code != 429:
-                    break
-                retry_after = int(response.headers.get("Retry-After", 60))
-                if _attempt < _max_retries:
-                    logger.warning(
-                        f"Rate limited (429) on page {page} - "
-                        f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
-                    )
-                    time.sleep(retry_after)
-                else:
-                    logger.error(f"Rate limited (429) on page {page} - max retries exceeded")
-            response.raise_for_status()
+        logger.info(f"Found {accurate_total} accurate total HIGH/CRITICAL vulnerabilities")
+        logger.info(f"Critical: {accurate_critical}, High: {accurate_high}")
 
-            data = response.json()
+        severity_breakdown = {
+            "critical": accurate_critical,
+            "high": accurate_high,
+            "total": accurate_total,
+        }
 
-            if "errors" in data:
-                logger.error(f"GraphQL error on page {page}: {data['errors']}")
-                break
+        # 3. Per-product accurate counts (2 calls per product: total + critical)
+        product_breakdown: dict = {}
+        if product_id_to_name:
+            for product_id, product_name in product_id_to_name.items():
+                prod_total = _query_count_only(graphql_url, headers, product_id, "[High, Critical]")
+                prod_critical = _query_count_only(graphql_url, headers, product_id, "[Critical]")
+                product_breakdown[product_name] = {
+                    "critical": prod_critical,
+                    "high": prod_total - prod_critical,
+                    "total": prod_total,
+                }
+                logger.debug(f"  {product_name}: {prod_total} ({prod_critical} critical)")
 
-            if "data" in data and "findings" in data["data"]:
-                findings_data = data["data"]["findings"]
-                page_findings = findings_data.get("findings", [])
-                page_info = findings_data.get("pageInfo", {})
-
-                all_findings.extend(page_findings)
-                has_next = page_info.get("hasNext", False)
-
-                if page == 1:  # Capture accurate total from first page (uncapped)
-                    accurate_total = page_info.get("totalElements", 0)
-
-                page += 1
-
-                if page > 100:
-                    logger.warning("Reached page limit (100) for batched query")
-                    break
-            else:
-                break
-
-        logger.info(
-            f"Found {len(all_findings)} fetched / {accurate_total} accurate total HIGH/CRITICAL vulnerabilities"
-        )
-
-        return {"findings": all_findings, "total_count": accurate_total}
+        return {
+            "findings": [],  # No raw findings — counts are pre-computed
+            "total_count": accurate_total,
+            "severity_breakdown": severity_breakdown,
+            "product_breakdown": product_breakdown,
+        }
 
     except (ConnectionError, TimeoutError) as e:
         logger.error(f"Network error querying current vulnerabilities: {e}")
@@ -522,10 +550,10 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
 
     logger.info("Collecting enhanced security metrics from ArmorCode...")
 
-    # Get product IDs from baseline
-    product_ids = get_product_ids_from_baseline(baseline)
-    if not product_ids:
-        logger.error("No product IDs found in baseline - cannot query")
+    # Build product_id→name mapping for accurate per-product breakdown queries
+    product_names = baseline.get("products", [])
+    if not product_names:
+        logger.error("No products found in baseline - cannot query")
         return {
             "current_total": 0,
             "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
@@ -542,20 +570,56 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
             "collected_at": datetime.now().isoformat(),
         }
 
-    # Query current vulnerabilities using GraphQL with product filter
-    current_vulns = query_current_vulnerabilities_graphql(base_url, product_ids)
+    logger.info(f"Found {len(product_names)} products in baseline")
+    logger.info("Converting product names to IDs...")
+
+    product_name_map = get_product_names_to_ids(product_names)  # name → id
+    product_ids: list[str] = []
+    product_id_to_name: dict[str, str] = {}
+    for name in product_names:
+        if name in product_name_map:
+            pid = product_name_map[name]
+            product_ids.append(pid)
+            product_id_to_name[pid] = name
+        else:
+            logger.warning(f"Product '{name}' not found in ArmorCode")
+
+    if not product_ids:
+        logger.error("No product IDs resolved from baseline")
+        return {
+            "current_total": 0,
+            "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
+            "product_breakdown": {},
+            "mttr": {
+                "critical_mttr_days": None,
+                "high_mttr_days": None,
+                "critical_sample_size": 0,
+                "high_sample_size": 0,
+            },
+            "stale_criticals": {"count": 0, "threshold_days": 90, "items": []},
+            "age_distribution": {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0},
+            "closed_count_90d": 0,
+            "collected_at": datetime.now().isoformat(),
+        }
+
+    logger.info(f"Resolved {len(product_ids)} product IDs")
+
+    # Query accurate vulnerability counts (totalElements-based, no full pagination)
+    current_vulns = query_current_vulnerabilities_graphql(base_url, product_ids, product_id_to_name)
 
     # Query closed vulnerabilities (for MTTR) using GraphQL
     closed_vulns = query_closed_vulnerabilities_graphql(
         base_url, product_ids, lookback_days=config.get("lookback_days", 90)
     )
 
-    # Filter findings to Production environment (for breakdown calculations)
-    # total_count is preserved as the accurate totalElements sum (all environments)
-    logger.info("Applying Production environment filter to findings...")
-    current_vulns["findings"] = filter_production_findings(current_vulns["findings"])
+    # Filter closed findings to Production environment
+    logger.info("Applying Production environment filter to closed findings...")
     closed_vulns["findings"] = filter_production_findings(closed_vulns["findings"])
     closed_vulns["total_count"] = len(closed_vulns["findings"])
+
+    # Use pre-computed accurate counts from current_vulns (no raw findings to process)
+    severity_breakdown = current_vulns.get("severity_breakdown", {"critical": 0, "high": 0, "total": 0})
+    product_breakdown = current_vulns.get("product_breakdown", {})
 
     # Calculate metrics
     try:
@@ -564,28 +628,16 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
         logger.error(f"MTTR calculation failed: {e}")
         mttr = {"critical_mttr_days": None, "high_mttr_days": None, "critical_sample_size": 0, "high_sample_size": 0}
 
-    try:
-        stale_criticals = identify_stale_criticals(
-            current_vulns["findings"], stale_threshold_days=config.get("stale_threshold_days", 90)
-        )
-    except Exception as e:
-        logger.error(f"Stale criticals calculation failed: {e}")
-        stale_criticals = {"count": 0, "threshold_days": 90, "items": []}
+    # Stale criticals: accurate count of ALL open criticals (dates unavailable)
+    stale_criticals = {
+        "count": severity_breakdown["critical"],
+        "threshold_days": config.get("stale_threshold_days", 90),
+        "items": [],
+        "note": "Age calculation disabled - date fields not available in GraphQL schema",
+    }
 
     try:
-        severity_breakdown = calculate_severity_breakdown(current_vulns["findings"])
-    except Exception as e:
-        logger.error(f"Severity breakdown calculation failed: {e}")
-        severity_breakdown = {"critical": 0, "high": 0, "total": 0}
-
-    try:
-        product_breakdown = calculate_product_breakdown(current_vulns["findings"])
-    except Exception as e:
-        logger.error(f"Product breakdown calculation failed: {e}")
-        product_breakdown = {}
-
-    try:
-        age_distribution = calculate_age_distribution(current_vulns["findings"])
+        age_distribution = calculate_age_distribution([])
     except Exception as e:
         logger.error(f"Age distribution calculation failed: {e}")
         age_distribution = {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0}
