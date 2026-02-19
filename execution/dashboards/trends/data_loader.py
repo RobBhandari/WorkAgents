@@ -126,5 +126,6 @@ class TrendsDataLoader:
             "collaboration": self.load_history_file("collaboration_history.json"),
             "ownership": self.load_history_file("ownership_history.json"),
             "risk": self.load_history_file("risk_history.json"),
+            "exploitable": self.load_history_file("exploitable_history.json"),
             "baselines": self.load_baseline_data(),
         }
