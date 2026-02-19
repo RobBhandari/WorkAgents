@@ -140,36 +140,38 @@ def test_load_discovery_data_missing_file():
 # Test: _query_current_armorcode_vulns
 @pytest.mark.asyncio
 async def test_query_current_armorcode_vulns_success():
-    """Test successful querying of current vulnerabilities from API"""
-    # Mock vulnerabilities
+    """Test successful querying of current vulnerabilities using hybrid loader"""
+    # Mock vulnerabilities — use .product and .severity (as used by new implementation)
     mock_vuln_critical = Mock()
-    mock_vuln_critical.is_critical_or_high = True
-    mock_vuln_critical.is_critical = True
-    mock_vuln_critical.is_high = False
+    mock_vuln_critical.product = "Product A"
+    mock_vuln_critical.severity = "CRITICAL"
 
-    mock_vuln_high = Mock()
-    mock_vuln_high.is_critical_or_high = True
-    mock_vuln_high.is_critical = False
-    mock_vuln_high.is_high = True
+    mock_vuln_high1 = Mock()
+    mock_vuln_high1.product = "Product A"
+    mock_vuln_high1.severity = "HIGH"
+
+    mock_vuln_high2 = Mock()
+    mock_vuln_high2.product = "Product A"
+    mock_vuln_high2.severity = "HIGH"
 
     mock_vuln_medium = Mock()
-    mock_vuln_medium.is_critical_or_high = False
+    mock_vuln_medium.product = "Product A"
+    mock_vuln_medium.severity = "MEDIUM"
 
+    # Small products: bucket_counts_by_product[name] = None means fetched set is complete
     mock_loader = Mock()
-    mock_loader.load_vulnerabilities_for_products.return_value = [
-        mock_vuln_critical,
-        mock_vuln_high,
-        mock_vuln_high,
-        mock_vuln_medium,
-    ]
+    mock_loader.load_vulnerabilities_hybrid.return_value = (
+        [mock_vuln_critical, mock_vuln_high1, mock_vuln_high2, mock_vuln_medium],
+        {"Product A": None, "Product B": None},
+    )
 
     with patch("execution.dashboards.targets.ArmorCodeVulnerabilityLoader", return_value=mock_loader):
         result = await _query_current_armorcode_vulns(["Product A", "Product B"])
 
         # Should return only critical + high (3)
         assert result == 3
-        mock_loader.load_vulnerabilities_for_products.assert_called_once_with(
-            ["Product A", "Product B"], filter_environment=True
+        mock_loader.load_vulnerabilities_hybrid.assert_called_once_with(
+            ["Product A", "Product B"], filter_environment=True, max_per_product=500
         )
 
 
