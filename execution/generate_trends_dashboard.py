@@ -108,6 +108,12 @@ def main():
             trends["risk"] = risk_trends
             logger.info(f"Risk metrics extracted: {len(risk_trends['total_commits']['trend_data'])} weeks")
 
+    if metrics_data.get("exploitable"):
+        exploitable_trends = calculator.extract_exploitable_trends(metrics_data["exploitable"]["weeks"])
+        if exploitable_trends:
+            trends["exploitable"] = exploitable_trends
+            logger.info(f"Exploitable metrics extracted: {len(exploitable_trends['exploitable']['trend_data'])} weeks")
+
     # Stage 3: Render Dashboard
     logger.info("Generating dashboard...")
     renderer = TrendsRenderer(trends_data=trends, target_progress=target_progress)

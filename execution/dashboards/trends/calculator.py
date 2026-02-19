@@ -429,6 +429,29 @@ class TrendsCalculator:
             }
         }
 
+    def extract_exploitable_trends(self, weeks: list[dict]) -> dict | None:
+        """Extract exploitable vulnerability trends from exploitable_history.json weeks."""
+        if not weeks:
+            return None
+        total_trend: list[int] = []
+        critical_list: list[int] = []
+        high_list: list[int] = []
+        for week in weeks:
+            sb = week.get("metrics", {}).get("severity_breakdown", {})
+            total_trend.append(sb.get("total", 0))
+            critical_list.append(sb.get("critical", 0))
+            high_list.append(sb.get("high", 0))
+        return {
+            "exploitable": {
+                "current": total_trend[-1] if total_trend else 0,
+                "previous": total_trend[-2] if len(total_trend) > 1 else 0,
+                "current_critical": critical_list[-1] if critical_list else 0,
+                "current_high": high_list[-1] if high_list else 0,
+                "trend_data": total_trend,
+                "unit": "vulns",
+            }
+        }
+
     @staticmethod
     def get_trend_indicator(current: float, previous: float, good_direction: str = "down") -> tuple[str, str, float]:
         """Get trend indicator (↑↓→) and CSS class

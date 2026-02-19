@@ -150,7 +150,33 @@ class TrendsRenderer:
                 }
             )
 
-        # 4. Open Bugs
+        # 4. Exploitable Vulns
+        exploitable = self.trends_data.get("exploitable", {})
+        if exploitable:
+            exp = exploitable.get("exploitable", {})
+            arrow, css_class, change = self._get_trend_indicator(exp["current"], exp["previous"], "down")
+            rag_color = (
+                "#ef4444" if exp["current_critical"] > 0 else ("#f59e0b" if exp["current_high"] > 0 else "#10b981")
+            )
+            metrics.append(
+                {
+                    "id": "exploitable",
+                    "icon": "🎯",
+                    "title": "Exploitable Vulns",
+                    "description": "CISA KEV exploitable findings by product. Critical = immediate action required.",
+                    "current": exp["current"],
+                    "unit": exp["unit"],
+                    "change": change,
+                    "changeLabel": "vs last week",
+                    "data": exp["trend_data"],
+                    "arrow": arrow,
+                    "cssClass": css_class,
+                    "ragColor": rag_color,
+                    "dashboardUrl": "exploitable_dashboard.html",
+                }
+            )
+
+        # 5. Open Bugs
         quality = self.trends_data.get("quality", {})
         if quality:
             bugs = quality.get("bugs", {})
