@@ -456,6 +456,13 @@ jobs:
             echo "⚠️  No dashboards found, deployment will be empty"
           fi
 
+      - name: Regenerate Trends dashboard with accurate security count
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          echo "📊 Regenerating Trends dashboard using patched security history..."
+          python execution/generate_trends_dashboard.py
+          echo "✅ Trends dashboard regenerated — overwrites Job 3 version with accurate count"
+
       - name: Validate authentication config (REQUIRED)
         run: |
           echo "🔒 Validating Azure AD authentication configuration..."
