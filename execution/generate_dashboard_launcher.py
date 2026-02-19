@@ -61,6 +61,14 @@ def generate_dashboard_launcher(output_path: Path | None = None) -> str:
             "status_class": "",
         },
         {
+            "title": "Exploitable Vulns",
+            "filename": "exploitable_dashboard.html",
+            "icon": "🎯",
+            "description": "CISA KEV exploitable findings by product and source bucket",
+            "status": None,
+            "status_class": "",
+        },
+        {
             "title": "Flow",
             "filename": "flow_dashboard.html",
             "icon": "⚡",
