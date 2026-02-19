@@ -269,11 +269,16 @@ def _build_context(
         include_glossary=False,
     )
 
-    # Build summary cards using component function
+    # Accurate header totals: API bucket_counts for large products, fetched for small
+    acc_critical, acc_high = 0, 0
+    for pn, m in metrics_by_product.items():
+        bkt = bucket_counts_by_product.get(pn)
+        acc_critical += sum(b["critical"] for b in bkt.values()) if bkt else m.critical
+        acc_high += sum(b["high"] for b in bkt.values()) if bkt else m.high
     summary_cards = [
-        summary_card("Priority Findings", str(summary_stats["critical_high_total"])),
-        summary_card("Critical", str(summary_stats["total_critical"]), css_class="critical"),
-        summary_card("High", str(summary_stats["total_high"]), css_class="high"),
+        summary_card("Priority Findings", str(acc_critical + acc_high)),
+        summary_card("Critical", str(acc_critical), css_class="critical"),
+        summary_card("High", str(acc_high), css_class="high"),
         summary_card("Products", str(summary_stats["products_with_vulns"])),
     ]
 
