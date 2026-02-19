@@ -206,6 +206,7 @@ jobs:
           ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
           ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
           ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}
+          ARMORCODE_HIERARCHY: ${{ secrets.ARMORCODE_HIERARCHY }}
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
 
