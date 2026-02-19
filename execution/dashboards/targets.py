@@ -21,6 +21,7 @@ Usage:
 
 import asyncio
 import json
+from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -193,20 +194,38 @@ async def _query_current_armorcode_vulns(product_names: list[str]) -> int:
     """
     logger.info(f"Querying ArmorCode API for {len(product_names)} products (Production only)")
 
-    # Initialize loader and query API
+    # Use hybrid loader: accurate totalElements counts for large products, fetched counts for small
     loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities = loader.load_vulnerabilities_for_products(product_names, filter_environment=True)
+    vulnerabilities, bucket_counts_by_product = loader.load_vulnerabilities_hybrid(
+        product_names, filter_environment=True, max_per_product=500
+    )
 
-    # Count HIGH + CRITICAL only
-    critical_high_vulns = [v for v in vulnerabilities if v.is_critical_or_high]
-    total_vulns = len(critical_high_vulns)
+    # Build per-product critical/high counts from the fetched set (used for small products)
+    product_counts: dict[str, dict[str, int]] = defaultdict(lambda: {"critical": 0, "high": 0})
+    for vuln in vulnerabilities:
+        if vuln.severity.upper() == "CRITICAL":
+            product_counts[vuln.product]["critical"] += 1
+        elif vuln.severity.upper() == "HIGH":
+            product_counts[vuln.product]["high"] += 1
 
-    critical_count = sum(1 for v in critical_high_vulns if v.is_critical)
-    high_count = sum(1 for v in critical_high_vulns if v.is_high)
+    # For large products use accurate API bucket counts (totalElements, no pagination cap);
+    # for small products the fetched set is complete so use it directly.
+    acc_critical, acc_high = 0, 0
+    for product_name in product_names:
+        bkt = bucket_counts_by_product.get(product_name)
+        if bkt:
+            acc_critical += sum(b["critical"] for b in bkt.values())
+            acc_high += sum(b["high"] for b in bkt.values())
+        else:
+            pc = product_counts.get(product_name, {})
+            acc_critical += pc.get("critical", 0)
+            acc_high += pc.get("high", 0)
+
+    total_vulns = acc_critical + acc_high
 
     logger.info(f"Current ArmorCode vulnerabilities (Production): {total_vulns}")
-    logger.info(f"  Critical: {critical_count}")
-    logger.info(f"  High: {high_count}")
+    logger.info(f"  Critical: {acc_critical}")
+    logger.info(f"  High: {acc_high}")
 
     return total_vulns
 
