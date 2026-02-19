@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write  # Allow workflow to commit and push history files
+  actions: read    # Allow download-artifact to call ListArtifacts API
 
 jobs:
   # Job 1: Discover Projects (MUST run first - other collectors depend on it)
