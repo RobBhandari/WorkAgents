@@ -97,8 +97,9 @@ jobs:
           - { name: 'Deployment Metrics', script: 'collectors/ado_deployment_metrics.py', outputs: 'deployment_history.json' }
           - { name: 'Collaboration Metrics', script: 'collectors/ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
           - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
+          - { name: 'Exploitable Metrics', script: 'collectors/armorcode_exploitable_collector.py', outputs: 'exploitable_history.json' }
       fail-fast: false  # Continue even if one fails
-      max-parallel: 7   # Run all 7 collectors at once
+      max-parallel: 8   # Run all 8 collectors at once
 
     steps:
       - name: Checkout repository
@@ -242,11 +243,12 @@ jobs:
           - { name: 'Deployment', script: 'deployment.py' }
           - { name: 'Collaboration', script: 'collaboration.py' }
           - { name: 'Security', script: 'security_enhanced.py' }
+          - { name: 'Exploitable', script: 'exploitable_dashboard.py' }
           - { name: 'Targets', script: 'targets.py' }
           - { name: 'Trends', script: '../generate_trends_dashboard.py' }
           - { name: 'Executive', script: 'executive.py' }
       fail-fast: false
-      max-parallel: 11
+      max-parallel: 12
 
     steps:
       - name: Checkout repository
@@ -343,6 +345,9 @@ jobs:
               ;;
             "Security")
               REQUIRED_FILE="security_history.json"
+              ;;
+            "Exploitable")
+              REQUIRED_FILE="exploitable_history.json"
               ;;
             "Targets"|"Executive")
               # These dashboards aggregate all history files
