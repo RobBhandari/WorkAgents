@@ -385,6 +385,14 @@ jobs:
           retention-days: 1
         if: success()
 
+      - name: Upload patched security history (live-accurate count for index.html)
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-history-patched
+          path: .tmp/observatory/security_history.json
+          retention-days: 1
+        if: matrix.dashboard.name == 'Security' && success()
+
   # Job 4: Deploy to Azure Static Web Apps
   deploy-to-azure:
     needs: generate-dashboards
@@ -408,6 +416,13 @@ jobs:
           pattern: metrics-*
           path: metrics-artifacts/
         continue-on-error: false
+
+      - name: Apply patched security history (live-accurate count overrides collector)
+        uses: actions/download-artifact@v4
+        with:
+          name: security-history-patched
+          path: metrics-artifacts/metrics-Security Metrics/
+        continue-on-error: true  # If security dashboard failed, fall back to collector count
 
       - name: Verify and merge fresh metrics
         run: |
