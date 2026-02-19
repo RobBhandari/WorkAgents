@@ -3,10 +3,11 @@ Tests for ArmorCode Enhanced Metrics Collector
 
 Covers the key optimizations in query_current_vulnerabilities_graphql()
 and query_closed_vulnerabilities_graphql():
-- All product IDs batched in a single GraphQL call (not per-product loops)
-- accurate_total uses totalElements from page 1 (not len(findings))
-- Pagination works correctly across multiple pages
-- 429 retry logic preserved
+- All product IDs batched in every count query (not per-product loops)
+- No pagination — accurate counts come from totalElements on page-1 queries
+- Exactly 2 API calls for overall totals (total + critical), regardless of data size
+- Per-product breakdown uses N×2 additional page-1 calls (not paginated fetches)
+- 429 retry logic preserved in _query_count_only
 
 Run with:
     pytest tests/collectors/test_armorcode_enhanced_metrics.py -v
@@ -88,12 +89,13 @@ def _mock_cfg_context(mock_cfg):
 
 
 class TestQueryCurrentVulnerabilities:
-    """Tests for query_current_vulnerabilities_graphql"""
+    """Tests for the count-only (no-pagination) implementation."""
 
-    def test_batches_all_product_ids_in_single_query(self):
-        """All product IDs must appear in a single GraphQL call, not separate per-product calls."""
+    def test_batches_all_product_ids_in_both_count_queries(self):
+        """All product IDs must appear in EVERY count query sent to the API."""
         product_ids = ["101", "202", "303"]
-        response = _make_response([_make_finding()], has_next=False, total_elements=1)
+        # Both calls (overall total + critical) return the same mock response
+        response = _make_response([], has_next=False, total_elements=5)
 
         with (
             patch(f"{_MODULE}.get_config") as mock_cfg,
@@ -102,53 +104,66 @@ class TestQueryCurrentVulnerabilities:
             _mock_cfg_context(mock_cfg)
             query_current_vulnerabilities_graphql("https://api.example.com", product_ids)
 
-        # Should be called exactly ONCE (one page, all products batched)
-        assert mock_post.call_count == 1
+        # Exactly 2 calls: overall total + overall critical
+        assert mock_post.call_count == 2
 
-        # The query body must contain all three IDs
-        query_body = mock_post.call_args[1]["json"]["query"]
-        assert "101" in query_body
-        assert "202" in query_body
-        assert "303" in query_body
+        # Both queries must contain all three product IDs
+        for call in mock_post.call_args_list:
+            query_body = call[1]["json"]["query"]
+            assert "101" in query_body
+            assert "202" in query_body
+            assert "303" in query_body
 
-    def test_total_count_uses_total_elements_not_len_findings(self):
-        """total_count must come from totalElements (accurate), not len(findings) (capped)."""
-        # 350 total vulns, only 200 fetched across 2 pages
-        page1_findings = [_make_finding() for _ in range(100)]
-        page2_findings = [_make_finding() for _ in range(100)]
-
-        resp_page1 = _make_response(page1_findings, has_next=True, total_elements=350)
-        resp_page2 = _make_response(page2_findings, has_next=False)
+    def test_total_count_from_total_elements_not_findings(self):
+        """total_count must come from totalElements (accurate), not len(findings)."""
+        # Response returns 0 findings but totalElements = 350
+        response_total = _make_response([], has_next=False, total_elements=350)
+        response_critical = _make_response([], has_next=False, total_elements=50)
 
         with (
             patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", side_effect=[resp_page1, resp_page2]),
+            patch(f"{_MODULE}.post", side_effect=[response_total, response_critical]),
         ):
             _mock_cfg_context(mock_cfg)
             result = query_current_vulnerabilities_graphql("https://api.example.com", ["101"])
 
-        # Accurate total from totalElements, not just what was fetched
         assert result["total_count"] == 350
-        assert len(result["findings"]) == 200
+        assert result["findings"] == []  # No raw findings — counts are pre-computed
 
-    def test_paginates_until_has_next_false(self):
-        """Collector must fetch all pages until hasNext is False."""
-        resp_p1 = _make_response([_make_finding()], has_next=True, total_elements=3)
-        resp_p2 = _make_response([_make_finding()], has_next=True)
-        resp_p3 = _make_response([_make_finding()], has_next=False)
+    def test_severity_breakdown_from_total_elements(self):
+        """Severity breakdown must use accurate totalElements, not fetched finding objects."""
+        response_total = _make_response([], has_next=False, total_elements=350)
+        response_critical = _make_response([], has_next=False, total_elements=50)
 
         with (
             patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", side_effect=[resp_p1, resp_p2, resp_p3]) as mock_post,
+            patch(f"{_MODULE}.post", side_effect=[response_total, response_critical]),
         ):
             _mock_cfg_context(mock_cfg)
             result = query_current_vulnerabilities_graphql("https://api.example.com", ["101"])
 
-        assert mock_post.call_count == 3
-        assert len(result["findings"]) == 3
+        assert result["severity_breakdown"]["critical"] == 50
+        assert result["severity_breakdown"]["high"] == 300  # 350 - 50
+        assert result["severity_breakdown"]["total"] == 350
+
+    def test_no_pagination_regardless_of_result_size(self):
+        """With count-only approach, exactly 2 API calls even for 99,999 findings."""
+        # hasNext=True and huge totalElements — must NOT trigger pagination
+        response = _make_response([], has_next=True, total_elements=99999)
+
+        with (
+            patch(f"{_MODULE}.get_config") as mock_cfg,
+            patch(f"{_MODULE}.post", return_value=response) as mock_post,
+        ):
+            _mock_cfg_context(mock_cfg)
+            result = query_current_vulnerabilities_graphql("https://api.example.com", ["101", "202"])
+
+        # CRITICAL: exactly 2 calls — no pagination loop
+        assert mock_post.call_count == 2
+        assert result["total_count"] == 99999
 
     def test_returns_empty_on_network_error(self):
-        """Network errors must return empty result, not raise."""
+        """Network errors must return zero counts, not raise."""
         with (
             patch(f"{_MODULE}.get_config") as mock_cfg,
             patch(f"{_MODULE}.post", side_effect=ConnectionError("timeout")),
@@ -156,22 +171,43 @@ class TestQueryCurrentVulnerabilities:
             _mock_cfg_context(mock_cfg)
             result = query_current_vulnerabilities_graphql("https://api.example.com", ["101"])
 
-        assert result == {"findings": [], "total_count": 0}
+        assert result["total_count"] == 0
+        assert result["findings"] == []
 
-    def test_single_page_makes_one_api_call(self):
-        """When hasNext=False on page 1, only one API call is made regardless of product count."""
-        response = _make_response([_make_finding(), _make_finding()], has_next=False, total_elements=2)
+    def test_per_product_breakdown_when_names_provided(self):
+        """When product_id_to_name provided, makes per-product count queries (N×2 extra calls)."""
+        product_ids = ["101", "202"]
+        product_id_to_name = {"101": "Product A", "202": "Product B"}
+
+        # Call order: overall_total, overall_critical,
+        #             prod-101 total, prod-101 critical,
+        #             prod-202 total, prod-202 critical
+        responses = [
+            _make_response([], has_next=False, total_elements=100),  # overall total
+            _make_response([], has_next=False, total_elements=20),  # overall critical
+            _make_response([], has_next=False, total_elements=60),  # product 101 total
+            _make_response([], has_next=False, total_elements=10),  # product 101 critical
+            _make_response([], has_next=False, total_elements=40),  # product 202 total
+            _make_response([], has_next=False, total_elements=10),  # product 202 critical
+        ]
 
         with (
             patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", return_value=response) as mock_post,
+            patch(f"{_MODULE}.post", side_effect=responses) as mock_post,
         ):
             _mock_cfg_context(mock_cfg)
-            result = query_current_vulnerabilities_graphql("https://api.example.com", ["101", "202", "303", "404"])
+            result = query_current_vulnerabilities_graphql("https://api.example.com", product_ids, product_id_to_name)
 
-        assert mock_post.call_count == 1
-        assert result["total_count"] == 2
-        assert len(result["findings"]) == 2
+        # 2 overall + 2×2 per-product = 6 total calls
+        assert mock_post.call_count == 6
+
+        assert result["product_breakdown"]["Product A"]["critical"] == 10
+        assert result["product_breakdown"]["Product A"]["high"] == 50  # 60 - 10
+        assert result["product_breakdown"]["Product A"]["total"] == 60
+
+        assert result["product_breakdown"]["Product B"]["critical"] == 10
+        assert result["product_breakdown"]["Product B"]["high"] == 30  # 40 - 10
+        assert result["product_breakdown"]["Product B"]["total"] == 40
 
 
 # ---------------------------------------------------------------------------
