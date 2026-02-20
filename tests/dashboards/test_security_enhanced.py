@@ -269,7 +269,7 @@ class TestLoadSecurityData:
         mock_load_baseline.return_value = ["Web Application", "Mobile App"]
         mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {})
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {}, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -299,7 +299,7 @@ class TestLoadSecurityData:
         mock_load_baseline.return_value = []
         mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {})
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {}, {})
         mock_vuln_loader.group_by_product.return_value = {}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -327,6 +327,7 @@ class TestZeroVulnProducts:
         # Only Web Application has vulns; Proclaim returns nothing
         mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (
             [_make_vuln("CRITICAL", "Mend", product="Web Application")],
+            {},
             {},
             {},
         )
@@ -363,7 +364,7 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
         mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {})
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {}, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style>.card{}</style>", "<script></script>")
@@ -396,7 +397,7 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_load_baseline.return_value = ["Web Application"]
         mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {})
+        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {}, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -426,6 +427,7 @@ class TestProductionOnlyTotals:
             [],
             {},
             {"Product1": {"critical": 9999, "high": 9999, "total": 19998}},
+            {"Product1": "pid1"},  # product_id_map: name -> id
         )
         mock_loader.group_by_product.return_value = {}
         # Production-only AQL counts
@@ -455,7 +457,7 @@ class TestProductionOnlyTotals:
         mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
 
         mock_loader = Mock()
-        mock_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {})
+        mock_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {}, {})
         mock_loader.group_by_product.return_value = {}
         mock_vuln_loader_class.return_value = mock_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")

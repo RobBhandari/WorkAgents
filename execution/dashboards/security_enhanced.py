@@ -167,8 +167,8 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     logger.info("Querying ArmorCode API (hybrid: capped detail + accurate counts)")
     vuln_loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities, bucket_counts_by_product, accurate_totals = vuln_loader.load_vulnerabilities_hybrid(
-        products, filter_environment=True, max_per_product=50
+    vulnerabilities, bucket_counts_by_product, accurate_totals, product_id_map = (
+        vuln_loader.load_vulnerabilities_hybrid(products, filter_environment=True, max_per_product=50)
     )
     logger.info(f"Retrieved {len(vulnerabilities)} vulnerability details (capped at 50/product for display)")
 
@@ -193,7 +193,9 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     # Override accurate_totals with Production-only AQL counts (2 API calls).
     # This ensures the header cards and history patch match target_dashboard.py and
     # show only Production environment findings — consistent with what teams care about.
+    # Also build per-product AQL counts for the table rows (consistent with header).
     hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
+    aql_by_product: dict[str, dict] | None = None
     if hierarchy:
         crit_aql = vuln_loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
         high_aql = vuln_loader.count_by_severity_aql("High", hierarchy, environment="Production")
@@ -204,6 +206,17 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
             "Using Production-only AQL totals",
             extra={"critical": prod_c, "high": prod_h, "total": prod_c + prod_h},
         )
+        # Map AQL product_id keys → product names for per-row display
+        id_to_name = {pid: name for name, pid in product_id_map.items()}
+        aql_by_product = {}
+        for pid, count in crit_aql.items():
+            name = id_to_name.get(str(pid))
+            if name:
+                aql_by_product.setdefault(name, {"critical": 0, "high": 0})["critical"] = count
+        for pid, count in high_aql.items():
+            name = id_to_name.get(str(pid))
+            if name:
+                aql_by_product.setdefault(name, {"critical": 0, "high": 0})["high"] = count
     else:
         logger.warning("ARMORCODE_HIERARCHY not set — totals include all environments")
 
@@ -212,7 +225,7 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     acc_h = sum(t.get("high", 0) for t in accurate_totals.values())
 
     main_html = _generate_main_dashboard_html(
-        metrics_by_product, vulns_by_product, bucket_counts_by_product, accurate_totals
+        metrics_by_product, vulns_by_product, bucket_counts_by_product, accurate_totals, aql_by_product
     )
 
     # Patch history JSON with the same value shown on the dashboard
@@ -264,11 +277,12 @@ def _generate_main_dashboard_html(
     vulns_by_product: dict,
     bucket_counts_by_product: dict,
     accurate_totals: dict,
+    aql_by_product: dict | None = None,
 ) -> str:
     """Generate main dashboard HTML using 4-stage pipeline."""
     summary_stats = _calculate_summary(metrics_by_product)
     context = _build_context(
-        metrics_by_product, vulns_by_product, summary_stats, bucket_counts_by_product, accurate_totals
+        metrics_by_product, vulns_by_product, summary_stats, bucket_counts_by_product, accurate_totals, aql_by_product
     )
     return render_dashboard("dashboards/security_dashboard.html", context)
 
@@ -325,6 +339,7 @@ def _build_context(
     summary_stats: dict,
     bucket_counts_by_product: dict,
     accurate_totals: dict,
+    aql_by_product: dict | None = None,
 ) -> dict:
     """Stage 3: Build template context."""
     # Get framework CSS/JS (enable expandable rows)
@@ -349,16 +364,32 @@ def _build_context(
     # Build product rows with expandable content
     products = []
     for product_name, metrics in sorted(metrics_by_product.items()):
-        # Determine status using standard status classes
-        if metrics.critical >= 5:
+        vulns = vulns_by_product.get(product_name, [])
+        product_bucket_counts = bucket_counts_by_product.get(product_name)
+
+        # Use AQL production counts when available (consistent with overview header).
+        # The 50-record fetch cap is for the expandable detail rows only, not for display counts.
+        if aql_by_product is not None:
+            aql_counts = aql_by_product.get(product_name, {})
+            display_critical = aql_counts.get("critical", 0)
+            display_high = aql_counts.get("high", 0)
+        elif product_bucket_counts:
+            display_critical = sum(b["critical"] for b in product_bucket_counts.values())
+            display_high = sum(b["high"] for b in product_bucket_counts.values())
+        else:
+            display_critical = metrics.critical
+            display_high = metrics.high
+
+        # Determine status using AQL-based display counts
+        if display_critical >= 5:
             status = "Critical"
             status_class = "action"
             status_priority = 0  # Highest priority
-        elif metrics.critical > 0:
+        elif display_critical > 0:
             status = "High Risk"
             status_class = "caution"
             status_priority = 1
-        elif metrics.high >= 10:
+        elif display_high >= 10:
             status = "Monitor"
             status_class = "caution"
             status_priority = 2
@@ -366,17 +397,6 @@ def _build_context(
             status = "OK"
             status_class = "good"
             status_priority = 3  # Lowest priority
-
-        vulns = vulns_by_product.get(product_name, [])
-        product_bucket_counts = bucket_counts_by_product.get(product_name)
-
-        # Use accurate counts from API when fetched set is truncated (>500 total)
-        if product_bucket_counts:
-            display_critical = sum(b["critical"] for b in product_bucket_counts.values())
-            display_high = sum(b["high"] for b in product_bucket_counts.values())
-        else:
-            display_critical = metrics.critical
-            display_high = metrics.high
 
         expanded_html = _generate_bucket_expanded_content(vulns, bucket_counts=product_bucket_counts)
 
