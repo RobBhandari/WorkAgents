@@ -17,21 +17,16 @@ Usage:
 """
 
 import json
-import os
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-# Import domain models
-from execution.collectors.armorcode_vulnerability_loader import (
-    ArmorCodeVulnerabilityLoader,
-    VulnerabilityDetail,
-)
+from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
 from execution.core import get_logger
 from execution.dashboards.components.cards import metric_card, summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.security import SecurityMetrics
 from execution.framework import get_dashboard_framework
+from execution.secure_config import get_config
 from execution.template_engine import render_template
 from execution.utils.error_handling import log_and_raise
 
@@ -76,54 +71,6 @@ def _load_baseline_products() -> list[str]:
     )
 
 
-def _convert_vulnerabilities_to_metrics(
-    vulnerabilities: list[VulnerabilityDetail],
-) -> dict[str, SecurityMetrics]:
-    """
-    Convert list of vulnerabilities to SecurityMetrics by product.
-
-    Args:
-        vulnerabilities: List of vulnerability details from ArmorCode API
-
-    Returns:
-        Dictionary mapping product name to SecurityMetrics
-    """
-    # Group vulnerabilities by product and count by severity
-    product_counts: dict[str, dict[str, int]] = defaultdict(
-        lambda: {"critical": 0, "high": 0, "medium": 0, "low": 0, "total": 0}
-    )
-
-    for vuln in vulnerabilities:
-        product = vuln.product
-        severity = vuln.severity.upper()
-
-        product_counts[product]["total"] += 1
-        if severity == "CRITICAL":
-            product_counts[product]["critical"] += 1
-        elif severity == "HIGH":
-            product_counts[product]["high"] += 1
-        elif severity == "MEDIUM":
-            product_counts[product]["medium"] += 1
-        elif severity == "LOW":
-            product_counts[product]["low"] += 1
-
-    # Convert to SecurityMetrics domain models
-    metrics_by_product = {}
-    for product_name, counts in product_counts.items():
-        metrics = SecurityMetrics(
-            timestamp=datetime.now(),
-            project=product_name,
-            total_vulnerabilities=counts["total"],
-            critical=counts["critical"],
-            high=counts["high"],
-            medium=counts["medium"],
-            low=counts["low"],
-        )
-        metrics_by_product[product_name] = metrics
-
-    return metrics_by_product
-
-
 def generate_security_dashboard(output_path: Path | None = None) -> str:
     """
     Generate security vulnerabilities dashboard HTML.
@@ -149,17 +96,39 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
     """
     logger.info("Generating security dashboard")
 
-    # Step 1: Query ArmorCode API directly for fresh Production-only data
+    # Step 1: Query ArmorCode API — 2 AQL count calls regardless of product count
     logger.info("Loading product list from baseline")
     products = _load_baseline_products()
 
-    logger.info("Querying ArmorCode API for Production vulnerabilities")
-    loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities = loader.load_vulnerabilities_for_products(products, filter_environment=True)  # Production only
-    logger.info(f"Retrieved {len(vulnerabilities)} Production vulnerabilities from ArmorCode API")
+    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
+    if not hierarchy:
+        raise RuntimeError(
+            "ARMORCODE_HIERARCHY env var not set. Add it as a GitHub secret and to your local .env file."
+        )
 
-    logger.info("Converting vulnerabilities to metrics by product")
-    metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
+    logger.info("Querying ArmorCode API for Production Critical + High counts (2 API calls)")
+    loader = ArmorCodeVulnerabilityLoader()
+    product_id_map = loader.get_product_ids(products)  # {name -> id}
+    id_to_name = {v: k for k, v in product_id_map.items()}
+
+    critical_counts = loader.count_by_severity_aql("Critical", hierarchy)
+    high_counts = loader.count_by_severity_aql("High", hierarchy)
+
+    # Build metrics directly from count results — no detail records needed
+    metrics_by_product: dict[str, SecurityMetrics] = {}
+    for product_name in products:
+        pid = product_id_map.get(product_name, "")
+        c = critical_counts.get(pid, 0)
+        h = high_counts.get(pid, 0)
+        metrics_by_product[product_name] = SecurityMetrics(
+            timestamp=datetime.now(),
+            project=product_name,
+            total_vulnerabilities=c + h,
+            critical=c,
+            high=h,
+            medium=0,
+            low=0,
+        )
     logger.info("Security data loaded", extra={"product_count": len(metrics_by_product)})
 
     # Step 2: Calculate summary statistics
