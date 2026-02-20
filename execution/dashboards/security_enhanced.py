@@ -188,11 +188,17 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
 
     vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
-    main_html = _generate_main_dashboard_html(metrics_by_product, vulns_by_product, bucket_counts_by_product)
 
-    # Patch history JSON with accurate totals from dedicated count queries (not the capped detail list)
+    # Compute totals from accurate_totals (dedicated count queries, no source filter)
+    # Used for BOTH the header summary cards AND the history patch to ensure consistency
     acc_c = sum(t.get("critical", 0) for t in accurate_totals.values())
     acc_h = sum(t.get("high", 0) for t in accurate_totals.values())
+
+    main_html = _generate_main_dashboard_html(
+        metrics_by_product, vulns_by_product, bucket_counts_by_product, accurate_totals
+    )
+
+    # Patch history JSON with the same value shown on the dashboard
     _update_history_current_total(Path(".tmp/observatory/security_history.json"), acc_c, acc_h)
 
     main_file = output_dir / "security_dashboard.html"
@@ -210,13 +216,27 @@ def _update_history_current_total(history_path: Path, critical: int, high: int) 
         d = json.loads(history_path.read_text(encoding="utf-8"))
         if not d.get("weeks"):
             return
+
+        new_total = critical + high
+
+        # Sanity check: reject implausibly low counts to prevent transient API failures
+        # corrupting the history (same issue as the 646 transient count from 2026-02-19)
+        if len(d["weeks"]) >= 2:
+            prev_total = d["weeks"][-2].get("metrics", {}).get("current_total", 0)
+            if prev_total > 2000 and new_total < prev_total * 0.3:
+                logger.warning(
+                    "Security history patch REJECTED - count looks like transient API failure",
+                    extra={"new_total": new_total, "prev_total": prev_total, "threshold": prev_total * 0.3},
+                )
+                return
+
         m = d["weeks"][-1].setdefault("metrics", {})
-        m["current_total"] = critical + high
-        m.setdefault("severity_breakdown", {}).update({"critical": critical, "high": high, "total": critical + high})
+        m["current_total"] = new_total
+        m.setdefault("severity_breakdown", {}).update({"critical": critical, "high": high, "total": new_total})
         history_path.write_text(json.dumps(d, indent=2), encoding="utf-8")
         logger.info(
             "Security history patched with live count",
-            extra={"critical": critical, "high": high, "total": critical + high},
+            extra={"critical": critical, "high": high, "total": new_total},
         )
     except Exception as e:
         logger.warning("History patch skipped: %s", e)
@@ -226,10 +246,13 @@ def _generate_main_dashboard_html(
     metrics_by_product: dict,
     vulns_by_product: dict,
     bucket_counts_by_product: dict,
+    accurate_totals: dict,
 ) -> str:
     """Generate main dashboard HTML using 4-stage pipeline."""
     summary_stats = _calculate_summary(metrics_by_product)
-    context = _build_context(metrics_by_product, vulns_by_product, summary_stats, bucket_counts_by_product)
+    context = _build_context(
+        metrics_by_product, vulns_by_product, summary_stats, bucket_counts_by_product, accurate_totals
+    )
     return render_dashboard("dashboards/security_dashboard.html", context)
 
 
@@ -284,6 +307,7 @@ def _build_context(
     vulns_by_product: dict,
     summary_stats: dict,
     bucket_counts_by_product: dict,
+    accurate_totals: dict,
 ) -> dict:
     """Stage 3: Build template context."""
     # Get framework CSS/JS (enable expandable rows)
@@ -295,12 +319,9 @@ def _build_context(
         include_glossary=False,
     )
 
-    # Accurate header totals: API bucket_counts for large products, fetched for small
-    acc_critical, acc_high = 0, 0
-    for pn, m in metrics_by_product.items():
-        bkt = bucket_counts_by_product.get(pn)
-        acc_critical += sum(b["critical"] for b in bkt.values()) if bkt else m.critical
-        acc_high += sum(b["high"] for b in bkt.values()) if bkt else m.high
+    # Header totals from accurate_totals (same value used for history patch → consistent across dashboards)
+    acc_critical = sum(t.get("critical", 0) for t in accurate_totals.values())
+    acc_high = sum(t.get("high", 0) for t in accurate_totals.values())
     summary_cards = [
         summary_card("Priority Findings", str(acc_critical + acc_high)),
         summary_card("Critical", str(acc_critical), css_class="critical"),
