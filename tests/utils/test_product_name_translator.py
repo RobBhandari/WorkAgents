@@ -231,6 +231,46 @@ def test_translate_string_partial_match_avoided(forward_mapping):
     assert result == "Product A system"
 
 
+def test_work_item_title_not_corrupted_reverse():
+    """
+    Regression test: work item title containing 'Product Sign off' must not
+    be modified when reversing 'Product S' -> real name.
+
+    'Product S' is a substring of 'Product Sign off'. Without word boundaries,
+    str.replace would corrupt the title to '<RealName> ign off'.
+    """
+    mapping = {"Product S": "Proclaim Portals"}
+    text = "18 How to be a COFA QA5 Final Lead/Product Sign off"
+    stats: dict[str, int] = {}
+
+    result = translate_value(text, mapping, stats, direction="reverse")
+
+    # Title must be completely unchanged
+    assert result == text
+    assert "Product S" not in stats
+
+
+def test_word_boundary_prevents_false_positive_unmapped_check():
+    """
+    Regression test: _check_unmapped_generics must not raise for 'Product Sign off'.
+
+    'Product S' inside 'Product Sign off' must not match the r'\\bProduct [A-Z]\\b'
+    pattern because 'S' in 'Sign' is immediately followed by 'ign' (word chars),
+    so there is no word boundary after 'S'.
+    """
+    mapping = {"Product A": "Real A"}
+    # Should NOT raise — 'Product S' here is a substring, not a standalone name
+    _check_unmapped_generics("Lead/Product Sign off", mapping, "test context")
+
+
+def test_word_boundary_standalone_product_s_still_detected():
+    """Standalone 'Product S' (not in mapping) must still raise ValueError."""
+    mapping = {"Product A": "Real A"}
+
+    with pytest.raises(ValueError, match="Product S"):
+        _check_unmapped_generics("Issues in Product S deployment", mapping, "test context")
+
+
 # ============================================================================
 # TEST: Email Anonymization (Forward Only)
 # ============================================================================

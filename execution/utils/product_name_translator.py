@@ -16,6 +16,7 @@ DRY PRINCIPLE:
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -55,13 +56,14 @@ def translate_value(
         # Translate both keys AND values
         translated_dict = {}
         for k, v in value.items():
-            # Translate the key
+            # Translate the key using word boundaries to avoid partial matches
             translated_key = k
             for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
-                if source_name in translated_key:
-                    count = translated_key.count(source_name)
-                    stats[source_name] = stats.get(source_name, 0) + count
-                    translated_key = translated_key.replace(source_name, target_name)
+                pat = re.compile(r"\b" + re.escape(source_name) + r"\b")
+                matches = pat.findall(translated_key)
+                if matches:
+                    stats[source_name] = stats.get(source_name, 0) + len(matches)
+                    translated_key = pat.sub(target_name, translated_key)
 
             # Check for unmapped generic products in keys
             if fail_on_unmapped and direction == "reverse":
@@ -75,13 +77,14 @@ def translate_value(
         return [translate_value(item, mapping, stats, direction, fail_on_unmapped) for item in value]
 
     elif isinstance(value, str):
-        # Replace product names (longest first to avoid partial matches)
+        # Replace product names using word boundaries to avoid partial matches in titles
         translated = value
         for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
-            if source_name in translated:
-                count = translated.count(source_name)
-                stats[source_name] = stats.get(source_name, 0) + count
-                translated = translated.replace(source_name, target_name)
+            pat = re.compile(r"\b" + re.escape(source_name) + r"\b")
+            matches = pat.findall(translated)
+            if matches:
+                stats[source_name] = stats.get(source_name, 0) + len(matches)
+                translated = pat.sub(target_name, translated)
 
         # Check for unmapped generic products in string values
         if fail_on_unmapped and direction == "reverse":
@@ -108,10 +111,9 @@ def _check_unmapped_generics(text: str, mapping: dict[str, str], context: str) -
     Raises:
         ValueError: If unmapped generic products found
     """
-    # Check for "Product X" pattern where X is A-Z
-    import re
-
-    pattern = r"Product [A-Z]"
+    # Check for "Product X" pattern where X is A-Z (word boundaries prevent
+    # false positives like "Product Sign off" matching "Product S")
+    pattern = r"\bProduct [A-Z]\b"
     matches = re.findall(pattern, text)
 
     if matches:
@@ -141,8 +143,6 @@ def _anonymize_emails(text: str, stats: dict[str, int]) -> str:
     Returns:
         Text with emails anonymized
     """
-    import re
-
     email_pattern = r"([a-zA-Z0-9._%+-]+)@theaccessgroup\.com"
     matches = re.findall(email_pattern, text)
 
