@@ -69,7 +69,7 @@ REST API (NEW)
 **GET /health** (no auth)
 - Check API health
 - Data freshness status
-- Returns 200 (healthy) or 503 (degraded)
+- Always returns 200 (status field in response indicates "healthy" or "degraded")
 
 ### Quality Metrics
 
