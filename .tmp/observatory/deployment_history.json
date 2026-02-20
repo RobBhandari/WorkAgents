@@ -37,1219 +37,6 @@
             "pipeline_count": 21
           },
           "build_success_rate": {
-            "total_builds": 506,
-            "succeeded": 313,
-            "failed": 119,
-            "canceled": 62,
-            "partially_succeeded": 12,
-            "success_rate_pct": 61.9,
-            "by_result": {
-              "canceled": 62,
-              "failed": 119,
-              "succeeded": 313,
-              "partiallySucceeded": 12
-            },
-            "by_pipeline": {
-              "ALCM Automation (Playwright) - UAT Env": {
-                "canceled": 21,
-                "succeeded": 3
-              },
-              "ALCM-FE-CD": {
-                "failed": 7,
-                "succeeded": 39
-              },
-              "ALCM-MLS-CD": {
-                "succeeded": 29,
-                "failed": 3,
-                "partiallySucceeded": 11,
-                "canceled": 1
-              },
-              "ALCM-iOS-Sonar-Mend": {
-                "canceled": 30
-              },
-              "ALCM-Automation-E2E": {
-                "failed": 61,
-                "succeeded": 71,
-                "canceled": 6
-              },
-              "ALCM-V2-CD": {
-                "succeeded": 54,
-                "failed": 15,
-                "canceled": 1
-              },
-              "ALCM-V3-CD": {
-                "succeeded": 37,
-                "failed": 11
-              },
-              "ALCM-Mend-FE": {
-                "succeeded": 14
-              },
-              "ALCM-Mend-V3": {
-                "failed": 15,
-                "succeeded": 4
-              },
-              "ALCM-Mend-V2": {
-                "succeeded": 12
-              },
-              "ALCM-WebQuoteBE-CD": {
-                "succeeded": 1,
-                "canceled": 1
-              },
-              "ALCM-MLS-Mend-Sonar": {
-                "succeeded": 19,
-                "failed": 4,
-                "canceled": 2
-              },
-              "ALCM-tfsec": {
-                "partiallySucceeded": 1
-              },
-              "Access-EVO-Automation-E2E": {
-                "failed": 2
-              },
-              "ALCM-Safechat-Mend": {
-                "succeeded": 3
-              },
-              "LEG-CloudConfig-BE": {
-                "succeeded": 3
-              },
-              "ALCM-API-CD": {
-                "succeeded": 5,
-                "failed": 1
-              },
-              "ALCM-API": {
-                "succeeded": 5
-              },
-              "ALCM-Mend-APIs": {
-                "succeeded": 3
-              },
-              "ALCM-Mend-Android": {
-                "succeeded": 3
-              },
-              "ALCM-Identity": {
-                "succeeded": 3
-              },
-              "ALCM-IdentityServer-CD": {
-                "succeeded": 2
-              },
-              "ALCM-Mend-Identity": {
-                "succeeded": 2
-              },
-              "LEG-CloudConfig-FE": {
-                "succeeded": 1
-              }
-            }
-          },
-          "build_duration": {
-            "sample_size": 448,
-            "median_minutes": 16.9,
-            "p85_minutes": 30262.0,
-            "p95_minutes": 31694.5,
-            "min_minutes": 0.4,
-            "max_minutes": 43209.9,
-            "by_pipeline": {
-              "ALCM-FE-CD": {
-                "count": 46,
-                "median_minutes": 28850.2
-              },
-              "ALCM-MLS-CD": {
-                "count": 42,
-                "median_minutes": 14.3
-              },
-              "ALCM-Automation-E2E": {
-                "count": 137,
-                "median_minutes": 8.0
-              },
-              "ALCM-V2-CD": {
-                "count": 70,
-                "median_minutes": 16.8
-              },
-              "ALCM-V3-CD": {
-                "count": 48,
-                "median_minutes": 28851.3
-              },
-              "ALCM-Mend-FE": {
-                "count": 14,
-                "median_minutes": 1.6
-              },
-              "ALCM-Mend-V3": {
-                "count": 19,
-                "median_minutes": 24.5
-              },
-              "ALCM-Mend-V2": {
-                "count": 12,
-                "median_minutes": 9.0
-              },
-              "ALCM-WebQuoteBE-CD": {
-                "count": 2,
-                "median_minutes": 3322.7
-              },
-              "ALCM-MLS-Mend-Sonar": {
-                "count": 21,
-                "median_minutes": 6.8
-              },
-              "ALCM-tfsec": {
-                "count": 1,
-                "median_minutes": 0.4
-              },
-              "Access-EVO-Automation-E2E": {
-                "count": 2,
-                "median_minutes": 27.9
-              },
-              "ALCM-Safechat-Mend": {
-                "count": 3,
-                "median_minutes": 20.7
-              },
-              "LEG-CloudConfig-BE": {
-                "count": 3,
-                "median_minutes": 3.1
-              },
-              "ALCM-API-CD": {
-                "count": 6,
-                "median_minutes": 14406.9
-              },
-              "ALCM Automation (Playwright) - UAT Env": {
-                "count": 3,
-                "median_minutes": 39.3
-              },
-              "ALCM-API": {
-                "count": 5,
-                "median_minutes": 3.0
-              },
-              "ALCM-Mend-APIs": {
-                "count": 3,
-                "median_minutes": 2.0
-              },
-              "ALCM-Mend-Android": {
-                "count": 3,
-                "median_minutes": 14.9
-              },
-              "ALCM-Identity": {
-                "count": 3,
-                "median_minutes": 1.1
-              },
-              "ALCM-IdentityServer-CD": {
-                "count": 2,
-                "median_minutes": 3.6
-              },
-              "ALCM-Mend-Identity": {
-                "count": 2,
-                "median_minutes": 2.3
-              },
-              "LEG-CloudConfig-FE": {
-                "count": 1,
-                "median_minutes": 2.7
-              }
-            }
-          },
-          "lead_time_for_changes": {
-            "sample_size": 48,
-            "median_hours": 0.3,
-            "p85_hours": 527.9,
-            "p95_hours": 669.6
-          },
-          "collected_at": "2026-02-09T00:34:24.596995"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "deployment_frequency": {
-            "total_successful_builds": 313,
-            "lookback_days": 90,
-            "deployments_per_week": 24.34,
-            "by_pipeline": {
-              "ALCM-MLS-CD": 29,
-              "ALCM-V2-CD": 54,
-              "ALCM-V3-CD": 37,
-              "ALCM-FE-CD": 39,
-              "ALCM-Mend-FE": 14,
-              "ALCM-Automation-E2E": 71,
-              "ALCM-Mend-V2": 12,
-              "ALCM-WebQuoteBE-CD": 1,
-              "ALCM-MLS-Mend-Sonar": 19,
-              "ALCM-Safechat-Mend": 3,
-              "LEG-CloudConfig-BE": 3,
-              "ALCM-Mend-V3": 4,
-              "ALCM-API-CD": 5,
-              "ALCM Automation (Playwright) - UAT Env": 3,
-              "ALCM-API": 5,
-              "ALCM-Mend-APIs": 3,
-              "ALCM-Mend-Android": 3,
-              "ALCM-Identity": 3,
-              "ALCM-IdentityServer-CD": 2,
-              "ALCM-Mend-Identity": 2,
-              "LEG-CloudConfig-FE": 1
-            },
-            "pipeline_count": 21
-          },
-          "build_success_rate": {
-            "total_builds": 506,
-            "succeeded": 313,
-            "failed": 119,
-            "canceled": 62,
-            "partially_succeeded": 12,
-            "success_rate_pct": 61.9,
-            "by_result": {
-              "canceled": 62,
-              "failed": 119,
-              "succeeded": 313,
-              "partiallySucceeded": 12
-            },
-            "by_pipeline": {
-              "ALCM Automation (Playwright) - UAT Env": {
-                "canceled": 21,
-                "succeeded": 3
-              },
-              "ALCM-FE-CD": {
-                "failed": 7,
-                "succeeded": 39
-              },
-              "ALCM-MLS-CD": {
-                "succeeded": 29,
-                "failed": 3,
-                "partiallySucceeded": 11,
-                "canceled": 1
-              },
-              "ALCM-iOS-Sonar-Mend": {
-                "canceled": 30
-              },
-              "ALCM-Automation-E2E": {
-                "failed": 61,
-                "succeeded": 71,
-                "canceled": 6
-              },
-              "ALCM-V2-CD": {
-                "succeeded": 54,
-                "failed": 15,
-                "canceled": 1
-              },
-              "ALCM-V3-CD": {
-                "succeeded": 37,
-                "failed": 11
-              },
-              "ALCM-Mend-FE": {
-                "succeeded": 14
-              },
-              "ALCM-Mend-V3": {
-                "failed": 15,
-                "succeeded": 4
-              },
-              "ALCM-Mend-V2": {
-                "succeeded": 12
-              },
-              "ALCM-WebQuoteBE-CD": {
-                "succeeded": 1,
-                "canceled": 1
-              },
-              "ALCM-MLS-Mend-Sonar": {
-                "succeeded": 19,
-                "failed": 4,
-                "canceled": 2
-              },
-              "ALCM-tfsec": {
-                "partiallySucceeded": 1
-              },
-              "Access-EVO-Automation-E2E": {
-                "failed": 2
-              },
-              "ALCM-Safechat-Mend": {
-                "succeeded": 3
-              },
-              "LEG-CloudConfig-BE": {
-                "succeeded": 3
-              },
-              "ALCM-API-CD": {
-                "succeeded": 5,
-                "failed": 1
-              },
-              "ALCM-API": {
-                "succeeded": 5
-              },
-              "ALCM-Mend-APIs": {
-                "succeeded": 3
-              },
-              "ALCM-Mend-Android": {
-                "succeeded": 3
-              },
-              "ALCM-Identity": {
-                "succeeded": 3
-              },
-              "ALCM-IdentityServer-CD": {
-                "succeeded": 2
-              },
-              "ALCM-Mend-Identity": {
-                "succeeded": 2
-              },
-              "LEG-CloudConfig-FE": {
-                "succeeded": 1
-              }
-            }
-          },
-          "build_duration": {
-            "sample_size": 448,
-            "median_minutes": 16.9,
-            "p85_minutes": 30262.0,
-            "p95_minutes": 31694.5,
-            "min_minutes": 0.4,
-            "max_minutes": 43209.9,
-            "by_pipeline": {
-              "ALCM-FE-CD": {
-                "count": 46,
-                "median_minutes": 28850.2
-              },
-              "ALCM-MLS-CD": {
-                "count": 42,
-                "median_minutes": 14.3
-              },
-              "ALCM-Automation-E2E": {
-                "count": 137,
-                "median_minutes": 8.0
-              },
-              "ALCM-V2-CD": {
-                "count": 70,
-                "median_minutes": 16.8
-              },
-              "ALCM-V3-CD": {
-                "count": 48,
-                "median_minutes": 28851.3
-              },
-              "ALCM-Mend-FE": {
-                "count": 14,
-                "median_minutes": 1.6
-              },
-              "ALCM-Mend-V3": {
-                "count": 19,
-                "median_minutes": 24.5
-              },
-              "ALCM-Mend-V2": {
-                "count": 12,
-                "median_minutes": 9.0
-              },
-              "ALCM-WebQuoteBE-CD": {
-                "count": 2,
-                "median_minutes": 3322.7
-              },
-              "ALCM-MLS-Mend-Sonar": {
-                "count": 21,
-                "median_minutes": 6.8
-              },
-              "ALCM-tfsec": {
-                "count": 1,
-                "median_minutes": 0.4
-              },
-              "Access-EVO-Automation-E2E": {
-                "count": 2,
-                "median_minutes": 27.9
-              },
-              "ALCM-Safechat-Mend": {
-                "count": 3,
-                "median_minutes": 20.7
-              },
-              "LEG-CloudConfig-BE": {
-                "count": 3,
-                "median_minutes": 3.1
-              },
-              "ALCM-API-CD": {
-                "count": 6,
-                "median_minutes": 14406.9
-              },
-              "ALCM Automation (Playwright) - UAT Env": {
-                "count": 3,
-                "median_minutes": 39.3
-              },
-              "ALCM-API": {
-                "count": 5,
-                "median_minutes": 3.0
-              },
-              "ALCM-Mend-APIs": {
-                "count": 3,
-                "median_minutes": 2.0
-              },
-              "ALCM-Mend-Android": {
-                "count": 3,
-                "median_minutes": 14.9
-              },
-              "ALCM-Identity": {
-                "count": 3,
-                "median_minutes": 1.1
-              },
-              "ALCM-IdentityServer-CD": {
-                "count": 2,
-                "median_minutes": 3.6
-              },
-              "ALCM-Mend-Identity": {
-                "count": 2,
-                "median_minutes": 2.3
-              },
-              "LEG-CloudConfig-FE": {
-                "count": 1,
-                "median_minutes": 2.7
-              }
-            }
-          },
-          "lead_time_for_changes": {
-            "sample_size": 48,
-            "median_hours": 0.3,
-            "p85_hours": 527.9,
-            "p95_hours": 669.6
-          },
-          "collected_at": "2026-02-09T00:34:32.718878"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "deployment_frequency": {
-            "total_successful_builds": 35,
-            "lookback_days": 90,
-            "deployments_per_week": 2.72,
-            "by_pipeline": {
-              "Product C Desktop": 13,
-              ".NET Files": 17,
-              "Case Tracker": 1,
-              "Product C Windows Service": 2,
-              "Product C API": 1,
-              "Lawfusion API Legacy": 1
-            },
-            "pipeline_count": 6
-          },
-          "build_success_rate": {
-            "total_builds": 48,
-            "succeeded": 35,
-            "failed": 1,
-            "canceled": 11,
-            "partially_succeeded": 1,
-            "success_rate_pct": 72.9,
-            "by_result": {
-              "succeeded": 35,
-              "canceled": 11,
-              "partiallySucceeded": 1,
-              "failed": 1
-            },
-            "by_pipeline": {
-              "Product C Desktop": {
-                "succeeded": 13,
-                "canceled": 11,
-                "partiallySucceeded": 1,
-                "failed": 1
-              },
-              ".NET Files": {
-                "succeeded": 17
-              },
-              "Case Tracker": {
-                "succeeded": 1
-              },
-              "Product C Windows Service": {
-                "succeeded": 2
-              },
-              "Product C API": {
-                "succeeded": 1
-              },
-              "Lawfusion API Legacy": {
-                "succeeded": 1
-              }
-            }
-          },
-          "build_duration": {
-            "sample_size": 48,
-            "median_minutes": 15.4,
-            "p85_minutes": 71.7,
-            "p95_minutes": 94.9,
-            "min_minutes": 3.3,
-            "max_minutes": 115.3,
-            "by_pipeline": {
-              "Product C Desktop": {
-                "count": 26,
-                "median_minutes": 62.5
-              },
-              ".NET Files": {
-                "count": 17,
-                "median_minutes": 12.9
-              },
-              "Case Tracker": {
-                "count": 1,
-                "median_minutes": 6.2
-              },
-              "Product C Windows Service": {
-                "count": 2,
-                "median_minutes": 3.4
-              },
-              "Product C API": {
-                "count": 1,
-                "median_minutes": 6.8
-              },
-              "Lawfusion API Legacy": {
-                "count": 1,
-                "median_minutes": 5.6
-              }
-            }
-          },
-          "lead_time_for_changes": {
-            "sample_size": 35,
-            "median_hours": 0.2,
-            "p85_hours": 1.5,
-            "p95_hours": 26.9
-          },
-          "collected_at": "2026-02-09T00:34:39.654414"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "deployment_frequency": {
-            "total_successful_builds": 0
-          },
-          "build_success_rate": {
-            "total_builds": 0
-          },
-          "build_duration": {
-            "sample_size": 0
-          },
-          "lead_time_for_changes": {
-            "sample_size": 0
-          },
-          "collected_at": "2026-02-09T00:34:39.753521"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "deployment_frequency": {
-            "total_successful_builds": 265,
-            "lookback_days": 90,
-            "deployments_per_week": 20.61,
-            "by_pipeline": {
-              "Product L-CI-CD": 86,
-              "Dotnet CI": 50,
-              "LB Law Angular CI": 57,
-              "LB Property Angular CI": 15,
-              "Price Transparency Tool Angular CI": 20,
-              "Build Product A Searches": 5,
-              "Product L-CD-Production-Demo": 15,
-              "LB Connect Angular CI": 14,
-              "Web App Gulp CI": 3
-            },
-            "pipeline_count": 9
-          },
-          "build_success_rate": {
-            "total_builds": 536,
-            "succeeded": 265,
-            "failed": 176,
-            "canceled": 37,
-            "partially_succeeded": 58,
-            "success_rate_pct": 49.4,
-            "by_result": {
-              "succeeded": 265,
-              "failed": 176,
-              "partiallySucceeded": 58,
-              "canceled": 37
-            },
-            "by_pipeline": {
-              "Product L-CI-CD": {
-                "succeeded": 86,
-                "failed": 33,
-                "canceled": 2
-              },
-              "Dotnet CI": {
-                "succeeded": 50,
-                "failed": 14,
-                "partiallySucceeded": 26,
-                "canceled": 11
-              },
-              "LB Law Angular CI": {
-                "succeeded": 57,
-                "failed": 6,
-                "canceled": 5
-              },
-              "Build Product A Searches": {
-                "failed": 4,
-                "succeeded": 5
-              },
-              "legalbricks-automation": {
-                "partiallySucceeded": 27,
-                "failed": 99,
-                "canceled": 18
-              },
-              "LB Property Angular CI": {
-                "succeeded": 15,
-                "failed": 10
-              },
-              "Price Transparency Tool Angular CI": {
-                "succeeded": 20,
-                "failed": 5
-              },
-              "Product L-CD-Production-Demo": {
-                "succeeded": 15
-              },
-              "LB Connect Angular CI": {
-                "succeeded": 14,
-                "failed": 2
-              },
-              "Web App Gulp CI": {
-                "succeeded": 3
-              },
-              "legalbricks-playwright-poc": {
-                "canceled": 1,
-                "failed": 3,
-                "partiallySucceeded": 5
-              }
-            }
-          },
-          "build_duration": {
-            "sample_size": 534,
-            "median_minutes": 23.9,
-            "p85_minutes": 49.4,
-            "p95_minutes": 53.4,
-            "min_minutes": 0.1,
-            "max_minutes": 77.7,
-            "by_pipeline": {
-              "Product L-CI-CD": {
-                "count": 121,
-                "median_minutes": 48.9
-              },
-              "Dotnet CI": {
-                "count": 101,
-                "median_minutes": 24.5
-              },
-              "LB Law Angular CI": {
-                "count": 67,
-                "median_minutes": 13.6
-              },
-              "Build Product A Searches": {
-                "count": 8,
-                "median_minutes": 2.3
-              },
-              "legalbricks-automation": {
-                "count": 144,
-                "median_minutes": 35.3
-              },
-              "LB Property Angular CI": {
-                "count": 25,
-                "median_minutes": 7.8
-              },
-              "Price Transparency Tool Angular CI": {
-                "count": 25,
-                "median_minutes": 7.1
-              },
-              "Product L-CD-Production-Demo": {
-                "count": 15,
-                "median_minutes": 48.6
-              },
-              "LB Connect Angular CI": {
-                "count": 16,
-                "median_minutes": 9.0
-              },
-              "Web App Gulp CI": {
-                "count": 3,
-                "median_minutes": 2.8
-              },
-              "legalbricks-playwright-poc": {
-                "count": 9,
-                "median_minutes": 23.8
-              }
-            }
-          },
-          "lead_time_for_changes": {
-            "sample_size": 50,
-            "median_hours": 0.4,
-            "p85_hours": 24.2,
-            "p95_hours": 41.9
-          },
-          "collected_at": "2026-02-09T00:34:48.145367"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "deployment_frequency": {
-            "total_successful_builds": 45,
-            "lookback_days": 90,
-            "deployments_per_week": 3.5,
-            "by_pipeline": {
-              "Compliance EDS": 7,
-              "Access.Legal.Compliance (11625)": 34,
-              "Access.Legal.Compliance - STAGING": 4
-            },
-            "pipeline_count": 3
-          },
-          "build_success_rate": {
-            "total_builds": 61,
-            "succeeded": 45,
-            "failed": 15,
-            "canceled": 1,
-            "partially_succeeded": 0,
-            "success_rate_pct": 73.8,
-            "by_result": {
-              "succeeded": 45,
-              "failed": 15,
-              "canceled": 1
-            },
-            "by_pipeline": {
-              "Compliance EDS": {
-                "succeeded": 7,
-                "failed": 3,
-                "canceled": 1
-              },
-              "Access.Legal.Compliance (11625)": {
-                "failed": 8,
-                "succeeded": 34
-              },
-              "Access.Legal.Compliance - STAGING": {
-                "succeeded": 4,
-                "failed": 4
-              }
-            }
-          },
-          "build_duration": {
-            "sample_size": 60,
-            "median_minutes": 19.2,
-            "p85_minutes": 22.4,
-            "p95_minutes": 66.3,
-            "min_minutes": 0.8,
-            "max_minutes": 3673.5,
-            "by_pipeline": {
-              "Compliance EDS": {
-                "count": 11,
-                "median_minutes": 5.3
-              },
-              "Access.Legal.Compliance (11625)": {
-                "count": 42,
-                "median_minutes": 20.0
-              },
-              "Access.Legal.Compliance - STAGING": {
-                "count": 7,
-                "median_minutes": 66.0
-              }
-            }
-          },
-          "lead_time_for_changes": {
-            "sample_size": 43,
-            "median_hours": 0.3,
-            "p85_hours": 0.4,
-            "p95_hours": 1.1
-          },
-          "collected_at": "2026-02-09T00:34:53.944560"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "deployment_frequency": {
-            "total_successful_builds": 116,
-            "lookback_days": 90,
-            "deployments_per_week": 9.02,
-            "by_pipeline": {
-              "API Deployment": 23,
-              "Test Suite Pipeline": 41,
-              "admin-react": 11,
-              "admin-react-deploy": 7,
-              "client-deployment": 5,
-              "middleware-dev": 3,
-              "admin-deployment": 11,
-              "android": 3,
-              "middleware-production": 3,
-              "middleware-staging": 3,
-              "incase-keycloak-spi": 2,
-              "admin-test-suite": 4
-            },
-            "pipeline_count": 12
-          },
-          "build_success_rate": {
-            "total_builds": 253,
-            "succeeded": 116,
-            "failed": 123,
-            "canceled": 12,
-            "partially_succeeded": 2,
-            "success_rate_pct": 45.8,
-            "by_result": {
-              "succeeded": 116,
-              "failed": 123,
-              "canceled": 12,
-              "partiallySucceeded": 2
-            },
-            "by_pipeline": {
-              "API Deployment": {
-                "succeeded": 23
-              },
-              "Test Suite Pipeline": {
-                "succeeded": 41,
-                "failed": 66,
-                "canceled": 11
-              },
-              "admin-react": {
-                "succeeded": 11,
-                "failed": 3
-              },
-              "admin-react-deploy": {
-                "succeeded": 7
-              },
-              "client-deployment": {
-                "succeeded": 5,
-                "canceled": 1
-              },
-              "android": {
-                "failed": 7,
-                "succeeded": 3
-              },
-              "middleware-dev": {
-                "succeeded": 3
-              },
-              "admin-deployment": {
-                "succeeded": 11
-              },
-              "admin-test-suite": {
-                "failed": 47,
-                "succeeded": 4
-              },
-              "middleware-production": {
-                "succeeded": 3
-              },
-              "middleware-staging": {
-                "succeeded": 3
-              },
-              "playwright": {
-                "partiallySucceeded": 2
-              },
-              "incase-keycloak-spi": {
-                "succeeded": 2
-              }
-            }
-          },
-          "build_duration": {
-            "sample_size": 252,
-            "median_minutes": 12.2,
-            "p85_minutes": 23.2,
-            "p95_minutes": 24.3,
-            "min_minutes": 0.4,
-            "max_minutes": 29.0,
-            "by_pipeline": {
-              "API Deployment": {
-                "count": 23,
-                "median_minutes": 7.9
-              },
-              "Test Suite Pipeline": {
-                "count": 117,
-                "median_minutes": 15.8
-              },
-              "admin-react": {
-                "count": 14,
-                "median_minutes": 1.2
-              },
-              "admin-react-deploy": {
-                "count": 7,
-                "median_minutes": 1.1
-              },
-              "client-deployment": {
-                "count": 6,
-                "median_minutes": 5.6
-              },
-              "android": {
-                "count": 10,
-                "median_minutes": 14.0
-              },
-              "middleware-dev": {
-                "count": 3,
-                "median_minutes": 12.4
-              },
-              "admin-deployment": {
-                "count": 11,
-                "median_minutes": 3.9
-              },
-              "admin-test-suite": {
-                "count": 51,
-                "median_minutes": 3.5
-              },
-              "middleware-production": {
-                "count": 3,
-                "median_minutes": 12.2
-              },
-              "middleware-staging": {
-                "count": 3,
-                "median_minutes": 12.4
-              },
-              "playwright": {
-                "count": 2,
-                "median_minutes": 9.5
-              },
-              "incase-keycloak-spi": {
-                "count": 2,
-                "median_minutes": 1.8
-              }
-            }
-          },
-          "lead_time_for_changes": {
-            "sample_size": 50,
-            "median_hours": 0.2,
-            "p85_hours": 0.4,
-            "p95_hours": 0.5
-          },
-          "collected_at": "2026-02-09T00:35:02.599725"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "deployment_frequency": {
-            "total_successful_builds": 103,
-            "lookback_days": 90,
-            "deployments_per_week": 8.01,
-            "by_pipeline": {
-              "Product DDesktop": 21,
-              "Product DDesktop Merge": 25,
-              "Build 3.5.1.23": 13,
-              "Build 3.5.1.22": 5,
-              "Product DDesktop Main branch": 2,
-              "Git main sonarqued and mend": 2,
-              "V4Git": 9,
-              "GIT-Merge": 2,
-              "Build 4.0.0.12": 2,
-              "Touchpoint-mend": 3,
-              "Touchpoint-sonarQube": 3,
-              "Product DDesktop 35121": 1,
-              "Git main branch": 1,
-              "Touchpoint-deploy-production": 2,
-              "Touchpoint-deploy-demo-preprod": 4,
-              "ProcliamGo SonarQube Scan": 2,
-              "Product DGo Mend Scan": 2,
-              "Build 3.5.1.21": 2,
-              "Product DGo Postman Tests": 1,
-              "Product DGo Preprod-Demo Deploy": 1
-            },
-            "pipeline_count": 20
-          },
-          "build_success_rate": {
-            "total_builds": 199,
-            "succeeded": 103,
-            "failed": 45,
-            "canceled": 51,
-            "partially_succeeded": 0,
-            "success_rate_pct": 51.8,
-            "by_result": {
-              "succeeded": 103,
-              "failed": 45,
-              "canceled": 51
-            },
-            "by_pipeline": {
-              "Product DDesktop": {
-                "succeeded": 21,
-                "failed": 4
-              },
-              "Product DDesktop Merge": {
-                "succeeded": 25
-              },
-              "Build 3.5.1.23": {
-                "succeeded": 13,
-                "failed": 1
-              },
-              "4.0.0.09-ABLTests APITests": {
-                "failed": 20
-              },
-              "Product DGo Playwright": {
-                "failed": 20
-              },
-              "Build 3.5.1.22": {
-                "succeeded": 5
-              },
-              "Product DDesktop Main branch": {
-                "succeeded": 2
-              },
-              "Git main sonarqued and mend": {
-                "succeeded": 2
-              },
-              "V4Git": {
-                "succeeded": 9
-              },
-              "V4Git (14600)": {
-                "canceled": 17
-              },
-              "V4Git (14594)": {
-                "canceled": 17
-              },
-              "V4Git (14551)": {
-                "canceled": 17
-              },
-              "GIT-Merge": {
-                "succeeded": 2
-              },
-              "Build 4.0.0.12": {
-                "succeeded": 2
-              },
-              "Touchpoint-mend": {
-                "succeeded": 3
-              },
-              "Touchpoint-sonarQube": {
-                "succeeded": 3
-              },
-              "Product DDesktop 35121": {
-                "succeeded": 1
-              },
-              "Git main branch": {
-                "succeeded": 1
-              },
-              "Touchpoint-deploy-production": {
-                "succeeded": 2
-              },
-              "Touchpoint-deploy-demo-preprod": {
-                "succeeded": 4
-              },
-              "ProcliamGo SonarQube Scan": {
-                "succeeded": 2
-              },
-              "Product DGo Mend Scan": {
-                "succeeded": 2
-              },
-              "Build 3.5.1.21": {
-                "succeeded": 2
-              },
-              "Product DGo Postman Tests": {
-                "succeeded": 1
-              },
-              "Product DGo Preprod-Demo Deploy": {
-                "succeeded": 1
-              }
-            }
-          },
-          "build_duration": {
-            "sample_size": 148,
-            "median_minutes": 8.8,
-            "p85_minutes": 21.7,
-            "p95_minutes": 24.9,
-            "min_minutes": 1.6,
-            "max_minutes": 48.1,
-            "by_pipeline": {
-              "Product DDesktop": {
-                "count": 25,
-                "median_minutes": 3.7
-              },
-              "Product DDesktop Merge": {
-                "count": 25,
-                "median_minutes": 19.3
-              },
-              "Build 3.5.1.23": {
-                "count": 14,
-                "median_minutes": 21.2
-              },
-              "4.0.0.09-ABLTests APITests": {
-                "count": 20,
-                "median_minutes": 8.2
-              },
-              "Product DGo Playwright": {
-                "count": 20,
-                "median_minutes": 9.5
-              },
-              "Build 3.5.1.22": {
-                "count": 5,
-                "median_minutes": 22.6
-              },
-              "Product DDesktop Main branch": {
-                "count": 2,
-                "median_minutes": 24.0
-              },
-              "Git main sonarqued and mend": {
-                "count": 2,
-                "median_minutes": 46.9
-              },
-              "V4Git": {
-                "count": 9,
-                "median_minutes": 2.9
-              },
-              "GIT-Merge": {
-                "count": 2,
-                "median_minutes": 29.5
-              },
-              "Build 4.0.0.12": {
-                "count": 2,
-                "median_minutes": 28.0
-              },
-              "Touchpoint-mend": {
-                "count": 3,
-                "median_minutes": 2.9
-              },
-              "Touchpoint-sonarQube": {
-                "count": 3,
-                "median_minutes": 5.6
-              },
-              "Product DDesktop 35121": {
-                "count": 1,
-                "median_minutes": 21.0
-              },
-              "Git main branch": {
-                "count": 1,
-                "median_minutes": 26.8
-              },
-              "Touchpoint-deploy-production": {
-                "count": 2,
-                "median_minutes": 4.1
-              },
-              "Touchpoint-deploy-demo-preprod": {
-                "count": 4,
-                "median_minutes": 2.9
-              },
-              "ProcliamGo SonarQube Scan": {
-                "count": 2,
-                "median_minutes": 3.9
-              },
-              "Product DGo Mend Scan": {
-                "count": 2,
-                "median_minutes": 3.0
-              },
-              "Build 3.5.1.21": {
-                "count": 2,
-                "median_minutes": 21.0
-              },
-              "Product DGo Postman Tests": {
-                "count": 1,
-                "median_minutes": 10.1
-              },
-              "Product DGo Preprod-Demo Deploy": {
-                "count": 1,
-                "median_minutes": 7.7
-              }
-            }
-          },
-          "lead_time_for_changes": {
-            "sample_size": 47,
-            "median_hours": 0.4,
-            "p85_hours": 25.1,
-            "p95_hours": 99.6
-          },
-          "collected_at": "2026-02-09T00:35:09.440945"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-09",
-      "week_number": 7,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "deployment_frequency": {
-            "total_successful_builds": 313,
-            "lookback_days": 90,
-            "deployments_per_week": 24.34,
-            "by_pipeline": {
-              "ALCM-MLS-CD": 29,
-              "ALCM-V2-CD": 54,
-              "ALCM-V3-CD": 37,
-              "ALCM-FE-CD": 39,
-              "ALCM-Mend-FE": 14,
-              "ALCM-Automation-E2E": 71,
-              "ALCM-Mend-V2": 12,
-              "ALCM-WebQuoteBE-CD": 1,
-              "ALCM-MLS-Mend-Sonar": 19,
-              "ALCM-Safechat-Mend": 3,
-              "LEG-CloudConfig-BE": 3,
-              "ALCM-Mend-V3": 4,
-              "ALCM-API-CD": 5,
-              "ALCM Automation (Playwright) - UAT Env": 3,
-              "ALCM-API": 5,
-              "ALCM-Mend-APIs": 3,
-              "ALCM-Mend-Android": 3,
-              "ALCM-Identity": 3,
-              "ALCM-IdentityServer-CD": 2,
-              "ALCM-Mend-Identity": 2,
-              "LEG-CloudConfig-FE": 1
-            },
-            "pipeline_count": 21
-          },
-          "build_success_rate": {
             "total_builds": 508,
             "succeeded": 313,
             "failed": 121,
@@ -61451,6 +60238,1168 @@
             "p95_hours": 544.5
           },
           "collected_at": "2026-02-20T14:29:45.239482"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-20",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "deployment_frequency": {
+            "total_successful_builds": 371,
+            "lookback_days": 90,
+            "deployments_per_week": 28.86,
+            "by_pipeline": {
+              "ALCM-V3-CD": 59,
+              "ALCM-Automation-E2E": 56,
+              "ALCM-V2-CD": 82,
+              "ALCM-Mend-V2": 26,
+              "ALCM-FE-CD": 61,
+              "ALCM-API": 5,
+              "ALCM-MLS-CD": 16,
+              "ALCM-Mend-FE": 27,
+              "ALCM-MLS-Mend-Sonar": 14,
+              "ALCM-Safechat-Mend": 5,
+              "ALCM-WebQuoteBE-CD": 1,
+              "LEG-CloudConfig-BE": 2,
+              "ALCM-Mend-V3": 3,
+              "ALCM-API-CD": 5,
+              "ALCM Automation (Playwright) - UAT Env": 3,
+              "ALCM-Mend-APIs": 3,
+              "ALCM-Mend-Android": 3
+            },
+            "pipeline_count": 17
+          },
+          "build_success_rate": {
+            "total_builds": 591,
+            "succeeded": 371,
+            "failed": 155,
+            "canceled": 57,
+            "partially_succeeded": 8,
+            "success_rate_pct": 62.8,
+            "by_result": {
+              "failed": 155,
+              "succeeded": 371,
+              "canceled": 57,
+              "partiallySucceeded": 8
+            },
+            "by_pipeline": {
+              "ALCM-Automation-E2E": {
+                "failed": 78,
+                "succeeded": 56,
+                "canceled": 4,
+                "partiallySucceeded": 4
+              },
+              "ALCM-V3-CD": {
+                "succeeded": 59,
+                "failed": 10
+              },
+              "ALCM-iOS-Sonar-Mend": {
+                "canceled": 33
+              },
+              "ALCM-V2-CD": {
+                "succeeded": 82,
+                "failed": 22,
+                "canceled": 1
+              },
+              "ALCM-Mend-V3": {
+                "failed": 23,
+                "succeeded": 3
+              },
+              "ALCM-Mend-V2": {
+                "succeeded": 26
+              },
+              "ALCM-FE-CD": {
+                "succeeded": 61,
+                "failed": 16
+              },
+              "ALCM-API": {
+                "succeeded": 5
+              },
+              "ALCM-MLS-CD": {
+                "succeeded": 16,
+                "partiallySucceeded": 3,
+                "failed": 2
+              },
+              "ALCM-Mend-FE": {
+                "succeeded": 27
+              },
+              "ALCM-MLS-Mend-Sonar": {
+                "succeeded": 14,
+                "failed": 1
+              },
+              "ALCM-Safechat-Mend": {
+                "succeeded": 5,
+                "failed": 1
+              },
+              "ALCM Automation (Playwright) - UAT Env": {
+                "canceled": 18,
+                "succeeded": 3
+              },
+              "ALCM-WebQuoteBE-CD": {
+                "succeeded": 1,
+                "canceled": 1
+              },
+              "ALCM-tfsec": {
+                "partiallySucceeded": 1
+              },
+              "Access-EVO-Automation-E2E": {
+                "failed": 2
+              },
+              "LEG-CloudConfig-BE": {
+                "succeeded": 2
+              },
+              "ALCM-API-CD": {
+                "succeeded": 5
+              },
+              "ALCM-Mend-APIs": {
+                "succeeded": 3
+              },
+              "ALCM-Mend-Android": {
+                "succeeded": 3
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 537,
+            "median_minutes": 18.7,
+            "p85_minutes": 30266.9,
+            "p95_minutes": 31694.9,
+            "min_minutes": 0.4,
+            "max_minutes": 43272.5,
+            "by_pipeline": {
+              "ALCM-Automation-E2E": {
+                "count": 142,
+                "median_minutes": 12.7
+              },
+              "ALCM-V3-CD": {
+                "count": 69,
+                "median_minutes": 30247.5
+              },
+              "ALCM-V2-CD": {
+                "count": 104,
+                "median_minutes": 16.2
+              },
+              "ALCM-Mend-V3": {
+                "count": 26,
+                "median_minutes": 24.6
+              },
+              "ALCM-Mend-V2": {
+                "count": 26,
+                "median_minutes": 8.7
+              },
+              "ALCM-FE-CD": {
+                "count": 77,
+                "median_minutes": 28837.5
+              },
+              "ALCM-API": {
+                "count": 5,
+                "median_minutes": 3.0
+              },
+              "ALCM-MLS-CD": {
+                "count": 21,
+                "median_minutes": 30249.6
+              },
+              "ALCM-Mend-FE": {
+                "count": 27,
+                "median_minutes": 1.5
+              },
+              "ALCM-MLS-Mend-Sonar": {
+                "count": 13,
+                "median_minutes": 7.1
+              },
+              "ALCM-Safechat-Mend": {
+                "count": 6,
+                "median_minutes": 20.7
+              },
+              "ALCM-WebQuoteBE-CD": {
+                "count": 2,
+                "median_minutes": 3322.7
+              },
+              "ALCM-tfsec": {
+                "count": 1,
+                "median_minutes": 0.4
+              },
+              "Access-EVO-Automation-E2E": {
+                "count": 2,
+                "median_minutes": 27.9
+              },
+              "LEG-CloudConfig-BE": {
+                "count": 2,
+                "median_minutes": 2.9
+              },
+              "ALCM-API-CD": {
+                "count": 5,
+                "median_minutes": 5.2
+              },
+              "ALCM Automation (Playwright) - UAT Env": {
+                "count": 3,
+                "median_minutes": 39.3
+              },
+              "ALCM-Mend-APIs": {
+                "count": 3,
+                "median_minutes": 2.0
+              },
+              "ALCM-Mend-Android": {
+                "count": 3,
+                "median_minutes": 14.9
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 47,
+            "median_hours": 0.3,
+            "p85_hours": 504.6,
+            "p95_hours": 544.5
+          },
+          "collected_at": "2026-02-20T15:22:24.256284"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "deployment_frequency": {
+            "total_successful_builds": 49,
+            "lookback_days": 90,
+            "deployments_per_week": 3.81,
+            "by_pipeline": {
+              ".NET Files": 27,
+              "Product C Desktop": 18,
+              "Product C Windows Service": 2,
+              "Case Tracker": 1,
+              "Product C API": 1
+            },
+            "pipeline_count": 5
+          },
+          "build_success_rate": {
+            "total_builds": 70,
+            "succeeded": 49,
+            "failed": 6,
+            "canceled": 15,
+            "partially_succeeded": 0,
+            "success_rate_pct": 70.0,
+            "by_result": {
+              "failed": 6,
+              "succeeded": 49,
+              "canceled": 15
+            },
+            "by_pipeline": {
+              "Product C Desktop": {
+                "failed": 6,
+                "succeeded": 18,
+                "canceled": 15
+              },
+              ".NET Files": {
+                "succeeded": 27
+              },
+              "Product C Windows Service": {
+                "succeeded": 2
+              },
+              "Case Tracker": {
+                "succeeded": 1
+              },
+              "Product C API": {
+                "succeeded": 1
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 70,
+            "median_minutes": 14.8,
+            "p85_minutes": 73.4,
+            "p95_minutes": 104.1,
+            "min_minutes": 3.2,
+            "max_minutes": 251.0,
+            "by_pipeline": {
+              "Product C Desktop": {
+                "count": 39,
+                "median_minutes": 64.0
+              },
+              ".NET Files": {
+                "count": 27,
+                "median_minutes": 12.8
+              },
+              "Product C Windows Service": {
+                "count": 2,
+                "median_minutes": 3.2
+              },
+              "Case Tracker": {
+                "count": 1,
+                "median_minutes": 6.2
+              },
+              "Product C API": {
+                "count": 1,
+                "median_minutes": 6.8
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 49,
+            "median_hours": 0.2,
+            "p85_hours": 1.5,
+            "p95_hours": 36.9
+          },
+          "collected_at": "2026-02-20T15:22:23.095855"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "deployment_frequency": {
+            "total_successful_builds": 0
+          },
+          "build_success_rate": {
+            "total_builds": 0
+          },
+          "build_duration": {
+            "sample_size": 0
+          },
+          "lead_time_for_changes": {
+            "sample_size": 0
+          },
+          "collected_at": "2026-02-20T15:22:14.968768"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "deployment_frequency": {
+            "total_successful_builds": 283,
+            "lookback_days": 90,
+            "deployments_per_week": 22.01,
+            "by_pipeline": {
+              "LB Law Angular CI": 41,
+              "LB Connect Angular CI": 12,
+              "LB Property Angular CI": 27,
+              "Price Transparency Tool Angular CI": 22,
+              "Dotnet CI": 43,
+              "Product L-CI-CD": 116,
+              "Build Product A Searches": 3,
+              "Product L-CD-Production-Demo": 15,
+              "Web App Gulp CI": 4
+            },
+            "pipeline_count": 9
+          },
+          "build_success_rate": {
+            "total_builds": 540,
+            "succeeded": 283,
+            "failed": 138,
+            "canceled": 44,
+            "partially_succeeded": 75,
+            "success_rate_pct": 52.4,
+            "by_result": {
+              "failed": 138,
+              "canceled": 44,
+              "succeeded": 283,
+              "partiallySucceeded": 75
+            },
+            "by_pipeline": {
+              "legalbricks-automation": {
+                "failed": 84,
+                "canceled": 14,
+                "partiallySucceeded": 36
+              },
+              "Product L-CI-CD": {
+                "failed": 36,
+                "succeeded": 116,
+                "canceled": 4
+              },
+              "LB Law Angular CI": {
+                "succeeded": 41,
+                "canceled": 6,
+                "failed": 1
+              },
+              "LB Connect Angular CI": {
+                "succeeded": 12,
+                "canceled": 2
+              },
+              "LB Property Angular CI": {
+                "succeeded": 27,
+                "canceled": 2
+              },
+              "Price Transparency Tool Angular CI": {
+                "succeeded": 22,
+                "failed": 2,
+                "canceled": 1
+              },
+              "Dotnet CI": {
+                "failed": 15,
+                "succeeded": 43,
+                "partiallySucceeded": 34,
+                "canceled": 15
+              },
+              "Build Product A Searches": {
+                "succeeded": 3
+              },
+              "Product L-CD-Production-Demo": {
+                "succeeded": 15
+              },
+              "Web App Gulp CI": {
+                "succeeded": 4
+              },
+              "legalbricks-playwright-poc": {
+                "partiallySucceeded": 5
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 540,
+            "median_minutes": 26.6,
+            "p85_minutes": 52.0,
+            "p95_minutes": 56.1,
+            "min_minutes": 0.4,
+            "max_minutes": 77.7,
+            "by_pipeline": {
+              "legalbricks-automation": {
+                "count": 134,
+                "median_minutes": 45.1
+              },
+              "Product L-CI-CD": {
+                "count": 156,
+                "median_minutes": 49.8
+              },
+              "LB Law Angular CI": {
+                "count": 48,
+                "median_minutes": 13.7
+              },
+              "LB Connect Angular CI": {
+                "count": 14,
+                "median_minutes": 8.8
+              },
+              "LB Property Angular CI": {
+                "count": 29,
+                "median_minutes": 8.2
+              },
+              "Price Transparency Tool Angular CI": {
+                "count": 25,
+                "median_minutes": 6.8
+              },
+              "Dotnet CI": {
+                "count": 107,
+                "median_minutes": 26.4
+              },
+              "Build Product A Searches": {
+                "count": 3,
+                "median_minutes": 2.7
+              },
+              "Product L-CD-Production-Demo": {
+                "count": 15,
+                "median_minutes": 51.2
+              },
+              "Web App Gulp CI": {
+                "count": 4,
+                "median_minutes": 3.0
+              },
+              "legalbricks-playwright-poc": {
+                "count": 5,
+                "median_minutes": 25.9
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 50,
+            "median_hours": 0.4,
+            "p85_hours": 2.2,
+            "p95_hours": 22.7
+          },
+          "collected_at": "2026-02-20T15:22:23.978587"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "deployment_frequency": {
+            "total_successful_builds": 25,
+            "lookback_days": 90,
+            "deployments_per_week": 1.94,
+            "by_pipeline": {
+              "Compliance EDS": 16,
+              "Access.Legal.Compliance (11625)": 6,
+              "Access.Legal.Compliance - STAGING": 3
+            },
+            "pipeline_count": 3
+          },
+          "build_success_rate": {
+            "total_builds": 38,
+            "succeeded": 25,
+            "failed": 11,
+            "canceled": 2,
+            "partially_succeeded": 0,
+            "success_rate_pct": 65.8,
+            "by_result": {
+              "succeeded": 25,
+              "failed": 11,
+              "canceled": 2
+            },
+            "by_pipeline": {
+              "Compliance EDS": {
+                "succeeded": 16,
+                "failed": 4,
+                "canceled": 2
+              },
+              "Access.Legal.Compliance (11625)": {
+                "failed": 7,
+                "succeeded": 6
+              },
+              "Access.Legal.Compliance - STAGING": {
+                "succeeded": 3
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 38,
+            "median_minutes": 5.8,
+            "p85_minutes": 18.0,
+            "p95_minutes": 29.2,
+            "min_minutes": 0.4,
+            "max_minutes": 81.8,
+            "by_pipeline": {
+              "Compliance EDS": {
+                "count": 22,
+                "median_minutes": 3.9
+              },
+              "Access.Legal.Compliance (11625)": {
+                "count": 13,
+                "median_minutes": 16.8
+              },
+              "Access.Legal.Compliance - STAGING": {
+                "count": 3,
+                "median_minutes": 66.0
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 23,
+            "median_hours": 0.3,
+            "p85_hours": 1.7,
+            "p95_hours": 11.4
+          },
+          "collected_at": "2026-02-20T15:22:18.852978"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "deployment_frequency": {
+            "total_successful_builds": 251,
+            "lookback_days": 90,
+            "deployments_per_week": 19.52,
+            "by_pipeline": {
+              "Test Suite Pipeline": 85,
+              "API Deployment": 36,
+              "admin-react": 72,
+              "admin-react-deploy": 25,
+              "admin-deployment": 14,
+              "middleware-production": 3,
+              "client-deployment": 6,
+              "android": 3,
+              "middleware-dev": 3,
+              "middleware-staging": 3,
+              "incase-keycloak-spi": 1
+            },
+            "pipeline_count": 11
+          },
+          "build_success_rate": {
+            "total_builds": 428,
+            "succeeded": 251,
+            "failed": 159,
+            "canceled": 16,
+            "partially_succeeded": 2,
+            "success_rate_pct": 58.6,
+            "by_result": {
+              "succeeded": 251,
+              "canceled": 16,
+              "failed": 159,
+              "partiallySucceeded": 2
+            },
+            "by_pipeline": {
+              "Test Suite Pipeline": {
+                "succeeded": 85,
+                "canceled": 14,
+                "failed": 81
+              },
+              "API Deployment": {
+                "succeeded": 36
+              },
+              "admin-react": {
+                "succeeded": 72,
+                "failed": 9,
+                "canceled": 1
+              },
+              "android": {
+                "failed": 26,
+                "succeeded": 3
+              },
+              "admin-react-deploy": {
+                "succeeded": 25
+              },
+              "admin-deployment": {
+                "succeeded": 14
+              },
+              "admin-test-suite": {
+                "failed": 43
+              },
+              "middleware-production": {
+                "succeeded": 3
+              },
+              "client-deployment": {
+                "succeeded": 6,
+                "canceled": 1
+              },
+              "middleware-dev": {
+                "succeeded": 3
+              },
+              "middleware-staging": {
+                "succeeded": 3
+              },
+              "playwright": {
+                "partiallySucceeded": 2
+              },
+              "incase-keycloak-spi": {
+                "succeeded": 1
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 428,
+            "median_minutes": 7.8,
+            "p85_minutes": 23.7,
+            "p95_minutes": 24.7,
+            "min_minutes": 0.1,
+            "max_minutes": 29.0,
+            "by_pipeline": {
+              "Test Suite Pipeline": {
+                "count": 180,
+                "median_minutes": 16.6
+              },
+              "API Deployment": {
+                "count": 36,
+                "median_minutes": 7.8
+              },
+              "admin-react": {
+                "count": 82,
+                "median_minutes": 1.2
+              },
+              "android": {
+                "count": 29,
+                "median_minutes": 14.0
+              },
+              "admin-react-deploy": {
+                "count": 25,
+                "median_minutes": 1.2
+              },
+              "admin-deployment": {
+                "count": 14,
+                "median_minutes": 3.9
+              },
+              "admin-test-suite": {
+                "count": 43,
+                "median_minutes": 3.8
+              },
+              "middleware-production": {
+                "count": 3,
+                "median_minutes": 12.4
+              },
+              "client-deployment": {
+                "count": 7,
+                "median_minutes": 5.6
+              },
+              "middleware-dev": {
+                "count": 3,
+                "median_minutes": 12.4
+              },
+              "middleware-staging": {
+                "count": 3,
+                "median_minutes": 12.4
+              },
+              "playwright": {
+                "count": 2,
+                "median_minutes": 9.5
+              },
+              "incase-keycloak-spi": {
+                "count": 1,
+                "median_minutes": 2.1
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 50,
+            "median_hours": 0.1,
+            "p85_hours": 0.4,
+            "p95_hours": 0.4
+          },
+          "collected_at": "2026-02-20T15:22:23.833262"
+        },
+        {
+          "project_key": "Legal_Proclaim",
+          "project_name": "Product D",
+          "deployment_frequency": {
+            "total_successful_builds": 153,
+            "lookback_days": 90,
+            "deployments_per_week": 11.9,
+            "by_pipeline": {
+              "ProclaimDesktop Main CI": 22,
+              "ProclaimDesktop PR Validation": 41,
+              "Build 3.5.1.22": 6,
+              "ProclaimDesktop Release": 10,
+              "ProclaimSingleSignOn": 2,
+              "ProclaimSingleSignOn-SQ": 1,
+              "ProclaimSingleSignOn-Mend": 1,
+              "Build 3.5.1.23": 8,
+              "ProclaimDesktop": 25,
+              "ProclaimDesktop Merge": 10,
+              "ProclaimDesktop Main branch": 2,
+              "Git main sonarqued and mend": 2,
+              "V4Git": 2,
+              "GIT-Merge": 2,
+              "Build 4.0.0.12": 2,
+              "Touchpoint-mend": 2,
+              "Touchpoint-sonarQube": 2,
+              "ProclaimDesktop 35121": 1,
+              "Git main branch": 1,
+              "Touchpoint-deploy-production": 1,
+              "Touchpoint-deploy-demo-preprod": 4,
+              "ProcliamGo SonarQube Scan": 2,
+              "ProclaimGo Mend Scan": 2,
+              "Build 3.5.1.21": 2
+            },
+            "pipeline_count": 24
+          },
+          "build_success_rate": {
+            "total_builds": 214,
+            "succeeded": 153,
+            "failed": 59,
+            "canceled": 1,
+            "partially_succeeded": 1,
+            "success_rate_pct": 71.5,
+            "by_result": {
+              "succeeded": 153,
+              "failed": 59,
+              "partiallySucceeded": 1,
+              "canceled": 1
+            },
+            "by_pipeline": {
+              "ProclaimDesktop Main CI": {
+                "succeeded": 22,
+                "failed": 4
+              },
+              "ProclaimDesktop PR Validation": {
+                "succeeded": 41,
+                "failed": 5,
+                "partiallySucceeded": 1
+              },
+              "Build 3.5.1.22": {
+                "succeeded": 6,
+                "canceled": 1,
+                "failed": 1
+              },
+              "ProclaimGo Playwright": {
+                "failed": 23
+              },
+              "ProclaimDesktop Release": {
+                "succeeded": 10,
+                "failed": 5
+              },
+              "ProclaimSingleSignOn": {
+                "succeeded": 2
+              },
+              "ProclaimSingleSignOn-SQ": {
+                "succeeded": 1
+              },
+              "ProclaimSingleSignOn-Mend": {
+                "succeeded": 1
+              },
+              "Build 3.5.1.23": {
+                "succeeded": 8
+              },
+              "ProclaimDesktop": {
+                "succeeded": 25,
+                "failed": 5
+              },
+              "ProclaimDesktop Merge": {
+                "succeeded": 10
+              },
+              "4.0.0.09-ABLTests APITests": {
+                "failed": 16
+              },
+              "ProclaimDesktop Main branch": {
+                "succeeded": 2
+              },
+              "Git main sonarqued and mend": {
+                "succeeded": 2
+              },
+              "V4Git": {
+                "succeeded": 2
+              },
+              "GIT-Merge": {
+                "succeeded": 2
+              },
+              "Build 4.0.0.12": {
+                "succeeded": 2
+              },
+              "Touchpoint-mend": {
+                "succeeded": 2
+              },
+              "Touchpoint-sonarQube": {
+                "succeeded": 2
+              },
+              "ProclaimDesktop 35121": {
+                "succeeded": 1
+              },
+              "Git main branch": {
+                "succeeded": 1
+              },
+              "Touchpoint-deploy-production": {
+                "succeeded": 1
+              },
+              "Touchpoint-deploy-demo-preprod": {
+                "succeeded": 4
+              },
+              "ProcliamGo SonarQube Scan": {
+                "succeeded": 2
+              },
+              "ProclaimGo Mend Scan": {
+                "succeeded": 2
+              },
+              "Build 3.5.1.21": {
+                "succeeded": 2
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 213,
+            "median_minutes": 9.2,
+            "p85_minutes": 21.1,
+            "p95_minutes": 25.8,
+            "min_minutes": 0.8,
+            "max_minutes": 48.1,
+            "by_pipeline": {
+              "ProclaimDesktop Main CI": {
+                "count": 26,
+                "median_minutes": 2.4
+              },
+              "ProclaimDesktop PR Validation": {
+                "count": 47,
+                "median_minutes": 18.7
+              },
+              "Build 3.5.1.22": {
+                "count": 7,
+                "median_minutes": 21.9
+              },
+              "ProclaimGo Playwright": {
+                "count": 23,
+                "median_minutes": 9.4
+              },
+              "ProclaimDesktop Release": {
+                "count": 15,
+                "median_minutes": 21.1
+              },
+              "ProclaimSingleSignOn": {
+                "count": 2,
+                "median_minutes": 1.2
+              },
+              "ProclaimSingleSignOn-SQ": {
+                "count": 1,
+                "median_minutes": 2.0
+              },
+              "ProclaimSingleSignOn-Mend": {
+                "count": 1,
+                "median_minutes": 1.4
+              },
+              "Build 3.5.1.23": {
+                "count": 8,
+                "median_minutes": 21.7
+              },
+              "ProclaimDesktop": {
+                "count": 30,
+                "median_minutes": 3.9
+              },
+              "ProclaimDesktop Merge": {
+                "count": 10,
+                "median_minutes": 17.9
+              },
+              "4.0.0.09-ABLTests APITests": {
+                "count": 16,
+                "median_minutes": 8.3
+              },
+              "ProclaimDesktop Main branch": {
+                "count": 2,
+                "median_minutes": 24.0
+              },
+              "Git main sonarqued and mend": {
+                "count": 2,
+                "median_minutes": 46.9
+              },
+              "V4Git": {
+                "count": 2,
+                "median_minutes": 3.4
+              },
+              "GIT-Merge": {
+                "count": 2,
+                "median_minutes": 29.5
+              },
+              "Build 4.0.0.12": {
+                "count": 2,
+                "median_minutes": 28.0
+              },
+              "Touchpoint-mend": {
+                "count": 2,
+                "median_minutes": 2.8
+              },
+              "Touchpoint-sonarQube": {
+                "count": 2,
+                "median_minutes": 4.9
+              },
+              "ProclaimDesktop 35121": {
+                "count": 1,
+                "median_minutes": 21.0
+              },
+              "Git main branch": {
+                "count": 1,
+                "median_minutes": 26.8
+              },
+              "Touchpoint-deploy-production": {
+                "count": 1,
+                "median_minutes": 4.9
+              },
+              "Touchpoint-deploy-demo-preprod": {
+                "count": 4,
+                "median_minutes": 2.9
+              },
+              "ProcliamGo SonarQube Scan": {
+                "count": 2,
+                "median_minutes": 3.9
+              },
+              "ProclaimGo Mend Scan": {
+                "count": 2,
+                "median_minutes": 3.0
+              },
+              "Build 3.5.1.21": {
+                "count": 2,
+                "median_minutes": 21.0
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 46,
+            "median_hours": 0.3,
+            "p85_hours": 22.6,
+            "p95_hours": 66.1
+          },
+          "collected_at": "2026-02-20T15:22:23.560937"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "deployment_frequency": {
+            "total_successful_builds": 371,
+            "lookback_days": 90,
+            "deployments_per_week": 28.86,
+            "by_pipeline": {
+              "ALCM-V3-CD": 59,
+              "ALCM-Automation-E2E": 56,
+              "ALCM-V2-CD": 82,
+              "ALCM-Mend-V2": 26,
+              "ALCM-FE-CD": 61,
+              "ALCM-API": 5,
+              "ALCM-MLS-CD": 16,
+              "ALCM-Mend-FE": 27,
+              "ALCM-MLS-Mend-Sonar": 14,
+              "ALCM-Safechat-Mend": 5,
+              "ALCM-WebQuoteBE-CD": 1,
+              "LEG-CloudConfig-BE": 2,
+              "ALCM-Mend-V3": 3,
+              "ALCM-API-CD": 5,
+              "ALCM Automation (Playwright) - UAT Env": 3,
+              "ALCM-Mend-APIs": 3,
+              "ALCM-Mend-Android": 3
+            },
+            "pipeline_count": 17
+          },
+          "build_success_rate": {
+            "total_builds": 591,
+            "succeeded": 371,
+            "failed": 155,
+            "canceled": 57,
+            "partially_succeeded": 8,
+            "success_rate_pct": 62.8,
+            "by_result": {
+              "failed": 155,
+              "succeeded": 371,
+              "canceled": 57,
+              "partiallySucceeded": 8
+            },
+            "by_pipeline": {
+              "ALCM-Automation-E2E": {
+                "failed": 78,
+                "succeeded": 56,
+                "canceled": 4,
+                "partiallySucceeded": 4
+              },
+              "ALCM-V3-CD": {
+                "succeeded": 59,
+                "failed": 10
+              },
+              "ALCM-iOS-Sonar-Mend": {
+                "canceled": 33
+              },
+              "ALCM-V2-CD": {
+                "succeeded": 82,
+                "failed": 22,
+                "canceled": 1
+              },
+              "ALCM-Mend-V3": {
+                "failed": 23,
+                "succeeded": 3
+              },
+              "ALCM-Mend-V2": {
+                "succeeded": 26
+              },
+              "ALCM-FE-CD": {
+                "succeeded": 61,
+                "failed": 16
+              },
+              "ALCM-API": {
+                "succeeded": 5
+              },
+              "ALCM-MLS-CD": {
+                "succeeded": 16,
+                "partiallySucceeded": 3,
+                "failed": 2
+              },
+              "ALCM-Mend-FE": {
+                "succeeded": 27
+              },
+              "ALCM-MLS-Mend-Sonar": {
+                "succeeded": 14,
+                "failed": 1
+              },
+              "ALCM-Safechat-Mend": {
+                "succeeded": 5,
+                "failed": 1
+              },
+              "ALCM Automation (Playwright) - UAT Env": {
+                "canceled": 18,
+                "succeeded": 3
+              },
+              "ALCM-WebQuoteBE-CD": {
+                "succeeded": 1,
+                "canceled": 1
+              },
+              "ALCM-tfsec": {
+                "partiallySucceeded": 1
+              },
+              "Access-EVO-Automation-E2E": {
+                "failed": 2
+              },
+              "LEG-CloudConfig-BE": {
+                "succeeded": 2
+              },
+              "ALCM-API-CD": {
+                "succeeded": 5
+              },
+              "ALCM-Mend-APIs": {
+                "succeeded": 3
+              },
+              "ALCM-Mend-Android": {
+                "succeeded": 3
+              }
+            }
+          },
+          "build_duration": {
+            "sample_size": 537,
+            "median_minutes": 18.7,
+            "p85_minutes": 30266.9,
+            "p95_minutes": 31694.9,
+            "min_minutes": 0.4,
+            "max_minutes": 43272.5,
+            "by_pipeline": {
+              "ALCM-Automation-E2E": {
+                "count": 142,
+                "median_minutes": 12.7
+              },
+              "ALCM-V3-CD": {
+                "count": 69,
+                "median_minutes": 30247.5
+              },
+              "ALCM-V2-CD": {
+                "count": 104,
+                "median_minutes": 16.2
+              },
+              "ALCM-Mend-V3": {
+                "count": 26,
+                "median_minutes": 24.6
+              },
+              "ALCM-Mend-V2": {
+                "count": 26,
+                "median_minutes": 8.7
+              },
+              "ALCM-FE-CD": {
+                "count": 77,
+                "median_minutes": 28837.5
+              },
+              "ALCM-API": {
+                "count": 5,
+                "median_minutes": 3.0
+              },
+              "ALCM-MLS-CD": {
+                "count": 21,
+                "median_minutes": 30249.6
+              },
+              "ALCM-Mend-FE": {
+                "count": 27,
+                "median_minutes": 1.5
+              },
+              "ALCM-MLS-Mend-Sonar": {
+                "count": 13,
+                "median_minutes": 7.1
+              },
+              "ALCM-Safechat-Mend": {
+                "count": 6,
+                "median_minutes": 20.7
+              },
+              "ALCM-WebQuoteBE-CD": {
+                "count": 2,
+                "median_minutes": 3322.7
+              },
+              "ALCM-tfsec": {
+                "count": 1,
+                "median_minutes": 0.4
+              },
+              "Access-EVO-Automation-E2E": {
+                "count": 2,
+                "median_minutes": 27.9
+              },
+              "LEG-CloudConfig-BE": {
+                "count": 2,
+                "median_minutes": 2.9
+              },
+              "ALCM-API-CD": {
+                "count": 5,
+                "median_minutes": 5.2
+              },
+              "ALCM Automation (Playwright) - UAT Env": {
+                "count": 3,
+                "median_minutes": 39.3
+              },
+              "ALCM-Mend-APIs": {
+                "count": 3,
+                "median_minutes": 2.0
+              },
+              "ALCM-Mend-Android": {
+                "count": 3,
+                "median_minutes": 14.9
+              }
+            }
+          },
+          "lead_time_for_changes": {
+            "sample_size": 47,
+            "median_hours": 0.3,
+            "p85_hours": 504.6,
+            "p95_hours": 544.5
+          },
+          "collected_at": "2026-02-20T15:22:24.069119"
         }
       ],
       "config": {
