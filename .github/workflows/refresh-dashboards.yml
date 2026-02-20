@@ -248,9 +248,8 @@ jobs:
           - { name: 'Targets', script: 'targets.py' }
           - { name: 'Trends', script: '../generate_trends_dashboard.py' }
           - { name: 'Launcher', script: '../generate_dashboard_launcher.py' }
-          - { name: 'Executive', script: 'executive.py' }
       fail-fast: false
-      max-parallel: 12
+      max-parallel: 11
 
     steps:
       - name: Checkout repository
