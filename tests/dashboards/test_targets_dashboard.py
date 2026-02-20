@@ -140,39 +140,26 @@ def test_load_discovery_data_missing_file():
 # Test: _query_current_armorcode_vulns
 @pytest.mark.asyncio
 async def test_query_current_armorcode_vulns_success():
-    """Test successful querying of current vulnerabilities using hybrid loader"""
-    # Mock vulnerabilities — use .product and .severity (as used by new implementation)
-    mock_vuln_critical = Mock()
-    mock_vuln_critical.product = "Product A"
-    mock_vuln_critical.severity = "CRITICAL"
-
-    mock_vuln_high1 = Mock()
-    mock_vuln_high1.product = "Product A"
-    mock_vuln_high1.severity = "HIGH"
-
-    mock_vuln_high2 = Mock()
-    mock_vuln_high2.product = "Product A"
-    mock_vuln_high2.severity = "HIGH"
-
-    mock_vuln_medium = Mock()
-    mock_vuln_medium.product = "Product A"
-    mock_vuln_medium.severity = "MEDIUM"
-
+    """Test successful querying of current vulnerabilities using AQL count endpoint (2 calls)"""
     mock_loader = Mock()
-    mock_loader.load_vulnerabilities_hybrid.return_value = (
-        [mock_vuln_critical, mock_vuln_high1, mock_vuln_high2, mock_vuln_medium],
-        {"Product A": None, "Product B": None},
-        {"Product A": {"critical": 1, "high": 2, "total": 3}, "Product B": {"critical": 0, "high": 0, "total": 0}},
-    )
+    # Critical: 1 from product A, High: 2 from product A → total 3
+    mock_loader.count_by_severity_aql.side_effect = [
+        {"product_id_1": 1},  # Critical counts
+        {"product_id_1": 2},  # High counts
+    ]
 
-    with patch("execution.dashboards.targets.ArmorCodeVulnerabilityLoader", return_value=mock_loader):
-        result = await _query_current_armorcode_vulns(["Product A", "Product B"])
+    with (
+        patch("execution.dashboards.targets.ArmorCodeVulnerabilityLoader", return_value=mock_loader),
+        patch("execution.dashboards.targets.get_config") as mock_config,
+    ):
+        mock_config.return_value.get_optional_env.return_value = "test/hierarchy"
+        result = await _query_current_armorcode_vulns()
 
-        # Should return only critical + high from accurate_totals (3)
+        # Should return sum of critical + high (3)
         assert result == 3
-        mock_loader.load_vulnerabilities_hybrid.assert_called_once_with(
-            ["Product A", "Product B"], filter_environment=True, max_per_product=50
-        )
+        assert mock_loader.count_by_severity_aql.call_count == 2
+        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy")
+        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy")
 
 
 # Test: _query_current_ado_bugs
@@ -514,7 +501,7 @@ async def test_query_current_state_success():
 
         assert result["security"] == 85
         assert result["bugs"] == 115
-        mock_query_vulns.assert_called_once_with(["Product A"])
+        mock_query_vulns.assert_called_once_with()
         mock_query_bugs.assert_called_once()
 
 
