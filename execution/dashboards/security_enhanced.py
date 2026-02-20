@@ -398,7 +398,10 @@ def _build_context(
             status_class = "good"
             status_priority = 3  # Lowest priority
 
-        expanded_html = _generate_bucket_expanded_content(vulns, bucket_counts=product_bucket_counts)
+        aql_product = (aql_by_product or {}).get(product_name)
+        expanded_html = _generate_bucket_expanded_content(
+            vulns, bucket_counts=product_bucket_counts, aql_product=aql_product
+        )
 
         products.append(
             {
@@ -452,6 +455,7 @@ def _escape_html(text: str) -> str:
 def _generate_bucket_expanded_content(
     vulnerabilities: list,
     bucket_counts: dict | None = None,
+    aql_product: dict | None = None,
 ) -> str:
     """
     Generate expanded row HTML: inline expandable bucket rows within a single table.
@@ -460,6 +464,8 @@ def _generate_bucket_expanded_content(
         vulnerabilities: List of VulnerabilityDetail objects for this product (may be capped at 50)
         bucket_counts: Accurate {bucket: {total, critical, high}} from API count queries.
                       When None, counts are derived from the fetched vulnerabilities list.
+        aql_product: AQL production counts {"critical": X, "high": Y} for this product.
+                    Used to surface unclassified-source findings and explain env mismatches.
     """
     filtered = [v for v in vulnerabilities if v.severity.upper() in ("CRITICAL", "HIGH")]
 
@@ -564,8 +570,42 @@ def _generate_bucket_expanded_content(
     if not table_body:
         table_body = '<tr><td colspan="4" class="no-findings">No Critical or High findings</td></tr>'
 
+    # Reconcile bucket totals against AQL production counts
+    env_note = ""
+    if bucket_counts and aql_product:
+        aql_c = aql_product.get("critical", 0)
+        aql_h = aql_product.get("high", 0)
+        aql_total = aql_c + aql_h
+        known_c = sum(b.get("critical", 0) for b in bucket_counts.values())
+        known_h = sum(b.get("high", 0) for b in bucket_counts.values())
+        unc_c = max(0, aql_c - known_c)
+        unc_h = max(0, aql_h - known_h)
+        if unc_c + unc_h > 0:
+            # Findings exist in source tools not yet in SOURCE_BUCKET_MAP
+            unc_total = unc_c + unc_h
+            crit_cls = ' class="critical"' if unc_c > 0 else ""
+            high_cls = ' class="high"' if unc_h > 0 else ""
+            table_body += (
+                f'<tr class="bucket-row expandable" onclick="toggleBucketDetail(this)">'
+                f'<td><span class="bucket-arrow">&#9658;</span> <strong>Other / Unclassified Sources</strong></td>'
+                f"<td>{unc_total}</td><td{crit_cls}>{unc_c}</td><td{high_cls}>{unc_h}</td>"
+                f'</tr><tr class="bucket-detail-row" style="display:none;">'
+                f'<td colspan="4" class="vuln-table-note">&#9888; These findings are from source tools '
+                f"not yet mapped to a bucket category (e.g. scanner names not in SOURCE_BUCKET_MAP). "
+                f"Update SOURCE_BUCKET_MAP in execution/domain/security.py to categorise them.</td></tr>"
+            )
+        known_total = known_c + known_h
+        if known_total > aql_total:
+            # Bucket totals (all-env) exceed production total — expected when staging/dev findings exist
+            env_note = (
+                '<p class="vuln-table-note" style="margin:4px 0 8px">'
+                "&#8505; Bucket counts include all environments (Production + Staging + Dev). "
+                "The row total above shows Production environment only.</p>"
+            )
+
     return (
         '<div class="detail-section">'
+        f"{env_note}"
         '<table class="bucket-summary-table">'
         "<thead><tr><th>Finding Type</th><th>Total</th><th>Critical</th><th>High</th></tr></thead>"
         f"<tbody>{table_body}</tbody>"
