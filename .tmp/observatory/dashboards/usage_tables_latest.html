@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LGL AI Tools Usage Report - Import Data</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <title>LGL AI Tools Usage Report</title>
     
     <style>
     
@@ -758,133 +757,217 @@
     </style>
     
     <style>
-        .import-button {
-            position: fixed;
-            top: 20px;
-            right: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .import-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .import-button:active {
-            transform: translateY(0);
-        }
-
-        #file-input {
-            display: none;
-        }
-
-        .placeholder {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .placeholder-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .placeholder h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }
-
-        .placeholder p {
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Match existing dashboard styles */
-        .stats-card, .legend-card, .search-card, .table-card {
+        /* Dashboard-specific styles */
+        .stats-card {
             background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px var(--shadow);
-            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        @media (min-width: 768px) {
+            .stats-card {
+                padding: 24px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-card {
+                padding: 30px;
+            }
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
+            grid-template-columns: 1fr;
+            gap: 12px;
             margin-top: 16px;
+        }
+
+        @media (min-width: 480px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
         }
 
         .stat-card {
             background: var(--bg-tertiary);
-            padding: 20px;
+            padding: 16px;
             border-radius: 8px;
             text-align: center;
             border-left: 4px solid #667eea;
         }
 
+        @media (min-width: 768px) {
+            .stat-card {
+                padding: 20px;
+            }
+        }
+
         .stat-card .value {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 8px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        @media (min-width: 768px) {
+            .stat-card .value {
+                font-size: 2.5rem;
+            }
         }
 
         .stat-card .label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-secondary);
             font-weight: 600;
         }
 
+        @media (min-width: 768px) {
+            .stat-card .label {
+                font-size: 0.75rem;
+            }
+        }
+
+        .legend-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        @media (min-width: 768px) {
+            .legend-card {
+                padding: 24px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .legend-card {
+                padding: 30px;
+            }
+        }
+
+        .legend-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        @media (min-width: 768px) {
+            .legend-card h3 {
+                font-size: 1.25rem;
+                margin-bottom: 16px;
+            }
+        }
+
         .legend-content {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             flex-wrap: wrap;
+        }
+
+        @media (min-width: 768px) {
+            .legend-content {
+                gap: 20px;
+            }
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        @media (min-width: 768px) {
+            .legend-item {
+                font-size: 0.9rem;
+            }
         }
 
         .legend-box {
             width: 20px;
             height: 20px;
             border-radius: 4px;
+            display: inline-block;
         }
 
-        .legend-green { background-color: #d1fae5; border: 2px solid #065f46; }
-        .legend-amber { background-color: #fef3c7; border: 2px solid #92400e; }
-        .legend-red { background-color: #fee2e2; border: 2px solid #991b1b; }
+        .legend-green {
+            background-color: #d1fae5;
+            border: 2px solid #065f46;
+        }
+
+        .legend-amber {
+            background-color: #fef3c7;
+            border: 2px solid #92400e;
+        }
+
+        .legend-red {
+            background-color: #fee2e2;
+            border: 2px solid #991b1b;
+        }
+
+        .search-card {
+            background: var(--bg-secondary);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        @media (min-width: 768px) {
+            .search-card {
+                padding: 20px 30px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }
+        }
 
         .search-box {
             width: 100%;
-            padding: 14px 20px;
-            font-size: 1rem;
+            padding: 12px 16px;
+            font-size: 0.9rem;
             border: 2px solid var(--border-color);
             border-radius: 8px;
+            transition: all 0.3s ease;
             background: var(--bg-primary);
             color: var(--text-primary);
+            min-height: 44px;
+        }
+
+        @media (min-width: 768px) {
+            .search-box {
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
         }
 
         .search-box:focus {
@@ -896,44 +979,55 @@
         .tables-container {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         @media (min-width: 1200px) {
             .tables-container {
                 grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 30px;
+            }
+        }
+
+        .table-card {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        @media (min-width: 768px) {
+            .table-card {
+                padding: 24px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px var(--shadow);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .table-card {
+                padding: 30px;
             }
         }
 
         .table-card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
             color: var(--text-primary);
         }
 
-        .usage-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .usage-table th {
-            background: var(--bg-tertiary);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            cursor: pointer;
-            user-select: none;
+        @media (min-width: 768px) {
+            .table-card h2 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
         }
 
         .usage-table th:nth-child(3),
         .usage-table th:nth-child(4) {
             text-align: center;
-        }
-
-        .usage-table td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
         }
 
         .usage-table td:nth-child(3),
@@ -946,21 +1040,10 @@
             border-radius: 4px;
         }
 
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
+        /* Sortable column indicator */
+        .usage-table th {
+            cursor: pointer;
+            user-select: none;
         }
     </style>
 </head>
@@ -970,115 +1053,159 @@
         <span id="theme-label">Light Mode</span>
     </button>
 
-    <button class="import-button" onclick="document.getElementById('file-input').click()">
-        📥 IMPORT CSV
-    </button>
-    <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
-
     <div class="container">
         <div class="header">
             <h1>🤖 LGL AI Tools Usage Report</h1>
             <p class="subtitle">Software Company: LGL</p>
-            <p class="timestamp">Generated: February 12, 2026 at 05:59 PM</p>
+            <p class="timestamp">Generated: February 20, 2026 at 01:10 AM</p>
         </div>
 
-        <div id="placeholder" class="placeholder">
-            <div class="placeholder-icon">📊</div>
-            <h2>No Data Loaded</h2>
-            <p>Click the <strong>IMPORT CSV</strong> button above to load your AI usage data.</p>
-            <p style="font-size: 0.9rem; color: var(--text-secondary);">
-                Supported formats: CSV, Excel (.xlsx, .xls)<br>
-                All processing happens in your browser - data never leaves your computer.
-            </p>
+        <div class="stats-card">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value">3</div>
+                    <div class="label">Total LGL Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">3</div>
+                    <div class="label">Claude Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">3</div>
+                    <div class="label">Devin Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">87</div>
+                    <div class="label">Avg Claude Usage</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">108</div>
+                    <div class="label">Avg Devin Usage</div>
+                </div>
+            </div>
         </div>
 
-        <div id="content" class="hidden">
-            <div class="stats-card">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="value" id="total-users">0</div>
-                        <div class="label">Total LGL Users</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="claude-users">0</div>
-                        <div class="label">Claude Active Users</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="devin-users">0</div>
-                        <div class="label">Devin Active Users</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="avg-claude">0</div>
-                        <div class="label">Avg Claude Usage</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="avg-devin">0</div>
-                        <div class="label">Avg Devin Usage</div>
-                    </div>
+        <div class="legend-card">
+            <h3>📊 Usage Intensity Legend</h3>
+            <div class="legend-content">
+                <div class="legend-item">
+                    <span class="legend-box legend-green"></span>
+                    <strong>High (≥100 uses)</strong>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-box legend-amber"></span>
+                    <strong>Medium (20-99 uses)</strong>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-box legend-red"></span>
+                    <strong>Low (&lt;20 uses)</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-card">
+            <input type="text"
+                   id="globalSearch"
+                   class="search-box"
+                   placeholder="🔍 Search..."
+                   onkeyup="filterAllTables()">
+        </div>
+
+        <div class="tables-container">
+
+            <div class="table-card">
+                <h2>Claude Usage (Last 30 Days)</h2>
+                <div class="table-wrapper">
+                    <table id="claudeTable" class="usage-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('claudeTable', 0)">Name</th>
+                                <th onclick="sortTable('claudeTable', 1)">Job Title</th>
+                                <th onclick="sortTable('claudeTable', 2)">Access</th>
+                                <th onclick="sortTable('claudeTable', 3)">Usage (30 days)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Alice</td>
+                            <td>Engineer</td>
+                            <td><span class="badge badge-success">Yes</span></td>
+                            <td class="heatmap-cell"
+                                style="background-color: #d1fae5; color: #065f46;"
+                                data-value="150.0">
+                                150
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Diana</td>
+                            <td>Director</td>
+                            <td><span class="badge badge-success">Yes</span></td>
+                            <td class="heatmap-cell"
+                                style="background-color: #d1fae5; color: #065f46;"
+                                data-value="100.0">
+                                100
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bob</td>
+                            <td>Manager</td>
+                            <td><span class="badge badge-secondary">No</span></td>
+                            <td class="heatmap-cell"
+                                style="background-color: #fee2e2; color: #991b1b;"
+                                data-value="10.0">
+                                10
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="legend-card">
-                <h3>📊 Usage Intensity Legend</h3>
-                <div class="legend-content">
-                    <div class="legend-item">
-                        <span class="legend-box legend-green"></span>
-                        <strong>High (≥100 uses)</strong>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-box legend-amber"></span>
-                        <strong>Medium (20-99 uses)</strong>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-box legend-red"></span>
-                        <strong>Low (&lt;20 uses)</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div class="search-card">
-                <input type="text"
-                       id="globalSearch"
-                       class="search-box"
-                       placeholder="🔍 Search..."
-                       onkeyup="filterAllTables()">
-            </div>
-
-            <div class="tables-container">
-                <div class="table-card">
-                    <h2>Claude Usage (Last 30 Days)</h2>
-                    <div class="table-wrapper">
-                        <table id="claudeTable" class="usage-table">
-                            <thead>
-                                <tr>
-                                    <th onclick="sortTable('claudeTable', 0)">Name</th>
-                                    <th onclick="sortTable('claudeTable', 1)">Job Title</th>
-                                    <th onclick="sortTable('claudeTable', 2)">Access</th>
-                                    <th onclick="sortTable('claudeTable', 3)">Usage (30 days)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="claudeTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="table-card">
-                    <h2>Devin Usage (Last 30 Days)</h2>
-                    <div class="table-wrapper">
-                        <table id="devinTable" class="usage-table">
-                            <thead>
-                                <tr>
-                                    <th onclick="sortTable('devinTable', 0)">Name</th>
-                                    <th onclick="sortTable('devinTable', 1)">Job Title</th>
-                                    <th onclick="sortTable('devinTable', 2)">Access</th>
-                                    <th onclick="sortTable('devinTable', 3)">Usage (30 days)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="devinTableBody">
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="table-card">
+                <h2>Devin Usage (Last 30 Days)</h2>
+                <div class="table-wrapper">
+                    <table id="devinTable" class="usage-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('devinTable', 0)">Name</th>
+                                <th onclick="sortTable('devinTable', 1)">Job Title</th>
+                                <th onclick="sortTable('devinTable', 2)">Access</th>
+                                <th onclick="sortTable('devinTable', 3)">Usage (30 days)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Alice</td>
+                            <td>Engineer</td>
+                            <td><span class="badge badge-success">Yes</span></td>
+                            <td class="heatmap-cell"
+                                style="background-color: #d1fae5; color: #065f46;"
+                                data-value="200.0">
+                                200
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Diana</td>
+                            <td>Director</td>
+                            <td><span class="badge badge-success">Yes</span></td>
+                            <td class="heatmap-cell"
+                                style="background-color: #fef3c7; color: #92400e;"
+                                data-value="75.0">
+                                75
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bob</td>
+                            <td>Manager</td>
+                            <td><span class="badge badge-success">Yes</span></td>
+                            <td class="heatmap-cell"
+                                style="background-color: #fef3c7; color: #92400e;"
+                                data-value="50.0">
+                                50
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -1133,148 +1260,15 @@
     </script>
     
     <script>
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Show loading state
-            document.querySelector('.import-button').textContent = '⏳ Loading...';
-            document.querySelector('.import-button').disabled = true;
-
-            // Parse CSV
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    processData(results.data);
-                    document.querySelector('.import-button').textContent = '✅ Data Loaded';
-                    setTimeout(() => {
-                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
-                        document.querySelector('.import-button').disabled = false;
-                    }, 2000);
-                },
-                error: function(error) {
-                    alert('Error parsing CSV: ' + error.message);
-                    document.querySelector('.import-button').textContent = '❌ Error';
-                    setTimeout(() => {
-                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
-                        document.querySelector('.import-button').disabled = false;
-                    }, 2000);
-                }
-            });
-        }
-
-        function processData(data) {
-            // Filter for LGL users
-            const lglData = data.filter(row =>
-                row['Software Company'] && row['Software Company'].trim().toUpperCase() === 'LGL'
-            );
-
-            if (lglData.length === 0) {
-                alert('No LGL users found in the data!');
-                return;
-            }
-
-            // Find the correct column names (handle variations)
-            const claudeAccessCol = Object.keys(lglData[0]).find(k =>
-                k === 'Claude Access?' || k === 'Claude Access '
-            ) || 'Claude Access?';
-
-            const devinAccessCol = Object.keys(lglData[0]).find(k =>
-                k === 'Devin Access?' || k === 'Devin Access '
-            ) || 'Devin Access?';
-
-            // Calculate statistics
-            const claudeActiveUsers = lglData.filter(row => parseFloat(row['Claude 30 day usage'] || 0) > 0).length;
-            const devinActiveUsers = lglData.filter(row => parseFloat(row['Devin_30d'] || 0) > 0).length;
-            const avgClaudeUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Claude 30 day usage'] || 0), 0) / lglData.length;
-            const avgDevinUsage = lglData.reduce((sum, row) => sum + parseFloat(row['Devin_30d'] || 0), 0) / lglData.length;
-
-            // Update stats
-            document.getElementById('total-users').textContent = lglData.length;
-            document.getElementById('claude-users').textContent = claudeActiveUsers;
-            document.getElementById('devin-users').textContent = devinActiveUsers;
-            document.getElementById('avg-claude').textContent = Math.round(avgClaudeUsage);
-            document.getElementById('avg-devin').textContent = Math.round(avgDevinUsage);
-
-            // Sort by usage descending
-            const claudeData = [...lglData].sort((a, b) =>
-                parseFloat(b['Claude 30 day usage'] || 0) - parseFloat(a['Claude 30 day usage'] || 0)
-            );
-            const devinData = [...lglData].sort((a, b) =>
-                parseFloat(b['Devin_30d'] || 0) - parseFloat(a['Devin_30d'] || 0)
-            );
-
-            // Generate Claude table
-            const claudeTableBody = document.getElementById('claudeTableBody');
-            claudeTableBody.innerHTML = claudeData.map(row => {
-                const usage = parseFloat(row['Claude 30 day usage'] || 0);
-                const { bgColor, textColor } = getHeatmapColor(usage);
-                const access = String(row[claudeAccessCol] || '').trim().toUpperCase();
-                const accessBadge = ['YES', '1', '1.0'].includes(access)
-                    ? '<span class="badge badge-success">Yes</span>'
-                    : '<span class="badge badge-secondary">No</span>';
-
-                return `
-                    <tr>
-                        <td>${escapeHtml(row['Name'] || '')}</td>
-                        <td>${escapeHtml(row['Job Title'] || '')}</td>
-                        <td>${accessBadge}</td>
-                        <td class="heatmap-cell" style="background-color: ${bgColor}; color: ${textColor};" data-value="${usage}">
-                            ${Math.round(usage)}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            // Generate Devin table
-            const devinTableBody = document.getElementById('devinTableBody');
-            devinTableBody.innerHTML = devinData.map(row => {
-                const usage = parseFloat(row['Devin_30d'] || 0);
-                const { bgColor, textColor } = getHeatmapColor(usage);
-                const access = String(row[devinAccessCol] || '').trim().toUpperCase();
-                const accessBadge = ['YES', '1', '1.0'].includes(access)
-                    ? '<span class="badge badge-success">Yes</span>'
-                    : '<span class="badge badge-secondary">No</span>';
-
-                return `
-                    <tr>
-                        <td>${escapeHtml(row['Name'] || '')}</td>
-                        <td>${escapeHtml(row['Job Title'] || '')}</td>
-                        <td>${accessBadge}</td>
-                        <td class="heatmap-cell" style="background-color: ${bgColor}; color: ${textColor};" data-value="${usage}">
-                            ${Math.round(usage)}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            // Show content, hide placeholder
-            document.getElementById('placeholder').classList.add('hidden');
-            document.getElementById('content').classList.remove('hidden');
-        }
-
-        function getHeatmapColor(usage) {
-            if (usage >= 100) {
-                return { bgColor: '#d1fae5', textColor: '#065f46' };
-            } else if (usage >= 20) {
-                return { bgColor: '#fef3c7', textColor: '#92400e' };
-            } else {
-                return { bgColor: '#fee2e2', textColor: '#991b1b' };
-            }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
+        // Dashboard-specific functions
         function filterAllTables() {
             const input = document.getElementById('globalSearch');
             const filter = input.value.toLowerCase();
 
-            ['claudeTable', 'devinTable'].forEach(tableId => {
+            // Filter both tables
+            const tables = ['claudeTable', 'devinTable'];
+
+            tables.forEach(tableId => {
                 const table = document.getElementById(tableId);
                 const rows = table.getElementsByTagName('tr');
 
@@ -1303,7 +1297,7 @@
             const tbody = table.tBodies[0];
             const rows = Array.from(tbody.rows);
 
-            const isNumeric = columnIndex === 3;
+            const isNumeric = columnIndex === 3;  // Usage column (now at index 3)
 
             rows.sort((a, b) => {
                 let aValue, bValue;
@@ -1311,7 +1305,7 @@
                 if (isNumeric) {
                     aValue = parseFloat(a.cells[columnIndex].getAttribute('data-value') || 0);
                     bValue = parseFloat(b.cells[columnIndex].getAttribute('data-value') || 0);
-                    return bValue - aValue;
+                    return bValue - aValue;  // Descending
                 } else {
                     aValue = a.cells[columnIndex].textContent.trim();
                     bValue = b.cells[columnIndex].textContent.trim();
@@ -1319,6 +1313,7 @@
                 }
             });
 
+            // Toggle direction on repeated clicks
             if (table.dataset.lastSort === String(columnIndex)) {
                 rows.reverse();
                 table.dataset.lastSort = '';
