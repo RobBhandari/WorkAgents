@@ -97,7 +97,7 @@ jobs:
           - { name: 'Deployment Metrics', script: 'collectors/ado_deployment_metrics.py', outputs: 'deployment_history.json' }
           - { name: 'Collaboration Metrics', script: 'collectors/ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
           - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
-          - { name: 'Exploitable Metrics', script: 'collectors/armorcode_exploitable_collector.py', outputs: 'exploitable_history.json' }
+          - { name: 'Exploitable Metrics', script: 'collectors/armorcode_exploitable_collector.py', outputs: 'exploitable_*.json' }
       fail-fast: false  # Continue even if one fails
       max-parallel: 8   # Run all 8 collectors at once
 
