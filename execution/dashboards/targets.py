@@ -32,6 +32,7 @@ from execution.collectors.security_bug_filter import filter_security_bugs
 from execution.core import get_logger
 from execution.dashboards.renderer import render_dashboard
 from execution.framework import get_dashboard_framework
+from execution.secure_config import get_config
 from execution.security import WIQLValidator
 from execution.utils.error_handling import log_and_raise
 
@@ -170,7 +171,7 @@ async def _query_current_state(baselines: dict[str, dict]) -> dict[str, int]:
         FileNotFoundError: If required config files don't exist
     """
     # Query security vulnerabilities and bugs concurrently
-    security_task = _query_current_armorcode_vulns(baselines["security"]["products"])
+    security_task = _query_current_armorcode_vulns()
     bugs_task = _query_current_ado_bugs()
 
     security_count, bugs_count = await asyncio.gather(security_task, bugs_task)
@@ -178,35 +179,38 @@ async def _query_current_state(baselines: dict[str, dict]) -> dict[str, int]:
     return {"security": security_count, "bugs": bugs_count}
 
 
-async def _query_current_armorcode_vulns(product_names: list[str]) -> int:
+async def _query_current_armorcode_vulns() -> int:
     """
     Query current HIGH + CRITICAL vulnerabilities from ArmorCode API.
 
-    Args:
-        product_names: List of product names to query
+    Uses the AQL count endpoint — 2 API calls total regardless of product count.
+    Filters to Production environment via the AQL query itself.
 
     Returns:
-        Current vulnerability count (Production only)
+        Current Critical + High vulnerability count (Production only)
 
     Raises:
-        Exception: If API query fails
+        RuntimeError: If ARMORCODE_HIERARCHY env var is not configured
     """
-    logger.info(f"Querying ArmorCode API for {len(product_names)} products (Production only)")
+    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
+    if not hierarchy:
+        raise RuntimeError(
+            "ARMORCODE_HIERARCHY env var not set. Add it as a GitHub secret and to your local .env file."
+        )
 
-    # Use hybrid loader: capped detail fetch (for display) + accurate count queries (for totals)
+    logger.info("Querying ArmorCode API for Critical + High vulnerabilities (Production, 2 API calls)")
+
     loader = ArmorCodeVulnerabilityLoader()
-    _vulnerabilities, _bucket_counts, accurate_totals = loader.load_vulnerabilities_hybrid(
-        product_names, filter_environment=True, max_per_product=50
-    )
+    critical_counts = loader.count_by_severity_aql("Critical", hierarchy)
+    high_counts = loader.count_by_severity_aql("High", hierarchy)
 
-    # Totals come from dedicated count queries — independent of the detail-fetch cap
-    acc_critical: int = sum(int(t.get("critical", 0)) for t in accurate_totals.values())
-    acc_high: int = sum(int(t.get("high", 0)) for t in accurate_totals.values())
-    total_vulns = acc_critical + acc_high
+    total_critical = sum(critical_counts.values())
+    total_high = sum(high_counts.values())
+    total_vulns = total_critical + total_high
 
     logger.info(f"Current ArmorCode vulnerabilities (Production): {total_vulns}")
-    logger.info(f"  Critical: {acc_critical}")
-    logger.info(f"  High: {acc_high}")
+    logger.info(f"  Critical: {total_critical}")
+    logger.info(f"  High: {total_high}")
 
     return total_vulns
 
