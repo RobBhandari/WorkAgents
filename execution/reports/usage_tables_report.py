@@ -869,8 +869,8 @@ def generate_interactive_html(output_file: str) -> str:
     <style>
         .import-button {{
             position: fixed;
-            top: 20px;
-            right: 180px;
+            top: 220px;
+            right: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
