@@ -428,7 +428,7 @@ jobs:
         with:
           name: security-history-patched
           path: metrics-artifacts/metrics-Security Metrics/
-        continue-on-error: true  # If security dashboard failed, fall back to collector count
+        continue-on-error: false  # Fail loudly if patch unavailable — prevents stale/corrupt counts reaching index.html
 
       - name: Verify and merge fresh metrics
         run: |

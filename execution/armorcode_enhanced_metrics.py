@@ -708,6 +708,18 @@ def save_security_metrics(metrics: dict, output_file: str = ".tmp/observatory/se
     # Load existing history
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
+    # Sanity check: reject implausibly low counts vs last known value (catches transient
+    # API partial-response failures like the 646 and 1017 incidents)
+    prior_weeks = history.get("weeks", [])
+    if prior_weeks:
+        prev_total = prior_weeks[-1].get("metrics", {}).get("current_total", 0)
+        if prev_total > 2000 and current_total < prev_total * 0.3:
+            logger.warning(
+                "Implausibly low count vs previous week - likely transient API failure, NOT saving",
+                extra={"new_total": current_total, "prev_total": prev_total, "threshold": prev_total * 0.3},
+            )
+            return False
+
     # Add validation if structure check exists
     if not isinstance(history, dict) or "weeks" not in history:
         logger.warning("Existing history file has invalid structure - recreating")
