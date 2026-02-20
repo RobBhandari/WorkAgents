@@ -251,6 +251,7 @@ class TestGenerateBucketExpandedContent:
 class TestLoadSecurityData:
     """Tests for loading security data from ArmorCode API"""
 
+    @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
@@ -261,10 +262,12 @@ class TestLoadSecurityData:
         mock_framework,
         mock_load_baseline,
         mock_vuln_loader_class,
+        mock_get_config,
         sample_vulnerabilities,
     ):
         """Should load products from ArmorCode API."""
         mock_load_baseline.return_value = ["Web Application", "Mobile App"]
+        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
@@ -284,13 +287,17 @@ class TestLoadSecurityData:
         assert html == ""
         assert count == 0
 
+    @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
-    def test_load_products_empty_list(self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class):
+    def test_load_products_empty_list(
+        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
+    ):
         """Should handle empty product list."""
         mock_load_baseline.return_value = []
+        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {})
         mock_vuln_loader.group_by_product.return_value = {}
@@ -305,15 +312,17 @@ class TestLoadSecurityData:
 class TestZeroVulnProducts:
     """Zero-Critical/High products must appear in the dashboard."""
 
+    @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_zero_vuln_product_appears_in_output(
-        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class
+        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
     ):
         """A product with 0 Critical/High should appear with zero counts, not be dropped."""
         mock_load_baseline.return_value = ["Proclaim", "Web Application"]
+        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
         # Only Web Application has vulns; Proclaim returns nothing
         mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (
@@ -336,15 +345,23 @@ class TestZeroVulnProducts:
 class TestGenerateSecurityDashboardEnhanced:
     """Tests for full dashboard generation."""
 
+    @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_baseline_products")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_generate_dashboard_success(
-        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, sample_vulnerabilities
+        self,
+        mock_write,
+        mock_framework,
+        mock_load_baseline,
+        mock_vuln_loader_class,
+        mock_get_config,
+        sample_vulnerabilities,
     ):
         """Should generate complete dashboard HTML."""
         mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
+        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
@@ -358,6 +375,7 @@ class TestGenerateSecurityDashboardEnhanced:
         assert count == 0
         assert "Web Application" in html
 
+    @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced._update_history_current_total")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_baseline_products")
@@ -370,11 +388,13 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_load_baseline,
         mock_vuln_loader_class,
         mock_update_history,
+        mock_get_config,
         sample_vulnerabilities,
         tmp_path,
     ):
         """Should write exactly one HTML file (main dashboard only, no detail pages)."""
         mock_load_baseline.return_value = ["Web Application"]
+        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
         mock_vuln_loader = Mock()
         mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {})
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
@@ -383,3 +403,63 @@ class TestGenerateSecurityDashboardEnhanced:
 
         generate_security_dashboard_enhanced(tmp_path / "dashboards")
         assert mock_write.call_count == 1  # Only main dashboard, no detail pages
+
+
+class TestProductionOnlyTotals:
+    """Security dashboard uses Production-only AQL totals when ARMORCODE_HIERARCHY is set."""
+
+    @patch("execution.dashboards.security_enhanced.get_config")
+    @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("pathlib.Path.write_text")
+    def test_uses_production_only_aql_when_hierarchy_set(
+        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
+    ):
+        """When ARMORCODE_HIERARCHY is set, count_by_severity_aql is called with environment=Production."""
+        mock_load_baseline.return_value = ["Product1"]
+        mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
+
+        mock_loader = Mock()
+        # load_vulnerabilities_hybrid returns all-env totals that should be overridden
+        mock_loader.load_vulnerabilities_hybrid.return_value = (
+            [],
+            {},
+            {"Product1": {"critical": 9999, "high": 9999, "total": 19998}},
+        )
+        mock_loader.group_by_product.return_value = {}
+        # Production-only AQL counts
+        mock_loader.count_by_severity_aql.side_effect = [
+            {"pid1": 50},  # Critical (Production)
+            {"pid1": 150},  # High (Production)
+        ]
+        mock_vuln_loader_class.return_value = mock_loader
+        mock_framework.return_value = ("<style></style>", "<script></script>")
+
+        generate_security_dashboard_enhanced()
+
+        # AQL must be called with Production environment filter
+        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy", environment="Production")
+        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy", environment="Production")
+
+    @patch("execution.dashboards.security_enhanced.get_config")
+    @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
+    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("pathlib.Path.write_text")
+    def test_falls_back_to_hybrid_totals_when_no_hierarchy(
+        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
+    ):
+        """When ARMORCODE_HIERARCHY is not set, count_by_severity_aql is NOT called."""
+        mock_load_baseline.return_value = ["Product1"]
+        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
+
+        mock_loader = Mock()
+        mock_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {})
+        mock_loader.group_by_product.return_value = {}
+        mock_vuln_loader_class.return_value = mock_loader
+        mock_framework.return_value = ("<style></style>", "<script></script>")
+
+        generate_security_dashboard_enhanced()
+
+        mock_loader.count_by_severity_aql.assert_not_called()
