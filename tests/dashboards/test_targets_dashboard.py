@@ -158,8 +158,8 @@ async def test_query_current_armorcode_vulns_success():
         # Should return sum of critical + high (3)
         assert result == 3
         assert mock_loader.count_by_severity_aql.call_count == 2
-        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy")
-        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy")
+        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy", environment=None)
+        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy", environment=None)
 
 
 # Test: _query_current_ado_bugs
