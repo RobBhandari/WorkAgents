@@ -35,6 +35,7 @@ from execution.dashboards.components.cards import summary_card
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.security import BUCKET_ORDER, SOURCE_BUCKET_MAP, SecurityMetrics
 from execution.framework import get_dashboard_framework
+from execution.secure_config import get_config
 from execution.utils.error_handling import log_and_return_default
 
 logger = get_logger(__name__)
@@ -189,8 +190,24 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
 
-    # Compute totals from accurate_totals (dedicated count queries, no source filter)
-    # Used for BOTH the header summary cards AND the history patch to ensure consistency
+    # Override accurate_totals with Production-only AQL counts (2 API calls).
+    # This ensures the header cards and history patch match target_dashboard.py and
+    # show only Production environment findings — consistent with what teams care about.
+    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
+    if hierarchy:
+        crit_aql = vuln_loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
+        high_aql = vuln_loader.count_by_severity_aql("High", hierarchy, environment="Production")
+        prod_c = sum(crit_aql.values())
+        prod_h = sum(high_aql.values())
+        accurate_totals = {"_prod": {"critical": prod_c, "high": prod_h, "total": prod_c + prod_h}}
+        logger.info(
+            "Using Production-only AQL totals",
+            extra={"critical": prod_c, "high": prod_h, "total": prod_c + prod_h},
+        )
+    else:
+        logger.warning("ARMORCODE_HIERARCHY not set — totals include all environments")
+
+    # Compute totals for header summary cards and history patch
     acc_c = sum(t.get("critical", 0) for t in accurate_totals.values())
     acc_h = sum(t.get("high", 0) for t in accurate_totals.values())
 
