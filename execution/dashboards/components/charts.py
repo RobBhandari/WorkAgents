@@ -4,8 +4,10 @@ Chart components for dashboards
 Provides reusable chart HTML generators (sparklines, trends).
 """
 
+from collections.abc import Sequence
 
-def sparkline(values: list[float], width: int = 100, height: int = 30, color: str = "currentColor") -> str:
+
+def sparkline(values: Sequence[float], width: int = 100, height: int = 30, color: str = "currentColor") -> str:
     """
     Generate an inline SVG sparkline chart.
 
