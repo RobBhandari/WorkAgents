@@ -167,9 +167,9 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     logger.info("Querying ArmorCode API (hybrid: capped detail + accurate counts)")
     vuln_loader = ArmorCodeVulnerabilityLoader()
     vulnerabilities, bucket_counts_by_product = vuln_loader.load_vulnerabilities_hybrid(
-        products, filter_environment=True, max_per_product=500
+        products, filter_environment=True, max_per_product=50
     )
-    logger.info(f"Retrieved {len(vulnerabilities)} vulnerabilities (capped at 500/product)")
+    logger.info(f"Retrieved {len(vulnerabilities)} vulnerabilities (capped at 50/product)")
 
     metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
 
@@ -405,7 +405,7 @@ def _generate_bucket_expanded_content(
     Generate expanded row HTML: inline expandable bucket rows within a single table.
 
     Args:
-        vulnerabilities: List of VulnerabilityDetail objects for this product (may be capped at 500)
+        vulnerabilities: List of VulnerabilityDetail objects for this product (may be capped at 50)
         bucket_counts: Accurate {bucket: {total, critical, high}} from API count queries.
                       When None, counts are derived from the fetched vulnerabilities list.
     """
@@ -450,7 +450,7 @@ def _generate_bucket_expanded_content(
         crit_cls = ' class="critical"' if critical > 0 else ""
         high_cls = ' class="high"' if high > 0 else ""
 
-        # No fetched detail for this bucket (truncated beyond 500-record limit)
+        # No fetched detail for this bucket (truncated beyond 50-record limit)
         if fetched_count == 0:
             table_body += (
                 f'<tr class="bucket-row expandable" onclick="toggleBucketDetail(this)">'
@@ -458,7 +458,7 @@ def _generate_bucket_expanded_content(
                 f"<td>{total}</td><td{crit_cls}>{critical}</td><td{high_cls}>{high}</td>"
                 f'</tr><tr class="bucket-detail-row" style="display:none;">'
                 f'<td colspan="4" class="vuln-table-note">'
-                f"&#9888; Detail unavailable &mdash; findings are beyond the 500-result limit.</td></tr>"
+                f"&#9888; Detail unavailable &mdash; findings are beyond the 50-result limit.</td></tr>"
             )
             continue
 
