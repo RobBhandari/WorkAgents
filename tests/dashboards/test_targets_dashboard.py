@@ -158,20 +158,20 @@ async def test_query_current_armorcode_vulns_success():
     mock_vuln_medium.product = "Product A"
     mock_vuln_medium.severity = "MEDIUM"
 
-    # Small products: bucket_counts_by_product[name] = None means fetched set is complete
     mock_loader = Mock()
     mock_loader.load_vulnerabilities_hybrid.return_value = (
         [mock_vuln_critical, mock_vuln_high1, mock_vuln_high2, mock_vuln_medium],
         {"Product A": None, "Product B": None},
+        {"Product A": {"critical": 1, "high": 2, "total": 3}, "Product B": {"critical": 0, "high": 0, "total": 0}},
     )
 
     with patch("execution.dashboards.targets.ArmorCodeVulnerabilityLoader", return_value=mock_loader):
         result = await _query_current_armorcode_vulns(["Product A", "Product B"])
 
-        # Should return only critical + high (3)
+        # Should return only critical + high from accurate_totals (3)
         assert result == 3
         mock_loader.load_vulnerabilities_hybrid.assert_called_once_with(
-            ["Product A", "Product B"], filter_environment=True, max_per_product=500
+            ["Product A", "Product B"], filter_environment=True, max_per_product=50
         )
 
 

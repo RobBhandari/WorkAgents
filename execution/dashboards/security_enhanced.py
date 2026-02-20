@@ -166,10 +166,10 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     logger.info("Querying ArmorCode API (hybrid: capped detail + accurate counts)")
     vuln_loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities, bucket_counts_by_product = vuln_loader.load_vulnerabilities_hybrid(
+    vulnerabilities, bucket_counts_by_product, accurate_totals = vuln_loader.load_vulnerabilities_hybrid(
         products, filter_environment=True, max_per_product=50
     )
-    logger.info(f"Retrieved {len(vulnerabilities)} vulnerabilities (capped at 50/product)")
+    logger.info(f"Retrieved {len(vulnerabilities)} vulnerability details (capped at 50/product for display)")
 
     metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
 
@@ -190,15 +190,9 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
     main_html = _generate_main_dashboard_html(metrics_by_product, vulns_by_product, bucket_counts_by_product)
 
-    # Patch history JSON so index.html reads the same live-accurate count
-    acc_c = sum(
-        sum(b["critical"] for b in bkt.values()) if (bkt := bucket_counts_by_product.get(pn)) else m.critical
-        for pn, m in metrics_by_product.items()
-    )
-    acc_h = sum(
-        sum(b["high"] for b in bkt.values()) if (bkt := bucket_counts_by_product.get(pn)) else m.high
-        for pn, m in metrics_by_product.items()
-    )
+    # Patch history JSON with accurate totals from dedicated count queries (not the capped detail list)
+    acc_c = sum(t.get("critical", 0) for t in accurate_totals.values())
+    acc_h = sum(t.get("high", 0) for t in accurate_totals.values())
     _update_history_current_total(Path(".tmp/observatory/security_history.json"), acc_c, acc_h)
 
     main_file = output_dir / "security_dashboard.html"
