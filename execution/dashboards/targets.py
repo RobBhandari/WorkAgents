@@ -184,11 +184,10 @@ async def _query_current_armorcode_vulns() -> int:
     Query current HIGH + CRITICAL vulnerabilities from ArmorCode API.
 
     Uses the AQL count endpoint — 2 API calls total regardless of product count.
-    No environment filter applied — counts all environments to match the security
-    dashboard (security_enhanced.py accurate_totals).
+    Filters to Production environment, consistent with security_enhanced.py.
 
     Returns:
-        Current Critical + High vulnerability count (all environments)
+        Current Critical + High vulnerability count (Production only)
 
     Raises:
         RuntimeError: If ARMORCODE_HIERARCHY env var is not configured
@@ -199,11 +198,11 @@ async def _query_current_armorcode_vulns() -> int:
             "ARMORCODE_HIERARCHY env var not set. Add it as a GitHub secret and to your local .env file."
         )
 
-    logger.info("Querying ArmorCode API for Critical + High vulnerabilities (all environments, 2 API calls)")
+    logger.info("Querying ArmorCode API for Critical + High vulnerabilities (Production, 2 API calls)")
 
     loader = ArmorCodeVulnerabilityLoader()
-    critical_counts = loader.count_by_severity_aql("Critical", hierarchy, environment=None)
-    high_counts = loader.count_by_severity_aql("High", hierarchy, environment=None)
+    critical_counts = loader.count_by_severity_aql("Critical", hierarchy)
+    high_counts = loader.count_by_severity_aql("High", hierarchy)
 
     total_critical = sum(critical_counts.values())
     total_high = sum(high_counts.values())
