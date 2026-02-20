@@ -25,12 +25,12 @@ from unittest.mock import MagicMock, patch
 # imported from the project root during tests.
 # ---------------------------------------------------------------------------
 _http_client_stub = ModuleType("http_client")
-_http_client_stub.post = MagicMock()
+_http_client_stub.post = MagicMock()  # type: ignore[attr-defined]
 sys.modules.setdefault("http_client", _http_client_stub)
 
 _utils_stub = ModuleType("utils_atomic_json")
-_utils_stub.atomic_json_save = MagicMock()
-_utils_stub.load_json_with_recovery = MagicMock(return_value={"weeks": []})
+_utils_stub.atomic_json_save = MagicMock()  # type: ignore[attr-defined]
+_utils_stub.load_json_with_recovery = MagicMock(return_value={"weeks": []})  # type: ignore[attr-defined]
 sys.modules.setdefault("utils_atomic_json", _utils_stub)
 
 # Now safe to import
