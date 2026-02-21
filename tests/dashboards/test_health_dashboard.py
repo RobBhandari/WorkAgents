@@ -85,7 +85,7 @@ def sample_security_weeks() -> list[dict]:
 
 @pytest.fixture
 def sample_exploitable() -> dict:
-    """One week of exploitable data."""
+    """One week of exploitable data (product_breakdown keyed by product ID after Phase 2)."""
     return {
         "weeks": [
             {
@@ -95,8 +95,8 @@ def sample_exploitable() -> dict:
                     "current_total": 10,
                     "severity_breakdown": {"critical": 0, "high": 8, "medium": 2, "total": 10},
                     "product_breakdown": {
-                        "Product A": {"critical": 0, "high": 0, "medium": 1, "total": 1},
-                        "Product B": {"critical": 0, "high": 8, "medium": 1, "total": 9},
+                        "pid-A": {"critical": 0, "high": 0, "medium": 1, "total": 1},
+                        "pid-B": {"critical": 0, "high": 8, "medium": 1, "total": 9},
                     },
                 },
             }
