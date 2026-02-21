@@ -12,7 +12,7 @@ Reads from:
   .tmp/observatory/quality_history.json
   .tmp/observatory/security_history.json
   .tmp/observatory/exploitable_history.json
-  data/armorcode_baseline.json
+  data/security_targets.json
 
 Writes to: .tmp/observatory/dashboards/health_dashboard.html
 

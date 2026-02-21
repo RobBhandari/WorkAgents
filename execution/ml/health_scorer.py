@@ -84,7 +84,7 @@ class SecurityForecaster:
 
     Args:
         history_file: Path to security_history.json
-        baseline_file: Path to armorcode_baseline.json
+        baseline_file: Path to security_targets.json
 
     Example:
         forecaster = SecurityForecaster()
@@ -275,7 +275,7 @@ class HealthScorer:
         quality_history_file: Path to quality_history.json
         security_history_file: Path to security_history.json
         exploitable_history_file: Path to exploitable_history.json
-        baseline_file: Path to armorcode_baseline.json
+        baseline_file: Path to security_targets.json
 
     Example:
         scorer = HealthScorer()

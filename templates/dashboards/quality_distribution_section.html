@@ -1,0 +1,11 @@
+<div class="detail-section">
+    <h4>{{ title }}</h4>
+    <div class="detail-grid">
+        {% for bucket in buckets %}
+        <div class="detail-metric {{ bucket.rag_class }}">
+            <div class="detail-metric-label">{{ bucket.label }}</div>
+            <div class="detail-metric-value">{{ bucket.value }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

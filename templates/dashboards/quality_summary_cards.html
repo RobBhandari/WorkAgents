@@ -1,0 +1,7 @@
+{% for card in cards %}
+<div class="summary-card"{% if card.border_color %} style="border-left-color: {{ card.border_color }};"{% endif %}>
+    <div class="label">{{ card.label }}</div>
+    <div class="value">{{ card.value }}{% if card.unit %}<span class="unit">{{ card.unit }}</span>{% endif %}</div>
+    <div class="explanation">{{ card.explanation }}</div>
+</div>
+{% endfor %}
