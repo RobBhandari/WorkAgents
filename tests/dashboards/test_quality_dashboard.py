@@ -260,9 +260,9 @@ class TestBuildSummaryCards:
             "total_excluded": 5,
         }
 
-        cards = build_summary_cards(summary_stats)
+        html = build_summary_cards(summary_stats)
 
-        assert len(cards) == 4
+        assert html.count("summary-card") == 4
 
     def testbuild_summary_cards_mttr_content(self):
         """Test MTTR card content"""
@@ -273,12 +273,11 @@ class TestBuildSummaryCards:
             "total_excluded": 5,
         }
 
-        cards = build_summary_cards(summary_stats)
+        html = build_summary_cards(summary_stats)
 
-        # First card should be MTTR
-        assert "MTTR" in cards[0]
-        assert "5.5" in cards[0]
-        assert "days" in cards[0]
+        assert "MTTR" in html
+        assert "5.5" in html
+        assert "days" in html
 
     def testbuild_summary_cards_formatting(self):
         """Test that cards have proper HTML structure"""
@@ -289,11 +288,11 @@ class TestBuildSummaryCards:
             "total_excluded": 89,
         }
 
-        cards = build_summary_cards(summary_stats)
+        html = build_summary_cards(summary_stats)
 
         # Check for comma formatting
-        assert "1,234" in cards[1]  # Total bugs card
-        assert "567" in cards[2]  # Open bugs card
+        assert "1,234" in html
+        assert "567" in html
 
 
 class TestCalculateCompositeStatus:
@@ -559,7 +558,7 @@ class TestBuildContext:
         assert context["week_number"] == 5
         assert context["week_date"] == "2026-02-07"
         assert context["project_count"] == 2
-        assert len(context["summary_cards"]) == 4
+        assert context["summary_cards"].count("summary-card") == 4
         assert len(context["projects"]) == 2
 
 
