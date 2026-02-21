@@ -140,12 +140,12 @@ def test_load_discovery_data_missing_file():
 # Test: _query_current_armorcode_vulns
 @pytest.mark.asyncio
 async def test_query_current_armorcode_vulns_success():
-    """Test successful querying of current vulnerabilities using AQL count endpoint (2 calls)"""
+    """Test Production-only AQL count — same method as security_enhanced.py for zero difference"""
     mock_loader = Mock()
-    # Critical: 1 from product A, High: 2 from product A → total 3
+    # Critical: 539, High: 11934 → total 12473 (Production only)
     mock_loader.count_by_severity_aql.side_effect = [
-        {"product_id_1": 1},  # Critical counts
-        {"product_id_1": 2},  # High counts
+        {"pid1": 539},   # Critical counts
+        {"pid1": 11934}, # High counts
     ]
 
     with (
@@ -155,11 +155,20 @@ async def test_query_current_armorcode_vulns_success():
         mock_config.return_value.get_optional_env.return_value = "test/hierarchy"
         result = await _query_current_armorcode_vulns()
 
-        # Should return sum of critical + high (3)
-        assert result == 3
+        assert result == 12473
         assert mock_loader.count_by_severity_aql.call_count == 2
-        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy")
-        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy")
+        # Must explicitly pass environment="Production" — same filter as security_enhanced.py
+        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy", environment="Production")
+        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy", environment="Production")
+
+
+@pytest.mark.asyncio
+async def test_query_current_armorcode_vulns_no_hierarchy():
+    """Test RuntimeError when ARMORCODE_HIERARCHY is not set"""
+    with patch("execution.dashboards.targets.get_config") as mock_config:
+        mock_config.return_value.get_optional_env.return_value = None
+        with pytest.raises(RuntimeError, match="ARMORCODE_HIERARCHY"):
+            await _query_current_armorcode_vulns()
 
 
 # Test: _query_current_ado_bugs
