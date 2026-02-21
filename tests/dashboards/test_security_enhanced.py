@@ -242,40 +242,31 @@ class TestGenerateBucketExpandedContent:
         assert "INFRASTRUCTURE" in html
         assert "bucket-row expandable" in html  # Row is still expandable (shows note on click)
 
-    def test_unclassified_sources_row_when_aql_exceeds_known_buckets(self):
-        """Unclassified row appears when AQL total > sum of known bucket totals."""
-        # CODE bucket has 26 (5C+21H) but AQL says 467C+11405H for this product
+    def test_no_unclassified_row_shown(self):
+        """No 'Other / Unclassified' row — bucket counts are production-only, no reconciliation needed."""
         accurate = {"CODE": {"total": 26, "critical": 5, "high": 21}}
-        aql = {"critical": 467, "high": 11405}
-        html = _generate_bucket_expanded_content([], bucket_counts=accurate, aql_product=aql)
-        assert "Other / Unclassified Sources" in html
-        # Unclassified = 467-5=462C, 11405-21=11384H, total=11846
-        assert "11846" in html
+        html = _generate_bucket_expanded_content([], bucket_counts=accurate)
+        assert "Other / Unclassified" not in html
 
-    def test_env_note_when_bucket_totals_exceed_aql_production_total(self):
-        """Env mismatch note when bucket totals (all-env) exceed AQL production total."""
-        # Bucket counts (all-env) are higher than production-only AQL total
+    def test_no_env_note_shown(self):
+        """No environment mismatch note — bucket counts come from the same production filter."""
         accurate = {
             "CODE": {"total": 40, "critical": 2, "high": 38},
             "CLOUD": {"total": 29, "critical": 0, "high": 29},
         }
-        aql = {"critical": 2, "high": 50}  # production-only: 52 total
-        html = _generate_bucket_expanded_content([], bucket_counts=accurate, aql_product=aql)
-        assert "all environments" in html  # env note is present
-        assert "Other / Unclassified" not in html  # no unclassified row (unc would be 0 or negative)
+        html = _generate_bucket_expanded_content([], bucket_counts=accurate)
+        assert "all environments" not in html
 
-    def test_no_reconciliation_when_buckets_match_aql(self, sample_vulnerabilities):
-        """No extra rows or notes when bucket totals exactly match AQL production total."""
-        # sample_vulnerabilities: 2C CODE (Mend) + 1H CODE (SonarQube) + 1H INFRA (Cortex) + 1C INFRA (Cortex)
-        # = CODE: 1C+1H, INFRA: 1C+1H → total 2C+2H=4
+    def test_bucket_counts_shown_without_extra_rows(self, sample_vulnerabilities):
+        """Bucket rows render correctly with no extra reconciliation rows appended."""
         accurate = {
             "CODE": {"total": 2, "critical": 1, "high": 1},
             "INFRASTRUCTURE": {"total": 2, "critical": 1, "high": 1},
         }
-        aql = {"critical": 2, "high": 2}  # perfect match
-        html = _generate_bucket_expanded_content(sample_vulnerabilities, bucket_counts=accurate, aql_product=aql)
+        html = _generate_bucket_expanded_content(sample_vulnerabilities, bucket_counts=accurate)
+        assert "CODE" in html
+        assert "INFRASTRUCTURE" in html
         assert "Other / Unclassified" not in html
-        assert "all environments" not in html
 
 
 # ---------------------------------------------------------------------------
