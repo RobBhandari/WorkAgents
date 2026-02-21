@@ -91,8 +91,8 @@ class TestTrendsIntegration:
         baseline_dir = tmp_path / "data"
         baseline_dir.mkdir()
 
-        armorcode_file = baseline_dir / "armorcode_baseline.json"
-        armorcode_file.write_text(json.dumps({"total_vulnerabilities": sample_baselines["security"]}))
+        security_targets_file = baseline_dir / "security_targets.json"
+        security_targets_file.write_text(json.dumps({"baseline_total": sample_baselines["security"]}))
 
         ado_file = baseline_dir / "baseline.json"
         ado_file.write_text(json.dumps({"open_count": sample_baselines["bugs"]}))
@@ -105,7 +105,7 @@ class TestTrendsIntegration:
                     return True
                 if "security_history.json" in str(path):
                     return True
-                if "armorcode_baseline.json" in str(path):
+                if "security_targets.json" in str(path):
                     return True
                 if "baseline.json" in str(path):
                     return True
@@ -119,8 +119,8 @@ class TestTrendsIntegration:
                     return mock_open(read_data=json.dumps(sample_quality_data))()
                 if "security_history.json" in str(path):
                     return mock_open(read_data=json.dumps(sample_security_data))()
-                if "armorcode_baseline.json" in str(path):
-                    return mock_open(read_data=json.dumps({"total_vulnerabilities": sample_baselines["security"]}))()
+                if "security_targets.json" in str(path):
+                    return mock_open(read_data=json.dumps({"baseline_total": sample_baselines["security"]}))()
                 if "baseline.json" in str(path):
                     return mock_open(read_data=json.dumps({"open_count": sample_baselines["bugs"]}))()
                 raise FileNotFoundError(f"Unexpected file: {path}")

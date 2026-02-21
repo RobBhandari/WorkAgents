@@ -44,42 +44,31 @@ for _src, _bucket in SOURCE_BUCKET_MAP.items():
     BUCKET_SOURCE_MAP.setdefault(_bucket, []).append(_src)
 
 
-def _load_baseline_products() -> list[str]:
+ID_MAP_PATH = Path("data/armorcode_id_map.json")
+
+
+def _load_id_map() -> dict[str, str]:
     """
-    Load product names from ArmorCode baseline file.
+    Load product name → ID mapping from data/armorcode_id_map.json.
+
+    In CI/CD this file is written from the ARMORCODE_ID_MAP GitHub secret.
+    Locally, run: python scripts/fetch_armorcode_id_map.py
 
     Returns:
-        List of product names to track
+        Dict mapping product_name -> product_id
 
     Raises:
-        FileNotFoundError: If baseline file doesn't exist
-        ValueError: If baseline has invalid format
+        FileNotFoundError: If id map file doesn't exist
     """
-    # Try data/ folder first (CI/CD), then .tmp/ (local dev)
-    baseline_paths = [
-        Path("data/armorcode_baseline.json"),
-        Path(".tmp/armorcode_baseline.json"),
-    ]
-
-    for baseline_path in baseline_paths:
-        if baseline_path.exists():
-            logger.info(f"Loading baseline from {baseline_path}")
-            with open(baseline_path, encoding="utf-8") as f:
-                baseline = json.load(f)
-
-            products: list[str] = baseline.get("products", [])
-            if not products:
-                raise ValueError(f"No products found in baseline: {baseline_path}")
-
-            logger.info(f"Tracking {len(products)} products from baseline")
-            return products
-
-    raise FileNotFoundError(
-        "ArmorCode baseline not found. Expected:\n"
-        "  - data/armorcode_baseline.json (CI/CD)\n"
-        "  - .tmp/armorcode_baseline.json (local dev)\n"
-        "Run: python execution/armorcode_baseline.py"
-    )
+    if not ID_MAP_PATH.exists():
+        raise FileNotFoundError(
+            f"{ID_MAP_PATH} not found. "
+            "In CI/CD this is written from the ARMORCODE_ID_MAP secret. "
+            "Locally, run: python scripts/fetch_armorcode_id_map.py"
+        )
+    name_to_id: dict[str, str] = json.loads(ID_MAP_PATH.read_text(encoding="utf-8"))
+    logger.info(f"Loaded {len(name_to_id)} products from {ID_MAP_PATH}")
+    return name_to_id
 
 
 def _group_findings_by_product(
@@ -172,22 +161,25 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     logger.info("Enhanced Security Dashboard Generator")
 
-    # Stage 1a: Load baseline product list for zero-padding (products with 0 findings still appear)
-    logger.info("Loading product list from baseline")
+    # Stage 1a: Load product name → ID mapping (from ARMORCODE_ID_MAP secret file).
+    # Used for zero-padding (products with 0 findings still appear) and ID resolution.
+    logger.info("Loading product ID map")
     try:
-        known_products = _load_baseline_products()
+        product_id_map = _load_id_map()  # {name: id}
     except FileNotFoundError as e:
         logger.warning(
-            "ArmorCode baseline not found, returning empty result",
+            "ArmorCode ID map not found, returning empty result",
             extra={
-                "error_type": "Baseline loading",
+                "error_type": "ID map loading",
                 "exception_class": e.__class__.__name__,
                 "context": {"output_dir": str(output_dir)},
                 "default_value": "('', 0)",
             },
         )
-        logger.info("Run: python execution/armorcode_baseline.py")
         return "", 0
+
+    known_products = list(product_id_map.keys())
+    id_to_name: dict[str, str] = {v: k for k, v in product_id_map.items()}
 
     hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
     if not hierarchy:
@@ -195,11 +187,6 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
         return "", 0
 
     vuln_loader = ArmorCodeVulnerabilityLoader()
-
-    # Stage 1b: Resolve product name → ID mapping (1 GraphQL call).
-    # count_by_severity_aql returns {product_id: count}; we need {product_name: count}.
-    product_id_map = vuln_loader.get_product_ids(known_products)  # {name: id}
-    id_to_name: dict[str, str] = {v: k for k, v in product_id_map.items()}
 
     # Stage 1c: Accurate per-product Critical + High counts via AQL count endpoint (2 calls).
     # No record limit — returns exact counts per product_id.

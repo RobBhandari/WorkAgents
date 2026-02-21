@@ -33,15 +33,12 @@ from execution.dashboards.targets import (
 
 @pytest.fixture
 def sample_security_baseline():
-    """Sample security baseline data for testing"""
+    """Sample security targets data for testing (security_targets.json format)"""
     return {
+        "baseline_total": 100,
+        "target_pct": 0.70,
         "baseline_date": "2025-12-01",
         "target_date": "2026-06-30",
-        "weeks_to_target": 30,
-        "total_vulnerabilities": 100,
-        "target_vulnerabilities": 30,
-        "reduction_percentage": 70,
-        "products": ["Product A", "Product B"],
     }
 
 
@@ -103,9 +100,9 @@ def test_load_baselines_success(sample_security_baseline, sample_bugs_baseline):
 
 
 def test_load_baselines_missing_security_file():
-    """Test FileNotFoundError when security baseline is missing"""
+    """Test FileNotFoundError when security targets file is missing"""
     with patch.object(Path, "exists", side_effect=[False, True]):
-        with pytest.raises(FileNotFoundError, match="Security baseline not found"):
+        with pytest.raises(FileNotFoundError, match="Security targets not found"):
             _load_baselines()
 
 

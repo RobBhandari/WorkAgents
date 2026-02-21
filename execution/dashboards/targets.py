@@ -109,22 +109,38 @@ def _load_baselines() -> dict[str, dict]:
     Raises:
         FileNotFoundError: If baseline files don't exist
     """
-    security_baseline_path = Path("data/armorcode_baseline.json")
+    security_targets_path = Path("data/security_targets.json")
     bugs_baseline_path = Path("data/baseline.json")
 
-    if not security_baseline_path.exists():
-        raise FileNotFoundError(f"Security baseline not found: {security_baseline_path}")
+    if not security_targets_path.exists():
+        raise FileNotFoundError(f"Security targets not found: {security_targets_path}")
 
     if not bugs_baseline_path.exists():
         raise FileNotFoundError(f"Bugs baseline not found: {bugs_baseline_path}")
 
-    with open(security_baseline_path, encoding="utf-8") as f:
-        security_baseline = json.load(f)
+    with open(security_targets_path, encoding="utf-8") as f:
+        targets = json.load(f)
 
     with open(bugs_baseline_path, encoding="utf-8") as f:
         bugs_baseline = json.load(f)
 
-    logger.info(f"Loaded security baseline: {security_baseline_path}")
+    # Compute derived fields from security_targets.json
+    baseline_total = targets["baseline_total"]
+    target_pct = targets["target_pct"]
+    target_count = round(baseline_total * (1 - target_pct))
+    baseline_date = datetime.strptime(targets["baseline_date"], "%Y-%m-%d")
+    target_date = datetime.strptime(targets["target_date"], "%Y-%m-%d")
+    weeks_to_target = (target_date - baseline_date).days // 7
+
+    security_baseline = {
+        "total_vulnerabilities": baseline_total,
+        "target_vulnerabilities": target_count,
+        "weeks_to_target": weeks_to_target,
+        "baseline_date": targets["baseline_date"],
+        "target_date": targets["target_date"],
+    }
+
+    logger.info(f"Loaded security targets: {security_targets_path}")
     logger.info(f"Loaded bugs baseline: {bugs_baseline_path}")
 
     return {"security": security_baseline, "bugs": bugs_baseline}
