@@ -38,6 +38,11 @@ from execution.secure_config import get_config
 
 logger = get_logger(__name__)
 
+# Inverse of SOURCE_BUCKET_MAP: bucket → list of source tool names
+BUCKET_SOURCE_MAP: dict[str, list[str]] = {}
+for _src, _bucket in SOURCE_BUCKET_MAP.items():
+    BUCKET_SOURCE_MAP.setdefault(_bucket, []).append(_src)
+
 
 def _load_baseline_products() -> list[str]:
     """
@@ -75,54 +80,6 @@ def _load_baseline_products() -> list[str]:
         "  - .tmp/armorcode_baseline.json (local dev)\n"
         "Run: python execution/armorcode_baseline.py"
     )
-
-
-def _convert_vulnerabilities_to_metrics(
-    vulnerabilities: list[VulnerabilityDetail],
-) -> dict[str, SecurityMetrics]:
-    """
-    Convert list of vulnerabilities to SecurityMetrics by product.
-
-    Args:
-        vulnerabilities: List of vulnerability details from ArmorCode API
-
-    Returns:
-        Dictionary mapping product name to SecurityMetrics
-    """
-    # Group vulnerabilities by product and count by severity
-    product_counts: dict[str, dict[str, int]] = defaultdict(
-        lambda: {"critical": 0, "high": 0, "medium": 0, "low": 0, "total": 0}
-    )
-
-    for vuln in vulnerabilities:
-        product = vuln.product
-        severity = vuln.severity.upper()
-
-        product_counts[product]["total"] += 1
-        if severity == "CRITICAL":
-            product_counts[product]["critical"] += 1
-        elif severity == "HIGH":
-            product_counts[product]["high"] += 1
-        elif severity == "MEDIUM":
-            product_counts[product]["medium"] += 1
-        elif severity == "LOW":
-            product_counts[product]["low"] += 1
-
-    # Convert to SecurityMetrics domain models
-    metrics_by_product = {}
-    for product_name, counts in product_counts.items():
-        metrics = SecurityMetrics(
-            timestamp=datetime.now(),
-            project=product_name,
-            total_vulnerabilities=counts["total"],
-            critical=counts["critical"],
-            high=counts["high"],
-            medium=counts["medium"],
-            low=counts["low"],
-        )
-        metrics_by_product[product_name] = metrics
-
-    return metrics_by_product
 
 
 def _group_findings_by_product(
@@ -237,17 +194,29 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
         logger.warning("ARMORCODE_HIERARCHY not set — cannot load Production-only security data")
         return "", 0
 
-    # Stage 1b: Fetch all Critical/High Production findings via AQL (~13 calls for 12K records).
-    # Replaces: GraphQL per-product fetches (100+ calls) + 8 separate AQL count calls.
-    logger.info("Fetching all Critical/High Production findings via AQL")
     vuln_loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities = vuln_loader.fetch_findings_aql(hierarchy, environment="Production")
-    logger.info("AQL fetch complete", extra={"total_records": len(vulnerabilities)})
 
-    # Stage 1c: Derive all per-product counts from records in a single Python pass.
-    accurate_totals, bucket_counts_by_product, aql_by_product = _group_findings_by_product(vulnerabilities)
+    # Stage 1b: Resolve product name → ID mapping (1 GraphQL call).
+    # count_by_severity_aql returns {product_id: count}; we need {product_name: count}.
+    product_id_map = vuln_loader.get_product_ids(known_products)  # {name: id}
+    id_to_name: dict[str, str] = {v: k for k, v in product_id_map.items()}
 
-    # Stage 1d: Build SecurityMetrics domain objects from AQL-derived counts.
+    # Stage 1c: Accurate per-product Critical + High counts via AQL count endpoint (2 calls).
+    # No record limit — returns exact counts per product_id.
+    logger.info("Fetching per-product Critical/High counts via AQL (Production only)")
+    crit_by_pid = vuln_loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
+    high_by_pid = vuln_loader.count_by_severity_aql("High", hierarchy, environment="Production")
+
+    # Build per-product {critical, high} keyed by product name
+    aql_by_product: dict[str, dict] = {}
+    for pid, c in crit_by_pid.items():
+        name = id_to_name.get(pid, pid)
+        aql_by_product.setdefault(name, {"critical": 0, "high": 0})["critical"] = c
+    for pid, h in high_by_pid.items():
+        name = id_to_name.get(pid, pid)
+        aql_by_product.setdefault(name, {"critical": 0, "high": 0})["high"] = h
+
+    # Build SecurityMetrics domain objects from AQL-derived counts.
     metrics_by_product = _metrics_from_aql_counts(aql_by_product)
 
     # Zero-pad: ensure all baseline products appear even with 0 Critical/High in Production.
@@ -264,24 +233,47 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
             )
     logger.info("Security data loaded", extra={"product_count": len(metrics_by_product)})
 
-    # Stage 1e: Group records by product; cap display at 50/bucket for expandable row HTML size.
-    # Counts always reflect full totals from accurate_totals (not the capped display records).
-    max_display_per_bucket = 50
-    vulns_by_product_all = vuln_loader.group_by_product(vulnerabilities)
-    vulns_by_product: dict[str, list[VulnerabilityDetail]] = {}
-    for product_name, pvulns in vulns_by_product_all.items():
-        display: list[VulnerabilityDetail] = []
-        for bucket in BUCKET_ORDER:
-            bvulns = [v for v in pvulns if SOURCE_BUCKET_MAP.get(v.source or "", "Other") == bucket]
-            display.extend(bvulns[:max_display_per_bucket])
-        vulns_by_product[product_name] = display
+    # Stage 1d: Accurate per-product counts per bucket via AQL count endpoint (6 calls).
+    # 2 severity × 3 buckets = 6 calls, no record limit.
+    logger.info("Fetching per-bucket Critical/High counts via AQL (Production only)")
+    bucket_counts_by_product: dict[str, dict] = {}
+    for bucket_name, bucket_sources in BUCKET_SOURCE_MAP.items():
+        if bucket_name == "Other":
+            continue  # Other is a catch-all; skip dedicated count call
+        b_crit = vuln_loader.count_by_severity_aql(
+            "Critical", hierarchy, environment="Production", sources=bucket_sources
+        )
+        b_high = vuln_loader.count_by_severity_aql("High", hierarchy, environment="Production", sources=bucket_sources)
+        for pid in set(b_crit) | set(b_high):
+            name = id_to_name.get(pid, pid)
+            c = b_crit.get(pid, 0)
+            h = b_high.get(pid, 0)
+            bucket_counts_by_product.setdefault(name, {})[bucket_name] = {
+                "total": c + h,
+                "critical": c,
+                "high": h,
+            }
 
-    # Compute totals for header summary cards and history patch
-    acc_c = sum(t.get("critical", 0) for t in accurate_totals.values())
-    acc_h = sum(t.get("high", 0) for t in accurate_totals.values())
+    # Stage 1e: Display records per bucket — first 50 only, no pagination (3 calls).
+    # Counts shown in the dashboard come from count_by_severity_aql (Stages 1c/1d), NOT these records.
+    logger.info("Fetching display records per bucket (50 per bucket, Production only)")
+    vulns_by_product: dict[str, list[VulnerabilityDetail]] = {}
+    for bucket_name, bucket_sources in BUCKET_SOURCE_MAP.items():
+        if bucket_name == "Other":
+            continue
+        records = vuln_loader.fetch_findings_aql(
+            hierarchy, environment="Production", sources=bucket_sources, page_size=50
+        )
+        for record in records:
+            if record.product:
+                vulns_by_product.setdefault(record.product, []).append(record)
+
+    # Compute accurate totals for header cards and history patch (from count results, not display records)
+    acc_c = sum(d.get("critical", 0) for d in aql_by_product.values())
+    acc_h = sum(d.get("high", 0) for d in aql_by_product.values())
 
     main_html = _generate_main_dashboard_html(
-        metrics_by_product, vulns_by_product, bucket_counts_by_product, accurate_totals, aql_by_product
+        metrics_by_product, vulns_by_product, bucket_counts_by_product, {}, aql_by_product
     )
 
     # Patch history JSON with the same value shown on the dashboard
@@ -407,9 +399,14 @@ def _build_context(
         include_glossary=False,
     )
 
-    # Header totals from accurate_totals (same value used for history patch → consistent across dashboards)
-    acc_critical = sum(t.get("critical", 0) for t in accurate_totals.values())
-    acc_high = sum(t.get("high", 0) for t in accurate_totals.values())
+    # Header totals: prefer aql_by_product (AQL count endpoint — exact, no record limit).
+    # Fall back to accurate_totals for backwards compatibility when aql_by_product is None.
+    if aql_by_product:
+        acc_critical = sum(t.get("critical", 0) for t in aql_by_product.values())
+        acc_high = sum(t.get("high", 0) for t in aql_by_product.values())
+    else:
+        acc_critical = sum(t.get("critical", 0) for t in accurate_totals.values())
+        acc_high = sum(t.get("high", 0) for t in accurate_totals.values())
     summary_cards = [
         summary_card("Priority Findings", str(acc_critical + acc_high)),
         summary_card("Critical", str(acc_critical), css_class="critical"),
