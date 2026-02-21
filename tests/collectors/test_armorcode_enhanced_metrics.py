@@ -1,13 +1,13 @@
 """
 Tests for ArmorCode Enhanced Metrics Collector
 
-Covers the key optimizations in query_current_vulnerabilities_graphql()
-and query_closed_vulnerabilities_graphql():
-- All product IDs batched in every count query (not per-product loops)
-- No pagination — accurate counts come from totalElements on page-1 queries
-- Exactly 2 API calls for overall totals (total + critical), regardless of data size
-- Per-product breakdown uses N×2 additional page-1 calls (not paginated fetches)
-- 429 retry logic preserved in _query_count_only
+Covers the AQL-based query_current_vulnerabilities_aql() and the unchanged
+query_closed_vulnerabilities_graphql():
+- AQL function makes exactly 2 API calls (Critical + High) regardless of product count
+- Per-product breakdown is built from AQL response dicts (product_id → count)
+- Totals are summed across products from the two AQL calls
+- Empty AQL responses return zero counts, not exceptions
+- Closed vulns query still uses GraphQL with 2-page cap and full-product-ID batching
 
 Run with:
     pytest tests/collectors/test_armorcode_enhanced_metrics.py -v
@@ -36,11 +36,12 @@ sys.modules.setdefault("utils_atomic_json", _utils_stub)
 # Now safe to import
 from execution.armorcode_enhanced_metrics import (  # noqa: E402
     query_closed_vulnerabilities_graphql,
-    query_current_vulnerabilities_graphql,
+    query_current_vulnerabilities_aql,
 )
 
 # Patch targets use the full package path
 _MODULE = "execution.armorcode_enhanced_metrics"
+_LOADER_CLASS = f"{_MODULE}.ArmorCodeVulnerabilityLoader"
 
 
 # ---------------------------------------------------------------------------
@@ -84,130 +85,111 @@ def _mock_cfg_context(mock_cfg):
 
 
 # ---------------------------------------------------------------------------
-# query_current_vulnerabilities_graphql
+# query_current_vulnerabilities_aql
 # ---------------------------------------------------------------------------
 
 
-class TestQueryCurrentVulnerabilities:
-    """Tests for the count-only (no-pagination) implementation."""
+class TestQueryCurrentVulnerabilitiesAql:
+    """Tests for the AQL-based Production-only count implementation."""
 
-    def test_batches_all_product_ids_in_both_count_queries(self):
-        """All product IDs must appear in EVERY count query sent to the API."""
-        product_ids = ["101", "202", "303"]
-        # Both calls (overall total + critical) return the same mock response
-        response = _make_response([], has_next=False, total_elements=5)
-
-        with (
-            patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", return_value=response) as mock_post,
-        ):
-            _mock_cfg_context(mock_cfg)
-            query_current_vulnerabilities_graphql("https://api.example.com", product_ids)
-
-        # Exactly 2 calls: overall total + overall critical
-        assert mock_post.call_count == 2
-
-        # Both queries must contain all three product IDs
-        for call in mock_post.call_args_list:
-            query_body = call[1]["json"]["query"]
-            assert "101" in query_body
-            assert "202" in query_body
-            assert "303" in query_body
-
-    def test_total_count_from_total_elements_not_findings(self):
-        """total_count must come from totalElements (accurate), not len(findings)."""
-        # Response returns 0 findings but totalElements = 350
-        response_total = _make_response([], has_next=False, total_elements=350)
-        response_critical = _make_response([], has_next=False, total_elements=50)
-
-        with (
-            patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", side_effect=[response_total, response_critical]),
-        ):
-            _mock_cfg_context(mock_cfg)
-            result = query_current_vulnerabilities_graphql("https://api.example.com", ["101"])
-
-        assert result["total_count"] == 350
-        assert result["findings"] == []  # No raw findings — counts are pre-computed
-
-    def test_severity_breakdown_from_total_elements(self):
-        """Severity breakdown must use accurate totalElements, not fetched finding objects."""
-        response_total = _make_response([], has_next=False, total_elements=350)
-        response_critical = _make_response([], has_next=False, total_elements=50)
-
-        with (
-            patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", side_effect=[response_total, response_critical]),
-        ):
-            _mock_cfg_context(mock_cfg)
-            result = query_current_vulnerabilities_graphql("https://api.example.com", ["101"])
-
-        assert result["severity_breakdown"]["critical"] == 50
-        assert result["severity_breakdown"]["high"] == 300  # 350 - 50
-        assert result["severity_breakdown"]["total"] == 350
-
-    def test_no_pagination_regardless_of_result_size(self):
-        """With count-only approach, exactly 2 API calls even for 99,999 findings."""
-        # hasNext=True and huge totalElements — must NOT trigger pagination
-        response = _make_response([], has_next=True, total_elements=99999)
-
-        with (
-            patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", return_value=response) as mock_post,
-        ):
-            _mock_cfg_context(mock_cfg)
-            result = query_current_vulnerabilities_graphql("https://api.example.com", ["101", "202"])
-
-        # CRITICAL: exactly 2 calls — no pagination loop
-        assert mock_post.call_count == 2
-        assert result["total_count"] == 99999
-
-    def test_returns_empty_on_network_error(self):
-        """Network errors must return zero counts, not raise."""
-        with (
-            patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", side_effect=ConnectionError("timeout")),
-        ):
-            _mock_cfg_context(mock_cfg)
-            result = query_current_vulnerabilities_graphql("https://api.example.com", ["101"])
-
-        assert result["total_count"] == 0
-        assert result["findings"] == []
-
-    def test_per_product_breakdown_when_names_provided(self):
-        """When product_id_to_name provided, makes per-product count queries (N×2 extra calls)."""
-        product_ids = ["101", "202"]
+    def test_makes_exactly_two_aql_calls(self):
+        """Must call count_by_severity_aql exactly twice — Critical then High."""
         product_id_to_name = {"101": "Product A", "202": "Product B"}
-
-        # Call order: overall_total, overall_critical,
-        #             prod-101 total, prod-101 critical,
-        #             prod-202 total, prod-202 critical
-        responses = [
-            _make_response([], has_next=False, total_elements=100),  # overall total
-            _make_response([], has_next=False, total_elements=20),  # overall critical
-            _make_response([], has_next=False, total_elements=60),  # product 101 total
-            _make_response([], has_next=False, total_elements=10),  # product 101 critical
-            _make_response([], has_next=False, total_elements=40),  # product 202 total
-            _make_response([], has_next=False, total_elements=10),  # product 202 critical
+        mock_loader = MagicMock()
+        mock_loader.count_by_severity_aql.side_effect = [
+            {"101": 10, "202": 5},  # Critical call
+            {"101": 30, "202": 20},  # High call
         ]
 
-        with (
-            patch(f"{_MODULE}.get_config") as mock_cfg,
-            patch(f"{_MODULE}.post", side_effect=responses) as mock_post,
-        ):
-            _mock_cfg_context(mock_cfg)
-            result = query_current_vulnerabilities_graphql("https://api.example.com", product_ids, product_id_to_name)
+        with patch(_LOADER_CLASS, return_value=mock_loader):
+            query_current_vulnerabilities_aql("my-hierarchy", product_id_to_name)
 
-        # 2 overall + 2×2 per-product = 6 total calls
-        assert mock_post.call_count == 6
+        assert mock_loader.count_by_severity_aql.call_count == 2
+        calls = mock_loader.count_by_severity_aql.call_args_list
+        assert calls[0][0][0] == "Critical"
+        assert calls[1][0][0] == "High"
 
-        assert result["product_breakdown"]["Product A"]["critical"] == 10
-        assert result["product_breakdown"]["Product A"]["high"] == 50  # 60 - 10
-        assert result["product_breakdown"]["Product A"]["total"] == 60
+    def test_passes_hierarchy_and_production_environment(self):
+        """hierarchy and environment='Production' must be forwarded to every AQL call."""
+        product_id_to_name = {"101": "Product A"}
+        mock_loader = MagicMock()
+        mock_loader.count_by_severity_aql.return_value = {"101": 0}
 
-        assert result["product_breakdown"]["Product B"]["critical"] == 10
-        assert result["product_breakdown"]["Product B"]["high"] == 30  # 40 - 10
-        assert result["product_breakdown"]["Product B"]["total"] == 40
+        with patch(_LOADER_CLASS, return_value=mock_loader):
+            query_current_vulnerabilities_aql("test-hierarchy-value", product_id_to_name)
+
+        for call in mock_loader.count_by_severity_aql.call_args_list:
+            assert call[0][1] == "test-hierarchy-value"
+            assert call[1].get("environment") == "Production"
+
+    def test_totals_summed_across_all_products(self):
+        """total_count must be the sum of all per-product critical + high counts."""
+        product_id_to_name = {"101": "Product A", "202": "Product B"}
+        mock_loader = MagicMock()
+        mock_loader.count_by_severity_aql.side_effect = [
+            {"101": 10, "202": 5},  # Critical
+            {"101": 30, "202": 20},  # High
+        ]
+
+        with patch(_LOADER_CLASS, return_value=mock_loader):
+            result = query_current_vulnerabilities_aql("hier", product_id_to_name)
+
+        assert result["total_count"] == 65  # 10+5+30+20
+        assert result["severity_breakdown"]["critical"] == 15  # 10+5
+        assert result["severity_breakdown"]["high"] == 50  # 30+20
+        assert result["severity_breakdown"]["total"] == 65
+
+    def test_per_product_breakdown_uses_aql_counts(self):
+        """product_breakdown must reflect individual AQL counts per product."""
+        product_id_to_name = {"101": "Product A", "202": "Product B"}
+        mock_loader = MagicMock()
+        mock_loader.count_by_severity_aql.side_effect = [
+            {"101": 10, "202": 5},  # Critical
+            {"101": 30, "202": 20},  # High
+        ]
+
+        with patch(_LOADER_CLASS, return_value=mock_loader):
+            result = query_current_vulnerabilities_aql("hier", product_id_to_name)
+
+        assert result["product_breakdown"]["Product A"] == {"critical": 10, "high": 30, "total": 40}
+        assert result["product_breakdown"]["Product B"] == {"critical": 5, "high": 20, "total": 25}
+
+    def test_findings_list_always_empty(self):
+        """findings key must always be an empty list — no raw findings fetched."""
+        mock_loader = MagicMock()
+        mock_loader.count_by_severity_aql.return_value = {}
+
+        with patch(_LOADER_CLASS, return_value=mock_loader):
+            result = query_current_vulnerabilities_aql("hier", {"101": "Product A"})
+
+        assert result["findings"] == []
+
+    def test_product_absent_from_aql_response_counts_as_zero(self):
+        """Products not present in the AQL response must contribute 0 to totals."""
+        product_id_to_name = {"101": "Product A", "202": "Product B"}
+        mock_loader = MagicMock()
+        # Product 202 absent from both responses
+        mock_loader.count_by_severity_aql.side_effect = [
+            {"101": 8},  # Critical — 202 missing
+            {"101": 12},  # High — 202 missing
+        ]
+
+        with patch(_LOADER_CLASS, return_value=mock_loader):
+            result = query_current_vulnerabilities_aql("hier", product_id_to_name)
+
+        assert result["product_breakdown"]["Product B"] == {"critical": 0, "high": 0, "total": 0}
+        assert result["total_count"] == 20  # only Product A (8+12)
+
+    def test_returns_zeros_when_aql_returns_empty_dict(self):
+        """Empty AQL responses must return zero counts without raising exceptions."""
+        mock_loader = MagicMock()
+        mock_loader.count_by_severity_aql.return_value = {}
+
+        with patch(_LOADER_CLASS, return_value=mock_loader):
+            result = query_current_vulnerabilities_aql("hier", {"101": "Product A"})
+
+        assert result["total_count"] == 0
+        assert result["severity_breakdown"] == {"critical": 0, "high": 0, "total": 0}
 
 
 # ---------------------------------------------------------------------------

@@ -24,6 +24,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from http_client import post
 
+from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
 from execution.secure_config import get_config
 
 load_dotenv()
@@ -132,93 +133,25 @@ def get_product_ids_from_baseline(baseline: dict) -> list[str]:
     return product_ids
 
 
-def _query_count_only(
-    graphql_url: str,
-    headers: dict,
-    product_ids_str: str,
-    severities: str,
-    statuses: str = '["OPEN", "CONFIRMED"]',
-) -> int:
-    """
-    Query page 1 with size=1 to get totalElements without fetching finding details.
-
-    Uses size=1 to minimise response payload — only pageInfo.totalElements is needed.
-    Includes 429 retry logic identical to the main query functions.
-
-    Args:
-        graphql_url: GraphQL endpoint URL
-        headers: Authorization headers
-        product_ids_str: Comma-separated product IDs for the filter
-        severities: GraphQL severity filter string, e.g. "[High, Critical]"
-        statuses: GraphQL status filter string
-
-    Returns:
-        totalElements count, or 0 on any error
-    """
-    query = f"""
-    {{
-      findings(
-        page: 1
-        size: 1
-        findingFilter: {{
-          product: [{product_ids_str}]
-          severity: {severities}
-          status: {statuses}
-        }}
-      ) {{
-        findings {{ id }}
-        pageInfo {{ totalElements }}
-      }}
-    }}
-    """
-    _max_retries = 3
-    try:
-        for _attempt in range(_max_retries + 1):
-            response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
-            if response.status_code != 429:
-                break
-            retry_after = int(response.headers.get("Retry-After", 60))
-            if _attempt < _max_retries:
-                logger.warning(
-                    f"Rate limited on count query - waiting {retry_after}s "
-                    f"(attempt {_attempt + 1}/{_max_retries})..."
-                )
-                time.sleep(retry_after)
-        response.raise_for_status()
-        data = response.json()
-        if "data" in data and "findings" in data["data"]:
-            return int(data["data"]["findings"].get("pageInfo", {}).get("totalElements", 0))
-    except (ConnectionError, TimeoutError) as e:
-        logger.warning(f"Network error in count query: {e}")
-    except (KeyError, ValueError, json.JSONDecodeError) as e:
-        logger.warning(f"Invalid response in count query: {e}")
-    return 0
-
-
-def query_current_vulnerabilities_graphql(
-    base_url: str,
-    product_ids: list[str],
-    product_id_to_name: dict[str, str] | None = None,
+def query_current_vulnerabilities_aql(
+    hierarchy: str,
+    product_id_to_name: dict[str, str],
 ) -> dict:
     """
-    Query accurate vulnerability counts using targeted page-1 queries.
+    Query accurate Production-only vulnerability counts using the AQL count endpoint.
 
-    Replaces full pagination (100+ pages for 12k+ findings) with targeted
-    totalElements lookups — 2 + N×2 API calls instead of 100+ pages.
+    Replaces the GraphQL count approach with two AQL calls (one per severity) that
+    each return counts for ALL products in a single round-trip — no pagination,
+    no per-product loops, no rate-limit exposure.
 
-    Queries made:
-    - 1 call: all products [High, Critical] → accurate overall total
-    - 1 call: all products [Critical] only → accurate critical count
-    - N×2 calls (if product_id_to_name provided): per-product total + critical
-
-    Total: 2 + N×2 calls (e.g. 30 for 14 products) vs previous ~129 pages.
-    No pagination → no rate-limit exposure.
+    Calls made:
+    - 1 AQL call: severity = Critical, environment = Production → {product_id: count}
+    - 1 AQL call: severity = High,     environment = Production → {product_id: count}
 
     Args:
-        base_url: ArmorCode API base URL
-        product_ids: List of product IDs to query
-        product_id_to_name: Optional ID→name mapping for per-product breakdown.
-                            When None, product_breakdown is returned empty.
+        hierarchy: ArmorCode hierarchy value (from ARMORCODE_HIERARCHY env var)
+        product_id_to_name: Product ID → product name mapping used to build the
+                            per-product breakdown in the return dict.
 
     Returns:
         Dictionary with pre-computed counts (findings list is always empty):
@@ -229,56 +162,47 @@ def query_current_vulnerabilities_graphql(
             "product_breakdown": {"Product A": {"critical": C, "high": H, "total": T}, ...},
         }
     """
-    logger.info("Querying current HIGH and CRITICAL vulnerabilities via GraphQL...")
-    logger.info(f"Products: {len(product_ids)} (batched in single query)")
+    logger.info("Querying current HIGH and CRITICAL vulnerabilities via AQL (Production only)...")
+    logger.info(f"Products: {len(product_id_to_name)} in hierarchy")
 
-    headers = get_armorcode_headers()
-    graphql_url = f"{base_url.rstrip('/')}/api/graphql"
-    all_product_ids_str = ", ".join(product_ids)
+    loader = ArmorCodeVulnerabilityLoader()
 
-    try:
-        # 1. Accurate overall total (HIGH + CRITICAL, all products)
-        accurate_total = _query_count_only(graphql_url, headers, all_product_ids_str, "[High, Critical]")
+    # Two AQL calls — each returns {product_id_str: count} for all products
+    critical_by_id = loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
+    high_by_id = loader.count_by_severity_aql("High", hierarchy, environment="Production")
 
-        # 2. Accurate critical count — high is the remainder
-        accurate_critical = _query_count_only(graphql_url, headers, all_product_ids_str, "[Critical]")
-        accurate_high = accurate_total - accurate_critical
+    product_breakdown: dict = {}
+    accurate_critical = 0
+    accurate_high = 0
 
-        logger.info(f"Found {accurate_total} accurate total HIGH/CRITICAL vulnerabilities")
-        logger.info(f"Critical: {accurate_critical}, High: {accurate_high}")
+    for product_id, product_name in product_id_to_name.items():
+        prod_critical = critical_by_id.get(product_id, 0)
+        prod_high = high_by_id.get(product_id, 0)
+        prod_total = prod_critical + prod_high
+        product_breakdown[product_name] = {
+            "critical": prod_critical,
+            "high": prod_high,
+            "total": prod_total,
+        }
+        accurate_critical += prod_critical
+        accurate_high += prod_high
+        logger.debug(f"  {product_name}: {prod_total} ({prod_critical} critical, {prod_high} high)")
 
-        severity_breakdown = {
+    accurate_total = accurate_critical + accurate_high
+
+    logger.info(f"Found {accurate_total} total HIGH/CRITICAL Production vulnerabilities via AQL")
+    logger.info(f"Critical: {accurate_critical}, High: {accurate_high}")
+
+    return {
+        "findings": [],  # No raw findings — counts are pre-computed
+        "total_count": accurate_total,
+        "severity_breakdown": {
             "critical": accurate_critical,
             "high": accurate_high,
             "total": accurate_total,
-        }
-
-        # 3. Per-product accurate counts (2 calls per product: total + critical)
-        product_breakdown: dict = {}
-        if product_id_to_name:
-            for product_id, product_name in product_id_to_name.items():
-                prod_total = _query_count_only(graphql_url, headers, product_id, "[High, Critical]")
-                prod_critical = _query_count_only(graphql_url, headers, product_id, "[Critical]")
-                product_breakdown[product_name] = {
-                    "critical": prod_critical,
-                    "high": prod_total - prod_critical,
-                    "total": prod_total,
-                }
-                logger.debug(f"  {product_name}: {prod_total} ({prod_critical} critical)")
-
-        return {
-            "findings": [],  # No raw findings — counts are pre-computed
-            "total_count": accurate_total,
-            "severity_breakdown": severity_breakdown,
-            "product_breakdown": product_breakdown,
-        }
-
-    except (ConnectionError, TimeoutError) as e:
-        logger.error(f"Network error querying current vulnerabilities: {e}")
-        return {"findings": [], "total_count": 0}
-    except (KeyError, ValueError, json.JSONDecodeError) as e:
-        logger.error(f"Invalid response format querying current vulnerabilities: {e}")
-        return {"findings": [], "total_count": 0}
+        },
+        "product_breakdown": product_breakdown,
+    }
 
 
 def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], lookback_days: int = 90) -> dict:
@@ -604,8 +528,33 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
 
     logger.info(f"Resolved {len(product_ids)} product IDs")
 
-    # Query accurate vulnerability counts (totalElements-based, no full pagination)
-    current_vulns = query_current_vulnerabilities_graphql(base_url, product_ids, product_id_to_name)
+    # Obtain hierarchy for AQL queries (required by count_by_severity_aql)
+    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
+    if not hierarchy:
+        logger.error("ARMORCODE_HIERARCHY env var not set. " "Add it as a GitHub secret and to your local .env file.")
+        return {
+            "current_total": 0,
+            "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
+            "product_breakdown": {},
+            "mttr": {
+                "critical_mttr_days": None,
+                "high_mttr_days": None,
+                "critical_sample_size": 0,
+                "high_sample_size": 0,
+            },
+            "stale_criticals": {"count": 0, "threshold_days": 90, "items": []},
+            "age_distribution": {
+                "median_age_days": None,
+                "p85_age_days": None,
+                "p95_age_days": None,
+                "sample_size": 0,
+            },
+            "closed_count_90d": 0,
+            "collected_at": datetime.now().isoformat(),
+        }
+
+    # Query accurate vulnerability counts (AQL-based, Production only, 2 API calls)
+    current_vulns = query_current_vulnerabilities_aql(hierarchy, product_id_to_name)
 
     # Query closed vulnerabilities (for MTTR) using GraphQL
     closed_vulns = query_closed_vulnerabilities_graphql(
