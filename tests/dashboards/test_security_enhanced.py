@@ -19,6 +19,8 @@ import pytest
 from execution.collectors.armorcode_vulnerability_loader import VulnerabilityDetail
 from execution.dashboards.security_enhanced import (
     _generate_bucket_expanded_content,
+    _group_findings_by_product,
+    _metrics_from_aql_counts,
     generate_security_dashboard_enhanced,
 )
 from execution.domain.security import BUCKET_ORDER, SOURCE_BUCKET_MAP, SecurityMetrics
@@ -293,9 +295,9 @@ class TestLoadSecurityData:
     ):
         """Should load products from ArmorCode API."""
         mock_load_baseline.return_value = ["Web Application", "Mobile App"]
-        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
+        mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {}, {})
+        mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -323,9 +325,9 @@ class TestLoadSecurityData:
     ):
         """Should handle empty product list."""
         mock_load_baseline.return_value = []
-        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
+        mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {}, {})
+        mock_vuln_loader.fetch_findings_aql.return_value = []
         mock_vuln_loader.group_by_product.return_value = {}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -348,15 +350,10 @@ class TestZeroVulnProducts:
     ):
         """A product with 0 Critical/High should appear with zero counts, not be dropped."""
         mock_load_baseline.return_value = ["Proclaim", "Web Application"]
-        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
+        mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        # Only Web Application has vulns; Proclaim returns nothing
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (
-            [_make_vuln("CRITICAL", "Mend", product="Web Application")],
-            {},
-            {},
-            {},
-        )
+        # Only Web Application has AQL findings; Proclaim gets zero-padded from baseline
+        mock_vuln_loader.fetch_findings_aql.return_value = [_make_vuln("CRITICAL", "Mend", product="Web Application")]
         mock_vuln_loader.group_by_product.return_value = {
             "Web Application": [_make_vuln("CRITICAL", "Mend", product="Web Application")]
         }
@@ -388,9 +385,9 @@ class TestGenerateSecurityDashboardEnhanced:
     ):
         """Should generate complete dashboard HTML."""
         mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
-        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
+        mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {}, {})
+        mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style>.card{}</style>", "<script></script>")
@@ -421,9 +418,9 @@ class TestGenerateSecurityDashboardEnhanced:
     ):
         """Should write exactly one HTML file (main dashboard only, no detail pages)."""
         mock_load_baseline.return_value = ["Web Application"]
-        mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
+        mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.load_vulnerabilities_hybrid.return_value = (sample_vulnerabilities, {}, {}, {})
+        mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
         mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
@@ -443,34 +440,19 @@ class TestProductionOnlyTotals:
     def test_uses_production_only_aql_when_hierarchy_set(
         self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
     ):
-        """When ARMORCODE_HIERARCHY is set, count_by_severity_aql is called with environment=Production."""
+        """When ARMORCODE_HIERARCHY is set, fetch_findings_aql is called with environment='Production'."""
         mock_load_baseline.return_value = ["Product1"]
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
 
         mock_loader = Mock()
-        # load_vulnerabilities_hybrid returns all-env totals that should be overridden
-        mock_loader.load_vulnerabilities_hybrid.return_value = (
-            [],
-            {},
-            {"Product1": {"critical": 9999, "high": 9999, "total": 19998}},
-            {"Product1": "pid1"},  # product_id_map: name -> id
-        )
+        mock_loader.fetch_findings_aql.return_value = []
         mock_loader.group_by_product.return_value = {}
-        # Production-only AQL counts
-        mock_loader.count_by_severity_aql.side_effect = [
-            {"pid1": 50},  # Critical (Production)
-            {"pid1": 150},  # High (Production)
-        ]
-        # Bucket AQL returns empty (no bucket breakdown needed for this test)
-        mock_loader.count_by_bucket_aql.return_value = {}
         mock_vuln_loader_class.return_value = mock_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
         generate_security_dashboard_enhanced()
 
-        # AQL must be called with Production environment filter
-        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy", environment="Production")
-        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy", environment="Production")
+        mock_loader.fetch_findings_aql.assert_called_once_with("test/hierarchy", environment="Production")
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
@@ -480,16 +462,107 @@ class TestProductionOnlyTotals:
     def test_falls_back_to_hybrid_totals_when_no_hierarchy(
         self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
     ):
-        """When ARMORCODE_HIERARCHY is not set, count_by_severity_aql is NOT called."""
+        """When ARMORCODE_HIERARCHY is not set, returns early with ('', 0) — no AQL fetch."""
         mock_load_baseline.return_value = ["Product1"]
         mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
 
         mock_loader = Mock()
-        mock_loader.load_vulnerabilities_hybrid.return_value = ([], {}, {}, {})
-        mock_loader.group_by_product.return_value = {}
         mock_vuln_loader_class.return_value = mock_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
-        generate_security_dashboard_enhanced()
+        html, count = generate_security_dashboard_enhanced()
 
-        mock_loader.count_by_severity_aql.assert_not_called()
+        assert html == ""
+        assert count == 0
+        mock_loader.fetch_findings_aql.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# _group_findings_by_product
+# ---------------------------------------------------------------------------
+
+
+class TestGroupFindingsByProduct:
+    """Unit tests for _group_findings_by_product() single-pass grouping helper."""
+
+    def test_correct_counts_by_severity(self):
+        """Critical and High counts are accumulated correctly per product."""
+        vulns = [
+            _make_vuln("CRITICAL", "Mend", product="Alpha"),
+            _make_vuln("HIGH", "Mend", product="Alpha"),
+            _make_vuln("CRITICAL", "SonarQube", product="Alpha"),
+            _make_vuln("HIGH", "Cortex XDR", product="Beta"),
+        ]
+        accurate_totals, _, aql_by_product = _group_findings_by_product(vulns)
+        assert accurate_totals["Alpha"] == {"critical": 2, "high": 1, "total": 3}
+        assert accurate_totals["Beta"] == {"critical": 0, "high": 1, "total": 1}
+        assert aql_by_product["Alpha"] == {"critical": 2, "high": 1}
+        assert aql_by_product["Beta"] == {"critical": 0, "high": 1}
+
+    def test_correct_bucket_assignment(self):
+        """Sources are mapped to the correct bucket."""
+        vulns = [
+            _make_vuln("CRITICAL", "Mend", product="P"),  # CODE
+            _make_vuln("HIGH", "Prisma Cloud Redlock", product="P"),  # CLOUD
+            _make_vuln("CRITICAL", "Cortex XDR", product="P"),  # INFRASTRUCTURE
+        ]
+        _, bucket_counts_by_product, _ = _group_findings_by_product(vulns)
+        buckets = bucket_counts_by_product["P"]
+        assert buckets["CODE"]["total"] == 1
+        assert buckets["CLOUD"]["total"] == 1
+        assert buckets["INFRASTRUCTURE"]["total"] == 1
+
+    def test_empty_input_returns_empty_dicts(self):
+        """Empty input → all three output dicts are empty."""
+        accurate_totals, bucket_counts_by_product, aql_by_product = _group_findings_by_product([])
+        assert accurate_totals == {}
+        assert bucket_counts_by_product == {}
+        assert aql_by_product == {}
+
+    def test_skips_records_with_empty_product(self):
+        """Records with empty/None product are silently skipped."""
+        vulns = [
+            _make_vuln("CRITICAL", "Mend", product=""),
+            _make_vuln("HIGH", "Mend", product="RealProduct"),
+        ]
+        accurate_totals, _, _ = _group_findings_by_product(vulns)
+        assert "" not in accurate_totals
+        assert "RealProduct" in accurate_totals
+
+    def test_unrecognised_source_goes_to_other_bucket(self):
+        """An unrecognised source tool falls into the 'Other' bucket."""
+        vulns = [_make_vuln("HIGH", "UnknownTool", product="P")]
+        _, bucket_counts_by_product, _ = _group_findings_by_product(vulns)
+        assert "Other" in bucket_counts_by_product["P"]
+        assert bucket_counts_by_product["P"]["Other"]["total"] == 1
+
+
+# ---------------------------------------------------------------------------
+# _metrics_from_aql_counts
+# ---------------------------------------------------------------------------
+
+
+class TestMetricsFromAqlCounts:
+    """Unit tests for _metrics_from_aql_counts() domain model builder."""
+
+    def test_builds_security_metrics_from_counts(self):
+        """Correct SecurityMetrics built for each product."""
+        aql_by_product = {
+            "Alpha": {"critical": 3, "high": 7},
+            "Beta": {"critical": 0, "high": 2},
+        }
+        result = _metrics_from_aql_counts(aql_by_product)
+
+        assert isinstance(result["Alpha"], SecurityMetrics)
+        assert result["Alpha"].critical == 3
+        assert result["Alpha"].high == 7
+        assert result["Alpha"].total_vulnerabilities == 10
+        assert result["Beta"].critical == 0
+        assert result["Beta"].total_vulnerabilities == 2
+
+    def test_medium_is_always_zero(self):
+        """Medium/Low are always 0 since AQL filters to Critical+High only."""
+        aql_by_product = {"P": {"critical": 5, "high": 10}}
+        result = _metrics_from_aql_counts(aql_by_product)
+        assert result["P"].medium == 0
+        assert result["P"].low == 0
