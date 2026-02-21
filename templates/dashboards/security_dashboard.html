@@ -475,23 +475,36 @@
         margin: 5px 0;
     }
 
+    /* Section header row: title left, filters right */
+    .section-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .section-header-row h2 {
+        margin: 0;
+    }
+
     /* Product-level category filter bar */
     .product-filter-bar {
         display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
+        gap: 10px;
         flex-wrap: wrap;
         align-items: center;
     }
 
     .product-filter-bar button {
-        padding: 6px 18px;
-        border-radius: 20px;
+        padding: 9px 22px;
+        border-radius: 22px;
         border: 1px solid var(--border-color);
         background: var(--bg-secondary);
         color: var(--text-secondary);
         cursor: pointer;
-        font-size: 0.85rem;
+        font-size: 0.95rem;
         font-weight: 600;
         transition: all 0.15s;
     }
@@ -686,12 +699,14 @@
 
 <!-- Products table -->
 <div class="section">
-    <h2>Vulnerabilities by Product</h2>
-    <div class="product-filter-bar">
-        <button class="active" onclick="filterProductsByCategory(this, 'all')">All ({{ category_counts.all }})</button>
-        <button onclick="filterProductsByCategory(this, 'code')">Code ({{ category_counts.code }})</button>
-        <button onclick="filterProductsByCategory(this, 'cloud')">Cloud ({{ category_counts.cloud }})</button>
-        <button onclick="filterProductsByCategory(this, 'infrastructure')">Infrastructure ({{ category_counts.infrastructure }})</button>
+    <div class="section-header-row">
+        <h2>Vulnerabilities by Product</h2>
+        <div class="product-filter-bar">
+            <button class="active" onclick="filterProductsByCategory(this, 'all')">All ({{ category_counts.all }})</button>
+            <button onclick="filterProductsByCategory(this, 'code')">Code ({{ category_counts.code }})</button>
+            <button onclick="filterProductsByCategory(this, 'cloud')">Cloud ({{ category_counts.cloud }})</button>
+            <button onclick="filterProductsByCategory(this, 'infrastructure')">Infrastructure ({{ category_counts.infrastructure }})</button>
+        </div>
     </div>
     <div class="table-wrapper">
         <table class="data-table">
