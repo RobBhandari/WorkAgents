@@ -512,7 +512,12 @@ class HealthScorer:
         return sorted(weeks, key=lambda w: w["week_date"])
 
     def _load_exploitable_by_product(self) -> dict[str, int]:
-        """Load latest exploitable counts keyed by product name."""
+        """Load latest exploitable counts keyed by product name.
+
+        History files store product_breakdown keyed by product ID (e.g. "12345").
+        This method translates IDs to names using data/armorcode_id_map.json.
+        If the ID map is unavailable (local dev without secret), keys are returned as-is.
+        """
         if not self.exploitable_history_file.exists():
             logger.debug("Exploitable history not found", extra={"file": str(self.exploitable_history_file)})
             return {}
@@ -525,7 +530,16 @@ class HealthScorer:
         # Use the most recent week
         latest = sorted(weeks, key=lambda w: w["week_date"])[-1]
         product_breakdown = latest.get("metrics", {}).get("product_breakdown", {})
-        return {name: int(info.get("total", 0)) for name, info in product_breakdown.items()}
+
+        # Translate product IDs → names via armorcode_id_map.json (written from ARMORCODE_ID_MAP secret)
+        id_map_path = Path("data/armorcode_id_map.json")
+        if id_map_path.exists():
+            name_to_id: dict[str, str] = json.loads(id_map_path.read_text(encoding="utf-8"))
+            id_to_name = {v: k for k, v in name_to_id.items()}
+            return {id_to_name.get(pid, pid): int(info.get("total", 0)) for pid, info in product_breakdown.items()}
+
+        # Fallback: return keys as-is (may be IDs or legacy names)
+        return {k: int(info.get("total", 0)) for k, info in product_breakdown.items()}
 
     def _get_product_keys(self, quality_weeks: list[dict]) -> dict[str, str]:
         """Build mapping of project_key → project_name from quality history."""

@@ -101,8 +101,9 @@ class TestQueryCurrentVulnerabilitiesAql:
         with patch(_LOADER_CLASS, return_value=mock_loader):
             result = query_current_vulnerabilities_aql("hier", product_id_to_name)
 
-        assert result["product_breakdown"]["Product A"] == {"critical": 10, "high": 30, "total": 40}
-        assert result["product_breakdown"]["Product B"] == {"critical": 5, "high": 20, "total": 25}
+        # Keys are product IDs after Phase 2 migration
+        assert result["product_breakdown"]["101"] == {"critical": 10, "high": 30, "total": 40}
+        assert result["product_breakdown"]["202"] == {"critical": 5, "high": 20, "total": 25}
 
     def test_findings_list_always_empty(self):
         """findings key must always be an empty list — no raw findings fetched."""
@@ -127,7 +128,8 @@ class TestQueryCurrentVulnerabilitiesAql:
         with patch(_LOADER_CLASS, return_value=mock_loader):
             result = query_current_vulnerabilities_aql("hier", product_id_to_name)
 
-        assert result["product_breakdown"]["Product B"] == {"critical": 0, "high": 0, "total": 0}
+        # Key is product ID "202" (Product B → "202" in product_id_to_name)
+        assert result["product_breakdown"]["202"] == {"critical": 0, "high": 0, "total": 0}
         assert result["total_count"] == 20  # only Product A (8+12)
 
     def test_returns_zeros_when_aql_returns_empty_dict(self):
