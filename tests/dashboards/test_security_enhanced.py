@@ -461,6 +461,8 @@ class TestProductionOnlyTotals:
             {"pid1": 50},  # Critical (Production)
             {"pid1": 150},  # High (Production)
         ]
+        # Bucket AQL returns empty (no bucket breakdown needed for this test)
+        mock_loader.count_by_bucket_aql.return_value = {}
         mock_vuln_loader_class.return_value = mock_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
