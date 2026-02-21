@@ -144,8 +144,8 @@ async def test_query_current_armorcode_vulns_success():
     mock_loader = Mock()
     # Critical: 539, High: 11934 → total 12473 (Production only)
     mock_loader.count_by_severity_aql.side_effect = [
-        {"pid1": 539},   # Critical counts
-        {"pid1": 11934}, # High counts
+        {"pid1": 539},  # Critical counts
+        {"pid1": 11934},  # High counts
     ]
 
     with (
