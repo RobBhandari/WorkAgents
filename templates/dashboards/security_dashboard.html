@@ -474,6 +474,52 @@
     .breakdown-note p {
         margin: 5px 0;
     }
+
+    /* Product-level category filter bar */
+    .product-filter-bar {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .product-filter-bar button {
+        padding: 6px 18px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.15s;
+    }
+
+    .product-filter-bar button.active,
+    .product-filter-bar button:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    /* Hide filtered-out product rows AND their paired detail rows via sibling selector */
+    tr.data-row.category-hidden {
+        display: none;
+    }
+
+    tr.data-row.category-hidden + tr.detail-row {
+        display: none !important;
+    }
+
+    /* Hide non-matching bucket rows (and their expand panels) inside product detail */
+    tr.bucket-row.bucket-filtered {
+        display: none;
+    }
+
+    tr.bucket-row.bucket-filtered + tr.bucket-detail-row {
+        display: none !important;
+    }
 </style>
 {% endblock %}
 
@@ -558,6 +604,24 @@
         rows.forEach(r => tbody.appendChild(r));
     }
 
+    // Filter product table by category (Code / Cloud / Infrastructure / All)
+    function filterProductsByCategory(btn, cat) {
+        document.querySelectorAll('.product-filter-bar button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // 1. Show/hide product rows
+        document.querySelectorAll('tbody tr.data-row').forEach(row => {
+            const cats = row.dataset.categories || '';
+            const show = cat === 'all' || cats.split(' ').includes(cat);
+            row.classList.toggle('category-hidden', !show);
+        });
+
+        // 2. Inside expanded products, hide bucket rows that don't match the filter
+        document.querySelectorAll('tr.bucket-row[data-bucket]').forEach(row => {
+            row.classList.toggle('bucket-filtered', cat !== 'all' && row.dataset.bucket !== cat);
+        });
+    }
+
     // Sort top-level product table by column (asc → desc → original, 3-state cycle)
     // Sorts parent+detail row PAIRS together so expanded content stays attached.
     function sortProductTable(th) {
@@ -623,6 +687,12 @@
 <!-- Products table -->
 <div class="section">
     <h2>Vulnerabilities by Product</h2>
+    <div class="product-filter-bar">
+        <button class="active" onclick="filterProductsByCategory(this, 'all')">All ({{ category_counts.all }})</button>
+        <button onclick="filterProductsByCategory(this, 'code')">Code ({{ category_counts.code }})</button>
+        <button onclick="filterProductsByCategory(this, 'cloud')">Cloud ({{ category_counts.cloud }})</button>
+        <button onclick="filterProductsByCategory(this, 'infrastructure')">Infrastructure ({{ category_counts.infrastructure }})</button>
+    </div>
     <div class="table-wrapper">
         <table class="data-table">
             <thead>
@@ -637,7 +707,7 @@
             <tbody>
             {% for product in products %}
                 <!-- Parent row - clickable to expand -->
-                <tr class="data-row" data-idx="{{ loop.index0 }}" onclick="toggleDetail('detail-{{ loop.index }}', this)">
+                <tr class="data-row" data-idx="{{ loop.index0 }}" data-categories="{{ product.categories|join(' ') }}" onclick="toggleDetail('detail-{{ loop.index }}', this)">
                     <td>
                         <strong>{{ product.name }}</strong>
                     </td>
