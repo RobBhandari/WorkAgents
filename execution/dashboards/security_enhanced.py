@@ -21,7 +21,6 @@ Usage:
 """
 
 import json
-import os
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -36,7 +35,6 @@ from execution.dashboards.renderer import render_dashboard
 from execution.domain.security import BUCKET_ORDER, SOURCE_BUCKET_MAP, SecurityMetrics
 from execution.framework import get_dashboard_framework
 from execution.secure_config import get_config
-from execution.utils.error_handling import log_and_return_default
 
 logger = get_logger(__name__)
 
@@ -127,6 +125,75 @@ def _convert_vulnerabilities_to_metrics(
     return metrics_by_product
 
 
+def _group_findings_by_product(
+    vulnerabilities: list[VulnerabilityDetail],
+) -> tuple[dict[str, dict], dict[str, dict], dict[str, dict]]:
+    """
+    Group AQL findings into per-product count structures in a single O(n) pass.
+
+    Replaces 8+ separate API calls (2 AQL severity counts + 6 AQL bucket counts).
+    All three output structures are built simultaneously from the same record list.
+
+    Returns:
+        accurate_totals:          {product: {"critical": int, "high": int, "total": int}}
+        bucket_counts_by_product: {product: {bucket: {"total": int, "critical": int, "high": int}}}
+        aql_by_product:           {product: {"critical": int, "high": int}}
+    """
+    _accurate: dict[str, dict] = defaultdict(lambda: {"critical": 0, "high": 0, "total": 0})
+    _buckets: dict[str, dict] = defaultdict(dict)
+    _aql: dict[str, dict] = defaultdict(lambda: {"critical": 0, "high": 0})
+
+    for vuln in vulnerabilities:
+        product = vuln.product
+        if not product:
+            continue
+
+        sev = (vuln.severity or "").upper()
+        is_crit = sev == "CRITICAL"
+        is_high = sev == "HIGH"
+
+        _accurate[product]["total"] += 1
+        if is_crit:
+            _accurate[product]["critical"] += 1
+            _aql[product]["critical"] += 1
+        elif is_high:
+            _accurate[product]["high"] += 1
+            _aql[product]["high"] += 1
+
+        bucket = SOURCE_BUCKET_MAP.get(vuln.source or "", "Other")
+        product_buckets = _buckets[product]
+        if bucket not in product_buckets:
+            product_buckets[bucket] = {"total": 0, "critical": 0, "high": 0}
+        product_buckets[bucket]["total"] += 1
+        if is_crit:
+            product_buckets[bucket]["critical"] += 1
+        elif is_high:
+            product_buckets[bucket]["high"] += 1
+
+    return dict(_accurate), dict(_buckets), dict(_aql)
+
+
+def _metrics_from_aql_counts(aql_by_product: dict[str, dict]) -> dict[str, SecurityMetrics]:
+    """
+    Build SecurityMetrics domain objects from AQL per-product counts.
+
+    Medium/Low are always 0 since fetch_findings_aql() filters to Critical+High only.
+    total_vulnerabilities == critical + high.
+    """
+    return {
+        product: SecurityMetrics(
+            timestamp=datetime.now(),
+            project=product,
+            total_vulnerabilities=counts.get("critical", 0) + counts.get("high", 0),
+            critical=counts.get("critical", 0),
+            high=counts.get("high", 0),
+            medium=0,
+            low=0,
+        )
+        for product, counts in aql_by_product.items()
+    }
+
+
 def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tuple[str, int]:
     """
     Generate enhanced security dashboard with expandable rows.
@@ -148,10 +215,10 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     logger.info("Enhanced Security Dashboard Generator")
 
-    # Step 1: Query ArmorCode API directly for fresh Production-only data
+    # Stage 1a: Load baseline product list for zero-padding (products with 0 findings still appear)
     logger.info("Loading product list from baseline")
     try:
-        products = _load_baseline_products()
+        known_products = _load_baseline_products()
     except FileNotFoundError as e:
         logger.warning(
             "ArmorCode baseline not found, returning empty result",
@@ -165,17 +232,26 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
         logger.info("Run: python execution/armorcode_baseline.py")
         return "", 0
 
-    logger.info("Querying ArmorCode API (hybrid: capped detail + accurate counts)")
+    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
+    if not hierarchy:
+        logger.warning("ARMORCODE_HIERARCHY not set — cannot load Production-only security data")
+        return "", 0
+
+    # Stage 1b: Fetch all Critical/High Production findings via AQL (~13 calls for 12K records).
+    # Replaces: GraphQL per-product fetches (100+ calls) + 8 separate AQL count calls.
+    logger.info("Fetching all Critical/High Production findings via AQL")
     vuln_loader = ArmorCodeVulnerabilityLoader()
-    vulnerabilities, bucket_counts_by_product, accurate_totals, product_id_map = (
-        vuln_loader.load_vulnerabilities_hybrid(products, filter_environment=True, max_per_bucket=50)
-    )
-    logger.info(f"Retrieved {len(vulnerabilities)} vulnerability details (max 50/bucket for display)")
+    vulnerabilities = vuln_loader.fetch_findings_aql(hierarchy, environment="Production")
+    logger.info("AQL fetch complete", extra={"total_records": len(vulnerabilities)})
 
-    metrics_by_product = _convert_vulnerabilities_to_metrics(vulnerabilities)
+    # Stage 1c: Derive all per-product counts from records in a single Python pass.
+    accurate_totals, bucket_counts_by_product, aql_by_product = _group_findings_by_product(vulnerabilities)
 
-    # Ensure all baseline products appear (even those with 0 Critical/High)
-    for product_name in products:
+    # Stage 1d: Build SecurityMetrics domain objects from AQL-derived counts.
+    metrics_by_product = _metrics_from_aql_counts(aql_by_product)
+
+    # Zero-pad: ensure all baseline products appear even with 0 Critical/High in Production.
+    for product_name in known_products:
         if product_name not in metrics_by_product:
             metrics_by_product[product_name] = SecurityMetrics(
                 timestamp=datetime.now(),
@@ -186,42 +262,19 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
                 medium=0,
                 low=0,
             )
-    logger.info("ArmorCode data loaded", extra={"product_count": len(metrics_by_product)})
+    logger.info("Security data loaded", extra={"product_count": len(metrics_by_product)})
 
-    vulns_by_product = vuln_loader.group_by_product(vulnerabilities)
-
-    # Override accurate_totals with Production-only AQL counts (2 API calls).
-    # This ensures the header cards and history patch match target_dashboard.py and
-    # show only Production environment findings — consistent with what teams care about.
-    # Also build per-product AQL counts for the table rows (consistent with header).
-    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
-    aql_by_product: dict[str, dict] | None = None
-    if hierarchy:
-        crit_aql = vuln_loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
-        high_aql = vuln_loader.count_by_severity_aql("High", hierarchy, environment="Production")
-        prod_c = sum(crit_aql.values())
-        prod_h = sum(high_aql.values())
-        accurate_totals = {"_prod": {"critical": prod_c, "high": prod_h, "total": prod_c + prod_h}}
-        logger.info(
-            "Using Production-only AQL totals",
-            extra={"critical": prod_c, "high": prod_h, "total": prod_c + prod_h},
-        )
-        # Map AQL product_id keys → product names for per-row display
-        id_to_name = {pid: name for name, pid in product_id_map.items()}
-        aql_by_product = {}
-        for pid, count in crit_aql.items():
-            name = id_to_name.get(str(pid))
-            if name:
-                aql_by_product.setdefault(name, {"critical": 0, "high": 0})["critical"] = count
-        for pid, count in high_aql.items():
-            name = id_to_name.get(str(pid))
-            if name:
-                aql_by_product.setdefault(name, {"critical": 0, "high": 0})["high"] = count
-        # Compute production-only bucket counts from AQL (replaces broken GraphQL _fetch_source_counts).
-        # 6 total AQL calls (3 buckets × 2 severities) replace O(products × sources × severities) GraphQL calls.
-        bucket_counts_by_product = _compute_bucket_aql_counts(vuln_loader, hierarchy, id_to_name)
-    else:
-        logger.warning("ARMORCODE_HIERARCHY not set — totals include all environments")
+    # Stage 1e: Group records by product; cap display at 50/bucket for expandable row HTML size.
+    # Counts always reflect full totals from accurate_totals (not the capped display records).
+    max_display_per_bucket = 50
+    vulns_by_product_all = vuln_loader.group_by_product(vulnerabilities)
+    vulns_by_product: dict[str, list[VulnerabilityDetail]] = {}
+    for product_name, pvulns in vulns_by_product_all.items():
+        display: list[VulnerabilityDetail] = []
+        for bucket in BUCKET_ORDER:
+            bvulns = [v for v in pvulns if SOURCE_BUCKET_MAP.get(v.source or "", "Other") == bucket]
+            display.extend(bvulns[:max_display_per_bucket])
+        vulns_by_product[product_name] = display
 
     # Compute totals for header summary cards and history patch
     acc_c = sum(t.get("critical", 0) for t in accurate_totals.values())
@@ -428,44 +481,6 @@ def _build_context(
         "products": products,
         "show_glossary": False,
     }
-
-
-def _compute_bucket_aql_counts(
-    loader: ArmorCodeVulnerabilityLoader,
-    hierarchy: str,
-    id_to_name: dict[str, str],
-) -> dict[str, dict | None]:
-    """
-    Compute per-product bucket counts using AQL (production-only, source-filtered).
-
-    Makes 6 AQL calls total (3 buckets × 2 severities) and returns counts for all
-    products in the hierarchy at once — far more efficient than per-product GraphQL.
-
-    Returns:
-        {product_name: {bucket: {"total": int, "critical": int, "high": int}}}
-    """
-    result: dict[str, dict | None] = {}
-    for bucket in sorted(set(SOURCE_BUCKET_MAP.values())):
-        for severity in ["Critical", "High"]:
-            counts = loader.count_by_bucket_aql(bucket, severity, hierarchy)
-            for pid, count in counts.items():
-                if count == 0:
-                    continue
-                name = id_to_name.get(str(pid))
-                if not name:
-                    continue
-                product_buckets = result.get(name)
-                if product_buckets is None:
-                    product_buckets = {}
-                    result[name] = product_buckets
-                product_buckets.setdefault(bucket, {"total": 0, "critical": 0, "high": 0})
-                product_buckets[bucket]["total"] += count
-                if severity == "Critical":
-                    product_buckets[bucket]["critical"] += count
-                else:
-                    product_buckets[bucket]["high"] += count
-    logger.info("Bucket AQL counts computed", extra={"products_with_buckets": len(result)})
-    return result
 
 
 def _escape_html(text: str) -> str:
