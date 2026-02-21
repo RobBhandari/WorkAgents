@@ -87,15 +87,15 @@ class TrendsDataLoader:
         """
         baselines = {}
 
-        # Load ArmorCode baseline
-        armorcode_file = "data/armorcode_baseline.json"
-        if os.path.exists(armorcode_file):
+        # Load security targets (replaces armorcode_baseline.json)
+        security_targets_file = "data/security_targets.json"
+        if os.path.exists(security_targets_file):
             try:
-                with open(armorcode_file, encoding="utf-8") as f:
+                with open(security_targets_file, encoding="utf-8") as f:
                     data = json.load(f)
-                    baselines["security"] = data.get("total_vulnerabilities", 0)
+                    baselines["security"] = data.get("baseline_total", 0)
             except (json.JSONDecodeError, UnicodeDecodeError, Exception) as e:
-                print(f"  ⚠️ Failed to load armorcode_baseline.json: {e}")
+                print(f"  ⚠️ Failed to load security_targets.json: {e}")
 
         # Load ADO bugs baseline
         ado_file = "data/baseline.json"

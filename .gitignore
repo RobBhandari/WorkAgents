@@ -12,6 +12,7 @@
 data/*
 !data/*_example.csv
 !data/README.md
+!data/security_targets.json
 
 # Internal setup documentation (contains company-specific details)
 SETUP_STEPS.md

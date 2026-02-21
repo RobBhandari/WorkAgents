@@ -19,10 +19,10 @@ import os
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 
 # Load environment variables
 from dotenv import load_dotenv
-from http_client import post
 
 from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnerabilityLoader
 from execution.secure_config import get_config
@@ -31,106 +31,20 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-
-def get_armorcode_headers():
-    """Get ArmorCode API headers"""
-    api_key = get_config().get_armorcode_config().api_key
-    if not api_key:
-        raise ValueError("ARMORCODE_API_KEY must be set in .env file")
-
-    return {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "Accept": "application/json"}
+ID_MAP_PATH = Path("data/armorcode_id_map.json")
+SECURITY_TARGETS_PATH = Path("data/security_targets.json")
 
 
-def get_product_names_to_ids(product_names: list[str]) -> dict[str, str]:
-    """
-    Convert product names to IDs using ArmorCode API.
-
-    Args:
-        product_names: List of product names from baseline
-
-    Returns:
-        Dictionary mapping product name to product ID
-    """
-    base_url = get_config().get_armorcode_config().base_url
-    graphql_url = f"{base_url.rstrip('/')}/api/graphql"
-    headers = get_armorcode_headers()
-
-    all_products = []
-
-    # Fetch all pages of products
-    for page in range(1, 10):
-        query = f"""
-        {{
-          products(page: {page}, size: 100) {{
-            products {{
-              id
-              name
-            }}
-            pageInfo {{
-              hasNext
-            }}
-          }}
-        }}
-        """
-
-        try:
-            response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
-            if response.status_code == 200:
-                data = response.json()
-                if "data" in data and "products" in data["data"]:
-                    result = data["data"]["products"]
-                    products = result.get("products", [])
-                    all_products.extend(products)
-
-                    if not result.get("pageInfo", {}).get("hasNext", False):
-                        break
-        except (ConnectionError, TimeoutError) as e:
-            logger.warning(f"Network error fetching products page {page}: {e}")
-            break
-        except (KeyError, ValueError, json.JSONDecodeError) as e:
-            logger.warning(f"Invalid response format fetching products page {page}: {e}")
-            break
-
-    # Map product names to IDs
-    product_map = {p["name"]: str(p["id"]) for p in all_products}
-    logger.info(f"API returned {len(all_products)} total products from ArmorCode")
-    if len(all_products) > 0:
-        logger.debug(f"Sample products: {list(product_map.keys())[:5]}")
-    return product_map
-
-
-def get_product_ids_from_baseline(baseline: dict) -> list[str]:
-    """
-    Extract product IDs from baseline data by converting product names to IDs.
-
-    Args:
-        baseline: Baseline data dictionary containing 'products' field with product names
-
-    Returns:
-        List of product ID strings
-    """
-    # Get product names from baseline
-    product_names = baseline.get("products", [])
-    if not product_names:
-        logger.warning("No products found in baseline")
-        return []
-
-    logger.info(f"Found {len(product_names)} products in baseline")
-    logger.info("Converting product names to IDs...")
-
-    # Convert names to IDs
-    product_map = get_product_names_to_ids(product_names)
-
-    # Get IDs for products in baseline
-    product_ids = []
-    for name in product_names:
-        if name in product_map:
-            product_ids.append(product_map[name])
-        else:
-            logger.warning(f"Product '{name}' not found in ArmorCode")
-
-    logger.info(f"Resolved {len(product_ids)} product IDs")
-    return product_ids
+def _load_id_map() -> dict[str, str]:
+    """Load product name → ID mapping from data/armorcode_id_map.json."""
+    if not ID_MAP_PATH.exists():
+        raise FileNotFoundError(
+            f"{ID_MAP_PATH} not found. "
+            "In CI/CD this is written from the ARMORCODE_ID_MAP secret. "
+            "Locally, run: python scripts/fetch_armorcode_id_map.py"
+        )
+    result: dict[str, str] = json.loads(ID_MAP_PATH.read_text(encoding="utf-8"))
+    return result
 
 
 def query_current_vulnerabilities_aql(
@@ -202,164 +116,6 @@ def query_current_vulnerabilities_aql(
             "total": accurate_total,
         },
         "product_breakdown": product_breakdown,
-    }
-
-
-def query_closed_vulnerabilities_graphql(base_url: str, product_ids: list[str], lookback_days: int = 90) -> dict:
-    """
-    Query recently closed HIGH and CRITICAL vulnerabilities using GraphQL API.
-
-    Note: Date fields not available in GraphQL schema, so MTTR calculation disabled for now.
-    All product IDs are batched into a single query (2 pages max), reducing API calls
-    from 2×N products to 2 total.
-
-    Args:
-        base_url: ArmorCode API base URL
-        product_ids: List of product IDs to query
-        lookback_days: How many days back to look
-
-    Returns:
-        Dictionary with closed vulnerability data (count only, no date data)
-    """
-    logger.info(f"Querying closed vulnerabilities (last {lookback_days} days) via GraphQL...")
-    logger.info("MTTR calculation disabled - date fields not available in GraphQL schema")
-
-    headers = get_armorcode_headers()
-    graphql_url = f"{base_url.rstrip('/')}/api/graphql"
-
-    all_findings = []
-
-    # Batch all product IDs into a single query — reduces API calls ~13x
-    all_product_ids_str = ", ".join(product_ids)
-
-    try:
-        page = 1
-        has_next = True
-
-        while has_next and page <= 2:  # Limit to 2 pages total (200 items sample)
-            query = f"""
-            {{
-              findings(
-                page: {page}
-                size: 100
-                findingFilter: {{
-                  product: [{all_product_ids_str}]
-                  severity: [High, Critical]
-                  status: ["CLOSED", "RESOLVED", "FIXED"]
-                }}
-              ) {{
-                findings {{
-                  id
-                  severity
-                  status
-                  environment {{
-                    name
-                  }}
-                }}
-                pageInfo {{
-                  hasNext
-                }}
-              }}
-            }}
-            """
-
-            _max_retries = 3
-            for _attempt in range(_max_retries + 1):
-                response = post(graphql_url, headers=headers, json={"query": query}, timeout=60)
-                if response.status_code != 429:
-                    break
-                retry_after = int(response.headers.get("Retry-After", 60))
-                if _attempt < _max_retries:
-                    logger.warning(
-                        f"Rate limited (429) on closed vulns page {page} - "
-                        f"waiting {retry_after}s (attempt {_attempt + 1}/{_max_retries})..."
-                    )
-                    time.sleep(retry_after)
-                else:
-                    logger.error(f"Rate limited (429) on closed vulns page {page} - max retries exceeded")
-            response.raise_for_status()
-
-            data = response.json()
-
-            if "errors" in data:
-                break
-
-            if "data" in data and "findings" in data["data"]:
-                findings_data = data["data"]["findings"]
-                page_findings = findings_data.get("findings", [])
-                page_info = findings_data.get("pageInfo", {})
-
-                all_findings.extend(page_findings)
-
-                has_next = page_info.get("hasNext", False)
-                page += 1
-            else:
-                break
-
-        logger.info(f"Found ~{len(all_findings)} closed vulnerabilities (limited sample, no date filtering)")
-
-        return {"findings": all_findings, "total_count": len(all_findings)}
-
-    except Exception as e:
-        logger.error(f"Failed to query closed vulnerabilities: {e}")
-        return {"findings": [], "total_count": 0}
-
-
-def filter_production_findings(findings: list[dict]) -> list[dict]:
-    """
-    Filter findings to include only Production environment.
-
-    Args:
-        findings: List of vulnerability findings with environment field
-
-    Returns:
-        Filtered list containing only Production environment findings
-    """
-    production_findings = []
-    filtered_count = 0
-
-    for finding in findings:
-        # Extract environment name from nested object
-        environment_obj = finding.get("environment")
-        if environment_obj:
-            if isinstance(environment_obj, dict):
-                env_name = environment_obj.get("name", "").upper()
-            else:
-                env_name = str(environment_obj).upper()
-        else:
-            env_name = ""
-
-        # Include only Production environment
-        if env_name == "PRODUCTION":
-            production_findings.append(finding)
-        else:
-            filtered_count += 1
-
-    logger.info(
-        f"Environment filter: {len(production_findings)} Production, {filtered_count} filtered out (non-Production)"
-    )
-
-    return production_findings
-
-
-def calculate_mttr(closed_findings: list[dict]) -> dict:
-    """
-    Calculate Mean Time To Remediate for closed vulnerabilities.
-
-    Note: Date fields not available in current GraphQL schema, so MTTR calculation disabled.
-
-    Args:
-        closed_findings: List of closed vulnerability findings
-
-    Returns:
-        MTTR metrics (disabled)
-    """
-    return {
-        "critical_mttr_days": None,
-        "high_mttr_days": None,
-        "critical_sample_size": 0,
-        "high_sample_size": 0,
-        "note": "MTTR calculation disabled - date fields not available in GraphQL schema",
     }
 
 
@@ -470,14 +226,13 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
     Returns:
         Enhanced security metrics dictionary
     """
-    base_url = get_config().get_armorcode_config().base_url
-
     logger.info("Collecting enhanced security metrics from ArmorCode...")
 
-    # Build product_id→name mapping for accurate per-product breakdown queries
-    product_names = baseline.get("products", [])
-    if not product_names:
-        logger.error("No products found in baseline - cannot query")
+    # Load product name → ID mapping from data/armorcode_id_map.json (no GraphQL)
+    try:
+        name_to_id = _load_id_map()
+    except FileNotFoundError as e:
+        logger.error(str(e))
         return {
             "current_total": 0,
             "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
@@ -494,44 +249,13 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
             "collected_at": datetime.now().isoformat(),
         }
 
-    logger.info(f"Found {len(product_names)} products in baseline")
-    logger.info("Converting product names to IDs...")
-
-    product_name_map = get_product_names_to_ids(product_names)  # name → id
-    product_ids: list[str] = []
-    product_id_to_name: dict[str, str] = {}
-    for name in product_names:
-        if name in product_name_map:
-            pid = product_name_map[name]
-            product_ids.append(pid)
-            product_id_to_name[pid] = name
-        else:
-            logger.warning(f"Product '{name}' not found in ArmorCode")
-
-    if not product_ids:
-        logger.error("No product IDs resolved from baseline")
-        return {
-            "current_total": 0,
-            "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
-            "product_breakdown": {},
-            "mttr": {
-                "critical_mttr_days": None,
-                "high_mttr_days": None,
-                "critical_sample_size": 0,
-                "high_sample_size": 0,
-            },
-            "stale_criticals": {"count": 0, "threshold_days": 90, "items": []},
-            "age_distribution": {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0},
-            "closed_count_90d": 0,
-            "collected_at": datetime.now().isoformat(),
-        }
-
-    logger.info(f"Resolved {len(product_ids)} product IDs")
+    product_id_to_name: dict[str, str] = {v: k for k, v in name_to_id.items()}
+    logger.info(f"Loaded {len(name_to_id)} products from ID map")
 
     # Obtain hierarchy for AQL queries (required by count_by_severity_aql)
     hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
     if not hierarchy:
-        logger.error("ARMORCODE_HIERARCHY env var not set. " "Add it as a GitHub secret and to your local .env file.")
+        logger.error("ARMORCODE_HIERARCHY env var not set. Add it as a GitHub secret and to your local .env file.")
         return {
             "current_total": 0,
             "severity_breakdown": {"critical": 0, "high": 0, "total": 0},
@@ -543,12 +267,7 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
                 "high_sample_size": 0,
             },
             "stale_criticals": {"count": 0, "threshold_days": 90, "items": []},
-            "age_distribution": {
-                "median_age_days": None,
-                "p85_age_days": None,
-                "p95_age_days": None,
-                "sample_size": 0,
-            },
+            "age_distribution": {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0},
             "closed_count_90d": 0,
             "collected_at": datetime.now().isoformat(),
         }
@@ -556,47 +275,24 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
     # Query accurate vulnerability counts (AQL-based, Production only, 2 API calls)
     current_vulns = query_current_vulnerabilities_aql(hierarchy, product_id_to_name)
 
-    # Query closed vulnerabilities (for MTTR) using GraphQL
-    closed_vulns = query_closed_vulnerabilities_graphql(
-        base_url, product_ids, lookback_days=config.get("lookback_days", 90)
-    )
-
-    # Filter closed findings to Production environment
-    logger.info("Applying Production environment filter to closed findings...")
-    closed_vulns["findings"] = filter_production_findings(closed_vulns["findings"])
-    closed_vulns["total_count"] = len(closed_vulns["findings"])
-
-    # Use pre-computed accurate counts from current_vulns (no raw findings to process)
     severity_breakdown = current_vulns.get("severity_breakdown", {"critical": 0, "high": 0, "total": 0})
     product_breakdown = current_vulns.get("product_breakdown", {})
 
-    # Calculate metrics
-    try:
-        mttr = calculate_mttr(closed_vulns["findings"])
-    except Exception as e:
-        logger.error(f"MTTR calculation failed: {e}")
-        mttr = {"critical_mttr_days": None, "high_mttr_days": None, "critical_sample_size": 0, "high_sample_size": 0}
+    mttr = {"critical_mttr_days": None, "high_mttr_days": None, "critical_sample_size": 0, "high_sample_size": 0}
 
-    # Stale criticals: accurate count of ALL open criticals (dates unavailable)
     stale_criticals = {
         "count": severity_breakdown["critical"],
         "threshold_days": config.get("stale_threshold_days", 90),
         "items": [],
-        "note": "Age calculation disabled - date fields not available in GraphQL schema",
     }
 
-    try:
-        age_distribution = calculate_age_distribution([])
-    except Exception as e:
-        logger.error(f"Age distribution calculation failed: {e}")
-        age_distribution = {"median_age_days": None, "p85_age_days": None, "p95_age_days": None, "sample_size": 0}
+    age_distribution = calculate_age_distribution([])
 
     logger.info(
-        f"Current Total: {current_vulns['total_count']} (Critical: {severity_breakdown['critical']}, High: {severity_breakdown['high']})"
+        f"Current Total: {current_vulns['total_count']} "
+        f"(Critical: {severity_breakdown['critical']}, High: {severity_breakdown['high']})"
     )
-    logger.info(f"MTTR - Critical: {mttr['critical_mttr_days']} days, High: {mttr['high_mttr_days']} days")
     logger.info(f"Stale Criticals (>90d): {stale_criticals['count']}")
-    logger.info(f"Closed (last 90d): {closed_vulns['total_count']}")
 
     return {
         "current_total": current_vulns["total_count"],
@@ -605,28 +301,40 @@ def collect_enhanced_security_metrics(config: dict, baseline: dict) -> dict:
         "mttr": mttr,
         "stale_criticals": stale_criticals,
         "age_distribution": age_distribution,
-        "closed_count_90d": closed_vulns["total_count"],
+        "closed_count_90d": 0,
         "collected_at": datetime.now().isoformat(),
     }
 
 
 def load_existing_baseline():
-    """Load existing ArmorCode baseline to track against"""
-    # Try data/ folder first (preferred location), then .tmp/
-    baseline_files = ["data/armorcode_baseline.json", ".tmp/armorcode_baseline.json"]
+    """Load ArmorCode security targets and product list."""
+    if not SECURITY_TARGETS_PATH.exists():
+        logger.warning(f"Security targets not found: {SECURITY_TARGETS_PATH}")
+        return None
 
-    for baseline_file in baseline_files:
-        if os.path.exists(baseline_file):
-            with open(baseline_file, encoding="utf-8") as f:
-                baseline = json.load(f)
+    targets = json.loads(SECURITY_TARGETS_PATH.read_text(encoding="utf-8"))
+    baseline_total = targets["baseline_total"]
+    target_pct = targets["target_pct"]
+    target_count = round(baseline_total * (1 - target_pct))
 
-            vuln_count = baseline.get("total_vulnerabilities") or baseline.get("vulnerability_count")
-            logger.info(f"Loaded existing baseline: {vuln_count} vulns on {baseline.get('baseline_date')}")
-            logger.info(f"Tracking {len(baseline.get('products', []))} products")
-            return baseline
+    result: dict = {
+        "total_vulnerabilities": baseline_total,
+        "vulnerability_count": baseline_total,
+        "target_vulnerabilities": target_count,
+        "target_count": target_count,
+        "baseline_date": targets["baseline_date"],
+        "target_date": targets["target_date"],
+        "products": [],
+    }
 
-    logger.warning("No existing baseline found")
-    return None
+    # Populate product names from ID map if available (for backward compat with async collector)
+    if ID_MAP_PATH.exists():
+        id_map = json.loads(ID_MAP_PATH.read_text(encoding="utf-8"))
+        result["products"] = list(id_map.keys())
+
+    logger.info(f"Loaded baseline: {baseline_total} vulns, target: {target_count}")
+    logger.info(f"Tracking {len(result['products'])} products")
+    return result
 
 
 def save_security_metrics(metrics: dict, output_file: str = ".tmp/observatory/security_history.json"):

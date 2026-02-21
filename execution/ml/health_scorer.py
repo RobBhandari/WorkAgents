@@ -37,7 +37,7 @@ logger = get_logger(__name__)
 _QUALITY_HISTORY = Path(".tmp/observatory/quality_history.json")
 _SECURITY_HISTORY = Path(".tmp/observatory/security_history.json")
 _EXPLOITABLE_HISTORY = Path(".tmp/observatory/exploitable_history.json")
-_SECURITY_BASELINE = Path("data/armorcode_baseline.json")
+_SECURITY_BASELINE = Path("data/security_targets.json")
 
 # June 30 target date
 _TARGET_DATE = datetime(2026, 6, 30)
@@ -174,14 +174,17 @@ class SecurityForecaster:
         }
 
     def _load_baseline(self) -> tuple[int, int]:
-        """Load baseline and target counts from armorcode_baseline.json."""
+        """Load baseline and target counts from security_targets.json."""
         if not self.baseline_file.exists():
             logger.warning("Baseline file not found, using defaults", extra={"file": str(self.baseline_file)})
             return 246, 74
 
         data = json.loads(self.baseline_file.read_text(encoding="utf-8"))
-        baseline = int(data.get("vulnerability_count", data.get("total_vulnerabilities", 246)))
-        target = int(data.get("target_count", data.get("target_vulnerabilities", round(baseline * 0.3))))
+        baseline = int(
+            data.get("baseline_total", data.get("vulnerability_count", data.get("total_vulnerabilities", 246)))
+        )
+        target_pct = float(data.get("target_pct", 0.70))
+        target = int(data.get("target_count", data.get("target_vulnerabilities", round(baseline * (1 - target_pct)))))
         return baseline, target
 
     def _load_weeks(self, baseline_count: int = 246) -> list[dict]:

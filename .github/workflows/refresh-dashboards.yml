@@ -124,8 +124,8 @@ jobs:
           # Main ADO baseline
           echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
 
-          # ArmorCode baseline
-          echo '${{ secrets.BASELINE_ARMORCODE }}' > data/armorcode_baseline.json
+          # ArmorCode product ID map (from ARMORCODE_ID_MAP secret)
+          echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
 
           # Project-specific baselines (if configured)
           # Note: No if-test needed - jq will handle empty input gracefully
@@ -274,8 +274,8 @@ jobs:
           # Main ADO baseline
           echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
 
-          # ArmorCode baseline
-          echo '${{ secrets.BASELINE_ARMORCODE }}' > data/armorcode_baseline.json
+          # ArmorCode product ID map (from ARMORCODE_ID_MAP secret)
+          echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
 
           # Project-specific baselines (if configured)
           # Note: No if-test needed - jq will handle empty input gracefully
@@ -590,17 +590,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Pull latest remote changes FIRST to avoid rebase conflicts on push
-          git pull --rebase
-
-          # Only add valid JSON files (validation passed above)
+          # Stage FIRST (before any pull) to avoid "unstaged changes" error
           git add -f .tmp/observatory/*_history.json
 
           if ! git diff --staged --quiet; then
             echo "📝 Committing genericized history files..."
             git commit -m "Update metrics history (genericized) - $(date +'%Y-%m-%d')"
-            # Use -X ours so that if a race condition causes another conflict,
-            # we always prefer the freshly-generated data from this run
+            # Pull with rebase after committing; -X ours prefers our fresh data on conflict
             git pull --rebase -X ours
             git push
             echo "✅ History files committed and pushed to public repo"
