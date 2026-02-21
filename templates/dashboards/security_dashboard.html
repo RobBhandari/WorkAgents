@@ -617,6 +617,22 @@
         rows.forEach(r => tbody.appendChild(r));
     }
 
+    // Update the Overview summary cards to reflect filtered counts
+    function updateOverviewCards(totalCritical, totalHigh, productCount) {
+        const total = totalCritical + totalHigh;
+        document.querySelectorAll('.summary-grid .summary-card').forEach(card => {
+            const label = card.querySelector('.label');
+            const valueEl = card.querySelector('.value');
+            if (!label || !valueEl) return;
+            switch (label.textContent.trim()) {
+                case 'Priority Findings': valueEl.textContent = total; break;
+                case 'Critical':          valueEl.textContent = totalCritical; break;
+                case 'High':              valueEl.textContent = totalHigh; break;
+                case 'Products':          valueEl.textContent = productCount; break;
+            }
+        });
+    }
+
     // Filter product table by category (Code / Cloud / Infrastructure / All)
     function filterProductsByCategory(btn, cat) {
         document.querySelectorAll('.product-filter-bar button').forEach(b => b.classList.remove('active'));
@@ -633,6 +649,51 @@
         document.querySelectorAll('tr.bucket-row[data-bucket]').forEach(row => {
             row.classList.toggle('bucket-filtered', cat !== 'all' && row.dataset.bucket !== cat);
         });
+
+        // 3. Update product row cells + recalculate Overview tile
+        let totalCritical = 0, totalHigh = 0, visibleProducts = 0;
+        document.querySelectorAll('tbody tr.data-row').forEach(row => {
+            const hidden = row.classList.contains('category-hidden');
+
+            // Resolve counts for this row under the active filter
+            let crit, high;
+            if (cat === 'all') {
+                crit = parseInt(row.dataset.totalCritical || '0');
+                high = parseInt(row.dataset.totalHigh     || '0');
+            } else {
+                // dataset API converts data-code-critical → codeCritical, etc.
+                crit = parseInt(row.dataset[cat + 'Critical'] || '0');
+                high = parseInt(row.dataset[cat + 'High']     || '0');
+            }
+
+            // Update Total / Critical / High cells (all rows, so values stay
+            // correct when a row becomes visible again on filter change)
+            row.cells[1].textContent = crit + high;
+            row.cells[2].textContent = crit;
+            row.cells[2].className   = crit > 0 ? 'critical' : '';
+            row.cells[3].textContent = high;
+            row.cells[3].className   = high > 0 ? 'high' : '';
+
+            // Update status badge to match the filtered counts
+            const badge = row.cells[4] && row.cells[4].querySelector('.status-badge');
+            if (badge) {
+                let status, cls;
+                if      (crit >= 5)  { status = 'Critical';  cls = 'action'; }
+                else if (crit > 0)   { status = 'High Risk'; cls = 'caution'; }
+                else if (high >= 10) { status = 'Monitor';   cls = 'caution'; }
+                else                 { status = 'OK';         cls = 'good'; }
+                badge.textContent = status;
+                badge.className   = `status-badge status-${cls}`;
+            }
+
+            // Accumulate for the Overview tile (visible rows only)
+            if (!hidden) {
+                visibleProducts++;
+                totalCritical += crit;
+                totalHigh     += high;
+            }
+        });
+        updateOverviewCards(totalCritical, totalHigh, visibleProducts);
     }
 
     // Sort top-level product table by column (asc → desc → original, 3-state cycle)
@@ -722,7 +783,17 @@
             <tbody>
             {% for product in products %}
                 <!-- Parent row - clickable to expand -->
-                <tr class="data-row" data-idx="{{ loop.index0 }}" data-categories="{{ product.categories|join(' ') }}" onclick="toggleDetail('detail-{{ loop.index }}', this)">
+                <tr class="data-row" data-idx="{{ loop.index0 }}"
+                    data-categories="{{ product.categories|join(' ') }}"
+                    data-total-critical="{{ product.critical }}"
+                    data-total-high="{{ product.high }}"
+                    data-code-critical="{{ product.bucket_detail.code.critical }}"
+                    data-code-high="{{ product.bucket_detail.code.high }}"
+                    data-cloud-critical="{{ product.bucket_detail.cloud.critical }}"
+                    data-cloud-high="{{ product.bucket_detail.cloud.high }}"
+                    data-infrastructure-critical="{{ product.bucket_detail.infrastructure.critical }}"
+                    data-infrastructure-high="{{ product.bucket_detail.infrastructure.high }}"
+                    onclick="toggleDetail('detail-{{ loop.index }}', this)">
                     <td>
                         <strong>{{ product.name }}</strong>
                     </td>
