@@ -254,19 +254,28 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
                 "high": h,
             }
 
-    # Stage 1e: Display records per bucket — first 50 only, no pagination (3 calls).
+    # Stage 1e: Display records per product per bucket — up to 50 per combination.
+    # Rule: each product's expandable bucket row shows up to 50 of its own findings.
     # Counts shown in the dashboard come from count_by_severity_aql (Stages 1c/1d), NOT these records.
-    logger.info("Fetching display records per bucket (50 per bucket, Production only)")
+    # Only fetches for product+bucket combinations with non-zero counts (skips empty combinations).
+    logger.info("Fetching display records per product per bucket (up to 50 each, Production only)")
     vulns_by_product: dict[str, list[VulnerabilityDetail]] = {}
-    for bucket_name, bucket_sources in BUCKET_SOURCE_MAP.items():
-        if bucket_name == "Other":
-            continue
-        records = vuln_loader.fetch_findings_aql(
-            hierarchy, environment="Production", sources=bucket_sources, page_size=50
-        )
-        for record in records:
-            if record.product:
-                vulns_by_product.setdefault(record.product, []).append(record)
+    for product_name, pid in product_id_map.items():
+        for bucket_name, bucket_sources in BUCKET_SOURCE_MAP.items():
+            if bucket_name == "Other":
+                continue
+            bucket_total = bucket_counts_by_product.get(product_name, {}).get(bucket_name, {}).get("total", 0)
+            if bucket_total == 0:
+                continue  # Skip API call — no findings in this bucket for this product
+            records = vuln_loader.fetch_findings_aql(
+                hierarchy,
+                environment="Production",
+                sources=bucket_sources,
+                page_size=50,
+                product_id=pid,
+            )
+            for record in records:
+                vulns_by_product.setdefault(product_name, []).append(record)
 
     # Compute accurate totals for header cards and history patch (from count results, not display records)
     acc_c = sum(d.get("critical", 0) for d in aql_by_product.values())
