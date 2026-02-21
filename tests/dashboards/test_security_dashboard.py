@@ -692,14 +692,13 @@ class TestBuildContext:
         assert context["show_glossary"] is True
 
 
-def _setup_loader_mock(mock_loader_class, products, critical=None, high=None):
+def _setup_loader_mock(mock_loader_class, product_id_map, critical=None, high=None):
     """Helper: configure ArmorCodeVulnerabilityLoader mock for AQL count approach."""
     mock_loader = Mock()
-    # get_product_ids returns {name -> id}
-    mock_loader.get_product_ids.return_value = {p: f"id_{i}" for i, p in enumerate(products)}
     # count_by_severity_aql returns {product_id -> count}; default all zeros
-    critical_counts = critical or {f"id_{i}": 0 for i in range(len(products))}
-    high_counts = high or {f"id_{i}": 0 for i in range(len(products))}
+    product_ids = list(product_id_map.values())
+    critical_counts = critical or dict.fromkeys(product_ids, 0)
+    high_counts = high or dict.fromkeys(product_ids, 0)
     mock_loader.count_by_severity_aql.side_effect = [critical_counts, high_counts]
     mock_loader_class.return_value = mock_loader
     return mock_loader
@@ -712,10 +711,10 @@ class TestGenerateSecurityDashboard:
     @patch("execution.dashboards.security.render_dashboard")
     @patch("execution.dashboards.security.get_config")
     @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security._load_baseline_products")
+    @patch("execution.dashboards.security._load_id_map")
     def test_generate_dashboard_success(
         self,
-        mock_load_baseline,
+        mock_load_id_map,
         mock_loader_class,
         mock_get_config,
         mock_render,
@@ -723,15 +722,16 @@ class TestGenerateSecurityDashboard:
         sample_security_metrics,
     ):
         """Test successful dashboard generation using AQL count endpoint"""
-        mock_load_baseline.return_value = ["Product1", "Product2"]
+        product_id_map = {"Product1": "id_0", "Product2": "id_1"}
+        mock_load_id_map.return_value = product_id_map
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
-        _setup_loader_mock(mock_loader_class, ["Product1", "Product2"])
+        _setup_loader_mock(mock_loader_class, product_id_map)
         mock_template.return_value = "<div>Mock HTML</div>"
         mock_render.return_value = "<html>Security Dashboard</html>"
 
         html = generate_security_dashboard()
 
-        mock_load_baseline.assert_called_once()
+        mock_load_id_map.assert_called_once()
         mock_render.assert_called_once()
         assert html == "<html>Security Dashboard</html>"
 
@@ -739,10 +739,10 @@ class TestGenerateSecurityDashboard:
     @patch("execution.dashboards.security.render_dashboard")
     @patch("execution.dashboards.security.get_config")
     @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security._load_baseline_products")
+    @patch("execution.dashboards.security._load_id_map")
     def test_generate_dashboard_with_output_path(
         self,
-        mock_load_baseline,
+        mock_load_id_map,
         mock_loader_class,
         mock_get_config,
         mock_render,
@@ -751,9 +751,10 @@ class TestGenerateSecurityDashboard:
         tmp_path,
     ):
         """Test dashboard generation with file output"""
-        mock_load_baseline.return_value = ["Product1"]
+        product_id_map = {"Product1": "id_0"}
+        mock_load_id_map.return_value = product_id_map
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
-        _setup_loader_mock(mock_loader_class, ["Product1"])
+        _setup_loader_mock(mock_loader_class, product_id_map)
         mock_template.return_value = "<div>Mock HTML</div>"
         mock_render.return_value = "<html>Security Dashboard</html>"
 
@@ -763,10 +764,10 @@ class TestGenerateSecurityDashboard:
         assert output_path.exists()
         assert output_path.read_text(encoding="utf-8") == "<html>Security Dashboard</html>"
 
-    @patch("execution.dashboards.security._load_baseline_products")
-    def test_generate_dashboard_file_not_found(self, mock_load_baseline):
-        """Test dashboard generation with missing baseline file"""
-        mock_load_baseline.side_effect = FileNotFoundError("Baseline not found")
+    @patch("execution.dashboards.security._load_id_map")
+    def test_generate_dashboard_file_not_found(self, mock_load_id_map):
+        """Test dashboard generation with missing id map file"""
+        mock_load_id_map.side_effect = FileNotFoundError("Baseline not found")
 
         with pytest.raises(FileNotFoundError, match="Baseline not found"):
             generate_security_dashboard()
@@ -774,14 +775,13 @@ class TestGenerateSecurityDashboard:
     @patch("execution.dashboards.security.render_dashboard")
     @patch("execution.dashboards.security.get_config")
     @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security._load_baseline_products")
-    def test_generate_dashboard_empty_products(
-        self, mock_load_baseline, mock_loader_class, mock_get_config, mock_render
-    ):
+    @patch("execution.dashboards.security._load_id_map")
+    def test_generate_dashboard_empty_products(self, mock_load_id_map, mock_loader_class, mock_get_config, mock_render):
         """Test dashboard generation with no vulnerabilities returns zero counts"""
-        mock_load_baseline.return_value = ["Product1"]
+        product_id_map = {"Product1": "id_0"}
+        mock_load_id_map.return_value = product_id_map
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
-        _setup_loader_mock(mock_loader_class, ["Product1"])
+        _setup_loader_mock(mock_loader_class, product_id_map)
         mock_render.return_value = "<html>Empty Dashboard</html>"
 
         html = generate_security_dashboard()
@@ -792,10 +792,10 @@ class TestGenerateSecurityDashboard:
     @patch("execution.dashboards.security.render_dashboard")
     @patch("execution.dashboards.security.get_config")
     @patch("execution.dashboards.security.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security._load_baseline_products")
+    @patch("execution.dashboards.security._load_id_map")
     def test_generate_dashboard_creates_parent_directory(
         self,
-        mock_load_baseline,
+        mock_load_id_map,
         mock_loader_class,
         mock_get_config,
         mock_render,
@@ -804,9 +804,10 @@ class TestGenerateSecurityDashboard:
         tmp_path,
     ):
         """Test that parent directories are created if needed"""
-        mock_load_baseline.return_value = ["Product1"]
+        product_id_map = {"Product1": "id_0"}
+        mock_load_id_map.return_value = product_id_map
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
-        _setup_loader_mock(mock_loader_class, ["Product1"])
+        _setup_loader_mock(mock_loader_class, product_id_map)
         mock_template.return_value = "<div>Mock HTML</div>"
         mock_render.return_value = "<html>Security Dashboard</html>"
 
