@@ -281,23 +281,22 @@ class TestLoadSecurityData:
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_load_products_success(
         self,
         mock_write,
         mock_framework,
-        mock_load_baseline,
+        mock_load_id_map,
         mock_vuln_loader_class,
         mock_get_config,
         sample_vulnerabilities,
     ):
         """Should load products from ArmorCode API."""
-        mock_load_baseline.return_value = ["Web Application", "Mobile App"]
+        mock_load_id_map.return_value = {"Web Application": "pid1", "Mobile App": "pid2"}
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.get_product_ids.return_value = {"Web Application": "pid1", "Mobile App": "pid2"}
         mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
         mock_vuln_loader_class.return_value = mock_vuln_loader
@@ -306,29 +305,28 @@ class TestLoadSecurityData:
         html, count = generate_security_dashboard_enhanced()
 
         assert count == 0
-        mock_load_baseline.assert_called_once()
+        mock_load_id_map.assert_called_once()
 
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
-    def test_load_products_api_failure(self, mock_load_baseline):
-        """Should handle baseline loading failure gracefully."""
-        mock_load_baseline.side_effect = FileNotFoundError("Baseline not found")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
+    def test_load_products_api_failure(self, mock_load_id_map):
+        """Should handle ID map loading failure gracefully."""
+        mock_load_id_map.side_effect = FileNotFoundError("ID map not found")
         html, count = generate_security_dashboard_enhanced()
         assert html == ""
         assert count == 0
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_load_products_empty_list(
-        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
+        self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
     ):
         """Should handle empty product list."""
-        mock_load_baseline.return_value = []
+        mock_load_id_map.return_value = {}
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.get_product_ids.return_value = {}
         mock_vuln_loader.count_by_severity_aql.return_value = {}
         mock_vuln_loader.fetch_findings_aql.return_value = []
         mock_vuln_loader_class.return_value = mock_vuln_loader
@@ -344,18 +342,17 @@ class TestZeroVulnProducts:
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_zero_vuln_product_appears_in_output(
-        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
+        self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
     ):
         """A product with 0 Critical/High should appear with zero counts, not be dropped."""
-        mock_load_baseline.return_value = ["Proclaim", "Web Application"]
+        mock_load_id_map.return_value = {"Proclaim": "pid2", "Web Application": "pid1"}
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        # Only Web Application has AQL findings (pid1); Proclaim gets zero-padded from baseline
-        mock_vuln_loader.get_product_ids.return_value = {"Web Application": "pid1", "Proclaim": "pid2"}
+        # Only Web Application has AQL findings (pid1); Proclaim gets zero-padded from id_map
         mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = [_make_vuln("CRITICAL", "Mend", product="Web Application")]
         mock_vuln_loader_class.return_value = mock_vuln_loader
@@ -372,27 +369,22 @@ class TestGenerateSecurityDashboardEnhanced:
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_generate_dashboard_success(
         self,
         mock_write,
         mock_framework,
-        mock_load_baseline,
+        mock_load_id_map,
         mock_vuln_loader_class,
         mock_get_config,
         sample_vulnerabilities,
     ):
         """Should generate complete dashboard HTML."""
-        mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
+        mock_load_id_map.return_value = {"Web Application": "pid1", "Mobile App": "pid2", "API Gateway": "pid3"}
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.get_product_ids.return_value = {
-            "Web Application": "pid1",
-            "Mobile App": "pid2",
-            "API Gateway": "pid3",
-        }
         mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
         mock_vuln_loader_class.return_value = mock_vuln_loader
@@ -408,14 +400,14 @@ class TestGenerateSecurityDashboardEnhanced:
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced._update_history_current_total")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_write_to_output_directory(
         self,
         mock_write,
         mock_framework,
-        mock_load_baseline,
+        mock_load_id_map,
         mock_vuln_loader_class,
         mock_update_history,
         mock_get_config,
@@ -423,10 +415,9 @@ class TestGenerateSecurityDashboardEnhanced:
         tmp_path,
     ):
         """Should write exactly one HTML file (main dashboard only, no detail pages)."""
-        mock_load_baseline.return_value = ["Web Application"]
+        mock_load_id_map.return_value = {"Web Application": "pid1"}
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        mock_vuln_loader.get_product_ids.return_value = {"Web Application": "pid1"}
         mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
         mock_vuln_loader_class.return_value = mock_vuln_loader
@@ -441,18 +432,17 @@ class TestProductionOnlyTotals:
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_uses_production_only_aql_when_hierarchy_set(
-        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
+        self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
     ):
         """When ARMORCODE_HIERARCHY is set, count_by_severity_aql is called with environment='Production'."""
-        mock_load_baseline.return_value = ["Product1"]
+        mock_load_id_map.return_value = {"Product1": "pid1"}
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
 
         mock_loader = Mock()
-        mock_loader.get_product_ids.return_value = {"Product1": "pid1"}
         mock_loader.count_by_severity_aql.return_value = {}
         mock_loader.fetch_findings_aql.return_value = []
         mock_vuln_loader_class.return_value = mock_loader
@@ -465,14 +455,14 @@ class TestProductionOnlyTotals:
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
-    @patch("execution.dashboards.security_enhanced._load_baseline_products")
+    @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_falls_back_to_hybrid_totals_when_no_hierarchy(
-        self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
+        self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
     ):
         """When ARMORCODE_HIERARCHY is not set, returns early with ('', 0) — no AQL fetch."""
-        mock_load_baseline.return_value = ["Product1"]
+        mock_load_id_map.return_value = {"Product1": "pid1"}
         mock_get_config.return_value.get_optional_env.return_value = None  # no hierarchy
 
         mock_loader = Mock()
