@@ -67,8 +67,8 @@ def sample_risk_data():
 
 @pytest.fixture
 def sample_baseline_security():
-    """Sample ArmorCode baseline data"""
-    return {"total_vulnerabilities": 500}
+    """Sample ArmorCode security targets data (security_targets.json format)"""
+    return {"baseline_total": 500}
 
 
 @pytest.fixture
@@ -371,12 +371,12 @@ def test_load_baseline_data_invalid_json(tmp_path, capsys):
     data_dir.mkdir()
 
     # Create invalid JSON file
-    with open(data_dir / "armorcode_baseline.json", "w", encoding="utf-8") as f:
+    with open(data_dir / "security_targets.json", "w", encoding="utf-8") as f:
         f.write("{invalid json")
 
     with (
         patch("os.path.exists", return_value=True),
-        patch("builtins.open", return_value=open(data_dir / "armorcode_baseline.json", encoding="utf-8")),
+        patch("builtins.open", return_value=open(data_dir / "security_targets.json", encoding="utf-8")),
     ):
         loader = TrendsDataLoader(history_dir=tmp_path)
         result = loader.load_baseline_data()
@@ -392,9 +392,9 @@ def test_load_baseline_data_partial_success(sample_baseline_security, capsys):
     """Test load_baseline_data() when only one file exists"""
     loader = TrendsDataLoader(history_dir=".tmp/observatory")
 
-    # Mock file system - only armorcode file exists
+    # Mock file system - only security_targets file exists
     def exists_side_effect(path):
-        return "armorcode_baseline.json" in path
+        return "security_targets.json" in path
 
     with (
         patch("os.path.exists", side_effect=exists_side_effect),
