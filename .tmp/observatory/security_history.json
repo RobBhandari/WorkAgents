@@ -93,111 +93,6 @@
           "note": "Age calculation disabled - date fields not available in GraphQL schema"
         },
         "closed_count_90d": 0,
-        "collected_at": "2026-02-06T18:41:20.029888",
-        "baseline_reference": {
-          "baseline_date": "2025-12-01",
-          "baseline_count": 246,
-          "target_count": 74
-        }
-      },
-      "config": {
-        "lookback_days": 90,
-        "stale_threshold_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-06",
-      "week_number": 6,
-      "metrics": {
-        "current_total": 279,
-        "severity_breakdown": {
-          "critical": 8,
-          "high": 271,
-          "total": 279
-        },
-        "product_breakdown": {
-          "Product G": {
-            "critical": 0,
-            "high": 2,
-            "total": 2
-          },
-          "Product H": {
-            "critical": 0,
-            "high": 10,
-            "total": 10
-          },
-          "Product A": {
-            "critical": 1,
-            "high": 66,
-            "total": 67
-          },
-          "Product E": {
-            "critical": 2,
-            "high": 66,
-            "total": 68
-          },
-          "Product I": {
-            "critical": 0,
-            "high": 30,
-            "total": 30
-          },
-          "Product J": {
-            "critical": 0,
-            "high": 13,
-            "total": 13
-          },
-          "Product K": {
-            "critical": 5,
-            "high": 21,
-            "total": 26
-          },
-          "Product C": {
-            "critical": 0,
-            "high": 15,
-            "total": 15
-          },
-          "Product L": {
-            "critical": 0,
-            "high": 15,
-            "total": 15
-          },
-          "Product M": {
-            "critical": 0,
-            "high": 13,
-            "total": 13
-          },
-          "Product B": {
-            "critical": 0,
-            "high": 15,
-            "total": 15
-          },
-          "Product F": {
-            "critical": 0,
-            "high": 5,
-            "total": 5
-          }
-        },
-        "mttr": {
-          "critical_mttr_days": null,
-          "high_mttr_days": null,
-          "critical_sample_size": 0,
-          "high_sample_size": 0,
-          "note": "MTTR calculation disabled - date fields not available in GraphQL schema"
-        },
-        "stale_criticals": {
-          "count": 8,
-          "threshold_days": 90,
-          "items": [],
-          "note": "Age calculation disabled - date fields not available in GraphQL schema"
-        },
-        "age_distribution": {
-          "median_age_days": null,
-          "p85_age_days": null,
-          "p95_age_days": null,
-          "sample_size": 0,
-          "note": "Age calculation disabled - date fields not available in GraphQL schema"
-        },
-        "closed_count_90d": 0,
         "collected_at": "2026-02-06T22:38:52.762520",
         "baseline_reference": {
           "baseline_date": "2025-12-01",
@@ -5659,6 +5554,121 @@
         },
         "closed_count_90d": 0,
         "collected_at": "2026-02-21T12:33:53.280557",
+        "baseline_reference": {
+          "baseline_date": "2025-12-01",
+          "baseline_count": 246,
+          "target_count": 74
+        }
+      },
+      "config": {
+        "lookback_days": 90,
+        "stale_threshold_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-21",
+      "week_number": 8,
+      "metrics": {
+        "current_total": 12475,
+        "severity_breakdown": {
+          "critical": 539,
+          "high": 11936,
+          "total": 12475
+        },
+        "product_breakdown": {
+          "Product G": {
+            "critical": 0,
+            "high": 2,
+            "total": 2
+          },
+          "Product H": {
+            "critical": 2,
+            "high": 16,
+            "total": 18
+          },
+          "Product A": {
+            "critical": 1,
+            "high": 61,
+            "total": 62
+          },
+          "Product E": {
+            "critical": 2,
+            "high": 50,
+            "total": 52
+          },
+          "Product I": {
+            "critical": 67,
+            "high": 312,
+            "total": 379
+          },
+          "Product J": {
+            "critical": 0,
+            "high": 15,
+            "total": 15
+          },
+          "Product K": {
+            "critical": 467,
+            "high": 11405,
+            "total": 11872
+          },
+          "Product C": {
+            "critical": 0,
+            "high": 21,
+            "total": 21
+          },
+          "Product L": {
+            "critical": 0,
+            "high": 15,
+            "total": 15
+          },
+          "Product M": {
+            "critical": 0,
+            "high": 14,
+            "total": 14
+          },
+          "Product B": {
+            "critical": 0,
+            "high": 15,
+            "total": 15
+          },
+          "Product D": {
+            "critical": 0,
+            "high": 0,
+            "total": 0
+          },
+          "Product N": {
+            "critical": 0,
+            "high": 0,
+            "total": 0
+          },
+          "Product F": {
+            "critical": 0,
+            "high": 10,
+            "total": 10
+          }
+        },
+        "mttr": {
+          "critical_mttr_days": null,
+          "high_mttr_days": null,
+          "critical_sample_size": 0,
+          "high_sample_size": 0,
+          "note": "MTTR calculation disabled - date fields not available in GraphQL schema"
+        },
+        "stale_criticals": {
+          "count": 539,
+          "threshold_days": 90,
+          "items": [],
+          "note": "Age calculation disabled - date fields not available in GraphQL schema"
+        },
+        "age_distribution": {
+          "median_age_days": null,
+          "p85_age_days": null,
+          "p95_age_days": null,
+          "sample_size": 0,
+          "note": "Age calculation disabled - date fields not available in GraphQL schema"
+        },
+        "closed_count_90d": 0,
+        "collected_at": "2026-02-21T12:53:53.343524",
         "baseline_reference": {
           "baseline_date": "2025-12-01",
           "baseline_count": 246,
