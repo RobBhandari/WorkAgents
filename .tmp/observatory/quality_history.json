@@ -5,57 +5,6 @@
       "week_number": 8,
       "projects": [
         {
-          "project_key": "Project_A",
-          "project_name": "Product A",
-          "bug_age_distribution": {
-            "median_age_days": 352.7,
-            "p85_age_days": 574.9,
-            "p95_age_days": 816.6,
-            "sample_size": 240,
-            "ages_distribution": {
-              "0-7_days": 1,
-              "8-30_days": 16,
-              "31-90_days": 26,
-              "90+_days": 197
-            }
-          },
-          "mttr": {
-            "mttr_days": 19.7,
-            "median_mttr_days": 12.9,
-            "p85_mttr_days": 53.8,
-            "p95_mttr_days": 55.0,
-            "sample_size": 29,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 6,
-              "7-30_days": 14,
-              "30+_days": 6
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 73,
-          "open_bugs_count": 240,
-          "excluded_security_bugs": {
-            "total": 12,
-            "open": 1
-          },
-          "collected_at": "2026-02-17T18:45:44.385263"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-17",
-      "week_number": 8,
-      "projects": [
-        {
           "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
@@ -17598,6 +17547,351 @@
             "open": 0
           },
           "collected_at": "2026-02-21T20:30:41.154179"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-21",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Access_Legal_Case_Management",
+          "project_name": "Product A",
+          "bug_age_distribution": {
+            "median_age_days": 444.4,
+            "p85_age_days": 605.5,
+            "p95_age_days": 822.2,
+            "sample_size": 177,
+            "ages_distribution": {
+              "0-7_days": 2,
+              "8-30_days": 9,
+              "31-90_days": 9,
+              "90+_days": 157
+            }
+          },
+          "mttr": {
+            "mttr_days": 25.5,
+            "median_mttr_days": 17.9,
+            "p85_mttr_days": 55.0,
+            "p95_mttr_days": 55.6,
+            "sample_size": 25,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 3,
+              "7-30_days": 10,
+              "30+_days": 9
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 45,
+          "open_bugs_count": 177,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 1
+          },
+          "collected_at": "2026-02-21T20:49:59.167234"
+        },
+        {
+          "project_key": "LawFusion",
+          "project_name": "Access LawFusion",
+          "bug_age_distribution": {
+            "median_age_days": 330.4,
+            "p85_age_days": 535.8,
+            "p95_age_days": 630.4,
+            "sample_size": 11,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 0,
+              "90+_days": 10
+            }
+          },
+          "mttr": {
+            "mttr_days": null,
+            "median_mttr_days": null,
+            "p85_mttr_days": null,
+            "p95_mttr_days": null,
+            "sample_size": 0,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 0,
+              "7-30_days": 0,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 1,
+          "open_bugs_count": 11,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 9
+          },
+          "collected_at": "2026-02-21T20:49:59.123572"
+        },
+        {
+          "project_key": "Learning_Content_Legal",
+          "project_name": "Product O",
+          "bug_age_distribution": {
+            "median_age_days": null,
+            "p85_age_days": null,
+            "p95_age_days": null,
+            "sample_size": 0,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 0,
+              "31-90_days": 0,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 5.4,
+            "median_mttr_days": 0.9,
+            "p85_mttr_days": 11.1,
+            "p95_mttr_days": 18.3,
+            "sample_size": 5,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 1,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 5,
+          "open_bugs_count": 0,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-21T20:49:58.833093"
+        },
+        {
+          "project_key": "LegalBricks",
+          "project_name": "Access LegalBricks",
+          "bug_age_distribution": {
+            "median_age_days": 10.9,
+            "p85_age_days": 22.7,
+            "p95_age_days": 33.2,
+            "sample_size": 8,
+            "ages_distribution": {
+              "0-7_days": 2,
+              "8-30_days": 5,
+              "31-90_days": 1,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 4.5,
+            "median_mttr_days": 1.8,
+            "p85_mttr_days": 8.5,
+            "p95_mttr_days": 16.0,
+            "sample_size": 51,
+            "mttr_distribution": {
+              "0-1_days": 20,
+              "1-7_days": 21,
+              "7-30_days": 9,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 59,
+          "open_bugs_count": 8,
+          "excluded_security_bugs": {
+            "total": 21,
+            "open": 4
+          },
+          "collected_at": "2026-02-21T20:49:58.882776"
+        },
+        {
+          "project_key": "Legal_Compliance",
+          "project_name": "Product E",
+          "bug_age_distribution": {
+            "median_age_days": 56.8,
+            "p85_age_days": 79.5,
+            "p95_age_days": 86.1,
+            "sample_size": 2,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 1,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 5.2,
+            "median_mttr_days": 0.7,
+            "p85_mttr_days": 11.1,
+            "p95_mttr_days": 16.7,
+            "sample_size": 4,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 0,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 6,
+          "open_bugs_count": 2,
+          "excluded_security_bugs": {
+            "total": 7,
+            "open": 9
+          },
+          "collected_at": "2026-02-21T20:49:58.782070"
+        },
+        {
+          "project_key": "Legal_InCase",
+          "project_name": "Access Legal InCase",
+          "bug_age_distribution": {
+            "median_age_days": 69.3,
+            "p85_age_days": 107.7,
+            "p95_age_days": 172.7,
+            "sample_size": 20,
+            "ages_distribution": {
+              "0-7_days": 3,
+              "8-30_days": 5,
+              "31-90_days": 8,
+              "90+_days": 4
+            }
+          },
+          "mttr": {
+            "mttr_days": 13.3,
+            "median_mttr_days": 4.8,
+            "p85_mttr_days": 17.6,
+            "p95_mttr_days": 63.2,
+            "sample_size": 13,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 7,
+              "7-30_days": 1,
+              "30+_days": 2
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 29,
+          "open_bugs_count": 20,
+          "excluded_security_bugs": {
+            "total": 29,
+            "open": 20
+          },
+          "collected_at": "2026-02-21T20:49:59.254733"
+        },
+        {
+          "project_key": "Legal_Proclaim",
+          "project_name": "Access Legal Product D",
+          "bug_age_distribution": {
+            "median_age_days": 114.9,
+            "p85_age_days": 417.6,
+            "p95_age_days": 537.1,
+            "sample_size": 16,
+            "ages_distribution": {
+              "0-7_days": 4,
+              "8-30_days": 2,
+              "31-90_days": 1,
+              "90+_days": 9
+            }
+          },
+          "mttr": {
+            "mttr_days": 16.0,
+            "median_mttr_days": 6.9,
+            "p85_mttr_days": 39.0,
+            "p95_mttr_days": 50.0,
+            "sample_size": 59,
+            "mttr_distribution": {
+              "0-1_days": 14,
+              "1-7_days": 16,
+              "7-30_days": 16,
+              "30+_days": 13
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 66,
+          "open_bugs_count": 16,
+          "excluded_security_bugs": {
+            "total": 4,
+            "open": 2
+          },
+          "collected_at": "2026-02-21T20:49:59.213428"
+        },
+        {
+          "project_key": "One_Office",
+          "project_name": "One Office",
+          "bug_age_distribution": {
+            "median_age_days": 161.3,
+            "p85_age_days": 390.7,
+            "p95_age_days": 568.1,
+            "sample_size": 50,
+            "ages_distribution": {
+              "0-7_days": 4,
+              "8-30_days": 2,
+              "31-90_days": 15,
+              "90+_days": 29
+            }
+          },
+          "mttr": {
+            "mttr_days": 17.0,
+            "median_mttr_days": 14.1,
+            "p85_mttr_days": 23.9,
+            "p95_mttr_days": 51.0,
+            "sample_size": 11,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 4,
+              "7-30_days": 6,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 32,
+          "open_bugs_count": 50,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-21T20:49:59.134630"
         }
       ],
       "config": {
