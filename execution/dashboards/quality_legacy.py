@@ -52,9 +52,7 @@ def build_summary_cards(summary_stats: dict[str, Any]) -> str:
     return render_template("dashboards/quality_summary_cards.html", cards=cards)
 
 
-def generate_distribution_section(
-    title: str, distribution: dict[str, Any], bucket_type: str, unit: str
-) -> str:
+def generate_distribution_section(title: str, distribution: dict[str, Any], bucket_type: str, unit: str) -> str:
     """
     Generate a distribution section with colored buckets.
 
