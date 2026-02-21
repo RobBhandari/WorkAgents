@@ -32,43 +32,31 @@ from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
+ID_MAP_PATH = Path("data/armorcode_id_map.json")
 
-def _load_baseline_products() -> list[str]:
+
+def _load_id_map() -> dict[str, str]:
     """
-    Load product names from ArmorCode baseline file.
+    Load product name → ID mapping from data/armorcode_id_map.json.
+
+    In CI/CD this file is written from the ARMORCODE_ID_MAP GitHub secret.
+    Locally, run: python scripts/fetch_armorcode_id_map.py
 
     Returns:
-        List of product names to track
+        Dict mapping product_name -> product_id
 
     Raises:
-        FileNotFoundError: If baseline file doesn't exist
-        ValueError: If baseline has invalid format
+        FileNotFoundError: If id map file doesn't exist
     """
-    # Try data/ folder first (CI/CD), then .tmp/ (local dev)
-    baseline_paths = [
-        Path("data/armorcode_baseline.json"),
-        Path(".tmp/armorcode_baseline.json"),
-    ]
-
-    for baseline_path in baseline_paths:
-        if baseline_path.exists():
-            logger.info(f"Loading baseline from {baseline_path}")
-            with open(baseline_path, encoding="utf-8") as f:
-                baseline = json.load(f)
-
-            products: list[str] = baseline.get("products", [])
-            if not products:
-                raise ValueError(f"No products found in baseline: {baseline_path}")
-
-            logger.info(f"Tracking {len(products)} products from baseline")
-            return products
-
-    raise FileNotFoundError(
-        "ArmorCode baseline not found. Expected:\n"
-        "  - data/armorcode_baseline.json (CI/CD)\n"
-        "  - .tmp/armorcode_baseline.json (local dev)\n"
-        "Run: python execution/armorcode_baseline.py"
-    )
+    if not ID_MAP_PATH.exists():
+        raise FileNotFoundError(
+            f"{ID_MAP_PATH} not found. "
+            "In CI/CD this is written from the ARMORCODE_ID_MAP secret. "
+            "Locally, run: python scripts/fetch_armorcode_id_map.py"
+        )
+    result: dict[str, str] = json.loads(ID_MAP_PATH.read_text(encoding="utf-8"))
+    logger.info(f"Loaded {len(result)} products from {ID_MAP_PATH}")
+    return result
 
 
 def generate_security_dashboard(output_path: Path | None = None) -> str:
@@ -97,8 +85,9 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
     logger.info("Generating security dashboard")
 
     # Step 1: Query ArmorCode API — 2 AQL count calls regardless of product count
-    logger.info("Loading product list from baseline")
-    products = _load_baseline_products()
+    logger.info("Loading product ID map")
+    product_id_map = _load_id_map()  # {name -> id}
+    id_to_name = {v: k for k, v in product_id_map.items()}
 
     hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
     if not hierarchy:
@@ -108,16 +97,13 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
 
     logger.info("Querying ArmorCode API for Production Critical + High counts (2 API calls)")
     loader = ArmorCodeVulnerabilityLoader()
-    product_id_map = loader.get_product_ids(products)  # {name -> id}
-    id_to_name = {v: k for k, v in product_id_map.items()}
-
     critical_counts = loader.count_by_severity_aql("Critical", hierarchy)
     high_counts = loader.count_by_severity_aql("High", hierarchy)
 
-    # Build metrics directly from count results — no detail records needed
+    # Build metrics for products appearing in AQL results (hierarchy-scoped)
     metrics_by_product: dict[str, SecurityMetrics] = {}
-    for product_name in products:
-        pid = product_id_map.get(product_name, "")
+    for pid in set(critical_counts) | set(high_counts):
+        product_name = id_to_name.get(pid, pid)
         c = critical_counts.get(pid, 0)
         h = high_counts.get(pid, 0)
         metrics_by_product[product_name] = SecurityMetrics(
