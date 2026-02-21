@@ -1,0 +1,316 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Engineering Health{% endblock %}
+{% block meta_description %}Predictive engineering health dashboard - bug forecasts, security posture, anomaly detection{% endblock %}
+
+{% block header_title %}Engineering Health{% endblock %}
+{% block header_subtitle %}Predictive analytics: bug forecasts · security posture · anomaly detection{% endblock %}
+{% block footer_context %}Engineering Health Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Anomaly banner ─────────────────────────────────── */
+    .anomaly-banner {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: #fff;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    .anomaly-banner .banner-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .anomaly-banner strong { font-size: 1rem; display: block; margin-bottom: 4px; }
+
+    /* ── Product health table ───────────────────────────── */
+    .health-score-cell {
+        font-size: 1.1rem;
+        font-weight: 700;
+        width: 60px;
+        text-align: center;
+    }
+    .score-healthy  { color: #10b981; }
+    .score-at-risk  { color: #f59e0b; }
+    .score-critical { color: #ef4444; }
+
+    .trend-label { font-size: 0.8rem; color: var(--text-secondary); }
+
+    /* Detail row (expandable) */
+    .detail-row td { padding: 12px 16px 12px 32px; }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px 24px;
+        font-size: 0.9rem;
+    }
+    .detail-grid .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        margin-bottom: 2px;
+    }
+    .detail-grid .detail-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .anomaly-note {
+        margin-top: 8px;
+        font-size: 0.85rem;
+        color: #f59e0b;
+        border-left: 3px solid #f59e0b;
+        padding-left: 10px;
+    }
+
+    /* ── Security callout ──────────────────────────────── */
+    .security-callout {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-left: 4px solid #667eea;
+        border-radius: 8px;
+        padding: 14px 18px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 8px;
+    }
+    .security-callout strong { color: var(--text-primary); }
+
+    @media (max-width: 600px) {
+        .detail-grid { grid-template-columns: 1fr 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Expandable product rows
+    function toggleRow(row) {
+        const isExpanded = row.classList.contains('expanded');
+        row.classList.toggle('expanded');
+        const detailRow = row.nextElementSibling;
+        if (detailRow && detailRow.classList.contains('detail-row')) {
+            detailRow.style.display = isExpanded ? 'none' : 'table-row';
+        }
+    }
+
+    // Glossary toggle
+    function toggleGlossary() {
+        const content = document.getElementById('glossary-content');
+        const toggle = document.getElementById('glossary-toggle');
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            if (toggle) toggle.textContent = '▲';
+        } else {
+            content.style.display = 'none';
+            if (toggle) toggle.textContent = '▼';
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Critical anomaly banner ──────────────────────────────────────────── -->
+{% if org.has_critical_anomaly %}
+<div class="anomaly-banner">
+    <span class="banner-icon">🚨</span>
+    <div>
+        <strong>Critical Anomaly Detected This Week</strong>
+        Bug counts for <strong>{{ org.critical_anomaly_names }}</strong> are
+        statistically outside the normal range (&gt;3σ from historical mean).
+        Immediate investigation recommended.
+    </div>
+</div>
+{% elif org.warning_anomaly_names %}
+<div class="anomaly-banner" style="background: linear-gradient(135deg, #d97706, #b45309);">
+    <span class="banner-icon">⚠️</span>
+    <div>
+        <strong>Warning: Unusual Activity Detected</strong>
+        Bug counts for <strong>{{ org.warning_anomaly_names }}</strong> are
+        above their normal range (2–3σ from historical mean). Monitor closely.
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Summary cards ────────────────────────────────────────────────────── -->
+<div class="section">
+    <h2>Overview</h2>
+    <div class="summary-grid">
+        {% for card in summary_cards %}
+        {{ card|safe }}
+        {% endfor %}
+    </div>
+
+    <!-- Security forecast detail -->
+    <div class="security-callout">
+        <strong>Security forecast (June 30 target):</strong>
+        {{ org.security_callout }}
+        Trajectory: <strong>{{ org.org_security_trajectory }}</strong>.
+    </div>
+</div>
+
+<!-- ── Product health table ─────────────────────────────────────────────── -->
+<div class="section">
+    <h2>Product Health ({{ org.total_products }} Products)</h2>
+    <p style="font-size:0.85rem; color: var(--text-secondary); margin-bottom:4px;">
+        Sorted worst-first. <strong>Click any row</strong> to expand bug forecast and security details.
+        Score = Bug trend (0–50) + Security posture (0–50).
+    </p>
+    <p style="font-size:0.8rem; color: var(--text-secondary); margin-bottom:12px;">
+        <strong>Current bugs</strong> = open ADO bugs not in Closed/Removed state and not Triage=Rejected.
+        <strong>Exploitable vulns</strong> = CISA KEV catalogue matches (ArmorCode).
+    </p>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th style="text-align:center">Score</th>
+                    <th>Status</th>
+                    <th>Bug Trend</th>
+                    <th style="text-align:center">Current Bugs</th>
+                    <th>Anomaly</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in product_rows %}
+                <tr class="parent-row expandable" onclick="toggleRow(this)" style="cursor:pointer" title="Click to expand">
+                    <td><span style="color:var(--text-secondary);font-size:0.75rem;margin-right:6px;">▶</span><strong>{{ row.product_name }}</strong></td>
+                    <td class="health-score-cell
+                        {% if row.health_score >= 70 %}score-healthy
+                        {% elif row.health_score >= 40 %}score-at-risk
+                        {% else %}score-critical{% endif %}">
+                        {{ row.health_score }}
+                    </td>
+                    <td>
+                        <span class="status-badge {{ row.status_class }}">
+                            {{ row.health_status }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="{{ row.trend_class }}">{{ row.trend_arrow }}</span>
+                        <span class="trend-label">{{ row.bug_trend }}</span>
+                    </td>
+                    <td style="text-align:center">{{ row.current_bugs }}</td>
+                    <td>{{ row.anomaly_badge | safe }}</td>
+                </tr>
+                <tr class="detail-row" style="display:none">
+                    <td colspan="6">
+                        <div class="detail-grid">
+                            <div>
+                                <div class="detail-label">Bug Score</div>
+                                <div class="detail-value">{{ row.bug_score }} / 50</div>
+                            </div>
+                            <div>
+                                <div class="detail-label">Security Score</div>
+                                <div class="detail-value">{{ row.security_score }} / 50</div>
+                            </div>
+                            <div>
+                                <div class="detail-label">4-Week Bug Forecast</div>
+                                <div class="detail-value">{{ row.forecast_4wk }}</div>
+                            </div>
+                            <div>
+                                <div class="detail-label">Exploitable Vulns</div>
+                                <div class="detail-value">{{ row.exploitable_total }}</div>
+                            </div>
+                            <div>
+                                <div class="detail-label">Trend Direction</div>
+                                <div class="detail-value">
+                                    <span class="{{ row.trend_class }}">{{ row.trend_arrow }}</span>
+                                    {{ row.bug_trend | capitalize }}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="detail-label">Composite Score</div>
+                                <div class="detail-value">{{ row.health_score }} / 100</div>
+                            </div>
+                        </div>
+                        {% if row.has_anomaly and row.anomaly_description %}
+                        <div class="anomaly-note">
+                            ⚠ {{ row.anomaly_description }}
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center; color: var(--text-secondary); padding: 24px;">
+                        No product data available. Ensure quality history has been collected.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── Glossary ─────────────────────────────────────────────────────────── -->
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>📖 What These Metrics Mean</h3>
+        <span id="glossary-toggle" class="glossary-toggle">▼</span>
+    </div>
+    <div id="glossary-content" class="glossary-content" style="display:none">
+
+        <div class="glossary-item">
+            <div class="glossary-term">Health Score (0–100)</div>
+            <div class="glossary-definition">
+                Composite score per product. <strong>Bug Score (0–50)</strong> reflects the
+                direction of the open-bug trend (improving = 50 pts, stable = 35, worsening = 15)
+                with a penalty if an anomaly is detected this week.
+                <strong>Security Score (0–50)</strong> is based on exploitable vulnerability
+                density relative to the highest-risk product in the org — fewer exploitable
+                vulns means a higher score.
+                <strong>Healthy ≥ 70 · At Risk 40–69 · Critical &lt; 40.</strong>
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">4-Week Bug Forecast</div>
+            <div class="glossary-definition">
+                Linear regression trained on the product's historical open-bug count
+                (up to 52 weeks). Projects the most-likely count 4 weeks ahead.
+                The <strong>confidence interval (CI)</strong> shows the 95% prediction range
+                based on historical variability — wider = less predictable trend.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Anomaly Detection</div>
+            <div class="glossary-definition">
+                A z-score is computed for this week's bug count relative to the product's
+                historical distribution. <strong>Warning (⚠)</strong> = 2–3σ from mean.
+                <strong>Critical spike (🚨)</strong> = &gt;3σ — highly unusual and warrants
+                immediate investigation. Normal fluctuations within ±2σ are not flagged.
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Target Probability (Security)</div>
+            <div class="glossary-definition">
+                P(hitting the June 30 security target) computed by fitting a linear regression
+                to the org-level weekly vulnerability count history and extrapolating to the
+                deadline. The probability uses a normal distribution over model residuals —
+                higher residual variance = wider uncertainty = probability closer to 50%.
+                Target = 70% reduction from the Dec 2025 baseline of 246 vulns (target: 74).
+            </div>
+        </div>
+
+        <div class="glossary-item">
+            <div class="glossary-term">Exploitable Vulns</div>
+            <div class="glossary-definition">
+                Count of findings whose CVE appears in the
+                <strong>CISA Known Exploited Vulnerabilities (KEV)</strong> catalogue for this
+                product (latest collection week). A product scoring full security points has
+                zero exploitable vulns. Log-scaling prevents one dominant product from
+                collapsing the scoring spread across the portfolio.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
