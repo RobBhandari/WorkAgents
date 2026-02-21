@@ -217,6 +217,9 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
             name = id_to_name.get(str(pid))
             if name:
                 aql_by_product.setdefault(name, {"critical": 0, "high": 0})["high"] = count
+        # Compute production-only bucket counts from AQL (replaces broken GraphQL _fetch_source_counts).
+        # 6 total AQL calls (3 buckets × 2 severities) replace O(products × sources × severities) GraphQL calls.
+        bucket_counts_by_product = _compute_bucket_aql_counts(vuln_loader, hierarchy, id_to_name)
     else:
         logger.warning("ARMORCODE_HIERARCHY not set — totals include all environments")
 
@@ -427,13 +430,42 @@ def _build_context(
     }
 
 
-def _sanitize_filename(product_name: str) -> str:
-    """Convert product name to safe filename"""
-    # Replace spaces and special characters
-    safe_name = product_name.replace(" ", "_").replace("/", "_").replace("\\", "_")
-    # Remove other problematic characters
-    safe_name = "".join(c for c in safe_name if c.isalnum() or c in ("_", "-"))
-    return safe_name
+def _compute_bucket_aql_counts(
+    loader: ArmorCodeVulnerabilityLoader,
+    hierarchy: str,
+    id_to_name: dict[str, str],
+) -> dict[str, dict | None]:
+    """
+    Compute per-product bucket counts using AQL (production-only, source-filtered).
+
+    Makes 6 AQL calls total (3 buckets × 2 severities) and returns counts for all
+    products in the hierarchy at once — far more efficient than per-product GraphQL.
+
+    Returns:
+        {product_name: {bucket: {"total": int, "critical": int, "high": int}}}
+    """
+    result: dict[str, dict | None] = {}
+    for bucket in sorted(set(SOURCE_BUCKET_MAP.values())):
+        for severity in ["Critical", "High"]:
+            counts = loader.count_by_bucket_aql(bucket, severity, hierarchy)
+            for pid, count in counts.items():
+                if count == 0:
+                    continue
+                name = id_to_name.get(str(pid))
+                if not name:
+                    continue
+                product_buckets = result.get(name)
+                if product_buckets is None:
+                    product_buckets = {}
+                    result[name] = product_buckets
+                product_buckets.setdefault(bucket, {"total": 0, "critical": 0, "high": 0})
+                product_buckets[bucket]["total"] += count
+                if severity == "Critical":
+                    product_buckets[bucket]["critical"] += count
+                else:
+                    product_buckets[bucket]["high"] += count
+    logger.info("Bucket AQL counts computed", extra={"products_with_buckets": len(result)})
+    return result
 
 
 def _escape_html(text: str) -> str:
