@@ -450,10 +450,15 @@ def _build_context(
         expanded_html = _generate_bucket_expanded_content(vulns, bucket_counts=product_bucket_counts)
 
         categories = []
-        if product_bucket_counts:
-            for bucket in ["CODE", "CLOUD", "INFRASTRUCTURE"]:
-                if product_bucket_counts.get(bucket, {}).get("total", 0) > 0:
-                    categories.append(bucket.lower())
+        bucket_detail: dict[str, dict] = {}
+        for bucket in ["CODE", "CLOUD", "INFRASTRUCTURE"]:
+            bkt_data = (product_bucket_counts or {}).get(bucket, {})
+            bucket_detail[bucket.lower()] = {
+                "critical": bkt_data.get("critical", 0),
+                "high": bkt_data.get("high", 0),
+            }
+            if bkt_data.get("total", 0) > 0:
+                categories.append(bucket.lower())
 
         products.append(
             {
@@ -467,6 +472,7 @@ def _build_context(
                 "status_priority": status_priority,
                 "expanded_html": expanded_html,
                 "categories": categories,
+                "bucket_detail": bucket_detail,
             }
         )
 
