@@ -343,46 +343,47 @@ class TestFiltersInTemplates:
         test_template_dir = template_dir / "test"
         test_template_dir.mkdir(exist_ok=True)
 
-        test_template = test_template_dir / "filter_test.html"
+        test_template = test_template_dir / "format_number_filter_test.html"
         test_template.write_text("{{ value|format_number }}")
 
         try:
-            html = render_dashboard("test/filter_test.html", {"value": 1234567}, inject_defaults=False)
+            html = render_dashboard("test/format_number_filter_test.html", {"value": 1234567}, inject_defaults=False)
             assert "1,234,567" in html
         finally:
             test_template.unlink()
-            test_template_dir.rmdir()
+            if not any(test_template_dir.iterdir()):
+                test_template_dir.rmdir()
 
-    @pytest.mark.skip(reason="Flaky test - passes alone but fails in full suite (test isolation issue)")
     def test_format_percent_filter_in_template(self):
         """Test format_percent filter works in template"""
         template_dir = Path(__file__).parent.parent.parent / "templates"
         test_template_dir = template_dir / "test"
         test_template_dir.mkdir(exist_ok=True)
 
-        test_template = test_template_dir / "filter_test.html"
+        test_template = test_template_dir / "format_percent_filter_test.html"
         test_template.write_text("{{ value|format_percent(2) }}")
 
         try:
-            html = render_dashboard("test/filter_test.html", {"value": 65.432}, inject_defaults=False)
+            html = render_dashboard("test/format_percent_filter_test.html", {"value": 65.432}, inject_defaults=False)
             assert "65.43%" in html
         finally:
             test_template.unlink()
-            test_template_dir.rmdir()
+            if not any(test_template_dir.iterdir()):
+                test_template_dir.rmdir()
 
-    @pytest.mark.skip(reason="TODO: Fix trend_arrow filter - unrelated to discover_projects changes")
     def test_trend_arrow_filter_in_template(self):
         """Test trend_arrow filter works in template"""
         template_dir = Path(__file__).parent.parent.parent / "templates"
         test_template_dir = template_dir / "test"
         test_template_dir.mkdir(exist_ok=True)
 
-        test_template = test_template_dir / "filter_test.html"
+        test_template = test_template_dir / "trend_arrow_filter_test.html"
         test_template.write_text("{{ value|trend_arrow }}")
 
         try:
-            html = render_dashboard("test/filter_test.html", {"value": -5}, inject_defaults=False)
+            html = render_dashboard("test/trend_arrow_filter_test.html", {"value": -5}, inject_defaults=False)
             assert "↓" in html
         finally:
             test_template.unlink()
-            test_template_dir.rmdir()
+            if not any(test_template_dir.iterdir()):
+                test_template_dir.rmdir()
