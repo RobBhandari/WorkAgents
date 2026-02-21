@@ -297,8 +297,9 @@ class TestLoadSecurityData:
         mock_load_baseline.return_value = ["Web Application", "Mobile App"]
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
+        mock_vuln_loader.get_product_ids.return_value = {"Web Application": "pid1", "Mobile App": "pid2"}
+        mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
-        mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
@@ -327,8 +328,9 @@ class TestLoadSecurityData:
         mock_load_baseline.return_value = []
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
+        mock_vuln_loader.get_product_ids.return_value = {}
+        mock_vuln_loader.count_by_severity_aql.return_value = {}
         mock_vuln_loader.fetch_findings_aql.return_value = []
-        mock_vuln_loader.group_by_product.return_value = {}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
@@ -352,11 +354,10 @@ class TestZeroVulnProducts:
         mock_load_baseline.return_value = ["Proclaim", "Web Application"]
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
-        # Only Web Application has AQL findings; Proclaim gets zero-padded from baseline
+        # Only Web Application has AQL findings (pid1); Proclaim gets zero-padded from baseline
+        mock_vuln_loader.get_product_ids.return_value = {"Web Application": "pid1", "Proclaim": "pid2"}
+        mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = [_make_vuln("CRITICAL", "Mend", product="Web Application")]
-        mock_vuln_loader.group_by_product.return_value = {
-            "Web Application": [_make_vuln("CRITICAL", "Mend", product="Web Application")]
-        }
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
@@ -387,8 +388,13 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_load_baseline.return_value = ["Web Application", "Mobile App", "API Gateway"]
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
+        mock_vuln_loader.get_product_ids.return_value = {
+            "Web Application": "pid1",
+            "Mobile App": "pid2",
+            "API Gateway": "pid3",
+        }
+        mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
-        mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style>.card{}</style>", "<script></script>")
 
@@ -420,8 +426,9 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_load_baseline.return_value = ["Web Application"]
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
+        mock_vuln_loader.get_product_ids.return_value = {"Web Application": "pid1"}
+        mock_vuln_loader.count_by_severity_aql.return_value = {"pid1": 2}
         mock_vuln_loader.fetch_findings_aql.return_value = sample_vulnerabilities
-        mock_vuln_loader.group_by_product.return_value = {"Web Application": sample_vulnerabilities}
         mock_vuln_loader_class.return_value = mock_vuln_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
@@ -440,19 +447,21 @@ class TestProductionOnlyTotals:
     def test_uses_production_only_aql_when_hierarchy_set(
         self, mock_write, mock_framework, mock_load_baseline, mock_vuln_loader_class, mock_get_config
     ):
-        """When ARMORCODE_HIERARCHY is set, fetch_findings_aql is called with environment='Production'."""
+        """When ARMORCODE_HIERARCHY is set, count_by_severity_aql is called with environment='Production'."""
         mock_load_baseline.return_value = ["Product1"]
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
 
         mock_loader = Mock()
+        mock_loader.get_product_ids.return_value = {"Product1": "pid1"}
+        mock_loader.count_by_severity_aql.return_value = {}
         mock_loader.fetch_findings_aql.return_value = []
-        mock_loader.group_by_product.return_value = {}
         mock_vuln_loader_class.return_value = mock_loader
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
         generate_security_dashboard_enhanced()
 
-        mock_loader.fetch_findings_aql.assert_called_once_with("test/hierarchy", environment="Production")
+        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy", environment="Production")
+        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy", environment="Production")
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
@@ -474,6 +483,7 @@ class TestProductionOnlyTotals:
 
         assert html == ""
         assert count == 0
+        mock_loader.count_by_severity_aql.assert_not_called()
         mock_loader.fetch_findings_aql.assert_not_called()
 
 
