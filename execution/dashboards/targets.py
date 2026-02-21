@@ -181,10 +181,11 @@ async def _query_current_state(baselines: dict[str, dict]) -> dict[str, int]:
 
 async def _query_current_armorcode_vulns() -> int:
     """
-    Query current HIGH + CRITICAL vulnerabilities from ArmorCode API.
+    Query current Critical + High vulnerabilities from ArmorCode API (Production only).
 
-    Uses the AQL count endpoint — 2 API calls total regardless of product count.
-    Filters to Production environment, consistent with security_enhanced.py.
+    Uses the AQL count endpoint — 2 API calls, no record limit.
+    Filters to Production environment, identical to security_enhanced.py, so all three
+    consumers (security dashboard, index.html sparkline, target dashboard) show the same number.
 
     Returns:
         Current Critical + High vulnerability count (Production only)
@@ -198,20 +199,20 @@ async def _query_current_armorcode_vulns() -> int:
             "ARMORCODE_HIERARCHY env var not set. Add it as a GitHub secret and to your local .env file."
         )
 
-    logger.info("Querying ArmorCode API for Critical + High vulnerabilities (Production, 2 API calls)")
+    logger.info("Querying ArmorCode API for Critical + High vulnerabilities (Production only, 2 AQL calls)")
 
     loader = ArmorCodeVulnerabilityLoader()
-    critical_counts = loader.count_by_severity_aql("Critical", hierarchy)
-    high_counts = loader.count_by_severity_aql("High", hierarchy)
+    critical_counts = loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
+    high_counts = loader.count_by_severity_aql("High", hierarchy, environment="Production")
 
     total_critical = sum(critical_counts.values())
     total_high = sum(high_counts.values())
     total_vulns = total_critical + total_high
 
-    logger.info(f"Current ArmorCode vulnerabilities (Production): {total_vulns}")
-    logger.info(f"  Critical: {total_critical}")
-    logger.info(f"  High: {total_high}")
-
+    logger.info(
+        "Current ArmorCode vulnerabilities (Production only)",
+        extra={"critical": total_critical, "high": total_high, "total": total_vulns},
+    )
     return total_vulns
 
 
