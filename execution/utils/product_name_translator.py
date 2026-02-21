@@ -90,10 +90,6 @@ def translate_value(
         if fail_on_unmapped and direction == "reverse":
             _check_unmapped_generics(translated, mapping, "string value")
 
-        # Email anonymization (only for forward/genericization)
-        if direction == "forward" and "@theaccessgroup.com" in translated:
-            translated = _anonymize_emails(translated, stats)
-
         return translated
     else:
         return value
@@ -130,32 +126,6 @@ def _check_unmapped_generics(text: str, mapping: dict[str, str], context: str) -
                 f"   3. The mapping file wasn't loaded correctly\n"
                 f"   Current mapping has {len(mapping)} products: {', '.join(sorted(mapping.keys()))}"
             )
-
-
-def _anonymize_emails(text: str, stats: dict[str, int]) -> str:
-    """
-    Anonymize email addresses (replace @theaccessgroup.com with name format).
-
-    Args:
-        text: Text containing potential email addresses
-        stats: Dictionary to track anonymization counts
-
-    Returns:
-        Text with emails anonymized
-    """
-    email_pattern = r"([a-zA-Z0-9._%+-]+)@theaccessgroup\.com"
-    matches = re.findall(email_pattern, text)
-
-    anonymized = text
-    for match in matches:
-        original_email = f"{match}@theaccessgroup.com"
-        # Convert email to name format (jac.martin -> Jac Martin)
-        name_parts = match.split(".")
-        generic_name = " ".join(word.capitalize() for word in name_parts)
-        anonymized = anonymized.replace(original_email, generic_name)
-        stats["email_anonymized"] = stats.get("email_anonymized", 0) + 1
-
-    return anonymized
 
 
 def translate_history_file(
