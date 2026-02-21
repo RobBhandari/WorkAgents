@@ -590,13 +590,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Pull latest remote changes FIRST to avoid rebase conflicts on push
+          git pull --rebase
+
           # Only add valid JSON files (validation passed above)
           git add -f .tmp/observatory/*_history.json
 
           if ! git diff --staged --quiet; then
             echo "📝 Committing genericized history files..."
             git commit -m "Update metrics history (genericized) - $(date +'%Y-%m-%d')"
-            git pull --rebase
+            # Use -X ours so that if a race condition causes another conflict,
+            # we always prefer the freshly-generated data from this run
+            git pull --rebase -X ours
             git push
             echo "✅ History files committed and pushed to public repo"
           else
