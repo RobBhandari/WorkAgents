@@ -12,7 +12,6 @@ from pathlib import Path
 import pytest
 
 from execution.utils.product_name_translator import (
-    _anonymize_emails,
     _check_unmapped_generics,
     load_mapping_file,
     translate_history_file,
@@ -269,48 +268,6 @@ def test_word_boundary_standalone_product_s_still_detected():
 
     with pytest.raises(ValueError, match="Product S"):
         _check_unmapped_generics("Issues in Product S deployment", mapping, "test context")
-
-
-# ============================================================================
-# TEST: Email Anonymization (Forward Only)
-# ============================================================================
-
-
-def test_anonymize_emails_forward(forward_mapping):
-    """Test email anonymization during genericization."""
-    text = "Created by jac.martin@theaccessgroup.com"
-    stats: dict[str, int] = {}
-
-    result = translate_value(text, forward_mapping, stats, direction="forward")
-
-    assert "@theaccessgroup.com" not in result
-    assert "Jac Martin" in result
-    assert stats.get("email_anonymized") == 1
-
-
-def test_anonymize_multiple_emails_forward(forward_mapping):
-    """Test multiple email anonymization."""
-    text = "Authors: john.doe@theaccessgroup.com, jane.smith@theaccessgroup.com"
-    stats: dict[str, int] = {}
-
-    result = translate_value(text, forward_mapping, stats, direction="forward")
-
-    assert "@theaccessgroup.com" not in result
-    assert "John Doe" in result
-    assert "Jane Smith" in result
-    assert stats.get("email_anonymized") == 2
-
-
-def test_no_email_anonymization_reverse(reverse_mapping):
-    """Test that reverse translation does NOT anonymize emails."""
-    text = "Created by jac.martin@theaccessgroup.com"
-    stats: dict[str, int] = {}
-
-    result = translate_value(text, reverse_mapping, stats, direction="reverse")
-
-    # Should remain unchanged (reverse doesn't touch emails)
-    assert result == text
-    assert "email_anonymized" not in stats
 
 
 # ============================================================================

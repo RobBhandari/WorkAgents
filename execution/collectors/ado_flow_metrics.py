@@ -131,6 +131,25 @@ async def collect_flow_metrics_for_project(rest_client, project: dict, config: d
     }
 
 
+def _strip_detail_lists_for_history(project: dict) -> dict:
+    """Remove detail lists containing work item titles before persisting to history.
+
+    History files are only used for trend sparklines — they need aggregate
+    numbers, not individual work item titles or debug values.
+
+    Fields removed per work type:
+    - aging_items.items: individual work item titles (can contain customer/client names)
+    - lead_time.raw_values: debug lead time samples
+    """
+    import copy
+
+    p = copy.deepcopy(project)
+    for wtype_data in p.get("work_type_metrics", {}).values():
+        wtype_data.get("aging_items", {}).pop("items", None)
+        wtype_data.get("lead_time", {}).pop("raw_values", None)
+    return p
+
+
 def save_flow_metrics(metrics: dict, output_file: str = ".tmp/observatory/flow_history.json") -> bool:
     """
     Save flow metrics to history file.
@@ -166,8 +185,12 @@ def save_flow_metrics(metrics: dict, output_file: str = ".tmp/observatory/flow_h
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
+    # Strip detail lists before persisting — history is for trend sparklines only
+    stripped_projects = [_strip_detail_lists_for_history(p) for p in metrics.get("projects", [])]
+    history_entry = {**metrics, "projects": stripped_projects}
+
     # Add new week entry
-    history["weeks"].append(metrics)
+    history["weeks"].append(history_entry)
 
     # Keep only last N weeks for quarter/annual analysis
     history["weeks"] = history["weeks"][-history_retention.WEEKS_TO_RETAIN :]
