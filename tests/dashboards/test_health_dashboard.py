@@ -490,8 +490,8 @@ class TestGenerateHealthDashboard:
         exploit_file.write_text(json.dumps(sample_exploitable))
         security_file = tmp_path / "security_history.json"
         security_file.write_text(json.dumps({"weeks": []}))
-        baseline_file = tmp_path / "armorcode_baseline.json"
-        baseline_file.write_text(json.dumps({"vulnerability_count": 246, "target_count": 74}))
+        baseline_file = tmp_path / "security_targets.json"
+        baseline_file.write_text(json.dumps({"baseline_total": 246, "target_pct": 0.70}))
         output_file = tmp_path / "health_dashboard.html"
 
         with (
