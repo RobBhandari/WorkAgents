@@ -449,6 +449,12 @@ def _build_context(
 
         expanded_html = _generate_bucket_expanded_content(vulns, bucket_counts=product_bucket_counts)
 
+        categories = []
+        if product_bucket_counts:
+            for bucket in ["CODE", "CLOUD", "INFRASTRUCTURE"]:
+                if product_bucket_counts.get(bucket, {}).get("total", 0) > 0:
+                    categories.append(bucket.lower())
+
         products.append(
             {
                 "name": product_name,
@@ -460,6 +466,7 @@ def _build_context(
                 "status_class": status_class,
                 "status_priority": status_priority,
                 "expanded_html": expanded_html,
+                "categories": categories,
             }
         )
 
@@ -467,12 +474,22 @@ def _build_context(
     # then by critical count (descending), then by product name
     products.sort(key=lambda p: (p["status_priority"], -p["critical"], p["name"]))
 
+    code_count = sum(counts.get("CODE", {}).get("total", 0) for counts in bucket_counts_by_product.values())
+    cloud_count = sum(counts.get("CLOUD", {}).get("total", 0) for counts in bucket_counts_by_product.values())
+    infra_count = sum(counts.get("INFRASTRUCTURE", {}).get("total", 0) for counts in bucket_counts_by_product.values())
+
     return {
         "framework_css": framework_css,
         "framework_js": framework_js,
         "summary_cards": summary_cards,
         "products": products,
         "show_glossary": False,
+        "category_counts": {
+            "all": len(products),
+            "code": code_count,
+            "cloud": cloud_count,
+            "infrastructure": infra_count,
+        },
     }
 
 
@@ -545,7 +562,7 @@ def _generate_bucket_expanded_content(
         # No fetched detail for this bucket (truncated beyond 50-record limit)
         if fetched_count == 0:
             table_body += (
-                f'<tr class="bucket-row expandable" onclick="toggleBucketDetail(this)">'
+                f'<tr class="bucket-row expandable" data-bucket="{bucket_name.lower()}" onclick="toggleBucketDetail(this)">'
                 f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
                 f"<td>{total}</td><td{crit_cls}>{critical}</td><td{high_cls}>{high}</td>"
                 f'</tr><tr class="bucket-detail-row" style="display:none;">'
@@ -589,7 +606,7 @@ def _generate_bucket_expanded_content(
         )
 
         table_body += (
-            f'<tr class="bucket-row expandable" onclick="toggleBucketDetail(this)">'
+            f'<tr class="bucket-row expandable" data-bucket="{bucket_name.lower()}" onclick="toggleBucketDetail(this)">'
             f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
             f"<td>{total}</td>"
             f"<td{crit_cls}>{critical}</td>"

@@ -93,7 +93,7 @@ def query_current_vulnerabilities_aql(
         prod_critical = critical_by_id.get(product_id, 0)
         prod_high = high_by_id.get(product_id, 0)
         prod_total = prod_critical + prod_high
-        product_breakdown[product_name] = {
+        product_breakdown[product_id] = {
             "critical": prod_critical,
             "high": prod_high,
             "total": prod_total,
