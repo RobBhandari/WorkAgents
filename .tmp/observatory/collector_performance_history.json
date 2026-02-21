@@ -5,9 +5,9 @@
       "week_number": 8,
       "collectors": [
         {
-          "timestamp": "2026-02-21T23:39:02.515225+00:00",
+          "timestamp": "2026-02-21T23:42:54.428562+00:00",
           "collector_name": "quality",
-          "execution_time_ms": 10.45,
+          "execution_time_ms": 10.93,
           "success": true,
           "project_count": 0,
           "api_call_count": 0,
@@ -17,7 +17,7 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-21T23:39:02.529377+00:00",
+          "timestamp": "2026-02-21T23:42:54.449720+00:00",
           "collector_name": "quality",
           "execution_time_ms": 0.01,
           "success": true,
@@ -29,9 +29,9 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-21T23:39:02.560211+00:00",
+          "timestamp": "2026-02-21T23:42:54.486295+00:00",
           "collector_name": "quality",
-          "execution_time_ms": 0.02,
+          "execution_time_ms": 0.01,
           "success": true,
           "project_count": 12,
           "api_call_count": 0,
@@ -41,9 +41,9 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-21T23:39:02.574880+00:00",
+          "timestamp": "2026-02-21T23:42:54.502049+00:00",
           "collector_name": "deployment",
-          "execution_time_ms": 0.02,
+          "execution_time_ms": 0.01,
           "success": false,
           "project_count": 8,
           "api_call_count": 0,
@@ -53,7 +53,7 @@
           "error_type": "ValueError"
         },
         {
-          "timestamp": "2026-02-21T23:39:02.598933+00:00",
+          "timestamp": "2026-02-21T23:42:54.523638+00:00",
           "collector_name": "quality",
           "execution_time_ms": 0.02,
           "success": true,
@@ -65,7 +65,7 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-21T23:39:02.612554+00:00",
+          "timestamp": "2026-02-21T23:42:54.536303+00:00",
           "collector_name": "quality",
           "execution_time_ms": 0.01,
           "success": true,
@@ -77,7 +77,7 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-21T23:39:02.628434+00:00",
+          "timestamp": "2026-02-21T23:42:54.562988+00:00",
           "collector_name": "quality",
           "execution_time_ms": 0.02,
           "success": true,
@@ -89,9 +89,9 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-21T23:39:02.645767+00:00",
+          "timestamp": "2026-02-21T23:42:54.584325+00:00",
           "collector_name": "deployment",
-          "execution_time_ms": 0.76,
+          "execution_time_ms": 0.73,
           "success": false,
           "project_count": 0,
           "api_call_count": 1,
