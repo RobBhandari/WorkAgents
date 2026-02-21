@@ -424,6 +424,26 @@ async def collect_risk_metrics_for_project(rest_client: AzureDevOpsRESTClient, p
     }
 
 
+def _strip_detail_lists_for_history(project: dict) -> dict:
+    """Remove internal file path detail lists before persisting to history.
+
+    History files are only used for trend sparklines — they need aggregate
+    numbers, not individual internal file paths or coupling details.
+
+    Fields removed:
+    - code_churn.hot_paths: internal repository file paths
+    - knowledge_distribution.single_owner_files: file paths + employee names
+    - module_coupling.top_coupled_pairs: pairs of internal file paths
+    """
+    import copy
+
+    p = copy.deepcopy(project)
+    p.get("code_churn", {}).pop("hot_paths", None)
+    p.get("knowledge_distribution", {}).pop("single_owner_files", None)
+    p.get("module_coupling", {}).pop("top_coupled_pairs", None)
+    return p
+
+
 def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json") -> bool:
     """
     Save risk metrics to history file.
@@ -470,8 +490,12 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
+    # Strip internal detail lists before persisting — history is for trend sparklines only
+    stripped_projects = [_strip_detail_lists_for_history(p) for p in metrics.get("projects", [])]
+    history_entry = {**metrics, "projects": stripped_projects}
+
     # Add new week entry
-    history["weeks"].append(metrics)
+    history["weeks"].append(history_entry)
 
     # Keep only last 52 weeks (12 months) for quarter/annual analysis
     history["weeks"] = history["weeks"][-52:]

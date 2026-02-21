@@ -431,6 +431,26 @@ async def collect_deployment_metrics_for_project(
     }
 
 
+def _strip_pipeline_names_for_history(project: dict) -> dict:
+    """Remove per-pipeline breakdown dicts before persisting to history.
+
+    History files are only used for trend sparklines — they need aggregate
+    numbers, not individual pipeline names (which can contain product names).
+
+    Fields removed:
+    - deployment_frequency.by_pipeline: pipeline name → count mapping
+    - build_success_rate.by_pipeline: pipeline name → result breakdown
+    - build_duration.by_pipeline: pipeline name → duration stats
+    """
+    import copy
+
+    p = copy.deepcopy(project)
+    p.get("deployment_frequency", {}).pop("by_pipeline", None)
+    p.get("build_success_rate", {}).pop("by_pipeline", None)
+    p.get("build_duration", {}).pop("by_pipeline", None)
+    return p
+
+
 def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/deployment_history.json") -> bool:
     """
     Save deployment metrics to history file.
@@ -466,8 +486,12 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
+    # Strip pipeline name detail before persisting — history is for trend sparklines only
+    stripped_projects = [_strip_pipeline_names_for_history(p) for p in metrics.get("projects", [])]
+    history_entry = {**metrics, "projects": stripped_projects}
+
     # Add new week entry
-    history["weeks"].append(metrics)
+    history["weeks"].append(history_entry)
 
     # Keep only last 52 weeks (12 months) for quarter/annual analysis
     history["weeks"] = history["weeks"][-52:]

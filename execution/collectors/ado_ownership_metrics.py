@@ -592,6 +592,28 @@ async def collect_ownership_metrics_for_project(
     }
 
 
+def _strip_pii_for_history(project: dict) -> dict:
+    """Remove PII and internal detail fields before persisting to history.
+
+    History files are only used for trend sparklines — they need aggregate
+    numbers, not individual names or internal work item details.
+
+    Fields removed:
+    - unassigned.items: individual work item titles/IDs
+    - assignment_distribution.top_assignees: employee display names
+    - developer_active_days.developers: employee names with commit counts
+    - area_unassigned_stats.areas: internal ADO area path strings
+    """
+    import copy
+
+    p = copy.deepcopy(project)
+    p.get("unassigned", {}).pop("items", None)
+    p.get("assignment_distribution", {}).pop("top_assignees", None)
+    p.get("developer_active_days", {}).pop("developers", None)
+    p.get("area_unassigned_stats", {}).pop("areas", None)
+    return p
+
+
 def save_ownership_metrics(metrics: dict, output_file: str = ".tmp/observatory/ownership_history.json") -> bool:
     """
     Save ownership metrics to history file using atomic writes.
@@ -725,11 +747,11 @@ class OwnershipCollector:
                 else:
                     project_metrics.append(result)  # type: ignore[arg-type]
 
-            # Save results
+            # Save results — strip PII/detail lists before persisting to history
             week_metrics = {
                 "week_date": datetime.now().strftime("%Y-%m-%d"),
                 "week_number": datetime.now().isocalendar()[1],
-                "projects": project_metrics,
+                "projects": [_strip_pii_for_history(p) for p in project_metrics],
                 "config": self.config,
             }
 
