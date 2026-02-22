@@ -17,6 +17,9 @@ Public API (import from here for cross-module use):
         find_leading_indicators,                   # Phase C: correlation analysis
         decompose_delta, get_top_contributors,     # Phase C: causal analysis
         generate_insight, generate_template_insight,  # Phase C: insight generation
+        cluster_projects,                          # Phase D: project clustering
+        classify_project_health,                   # Phase D: health classification
+        generate_report,                           # Phase D: intelligence report
     )
 
 Modules:
@@ -31,19 +34,26 @@ Modules:
     correlation_analyzer  — Cross-metric Pearson correlation + leading indicators (Phase C)
     causal_analyzer       — Causal decomposition / root-cause attribution (Phase C)
     insight_generator     — Template-based and LLM-stub insight generation (Phase C)
+    clustering            — KMeans/DBSCAN project clustering (Phase D)
+    health_classifier     — RandomForest health classification (Phase D)
+    narrative_engine      — Intelligence report generation (Phase D)
 
 Phase:
     Phase B — Intelligence Foundation (Week 3-6)
     Phase C — Predictive Platform (Week 7-10)
+    Phase D — Advanced ML + Reporting (Week 11-14)
 """
 
 from execution.intelligence.anomaly_detector import detect_anomalies
 from execution.intelligence.causal_analyzer import decompose_delta, get_top_contributors
 from execution.intelligence.change_point_detector import detect_change_points
+from execution.intelligence.clustering import cluster_projects
 from execution.intelligence.correlation_analyzer import compute_correlation_matrix, find_leading_indicators
 from execution.intelligence.feature_engineering import VALID_METRICS, load_features
 from execution.intelligence.forecast_engine import compute_trend_strength, forecast_metric
+from execution.intelligence.health_classifier import classify_project_health
 from execution.intelligence.insight_generator import generate_insight, generate_template_insight
+from execution.intelligence.narrative_engine import generate_report
 from execution.intelligence.opportunity_scorer import find_top_opportunities
 from execution.intelligence.risk_scorer import compute_all_risks, compute_project_risk
 from execution.intelligence.scenario_simulator import compare_scenarios, run_monte_carlo
@@ -76,4 +86,10 @@ __all__ = [
     # Phase C: Insight generation
     "generate_insight",
     "generate_template_insight",
+    # Phase D: Project clustering
+    "cluster_projects",
+    # Phase D: Health classification
+    "classify_project_health",
+    # Phase D: Intelligence report
+    "generate_report",
 ]
