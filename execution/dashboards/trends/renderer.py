@@ -94,7 +94,7 @@ class TrendsRenderer:
             from execution.ml.alert_engine import AlertEngine
 
             engine = AlertEngine(db_path=_DB_PATH)
-            alerts = engine.load_alerts(limit=20)
+            alerts = engine.load_alerts(limit=100)
             return [
                 {
                     "dashboard": a.dashboard,

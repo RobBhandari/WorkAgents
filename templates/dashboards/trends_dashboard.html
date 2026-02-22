@@ -409,10 +409,7 @@ div.header {
     cursor: pointer;
 }
 .alerts-list {
-    padding: 0 20px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    padding: 0 20px 16px;
 }
 .alerts-toolbar {
     display: flex;
@@ -420,7 +417,7 @@ div.header {
     gap: 10px;
     padding: 8px 0 10px;
     border-bottom: 1px solid rgba(255,255,255,0.07);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 .alerts-search {
     flex: 1;
@@ -450,23 +447,36 @@ div.header {
     border-color: rgba(99,102,241,0.5);
     color: #fff;
 }
-.alert-row {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    font-size: 0.85rem;
-    padding: 6px 10px;
-    border-radius: 4px;
-    background: rgba(255,255,255,0.03);
+/* Card grid */
+.alerts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
 }
-.alert-row.hidden { display: none; }
+.alert-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+.alert-card.hidden { display: none; }
+.alert-card-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
 .alert-badge {
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: 0.68rem;
+    font-weight: 700;
     padding: 2px 7px;
     border-radius: 3px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     flex-shrink: 0;
+    text-transform: uppercase;
 }
 .badge-critical { background: rgba(239,68,68,0.25); color: #fca5a5; }
 .badge-high     { background: rgba(239,68,68,0.15); color: #fca5a5; }
@@ -474,16 +484,40 @@ div.header {
 .badge-medium   { background: rgba(245,158,11,0.15); color: #fcd34d; }
 .alert-dash {
     color: var(--color-blue-400);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.alert-msg { color: var(--color-slate-300); flex: 1; }
+.alert-msg {
+    color: var(--color-slate-300);
+    font-size: 0.82rem;
+    line-height: 1.35;
+}
+/* Show-more footer */
+.alerts-show-more {
+    margin-top: 10px;
+    text-align: center;
+}
+.alerts-show-more-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 5px;
+    color: var(--color-slate-400);
+    cursor: pointer;
+    font-size: 0.78rem;
+    padding: 5px 16px;
+}
+.alerts-show-more-btn:hover {
+    background: rgba(255,255,255,0.09);
+    color: #fff;
+}
 .alerts-no-results {
     color: var(--color-slate-500);
     font-size: 0.82rem;
-    padding: 6px 10px;
+    padding: 6px 0;
     display: none;
 }
 </style>
@@ -506,14 +540,21 @@ div.header {
             <input class="alerts-search" id="alerts-search" type="text" placeholder="Search alerts..." oninput="applyAlertFilters()">
             <div class="alerts-filter-btns" id="alerts-filter-btns"></div>
         </div>
-        {% for alert in active_alerts %}
-        <div class="alert-row alert-{{ alert.severity }}" data-severity="{{ alert.severity }}" data-text="{{ alert.message|lower }} {{ alert.dashboard|lower }}">
-            <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity|upper }}</span>
-            <span class="alert-dash">{{ alert.dashboard }}</span>
-            <span class="alert-msg">{{ alert.message }}</span>
+        <div class="alerts-grid" id="alerts-grid">
+            {% for alert in active_alerts %}
+            <div class="alert-card alert-{{ alert.severity }}" data-severity="{{ alert.severity }}" data-text="{{ alert.message|lower }} {{ alert.dashboard|lower }}" data-index="{{ loop.index0 }}">
+                <div class="alert-card-header">
+                    <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity }}</span>
+                    <span class="alert-dash">{{ alert.dashboard }}</span>
+                </div>
+                <div class="alert-msg">{{ alert.message }}</div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
         <div class="alerts-no-results" id="alerts-no-results">No alerts match your search.</div>
+        <div class="alerts-show-more" id="alerts-show-more" style="display: none">
+            <button class="alerts-show-more-btn" id="alerts-show-more-btn" onclick="toggleShowMore()"></button>
+        </div>
     </div>
 </div>
 {% endif %}
@@ -733,14 +774,18 @@ div.header {
     renderMetrics();
 
     // Alerts banner toggle
+    const ALERTS_PAGE_SIZE = 12;
+    let alertsExpanded = false;
+
     function toggleAlerts() {
         const list = document.getElementById('alerts-list');
         const btn  = document.getElementById('alerts-toggle-btn');
         if (!list) return;
         if (list.style.display === 'none') {
-            list.style.display = 'flex';
+            list.style.display = 'block';
             if (btn) btn.textContent = 'Hide';
             buildAlertFilterButtons();
+            applyAlertFilters();
         } else {
             list.style.display = 'none';
             if (btn) btn.textContent = 'Show';
@@ -748,18 +793,23 @@ div.header {
     }
     window.toggleAlerts = toggleAlerts;
 
+    function toggleShowMore() {
+        alertsExpanded = !alertsExpanded;
+        applyAlertFilters();
+    }
+    window.toggleShowMore = toggleShowMore;
+
     // Alerts search + severity filter
     let activeAlertFilter = 'all';
 
     function buildAlertFilterButtons() {
         const container = document.getElementById('alerts-filter-btns');
         if (!container || container.childElementCount > 0) return; // already built
-        const rows = document.querySelectorAll('.alert-row[data-severity]');
+        const cards = document.querySelectorAll('.alert-card[data-severity]');
         const counts = {};
-        rows.forEach(r => { const s = r.dataset.severity; counts[s] = (counts[s] || 0) + 1; });
-        // Build All button first, then one button per distinct severity actually present
+        cards.forEach(c => { const s = c.dataset.severity; counts[s] = (counts[s] || 0) + 1; });
         const severities = Object.keys(counts);
-        [{ sev: 'all', label: `All (${rows.length})` },
+        [{ sev: 'all', label: `All (${cards.length})` },
          ...severities.map(s => ({ sev: s, label: `${s.charAt(0).toUpperCase() + s.slice(1)} (${counts[s]})` }))
         ].forEach(({ sev, label }) => {
             const btn = document.createElement('button');
@@ -773,6 +823,7 @@ div.header {
 
     function setAlertFilter(sev) {
         activeAlertFilter = sev;
+        alertsExpanded = false; // reset to first page on filter change
         document.querySelectorAll('.alerts-filter-btn').forEach(b => {
             b.classList.toggle('active', b.dataset.filter === sev);
         });
@@ -781,17 +832,35 @@ div.header {
 
     function applyAlertFilters() {
         const query = (document.getElementById('alerts-search')?.value || '').toLowerCase();
-        const rows = document.querySelectorAll('.alert-row[data-severity]');
-        let visible = 0;
-        rows.forEach(row => {
-            const sevMatch = activeAlertFilter === 'all' || row.dataset.severity === activeAlertFilter;
-            const textMatch = !query || row.dataset.text.includes(query);
-            const show = sevMatch && textMatch;
-            row.classList.toggle('hidden', !show);
-            if (show) visible++;
+        const cards = document.querySelectorAll('.alert-card[data-severity]');
+        // First pass: determine which cards match the current filter/search
+        const matching = [];
+        cards.forEach(card => {
+            const sevMatch = activeAlertFilter === 'all' || card.dataset.severity === activeAlertFilter;
+            const textMatch = !query || card.dataset.text.includes(query);
+            if (sevMatch && textMatch) matching.push(card);
         });
+        // Second pass: show/hide based on match + page limit
+        cards.forEach(card => card.classList.add('hidden'));
+        const limit = alertsExpanded ? matching.length : ALERTS_PAGE_SIZE;
+        matching.slice(0, limit).forEach(card => card.classList.remove('hidden'));
+        // No-results notice
         const noResults = document.getElementById('alerts-no-results');
-        if (noResults) noResults.style.display = visible === 0 ? 'block' : 'none';
+        if (noResults) noResults.style.display = matching.length === 0 ? 'block' : 'none';
+        // Show-more button
+        const showMoreWrap = document.getElementById('alerts-show-more');
+        const showMoreBtn  = document.getElementById('alerts-show-more-btn');
+        if (showMoreWrap && showMoreBtn) {
+            const hidden = matching.length - limit;
+            if (matching.length > ALERTS_PAGE_SIZE) {
+                showMoreWrap.style.display = 'block';
+                showMoreBtn.textContent = alertsExpanded
+                    ? 'Show less'
+                    : `Show ${hidden} more`;
+            } else {
+                showMoreWrap.style.display = 'none';
+            }
+        }
     }
     window.applyAlertFilters = applyAlertFilters;
 </script>
