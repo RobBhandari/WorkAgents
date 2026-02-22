@@ -1,12 +1,14 @@
 """
-ML-powered analytics for quality metrics.
+ML-powered analytics for Observatory metrics.
 
-Simple machine learning models for:
-- Bug trend prediction
-- Anomaly detection
-- Quality forecasting
+Modules:
+- TrendPredictor: linear regression + confidence intervals for quality/bug metrics
+- AnomalyDetector: cross-metric z-score anomaly detection across all dashboards
+- AlertEngine: threshold rules + anomaly alerts persisted to SQLite
 """
 
+from .alert_engine import Alert, AlertEngine
+from .anomaly_detector import AnomalyDetector, AnomalyResult
 from .trend_predictor import TrendPredictor
 
-__all__ = ["TrendPredictor"]
+__all__ = ["TrendPredictor", "AnomalyDetector", "AnomalyResult", "AlertEngine", "Alert"]
