@@ -530,6 +530,13 @@ jobs:
           app_location: ".tmp/observatory/dashboards"
           skip_app_build: true
           skip_api_build: true
+          # production_branch ensures that:
+          #   main → production URL (your current users)
+          #   any other branch (e.g. phase-b-intelligence) → staging preview URL
+          # Scheduled runs always use main (GitHub platform guarantee), so they
+          # always deploy to production. Manual triggers from feature branches
+          # deploy to a separate staging URL that Azure creates automatically.
+          production_branch: main
 
       - name: Deployment Complete
         run: |
