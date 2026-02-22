@@ -328,6 +328,34 @@ def import_security_metrics(conn: sqlite3.Connection) -> int:
     return total
 
 
+def import_exploitable_metrics(conn: sqlite3.Connection) -> int:
+    """Import CISA KEV exploitable metrics (critical/high/medium counts) per product."""
+    weeks = _load_history(HISTORY_DIR / "exploitable_history.json")
+    cursor = conn.cursor()
+    total = 0
+
+    id_to_name = _load_armorcode_id_map()
+
+    for week in weeks:
+        week_date = week["week_date"]
+        metrics = week.get("metrics", {})
+        product_breakdown = metrics.get("product_breakdown", {})
+
+        for product_id, counts in product_breakdown.items():
+            product_name = id_to_name.get(str(product_id), f"Product {product_id}")
+            rows: list[tuple[str, float | None, str]] = [
+                ("critical_vulns", counts.get("critical"), "vulns"),
+                ("high_vulns", counts.get("high"), "vulns"),
+                ("medium_vulns", counts.get("medium"), "vulns"),
+                ("total_vulnerabilities", counts.get("total"), "vulns"),
+            ]
+            total += _insert_metrics(cursor, week_date, "exploitable", product_name, rows)
+
+    conn.commit()
+    print(f"  ✓ exploitable: {total} rows")
+    return total
+
+
 # ---------------------------------------------------------------------------
 # Rolling stats computation
 # ---------------------------------------------------------------------------
@@ -441,6 +469,7 @@ def main() -> None:
     total += import_risk_metrics(conn)
     total += import_collaboration_metrics(conn)
     total += import_security_metrics(conn)
+    total += import_exploitable_metrics(conn)
 
     print("\nComputing rolling statistics...")
     compute_rolling_stats(conn)
