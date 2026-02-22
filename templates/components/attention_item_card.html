@@ -1,0 +1,7 @@
+<div class="attention-item {{ css_class }}">
+    <div class="attention-header">
+        {% if severity_emoji %}<span class="attention-emoji">{{ severity_emoji }}</span>{% endif %}
+        <span class="attention-category">{{ category }}</span>
+    </div>
+    <div class="attention-message">{{ message }}</div>
+</div>
