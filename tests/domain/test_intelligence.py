@@ -12,8 +12,10 @@ from datetime import datetime
 import pytest
 
 from execution.domain.intelligence import (
+    ClusterResult,
     ForecastPoint,
     ForecastResult,
+    HealthClassification,
     RiskScore,
     RiskScoreComponent,
     TrendStrengthScore,
@@ -356,3 +358,77 @@ class TestRiskScore:
         """total == 40 is NOT medium (> 40 required)."""
         rs = RiskScore(project="Product_X", total=40.0)
         assert rs.level == "low"
+
+
+# ---------------------------------------------------------------------------
+# Phase D domain model tests
+# ---------------------------------------------------------------------------
+
+_TS = datetime(2025, 10, 6)
+
+
+class TestHealthClassification:
+    def test_from_json_roundtrip(self) -> None:
+        data = {
+            "timestamp": "2025-10-06T00:00:00",
+            "project": "Product_A",
+            "label": "Green",
+            "confidence": 0.92,
+            "feature_importances": {"open_bugs": 0.4, "lead_time": 0.3},
+            "model_version": "v1.0.0",
+        }
+        hc = HealthClassification.from_json(data)
+        assert hc.label == "Green"
+        assert hc.project == "Product_A"
+        assert hc.confidence == 0.92
+        assert hc.model_version == "v1.0.0"
+
+    def test_status_green(self) -> None:
+        hc = HealthClassification(timestamp=_TS, label="Green")
+        assert hc.status == "Good"
+        assert hc.status_class == "status-good"
+
+    def test_status_amber(self) -> None:
+        hc = HealthClassification(timestamp=_TS, label="Amber")
+        assert hc.status == "Caution"
+        assert hc.status_class == "status-caution"
+
+    def test_status_red(self) -> None:
+        hc = HealthClassification(timestamp=_TS, label="Red")
+        assert hc.status == "Action Needed"
+        assert hc.status_class == "status-action"
+
+    def test_from_json_defaults(self) -> None:
+        data = {"label": "Amber"}
+        hc = HealthClassification.from_json(data)
+        assert hc.confidence == 0.0
+        assert hc.feature_importances == {}
+        assert hc.model_version == ""
+        assert hc.project is None
+
+
+class TestClusterResult:
+    def test_from_dict_roundtrip(self) -> None:
+        data = {
+            "project": "Product_A",
+            "cluster_id": 2,
+            "algorithm": "kmeans",
+            "n_clusters": 3,
+            "feature_vector": {"open_bugs_trend": 0.8, "lead_time_avg": 0.5},
+        }
+        cr = ClusterResult.from_dict(data)
+        assert cr.project == "Product_A"
+        assert cr.cluster_id == 2
+        assert cr.algorithm == "kmeans"
+        assert cr.n_clusters == 3
+        assert cr.feature_vector["open_bugs_trend"] == 0.8
+
+    def test_from_dict_defaults(self) -> None:
+        data = {"project": "Product_B", "cluster_id": -1, "algorithm": "dbscan", "n_clusters": 2}
+        cr = ClusterResult.from_dict(data)
+        assert cr.feature_vector == {}
+
+    def test_dbscan_noise_point(self) -> None:
+        """DBSCAN assigns -1 to noise points — this is valid."""
+        cr = ClusterResult(project="Product_C", cluster_id=-1, algorithm="dbscan", n_clusters=3)
+        assert cr.cluster_id == -1
