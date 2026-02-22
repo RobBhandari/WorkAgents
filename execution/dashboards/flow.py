@@ -180,8 +180,8 @@ def _build_context(week_data: dict[str, Any], summary_stats: dict[str, Any]) -> 
     """
     # Get framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#10b981",
-        header_gradient_end="#059669",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=True,
         include_glossary=True,
     )

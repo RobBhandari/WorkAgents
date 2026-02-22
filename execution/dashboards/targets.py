@@ -466,8 +466,8 @@ def _build_context(summary_stats: dict[str, dict]) -> dict[str, str | dict | boo
     """
     # Get dashboard framework (CSS/JS)
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#1e40af",
-        header_gradient_end="#1e3a8a",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=False,
         include_expandable_rows=False,
         include_glossary=False,
