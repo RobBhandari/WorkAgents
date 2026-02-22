@@ -86,10 +86,26 @@ THRESHOLD_RULES: list[ThresholdRule] = [
     ThresholdRule(
         dashboard="ownership",
         metric_name="unassigned_pct",
+        threshold=75.0,
+        operator="above",
+        severity="critical",
+        message_template="{project} unassigned work is {value:.1f}% (critical — above 75%)",
+    ),
+    ThresholdRule(
+        dashboard="ownership",
+        metric_name="unassigned_pct",
         threshold=60.0,
         operator="above",
         severity="warn",
         message_template="{project} unassigned work is {value:.1f}% (above 60% threshold)",
+    ),
+    ThresholdRule(
+        dashboard="risk",
+        metric_name="single_owner_pct",
+        threshold=90.0,
+        operator="above",
+        severity="critical",
+        message_template="{project} single-owner files at {value:.1f}% (critical — above 90%)",
     ),
     ThresholdRule(
         dashboard="risk",
@@ -265,9 +281,16 @@ class AlertEngine:
         return count
 
     def _run_threshold_alerts(self, conn: sqlite3.Connection) -> int:
-        """Evaluate hard-threshold rules against latest metric values."""
+        """Evaluate hard-threshold rules against latest metric values.
+
+        Rules are evaluated in list order. Only the first matching rule fires
+        per (dashboard, project, metric) combination — so place stricter
+        (higher-severity) rules before looser ones to avoid duplicate alerts.
+        """
         cursor = conn.cursor()
         count = 0
+        # Track which (dashboard, project, metric) combos have already fired
+        fired: set[tuple[str, str, str]] = set()
 
         for rule in THRESHOLD_RULES:
             cursor.execute(
@@ -288,6 +311,11 @@ class AlertEngine:
                 )
                 if not triggered:
                     continue
+
+                key = (rule.dashboard, project_name, rule.metric_name)
+                if key in fired:
+                    continue  # a stricter rule already fired for this combo
+                fired.add(key)
 
                 message = rule.message_template.format(project=project_name, value=value)
                 conn.execute(
