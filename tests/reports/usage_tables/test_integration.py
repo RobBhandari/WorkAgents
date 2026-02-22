@@ -29,7 +29,7 @@ def sample_team_data():
         {
             "Name": ["Alice Smith", "Bob Jones", "Charlie Brown"],
             "Job Title": ["Engineer", "Manager", "Analyst"],
-            "Software Company": ["LGL", "LGL", "LGL"],
+            "Software Company": ["TEAM", "TEAM", "TEAM"],
             "Claude Access": ["Yes", "No", "Yes"],
             "Claude 30 day usage": [150, 10, 75],
             "Devin Access": ["Yes", "Yes", "No"],
@@ -102,7 +102,8 @@ class TestHtmlReportGeneration:
         """Test generating HTML report with provided data."""
         output_file = tmp_path / "test_report.html"
 
-        result_path = generate_html_report_with_data(sample_claude_data, sample_devin_data, str(output_file))
+        with patch("execution.reports.usage_tables_report.TEAM_FILTER", "TEAM"):
+            result_path = generate_html_report_with_data(sample_claude_data, sample_devin_data, str(output_file))
 
         # Verify file was created
         assert Path(result_path).exists()
@@ -119,7 +120,7 @@ class TestHtmlReportGeneration:
         assert "Charlie Brown" in html
         assert "Claude Usage (Last 30 Days)" in html
         assert "Devin Usage (Last 30 Days)" in html
-        assert "Total LGL Users" in html
+        assert "Total TEAM Users" in html
 
         # Verify statistics
         assert "3" in html  # Total users
@@ -223,16 +224,17 @@ class TestEndToEndWorkflow:
             mock_parse.return_value = mock_args
 
             # Run main
-            with pytest.raises(SystemExit) as exc_info:
-                main()
+            with patch("execution.reports.usage_tables_report.TEAM_FILTER", "TEAM"):
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
 
             # Verify successful exit
             assert exc_info.value.code == 0
 
             # Verify output
             captured = capsys.readouterr()
-            assert "SUCCESS: LGL AI Tools Usage Report Generated" in captured.out
-            assert "Total LGL Users: 3" in captured.out
+            assert "SUCCESS: TEAM AI Tools Usage Report Generated" in captured.out
+            assert "Total TEAM Users: 3" in captured.out
             assert "Claude Active Users: 3" in captured.out
 
             # Verify HTML was generated
@@ -308,8 +310,9 @@ class TestEndToEndWorkflow:
             mock_parse.return_value = mock_args
 
             # Run main
-            with pytest.raises(SystemExit) as exc_info:
-                main()
+            with patch("execution.reports.usage_tables_report.TEAM_FILTER", "TEAM"):
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
 
             # Verify browser was opened
             mock_browser.assert_called_once()
@@ -327,7 +330,7 @@ class TestPipelineIntegration:
             {
                 "Name": ["Alice", "Bob", "Charlie", "Diana"],
                 "Job Title": ["Engineer", "Manager", "Analyst", "Director"],
-                "Software Company": ["LGL", "LGL", "OTHER_TEAM", "LGL"],
+                "Software Company": ["TEAM", "TEAM", "OTHER_TEAM", "TEAM"],
                 "Claude Access": ["Yes", "No", "Yes", "Yes"],
                 "Claude 30 day usage": [150, 10, 200, 100],
                 "Devin Access": ["Yes", "Yes", "No", "Yes"],
@@ -345,8 +348,9 @@ class TestPipelineIntegration:
             mock_parse.return_value = mock_args
 
             # Run main
-            with pytest.raises(SystemExit) as exc_info:
-                main()
+            with patch("execution.reports.usage_tables_report.TEAM_FILTER", "TEAM"):
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
 
             assert exc_info.value.code == 0
 
@@ -354,7 +358,7 @@ class TestPipelineIntegration:
             with open(output_file, encoding="utf-8") as f:
                 html = f.read()
 
-            # Verify only LGL users are included
+            # Verify only TEAM users are included
             assert "Alice" in html
             assert "Bob" in html
             assert "Diana" in html

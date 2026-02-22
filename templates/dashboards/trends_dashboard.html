@@ -370,10 +370,106 @@ div.header {
 [data-theme="light"] .footer p {
     color: var(--color-slate-600) !important;
 }
+
+/* ── Alerts Banner ─────────────────────────────────────── */
+.alerts-banner {
+    background: rgba(239, 68, 68, 0.07);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 8px;
+    margin-bottom: 28px;
+    overflow: hidden;
+}
+.alerts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+}
+.alerts-icon {
+    margin-right: 8px;
+    color: var(--color-amber-500);
+}
+.alerts-title {
+    font-size: 0.9rem;
+    color: #fff;
+}
+.alerts-subtitle {
+    color: var(--color-slate-400);
+    font-weight: 400;
+}
+.alerts-toggle {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    color: var(--color-slate-400);
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+.alerts-list {
+    padding: 0 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.alert-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.03);
+}
+.alert-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+.badge-critical { background: rgba(239,68,68,0.25); color: #fca5a5; }
+.badge-high     { background: rgba(239,68,68,0.15); color: #fca5a5; }
+.badge-warn     { background: rgba(245,158,11,0.2);  color: #fcd34d; }
+.badge-medium   { background: rgba(245,158,11,0.15); color: #fcd34d; }
+.alert-dash {
+    color: var(--color-blue-400);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+}
+.alert-msg { color: var(--color-slate-300); flex: 1; }
 </style>
 {% endblock %}
 
 {% block content %}
+{% if active_alerts %}
+<!-- Active Alerts Banner -->
+<div class="alerts-banner" id="alerts-banner">
+    <div class="alerts-header" onclick="toggleAlerts()">
+        <div class="alerts-title">
+            <span class="alerts-icon">&#9888;</span>
+            <strong>{{ active_alerts|length }} Active Alert{{ 's' if active_alerts|length != 1 else '' }}</strong>
+            <span class="alerts-subtitle">— anomalies and threshold violations detected this week</span>
+        </div>
+        <button class="alerts-toggle" id="alerts-toggle-btn">Hide</button>
+    </div>
+    <div class="alerts-list" id="alerts-list">
+        {% for alert in active_alerts %}
+        <div class="alert-row alert-{{ alert.severity }}">
+            <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity|upper }}</span>
+            <span class="alert-dash">{{ alert.dashboard }}</span>
+            <span class="alert-msg">{{ alert.message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <!-- View Selector -->
 <div class="view-selector">
     <span class="view-label">View:</span>
@@ -587,5 +683,21 @@ div.header {
 
     // Initialize
     renderMetrics();
+
+    // Alerts banner toggle
+    function toggleAlerts() {
+        const list = document.getElementById('alerts-list');
+        const btn  = document.getElementById('alerts-toggle-btn');
+        if (!list) return;
+        if (list.style.display === 'none') {
+            list.style.display = 'flex';
+            if (btn) btn.textContent = 'Hide';
+        } else {
+            list.style.display = 'none';
+            if (btn) btn.textContent = 'Show';
+        }
+    }
+    // Expose globally for onclick handler
+    window.toggleAlerts = toggleAlerts;
 </script>
 {% endblock %}

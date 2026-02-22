@@ -7,12 +7,17 @@ for the Executive Trends Dashboard showing 8 key metrics with sparklines.
 """
 
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from execution.dashboards.renderer import render_dashboard
 from execution.framework import get_dashboard_framework
+
+logger = logging.getLogger(__name__)
+
+_DB_PATH = Path(".tmp/observatory/observatory.db")
 
 
 class TrendsRenderer:
@@ -73,7 +78,38 @@ class TrendsRenderer:
             "framework_js": framework_js,
             "generation_date": datetime.now().strftime("%B %d, %Y at %H:%M"),
             "timestamp": datetime.now().strftime("%B %d, %Y at %H:%M"),
+            "active_alerts": self._load_alerts(),
         }
+
+    def _load_alerts(self) -> list[dict[str, Any]]:
+        """Load active alerts from the analytics DB for template rendering.
+
+        Returns an empty list if the DB does not exist (e.g. first run before ETL).
+        Each dict has keys: dashboard, project_name, metric_name, severity, message.
+        """
+        if not _DB_PATH.exists():
+            return []
+
+        try:
+            from execution.ml.alert_engine import AlertEngine
+
+            engine = AlertEngine(db_path=_DB_PATH)
+            alerts = engine.load_alerts(limit=20)
+            return [
+                {
+                    "dashboard": a.dashboard,
+                    "project_name": a.project_name,
+                    "metric_name": a.metric_name,
+                    "metric_date": a.metric_date,
+                    "alert_type": a.alert_type,
+                    "severity": a.severity,
+                    "message": a.message,
+                }
+                for a in alerts
+            ]
+        except Exception:
+            logger.warning("Could not load alerts from analytics DB", exc_info=True)
+            return []
 
     def _generate_metrics_list(self) -> list[dict[str, Any]]:
         """Generate list of metrics with trend data for JavaScript rendering
