@@ -203,6 +203,10 @@ def security_history_file(tmp_path: Path) -> Path:
                 "metrics": {
                     "current_total": 259,
                     "severity_breakdown": {"critical": 10, "high": 249},
+                    "product_breakdown": {
+                        "101": {"critical": 10, "high": 50, "total": 60},
+                        "102": {"critical": 0, "high": 199, "total": 199},
+                    },
                 },
             }
         ]
@@ -425,30 +429,30 @@ class TestImportCollaborationMetrics:
 
 
 class TestImportSecurityMetrics:
-    def test_imports_total_vulns(self, db, tmp_path, monkeypatch, security_history_file):
+    def test_imports_per_product_rows(self, db, tmp_path, monkeypatch, security_history_file):
+        """Security metrics are imported per product, not as 'All Products' aggregate."""
+        _patch_history_dir(monkeypatch, tmp_path)
+        count = import_security_metrics(db)
+        assert count > 0
+
+        cursor = db.cursor()
+        cursor.execute("SELECT DISTINCT project_name FROM metrics WHERE dashboard='security'")
+        projects = {row[0] for row in cursor.fetchall()}
+        assert "All Products" not in projects
+        assert len(projects) == 2  # two products in fixture
+
+    def test_imports_critical_vulns_per_product(self, db, tmp_path, monkeypatch, security_history_file):
+        """Critical vuln count is stored per product."""
         _patch_history_dir(monkeypatch, tmp_path)
         import_security_metrics(db)
 
         cursor = db.cursor()
         cursor.execute(
-            "SELECT metric_value FROM metrics "
-            "WHERE metric_name='total_vulnerabilities' AND project_name='All Products'"
+            "SELECT SUM(metric_value) FROM metrics "
+            "WHERE metric_name='critical_vulns' AND dashboard='security'"
         )
-        row = cursor.fetchone()
-        assert row is not None
-        assert row[0] == 259
-
-    def test_imports_critical_vulns(self, db, tmp_path, monkeypatch, security_history_file):
-        _patch_history_dir(monkeypatch, tmp_path)
-        import_security_metrics(db)
-
-        cursor = db.cursor()
-        cursor.execute(
-            "SELECT metric_value FROM metrics " "WHERE metric_name='critical_vulns' AND project_name='All Products'"
-        )
-        row = cursor.fetchone()
-        assert row is not None
-        assert row[0] == 10
+        total = cursor.fetchone()[0]
+        assert total == 10  # 10 + 0 from fixture
 
 
 # ---------------------------------------------------------------------------
