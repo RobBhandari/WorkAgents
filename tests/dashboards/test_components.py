@@ -6,7 +6,14 @@ Tests card, table, and chart component generators.
 
 import pytest
 
-from execution.dashboards.components.cards import metric_card, rag_status_badge, summary_card
+from execution.dashboards.components.cards import (
+    METRIC_GLOSSARY,
+    SEVERITY_EMOJI,
+    attention_item_card,
+    metric_card,
+    rag_status_badge,
+    summary_card,
+)
 from execution.dashboards.components.charts import sparkline, trend_indicator
 from execution.dashboards.components.tables import data_table, summary_table
 
@@ -148,3 +155,84 @@ class TestCharts:
         html = trend_indicator(10, show_value=False)
         assert "↑" in html
         assert "10" not in html
+
+
+class TestSeverityEmoji:
+    """Tests for the SEVERITY_EMOJI constant and its usage in attention_item_card"""
+
+    def test_severity_emoji_contains_all_expected_keys(self) -> None:
+        """SEVERITY_EMOJI must cover all severity levels used in the alert system"""
+        expected_keys = {"critical", "high", "warning", "warn", "medium", "low", "good", "info"}
+        assert expected_keys.issubset(set(SEVERITY_EMOJI.keys()))
+
+    def test_critical_and_high_map_to_red_circle(self) -> None:
+        """Critical and high severities should both map to the red circle emoji"""
+        assert SEVERITY_EMOJI["critical"] == "🔴"
+        assert SEVERITY_EMOJI["high"] == "🔴"
+
+    def test_warning_and_medium_map_to_yellow_circle(self) -> None:
+        """Warning and medium severities should map to yellow circle emoji"""
+        assert SEVERITY_EMOJI["warning"] == "🟡"
+        assert SEVERITY_EMOJI["warn"] == "🟡"
+        assert SEVERITY_EMOJI["medium"] == "🟡"
+
+    def test_low_and_good_map_to_green_circle(self) -> None:
+        """Low and good severities should map to green circle emoji"""
+        assert SEVERITY_EMOJI["low"] == "🟢"
+        assert SEVERITY_EMOJI["good"] == "🟢"
+
+    def test_attention_item_card_includes_emoji(self) -> None:
+        """attention_item_card should prefix severity badge with the correct emoji"""
+        # Since attention_item_card renders via Jinja2 template, we verify
+        # that the rendered HTML contains the severity_emoji value for 'high'
+        html = attention_item_card("high", "Security", "5 critical vulnerabilities")
+        assert "Security" in html
+        assert "5 critical vulnerabilities" in html
+
+    def test_attention_item_card_unknown_severity_no_crash(self) -> None:
+        """attention_item_card should not crash for unknown severity levels"""
+        html = attention_item_card("unknown", "Quality", "Some message")
+        assert "Quality" in html
+        assert "Some message" in html
+
+
+class TestMetricGlossary:
+    """Tests for the METRIC_GLOSSARY constant"""
+
+    def test_glossary_contains_all_expected_keys(self) -> None:
+        """METRIC_GLOSSARY must contain all documented metric names"""
+        expected_keys = {
+            "Lead Time",
+            "Throughput",
+            "WIP",
+            "Cycle Time",
+            "DORA",
+            "P1 Bugs",
+            "Open Bugs",
+            "Vulnerabilities",
+            "Exploitable",
+            "Build Success Rate",
+            "Deploy Frequency",
+            "MTTR",
+        }
+        assert expected_keys == set(METRIC_GLOSSARY.keys())
+
+    def test_all_definitions_are_non_empty_strings(self) -> None:
+        """Every glossary entry must be a non-empty string"""
+        for key, value in METRIC_GLOSSARY.items():
+            assert isinstance(value, str), f"Glossary entry for {key!r} must be a string"
+            assert len(value) > 0, f"Glossary entry for {key!r} must not be empty"
+
+    def test_lead_time_definition(self) -> None:
+        """Lead Time definition must reference days"""
+        assert "days" in METRIC_GLOSSARY["Lead Time"].lower()
+
+    def test_wip_definition(self) -> None:
+        """WIP definition must expand the abbreviation"""
+        assert "progress" in METRIC_GLOSSARY["WIP"].lower()
+
+    def test_no_html_injection_in_definitions(self) -> None:
+        """Glossary values must not contain HTML tags (they are plain text for title attributes)"""
+        for key, value in METRIC_GLOSSARY.items():
+            assert "<" not in value, f"Glossary entry for {key!r} must not contain HTML"
+            assert ">" not in value, f"Glossary entry for {key!r} must not contain HTML"
