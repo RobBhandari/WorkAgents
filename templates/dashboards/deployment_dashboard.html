@@ -9,6 +9,16 @@
 
 {% block extra_css %}
 <style>
+    /* Flat dark header — matches Executive Trends style */
+    .header {
+        background: #0f172a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 48px 32px !important;
+    }
+
     /* Summary metrics grid */
     .summary-grid {
         display: grid;
@@ -22,7 +32,7 @@
         border-radius: 12px;
         padding: 24px;
         box-shadow: 0 4px 12px var(--shadow);
-        border-left: 4px solid #667eea;
+        border-left: 4px solid #3b82f6;
     }
 
     .metric-label {
@@ -127,7 +137,7 @@
     .pipeline-details {
         padding: 20px;
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
-        border-left: 3px solid #667eea;
+        border-left: 3px solid #3b82f6;
     }
 
     .pipeline-details-title {
@@ -401,7 +411,7 @@ function toggleRow(row) {
             </div>
         </div>
 
-        <h3 style="margin-top: 30px; color: #667eea;">📊 Data Collection Details</h3>
+        <h3 style="margin-top: 30px; color: #3b82f6;">📊 Data Collection Details</h3>
 
         <div class="glossary-item">
             <div class="glossary-term">Time Period</div>

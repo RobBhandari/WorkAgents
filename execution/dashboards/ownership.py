@@ -238,8 +238,8 @@ def _build_context(ownership_data: dict[str, Any], summary_stats: dict[str, Any]
     """
     # Get dashboard framework (CSS/JS)
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#3b82f6",
-        header_gradient_end="#2563eb",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=True,
         include_expandable_rows=True,
         include_glossary=True,
