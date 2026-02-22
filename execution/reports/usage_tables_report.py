@@ -44,7 +44,7 @@ from execution.framework import get_dashboard_framework
 load_dotenv()
 
 # Configurable team filter - set TEAM_FILTER env var for your organization
-TEAM_FILTER = os.environ.get("TEAM_FILTER", "LGL")
+TEAM_FILTER = os.environ.get("TEAM_FILTER", "")
 
 # Configure logging
 logging.basicConfig(
@@ -171,6 +171,9 @@ def filter_team_users(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         ValueError: If no matching users found
     """
+    if not TEAM_FILTER:
+        raise ValueError("TEAM_FILTER environment variable is not set")
+
     logger.info(f"Filtering for Software Company = '{TEAM_FILTER}'")
 
     # Filter (case-insensitive)
