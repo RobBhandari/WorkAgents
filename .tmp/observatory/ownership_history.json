@@ -8,463 +8,6 @@
           "project_key": "Product_A",
           "project_name": "Product A",
           "unassigned": {
-            "unassigned_count": 673,
-            "total_items": 1549,
-            "unassigned_pct": 43.4,
-            "by_type": {
-              "bugs": 72,
-              "features": 424,
-              "tasks": 177
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 70,
-            "load_imbalance_ratio": 673.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 16
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 142,
-              "unassigned": 72,
-              "assigned": 70,
-              "unassigned_pct": 50.7
-            },
-            "User Story": {
-              "total": 858,
-              "unassigned": 424,
-              "assigned": 434,
-              "unassigned_pct": 49.4
-            },
-            "Task": {
-              "total": 549,
-              "unassigned": 177,
-              "assigned": 372,
-              "unassigned_pct": 32.2
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 17,
-            "total_commits": 1040,
-            "lookback_days": 90,
-            "avg_active_days": 6.8
-          },
-          "total_items_analyzed": 1549,
-          "collected_at": "2026-02-18T12:35:45.305683"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "unassigned": {
-            "unassigned_count": 75,
-            "total_items": 92,
-            "unassigned_pct": 81.5,
-            "by_type": {
-              "bugs": 16,
-              "features": 1,
-              "tasks": 58
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 8,
-            "load_imbalance_ratio": 75.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 5
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 17,
-              "unassigned": 16,
-              "assigned": 1,
-              "unassigned_pct": 94.1
-            },
-            "User Story": {
-              "total": 3,
-              "unassigned": 1,
-              "assigned": 2,
-              "unassigned_pct": 33.3
-            },
-            "Task": {
-              "total": 72,
-              "unassigned": 58,
-              "assigned": 14,
-              "unassigned_pct": 80.6
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 3,
-            "total_commits": 103,
-            "lookback_days": 90,
-            "avg_active_days": 5.7
-          },
-          "total_items_analyzed": 92,
-          "collected_at": "2026-02-18T12:35:39.074515"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "unassigned": {
-            "unassigned_count": 674,
-            "total_items": 951,
-            "unassigned_pct": 70.9,
-            "by_type": {
-              "bugs": 0,
-              "features": 90,
-              "tasks": 584
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 12,
-            "load_imbalance_ratio": 674.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 1
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0
-            },
-            "User Story": {
-              "total": 138,
-              "unassigned": 90,
-              "assigned": 48,
-              "unassigned_pct": 65.2
-            },
-            "Task": {
-              "total": 813,
-              "unassigned": 584,
-              "assigned": 229,
-              "unassigned_pct": 71.8
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 0,
-            "total_commits": 0,
-            "lookback_days": 90,
-            "avg_active_days": null
-          },
-          "total_items_analyzed": 951,
-          "collected_at": "2026-02-18T12:35:41.843568"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "unassigned": {
-            "unassigned_count": 158,
-            "total_items": 251,
-            "unassigned_pct": 62.9,
-            "by_type": {
-              "bugs": 6,
-              "features": 52,
-              "tasks": 100
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 17,
-            "load_imbalance_ratio": 158.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 11
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 10,
-              "unassigned": 6,
-              "assigned": 4,
-              "unassigned_pct": 60.0
-            },
-            "User Story": {
-              "total": 72,
-              "unassigned": 52,
-              "assigned": 20,
-              "unassigned_pct": 72.2
-            },
-            "Task": {
-              "total": 169,
-              "unassigned": 100,
-              "assigned": 69,
-              "unassigned_pct": 59.2
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 15,
-            "total_commits": 317,
-            "lookback_days": 90,
-            "avg_active_days": 3.9
-          },
-          "total_items_analyzed": 251,
-          "collected_at": "2026-02-18T12:35:40.813905"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "unassigned": {
-            "unassigned_count": 46,
-            "total_items": 60,
-            "unassigned_pct": 76.7,
-            "by_type": {
-              "bugs": 1,
-              "features": 38,
-              "tasks": 7
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 2,
-            "load_imbalance_ratio": 46.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 1
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 1,
-              "unassigned": 1,
-              "assigned": 0,
-              "unassigned_pct": 100.0
-            },
-            "User Story": {
-              "total": 46,
-              "unassigned": 38,
-              "assigned": 8,
-              "unassigned_pct": 82.6
-            },
-            "Task": {
-              "total": 13,
-              "unassigned": 7,
-              "assigned": 6,
-              "unassigned_pct": 53.8
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 5,
-            "total_commits": 100,
-            "lookback_days": 90,
-            "avg_active_days": 1.6
-          },
-          "total_items_analyzed": 60,
-          "collected_at": "2026-02-18T12:35:37.326949"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "unassigned": {
-            "unassigned_count": 95,
-            "total_items": 182,
-            "unassigned_pct": 52.2,
-            "by_type": {
-              "bugs": 14,
-              "features": 30,
-              "tasks": 51
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 7,
-            "load_imbalance_ratio": 95.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 7
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 32,
-              "unassigned": 14,
-              "assigned": 18,
-              "unassigned_pct": 43.8
-            },
-            "User Story": {
-              "total": 60,
-              "unassigned": 30,
-              "assigned": 30,
-              "unassigned_pct": 50.0
-            },
-            "Task": {
-              "total": 90,
-              "unassigned": 51,
-              "assigned": 39,
-              "unassigned_pct": 56.7
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 9,
-            "total_commits": 705,
-            "lookback_days": 90,
-            "avg_active_days": 16.3
-          },
-          "total_items_analyzed": 182,
-          "collected_at": "2026-02-18T12:35:39.076036"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "unassigned": {
-            "unassigned_count": 756,
-            "total_items": 1170,
-            "unassigned_pct": 64.6,
-            "by_type": {
-              "bugs": 11,
-              "features": 393,
-              "tasks": 352
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 24,
-            "load_imbalance_ratio": 756.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 10
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 17,
-              "unassigned": 11,
-              "assigned": 6,
-              "unassigned_pct": 64.7
-            },
-            "User Story": {
-              "total": 541,
-              "unassigned": 393,
-              "assigned": 148,
-              "unassigned_pct": 72.6
-            },
-            "Task": {
-              "total": 612,
-              "unassigned": 352,
-              "assigned": 260,
-              "unassigned_pct": 57.5
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 12,
-            "total_commits": 267,
-            "lookback_days": 90,
-            "avg_active_days": 5.2
-          },
-          "total_items_analyzed": 1170,
-          "collected_at": "2026-02-18T12:35:42.882416"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "unassigned": {
-            "unassigned_count": 191,
-            "total_items": 269,
-            "unassigned_pct": 71.0,
-            "by_type": {
-              "bugs": 37,
-              "features": 91,
-              "tasks": 63
-            }
-          },
-          "assignment_distribution": {
-            "assignee_count": 12,
-            "load_imbalance_ratio": 191.0
-          },
-          "area_unassigned_stats": {
-            "area_count": 3
-          },
-          "work_type_segmentation": {
-            "Bug": {
-              "total": 51,
-              "unassigned": 37,
-              "assigned": 14,
-              "unassigned_pct": 72.5
-            },
-            "User Story": {
-              "total": 103,
-              "unassigned": 91,
-              "assigned": 12,
-              "unassigned_pct": 88.3
-            },
-            "Task": {
-              "total": 115,
-              "unassigned": 63,
-              "assigned": 52,
-              "unassigned_pct": 54.8
-            },
-            "Other": {
-              "total": 0,
-              "unassigned": 0,
-              "assigned": 0,
-              "unassigned_pct": 0,
-              "types_included": ""
-            }
-          },
-          "developer_active_days": {
-            "sample_size": 17,
-            "total_commits": 1040,
-            "lookback_days": 90,
-            "avg_active_days": 6.8
-          },
-          "total_items_analyzed": 269,
-          "collected_at": "2026-02-18T12:35:41.623039"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-18",
-      "week_number": 8,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "unassigned": {
             "unassigned_count": 672,
             "total_items": 1550,
             "unassigned_pct": 43.4,
@@ -23758,6 +23301,463 @@
           },
           "total_items_analyzed": 257,
           "collected_at": "2026-02-22T15:25:16.888336"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-22",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "unassigned": {
+            "unassigned_count": 652,
+            "total_items": 1526,
+            "unassigned_pct": 42.7,
+            "by_type": {
+              "bugs": 51,
+              "features": 424,
+              "tasks": 177
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 70,
+            "load_imbalance_ratio": 652.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 16
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 122,
+              "unassigned": 51,
+              "assigned": 71,
+              "unassigned_pct": 41.8
+            },
+            "User Story": {
+              "total": 859,
+              "unassigned": 424,
+              "assigned": 435,
+              "unassigned_pct": 49.4
+            },
+            "Task": {
+              "total": 545,
+              "unassigned": 177,
+              "assigned": 368,
+              "unassigned_pct": 32.5
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 22,
+            "total_commits": 4143,
+            "lookback_days": 90,
+            "avg_active_days": 15.0
+          },
+          "total_items_analyzed": 1526,
+          "collected_at": "2026-02-22T15:53:04.218668"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "unassigned": {
+            "unassigned_count": 78,
+            "total_items": 95,
+            "unassigned_pct": 82.1,
+            "by_type": {
+              "bugs": 19,
+              "features": 1,
+              "tasks": 58
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 8,
+            "load_imbalance_ratio": 78.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 5
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 20,
+              "unassigned": 19,
+              "assigned": 1,
+              "unassigned_pct": 95.0
+            },
+            "User Story": {
+              "total": 3,
+              "unassigned": 1,
+              "assigned": 2,
+              "unassigned_pct": 33.3
+            },
+            "Task": {
+              "total": 72,
+              "unassigned": 58,
+              "assigned": 14,
+              "unassigned_pct": 80.6
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 3,
+            "total_commits": 550,
+            "lookback_days": 90,
+            "avg_active_days": 25.0
+          },
+          "total_items_analyzed": 95,
+          "collected_at": "2026-02-22T15:52:59.288813"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "unassigned": {
+            "unassigned_count": 715,
+            "total_items": 991,
+            "unassigned_pct": 72.1,
+            "by_type": {
+              "bugs": 0,
+              "features": 109,
+              "tasks": 606
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 12,
+            "load_imbalance_ratio": 715.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 1
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0
+            },
+            "User Story": {
+              "total": 158,
+              "unassigned": 109,
+              "assigned": 49,
+              "unassigned_pct": 69.0
+            },
+            "Task": {
+              "total": 833,
+              "unassigned": 606,
+              "assigned": 227,
+              "unassigned_pct": 72.7
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 0,
+            "total_commits": 0,
+            "lookback_days": 90,
+            "avg_active_days": null
+          },
+          "total_items_analyzed": 991,
+          "collected_at": "2026-02-22T15:53:02.093335"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "unassigned": {
+            "unassigned_count": 153,
+            "total_items": 248,
+            "unassigned_pct": 61.7,
+            "by_type": {
+              "bugs": 5,
+              "features": 48,
+              "tasks": 100
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 18,
+            "load_imbalance_ratio": 153.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 11
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 10,
+              "unassigned": 5,
+              "assigned": 5,
+              "unassigned_pct": 50.0
+            },
+            "User Story": {
+              "total": 69,
+              "unassigned": 48,
+              "assigned": 21,
+              "unassigned_pct": 69.6
+            },
+            "Task": {
+              "total": 169,
+              "unassigned": 100,
+              "assigned": 69,
+              "unassigned_pct": 59.2
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 17,
+            "total_commits": 1271,
+            "lookback_days": 90,
+            "avg_active_days": 9.0
+          },
+          "total_items_analyzed": 248,
+          "collected_at": "2026-02-22T15:53:01.641423"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "unassigned": {
+            "unassigned_count": 46,
+            "total_items": 60,
+            "unassigned_pct": 76.7,
+            "by_type": {
+              "bugs": 1,
+              "features": 38,
+              "tasks": 7
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 2,
+            "load_imbalance_ratio": 46.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 1
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 1,
+              "unassigned": 1,
+              "assigned": 0,
+              "unassigned_pct": 100.0
+            },
+            "User Story": {
+              "total": 46,
+              "unassigned": 38,
+              "assigned": 8,
+              "unassigned_pct": 82.6
+            },
+            "Task": {
+              "total": 13,
+              "unassigned": 7,
+              "assigned": 6,
+              "unassigned_pct": 53.8
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 5,
+            "total_commits": 1000,
+            "lookback_days": 90,
+            "avg_active_days": 26.4
+          },
+          "total_items_analyzed": 60,
+          "collected_at": "2026-02-22T15:52:59.602465"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "unassigned": {
+            "unassigned_count": 101,
+            "total_items": 181,
+            "unassigned_pct": 55.8,
+            "by_type": {
+              "bugs": 18,
+              "features": 31,
+              "tasks": 52
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 8,
+            "load_imbalance_ratio": 101.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 7
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 35,
+              "unassigned": 18,
+              "assigned": 17,
+              "unassigned_pct": 51.4
+            },
+            "User Story": {
+              "total": 55,
+              "unassigned": 31,
+              "assigned": 24,
+              "unassigned_pct": 56.4
+            },
+            "Task": {
+              "total": 91,
+              "unassigned": 52,
+              "assigned": 39,
+              "unassigned_pct": 57.1
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 13,
+            "total_commits": 1910,
+            "lookback_days": 90,
+            "avg_active_days": 20.5
+          },
+          "total_items_analyzed": 181,
+          "collected_at": "2026-02-22T15:52:59.588753"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "unassigned": {
+            "unassigned_count": 772,
+            "total_items": 1196,
+            "unassigned_pct": 64.5,
+            "by_type": {
+              "bugs": 12,
+              "features": 406,
+              "tasks": 354
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 24,
+            "load_imbalance_ratio": 772.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 10
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 18,
+              "unassigned": 12,
+              "assigned": 6,
+              "unassigned_pct": 66.7
+            },
+            "User Story": {
+              "total": 555,
+              "unassigned": 406,
+              "assigned": 149,
+              "unassigned_pct": 73.2
+            },
+            "Task": {
+              "total": 623,
+              "unassigned": 354,
+              "assigned": 269,
+              "unassigned_pct": 56.8
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 12,
+            "total_commits": 531,
+            "lookback_days": 90,
+            "avg_active_days": 11.8
+          },
+          "total_items_analyzed": 1196,
+          "collected_at": "2026-02-22T15:53:04.617575"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "unassigned": {
+            "unassigned_count": 169,
+            "total_items": 257,
+            "unassigned_pct": 65.8,
+            "by_type": {
+              "bugs": 35,
+              "features": 63,
+              "tasks": 71
+            }
+          },
+          "assignment_distribution": {
+            "assignee_count": 10,
+            "load_imbalance_ratio": 169.0
+          },
+          "area_unassigned_stats": {
+            "area_count": 5
+          },
+          "work_type_segmentation": {
+            "Bug": {
+              "total": 50,
+              "unassigned": 35,
+              "assigned": 15,
+              "unassigned_pct": 70.0
+            },
+            "User Story": {
+              "total": 72,
+              "unassigned": 63,
+              "assigned": 9,
+              "unassigned_pct": 87.5
+            },
+            "Task": {
+              "total": 135,
+              "unassigned": 71,
+              "assigned": 64,
+              "unassigned_pct": 52.6
+            },
+            "Other": {
+              "total": 0,
+              "unassigned": 0,
+              "assigned": 0,
+              "unassigned_pct": 0,
+              "types_included": ""
+            }
+          },
+          "developer_active_days": {
+            "sample_size": 22,
+            "total_commits": 4143,
+            "lookback_days": 90,
+            "avg_active_days": 15.0
+          },
+          "total_items_analyzed": 257,
+          "collected_at": "2026-02-22T15:53:01.166716"
         }
       ],
       "config": {
