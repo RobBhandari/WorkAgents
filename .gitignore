@@ -19,6 +19,8 @@ data/*
 data/features/
 data/forecasts/
 data/insights/
+data/scenarios/
+data/correlation_matrices/
 # model_performance.json IS committed (non-sensitive: MAPE % only, no project names)
 !data/model_performance.json
 
