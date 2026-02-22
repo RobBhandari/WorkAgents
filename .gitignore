@@ -14,6 +14,14 @@ data/*
 !data/README.md
 !data/security_targets.json
 
+# Intelligence Platform — auto-generated ML outputs (MUST NOT be committed)
+# These directories contain real product names from history JSON files
+data/features/
+data/forecasts/
+data/insights/
+# model_performance.json IS committed (non-sensitive: MAPE % only, no project names)
+!data/model_performance.json
+
 # Internal setup documentation (contains company-specific details)
 SETUP_STEPS.md
 SECURITY_ISSUES.md
