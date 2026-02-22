@@ -9,6 +9,16 @@
 
 {% block extra_css %}
 <style>
+    /* Flat dark header — matches Executive Trends style */
+    .header {
+        background: #0f172a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 48px 32px !important;
+    }
+
     /* Bucket summary table */
     .bucket-summary-table {
         width: 100%;
@@ -94,8 +104,8 @@
     }
 
     .bucket-search-input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     }
 
     .bucket-filter-buttons {
@@ -117,9 +127,9 @@
 
     .bucket-filter-buttons button.active,
     .bucket-filter-buttons button:hover {
-        background: #667eea;
+        background: #3b82f6;
         color: white;
-        border-color: #667eea;
+        border-color: #3b82f6;
     }
 
     .vuln-source {
@@ -511,9 +521,9 @@
 
     .product-filter-bar button.active,
     .product-filter-bar button:hover {
-        background: #667eea;
+        background: #3b82f6;
         color: white;
-        border-color: #667eea;
+        border-color: #3b82f6;
     }
 
     /* Hide filtered-out product rows AND their paired detail rows via sibling selector */
