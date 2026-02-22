@@ -282,7 +282,7 @@ class TestLoadSecurityData:
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
-    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_load_products_success(
         self,
@@ -318,7 +318,7 @@ class TestLoadSecurityData:
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
-    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_load_products_empty_list(
         self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
@@ -343,7 +343,7 @@ class TestZeroVulnProducts:
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
-    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_zero_vuln_product_appears_in_output(
         self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
@@ -370,7 +370,7 @@ class TestGenerateSecurityDashboardEnhanced:
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
-    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_generate_dashboard_success(
         self,
@@ -401,7 +401,7 @@ class TestGenerateSecurityDashboardEnhanced:
     @patch("execution.dashboards.security_enhanced._update_history_current_total")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
-    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_write_to_output_directory(
         self,
@@ -433,7 +433,7 @@ class TestProductionOnlyTotals:
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
-    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_uses_production_only_aql_when_hierarchy_set(
         self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
@@ -456,7 +456,7 @@ class TestProductionOnlyTotals:
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
-    @patch("execution.dashboards.security_enhanced.get_dashboard_framework")
+    @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
     @patch("pathlib.Path.write_text")
     def test_falls_back_to_hybrid_totals_when_no_hierarchy(
         self, mock_write, mock_framework, mock_load_id_map, mock_vuln_loader_class, mock_get_config
