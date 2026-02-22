@@ -10,6 +10,10 @@ Models:
     TrendStrengthScore — Trend strength and direction (0-100 score)
     RiskScoreComponent — Single weighted component of the composite risk score
     RiskScore          — Composite risk score with component breakdown
+    ScenarioPoint      — Single Monte Carlo scenario forecast point (Phase C)
+    ScenarioResult     — Full Monte Carlo scenario result with P10/P50/P90 (Phase C)
+    CausalContribution — Single dimension's contribution to a metric change (Phase C)
+    MetricInsight      — Generated text insight for a metric (Phase C)
 """
 
 from __future__ import annotations
@@ -248,3 +252,208 @@ class RiskScore:
             total=float(data["total"]),
             components=components,
         )
+
+
+# ---------------------------------------------------------------------------
+# Scenario simulation domain models (Phase C — Monte Carlo)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class ScenarioPoint:
+    """Single scenario forecast point (p10/p50/p90 from simulation)."""
+
+    week: int  # Horizon week (1-based, e.g. 1, 2, ..., 13)
+    p10: float  # 10th percentile across simulations (pessimistic)
+    p50: float  # 50th percentile across simulations (median)
+    p90: float  # 90th percentile across simulations (optimistic)
+
+
+@dataclass(kw_only=True)
+class ScenarioResult(MetricSnapshot):
+    """
+    Result of a Monte Carlo scenario simulation.
+
+    Produced by scenario_simulator.run_monte_carlo().
+    Inherits from MetricSnapshot:
+        timestamp (datetime) — when this simulation was generated
+        project  (str|None) — project name (optional; None for cross-project simulations)
+
+    Attributes:
+        scenario_name:              Display name (e.g. "BAU", "Accelerated", "Sprint")
+        metric:                     Metric name (e.g. "open_bugs", "vulnerabilities")
+        horizon_weeks:              Number of weeks projected forward
+        n_simulations:              Number of Monte Carlo runs performed
+        forecast:                   P10/P50/P90 at each horizon week
+        probability_of_improvement: Fraction of simulations where final value
+                                    is better than the starting value (0.0–1.0)
+        description:                Optional free-text description of this scenario
+    """
+
+    scenario_name: str
+    metric: str
+    horizon_weeks: int
+    n_simulations: int
+    forecast: list[ScenarioPoint] = field(default_factory=list)
+    probability_of_improvement: float = 0.0  # 0.0–1.0
+    description: str = ""
+
+    @property
+    def status(self) -> str:
+        """Human-readable status based on probability of improvement."""
+        if self.probability_of_improvement >= 0.7:
+            return "Improving"
+        if self.probability_of_improvement < 0.4:
+            return "Action Needed"
+        return "Stable"
+
+    @property
+    def status_class(self) -> str:
+        """CSS class for status badge."""
+        if self.probability_of_improvement >= 0.7:
+            return "status-good"
+        if self.probability_of_improvement < 0.4:
+            return "status-action"
+        return "status-caution"
+
+    @property
+    def summary_p50_at_horizon(self) -> float:
+        """P50 value at maximum horizon week."""
+        return max(self.forecast, key=lambda p: p.week).p50 if self.forecast else 0.0
+
+    @classmethod
+    def from_dict(cls, data: dict) -> ScenarioResult:
+        """
+        Deserialise from a plain dictionary (e.g. from JSON).
+
+        Expected keys:
+            scenario_name, metric, horizon_weeks, n_simulations,
+            forecast (list of {week, p10, p50, p90}),
+            probability_of_improvement, description (optional),
+            timestamp (optional ISO string — defaults to now)
+        """
+        ts_raw = data.get("timestamp") or datetime.now().isoformat()
+        forecast_points = [
+            ScenarioPoint(
+                week=int(fp["week"]),
+                p10=float(fp["p10"]),
+                p50=float(fp["p50"]),
+                p90=float(fp["p90"]),
+            )
+            for fp in data.get("forecast", [])
+        ]
+        return cls(
+            timestamp=datetime.fromisoformat(ts_raw),
+            project=data.get("project"),
+            scenario_name=str(data["scenario_name"]),
+            metric=str(data["metric"]),
+            horizon_weeks=int(data["horizon_weeks"]),
+            n_simulations=int(data["n_simulations"]),
+            forecast=forecast_points,
+            probability_of_improvement=float(data["probability_of_improvement"]),
+            description=str(data.get("description", "")),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Phase C intelligence domain models — Causal + Insight
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class CausalContribution:
+    """
+    A single dimension's contribution to a metric change.
+
+    No MetricSnapshot inheritance — CausalContribution has no timestamp;
+    it represents a point-in-time decomposition, not a history snapshot.
+
+    Attributes:
+        dimension:        Dimension label (e.g. "Product_A", "critical", "Bug")
+        current_value:    Current period value for this dimension
+        prior_value:      Prior period value for this dimension
+        delta:            current_value - prior_value
+        contribution_pct: This dimension's share of total absolute delta (0–100)
+    """
+
+    dimension: str
+    current_value: float
+    prior_value: float
+    delta: float
+    contribution_pct: float
+
+    @classmethod
+    def from_dict(cls, data: dict) -> CausalContribution:
+        """Deserialise from a plain dictionary."""
+        return cls(
+            dimension=str(data["dimension"]),
+            current_value=float(data["current_value"]),
+            prior_value=float(data["prior_value"]),
+            delta=float(data["delta"]),
+            contribution_pct=float(data["contribution_pct"]),
+        )
+
+
+@dataclass(kw_only=True)
+class MetricInsight(MetricSnapshot):
+    """
+    A generated insight for a metric.
+
+    Produced by insight_generator.py using either a template or an LLM stub.
+    Inherits from MetricSnapshot:
+        timestamp (datetime) — when this insight was generated
+        project  (str|None) — project name (optional)
+
+    Attributes:
+        metric:       Metric name the insight describes (e.g. "open_bugs")
+        template_key: Template identifier used (e.g. "anomaly_spike")
+        text:         The human-readable insight text
+        severity:     "info" | "warning" | "critical"
+        source:       "template" | "llm"
+    """
+
+    metric: str
+    template_key: str
+    text: str
+    severity: str = "info"
+    source: str = "template"
+
+    @property
+    def status(self) -> str:
+        """Human-readable status based on severity."""
+        if self.severity == "critical":
+            return "Action Needed"
+        if self.severity == "warning":
+            return "Caution"
+        return "Good"
+
+    @property
+    def status_class(self) -> str:
+        """CSS class for status badge."""
+        if self.severity == "critical":
+            return "status-action"
+        if self.severity == "warning":
+            return "status-caution"
+        return "status-good"
+
+    @classmethod
+    def from_dict(cls, data: dict) -> MetricInsight:
+        """Deserialise from a plain dictionary.
+
+        The 'timestamp' key is optional — defaults to datetime.now() if absent.
+        """
+        ts_raw = data.get("timestamp") or datetime.now().isoformat()
+        return cls(
+            timestamp=datetime.fromisoformat(ts_raw),
+            project=data.get("project"),
+            metric=str(data["metric"]),
+            template_key=str(data["template_key"]),
+            text=str(data["text"]),
+            severity=str(data.get("severity", "info")),
+            source=str(data.get("source", "template")),
+        )
+
+    @property
+    def severity_emoji(self) -> str:
+        """Return an emoji corresponding to this insight's severity level."""
+        return {"info": "💡", "warning": "⚠️", "critical": "🔴"}.get(self.severity, "💡")
