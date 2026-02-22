@@ -453,6 +453,9 @@ jobs:
       - name: Install analytics dependencies
         run: pip install numpy scikit-learn
 
+      - name: Write ArmorCode ID map for per-product security alerts
+        run: echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
+
       - name: Build analytics database and run alerting
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
