@@ -235,8 +235,8 @@ def _build_context(products: list[ProductHealth], org: OrgHealthSummary) -> dict
         Dict with all variables required by health_dashboard.html
     """
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#667eea",
-        header_gradient_end="#764ba2",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=True,
         include_expandable_rows=True,
         include_glossary=True,
