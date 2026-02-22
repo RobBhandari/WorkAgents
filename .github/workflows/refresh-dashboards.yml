@@ -450,6 +450,9 @@ jobs:
           echo "✅ Fresh history files ready for genericization and commit:"
           ls -lh .tmp/observatory/*_history.json
 
+      - name: Install analytics dependencies
+        run: pip install numpy scikit-learn
+
       - name: Build analytics database and run alerting
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
