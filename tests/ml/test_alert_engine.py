@@ -150,6 +150,58 @@ class TestThresholdRules:
 
         assert not any(a.metric_name == "critical_vulns" for a in alerts)
 
+    def test_unassigned_above_75_triggers_critical_not_warn(self, db_path: Path) -> None:
+        """82% unassigned should fire critical (>75%), not a separate warn."""
+        conn = sqlite3.connect(db_path)
+        _insert_metric(conn, "ownership", "Product A", "unassigned_pct", 82.0)
+        conn.close()
+
+        engine = AlertEngine(db_path=db_path)
+        engine.run()
+        alerts = [a for a in engine.load_alerts() if a.metric_name == "unassigned_pct"]
+
+        assert len(alerts) == 1
+        assert alerts[0].severity == "critical"
+
+    def test_unassigned_between_60_and_75_triggers_warn(self, db_path: Path) -> None:
+        """65% unassigned should fire warn (>60% but <75%)."""
+        conn = sqlite3.connect(db_path)
+        _insert_metric(conn, "ownership", "Product A", "unassigned_pct", 65.0)
+        conn.close()
+
+        engine = AlertEngine(db_path=db_path)
+        engine.run()
+        alerts = [a for a in engine.load_alerts() if a.metric_name == "unassigned_pct"]
+
+        assert len(alerts) == 1
+        assert alerts[0].severity == "warn"
+
+    def test_single_owner_above_90_triggers_critical_not_warn(self, db_path: Path) -> None:
+        """98% single-owner should fire critical (>90%), not a separate warn."""
+        conn = sqlite3.connect(db_path)
+        _insert_metric(conn, "risk", "Product A", "single_owner_pct", 98.0)
+        conn.close()
+
+        engine = AlertEngine(db_path=db_path)
+        engine.run()
+        alerts = [a for a in engine.load_alerts() if a.metric_name == "single_owner_pct"]
+
+        assert len(alerts) == 1
+        assert alerts[0].severity == "critical"
+
+    def test_single_owner_between_80_and_90_triggers_warn(self, db_path: Path) -> None:
+        """85% single-owner should fire warn (>80% but <90%)."""
+        conn = sqlite3.connect(db_path)
+        _insert_metric(conn, "risk", "Product A", "single_owner_pct", 85.0)
+        conn.close()
+
+        engine = AlertEngine(db_path=db_path)
+        engine.run()
+        alerts = [a for a in engine.load_alerts() if a.metric_name == "single_owner_pct"]
+
+        assert len(alerts) == 1
+        assert alerts[0].severity == "warn"
+
     def test_only_latest_value_per_project_evaluated(self, db_path: Path) -> None:
         """Only the most-recent row for each project should be checked."""
         conn = sqlite3.connect(db_path)
