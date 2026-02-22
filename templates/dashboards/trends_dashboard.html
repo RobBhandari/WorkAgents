@@ -496,6 +496,36 @@ div.header {
     font-size: 0.82rem;
     line-height: 1.35;
 }
+/* Group headers */
+.alerts-group { margin-bottom: 12px; }
+.alerts-group:last-child { margin-bottom: 0; }
+.alerts-group-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+.alerts-group-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-slate-400);
+}
+.alerts-group-count {
+    font-size: 0.68rem;
+    color: var(--color-slate-500);
+}
+.alerts-group-chevron {
+    font-size: 0.65rem;
+    color: var(--color-slate-500);
+    margin-left: auto;
+}
+.alerts-group.collapsed .alerts-grid { display: none; }
 /* Show-more footer */
 .alerts-show-more {
     margin-top: 10px;
@@ -540,14 +570,27 @@ div.header {
             <input class="alerts-search" id="alerts-search" type="text" placeholder="Search alerts..." oninput="applyAlertFilters()">
             <div class="alerts-filter-btns" id="alerts-filter-btns"></div>
         </div>
-        <div class="alerts-grid" id="alerts-grid">
-            {% for alert in active_alerts %}
-            <div class="alert-card alert-{{ alert.severity }}" data-severity="{{ alert.severity }}" data-text="{{ alert.message|lower }} {{ alert.dashboard|lower }}" data-index="{{ loop.index0 }}">
-                <div class="alert-card-header">
-                    <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity }}</span>
-                    <span class="alert-dash">{{ alert.dashboard }}</span>
+        <div id="alerts-groups">
+            {% set ns = namespace(card_index=0) %}
+            {% for dashboard, group_alerts in active_alerts|groupby('dashboard') %}
+            {% set group_id = 'alerts-group-' ~ dashboard %}
+            <div class="alerts-group" id="{{ group_id }}">
+                <div class="alerts-group-header" onclick="toggleAlertGroup('{{ group_id }}')">
+                    <span class="alerts-group-name">{{ dashboard|capitalize }}</span>
+                    <span class="alerts-group-count">({{ group_alerts|list|length }})</span>
+                    <span class="alerts-group-chevron">▾</span>
                 </div>
-                <div class="alert-msg">{{ alert.message }}</div>
+                <div class="alerts-grid">
+                    {% for alert in group_alerts %}
+                    <div class="alert-card alert-{{ alert.severity }}" data-severity="{{ alert.severity }}" data-text="{{ alert.message|lower }} {{ alert.dashboard|lower }}" data-index="{{ ns.card_index }}">
+                        <div class="alert-card-header">
+                            <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity }}</span>
+                        </div>
+                        <div class="alert-msg">{{ alert.message }}</div>
+                    </div>
+                    {% set ns.card_index = ns.card_index + 1 %}
+                    {% endfor %}
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -799,6 +842,15 @@ div.header {
     }
     window.toggleShowMore = toggleShowMore;
 
+    function toggleAlertGroup(groupId) {
+        const group = document.getElementById(groupId);
+        if (!group) return;
+        const collapsed = group.classList.toggle('collapsed');
+        const chevron = group.querySelector('.alerts-group-chevron');
+        if (chevron) chevron.textContent = collapsed ? '▸' : '▾';
+    }
+    window.toggleAlertGroup = toggleAlertGroup;
+
     // Alerts search + severity filter
     let activeAlertFilter = 'all';
 
@@ -833,17 +885,22 @@ div.header {
     function applyAlertFilters() {
         const query = (document.getElementById('alerts-search')?.value || '').toLowerCase();
         const cards = document.querySelectorAll('.alert-card[data-severity]');
-        // First pass: determine which cards match the current filter/search
+        // First pass: determine which cards match filter + search
         const matching = [];
         cards.forEach(card => {
             const sevMatch = activeAlertFilter === 'all' || card.dataset.severity === activeAlertFilter;
             const textMatch = !query || card.dataset.text.includes(query);
             if (sevMatch && textMatch) matching.push(card);
         });
-        // Second pass: show/hide based on match + page limit
+        // Second pass: show/hide cards based on match + page limit
         cards.forEach(card => card.classList.add('hidden'));
         const limit = alertsExpanded ? matching.length : ALERTS_PAGE_SIZE;
         matching.slice(0, limit).forEach(card => card.classList.remove('hidden'));
+        // Third pass: hide groups that have no visible cards
+        document.querySelectorAll('.alerts-group').forEach(group => {
+            const hasVisible = group.querySelectorAll('.alert-card:not(.hidden)').length > 0;
+            group.style.display = hasVisible ? '' : 'none';
+        });
         // No-results notice
         const noResults = document.getElementById('alerts-no-results');
         if (noResults) noResults.style.display = matching.length === 0 ? 'block' : 'none';
@@ -851,12 +908,11 @@ div.header {
         const showMoreWrap = document.getElementById('alerts-show-more');
         const showMoreBtn  = document.getElementById('alerts-show-more-btn');
         if (showMoreWrap && showMoreBtn) {
-            const hidden = matching.length - limit;
             if (matching.length > ALERTS_PAGE_SIZE) {
                 showMoreWrap.style.display = 'block';
                 showMoreBtn.textContent = alertsExpanded
                     ? 'Show less'
-                    : `Show ${hidden} more`;
+                    : `Show ${matching.length - limit} more`;
             } else {
                 showMoreWrap.style.display = 'none';
             }
