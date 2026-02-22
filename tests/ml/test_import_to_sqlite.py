@@ -448,8 +448,7 @@ class TestImportSecurityMetrics:
 
         cursor = db.cursor()
         cursor.execute(
-            "SELECT SUM(metric_value) FROM metrics "
-            "WHERE metric_name='critical_vulns' AND dashboard='security'"
+            "SELECT SUM(metric_value) FROM metrics " "WHERE metric_name='critical_vulns' AND dashboard='security'"
         )
         total = cursor.fetchone()[0]
         assert total == 10  # 10 + 0 from fixture

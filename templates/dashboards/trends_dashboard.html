@@ -684,7 +684,7 @@ div.header {
     // Initialize
     renderMetrics();
 
-    // Alerts banner toggle
+    // Alerts banner toggle — persists collapsed/expanded state across navigation
     function toggleAlerts() {
         const list = document.getElementById('alerts-list');
         const btn  = document.getElementById('alerts-toggle-btn');
@@ -692,12 +692,24 @@ div.header {
         if (list.style.display === 'none') {
             list.style.display = 'flex';
             if (btn) btn.textContent = 'Hide';
+            sessionStorage.setItem('alertsBannerOpen', 'true');
         } else {
             list.style.display = 'none';
             if (btn) btn.textContent = 'Show';
+            sessionStorage.setItem('alertsBannerOpen', 'false');
         }
     }
-    // Expose globally for onclick handler
+    // Restore banner state from previous visit in this session
+    (function restoreAlertsBannerState() {
+        const saved = sessionStorage.getItem('alertsBannerOpen');
+        if (saved === 'true') {
+            const list = document.getElementById('alerts-list');
+            const btn  = document.getElementById('alerts-toggle-btn');
+            if (list) list.style.display = 'flex';
+            if (btn) btn.textContent = 'Hide';
+        }
+        // Default (saved === null or 'false') leaves banner collapsed as rendered
+    })();
     window.toggleAlerts = toggleAlerts;
 </script>
 {% endblock %}
