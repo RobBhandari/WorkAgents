@@ -154,6 +154,19 @@
     </div>
 </div>
 
+<!-- Portfolio Lead Time Trend Chart -->
+{% if flow_trend_chart %}
+<div class="section">
+    <h2>Lead Time Trend</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 12px;">
+        Portfolio average P85 lead time across all work types — historical snapshots.
+    </p>
+    <div class="chart-container" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px var(--shadow);">
+        {{ flow_trend_chart | safe }}
+    </div>
+</div>
+{% endif %}
+
 <!-- Work Type Tables (Bug, User Story, Task) -->
 {% for wt in work_types %}
 <div class="section">

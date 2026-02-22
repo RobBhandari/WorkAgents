@@ -496,6 +496,13 @@ div.header {
     font-size: 0.82rem;
     line-height: 1.35;
 }
+.alert-root-cause {
+    color: var(--color-slate-500);
+    font-size: 0.76rem;
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.3;
+}
 /* Group headers */
 .alerts-group { margin-bottom: 12px; }
 .alerts-group:last-child { margin-bottom: 0; }
@@ -584,9 +591,12 @@ div.header {
                     {% for alert in group_alerts %}
                     <div class="alert-card alert-{{ alert.severity }}" data-severity="{{ alert.severity }}" data-text="{{ alert.message|lower }} {{ alert.dashboard|lower }}" data-index="{{ ns.card_index }}">
                         <div class="alert-card-header">
-                            <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity }}</span>
+                            <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity_emoji }} {{ alert.severity }}</span>
                         </div>
                         <div class="alert-msg">{{ alert.message }}</div>
+                        {% if alert.root_cause_hint %}
+                        <div class="alert-root-cause">{{ alert.root_cause_hint }}</div>
+                        {% endif %}
                     </div>
                     {% set ns.card_index = ns.card_index + 1 %}
                     {% endfor %}

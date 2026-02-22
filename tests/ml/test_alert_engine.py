@@ -9,7 +9,13 @@ from pathlib import Path
 
 import pytest
 
-from execution.ml.alert_engine import THRESHOLD_RULES, Alert, AlertEngine
+from execution.ml.alert_engine import (
+    ALLOWED_ROOT_CAUSE_DIMENSIONS,
+    THRESHOLD_RULES,
+    Alert,
+    AlertEngine,
+    format_root_cause_hint,
+)
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -326,3 +332,66 @@ class TestAlertPersistence:
         assert alert.metric_name == "critical_vulns"
         assert alert.value == 3.0
         assert alert.expected == 0.0  # threshold value
+
+    def test_alert_root_cause_hint_defaults_to_empty_string(self, db_path: Path) -> None:
+        """Newly loaded alerts should have root_cause_hint="" (Phase A infrastructure)."""
+        conn = sqlite3.connect(db_path)
+        _insert_metric(conn, "security", "All Products", "critical_vulns", 2.0)
+        conn.close()
+
+        engine = AlertEngine(db_path=db_path)
+        engine.run()
+        alerts = engine.load_alerts()
+
+        assert len(alerts) > 0
+        for alert in alerts:
+            assert alert.root_cause_hint == ""
+
+
+# ---------------------------------------------------------------------------
+# Tests: root-cause hint formatting
+# ---------------------------------------------------------------------------
+
+
+class TestFormatRootCauseHint:
+    def test_valid_dimension_positive_delta(self) -> None:
+        """A whitelisted dimension with a positive delta formats correctly."""
+        result = format_root_cause_hint("security", 12.5)
+        assert result == "Primary driver: security (+12.5%)"
+
+    def test_valid_dimension_negative_delta(self) -> None:
+        """A whitelisted dimension with a negative delta formats correctly."""
+        result = format_root_cause_hint("flow", -7.3)
+        assert result == "Primary driver: flow (-7.3%)"
+
+    def test_delta_cast_to_float(self) -> None:
+        """delta is always cast to float — integer input should work."""
+        result = format_root_cause_hint("bugs", 10)
+        assert result == "Primary driver: bugs (+10.0%)"
+
+    def test_all_whitelisted_dimensions_accepted(self) -> None:
+        """Every dimension in ALLOWED_ROOT_CAUSE_DIMENSIONS must be accepted."""
+        for dim in ALLOWED_ROOT_CAUSE_DIMENSIONS:
+            result = format_root_cause_hint(dim, 5.0)
+            assert f"Primary driver: {dim}" in result
+
+    def test_invalid_dimension_raises_value_error(self) -> None:
+        """A dimension not in the whitelist must raise ValueError."""
+        with pytest.raises(ValueError, match="not in ALLOWED_ROOT_CAUSE_DIMENSIONS"):
+            format_root_cause_hint("pipeline_name", 20.0)
+
+    def test_empty_string_dimension_raises_value_error(self) -> None:
+        """An empty string is not a valid dimension."""
+        with pytest.raises(ValueError):
+            format_root_cause_hint("", 5.0)
+
+    def test_zero_delta_formatted_correctly(self) -> None:
+        """Zero delta should format as +0.0%."""
+        result = format_root_cause_hint("quality", 0.0)
+        assert result == "Primary driver: quality (+0.0%)"
+
+    def test_output_is_plain_string_no_html(self) -> None:
+        """The output must be a plain string (no HTML tags — safe for Jinja2 autoescaping)."""
+        result = format_root_cause_hint("security", 5.0)
+        assert "<" not in result
+        assert ">" not in result
