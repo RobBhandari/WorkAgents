@@ -1,0 +1,432 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Engineering Intelligence{% endblock %}
+{% block meta_description %}Executive Intelligence Panel — single-pane-of-glass view of engineering risk and forecasts{% endblock %}
+
+{% block header_title %}Engineering Intelligence{% endblock %}
+{% block header_subtitle %}Strategic Overview{% endblock %}
+{% block header_metadata %}Generated: {{ generation_date }}{% endblock %}
+{% block footer_context %}Executive Intelligence Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Flat dark slate header — matches Executive Trends Dashboard */
+    .header {
+        background: #0f172a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 48px 32px !important;
+    }
+
+    /* ── KPI summary grid ───────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .kpi-card {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 24px 20px;
+        border-left: 4px solid #334155;
+        transition: background-color 0.2s ease;
+    }
+
+    .kpi-card.status-action  { border-left-color: #ef4444; }
+    .kpi-card.status-caution { border-left-color: #f59e0b; }
+    .kpi-card.status-good    { border-left-color: #10b981; }
+
+    .kpi-card .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 10px;
+    }
+
+    .kpi-card .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        line-height: 1.1;
+        margin-bottom: 6px;
+    }
+
+    .kpi-card .kpi-description {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #94a3b8);
+    }
+
+    /* ── Two-column layout for gauge + trend chart ──────────── */
+    .intel-columns {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+        align-items: start;
+    }
+
+    .intel-gauge-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .intel-gauge-panel h3 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 12px;
+    }
+
+    .intel-trend-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .intel-trend-panel h3 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 12px;
+    }
+
+    /* ── Org trend indicator ──────────────────────────────────── */
+    .org-trend-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .trend-improving { background: rgba(16,185,129,0.15); color: #10b981; }
+    .trend-worsening { background: rgba(239,68,68,0.15);  color: #ef4444; }
+    .trend-stable    { background: rgba(148,163,184,0.15); color: #94a3b8; }
+
+    /* ── Risk table ────────────────────────────────────────────── */
+    .section {
+        margin-bottom: 32px;
+    }
+
+    .section h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 12px;
+        padding-left: 4px;
+    }
+
+    .section-hint {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 12px;
+    }
+
+    /* Score bar (visual representation of 0–100 score) */
+    .score-bar-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .score-bar-bg {
+        flex: 1;
+        height: 6px;
+        background: #334155;
+        border-radius: 3px;
+        overflow: hidden;
+        min-width: 60px;
+    }
+
+    .score-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+
+    .score-bar-fill.score-action  { background: #ef4444; }
+    .score-bar-fill.score-caution { background: #f59e0b; }
+    .score-bar-fill.score-good    { background: #10b981; }
+
+    .score-label {
+        font-size: 0.95rem;
+        font-weight: 700;
+        width: 32px;
+        text-align: right;
+    }
+
+    .score-label.score-action  { color: #ef4444; }
+    .score-label.score-caution { color: #f59e0b; }
+    .score-label.score-good    { color: #10b981; }
+
+    /* Component breakdown (expandable detail row) */
+    .detail-row td {
+        padding: 14px 16px 14px 36px;
+        background: rgba(15, 23, 42, 0.4);
+    }
+
+    .component-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 10px 20px;
+        font-size: 0.88rem;
+    }
+
+    .component-item .comp-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 2px;
+    }
+
+    .component-item .comp-value {
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+    }
+
+    /* ── No-data state ─────────────────────────────────────────── */
+    .no-data-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 48px 32px;
+        text-align: center;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 32px;
+    }
+
+    .no-data-panel .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .no-data-panel h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 10px;
+    }
+
+    .no-data-panel p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+
+    .no-data-panel code {
+        background: rgba(99,102,241,0.15);
+        color: #818cf8;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+    }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+        .intel-columns {
+            grid-template-columns: 1fr;
+        }
+
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .component-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /**
+     * Toggle expandable risk-score detail row.
+     * Called via onclick on the parent <tr>.
+     */
+    function toggleRow(row) {
+        var isExpanded = row.classList.contains('expanded');
+        row.classList.toggle('expanded');
+        var detailRow = row.nextElementSibling;
+        if (detailRow && detailRow.classList.contains('detail-row')) {
+            detailRow.style.display = isExpanded ? 'none' : 'table-row';
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if not has_data %}
+<!-- ── No-data state ──────────────────────────────────────────────────── -->
+<div class="no-data-panel">
+    <div class="no-data-icon">&#128202;</div>
+    <h3>Intelligence Data Not Yet Available</h3>
+    <p>
+        The intelligence pipeline has not run yet for this environment.
+        Run the intelligence pipeline to populate this dashboard.<br><br>
+        Example:<br>
+        <code>python -m execution.intelligence.risk_scorer</code>
+    </p>
+</div>
+
+{% else %}
+
+<!-- ── Org trend badge ────────────────────────────────────────────────── -->
+<div class="org-trend-badge {{ trend_class }}">
+    {{ trend_arrow }} Portfolio trend: {{ org_trend | title }}
+</div>
+
+<!-- ── KPI row ───────────────────────────────────────────────────────── -->
+<div class="kpi-grid">
+{% for card in kpi_cards %}
+    <div class="kpi-card {{ card.status_class }}">
+        <div class="kpi-label">{{ card.label }}</div>
+        <div class="kpi-value">{{ card.value }}</div>
+        <div class="kpi-description">{{ card.description }}</div>
+    </div>
+{% endfor %}
+</div>
+
+<!-- ── Risk gauge + portfolio trend (two-column) ─────────────────────── -->
+<div class="intel-columns">
+
+    <!-- Risk gauge -->
+    <div class="intel-gauge-panel">
+        <h3>Org Risk Score</h3>
+        {% if risk_gauge_html %}
+        {{ risk_gauge_html | safe }}
+        {% else %}
+        <p style="color:var(--text-secondary);font-size:0.9rem;">No score available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Portfolio trend chart -->
+    <div class="intel-trend-panel">
+        <h3>Portfolio Risk Trend</h3>
+        {% if portfolio_trend_chart %}
+        {{ portfolio_trend_chart | safe }}
+        {% else %}
+        <p style="color:var(--text-secondary);font-size:0.9rem;padding:40px 0;text-align:center;">
+            No historical trend data available yet.<br>
+            The chart will populate after multiple intelligence pipeline runs.
+        </p>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- ── Top risk projects table ───────────────────────────────────────── -->
+<div class="section">
+    <h2>Top Risk Projects</h2>
+    {% if top_risks %}
+    <p class="section-hint">
+        Sorted by composite risk score (highest first).
+        Click any row to expand component breakdown.
+    </p>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th style="width:200px;">Risk Score</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for rs in top_risks %}
+                <tr class="parent-row expandable"
+                    onclick="toggleRow(this)"
+                    style="cursor:pointer"
+                    title="Click to expand component details">
+                    <td>
+                        <span style="color:var(--text-secondary);font-size:0.75rem;margin-right:6px;">&#9658;</span>
+                        <strong>{{ rs.project }}</strong>
+                    </td>
+                    <td>
+                        <div class="score-bar-wrap">
+                            <span class="score-label
+                                {% if rs.level in ('critical', 'high') %}score-action
+                                {% elif rs.level == 'medium' %}score-caution
+                                {% else %}score-good{% endif %}">
+                                {{ rs.total | int }}
+                            </span>
+                            <div class="score-bar-bg">
+                                <div class="score-bar-fill
+                                    {% if rs.level in ('critical', 'high') %}score-action
+                                    {% elif rs.level == 'medium' %}score-caution
+                                    {% else %}score-good{% endif %}"
+                                    style="width:{{ rs.total | int }}%">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ rs.status_class }}">
+                            {{ rs.level | title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ rs.status_class }}">
+                            {{ rs.status }}
+                        </span>
+                    </td>
+                </tr>
+                <tr class="detail-row" style="display:none">
+                    <td colspan="4">
+                        {% if rs.components %}
+                        <div class="component-grid">
+                            {% for comp in rs.components %}
+                            <div class="component-item">
+                                <div class="comp-label">{{ comp.name | replace('_', ' ') | title }}</div>
+                                <div class="comp-value">
+                                    {{ comp.raw_score | int }}/100
+                                    <span style="color:var(--text-secondary);font-size:0.8em;">
+                                        (weight {{ (comp.weight * 100) | int }}%)
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p style="color:var(--text-secondary);font-size:0.85rem;margin:0;">
+                            No component breakdown available for this project.
+                        </p>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color:var(--text-secondary);font-size:0.9rem;">
+        No risk score data available to display.
+    </p>
+    {% endif %}
+</div>
+
+{% endif %}{# end has_data #}
+
+{% endblock %}
