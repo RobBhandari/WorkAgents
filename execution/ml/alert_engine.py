@@ -107,6 +107,22 @@ THRESHOLD_RULES: list[ThresholdRule] = [
         severity="critical",
         message_template="{project} has {value:.0f} critical vulnerabilities open (expected 0)",
     ),
+    ThresholdRule(
+        dashboard="exploitable",
+        metric_name="critical_vulns",
+        threshold=0.0,
+        operator="above",
+        severity="critical",
+        message_template="{project} has {value:.0f} exploitable critical CISA KEV findings (expected 0)",
+    ),
+    ThresholdRule(
+        dashboard="exploitable",
+        metric_name="high_vulns",
+        threshold=0.0,
+        operator="above",
+        severity="warn",
+        message_template="{project} has {value:.0f} exploitable high CISA KEV findings open",
+    ),
 ]
 
 
