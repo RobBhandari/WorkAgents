@@ -229,7 +229,156 @@ jobs:
           retention-days: 1
         if: steps.collect.outcome == 'success'
 
-  # Job 3: Generate all dashboards in parallel
+  # Job 3a: Run intelligence pipeline (feature engineering → forecasting → risk scoring)
+  # Depends on collect-metrics; runs in parallel with generate-dashboards.
+  # continue-on-error so a first-run ML failure never blocks dashboard deployment.
+  run-intelligence:
+    needs: collect-metrics
+    if: always()
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create output directories
+        run: mkdir -p data/features data/forecasts data/insights .tmp/observatory/dashboards
+
+      - name: Create baseline files from secrets
+        run: |
+          mkdir -p data
+          echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
+          echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
+
+      - name: Download all metrics artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: metrics-artifacts/
+        continue-on-error: true  # proceed with whatever collectors succeeded
+
+      - name: Organise metrics into .tmp/observatory
+        run: |
+          find metrics-artifacts -name "*_history.json" -exec cp {} .tmp/observatory/ \; 2>/dev/null || true
+          echo "History files available for intelligence pipeline:"
+          ls -lh .tmp/observatory/*_history.json 2>/dev/null || echo "  None found"
+
+      - name: Run intelligence pipeline (feature engineering → forecasting → risk scoring)
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python scripts/run_intelligence_pipeline.py
+        continue-on-error: true  # partial output is still useful for dashboards
+
+      - name: Generate intelligence report (template mode — no LLM key required)
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python scripts/generate_intelligence_report.py \
+            --output-dir .tmp/observatory/dashboards
+        continue-on-error: true
+
+      - name: Upload intelligence outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: intelligence-outputs
+          path: |
+            data/forecasts/
+            data/insights/
+            data/model_performance.json
+            .tmp/observatory/dashboards/intelligence_report_latest.html
+          retention-days: 1
+        if: always()
+
+  # Job 3b: Generate intelligence dashboards (depends on run-intelligence outputs)
+  generate-intelligence-dashboards:
+    needs: run-intelligence
+    if: always()
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dashboard:
+          - { name: 'Executive Panel',       script: 'executive_panel.py' }
+          - { name: 'Predictive Analytics',  script: 'predictive_analytics.py' }
+          - { name: 'Model Performance',     script: 'model_performance_dashboard.py' }
+          - { name: 'Correlation Heatmap',   script: 'correlation_heatmap.py' }
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create baseline files from secrets
+        run: |
+          mkdir -p data
+          echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
+          echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
+
+      - name: Download intelligence outputs (forecasts, risk scores, model perf)
+        uses: actions/download-artifact@v4
+        with:
+          name: intelligence-outputs
+          path: intelligence-outputs/
+        continue-on-error: true  # dashboards render fallback state if absent
+
+      - name: Restore intelligence outputs to expected paths
+        run: |
+          mkdir -p data/forecasts data/insights
+          cp -r intelligence-outputs/data/forecasts/. data/forecasts/ 2>/dev/null || true
+          cp -r intelligence-outputs/data/insights/.  data/insights/  2>/dev/null || true
+          cp intelligence-outputs/data/model_performance.json data/ 2>/dev/null || true
+          echo "Intelligence artifacts restored:"
+          ls data/forecasts/ 2>/dev/null | head -5 || echo "  No forecasts"
+          ls data/insights/  2>/dev/null | head -5 || echo "  No insights"
+
+      - name: Download metrics artifacts (history files for context-aware dashboards)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: metrics-artifacts/
+        continue-on-error: true
+
+      - name: Organise metrics into .tmp/observatory
+        run: |
+          mkdir -p .tmp/observatory/dashboards
+          find metrics-artifacts -name "*_history.json" -exec cp {} .tmp/observatory/ \; 2>/dev/null || true
+
+      - name: Generate ${{ matrix.dashboard.name }} Dashboard
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          python execution/dashboards/${{ matrix.dashboard.script }}
+        continue-on-error: true
+
+      - name: Upload dashboard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-${{ matrix.dashboard.name }}
+          path: .tmp/observatory/dashboards/
+          retention-days: 1
+        if: always()
+
+  # Job 3c: Generate all legacy dashboards in parallel
   generate-dashboards:
     needs: collect-metrics
     if: always()  # Run even if collect-metrics fails
@@ -402,7 +551,7 @@ jobs:
 
   # Job 4: Deploy to Azure Static Web Apps
   deploy-to-azure:
-    needs: generate-dashboards
+    needs: [generate-dashboards, generate-intelligence-dashboards]
     if: always()  # Run even if some dashboards fail
     runs-on: ubuntu-latest
 
@@ -489,6 +638,30 @@ jobs:
             ls -la .tmp/observatory/dashboards/
           else
             echo "⚠️  No dashboards found, deployment will be empty"
+          fi
+
+      - name: Download intelligence outputs (report + updated model_performance.json)
+        uses: actions/download-artifact@v4
+        with:
+          name: intelligence-outputs
+          path: intelligence-outputs/
+        continue-on-error: true  # don't block deploy if intelligence pipeline failed
+
+      - name: Copy intelligence report and update model_performance.json
+        run: |
+          # Copy intelligence report to deployment directory (if generated)
+          if [ -f "intelligence-outputs/.tmp/observatory/dashboards/intelligence_report_latest.html" ]; then
+            cp intelligence-outputs/.tmp/observatory/dashboards/intelligence_report_latest.html \
+               .tmp/observatory/dashboards/
+            echo "✅ intelligence_report_latest.html added to deployment"
+          else
+            echo "ℹ️  No intelligence report generated this run (template fallback may apply)"
+          fi
+
+          # Update committed model_performance.json with latest MAPE scores
+          if [ -f "intelligence-outputs/data/model_performance.json" ]; then
+            cp intelligence-outputs/data/model_performance.json data/model_performance.json
+            echo "✅ model_performance.json updated from intelligence pipeline"
           fi
 
       - name: Regenerate Trends dashboard with accurate security count
@@ -627,6 +800,8 @@ jobs:
 
           # Stage FIRST (before any pull) to avoid "unstaged changes" error
           git add -f .tmp/observatory/*_history.json
+          # Also commit updated model performance MAPE scores (non-sensitive)
+          git add -f data/model_performance.json 2>/dev/null || true
 
           if ! git diff --staged --quiet; then
             echo "📝 Committing genericized history files..."
