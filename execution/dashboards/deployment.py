@@ -35,6 +35,7 @@ from execution.collectors.ado_deployment_metrics import (
 )
 from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.core import get_logger
+from execution.dashboards.deployment_helpers import load_deployment_trend_chart
 from execution.dashboards.renderer import render_dashboard
 from execution.domain.deployment import DeploymentMetrics, from_json
 from execution.framework import get_dashboard_framework
@@ -269,6 +270,9 @@ def _build_context(
     # Build project rows
     projects = _build_project_rows(metrics_list, raw_projects)
 
+    # Build build-success-rate trend chart from deployment history (graceful empty if unavailable)
+    deployment_trend_chart = load_deployment_trend_chart()
+
     # Build context
     context = {
         "framework_css": framework_css,
@@ -277,6 +281,7 @@ def _build_context(
         "summary_cards": summary_cards,
         "projects": projects,
         "show_glossary": True,
+        "deployment_trend_chart": deployment_trend_chart,
     }
 
     return context

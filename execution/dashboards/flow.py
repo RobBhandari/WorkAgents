@@ -26,6 +26,7 @@ from typing import Any
 from execution.collectors.ado_flow_metrics import collect_flow_metrics_for_project
 from execution.collectors.ado_rest_client import get_ado_rest_client
 from execution.core import get_logger
+from execution.dashboards.components.forecast_chart import build_trend_chart
 from execution.dashboards.flow_helpers import (
     build_project_tables,
     build_summary_cards,
@@ -167,6 +168,70 @@ async def generate_flow_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
+def _load_flow_trend_chart() -> str:
+    """
+    Load flow history and build a portfolio avg lead time trend chart.
+
+    Reads the last 12 entries from flow_history.json, deduplicates by date,
+    computes portfolio-average P85 lead time per snapshot, and renders a
+    Plotly trend chart.
+
+    Returns:
+        HTML string for the trend chart, or empty string if history unavailable.
+    """
+    history_path = Path(".tmp/observatory/flow_history.json")
+    if not history_path.exists():
+        logger.info("flow_history.json not found — skipping trend chart")
+        return ""
+
+    try:
+        data = load_json_with_recovery(str(history_path))
+        weeks = data.get("weeks", [])
+    except Exception:
+        logger.warning("Could not load flow_history.json for trend chart")
+        return ""
+
+    if not weeks:
+        return ""
+
+    # Deduplicate by week_date (keep last occurrence per date)
+    seen: dict[str, dict[str, Any]] = {}
+    for entry in weeks:
+        date = entry.get("week_date", "")
+        if date:
+            seen[date] = entry
+
+    # Use last 12 unique dates for the chart
+    unique_entries = list(seen.values())[-12:]
+
+    weekly_values: list[float] = []
+    week_labels: list[str] = []
+
+    for entry in unique_entries:
+        projects = entry.get("projects", [])
+        p85_values: list[float] = []
+        for project in projects:
+            for work_type in ["Bug", "User Story", "Task"]:
+                p85 = project.get("work_type_metrics", {}).get(work_type, {}).get("lead_time", {}).get("p85")
+                if p85 and float(p85) > 0:
+                    p85_values.append(float(p85))
+        if p85_values:
+            avg_p85 = sum(p85_values) / len(p85_values)
+            weekly_values.append(avg_p85)
+            week_labels.append(entry.get("week_date", ""))
+
+    if not weekly_values:
+        return ""
+
+    return build_trend_chart(
+        weekly_values,
+        week_labels,
+        "Avg Lead Time P85 (days)",
+        color="#6366f1",
+        height=250,
+    )
+
+
 def _build_context(week_data: dict[str, Any], summary_stats: dict[str, Any]) -> dict[str, Any]:
     """
     Build template context with all dashboard data.
@@ -190,6 +255,9 @@ def _build_context(week_data: dict[str, Any], summary_stats: dict[str, Any]) -> 
     summary_cards = build_summary_cards(summary_stats)
     work_type_cards = build_work_type_cards(summary_stats)
     work_types = build_project_tables(week_data, summary_stats)
+
+    # Build trend chart from flow history (graceful empty if unavailable)
+    flow_trend_chart = _load_flow_trend_chart()
 
     # Determine portfolio status
     avg_lead = summary_stats["avg_lead_time"]
@@ -215,6 +283,7 @@ def _build_context(week_data: dict[str, Any], summary_stats: dict[str, Any]) -> 
         "work_type_cards": work_type_cards,
         "work_types": work_types,
         "project_count": summary_stats["project_count"],
+        "flow_trend_chart": flow_trend_chart,
     }
 
 

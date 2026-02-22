@@ -15,7 +15,7 @@ Usage::
 """
 
 import sqlite3
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
@@ -25,6 +25,52 @@ from execution.ml.anomaly_detector import AnomalyDetector, AnomalyResult
 logger = get_logger(__name__)
 
 DEFAULT_DB_PATH = Path(".tmp/observatory/observatory.db")
+
+# ---------------------------------------------------------------------------
+# Root-cause dimension whitelist — only these values may appear in hint strings.
+# Phase B ML work will populate root_cause_hint; this whitelist guards the format.
+# ---------------------------------------------------------------------------
+
+ALLOWED_ROOT_CAUSE_DIMENSIONS: frozenset[str] = frozenset(
+    {
+        "security",
+        "quality",
+        "flow",
+        "deployment",
+        "ownership",
+        "risk",
+        "collaboration",
+        "bugs",
+        "vulnerabilities",
+        "lead_time",
+        "throughput",
+        "wip",
+        "build_success",
+        "deploy_frequency",
+    }
+)
+
+
+def format_root_cause_hint(dimension: str, delta: float) -> str:
+    """
+    Return a validated root-cause hint string.
+
+    Args:
+        dimension: Must be a member of ALLOWED_ROOT_CAUSE_DIMENSIONS.
+        delta: Numeric percentage delta; always cast to float before formatting.
+
+    Returns:
+        Formatted hint string, e.g. "Primary driver: security (+12.3%)"
+
+    Raises:
+        ValueError: If dimension is not in the allowed whitelist.
+    """
+    if dimension not in ALLOWED_ROOT_CAUSE_DIMENSIONS:
+        raise ValueError(
+            f"dimension {dimension!r} is not in ALLOWED_ROOT_CAUSE_DIMENSIONS. "
+            f"Allowed: {sorted(ALLOWED_ROOT_CAUSE_DIMENSIONS)}"
+        )
+    return f"Primary driver: {dimension} ({float(delta):+.1f}%)"
 
 
 @dataclass
@@ -52,6 +98,9 @@ class Alert:
     value: float | None
     expected: float | None
     message: str
+    root_cause_hint: str = field(default="")
+    # Phase B (ML causal decomposition) will populate root_cause_hint via
+    # format_root_cause_hint(dimension, delta).  Left empty for Phase A.
 
 
 # ---------------------------------------------------------------------------
