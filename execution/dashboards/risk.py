@@ -202,8 +202,8 @@ def _build_context(risk_data: dict, summary_stats: dict) -> dict:
     """
     # Get dashboard framework (CSS/JS)
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#f59e0b",
-        header_gradient_end="#d97706",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=True,
         include_expandable_rows=True,
         include_glossary=True,

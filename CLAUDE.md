@@ -361,11 +361,22 @@ def test_calculate_summary(sample_data):
 - **ALWAYS** include `framework_css` and `framework_js` in template context
 - **NEVER** override `.summary-card .value` styles in individual dashboards
 
-### Standard Header Gradient
-Use this for new dashboards (consistency across 3/12 dashboards):
+### Standard Header Style
+Use this for all dashboards (flat dark slate, matches Executive Trends Dashboard):
 ```python
-header_gradient_start="#667eea"  # purple-blue
-header_gradient_end="#764ba2"    # purple
+header_gradient_start="#0f172a"  # flat dark slate
+header_gradient_end="#0f172a"    # flat dark slate (no gradient)
+```
+Also add this CSS override in the template's `{% block extra_css %}`:
+```css
+.header {
+    background: #0f172a !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    padding: 48px 32px !important;
+}
 ```
 
 ### Visual Verification (MANDATORY)
@@ -415,7 +426,7 @@ When asked to create a new dashboard, follow this protocol:
 - New deployment workflows (will use existing refresh-dashboards.yml)
 
 **Visual Design:**
-- Header gradient: #667eea → #764ba2 (standard purple)
+- Header: flat dark slate #0f172a (no gradient, no border-radius — matches Executive Trends style)
 - Status badges: Use existing status-good/caution/action classes
 - Layout: [describe - e.g., "summary cards + expandable detail table"]
 

@@ -201,8 +201,8 @@ def _build_context(metrics_by_product: dict[str, SecurityMetrics], summary_stats
     """
     # Get dashboard framework (CSS/JS)
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#8b5cf6",
-        header_gradient_end="#7c3aed",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=True,
         include_expandable_rows=True,  # Enable expandable rows
         include_glossary=True,
