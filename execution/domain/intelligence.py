@@ -5,15 +5,19 @@ Domain models for ML/forecasting outputs. All domain models inherit from
 MetricSnapshot to maintain consistency with the existing domain model pattern.
 
 Models:
-    ForecastPoint      — Single forecast data point at a given horizon week
-    ForecastResult     — P10/P50/P90 forecast bands + model metadata
-    TrendStrengthScore — Trend strength and direction (0-100 score)
-    RiskScoreComponent — Single weighted component of the composite risk score
-    RiskScore          — Composite risk score with component breakdown
-    ScenarioPoint      — Single Monte Carlo scenario forecast point (Phase C)
-    ScenarioResult     — Full Monte Carlo scenario result with P10/P50/P90 (Phase C)
-    CausalContribution — Single dimension's contribution to a metric change (Phase C)
-    MetricInsight      — Generated text insight for a metric (Phase C)
+    ForecastPoint        — Single forecast data point at a given horizon week
+    ForecastResult       — P10/P50/P90 forecast bands + model metadata
+    TrendStrengthScore   — Trend strength and direction (0-100 score)
+    RiskScoreComponent   — Single weighted component of the composite risk score
+    RiskScore            — Composite risk score with component breakdown
+    ScenarioPoint        — Single Monte Carlo scenario forecast point (Phase C)
+    ScenarioResult       — Full Monte Carlo scenario result with P10/P50/P90 (Phase C)
+    CausalContribution   — Single dimension's contribution to a metric change (Phase C)
+    MetricInsight        — Generated text insight for a metric (Phase C)
+    HealthClassification — RandomForest health classification result (Phase D)
+                           (defined in intelligence_ml.py; re-exported here)
+    ClusterResult        — KMeans/DBSCAN cluster assignment result (Phase D)
+                           (defined in intelligence_ml.py; re-exported here)
 """
 
 from __future__ import annotations
@@ -457,3 +461,14 @@ class MetricInsight(MetricSnapshot):
     def severity_emoji(self) -> str:
         """Return an emoji corresponding to this insight's severity level."""
         return {"info": "💡", "warning": "⚠️", "critical": "🔴"}.get(self.severity, "💡")
+
+
+# ---------------------------------------------------------------------------
+# Phase D domain models — re-exported from intelligence_ml.py
+# (Separated to keep this file within the 500-line limit)
+# ---------------------------------------------------------------------------
+
+from execution.domain.intelligence_ml import (  # noqa: F401, E402
+    ClusterResult,
+    HealthClassification,
+)

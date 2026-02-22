@@ -1,0 +1,440 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Model Performance{% endblock %}
+{% block meta_description %}Model Performance Dashboard — ML model health, accuracy, and drift monitoring{% endblock %}
+
+{% block header_title %}Model Performance{% endblock %}
+{% block header_subtitle %}Predictive Intelligence Platform{% endblock %}
+{% block header_metadata %}Generated: {{ generation_date }}{% endblock %}
+{% block footer_context %}Model Performance Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Flat dark slate header — matches Executive Trends Dashboard */
+    .header {
+        background: #0f172a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 48px 32px !important;
+    }
+
+    /* ── Portfolio status badge ───────────────────────────────── */
+    .portfolio-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    .portfolio-badge.status-good    { background: rgba(16,185,129,0.15); color: #10b981; }
+    .portfolio-badge.status-caution { background: rgba(245,158,11,0.15);  color: #f59e0b; }
+    .portfolio-badge.status-action  { background: rgba(239,68,68,0.15);   color: #ef4444; }
+
+    /* ── Summary cards grid ───────────────────────────────────── */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .summary-card {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 20px 16px;
+        border-left: 4px solid #334155;
+    }
+
+    .summary-card.status-good    { border-left-color: #10b981; }
+    .summary-card.status-caution { border-left-color: #f59e0b; }
+    .summary-card.status-action  { border-left-color: #ef4444; }
+
+    .summary-card .card-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 8px;
+    }
+
+    .summary-card .card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        line-height: 1.1;
+        margin-bottom: 4px;
+    }
+
+    .summary-card .card-description {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #94a3b8);
+    }
+
+    /* ── Section layout ───────────────────────────────────────── */
+    .section {
+        margin-bottom: 32px;
+    }
+
+    .section h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 12px;
+        padding-left: 4px;
+    }
+
+    .section-hint {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 14px;
+    }
+
+    /* ── Model detail table ───────────────────────────────────── */
+    .table-container {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        overflow-x: auto;
+    }
+
+    .metrics-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .metrics-table thead th {
+        background: rgba(15, 23, 42, 0.5);
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary, #94a3b8);
+        border-bottom: 1px solid #334155;
+        white-space: nowrap;
+    }
+
+    .metrics-table tbody tr {
+        border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+        transition: background-color 0.15s ease;
+    }
+
+    .metrics-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .metrics-table tbody tr:hover {
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .metrics-table tbody td {
+        padding: 12px 16px;
+        color: var(--text-primary, #e2e8f0);
+        vertical-align: middle;
+    }
+
+    .model-name-cell {
+        font-weight: 600;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        color: #818cf8;
+    }
+
+    .metric-dim {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+    }
+
+    .numeric-cell {
+        font-variant-numeric: tabular-nums;
+        font-size: 0.88rem;
+    }
+
+    .drift-low    { color: #10b981; }
+    .drift-medium { color: #f59e0b; }
+    .drift-high   { color: #ef4444; }
+
+    /* ── Status badge ─────────────────────────────────────────── */
+    .status-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: capitalize;
+    }
+
+    .status-badge.status-good   { background: rgba(16,185,129,0.15); color: #10b981; }
+    .status-badge.status-action { background: rgba(239,68,68,0.15);  color: #ef4444; }
+
+    /* ── No-data state ────────────────────────────────────────── */
+    .no-data-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 48px 32px;
+        text-align: center;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 32px;
+    }
+
+    .no-data-panel .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .no-data-panel h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 10px;
+    }
+
+    .no-data-panel p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+
+    .no-data-panel code {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+    }
+
+    /* ── Glossary section ─────────────────────────────────────── */
+    .glossary-section {
+        margin-top: 40px;
+        border-top: 1px solid #334155;
+        padding-top: 24px;
+    }
+
+    .glossary-toggle {
+        background: none;
+        border: none;
+        color: var(--text-secondary, #94a3b8);
+        font-size: 0.82rem;
+        cursor: pointer;
+        padding: 0;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+    }
+
+    .glossary-toggle:hover {
+        color: var(--text-primary, #e2e8f0);
+    }
+
+    .glossary-content {
+        display: none;
+        margin-top: 16px;
+    }
+
+    .glossary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px 24px;
+    }
+
+    .glossary-item .gterm {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #818cf8;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 2px;
+    }
+
+    .glossary-item .gdef {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        line-height: 1.5;
+    }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleGlossary() {
+        var content = document.getElementById('glossary-content');
+        var btn = document.getElementById('glossary-btn');
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            btn.textContent = 'Show glossary';
+        } else {
+            content.style.display = 'block';
+            btn.textContent = 'Hide glossary';
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if not has_data %}
+<!-- ── No-data state ──────────────────────────────────────────────────── -->
+<div class="no-data-panel">
+    <div class="no-data-icon">&#129302;</div>
+    <h3>Model Performance Data Not Yet Available</h3>
+    <p>
+        No model performance records have been written to
+        <code>data/model_performance.json</code> yet.<br><br>
+        Run the intelligence pipeline training steps to populate this dashboard.
+    </p>
+</div>
+
+{% else %}
+
+<!-- ── Portfolio status badge ─────────────────────────────────────────── -->
+<div class="portfolio-badge {{ portfolio_status_class }}">
+    Portfolio: {{ portfolio_status }}
+</div>
+
+<!-- ── Summary cards ──────────────────────────────────────────────────── -->
+<div class="summary-grid">
+{% for card in summary_cards %}
+    <div class="summary-card {{ card.status_class }}">
+        <div class="card-title">{{ card.title }}</div>
+        <div class="card-value">{{ card.value }}</div>
+        <div class="card-description">{{ card.description }}</div>
+    </div>
+{% endfor %}
+</div>
+
+<!-- ── Model detail table ─────────────────────────────────────────────── -->
+<div class="section">
+    <h2>Model Registry</h2>
+    <p class="section-hint">
+        All registered models with their latest performance metrics.
+        Data as of: {{ last_updated }}.
+    </p>
+
+    {% if model_rows %}
+    <div class="table-container">
+        <table class="metrics-table">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Metric</th>
+                    <th>Algorithm</th>
+                    <th>MAPE</th>
+                    <th>Accuracy</th>
+                    <th>Drift Score</th>
+                    <th>Last Trained</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in model_rows %}
+                <tr>
+                    <td class="model-name-cell">{{ row.model_name }}</td>
+                    <td class="metric-dim">{{ row.metric }}</td>
+                    <td class="metric-dim">{{ row.algorithm }}</td>
+                    <td class="numeric-cell">{{ row.mape_display }}</td>
+                    <td class="numeric-cell">{{ row.accuracy_display }}</td>
+                    <td class="numeric-cell
+                        {% set drift_f = row.drift_score | float(-1) %}
+                        {% if drift_f >= 0 and drift_f < 0.05 %} drift-low
+                        {% elif drift_f >= 0.05 and drift_f < 0.15 %} drift-medium
+                        {% elif drift_f >= 0.15 %} drift-high
+                        {% endif %}">
+                        {{ row.drift_score }}
+                    </td>
+                    <td class="metric-dim">{{ row.last_trained }}</td>
+                    <td>
+                        <span class="status-badge {{ row.status_class }}">
+                            {{ row.status }}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color:var(--text-secondary);font-size:0.9rem;padding:16px 0;">
+        No models passed the allowlist filter. Check data/model_performance.json
+        for valid model names.
+    </p>
+    {% endif %}
+</div>
+
+{% endif %}{# end has_data #}
+
+<!-- ── Glossary ───────────────────────────────────────────────────────── -->
+<div class="glossary-section">
+    <button class="glossary-toggle" id="glossary-btn" onclick="toggleGlossary()">
+        Show glossary
+    </button>
+    <div class="glossary-content" id="glossary-content">
+        <div class="glossary-grid">
+            <div class="glossary-item">
+                <div class="gterm">MAPE</div>
+                <div class="gdef">
+                    Mean Absolute Percent Error. Lower is better.
+                    Applicable to regression/forecast models only.
+                </div>
+            </div>
+            <div class="glossary-item">
+                <div class="gterm">Accuracy</div>
+                <div class="gdef">
+                    Classification accuracy on the holdout set (0–1 scale).
+                    Applicable to classifier models only.
+                </div>
+            </div>
+            <div class="glossary-item">
+                <div class="gterm">Drift Score</div>
+                <div class="gdef">
+                    Statistical measure of input feature drift since last training.
+                    Values above 0.15 indicate significant distribution shift.
+                </div>
+            </div>
+            <div class="glossary-item">
+                <div class="gterm">Status</div>
+                <div class="gdef">
+                    Healthy: model within acceptable performance thresholds.
+                    Degraded: model performance has fallen below thresholds.
+                </div>
+            </div>
+            <div class="glossary-item">
+                <div class="gterm">Last Trained</div>
+                <div class="gdef">
+                    ISO timestamp of the most recent model training run.
+                    Models are retrained weekly or on significant drift.
+                </div>
+            </div>
+            <div class="glossary-item">
+                <div class="gterm">Algorithm</div>
+                <div class="gdef">
+                    ML algorithm used: linregress (OLS), random_forest,
+                    prophet (time-series), or kmeans (clustering).
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
