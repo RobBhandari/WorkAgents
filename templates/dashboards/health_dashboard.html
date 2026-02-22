@@ -170,8 +170,8 @@
         Score = Bug trend (0–50) + Security posture (0–50).
     </p>
     <p style="font-size:0.8rem; color: var(--text-secondary); margin-bottom:12px;">
-        <strong>Current bugs</strong> = open ADO bugs not in Closed/Removed state and not Triage=Rejected.
-        <strong>Exploitable vulns</strong> = CISA KEV catalogue matches (ArmorCode).
+        <strong title="Total count of open bug work items">Current bugs</strong> = open ADO bugs not in Closed/Removed state and not Triage=Rejected.
+        <strong title="Vulnerabilities with known exploit code available">Exploitable vulns</strong> = CISA KEV catalogue matches (ArmorCode).
     </p>
     <div class="table-wrapper">
         <table class="data-table">
@@ -181,7 +181,7 @@
                     <th style="text-align:center">Score</th>
                     <th>Status</th>
                     <th>Bug Trend</th>
-                    <th style="text-align:center">Current Bugs</th>
+                    <th style="text-align:center" title="Total count of open bug work items">Current Bugs</th>
                     <th>Anomaly</th>
                 </tr>
             </thead>
@@ -223,7 +223,7 @@
                                 <div class="detail-value">{{ row.forecast_4wk }}</div>
                             </div>
                             <div>
-                                <div class="detail-label">Exploitable Vulns</div>
+                                <div class="detail-label" title="Vulnerabilities with known exploit code available">Exploitable Vulns</div>
                                 <div class="detail-value">{{ row.exploitable_total }}</div>
                             </div>
                             <div>

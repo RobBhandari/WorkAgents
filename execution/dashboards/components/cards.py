@@ -2,9 +2,44 @@
 Card components for dashboards
 
 Provides reusable metric and summary card HTML generators using secure Jinja2 templates.
+Also exposes SEVERITY_EMOJI and METRIC_GLOSSARY for use by alert rendering and templates.
 """
 
 from execution.template_engine import render_template
+
+# ---------------------------------------------------------------------------
+# Severity emoji mapping — hardcoded Python literals, never from external data
+# ---------------------------------------------------------------------------
+
+SEVERITY_EMOJI: dict[str, str] = {
+    "critical": "🔴",
+    "high": "🔴",
+    "warning": "🟡",
+    "warn": "🟡",
+    "medium": "🟡",
+    "low": "🟢",
+    "good": "🟢",
+    "info": "ℹ️",
+}
+
+# ---------------------------------------------------------------------------
+# Metric glossary — hardcoded definitions for tooltip title attributes
+# ---------------------------------------------------------------------------
+
+METRIC_GLOSSARY: dict[str, str] = {
+    "Lead Time": "Time from work item creation to completion (days)",
+    "Throughput": "Items completed per week",
+    "WIP": "Work in progress: items currently active",
+    "Cycle Time": "Time from work start to completion (days)",
+    "DORA": "DevOps Research & Assessment metrics for software delivery",
+    "P1 Bugs": "Priority 1 (critical severity) open bugs",
+    "Open Bugs": "Total count of open bug work items",
+    "Vulnerabilities": "Open security vulnerabilities tracked in ArmorCode",
+    "Exploitable": "Vulnerabilities with known exploit code available",
+    "Build Success Rate": "Percentage of CI/CD pipeline runs that succeed",
+    "Deploy Frequency": "Number of successful deployments per week",
+    "MTTR": "Mean time to restore: average recovery time from failures (hours)",
+}
 
 
 def metric_card(title: str, value: str, subtitle: str = "", trend: str = "", css_class: str = "") -> str:
@@ -116,10 +151,15 @@ def attention_item_card(severity: str, category: str, message: str) -> str:
             message='5 critical vulnerabilities need immediate attention'
         )
     """
-    severity_map = {"high": "rag-red", "medium": "rag-amber", "low": "rag-green"}
-
-    css_class = severity_map.get(severity.lower(), "")
+    severity_lower = severity.lower()
+    severity_css_map = {"high": "rag-red", "medium": "rag-amber", "low": "rag-green"}
+    css_class = severity_css_map.get(severity_lower, "")
+    emoji = SEVERITY_EMOJI.get(severity_lower, "")
 
     return render_template(
-        "components/attention_item_card.html", css_class=css_class, category=category, message=message
+        "components/attention_item_card.html",
+        css_class=css_class,
+        category=category,
+        message=message,
+        severity_emoji=emoji,
     )
