@@ -625,6 +625,107 @@ class TestRenderDashboard:
         assert soup.find("title") is not None
 
 
+class TestLoadAlerts:
+    """Test _load_alerts() includes severity_emoji and root_cause_hint fields"""
+
+    @patch("execution.dashboards.trends.renderer._DB_PATH")
+    def test_load_alerts_returns_empty_when_no_db(self, mock_db_path, tmp_path) -> None:
+        """Returns an empty list when the DB file does not exist."""
+        mock_db_path.exists.return_value = False
+        renderer = TrendsRenderer({})
+        result = renderer._load_alerts()
+        assert result == []
+
+    @patch("execution.ml.alert_engine.AlertEngine")
+    @patch("execution.dashboards.trends.renderer._DB_PATH")
+    def test_load_alerts_includes_severity_emoji(self, mock_db_path, mock_alert_engine_cls) -> None:
+        """Each alert dict must include severity_emoji mapped from SEVERITY_EMOJI."""
+        from execution.ml.alert_engine import Alert
+
+        mock_db_path.exists.return_value = True
+        mock_engine = MagicMock()
+        mock_alert_engine_cls.return_value = mock_engine
+        mock_engine.load_alerts.return_value = [
+            Alert(
+                dashboard="deployment",
+                project_name="Product A",
+                metric_name="build_success_rate_pct",
+                metric_date="2026-02-17",
+                alert_type="threshold",
+                severity="critical",
+                value=70.0,
+                expected=80.0,
+                message="Product A build success rate is 70.0%",
+                root_cause_hint="",
+            )
+        ]
+
+        renderer = TrendsRenderer({})
+        alerts = renderer._load_alerts()
+
+        assert len(alerts) == 1
+        assert alerts[0]["severity_emoji"] == "🔴"
+
+    @patch("execution.ml.alert_engine.AlertEngine")
+    @patch("execution.dashboards.trends.renderer._DB_PATH")
+    def test_load_alerts_includes_root_cause_hint(self, mock_db_path, mock_alert_engine_cls) -> None:
+        """Each alert dict must include root_cause_hint from the Alert dataclass."""
+        from execution.ml.alert_engine import Alert
+
+        mock_db_path.exists.return_value = True
+        mock_engine = MagicMock()
+        mock_alert_engine_cls.return_value = mock_engine
+        mock_engine.load_alerts.return_value = [
+            Alert(
+                dashboard="quality",
+                project_name="Product B",
+                metric_name="open_bugs",
+                metric_date="2026-02-17",
+                alert_type="anomaly",
+                severity="high",
+                value=200.0,
+                expected=100.0,
+                message="Product B open_bugs: spike detected",
+                root_cause_hint="Primary driver: bugs (+12.5%)",
+            )
+        ]
+
+        renderer = TrendsRenderer({})
+        alerts = renderer._load_alerts()
+
+        assert len(alerts) == 1
+        assert alerts[0]["root_cause_hint"] == "Primary driver: bugs (+12.5%)"
+
+    @patch("execution.ml.alert_engine.AlertEngine")
+    @patch("execution.dashboards.trends.renderer._DB_PATH")
+    def test_load_alerts_warn_severity_maps_to_yellow_emoji(self, mock_db_path, mock_alert_engine_cls) -> None:
+        """'warn' severity should map to the yellow circle emoji."""
+        from execution.ml.alert_engine import Alert
+
+        mock_db_path.exists.return_value = True
+        mock_engine = MagicMock()
+        mock_alert_engine_cls.return_value = mock_engine
+        mock_engine.load_alerts.return_value = [
+            Alert(
+                dashboard="ownership",
+                project_name="Product C",
+                metric_name="unassigned_pct",
+                metric_date="2026-02-17",
+                alert_type="threshold",
+                severity="warn",
+                value=65.0,
+                expected=60.0,
+                message="Product C unassigned work is 65.0%",
+                root_cause_hint="",
+            )
+        ]
+
+        renderer = TrendsRenderer({})
+        alerts = renderer._load_alerts()
+
+        assert alerts[0]["severity_emoji"] == "🟡"
+
+
 class TestEdgeCases:
     """Test edge cases and error conditions"""
 
