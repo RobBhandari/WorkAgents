@@ -450,6 +450,28 @@ jobs:
           echo "✅ Fresh history files ready for genericization and commit:"
           ls -lh .tmp/observatory/*_history.json
 
+      - name: Build analytics database and run alerting
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          echo "📊 Importing metrics into SQLite analytics database..."
+          python execution/import_to_sqlite.py
+          echo "🔔 Running anomaly detection and alert engine..."
+          python -c "
+          from pathlib import Path
+          from execution.ml.alert_engine import AlertEngine
+          engine = AlertEngine(db_path=Path('.tmp/observatory/observatory.db'))
+          total = engine.run()
+          alerts = engine.load_alerts()
+          print(f'✅ {total} alerts generated')
+          if alerts:
+              print('Active alerts:')
+              for a in alerts[:10]:
+                  print(f'  [{a.severity.upper()}] {a.dashboard}/{a.project_name} {a.metric_name}: {a.message}')
+          else:
+              print('  No alerts — all metrics within normal range')
+          "
+        continue-on-error: true  # Alerting failure must not block deployment
+
       - name: Prepare deployment directory
         run: |
           mkdir -p .tmp/observatory/dashboards
