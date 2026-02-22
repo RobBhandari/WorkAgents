@@ -755,18 +755,16 @@ div.header {
         const container = document.getElementById('alerts-filter-btns');
         if (!container || container.childElementCount > 0) return; // already built
         const rows = document.querySelectorAll('.alert-row[data-severity]');
-        const counts = { all: rows.length };
-        rows.forEach(r => {
-            const s = r.dataset.severity;
-            counts[s] = (counts[s] || 0) + 1;
-        });
-        const order = ['all', 'critical', 'high', 'warn', 'medium'];
-        const labels = { all: 'All', critical: 'Critical', high: 'High', warn: 'Warn', medium: 'Medium' };
-        order.forEach(sev => {
-            if (counts[sev] === undefined) return;
+        const counts = {};
+        rows.forEach(r => { const s = r.dataset.severity; counts[s] = (counts[s] || 0) + 1; });
+        // Build All button first, then one button per distinct severity actually present
+        const severities = Object.keys(counts);
+        [{ sev: 'all', label: `All (${rows.length})` },
+         ...severities.map(s => ({ sev: s, label: `${s.charAt(0).toUpperCase() + s.slice(1)} (${counts[s]})` }))
+        ].forEach(({ sev, label }) => {
             const btn = document.createElement('button');
             btn.className = 'alerts-filter-btn' + (sev === 'all' ? ' active' : '');
-            btn.textContent = `${labels[sev]} (${counts[sev]})`;
+            btn.textContent = label;
             btn.dataset.filter = sev;
             btn.onclick = () => setAlertFilter(sev);
             container.appendChild(btn);
