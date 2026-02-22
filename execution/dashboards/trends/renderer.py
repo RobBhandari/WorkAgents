@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from execution.dashboards.components.cards import SEVERITY_EMOJI
 from execution.dashboards.renderer import render_dashboard
 from execution.framework import get_dashboard_framework
 
@@ -103,7 +104,9 @@ class TrendsRenderer:
                     "metric_date": a.metric_date,
                     "alert_type": a.alert_type,
                     "severity": a.severity,
+                    "severity_emoji": SEVERITY_EMOJI.get(a.severity, ""),
                     "message": a.message,
+                    "root_cause_hint": a.root_cause_hint,
                 }
                 for a in alerts
             ]
