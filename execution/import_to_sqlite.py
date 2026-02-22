@@ -288,23 +288,40 @@ def import_collaboration_metrics(conn: sqlite3.Connection) -> int:
     return total
 
 
+def _load_armorcode_id_map() -> dict[str, str]:
+    """Load ArmorCode ID map and invert it to {numeric_id: product_name}.
+
+    Returns an empty dict if the file doesn't exist (e.g. first run).
+    """
+    id_map_path = Path("data/armorcode_id_map.json")
+    if not id_map_path.exists():
+        return {}
+    with open(id_map_path, encoding="utf-8") as fh:
+        name_to_id: dict[str, str] = json.load(fh)
+    return {v: k for k, v in name_to_id.items()}
+
+
 def import_security_metrics(conn: sqlite3.Connection) -> int:
-    """Import security metrics (total vulnerabilities, critical/high counts)."""
+    """Import security metrics (critical/high counts) per product."""
     weeks = _load_history(HISTORY_DIR / "security_history.json")
     cursor = conn.cursor()
     total = 0
 
+    id_to_name = _load_armorcode_id_map()
+
     for week in weeks:
         week_date = week["week_date"]
         metrics = week.get("metrics", {})
-        sev = metrics.get("severity_breakdown", {})
+        product_breakdown = metrics.get("product_breakdown", {})
 
-        rows: list[tuple[str, float | None, str]] = [
-            ("total_vulnerabilities", metrics.get("current_total"), "vulns"),
-            ("critical_vulns", sev.get("critical"), "vulns"),
-            ("high_vulns", sev.get("high"), "vulns"),
-        ]
-        total += _insert_metrics(cursor, week_date, "security", "All Products", rows)
+        for product_id, counts in product_breakdown.items():
+            product_name = id_to_name.get(str(product_id), f"Product {product_id}")
+            rows: list[tuple[str, float | None, str]] = [
+                ("critical_vulns", counts.get("critical"), "vulns"),
+                ("high_vulns", counts.get("high"), "vulns"),
+                ("total_vulnerabilities", counts.get("total"), "vulns"),
+            ]
+            total += _insert_metrics(cursor, week_date, "security", product_name, rows)
 
     conn.commit()
     print(f"  ✓ security: {total} rows")

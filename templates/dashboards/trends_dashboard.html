@@ -456,9 +456,9 @@ div.header {
             <strong>{{ active_alerts|length }} Active Alert{{ 's' if active_alerts|length != 1 else '' }}</strong>
             <span class="alerts-subtitle">— anomalies and threshold violations detected this week</span>
         </div>
-        <button class="alerts-toggle" id="alerts-toggle-btn">Hide</button>
+        <button class="alerts-toggle" id="alerts-toggle-btn">Show</button>
     </div>
-    <div class="alerts-list" id="alerts-list">
+    <div class="alerts-list" id="alerts-list" style="display: none">
         {% for alert in active_alerts %}
         <div class="alert-row alert-{{ alert.severity }}">
             <span class="alert-badge badge-{{ alert.severity }}">{{ alert.severity|upper }}</span>
