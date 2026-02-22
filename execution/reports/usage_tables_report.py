@@ -369,8 +369,8 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
 
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#667eea",
-        header_gradient_end="#764ba2",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=True,
         include_expandable_rows=False,
         include_glossary=False,
@@ -385,6 +385,16 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
     <title>{TEAM_FILTER} AI Tools Usage Report</title>
     {framework_css}
     <style>
+        /* Flat dark header — matches Executive Trends style */
+        .header {{
+            background: #0f172a !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+            padding: 48px 32px !important;
+        }}
+
         /* Dashboard-specific styles */
         .stats-card {{
             background: var(--bg-secondary);
@@ -441,7 +451,7 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
             padding: 16px;
             border-radius: 8px;
             text-align: center;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #3b82f6;
         }}
 
         @media (min-width: 768px) {{
@@ -600,7 +610,7 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
 
         .search-box:focus {{
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }}
 
@@ -852,8 +862,8 @@ def generate_interactive_html(output_file: str) -> str:
     """
     # Get mobile-responsive framework
     framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#667eea",
-        header_gradient_end="#764ba2",
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
         include_table_scroll=True,
         include_expandable_rows=False,
         include_glossary=False,
@@ -870,11 +880,21 @@ def generate_interactive_html(output_file: str) -> str:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     {framework_css}
     <style>
+        /* Flat dark header — matches Executive Trends style */
+        .header {{
+            background: #0f172a !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+            padding: 48px 32px !important;
+        }}
+
         .import-button {{
             position: fixed;
             top: 220px;
             right: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -956,7 +976,7 @@ def generate_interactive_html(output_file: str) -> str:
             padding: 20px;
             border-radius: 8px;
             text-align: center;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #3b82f6;
         }}
 
         .stat-card .value {{
@@ -1009,7 +1029,7 @@ def generate_interactive_html(output_file: str) -> str:
 
         .search-box:focus {{
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }}
 
