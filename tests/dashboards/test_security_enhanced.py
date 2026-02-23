@@ -399,6 +399,7 @@ class TestGenerateSecurityDashboardEnhanced:
 
     @patch("execution.dashboards.security_enhanced.get_config")
     @patch("execution.dashboards.security_enhanced._update_history_current_total")
+    @patch("execution.dashboards.security_enhanced._patch_history_bucket_breakdown")
     @patch("execution.dashboards.security_enhanced.ArmorCodeVulnerabilityLoader")
     @patch("execution.dashboards.security_enhanced._load_id_map")
     @patch("execution.dashboards.security_content_builder.get_dashboard_framework")
@@ -409,12 +410,13 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_framework,
         mock_load_id_map,
         mock_vuln_loader_class,
+        mock_patch_history,
         mock_update_history,
         mock_get_config,
         sample_vulnerabilities,
         tmp_path,
     ):
-        """Should write exactly one HTML file (main dashboard only, no detail pages)."""
+        """Should write exactly two HTML files: main dashboard + infrastructure dashboard."""
         mock_load_id_map.return_value = {"Web Application": "pid1"}
         mock_get_config.return_value.get_optional_env.return_value = "test/hierarchy"
         mock_vuln_loader = Mock()
@@ -424,7 +426,7 @@ class TestGenerateSecurityDashboardEnhanced:
         mock_framework.return_value = ("<style></style>", "<script></script>")
 
         generate_security_dashboard_enhanced(tmp_path / "dashboards")
-        assert mock_write.call_count == 1  # Only main dashboard, no detail pages
+        assert mock_write.call_count == 2  # Main dashboard + infrastructure dashboard
 
 
 class TestProductionOnlyTotals:
@@ -566,3 +568,92 @@ class TestMetricsFromAqlCounts:
         result = _metrics_from_aql_counts(aql_by_product)
         assert result["P"].medium == 0
         assert result["P"].low == 0
+
+
+# ---------------------------------------------------------------------------
+# _patch_history_bucket_breakdown
+# ---------------------------------------------------------------------------
+
+
+class TestPatchHistoryBucketBreakdown:
+    """Unit tests for _patch_history_bucket_breakdown()."""
+
+    def _make_history(self, num_weeks: int = 2) -> dict:
+        """Build a minimal history dict with num_weeks entries."""
+        return {"weeks": [{"metrics": {"current_total": 300 - i * 10}} for i in range(num_weeks)]}
+
+    def test_writes_breakdown_to_latest_week_only(self, tmp_path):
+        """bucket_breakdown is written only to weeks[-1]; earlier weeks are untouched."""
+        history = self._make_history(num_weeks=3)
+        path = tmp_path / "security_history.json"
+        import json as _json
+
+        path.write_text(_json.dumps(history), encoding="utf-8")
+
+        bucket_counts = {
+            "Product A": {
+                "CODE": {"critical": 2, "high": 8, "total": 10},
+                "CLOUD": {"critical": 1, "high": 4, "total": 5},
+                "INFRASTRUCTURE": {"critical": 0, "high": 3, "total": 3},
+            }
+        }
+        from execution.dashboards.security_helpers import _patch_history_bucket_breakdown
+
+        _patch_history_bucket_breakdown(path, bucket_counts)
+
+        result = _json.loads(path.read_text(encoding="utf-8"))
+        # Only latest week should have bucket_breakdown
+        assert "bucket_breakdown" in result["weeks"][-1]["metrics"]
+        assert "bucket_breakdown" not in result["weeks"][0].get("metrics", {})
+
+    def test_code_cloud_totals_aggregated_correctly(self, tmp_path):
+        """CODE + CLOUD critical/high are summed correctly across all products."""
+        history = self._make_history(num_weeks=1)
+        path = tmp_path / "security_history.json"
+        import json as _json
+
+        path.write_text(_json.dumps(history), encoding="utf-8")
+
+        bucket_counts = {
+            "Alpha": {"CODE": {"critical": 3, "high": 7, "total": 10}},
+            "Beta": {"CLOUD": {"critical": 1, "high": 4, "total": 5}},
+        }
+        from execution.dashboards.security_helpers import _patch_history_bucket_breakdown
+
+        _patch_history_bucket_breakdown(path, bucket_counts)
+
+        result = _json.loads(path.read_text(encoding="utf-8"))
+        bb = result["weeks"][-1]["metrics"]["bucket_breakdown"]
+        assert bb["code_cloud"]["critical"] == 4  # 3 + 1
+        assert bb["code_cloud"]["high"] == 11  # 7 + 4
+        assert bb["code_cloud"]["total"] == 15  # 10 + 5
+
+    def test_infrastructure_totals_aggregated_correctly(self, tmp_path):
+        """INFRASTRUCTURE critical/high are summed correctly across all products."""
+        history = self._make_history(num_weeks=1)
+        path = tmp_path / "security_history.json"
+        import json as _json
+
+        path.write_text(_json.dumps(history), encoding="utf-8")
+
+        bucket_counts = {
+            "Alpha": {"INFRASTRUCTURE": {"critical": 2, "high": 5, "total": 7}},
+            "Beta": {"INFRASTRUCTURE": {"critical": 0, "high": 3, "total": 3}},
+        }
+        from execution.dashboards.security_helpers import _patch_history_bucket_breakdown
+
+        _patch_history_bucket_breakdown(path, bucket_counts)
+
+        result = _json.loads(path.read_text(encoding="utf-8"))
+        bb = result["weeks"][-1]["metrics"]["bucket_breakdown"]
+        assert bb["infrastructure"]["critical"] == 2
+        assert bb["infrastructure"]["high"] == 8
+        assert bb["infrastructure"]["total"] == 10
+
+    def test_noop_when_history_file_missing(self, tmp_path):
+        """No exception raised and no file created when history path does not exist."""
+        missing = tmp_path / "nonexistent_history.json"
+        from execution.dashboards.security_helpers import _patch_history_bucket_breakdown
+
+        # Should not raise
+        _patch_history_bucket_breakdown(missing, {})

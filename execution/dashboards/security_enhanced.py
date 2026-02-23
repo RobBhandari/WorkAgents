@@ -27,6 +27,7 @@ from execution.collectors.armorcode_vulnerability_loader import ArmorCodeVulnera
 from execution.core import get_logger
 from execution.dashboards.security_content_builder import (
     _generate_bucket_expanded_content,  # noqa: F401 — re-exported for test backward compat
+    _generate_infra_dashboard_html,
     _generate_main_dashboard_html,
 )
 from execution.dashboards.security_helpers import (
@@ -34,6 +35,7 @@ from execution.dashboards.security_helpers import (
     _calculate_summary,  # noqa: F401 — re-exported for test backward compat
     _group_findings_by_product,  # noqa: F401 — re-exported for test backward compat
     _metrics_from_aql_counts,
+    _patch_history_bucket_breakdown,
     _update_history_current_total,
 )
 from execution.domain.security import BUCKET_ORDER, SOURCE_BUCKET_MAP, SecurityMetrics
@@ -194,10 +196,21 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     )
 
     _update_history_current_total(Path(".tmp/observatory/security_history.json"), acc_c, acc_h)
+    _patch_history_bucket_breakdown(
+        Path(".tmp/observatory/security_history.json"),
+        bucket_counts_by_product,
+    )
 
     main_file = output_dir / "security_dashboard.html"
     main_file.write_text(main_html, encoding="utf-8")
     logger.info("Security dashboard written", extra={"path": str(main_file)})
+
+    infra_html = _generate_infra_dashboard_html(
+        metrics_by_product, vulns_by_product, bucket_counts_by_product, {}, aql_by_product
+    )
+    infra_file = output_dir / "security_infrastructure_dashboard.html"
+    infra_file.write_text(infra_html, encoding="utf-8")
+    logger.info("Security infrastructure dashboard written", extra={"path": str(infra_file)})
 
     return main_html, 0
 
