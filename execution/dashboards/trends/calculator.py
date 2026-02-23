@@ -40,7 +40,11 @@ class TrendsCalculator:
         current_bugs = sum(p.get("open_bugs_count", 0) for p in latest_quality.get("projects", []))
 
         latest_security = security_weeks[-1]
-        current_vulns = latest_security.get("metrics", {}).get("current_total", 0)
+        # Prefer Code+Cloud bucket total (target scope) over current_total (all sources).
+        # bucket_breakdown is patched in from today onwards; older weeks fall back to current_total.
+        _bb = latest_security.get("metrics", {}).get("bucket_breakdown", {})
+        _cc = _bb.get("code_cloud", {}).get("total", None)
+        current_vulns = _cc if _cc is not None else latest_security.get("metrics", {}).get("current_total", 0)
 
         # Calculate progress
         baseline_bugs = self.baselines.get("bugs", 0)
@@ -74,8 +78,10 @@ class TrendsCalculator:
             bugs_burned_4wk = bugs_4wk_ago - current_bugs
             actual_bugs_burn_rate = bugs_burned_4wk / 4
 
-            # Vulns 4 weeks ago
-            vulns_4wk_ago = security_weeks[-5].get("metrics", {}).get("current_total", 0)
+            # Vulns 4 weeks ago — prefer Code+Cloud bucket total where available
+            _bb4 = security_weeks[-5].get("metrics", {}).get("bucket_breakdown", {})
+            _cc4 = _bb4.get("code_cloud", {}).get("total", None)
+            vulns_4wk_ago = _cc4 if _cc4 is not None else security_weeks[-5].get("metrics", {}).get("current_total", 0)
             vulns_burned_4wk = vulns_4wk_ago - current_vulns
             actual_vulns_burn_rate = vulns_burned_4wk / 4
         else:
@@ -127,7 +133,10 @@ class TrendsCalculator:
             week_bugs = sum(p.get("open_bugs_count", 0) for p in quality_weeks[i].get("projects", []))
 
             if i < len(security_weeks):
-                week_vulns = security_weeks[i].get("metrics", {}).get("current_total", 0)
+                # Prefer Code+Cloud bucket total for consistency with target scope
+                _wbb = security_weeks[i].get("metrics", {}).get("bucket_breakdown", {})
+                _wcc = _wbb.get("code_cloud", {}).get("total", None)
+                week_vulns = _wcc if _wcc is not None else security_weeks[i].get("metrics", {}).get("current_total", 0)
 
                 # Calculate progress for this week
                 week_bugs_progress = (
@@ -143,9 +152,19 @@ class TrendsCalculator:
                 week_progress = (week_bugs_progress + week_vulns_progress) / 2
                 progress_trend.append(round(week_progress, 1))
 
+        # Use previous only if it was also computed with bucket_breakdown (code_cloud) data.
+        # If previous week lacks bucket_breakdown, default to current to avoid a spurious delta.
+        prev_has_cc = (
+            len(security_weeks) >= 2
+            and security_weeks[-2].get("metrics", {}).get("bucket_breakdown", {}).get("code_cloud") is not None
+        )
+        previous_progress = (
+            progress_trend[-2] if (len(progress_trend) > 1 and prev_has_cc) else round(overall_progress, 1)
+        )
+
         return {
             "current": round(overall_progress, 1),
-            "previous": progress_trend[-2] if len(progress_trend) > 1 else round(overall_progress, 1),
+            "previous": previous_progress,
             "trend_data": progress_trend,
             "unit": "% progress",
             "forecast": {
