@@ -124,6 +124,46 @@ def generate_dashboard_launcher(output_path: Path | None = None) -> str:
             "status": None,
             "status_class": "",
         },
+        {
+            "title": "Executive Panel",
+            "filename": "executive_panel.html",
+            "icon": "🧠",
+            "description": "Single-pane CTO view: risk scores, forecasts, top actions",
+            "status": None,
+            "status_class": "",
+        },
+        {
+            "title": "Predictive Analytics",
+            "filename": "predictive_analytics.html",
+            "icon": "🔮",
+            "description": "P10/P50/P90 forecasts and Monte Carlo scenario comparison",
+            "status": None,
+            "status_class": "",
+        },
+        {
+            "title": "Correlation Heatmap",
+            "filename": "correlation_heatmap.html",
+            "icon": "🔗",
+            "description": "Cross-metric Pearson correlation matrix and leading indicators",
+            "status": None,
+            "status_class": "",
+        },
+        {
+            "title": "Model Performance",
+            "filename": "model_performance_dashboard.html",
+            "icon": "📊",
+            "description": "ML model health, MAPE scores, and forecast accuracy tracking",
+            "status": None,
+            "status_class": "",
+        },
+        {
+            "title": "Intelligence Report",
+            "filename": "intelligence_report_latest.html",
+            "icon": "📋",
+            "description": "Weekly strategic intelligence brief with insights and recommendations",
+            "status": None,
+            "status_class": "",
+        },
     ]
 
     # Get framework CSS/JS
