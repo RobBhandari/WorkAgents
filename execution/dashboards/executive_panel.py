@@ -19,7 +19,7 @@ import plotly.graph_objects as go
 from execution.core import get_logger
 from execution.dashboards.components.forecast_chart import build_trend_chart
 from execution.dashboards.renderer import render_dashboard
-from execution.domain.intelligence import RiskScore
+from execution.domain.intelligence import RiskScore, RiskScoreComponent
 from execution.framework import get_dashboard_framework
 
 logger = get_logger(__name__)
@@ -55,11 +55,20 @@ def _load_risk_scores(base_dir: Path = Path("data/insights")) -> list[RiskScore]
             data = json.loads(json_file.read_text(encoding="utf-8"))
             entries = data if isinstance(data, list) else data.get("scores", [])
             for entry in entries:
+                components = [
+                    RiskScoreComponent(
+                        name=str(c["name"]),
+                        raw_score=float(c["raw_score"]),
+                        weight=float(c["weight"]),
+                        weighted=float(c["weighted"]),
+                    )
+                    for c in entry.get("components", [])
+                ]
                 scores.append(
                     RiskScore(
                         project=str(entry["project"]),
                         total=float(entry["total"]),
-                        components=[],
+                        components=components,
                     )
                 )
         except (KeyError, ValueError, OSError) as exc:

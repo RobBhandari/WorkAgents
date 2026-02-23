@@ -217,6 +217,59 @@ class TestLoadRiskScores:
         result = _load_risk_scores(base_dir=tmp_path)
         assert result == []
 
+    def test_loads_components_from_json(self, tmp_path: Path) -> None:
+        """Components in the JSON are parsed into RiskScoreComponent objects."""
+        data = [
+            {
+                "project": "Product_A",
+                "total": 68.0,
+                "components": [
+                    {"name": "vuln_risk", "raw_score": 90.0, "weight": 0.35, "weighted": 31.5},
+                    {"name": "quality_risk", "raw_score": 40.0, "weight": 0.25, "weighted": 10.0},
+                ],
+            }
+        ]
+        json_file = tmp_path / "risk_scores_2026-01-15.json"
+        json_file.write_text(json.dumps(data), encoding="utf-8")
+
+        result = _load_risk_scores(base_dir=tmp_path)
+
+        assert len(result) == 1
+        assert len(result[0].components) == 2
+
+    def test_component_fields_parsed_correctly(self, tmp_path: Path) -> None:
+        """Each component's name, raw_score, weight, and weighted are all populated."""
+        data = [
+            {
+                "project": "Product_A",
+                "total": 68.0,
+                "components": [
+                    {"name": "vuln_risk", "raw_score": 93.84, "weight": 0.35, "weighted": 32.84},
+                ],
+            }
+        ]
+        json_file = tmp_path / "risk_scores_2026-01-15.json"
+        json_file.write_text(json.dumps(data), encoding="utf-8")
+
+        result = _load_risk_scores(base_dir=tmp_path)
+        comp = result[0].components[0]
+
+        assert comp.name == "vuln_risk"
+        assert comp.raw_score == 93.84
+        assert comp.weight == 0.35
+        assert comp.weighted == 32.84
+
+    def test_components_empty_when_key_absent(self, tmp_path: Path) -> None:
+        """Entries without a 'components' key produce an empty components list."""
+        data = [{"project": "Product_A", "total": 55.0}]
+        json_file = tmp_path / "risk_scores_2026-01-15.json"
+        json_file.write_text(json.dumps(data), encoding="utf-8")
+
+        result = _load_risk_scores(base_dir=tmp_path)
+
+        assert len(result) == 1
+        assert result[0].components == []
+
 
 # ---------------------------------------------------------------------------
 # TestLoadForecastsSummary
