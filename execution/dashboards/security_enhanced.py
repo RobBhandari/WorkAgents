@@ -132,7 +132,8 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     metrics_by_product = _metrics_from_aql_counts(aql_by_product)
 
-    # Zero-pad: ensure all baseline products appear even with 0 Critical/High in Production.
+    # Zero-pad: ensure all known products appear even with 0 Critical/High in Production.
+    # known_products comes from ARMORCODE_ID_MAP secret (CI) or data/armorcode_id_map.json (local).
     from datetime import datetime as _dt
 
     for product_name in known_products:
