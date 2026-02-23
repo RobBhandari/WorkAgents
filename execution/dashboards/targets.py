@@ -38,6 +38,17 @@ from execution.utils.error_handling import log_and_raise
 
 logger = get_logger(__name__)
 
+# Code+Cloud vulnerability sources — the scope of the 70% reduction target.
+# Infrastructure sources (Cortex XDR, Tenable, AppCheck, BitSight) are excluded.
+_CODE_CLOUD_SOURCES: list[str] = [
+    "Mend",
+    "SonarQube",
+    "Custom-Pentest",
+    "Prisma Cloud Twistlock",
+    "Prisma Cloud Redlock",
+    "Prisma Cloud Compute",
+]
+
 
 async def generate_targets_dashboard(output_path: Path | None = None) -> str:
     """
@@ -215,18 +226,20 @@ async def _query_current_armorcode_vulns() -> int:
             "ARMORCODE_HIERARCHY env var not set. Add it as a GitHub secret and to your local .env file."
         )
 
-    logger.info("Querying ArmorCode API for Critical + High vulnerabilities (Production only, 2 AQL calls)")
+    logger.info("Querying ArmorCode API for Code+Cloud Critical + High vulnerabilities (Production only, 2 AQL calls)")
 
     loader = ArmorCodeVulnerabilityLoader()
-    critical_counts = loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
-    high_counts = loader.count_by_severity_aql("High", hierarchy, environment="Production")
+    critical_counts = loader.count_by_severity_aql(
+        "Critical", hierarchy, environment="Production", sources=_CODE_CLOUD_SOURCES
+    )
+    high_counts = loader.count_by_severity_aql("High", hierarchy, environment="Production", sources=_CODE_CLOUD_SOURCES)
 
     total_critical = sum(critical_counts.values())
     total_high = sum(high_counts.values())
     total_vulns = total_critical + total_high
 
     logger.info(
-        "Current ArmorCode vulnerabilities (Production only)",
+        "Code+Cloud vulns (target scope, Production only)",
         extra={"critical": total_critical, "high": total_high, "total": total_vulns},
     )
     return total_vulns

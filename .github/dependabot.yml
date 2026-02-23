@@ -16,20 +16,14 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    # Group updates to reduce PR noise
     groups:
-      production-dependencies:
+      # All minor/patch updates batched into one weekly PR
+      all-dependencies:
         patterns:
-          - "requests*"
-          - "pandas*"
-          - "jinja2*"
-          - "python-dotenv*"
-      development-dependencies:
-        patterns:
-          - "pytest*"
-          - "ruff*"
-          - "black*"
-          - "mypy*"
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

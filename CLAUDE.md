@@ -197,9 +197,31 @@ def from_json(data: dict) -> MyMetrics:
 
 ### File Size & Complexity Limits
 
-- **Maximum file size**: 500 lines (enforced by CI Architecture Patterns check)
-- **Maximum function complexity**: McCabe score < 10
-- If file exceeds limits, refactor into smaller modules
+**Principle**: A file should own exactly one logical concern, describable in a single sentence without "and". Size is a signal for review, not a hard limit.
+
+**McCabe complexity (hard limit, enforced by CI):**
+- **Maximum function complexity**: McCabe score < 10 — no exceptions
+- `radon cc execution/<module>.py -s` — no function may score above B
+
+**Size review thresholds** (soft — trigger architectural review, not automatic rejection):
+
+| Module type | Review trigger | Strong smell |
+|---|---|---|
+| Dashboard generator | >500 lines | >700 lines |
+| Collector | >700 lines | >900 lines |
+| Domain model | >300 lines | >450 lines |
+| ML module | >500 lines | >700 lines |
+| Report / utility | >400 lines | >600 lines |
+| Test file | No limit | No limit |
+
+**Split when** (any one condition is sufficient):
+- File fails the single-sentence responsibility test ("This file [verb] [subject] for [scope]" — no "and")
+- A logical block within the file already has independent unit tests (it is already a separate concern)
+- Two unrelated features require modifying the same file
+- File imports from more than 3 distinct subsystems
+- A function is called from outside its module — it belongs in a shared component
+
+**Do NOT split just because a line threshold is crossed.** The threshold triggers a review conversation, not an automatic refactor.
 
 ---
 

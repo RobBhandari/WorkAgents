@@ -1,0 +1,599 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Security: Infrastructure{% endblock %}
+{% block meta_description %}Infrastructure security vulnerabilities by product - Director Observatory{% endblock %}
+
+{% block header_title %}Security: Infrastructure{% endblock %}
+{% block header_subtitle %}Infrastructure vulnerability tracking (Cortex XDR, Tenable, AppCheck, BitSight){% endblock %}
+{% block footer_context %}Security Infrastructure Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Flat dark header — matches Executive Trends style */
+    .header {
+        background: #0f172a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 48px 32px !important;
+    }
+
+    /* Bucket summary table */
+    .bucket-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+    }
+
+    .bucket-summary-table th {
+        padding: 10px 14px;
+        text-align: left;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .bucket-summary-table td {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 500;
+    }
+
+    .bucket-summary-table td.critical { color: #dc2626; font-weight: 700; }
+    .bucket-summary-table td.high { color: #ea580c; font-weight: 700; }
+
+    /* Expandable bucket rows */
+    .bucket-row.expandable {
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.15s;
+    }
+
+    .bucket-row.expandable:hover {
+        background: var(--bg-secondary);
+    }
+
+    .bucket-arrow {
+        display: inline-block;
+        font-size: 0.75rem;
+        margin-right: 6px;
+    }
+
+    .bucket-detail-row > td {
+        padding: 12px 16px;
+        background: var(--bg-secondary);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .no-findings {
+        text-align: center;
+        color: var(--text-secondary);
+        padding: 16px;
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+    .vuln-table-note {
+        font-size: 0.85rem; color: var(--text-secondary);
+        padding: 6px 0 4px 2px; margin: 0; font-style: italic;
+    }
+
+    /* Search/filter bar per bucket */
+    .bucket-filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0 12px 0;
+        flex-wrap: wrap;
+    }
+
+    .bucket-search-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 7px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    .bucket-search-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .bucket-filter-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .bucket-filter-buttons button {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.15s;
+    }
+
+    .bucket-filter-buttons button.active,
+    .bucket-filter-buttons button:hover {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    .vuln-source {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    /* Sortable column headers (vuln tables + top-level product table) */
+    .vuln-table th.sortable,
+    .data-table th.sortable {
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .vuln-table th.sortable:hover,
+    .data-table th.sortable:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .sort-indicator {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-left: 4px;
+    }
+
+    /* Vulnerability table */
+    .vuln-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .vuln-table th,
+    .vuln-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vuln-table .description {
+        max-width: 300px;
+    }
+
+    .vuln-table .description.clickable {
+        cursor: pointer;
+        color: var(--text-link);
+        transition: color 0.2s;
+    }
+
+    .vuln-table .description.clickable:hover {
+        color: var(--text-link-hover);
+        text-decoration: underline;
+    }
+
+    .vuln-table .description:not(.expanded) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vuln-table .description.expanded {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .vuln-table .vuln-id {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+    }
+
+    /* Badge styling for vulnerabilities */
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .badge-critical {
+        background: rgba(220, 38, 38, 0.2);
+        color: #dc2626;
+    }
+
+    .badge-high {
+        background: rgba(234, 88, 12, 0.2);
+        color: #ea580c;
+    }
+
+    .badge-medium {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+    }
+
+    .badge-low {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+    }
+
+    /* Section header row: title left, filters right */
+    .section-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .section-header-row h2 {
+        margin: 0;
+    }
+
+    /* Product-level category filter bar */
+    .product-filter-bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .product-filter-bar button {
+        padding: 9px 22px;
+        border-radius: 22px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.15s;
+    }
+
+    .product-filter-bar button.active,
+    .product-filter-bar button:hover {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    /* Hide filtered-out product rows AND their paired detail rows via sibling selector */
+    tr.data-row.category-hidden {
+        display: none;
+    }
+
+    tr.data-row.category-hidden + tr.detail-row {
+        display: none !important;
+    }
+
+    /* Hide non-matching bucket rows (and their expand panels) inside product detail */
+    tr.bucket-row.bucket-filtered {
+        display: none;
+    }
+
+    tr.bucket-row.bucket-filtered + tr.bucket-detail-row {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle inline bucket detail row open/closed
+    function toggleBucketDetail(row) {
+        const detailRow = row.nextElementSibling;
+        const arrow = row.querySelector('.bucket-arrow');
+        if (detailRow && detailRow.classList.contains('bucket-detail-row')) {
+            if (detailRow.style.display === 'none') {
+                detailRow.style.display = 'table-row';
+                if (arrow) arrow.innerHTML = '&#9660;';
+            } else {
+                detailRow.style.display = 'none';
+                if (arrow) arrow.innerHTML = '&#9658;';
+            }
+        }
+    }
+
+    // Filter bucket vuln table by text (combined with active severity filter)
+    function filterBucketVulns(input) {
+        const td = input.closest('td');
+        const text = input.value.toLowerCase();
+        const activeBtn = td.querySelector('.bucket-filter-buttons button.active');
+        const sev = activeBtn ? (activeBtn.dataset.sev || 'all') : 'all';
+        td.querySelectorAll('.vuln-table tbody tr').forEach(row => {
+            const matchText = !text || row.textContent.toLowerCase().includes(text);
+            const matchSev = sev === 'all' || row.dataset.severity === sev;
+            row.style.display = (matchText && matchSev) ? '' : 'none';
+        });
+    }
+
+    // Filter bucket vuln table by severity (combined with active text search)
+    function filterBucketSeverity(btn, sev) {
+        const td = btn.closest('td');
+        td.querySelectorAll('.bucket-filter-buttons button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        btn.dataset.sev = sev;
+        const input = td.querySelector('.bucket-search-input');
+        const text = input ? input.value.toLowerCase() : '';
+        td.querySelectorAll('.vuln-table tbody tr').forEach(row => {
+            const matchText = !text || row.textContent.toLowerCase().includes(text);
+            const matchSev = sev === 'all' || row.dataset.severity === sev;
+            row.style.display = (matchText && matchSev) ? '' : 'none';
+        });
+    }
+
+    // Sort bucket vuln table by column (asc → desc → original, 3-state cycle)
+    function sortBucketTable(th) {
+        const table = th.closest('table');
+        const tbody = table.querySelector('tbody');
+        const headers = Array.from(th.closest('tr').querySelectorAll('th'));
+        const colIndex = headers.indexOf(th);
+        const isNumeric = th.dataset.type === 'number';
+
+        const cur = th.dataset.sort || 'none';
+        const next = cur === 'none' ? 'asc' : cur === 'asc' ? 'desc' : 'none';
+
+        headers.forEach(h => {
+            h.dataset.sort = 'none';
+            const ind = h.querySelector('.sort-indicator');
+            if (ind) ind.textContent = '';
+        });
+        th.dataset.sort = next;
+        const ind = th.querySelector('.sort-indicator');
+        if (ind) ind.textContent = next === 'asc' ? '▲' : next === 'desc' ? '▼' : '';
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        if (next === 'none') {
+            rows.sort((a, b) => (parseInt(a.dataset.idx) || 0) - (parseInt(b.dataset.idx) || 0));
+        } else {
+            rows.sort((a, b) => {
+                const aVal = a.cells[colIndex] ? a.cells[colIndex].textContent.trim() : '';
+                const bVal = b.cells[colIndex] ? b.cells[colIndex].textContent.trim() : '';
+                const cmp = isNumeric
+                    ? (parseFloat(aVal) || 0) - (parseFloat(bVal) || 0)
+                    : aVal.localeCompare(bVal);
+                return next === 'asc' ? cmp : -cmp;
+            });
+        }
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    // Update the Overview summary cards to reflect filtered counts
+    function updateOverviewCards(totalCritical, totalHigh, productCount) {
+        const total = totalCritical + totalHigh;
+        document.querySelectorAll('.summary-grid .summary-card').forEach(card => {
+            const label = card.querySelector('.label');
+            const valueEl = card.querySelector('.value');
+            if (!label || !valueEl) return;
+            switch (label.textContent.trim()) {
+                case 'Priority Findings': valueEl.textContent = total; break;
+                case 'Critical':          valueEl.textContent = totalCritical; break;
+                case 'High':              valueEl.textContent = totalHigh; break;
+                case 'Products':          valueEl.textContent = productCount; break;
+            }
+        });
+    }
+
+    // Filter product table by category — multi-select toggle.
+    function filterProductsByCategory(btn) {
+        btn.classList.toggle('active');
+
+        const activeCats = Array.from(
+            document.querySelectorAll('.product-filter-bar button.active')
+        ).map(b => b.dataset.cat);
+
+        const noneSelected = activeCats.length === 0;
+        const allSelected  = activeCats.length === 1;
+
+        // 1. Show/hide product rows (a row is visible if any of its categories is active)
+        document.querySelectorAll('tbody tr.data-row').forEach(row => {
+            const cats = (row.dataset.categories || '').split(' ');
+            const show = !noneSelected && activeCats.some(c => cats.includes(c));
+            row.classList.toggle('category-hidden', !show);
+        });
+
+        // 2. Inside expanded products, hide bucket rows not in the active set
+        document.querySelectorAll('tr.bucket-row[data-bucket]').forEach(row => {
+            row.classList.toggle('bucket-filtered',
+                noneSelected || !activeCats.includes(row.dataset.bucket));
+        });
+
+        // 3. Update product row cells + recalculate Overview tile
+        let totalCritical = 0, totalHigh = 0, visibleProducts = 0;
+        document.querySelectorAll('tbody tr.data-row').forEach(row => {
+            const hidden = row.classList.contains('category-hidden');
+
+            let crit = 0, high = 0;
+            if (!noneSelected) {
+                if (allSelected) {
+                    crit = parseInt(row.dataset.totalCritical || '0');
+                    high = parseInt(row.dataset.totalHigh     || '0');
+                } else {
+                    for (const c of activeCats) {
+                        crit += parseInt(row.dataset[c + 'Critical'] || '0');
+                        high += parseInt(row.dataset[c + 'High']     || '0');
+                    }
+                }
+            }
+
+            row.cells[1].textContent = crit + high;
+            row.cells[2].textContent = crit;
+            row.cells[2].className   = crit > 0 ? 'critical' : '';
+            row.cells[3].textContent = high;
+            row.cells[3].className   = high > 0 ? 'high' : '';
+
+            const badge = row.cells[4] && row.cells[4].querySelector('.status-badge');
+            if (badge) {
+                let status, cls;
+                if      (crit >= 5)  { status = 'Critical';  cls = 'action'; }
+                else if (crit > 0)   { status = 'High Risk'; cls = 'caution'; }
+                else if (high >= 10) { status = 'Monitor';   cls = 'caution'; }
+                else                 { status = 'OK';         cls = 'good'; }
+                badge.textContent = status;
+                badge.className   = `status-badge status-${cls}`;
+            }
+
+            if (!hidden) {
+                visibleProducts++;
+                totalCritical += crit;
+                totalHigh     += high;
+            }
+        });
+        updateOverviewCards(totalCritical, totalHigh, visibleProducts);
+    }
+
+    // Sort top-level product table by column (asc → desc → original, 3-state cycle)
+    function sortProductTable(th) {
+        const table = th.closest('table');
+        const tbody = table.querySelector('tbody');
+        const headers = Array.from(th.closest('tr').querySelectorAll('th'));
+        const colIndex = headers.indexOf(th);
+        const isNumeric = th.dataset.type === 'number';
+
+        const cur = th.dataset.sort || 'none';
+        const next = cur === 'none' ? 'asc' : cur === 'asc' ? 'desc' : 'none';
+
+        headers.forEach(h => {
+            h.dataset.sort = 'none';
+            const ind = h.querySelector('.sort-indicator');
+            if (ind) ind.textContent = '';
+        });
+        th.dataset.sort = next;
+        const ind = th.querySelector('.sort-indicator');
+        if (ind) ind.textContent = next === 'asc' ? '▲' : next === 'desc' ? '▼' : '';
+
+        const pairs = Array.from(tbody.querySelectorAll('tr.data-row')).map(parentRow => {
+            const sibling = parentRow.nextElementSibling;
+            return {
+                parentRow,
+                detailRow: (sibling && sibling.classList.contains('detail-row')) ? sibling : null
+            };
+        });
+
+        if (next === 'none') {
+            pairs.sort((a, b) => (parseInt(a.parentRow.dataset.idx) || 0) - (parseInt(b.parentRow.dataset.idx) || 0));
+        } else {
+            pairs.sort((a, b) => {
+                const aVal = a.parentRow.cells[colIndex] ? a.parentRow.cells[colIndex].textContent.trim() : '';
+                const bVal = b.parentRow.cells[colIndex] ? b.parentRow.cells[colIndex].textContent.trim() : '';
+                const cmp = isNumeric
+                    ? (parseFloat(aVal) || 0) - (parseFloat(bVal) || 0)
+                    : aVal.localeCompare(bVal);
+                return next === 'asc' ? cmp : -cmp;
+            });
+        }
+
+        pairs.forEach(({ parentRow, detailRow }) => {
+            tbody.appendChild(parentRow);
+            if (detailRow) tbody.appendChild(detailRow);
+        });
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Summary cards -->
+<div class="section">
+    <h2>Overview</h2>
+    <div class="summary-grid">
+        {% for card in summary_cards %}
+        {{ card|safe }}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Products table -->
+<div class="section">
+    <div class="section-header-row">
+        <h2>Vulnerabilities by Product</h2>
+        <div class="product-filter-bar">
+            <button class="active" data-cat="infrastructure" onclick="filterProductsByCategory(this)">Infrastructure ({{ category_counts.infrastructure }})</button>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="sortable" onclick="sortProductTable(this)">Product <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-type="number" onclick="sortProductTable(this)">Total <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-type="number" onclick="sortProductTable(this)">Critical <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-type="number" onclick="sortProductTable(this)">High <span class="sort-indicator"></span></th>
+                    <th class="sortable" onclick="sortProductTable(this)">Status <span class="sort-indicator"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+                <!-- Parent row - clickable to expand -->
+                <tr class="data-row" data-idx="{{ loop.index0 }}"
+                    data-categories="{{ product.categories|join(' ') }}"
+                    data-total-critical="{{ product.critical }}"
+                    data-total-high="{{ product.high }}"
+                    data-infrastructure-critical="{{ product.bucket_detail.infrastructure.critical }}"
+                    data-infrastructure-high="{{ product.bucket_detail.infrastructure.high }}"
+                    onclick="toggleDetail('detail-{{ loop.index }}', this)">
+                    <td>
+                        <strong>{{ product.name }}</strong>
+                    </td>
+                    <td>{{ product.total }}</td>
+                    <td class="{% if product.critical > 0 %}critical{% endif %}">{{ product.critical }}</td>
+                    <td class="{% if product.high > 0 %}high{% endif %}">{{ product.high }}</td>
+                    <td>
+                        <span class="status-badge status-{{ product.status_class }}">
+                            {{ product.status }}
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Detail row - hidden by default -->
+                <tr id="detail-{{ loop.index }}" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            {{ product.expanded_html|safe }}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Glossary (optional) -->
+{% if show_glossary %}
+<div class="glossary">
+    <div class="glossary-header" onclick="toggleGlossary()">
+        <h3>Metric Definitions</h3>
+        <span id="glossary-toggle" class="glossary-toggle">▼</span>
+    </div>
+    <div id="glossary-content" class="glossary-content">
+        <div class="glossary-item">
+            <div class="glossary-term">Critical</div>
+            <div class="glossary-definition">
+                Vulnerabilities that require immediate attention and can lead to complete system compromise.
+            </div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">High</div>
+            <div class="glossary-definition">
+                Significant vulnerabilities that should be resolved within 30 days.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

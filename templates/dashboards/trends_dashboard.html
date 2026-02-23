@@ -581,11 +581,11 @@ div.header {
             {% set ns = namespace(card_index=0) %}
             {% for dashboard, group_alerts in active_alerts|groupby('dashboard') %}
             {% set group_id = 'alerts-group-' ~ dashboard %}
-            <div class="alerts-group" id="{{ group_id }}">
+            <div class="alerts-group collapsed" id="{{ group_id }}">
                 <div class="alerts-group-header" onclick="toggleAlertGroup('{{ group_id }}')">
                     <span class="alerts-group-name">{{ dashboard|capitalize }}</span>
                     <span class="alerts-group-count">({{ group_alerts|list|length }})</span>
-                    <span class="alerts-group-chevron">▾</span>
+                    <span class="alerts-group-chevron">▸</span>
                 </div>
                 <div class="alerts-grid">
                     {% for alert in group_alerts %}
@@ -605,9 +605,6 @@ div.header {
             {% endfor %}
         </div>
         <div class="alerts-no-results" id="alerts-no-results">No alerts match your search.</div>
-        <div class="alerts-show-more" id="alerts-show-more" style="display: none">
-            <button class="alerts-show-more-btn" id="alerts-show-more-btn" onclick="toggleShowMore()"></button>
-        </div>
     </div>
 </div>
 {% endif %}
@@ -827,8 +824,6 @@ div.header {
     renderMetrics();
 
     // Alerts banner toggle
-    const ALERTS_PAGE_SIZE = 12;
-    let alertsExpanded = false;
 
     function toggleAlerts() {
         const list = document.getElementById('alerts-list');
@@ -846,13 +841,7 @@ div.header {
     }
     window.toggleAlerts = toggleAlerts;
 
-    function toggleShowMore() {
-        alertsExpanded = !alertsExpanded;
-        applyAlertFilters();
-    }
-    window.toggleShowMore = toggleShowMore;
-
-    function toggleAlertGroup(groupId) {
+function toggleAlertGroup(groupId) {
         const group = document.getElementById(groupId);
         if (!group) return;
         const collapsed = group.classList.toggle('collapsed');
@@ -885,7 +874,6 @@ div.header {
 
     function setAlertFilter(sev) {
         activeAlertFilter = sev;
-        alertsExpanded = false; // reset to first page on filter change
         document.querySelectorAll('.alerts-filter-btn').forEach(b => {
             b.classList.toggle('active', b.dataset.filter === sev);
         });
@@ -902,10 +890,9 @@ div.header {
             const textMatch = !query || card.dataset.text.includes(query);
             if (sevMatch && textMatch) matching.push(card);
         });
-        // Second pass: show/hide cards based on match + page limit
+        // Second pass: show/hide all matching cards
         cards.forEach(card => card.classList.add('hidden'));
-        const limit = alertsExpanded ? matching.length : ALERTS_PAGE_SIZE;
-        matching.slice(0, limit).forEach(card => card.classList.remove('hidden'));
+        matching.forEach(card => card.classList.remove('hidden'));
         // Third pass: hide groups that have no visible cards
         document.querySelectorAll('.alerts-group').forEach(group => {
             const hasVisible = group.querySelectorAll('.alert-card:not(.hidden)').length > 0;
@@ -914,19 +901,6 @@ div.header {
         // No-results notice
         const noResults = document.getElementById('alerts-no-results');
         if (noResults) noResults.style.display = matching.length === 0 ? 'block' : 'none';
-        // Show-more button
-        const showMoreWrap = document.getElementById('alerts-show-more');
-        const showMoreBtn  = document.getElementById('alerts-show-more-btn');
-        if (showMoreWrap && showMoreBtn) {
-            if (matching.length > ALERTS_PAGE_SIZE) {
-                showMoreWrap.style.display = 'block';
-                showMoreBtn.textContent = alertsExpanded
-                    ? 'Show less'
-                    : `Show ${matching.length - limit} more`;
-            } else {
-                showMoreWrap.style.display = 'none';
-            }
-        }
     }
     window.applyAlertFilters = applyAlertFilters;
 </script>
