@@ -18,6 +18,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, mock_open, patch
 import pytest
 
 from execution.dashboards.targets import (
+    _CODE_CLOUD_SOURCES,
     _build_context,
     _calculate_metrics,
     _calculate_summary,
@@ -154,9 +155,13 @@ async def test_query_current_armorcode_vulns_success():
 
         assert result == 12473
         assert mock_loader.count_by_severity_aql.call_count == 2
-        # Must explicitly pass environment="Production" — same filter as security_enhanced.py
-        mock_loader.count_by_severity_aql.assert_any_call("Critical", "test/hierarchy", environment="Production")
-        mock_loader.count_by_severity_aql.assert_any_call("High", "test/hierarchy", environment="Production")
+        # Must pass environment="Production" and sources=_CODE_CLOUD_SOURCES (70% target scope)
+        mock_loader.count_by_severity_aql.assert_any_call(
+            "Critical", "test/hierarchy", environment="Production", sources=_CODE_CLOUD_SOURCES
+        )
+        mock_loader.count_by_severity_aql.assert_any_call(
+            "High", "test/hierarchy", environment="Production", sources=_CODE_CLOUD_SOURCES
+        )
 
 
 @pytest.mark.asyncio

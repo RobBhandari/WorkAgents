@@ -165,27 +165,53 @@ class TrendsRenderer:
             }
         )
 
-        # 3. Security Vulnerabilities
-        security = self.trends_data.get("security", {})
-        if security:
-            vulns = security.get("vulnerabilities", {})
-            arrow, css_class, change = self._get_trend_indicator(vulns["current"], vulns["previous"], "down")
-            rag_color = self._get_rag_color(vulns["current"], "total_vulns")
+        # 3a. Security: Code & Cloud
+        security_cc = self.trends_data.get("security_code_cloud", {})
+        if security_cc:
+            vulns_cc = security_cc.get("vulnerabilities", {})
+            arrow, css_class, change = self._get_trend_indicator(vulns_cc["current"], vulns_cc["previous"], "down")
+            rag_color = self._get_rag_color(vulns_cc["current"], "total_vulns")
             metrics.append(
                 {
                     "id": "security",
                     "icon": "🔒",
-                    "title": "Security Vulnerabilities",
-                    "description": "Track vulnerability trends and security debt. Translate scanner noise into engineering action.",
-                    "current": vulns["current"],
-                    "unit": vulns["unit"],
+                    "title": "Security: Code & Cloud",
+                    "description": "Code and cloud vulnerability trends (Mend, SonarQube, Prisma). Tracks the 70% reduction target.",
+                    "current": vulns_cc["current"],
+                    "unit": vulns_cc["unit"],
                     "change": change,
                     "changeLabel": "vs last week",
-                    "data": vulns["trend_data"],
+                    "data": vulns_cc["trend_data"],
                     "arrow": arrow,
                     "cssClass": css_class,
                     "ragColor": rag_color,
                     "dashboardUrl": "security_dashboard.html",
+                }
+            )
+
+        # 3b. Security: Infrastructure (immediately after Code & Cloud)
+        security_infra = self.trends_data.get("security_infra", {})
+        if security_infra:
+            vulns_infra = security_infra.get("vulnerabilities", {})
+            arrow, css_class, change = self._get_trend_indicator(
+                vulns_infra["current"], vulns_infra["previous"], "down"
+            )
+            rag_color = self._get_rag_color(vulns_infra["current"], "total_vulns")
+            metrics.append(
+                {
+                    "id": "security-infra",
+                    "icon": "🛡️",
+                    "title": "Security: Infrastructure",
+                    "description": "Infrastructure vulnerability trends (Cortex XDR, Tenable, AppCheck, BitSight). Not included in 70% target.",
+                    "current": vulns_infra["current"],
+                    "unit": vulns_infra["unit"],
+                    "change": change,
+                    "changeLabel": "vs last week",
+                    "data": vulns_infra["trend_data"],
+                    "arrow": arrow,
+                    "cssClass": css_class,
+                    "ragColor": rag_color,
+                    "dashboardUrl": "security_infrastructure_dashboard.html",
                 }
             )
 

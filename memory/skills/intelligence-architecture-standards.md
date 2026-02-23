@@ -87,20 +87,56 @@ def generate_dashboard() -> str: ...                  # Stage 4 (calls render_da
 
 ---
 
-### ✅ Check 4: File Size
+### ✅ Check 4: Module Structure and Separation of Concerns
+
+**Primary test — state the file's responsibility in one sentence without "and":**
+
+> "This file [verb] [subject] for [scope]."
+
+If you cannot, the file owns multiple concerns. Split it before sign-off.
 
 ```bash
-wc -l execution/intelligence/forecast_engine.py
-# Must be < 500 lines
+# Complexity check (hard limit — no exceptions)
+radon cc execution/intelligence/forecast_engine.py -s
+# No function may score > B (complexity 10)
 ```
 
-**If approaching 500 lines**: Split into sub-modules before reaching the limit.
-- `forecast_engine.py` → `forecast_engine_prophet.py` + `forecast_engine_validation.py`
-- Import and re-export from parent module: `from execution.intelligence.forecast_engine_prophet import prophet_forecast`
+**Size review thresholds** (soft — trigger review, not automatic rejection):
 
-**McCabe complexity**: `radon cc execution/intelligence/forecast_engine.py -s`
-- No function should score > B (complexity > 10)
-- If a function is complex: extract sub-functions
+| Module type | Review trigger | Strong smell |
+|---|---|---|
+| Dashboard generator | >500 lines | >700 lines |
+| Collector | >700 lines | >900 lines |
+| Domain model | >300 lines | >450 lines |
+| ML module | >500 lines | >700 lines |
+| Report / utility | >400 lines | >600 lines |
+| Test file | No limit | No limit |
+
+**Split triggers** (any one is sufficient to require a split):
+- File fails the single-sentence responsibility test
+- A logical block within the file already has independent unit tests (it is already a separate concern)
+- Two distinct features require modifying the same file for unrelated reasons
+- File imports from >3 distinct subsystems
+- A function is called from outside its own module — extract it to a shared component
+
+**Block on:**
+- Any function with McCabe score > 10
+- File that fails single-sentence test AND exceeds its module-type strong-smell threshold
+
+**Suggest (not block) when:**
+- File is above review trigger but passes single-sentence test — log as acceptable with note
+- File is approaching strong-smell threshold — schedule a refactor before the next feature addition
+
+**Example correct split decision:**
+```python
+# BLOCK — security_enhanced.py at 646 lines fails single-sentence test:
+# "This file loads security data AND fetches from ArmorCode API AND builds chart HTML AND renders the dashboard"
+# → Correct split: security_enhanced.py (orchestrator), security_helpers.py (calculations), security_content_builder.py (HTML building)
+
+# PASS — ado_ownership_metrics.py at 794 lines:
+# "This file collects ownership and assignment metrics from the ADO REST API"
+# → Single responsibility despite large size; acceptable
+```
 
 ---
 

@@ -1,0 +1,422 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Metric Correlation Analysis{% endblock %}
+{% block meta_description %}Metric Correlation Analysis — cross-metric Pearson correlation heatmap{% endblock %}
+
+{% block header_title %}Metric Correlation Analysis{% endblock %}
+{% block header_subtitle %}Cross-Metric Pearson Correlation Heatmap{% endblock %}
+{% block header_metadata %}Generated: {{ generated_at }}{% endblock %}
+{% block footer_context %}Correlation Heatmap Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Flat dark slate header — matches Executive Trends Dashboard */
+    .header {
+        background: #0f172a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 48px 32px !important;
+    }
+
+    /* ── KPI summary row ─────────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .kpi-card {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 24px 20px;
+        border-left: 4px solid #334155;
+    }
+
+    .kpi-card.status-good    { border-left-color: #10b981; }
+    .kpi-card.status-caution { border-left-color: #f59e0b; }
+    .kpi-card.status-action  { border-left-color: #ef4444; }
+
+    .kpi-card .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 10px;
+    }
+
+    .kpi-card .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        line-height: 1.1;
+        margin-bottom: 6px;
+    }
+
+    .kpi-card .kpi-description {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #94a3b8);
+    }
+
+    /* ── Chart panel ─────────────────────────────────────────── */
+    .chart-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 32px;
+    }
+
+    .chart-panel h2 {
+        font-size: 1.0rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 4px;
+    }
+
+    .chart-panel .chart-hint {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 16px;
+    }
+
+    /* ── Strong correlations section ─────────────────────────── */
+    .section {
+        margin-bottom: 32px;
+    }
+
+    .section h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+    .section-hint {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 12px;
+    }
+
+    /* Correlation pair card */
+    .corr-pair-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .corr-pair {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 8px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-left: 4px solid #334155;
+    }
+
+    .corr-pair.positive-strong { border-left-color: #6366f1; }
+    .corr-pair.negative-strong { border-left-color: #f59e0b; }
+
+    .corr-pair .corr-metrics {
+        flex: 1;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+    }
+
+    .corr-pair .corr-metrics .metric-names {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .corr-pair .corr-metrics .metric-name {
+        background: rgba(99, 102, 241, 0.12);
+        color: #818cf8;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .corr-pair .corr-metrics .corr-arrow {
+        color: var(--text-secondary, #94a3b8);
+        font-size: 0.9rem;
+    }
+
+    .corr-pair .corr-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        min-width: 56px;
+        text-align: right;
+    }
+
+    .corr-pair .corr-value.positive { color: #6366f1; }
+    .corr-pair .corr-value.negative { color: #f59e0b; }
+
+    .corr-pair .corr-interpretation {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-top: 4px;
+    }
+
+    /* ── No-data state ─────────────────────────────────────────── */
+    .no-data-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 48px 32px;
+        text-align: center;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 32px;
+    }
+
+    .no-data-panel .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .no-data-panel h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 10px;
+    }
+
+    .no-data-panel p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+
+    .no-data-panel code {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+    }
+
+    /* ── Glossary ─────────────────────────────────────────────── */
+    .glossary-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin-bottom: 32px;
+    }
+
+    .glossary-toggle {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    .glossary-toggle:hover {
+        color: #818cf8;
+    }
+
+    .glossary-body {
+        display: none;
+        margin-top: 16px;
+    }
+
+    .glossary-body.open {
+        display: block;
+    }
+
+    .glossary-term {
+        margin-bottom: 10px;
+    }
+
+    .glossary-term dt {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #818cf8;
+        margin-bottom: 2px;
+    }
+
+    .glossary-term dd {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        line-height: 1.5;
+        margin-left: 0;
+    }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .corr-pair {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleGlossary() {
+        var body = document.getElementById('glossary-body');
+        if (body) {
+            body.classList.toggle('open');
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if not has_data %}
+<!-- ── No-data state ──────────────────────────────────────────────────── -->
+<div class="no-data-panel">
+    <div class="no-data-icon">&#128202;</div>
+    <h3>Correlation Data Not Yet Available</h3>
+    <p>
+        The feature store has not been populated yet.
+        Run the feature engineering pipeline to populate this dashboard.<br><br>
+        Example:<br>
+        <code>python -m execution.intelligence.feature_engineering</code>
+    </p>
+</div>
+
+{% else %}
+
+<!-- ── KPI row ───────────────────────────────────────────────────────── -->
+<div class="kpi-grid">
+
+    <div class="kpi-card status-good">
+        <div class="kpi-label">Metrics Analysed</div>
+        <div class="kpi-value">{{ metric_count }}</div>
+        <div class="kpi-description">Distinct metrics in the correlation matrix</div>
+    </div>
+
+    <div class="kpi-card {% if strong_correlations | length > 0 %}status-caution{% else %}status-good{% endif %}">
+        <div class="kpi-label">Strong Pairs</div>
+        <div class="kpi-value">{{ strong_correlations | length }}</div>
+        <div class="kpi-description">Metric pairs with |r| &ge; 0.5</div>
+    </div>
+
+</div>
+
+<!-- ── Full heatmap ───────────────────────────────────────────────────── -->
+<div class="chart-panel">
+    <h2>Cross-Metric Correlation Heatmap</h2>
+    <p class="chart-hint">
+        Pearson r ranges from &minus;1 (perfect negative) to +1 (perfect positive).
+        Blue cells indicate positive correlation; red cells indicate negative correlation.
+        Values near 0 indicate no linear relationship.
+    </p>
+    {% if heatmap_html %}
+    {{ heatmap_html | safe }}
+    {% else %}
+    <p style="color:var(--text-secondary);font-size:0.9rem;padding:40px 0;text-align:center;">
+        Heatmap not available — insufficient feature data.
+    </p>
+    {% endif %}
+</div>
+
+<!-- ── Strong correlations list ──────────────────────────────────────── -->
+<div class="section">
+    <h2>Strong Correlations</h2>
+    <p class="section-hint">
+        Metric pairs with absolute Pearson r &ge; 0.5, sorted by strength.
+        These relationships may indicate shared drivers or causal links.
+    </p>
+
+    {% if strong_correlations %}
+    <div class="corr-pair-list">
+        {% for metric_a, metric_b, r in strong_correlations %}
+        <div class="corr-pair {% if r >= 0 %}positive-strong{% else %}negative-strong{% endif %}">
+            <div class="corr-metrics">
+                <div class="metric-names">
+                    <span class="metric-name">{{ metric_a | replace('_', ' ') | title }}</span>
+                    <span class="corr-arrow">&#8596;</span>
+                    <span class="metric-name">{{ metric_b | replace('_', ' ') | title }}</span>
+                </div>
+                <div class="corr-interpretation">
+                    {% if r >= 0.8 %}
+                    Very strong positive correlation — these metrics tend to move together strongly.
+                    {% elif r >= 0.5 %}
+                    Moderate positive correlation — when one rises the other tends to rise.
+                    {% elif r <= -0.8 %}
+                    Very strong negative correlation — when one rises the other tends to fall sharply.
+                    {% else %}
+                    Moderate negative correlation — these metrics tend to move in opposite directions.
+                    {% endif %}
+                </div>
+            </div>
+            <div class="corr-value {% if r >= 0 %}positive{% else %}negative{% endif %}">
+                {{ "%.2f" | format(r) }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--text-secondary);font-size:0.9rem;">
+        No strong correlations found (|r| &ge; 0.5) in the current feature data.
+    </p>
+    {% endif %}
+</div>
+
+{% endif %}{# end has_data #}
+
+<!-- ── Glossary ─────────────────────────────────────────────────────── -->
+<div class="glossary-panel">
+    <button class="glossary-toggle" onclick="toggleGlossary()">
+        &#9432; Glossary
+    </button>
+    <div class="glossary-body" id="glossary-body">
+        <dl>
+            <div class="glossary-term">
+                <dt>Pearson r (Correlation Coefficient)</dt>
+                <dd>
+                    A measure of linear association between two variables.
+                    Ranges from &minus;1 (perfect negative) to +1 (perfect positive).
+                    r = 0 means no linear relationship.
+                </dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Strong Correlation</dt>
+                <dd>|r| &ge; 0.5. Indicates a meaningful linear relationship that may warrant investigation.</dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Positive Correlation</dt>
+                <dd>r &gt; 0: as one metric increases, the other tends to increase.</dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Negative Correlation</dt>
+                <dd>r &lt; 0: as one metric increases, the other tends to decrease.</dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Collinearity Warning</dt>
+                <dd>
+                    Very high correlations (|r| &gt; 0.9) between different metrics may indicate
+                    they measure the same underlying phenomenon. Treat them as complementary, not additive.
+                </dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Causation</dt>
+                <dd>
+                    Correlation does not imply causation. A high r value shows that two metrics
+                    move together historically, but does not prove that one causes the other.
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+{% endblock %}
