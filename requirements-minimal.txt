@@ -1,7 +1,7 @@
 # Minimal dependencies for Teams Bot only
 
 # Environment variables
-python-dotenv==1.0.0
+python-dotenv==1.2.1
 
 # Azure DevOps
 azure-devops==7.1.0b4
