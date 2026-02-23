@@ -38,6 +38,7 @@ _VALID_MODEL_NAMES: frozenset[str] = frozenset(
         "forecast_security",
         "forecast_deployment",
         "forecast_flow",
+        "forecast_ownership",
         "health_classifier",
         "clustering",
     }
@@ -97,12 +98,12 @@ def _calculate_summary(models: list[dict[str, Any]]) -> dict[str, Any]:
         degraded_count, avg_mape, avg_classification_accuracy, portfolio_status.
     """
     has_data = len(models) > 0
-    healthy = sum(1 for m in models if str(m.get("status", "")) == "healthy")
+    healthy = sum(1 for m in models if str(m.get("status", "")) in ("healthy", "pass"))
     degraded = len(models) - healthy
 
     mape_values: list[float] = [float(m["mape"]) for m in models if m.get("mape") is not None]
     acc_values: list[float] = [
-        float(m["classification_accuracy"]) for m in models if m.get("classification_accuracy") is not None
+        float(v) for m in models if (v := m.get("classification_accuracy") or m.get("accuracy")) is not None
     ]
 
     avg_mape: float | None = sum(mape_values) / len(mape_values) if mape_values else None
@@ -213,7 +214,7 @@ def _build_context(
     # Model detail rows — validate names against allowlist
     model_rows: list[dict[str, str]] = []
     for m in models:
-        name = str(m.get("model_name", ""))
+        name = str(m.get("name", m.get("model_name", "")))
         if name not in _VALID_MODEL_NAMES:
             logger.warning(
                 "Unknown model name in model_performance.json — skipping row",
@@ -222,12 +223,11 @@ def _build_context(
             continue
 
         raw_status = str(m.get("status", "unknown"))
-        is_healthy = raw_status == "healthy"
+        is_healthy = raw_status in ("healthy", "pass")
 
         mape_display = f"{float(m['mape']):.1%}" if m.get("mape") is not None else "—"
-        accuracy_display = (
-            f"{float(m['classification_accuracy']):.1%}" if m.get("classification_accuracy") is not None else "—"
-        )
+        acc_val = m.get("classification_accuracy") or m.get("accuracy")
+        accuracy_display = f"{float(acc_val):.1%}" if acc_val is not None else "—"
         drift_raw = m.get("drift_score")
         drift_display = f"{float(drift_raw):.3f}" if drift_raw is not None else "—"
 
