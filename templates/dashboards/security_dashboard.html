@@ -643,30 +643,25 @@
         });
     }
 
-    // Filter product table by category — multi-select toggle.
-    // First click selects a bucket, second click deselects it.
-    // If all buckets are deselected, all rows are hidden and totals drop to zero.
+    // Filter product table by category — single-select (All / Code / Cloud).
     function filterProductsByCategory(btn) {
-        btn.classList.toggle('active');
+        // Single-select: deactivate all buttons, activate the clicked one.
+        document.querySelectorAll('.product-filter-bar button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-        const activeCats = Array.from(
-            document.querySelectorAll('.product-filter-bar button.active')
-        ).map(b => b.dataset.cat);
+        const cat    = btn.dataset.cat;
+        const isAll  = cat === 'all';
 
-        const noneSelected = activeCats.length === 0;
-        const allSelected  = activeCats.length === 2;
-
-        // 1. Show/hide product rows (a row is visible if any of its categories is active)
+        // 1. Show/hide product rows
         document.querySelectorAll('tbody tr.data-row').forEach(row => {
             const cats = (row.dataset.categories || '').split(' ');
-            const show = !noneSelected && activeCats.some(c => cats.includes(c));
+            const show = isAll || cats.includes(cat);
             row.classList.toggle('category-hidden', !show);
         });
 
-        // 2. Inside expanded products, hide bucket rows not in the active set
+        // 2. Inside expanded products, hide bucket rows not matching the active filter
         document.querySelectorAll('tr.bucket-row[data-bucket]').forEach(row => {
-            row.classList.toggle('bucket-filtered',
-                noneSelected || !activeCats.includes(row.dataset.bucket));
+            row.classList.toggle('bucket-filtered', !isAll && row.dataset.bucket !== cat);
         });
 
         // 3. Update product row cells + recalculate Overview tile
@@ -674,20 +669,15 @@
         document.querySelectorAll('tbody tr.data-row').forEach(row => {
             const hidden = row.classList.contains('category-hidden');
 
-            // Resolve counts: sum across all active categories, or zero if none selected.
-            // When all 3 are active use the pre-computed totals (avoids any edge-case mismatch).
+            // Resolve counts for the active filter.
             let crit = 0, high = 0;
-            if (!noneSelected) {
-                if (allSelected) {
-                    crit = parseInt(row.dataset.totalCritical || '0');
-                    high = parseInt(row.dataset.totalHigh     || '0');
-                } else {
-                    for (const c of activeCats) {
-                        // dataset API converts data-code-critical → codeCritical, etc.
-                        crit += parseInt(row.dataset[c + 'Critical'] || '0');
-                        high += parseInt(row.dataset[c + 'High']     || '0');
-                    }
-                }
+            if (isAll) {
+                crit = parseInt(row.dataset.totalCritical || '0');
+                high = parseInt(row.dataset.totalHigh     || '0');
+            } else {
+                // dataset API converts data-code-critical → codeCritical, etc.
+                crit = parseInt(row.dataset[cat + 'Critical'] || '0');
+                high = parseInt(row.dataset[cat + 'High']     || '0');
             }
 
             // Update Total / Critical / High cells (all rows, so values stay
@@ -787,8 +777,9 @@
     <div class="section-header-row">
         <h2>Vulnerabilities by Product</h2>
         <div class="product-filter-bar">
-            <button class="active" data-cat="code" onclick="filterProductsByCategory(this)">Code ({{ category_counts.code }})</button>
-            <button class="active" data-cat="cloud" onclick="filterProductsByCategory(this)">Cloud ({{ category_counts.cloud }})</button>
+            <button class="active" data-cat="all" onclick="filterProductsByCategory(this)">All ({{ category_counts.code + category_counts.cloud }})</button>
+            <button data-cat="code" onclick="filterProductsByCategory(this)">Code ({{ category_counts.code }})</button>
+            <button data-cat="cloud" onclick="filterProductsByCategory(this)">Cloud ({{ category_counts.cloud }})</button>
         </div>
     </div>
     <div class="table-wrapper">
