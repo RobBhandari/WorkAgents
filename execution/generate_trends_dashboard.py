@@ -76,6 +76,20 @@ def main():
             trends["security"] = security_trends
             logger.info(f"Security metrics extracted: {len(security_trends['vulnerabilities']['trend_data'])} weeks")
 
+        cc_trends = calculator.extract_security_code_cloud_trends(metrics_data["security"]["weeks"])
+        if cc_trends:
+            trends["security_code_cloud"] = cc_trends
+            logger.info(
+                f"Security Code+Cloud metrics extracted: {len(cc_trends['vulnerabilities']['trend_data'])} weeks"
+            )
+
+        infra_trends = calculator.extract_security_infra_trends(metrics_data["security"]["weeks"])
+        if infra_trends:
+            trends["security_infra"] = infra_trends
+            logger.info(
+                f"Security Infrastructure metrics extracted: {len(infra_trends['vulnerabilities']['trend_data'])} weeks"
+            )
+
     if metrics_data.get("flow"):
         flow_trends = calculator.extract_flow_trends(metrics_data["flow"]["weeks"])
         if flow_trends:

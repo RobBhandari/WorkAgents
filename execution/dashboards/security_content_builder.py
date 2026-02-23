@@ -16,6 +16,10 @@ from execution.dashboards.security_helpers import BUCKET_SOURCE_MAP, _calculate_
 from execution.domain.security import BUCKET_ORDER, SOURCE_BUCKET_MAP
 from execution.framework import get_dashboard_framework
 
+# Bucket groupings for mode-based filtering
+_CODE_CLOUD_BUCKETS: frozenset[str] = frozenset({"CODE", "CLOUD"})
+_INFRA_BUCKETS: frozenset[str] = frozenset({"INFRASTRUCTURE"})
+
 
 def _escape_html(text: str) -> str:
     """Escape HTML special characters."""
@@ -161,8 +165,16 @@ def _build_context(
     bucket_counts_by_product: dict,
     accurate_totals: dict,
     aql_by_product: dict | None = None,
+    dashboard_mode: str = "code_cloud",
 ) -> dict:
-    """Stage 3: Build template context."""
+    """Stage 3: Build template context.
+
+    Args:
+        dashboard_mode: "code_cloud" (default) or "infrastructure" — controls which
+                        bucket totals, filter categories, and expanded rows are shown.
+    """
+    active_buckets = _CODE_CLOUD_BUCKETS if dashboard_mode == "code_cloud" else _INFRA_BUCKETS
+
     framework_css, framework_js = get_dashboard_framework(
         header_gradient_start="#0f172a",
         header_gradient_end="#0f172a",
@@ -171,36 +183,40 @@ def _build_context(
         include_glossary=False,
     )
 
-    # Header totals: prefer aql_by_product (AQL count endpoint — exact, no record limit).
-    if aql_by_product:
-        acc_critical = sum(t.get("critical", 0) for t in aql_by_product.values())
-        acc_high = sum(t.get("high", 0) for t in aql_by_product.values())
-    else:
-        acc_critical = sum(t.get("critical", 0) for t in accurate_totals.values())
-        acc_high = sum(t.get("high", 0) for t in accurate_totals.values())
+    # Header totals: sum per-bucket AQL counts filtered to active mode buckets.
+    # Using bucket_counts_by_product (not aql_by_product) so mode boundaries are respected.
+    mode_critical, mode_high = 0, 0
+    for product_buckets in bucket_counts_by_product.values():
+        for bucket_name, counts in product_buckets.items():
+            if bucket_name in active_buckets:
+                mode_critical += counts.get("critical", 0)
+                mode_high += counts.get("high", 0)
+
     summary_cards = [
-        summary_card("Priority Findings", str(acc_critical + acc_high)),
-        summary_card("Critical", str(acc_critical), css_class="critical"),
-        summary_card("High", str(acc_high), css_class="high"),
+        summary_card("Priority Findings", str(mode_critical + mode_high)),
+        summary_card("Critical", str(mode_critical), css_class="critical"),
+        summary_card("High", str(mode_high), css_class="high"),
         summary_card("Products", str(summary_stats["product_count"])),
     ]
 
+    # Active source names for vuln filtering in expanded rows
+    active_source_names: set[str] = set()
+    for bucket in active_buckets:
+        active_source_names.update(BUCKET_SOURCE_MAP.get(bucket, []))
+
     products = []
     for product_name, metrics in sorted(metrics_by_product.items()):
-        vulns = vulns_by_product.get(product_name, [])
+        all_vulns = vulns_by_product.get(product_name, [])
         product_bucket_counts = bucket_counts_by_product.get(product_name)
 
-        # Use AQL production counts when available (consistent with overview header).
-        if aql_by_product is not None:
-            aql_counts = aql_by_product.get(product_name, {})
-            display_critical = aql_counts.get("critical", 0)
-            display_high = aql_counts.get("high", 0)
-        elif product_bucket_counts:
-            display_critical = sum(b["critical"] for b in product_bucket_counts.values())
-            display_high = sum(b["high"] for b in product_bucket_counts.values())
-        else:
-            display_critical = metrics.critical
-            display_high = metrics.high
+        # Filter bucket counts to mode-active buckets only
+        filtered_bucket_counts = (
+            {b: c for b, c in product_bucket_counts.items() if b in active_buckets} if product_bucket_counts else {}
+        )
+
+        # Display counts from mode-filtered buckets
+        display_critical = sum(b["critical"] for b in filtered_bucket_counts.values())
+        display_high = sum(b["high"] for b in filtered_bucket_counts.values())
 
         if display_critical >= 5:
             status = "Critical"
@@ -219,7 +235,12 @@ def _build_context(
             status_class = "good"
             status_priority = 3
 
-        expanded_html = _generate_bucket_expanded_content(vulns, bucket_counts=product_bucket_counts)
+        # Filter vulns to active-bucket sources for expanded row accuracy
+        mode_vulns = [v for v in all_vulns if (v.source or "") in active_source_names]
+        expanded_html = _generate_bucket_expanded_content(
+            mode_vulns,
+            bucket_counts=filtered_bucket_counts if filtered_bucket_counts else None,
+        )
 
         categories = []
         bucket_detail: dict[str, dict] = {}
@@ -229,7 +250,7 @@ def _build_context(
                 "critical": bkt_data.get("critical", 0),
                 "high": bkt_data.get("high", 0),
             }
-            if bkt_data.get("total", 0) > 0:
+            if bucket in active_buckets and bkt_data.get("total", 0) > 0:
                 categories.append(bucket.lower())
 
         products.append(
@@ -250,9 +271,20 @@ def _build_context(
 
     products.sort(key=lambda p: (p["status_priority"], -p["critical"], p["name"]))
 
-    code_count = sum(counts.get("CODE", {}).get("total", 0) for counts in bucket_counts_by_product.values())
-    cloud_count = sum(counts.get("CLOUD", {}).get("total", 0) for counts in bucket_counts_by_product.values())
-    infra_count = sum(counts.get("INFRASTRUCTURE", {}).get("total", 0) for counts in bucket_counts_by_product.values())
+    # category_counts: only keys relevant to this dashboard's filter bar
+    category_counts: dict[str, int] = {}
+    if "CODE" in active_buckets:
+        category_counts["code"] = sum(
+            counts.get("CODE", {}).get("total", 0) for counts in bucket_counts_by_product.values()
+        )
+    if "CLOUD" in active_buckets:
+        category_counts["cloud"] = sum(
+            counts.get("CLOUD", {}).get("total", 0) for counts in bucket_counts_by_product.values()
+        )
+    if "INFRASTRUCTURE" in active_buckets:
+        category_counts["infrastructure"] = sum(
+            counts.get("INFRASTRUCTURE", {}).get("total", 0) for counts in bucket_counts_by_product.values()
+        )
 
     return {
         "framework_css": framework_css,
@@ -260,12 +292,7 @@ def _build_context(
         "summary_cards": summary_cards,
         "products": products,
         "show_glossary": False,
-        "category_counts": {
-            "all": len(products),
-            "code": code_count,
-            "cloud": cloud_count,
-            "infrastructure": infra_count,
-        },
+        "category_counts": category_counts,
     }
 
 
@@ -276,9 +303,36 @@ def _generate_main_dashboard_html(
     accurate_totals: dict,
     aql_by_product: dict | None = None,
 ) -> str:
-    """Generate main dashboard HTML using 4-stage pipeline."""
+    """Generate Code & Cloud dashboard HTML using 4-stage pipeline."""
     summary_stats = _calculate_summary(metrics_by_product)
     context = _build_context(
-        metrics_by_product, vulns_by_product, summary_stats, bucket_counts_by_product, accurate_totals, aql_by_product
+        metrics_by_product,
+        vulns_by_product,
+        summary_stats,
+        bucket_counts_by_product,
+        accurate_totals,
+        aql_by_product,
+        dashboard_mode="code_cloud",
     )
     return render_dashboard("dashboards/security_dashboard.html", context)
+
+
+def _generate_infra_dashboard_html(
+    metrics_by_product: dict,
+    vulns_by_product: dict,
+    bucket_counts_by_product: dict,
+    accurate_totals: dict,
+    aql_by_product: dict | None = None,
+) -> str:
+    """Generate Infrastructure-only dashboard HTML using 4-stage pipeline."""
+    summary_stats = _calculate_summary(metrics_by_product)
+    context = _build_context(
+        metrics_by_product,
+        vulns_by_product,
+        summary_stats,
+        bucket_counts_by_product,
+        accurate_totals,
+        aql_by_product,
+        dashboard_mode="infrastructure",
+    )
+    return render_dashboard("dashboards/security_infrastructure_dashboard.html", context)
