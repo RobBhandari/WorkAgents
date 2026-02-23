@@ -42,6 +42,11 @@
         }
     </style>
 
+    <!-- Plotly.js loaded in <head> so inline Plotly.newPlot() calls in the body execute after it's available -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"
+            integrity="sha384-cCVCZkAjYNxaYKbM8lsArLznDF/SvMFr1jcZrvOpSTCa0W40ZAdLzHCEulnUa5i7"
+            crossorigin="anonymous"></script>
+
     <!-- Dashboard-specific CSS -->
     {% block extra_css %}{% endblock %}
 </head>
@@ -92,14 +97,6 @@
             {% endblock %}
         </footer>
     </div>
-
-    <!-- Plotly.js (Intelligence Platform — interactive charts)
-         Version pinned to match Python plotly 5.x bundled JS (2.35.2).
-         SRI hash computed from bundled plotly.min.js in the plotly Python package.
-         Only loaded once here; individual charts use include_plotlyjs=False. -->
-    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"
-            integrity="sha384-cCVCZkAjYNxaYKbM8lsArLznDF/SvMFr1jcZrvOpSTCa0W40ZAdLzHCEulnUa5i7"
-            crossorigin="anonymous"></script>
 
     <!-- Framework JavaScript (from dashboard_framework.py) -->
     {{ framework_js|safe }}
