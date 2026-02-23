@@ -543,3 +543,101 @@ class TestEdgeCases:
 
         assert result is not None
         assert result["lead_time"]["current"] == 0
+
+
+class TestSecurityBucketTrends:
+    """Tests for extract_security_code_cloud_trends() and extract_security_infra_trends()."""
+
+    @pytest.fixture
+    def weeks_with_breakdown(self):
+        """Security history weeks that include bucket_breakdown (post-deploy)."""
+        return [
+            {
+                "metrics": {
+                    "current_total": 300,
+                    "bucket_breakdown": {
+                        "code_cloud": {"critical": 10, "high": 140, "total": 150},
+                        "infrastructure": {"critical": 5, "high": 65, "total": 70},
+                    },
+                }
+            },
+            {
+                "metrics": {
+                    "current_total": 280,
+                    "bucket_breakdown": {
+                        "code_cloud": {"critical": 8, "high": 132, "total": 140},
+                        "infrastructure": {"critical": 4, "high": 56, "total": 60},
+                    },
+                }
+            },
+        ]
+
+    @pytest.fixture
+    def weeks_without_breakdown(self):
+        """Older history weeks that do NOT include bucket_breakdown."""
+        return [
+            {"metrics": {"current_total": 500}},
+            {"metrics": {"current_total": 480}},
+            {"metrics": {"current_total": 460}},
+        ]
+
+    def test_code_cloud_reads_bucket_breakdown(self, weeks_with_breakdown):
+        """extract_security_code_cloud_trends reads code_cloud.total correctly."""
+        calc = TrendsCalculator()
+        result = calc.extract_security_code_cloud_trends(weeks_with_breakdown)
+
+        assert result is not None
+        vulns = result["vulnerabilities"]
+        assert vulns["current"] == 140
+        assert vulns["previous"] == 150
+        assert vulns["trend_data"] == [150, 140]
+        assert vulns["unit"] == "vulns"
+
+    def test_infra_reads_bucket_breakdown(self, weeks_with_breakdown):
+        """extract_security_infra_trends reads infrastructure.total correctly."""
+        calc = TrendsCalculator()
+        result = calc.extract_security_infra_trends(weeks_with_breakdown)
+
+        assert result is not None
+        vulns = result["vulnerabilities"]
+        assert vulns["current"] == 60
+        assert vulns["previous"] == 70
+        assert vulns["trend_data"] == [70, 60]
+        assert vulns["unit"] == "vulns"
+
+    def test_code_cloud_graceful_on_missing_key(self, weeks_without_breakdown):
+        """Historical weeks without bucket_breakdown → returns zeros, no raise."""
+        calc = TrendsCalculator()
+        result = calc.extract_security_code_cloud_trends(weeks_without_breakdown)
+
+        assert result is not None
+        vulns = result["vulnerabilities"]
+        assert vulns["current"] == 0
+        assert all(v == 0 for v in vulns["trend_data"])
+
+    def test_infra_graceful_on_missing_key(self, weeks_without_breakdown):
+        """Historical weeks without bucket_breakdown → returns zeros, no raise."""
+        calc = TrendsCalculator()
+        result = calc.extract_security_infra_trends(weeks_without_breakdown)
+
+        assert result is not None
+        vulns = result["vulnerabilities"]
+        assert vulns["current"] == 0
+        assert all(v == 0 for v in vulns["trend_data"])
+
+    def test_code_cloud_returns_none_for_empty(self):
+        """Returns None when weeks list is empty."""
+        calc = TrendsCalculator()
+        assert calc.extract_security_code_cloud_trends([]) is None
+
+    def test_infra_returns_none_for_empty(self):
+        """Returns None when weeks list is empty."""
+        calc = TrendsCalculator()
+        assert calc.extract_security_infra_trends([]) is None
+
+    def test_single_week_previous_is_zero(self, weeks_with_breakdown):
+        """Single week → previous defaults to 0."""
+        calc = TrendsCalculator()
+        result = calc.extract_security_code_cloud_trends([weeks_with_breakdown[0]])
+        assert result is not None
+        assert result["vulnerabilities"]["previous"] == 0

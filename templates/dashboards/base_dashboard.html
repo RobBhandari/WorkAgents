@@ -9,6 +9,44 @@
     <!-- Framework CSS (from dashboard_framework.py) -->
     {{ framework_css|safe }}
 
+    <!-- Breadcrumb navigation styles -->
+    <style>
+        .breadcrumb-nav {
+            padding: 12px 32px 0;
+        }
+        .breadcrumb {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+        .breadcrumb-item {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+        }
+        .breadcrumb-item a:hover {
+            color: #e2e8f0;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "›";
+            margin-right: 8px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .breadcrumb-item.active span {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+
+    <!-- Plotly.js loaded in <head> so inline Plotly.newPlot() calls in the body execute after it's available -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"
+            integrity="sha384-cCVCZkAjYNxaYKbM8lsArLznDF/SvMFr1jcZrvOpSTCa0W40ZAdLzHCEulnUa5i7"
+            crossorigin="anonymous"></script>
+
     <!-- Dashboard-specific CSS -->
     {% block extra_css %}{% endblock %}
 </head>
@@ -21,6 +59,21 @@
 
     <!-- Header section -->
     <div class="container">
+        {% if breadcrumbs is defined and breadcrumbs %}
+        <nav class="breadcrumb-nav" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% for crumb in breadcrumbs %}
+                <li class="breadcrumb-item{% if loop.last %} active{% endif %}">
+                    {% if not loop.last %}
+                    <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                    {% else %}
+                    <span>{{ crumb.label }}</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ol>
+        </nav>
+        {% endif %}
         <div class="header">
             {% block header %}
             <h1>{% block header_title %}Dashboard{% endblock %}</h1>
