@@ -1,0 +1,439 @@
+{% extends "dashboards/base_dashboard.html" %}
+
+{% block title %}Predictive Analytics{% endblock %}
+{% block meta_description %}Predictive Analytics — Scenario comparison dashboard for BAU, Accelerated, and Sprint outcomes{% endblock %}
+
+{% block header_title %}Predictive Analytics{% endblock %}
+{% block header_subtitle %}Scenario Comparison — Monte Carlo Simulation Outcomes{% endblock %}
+{% block header_metadata %}Generated: {{ generated_at }}{% endblock %}
+{% block footer_context %}Predictive Analytics Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Flat dark slate header — matches Executive Trends Dashboard */
+    .header {
+        background: #0f172a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 48px 32px !important;
+    }
+
+    /* ── KPI summary grid ───────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .kpi-card {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 24px 20px;
+        border-left: 4px solid #334155;
+    }
+
+    .kpi-card.status-good    { border-left-color: #10b981; }
+    .kpi-card.status-caution { border-left-color: #f59e0b; }
+    .kpi-card.status-action  { border-left-color: #ef4444; }
+
+    .kpi-card .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 10px;
+    }
+
+    .kpi-card .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        line-height: 1.1;
+        margin-bottom: 6px;
+    }
+
+    .kpi-card .kpi-description {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #94a3b8);
+    }
+
+    /* ── Chart panel ─────────────────────────────────────────── */
+    .chart-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 32px;
+    }
+
+    .chart-panel h2 {
+        font-size: 1.0rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 4px;
+    }
+
+    .chart-panel .chart-hint {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 16px;
+    }
+
+    /* ── Section ─────────────────────────────────────────────── */
+    .section {
+        margin-bottom: 32px;
+    }
+
+    .section h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+    .section-hint {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 12px;
+    }
+
+    /* ── Probability bar ─────────────────────────────────────── */
+    .prob-bar-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .prob-bar-bg {
+        flex: 1;
+        height: 6px;
+        background: #334155;
+        border-radius: 3px;
+        overflow: hidden;
+        min-width: 60px;
+    }
+
+    .prob-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+
+    .prob-bar-fill.fill-good    { background: #10b981; }
+    .prob-bar-fill.fill-caution { background: #f59e0b; }
+    .prob-bar-fill.fill-action  { background: #ef4444; }
+
+    .prob-label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        width: 40px;
+        text-align: right;
+    }
+
+    .prob-label.fill-good    { color: #10b981; }
+    .prob-label.fill-caution { color: #f59e0b; }
+    .prob-label.fill-action  { color: #ef4444; }
+
+    /* ── Scenario description (expandable detail row) ─────────── */
+    .detail-row td {
+        padding: 14px 16px 14px 36px;
+        background: rgba(15, 23, 42, 0.4);
+        font-size: 0.88rem;
+        color: var(--text-secondary, #94a3b8);
+        line-height: 1.6;
+    }
+
+    /* ── No-data state ─────────────────────────────────────────── */
+    .no-data-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 48px 32px;
+        text-align: center;
+        color: var(--text-secondary, #94a3b8);
+        margin-bottom: 32px;
+    }
+
+    .no-data-panel .no-data-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+    }
+
+    .no-data-panel h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+        margin-bottom: 10px;
+    }
+
+    .no-data-panel p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+
+    .no-data-panel code {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+    }
+
+    /* ── Glossary ─────────────────────────────────────────────── */
+    .glossary-panel {
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin-bottom: 32px;
+    }
+
+    .glossary-toggle {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary, #e2e8f0);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    .glossary-toggle:hover {
+        color: #818cf8;
+    }
+
+    .glossary-body {
+        display: none;
+        margin-top: 16px;
+    }
+
+    .glossary-body.open {
+        display: block;
+    }
+
+    .glossary-term {
+        margin-bottom: 10px;
+    }
+
+    .glossary-term dt {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #818cf8;
+        margin-bottom: 2px;
+    }
+
+    .glossary-term dd {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #94a3b8);
+        line-height: 1.5;
+        margin-left: 0;
+    }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 380px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleRow(row) {
+        var isExpanded = row.classList.contains('expanded');
+        row.classList.toggle('expanded');
+        var detailRow = row.nextElementSibling;
+        if (detailRow && detailRow.classList.contains('detail-row')) {
+            detailRow.style.display = isExpanded ? 'none' : 'table-row';
+        }
+    }
+
+    function toggleGlossary() {
+        var body = document.getElementById('glossary-body');
+        if (body) {
+            body.classList.toggle('open');
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if not has_data %}
+<!-- ── No-data state ──────────────────────────────────────────────────── -->
+<div class="no-data-panel">
+    <div class="no-data-icon">&#128202;</div>
+    <h3>Scenario Data Not Yet Available</h3>
+    <p>
+        The Monte Carlo scenario simulator has not run yet for this environment.
+        Run the scenario simulator to populate this dashboard.<br><br>
+        Example:<br>
+        <code>python -m execution.intelligence.scenario_simulator</code>
+    </p>
+</div>
+
+{% else %}
+
+<!-- ── KPI row ───────────────────────────────────────────────────────── -->
+<div class="kpi-grid">
+
+    <div class="kpi-card status-good">
+        <div class="kpi-label">Scenarios Loaded</div>
+        <div class="kpi-value">{{ scenario_count }}</div>
+        <div class="kpi-description">Pre-computed Monte Carlo scenarios</div>
+    </div>
+
+    <div class="kpi-card {% if best_probability >= 0.6 %}status-good{% elif best_probability >= 0.4 %}status-caution{% else %}status-action{% endif %}">
+        <div class="kpi-label">Best Scenario</div>
+        <div class="kpi-value">{{ best_scenario_name }}</div>
+        <div class="kpi-description">Highest probability of improvement</div>
+    </div>
+
+    <div class="kpi-card {% if best_probability >= 0.6 %}status-good{% elif best_probability >= 0.4 %}status-caution{% else %}status-action{% endif %}">
+        <div class="kpi-label">Best Probability</div>
+        <div class="kpi-value">{{ (best_probability * 100) | round(1) }}%</div>
+        <div class="kpi-description">Fraction of simulations showing improvement</div>
+    </div>
+
+</div>
+
+<!-- ── Scenario comparison chart ─────────────────────────────────────── -->
+<div class="chart-panel">
+    <h2>Scenario P50 Outcomes at Horizon</h2>
+    <p class="chart-hint">
+        Bars show the median (P50) projected value at maximum horizon week.
+        Error bars span P10 (pessimistic) to P90 (optimistic).
+        Green = high probability of improvement (&ge;60%), amber = moderate, red = low.
+    </p>
+    {% if scenario_chart_html %}
+    {{ scenario_chart_html | safe }}
+    {% else %}
+    <p style="color:var(--text-secondary);font-size:0.9rem;padding:40px 0;text-align:center;">
+        Chart not available — no forecast points in loaded scenarios.
+    </p>
+    {% endif %}
+</div>
+
+<!-- ── Scenario breakdown table ──────────────────────────────────────── -->
+<div class="section">
+    <h2>Scenario Breakdown</h2>
+    <p class="section-hint">
+        Click any row to expand the scenario description.
+        Probability of improvement is the fraction of simulations where
+        the final projected value is better than the starting value.
+    </p>
+
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Scenario</th>
+                    <th>Metric</th>
+                    <th>Horizon (wks)</th>
+                    <th>P50 at Horizon</th>
+                    <th>Prob. of Improvement</th>
+                    <th>Simulations</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for sr in scenarios %}
+                <tr class="parent-row expandable"
+                    onclick="toggleRow(this)"
+                    style="cursor:pointer"
+                    title="Click to expand scenario description">
+                    <td>
+                        <span style="color:var(--text-secondary);font-size:0.75rem;margin-right:6px;">&#9658;</span>
+                        <strong>{{ sr.scenario_name }}</strong>
+                    </td>
+                    <td>{{ sr.metric | replace('_', ' ') | title }}</td>
+                    <td style="text-align:center;">{{ sr.horizon_weeks }}</td>
+                    <td>{{ "%.1f" | format(sr.summary_p50_at_horizon) }}</td>
+                    <td>
+                        <div class="prob-bar-wrap">
+                            <span class="prob-label
+                                {% if sr.probability_of_improvement >= 0.6 %}fill-good
+                                {% elif sr.probability_of_improvement >= 0.4 %}fill-caution
+                                {% else %}fill-action{% endif %}">
+                                {{ (sr.probability_of_improvement * 100) | round(0) | int }}%
+                            </span>
+                            <div class="prob-bar-bg">
+                                <div class="prob-bar-fill
+                                    {% if sr.probability_of_improvement >= 0.6 %}fill-good
+                                    {% elif sr.probability_of_improvement >= 0.4 %}fill-caution
+                                    {% else %}fill-action{% endif %}"
+                                    style="width:{{ (sr.probability_of_improvement * 100) | round(0) | int }}%">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="text-align:right;">{{ sr.n_simulations | format_number }}</td>
+                </tr>
+                <tr class="detail-row" style="display:none">
+                    <td colspan="6">
+                        {% if sr.description %}
+                        {{ sr.description }}
+                        {% else %}
+                        <em>No description provided for this scenario.</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endif %}{# end has_data #}
+
+<!-- ── Glossary ─────────────────────────────────────────────────────── -->
+<div class="glossary-panel">
+    <button class="glossary-toggle" onclick="toggleGlossary()">
+        &#9432; Glossary
+    </button>
+    <div class="glossary-body" id="glossary-body">
+        <dl>
+            <div class="glossary-term">
+                <dt>BAU (Business as Usual)</dt>
+                <dd>Baseline scenario assuming current velocity and no process changes.</dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Accelerated</dt>
+                <dd>Scenario with increased investment or effort applied to the metric area.</dd>
+            </div>
+            <div class="glossary-term">
+                <dt>P10 / P50 / P90</dt>
+                <dd>
+                    Percentile bands from Monte Carlo simulation.
+                    P50 is the median outcome; P10 is pessimistic (10th percentile);
+                    P90 is optimistic (90th percentile).
+                </dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Probability of Improvement</dt>
+                <dd>
+                    Fraction of simulation runs where the metric value at the
+                    horizon week is better than the starting value (0.0 = never, 1.0 = always).
+                </dd>
+            </div>
+            <div class="glossary-term">
+                <dt>Horizon</dt>
+                <dd>Number of weeks ahead the scenario projects to.</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+{% endblock %}

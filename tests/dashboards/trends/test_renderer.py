@@ -42,6 +42,22 @@ def sample_trends_data():
                 "unit": "vulns",
             }
         },
+        "security_code_cloud": {
+            "vulnerabilities": {
+                "current": 150,
+                "previous": 165,
+                "trend_data": [180, 175, 165, 155, 150],
+                "unit": "vulns",
+            }
+        },
+        "security_infra": {
+            "vulnerabilities": {
+                "current": 70,
+                "previous": 75,
+                "trend_data": [80, 78, 75, 73, 70],
+                "unit": "vulns",
+            }
+        },
         "flow": {
             "lead_time": {
                 "current": 35.5,
@@ -280,14 +296,15 @@ class TestMetricsListGeneration:
         renderer = TrendsRenderer(sample_trends_data, sample_target_progress)
         metrics = renderer._generate_metrics_list()
 
-        # Should have 9 metrics: target + AI usage + 7 trend metrics
-        assert len(metrics) == 9
+        # Should have 10 metrics: target + AI usage + 2 security tiles + 6 other trend metrics
+        assert len(metrics) == 10
 
         # Check metric IDs
         metric_ids = [m["id"] for m in metrics]
         assert "target" in metric_ids
         assert "ai-usage" in metric_ids
         assert "security" in metric_ids
+        assert "security-infra" in metric_ids
         assert "bugs" in metric_ids
         assert "flow" in metric_ids
         assert "deployment" in metric_ids
@@ -300,8 +317,8 @@ class TestMetricsListGeneration:
         renderer = TrendsRenderer(sample_trends_data, None)
         metrics = renderer._generate_metrics_list()
 
-        # Should have 8 metrics: AI usage + 7 trend metrics (no target)
-        assert len(metrics) == 8
+        # Should have 9 metrics: AI usage + 2 security tiles + 6 other trend metrics (no target)
+        assert len(metrics) == 9
         metric_ids = [m["id"] for m in metrics]
         assert "target" not in metric_ids
 
@@ -771,3 +788,74 @@ class TestEdgeCases:
         assert output_path.exists()
         content = output_path.read_text(encoding="utf-8")
         assert "<!DOCTYPE html>" in content
+
+
+class TestSecuritySplitTiles:
+    """Tests for the Code & Cloud / Infrastructure security tile split."""
+
+    def test_security_code_cloud_tile_title(self, sample_trends_data):
+        """Security Code+Cloud tile has correct title."""
+        renderer = TrendsRenderer(sample_trends_data)
+        metrics = renderer._generate_metrics_list()
+
+        cc_tile = next((m for m in metrics if m["id"] == "security"), None)
+        assert cc_tile is not None
+        assert cc_tile["title"] == "Security: Code & Cloud"
+
+    def test_security_code_cloud_tile_dashboard_url(self, sample_trends_data):
+        """Security Code+Cloud tile links to security_dashboard.html."""
+        renderer = TrendsRenderer(sample_trends_data)
+        metrics = renderer._generate_metrics_list()
+
+        cc_tile = next(m for m in metrics if m["id"] == "security")
+        assert cc_tile["dashboardUrl"] == "security_dashboard.html"
+
+    def test_security_infra_tile_present(self, sample_trends_data):
+        """Security Infrastructure tile is present when security_infra data exists."""
+        renderer = TrendsRenderer(sample_trends_data)
+        metrics = renderer._generate_metrics_list()
+
+        infra_tile = next((m for m in metrics if m["id"] == "security-infra"), None)
+        assert infra_tile is not None
+
+    def test_security_infra_tile_title(self, sample_trends_data):
+        """Security Infrastructure tile has correct title."""
+        renderer = TrendsRenderer(sample_trends_data)
+        metrics = renderer._generate_metrics_list()
+
+        infra_tile = next(m for m in metrics if m["id"] == "security-infra")
+        assert infra_tile["title"] == "Security: Infrastructure"
+
+    def test_security_infra_tile_dashboard_url(self, sample_trends_data):
+        """Security Infrastructure tile links to security_infrastructure_dashboard.html."""
+        renderer = TrendsRenderer(sample_trends_data)
+        metrics = renderer._generate_metrics_list()
+
+        infra_tile = next(m for m in metrics if m["id"] == "security-infra")
+        assert infra_tile["dashboardUrl"] == "security_infrastructure_dashboard.html"
+
+    def test_infra_tile_absent_without_data(self):
+        """Infrastructure tile not generated when security_infra key is absent."""
+        data = {
+            "security_code_cloud": {
+                "vulnerabilities": {
+                    "current": 100,
+                    "previous": 110,
+                    "trend_data": [120, 110, 100],
+                    "unit": "vulns",
+                }
+            }
+        }
+        renderer = TrendsRenderer(data)
+        metrics = renderer._generate_metrics_list()
+        metric_ids = [m["id"] for m in metrics]
+        assert "security-infra" not in metric_ids
+
+    def test_infra_tile_appears_after_cc_tile(self, sample_trends_data):
+        """Infrastructure tile immediately follows the Code+Cloud tile in the list."""
+        renderer = TrendsRenderer(sample_trends_data)
+        metrics = renderer._generate_metrics_list()
+        ids = [m["id"] for m in metrics]
+        cc_idx = ids.index("security")
+        infra_idx = ids.index("security-infra")
+        assert infra_idx == cc_idx + 1
