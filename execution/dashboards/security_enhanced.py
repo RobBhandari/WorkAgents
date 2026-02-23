@@ -151,14 +151,26 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
 
     # Stage 1d: Per-bucket Critical/High counts via AQL (6 calls: 2 sev × 3 buckets).
     logger.info("Fetching per-bucket Critical/High counts via AQL (Production only)")
+    _infra_cloud_providers = ["aws", "azure"]
     bucket_counts_by_product: dict[str, dict] = {}
     for bucket_name, bucket_sources in BUCKET_SOURCE_MAP.items():
         if bucket_name == "Other":
             continue
+        cloud_providers = _infra_cloud_providers if bucket_name == "INFRASTRUCTURE" else None
         b_crit = vuln_loader.count_by_severity_aql(
-            "Critical", hierarchy, environment="Production", sources=bucket_sources
+            "Critical",
+            hierarchy,
+            environment="Production",
+            sources=bucket_sources,
+            asset_cloud_providers=cloud_providers,
         )
-        b_high = vuln_loader.count_by_severity_aql("High", hierarchy, environment="Production", sources=bucket_sources)
+        b_high = vuln_loader.count_by_severity_aql(
+            "High",
+            hierarchy,
+            environment="Production",
+            sources=bucket_sources,
+            asset_cloud_providers=cloud_providers,
+        )
         for pid in set(b_crit) | set(b_high):
             name = id_to_name.get(pid, pid)
             c = b_crit.get(pid, 0)
