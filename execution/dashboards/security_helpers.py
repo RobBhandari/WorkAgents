@@ -129,6 +129,62 @@ def _update_history_current_total(history_path: Path, critical: int, high: int) 
         logger.warning("History patch skipped: %s", e)
 
 
+def _patch_history_bucket_breakdown(
+    history_path: Path,
+    bucket_counts_by_product: dict[str, dict],
+) -> None:
+    """
+    Patch the latest history entry with Code+Cloud and Infrastructure totals.
+
+    Adds 'bucket_breakdown' key to weeks[-1].metrics:
+        {"code_cloud": {"critical": int, "high": int, "total": int},
+         "infrastructure": {"critical": int, "high": int, "total": int}}
+
+    Historical weeks without this key are left untouched (callers handle gracefully).
+    """
+    if not history_path.exists():
+        return
+    try:
+        d = json.loads(history_path.read_text(encoding="utf-8"))
+        if not d.get("weeks"):
+            return
+
+        cc_critical, cc_high = 0, 0
+        infra_critical, infra_high = 0, 0
+        for product_buckets in bucket_counts_by_product.values():
+            for bucket_name, counts in product_buckets.items():
+                if bucket_name in ("CODE", "CLOUD"):
+                    cc_critical += counts.get("critical", 0)
+                    cc_high += counts.get("high", 0)
+                elif bucket_name == "INFRASTRUCTURE":
+                    infra_critical += counts.get("critical", 0)
+                    infra_high += counts.get("high", 0)
+
+        m = d["weeks"][-1].setdefault("metrics", {})
+        m["bucket_breakdown"] = {
+            "code_cloud": {
+                "critical": cc_critical,
+                "high": cc_high,
+                "total": cc_critical + cc_high,
+            },
+            "infrastructure": {
+                "critical": infra_critical,
+                "high": infra_high,
+                "total": infra_critical + infra_high,
+            },
+        }
+        history_path.write_text(json.dumps(d, indent=2), encoding="utf-8")
+        logger.info(
+            "Security history patched with bucket breakdown",
+            extra={
+                "code_cloud_total": cc_critical + cc_high,
+                "infra_total": infra_critical + infra_high,
+            },
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Bucket breakdown patch skipped: %s", e)
+
+
 def _calculate_summary(metrics_by_product: dict) -> dict:
     """
     Stage 2: Calculate summary statistics.
