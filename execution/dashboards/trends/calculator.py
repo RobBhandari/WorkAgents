@@ -429,6 +429,60 @@ class TrendsCalculator:
             }
         }
 
+    def extract_security_code_cloud_trends(self, weeks: list[dict]) -> dict | None:
+        """Extract Code+Cloud vulnerability trends from bucket_breakdown in history.
+
+        Reads bucket_breakdown.code_cloud.total from each week.
+        Missing key (historical weeks before split deploy) → 0; no raise.
+
+        Args:
+            weeks: List of weekly security data
+
+        Returns:
+            Dict with code_cloud vulnerability trends, or None if no data
+        """
+        if not weeks:
+            return None
+
+        cc_trend = [
+            w.get("metrics", {}).get("bucket_breakdown", {}).get("code_cloud", {}).get("total", 0) for w in weeks
+        ]
+        return {
+            "vulnerabilities": {
+                "current": cc_trend[-1],
+                "previous": cc_trend[-2] if len(cc_trend) > 1 else 0,
+                "trend_data": cc_trend,
+                "unit": "vulns",
+            }
+        }
+
+    def extract_security_infra_trends(self, weeks: list[dict]) -> dict | None:
+        """Extract Infrastructure vulnerability trends from bucket_breakdown in history.
+
+        Reads bucket_breakdown.infrastructure.total from each week.
+        Missing key (historical weeks before split deploy) → 0; no raise.
+
+        Args:
+            weeks: List of weekly security data
+
+        Returns:
+            Dict with infrastructure vulnerability trends, or None if no data
+        """
+        if not weeks:
+            return None
+
+        infra_trend = [
+            w.get("metrics", {}).get("bucket_breakdown", {}).get("infrastructure", {}).get("total", 0) for w in weeks
+        ]
+        return {
+            "vulnerabilities": {
+                "current": infra_trend[-1],
+                "previous": infra_trend[-2] if len(infra_trend) > 1 else 0,
+                "trend_data": infra_trend,
+                "unit": "vulns",
+            }
+        }
+
     def extract_exploitable_trends(self, weeks: list[dict]) -> dict | None:
         """Extract exploitable vulnerability trends from exploitable_history.json weeks."""
         if not weeks:
