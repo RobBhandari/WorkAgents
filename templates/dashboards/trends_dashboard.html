@@ -480,10 +480,12 @@ div.header {
 }
 .badge-critical { background: rgba(239,68,68,0.25);   color: #fca5a5; }
 .badge-high     { background: rgba(249,115,22,0.25);  color: #fdba74; }
-.badge-warn     { background: rgba(245,158,11,0.2);   color: #fcd34d; }
-.badge-medium   { background: rgba(245,158,11,0.15);  color: #fcd34d; }
+.badge-medium   { background: rgba(234,179,8,0.25);   color: #fde047; }
+.badge-warn     { background: rgba(59,130,246,0.25);  color: #93c5fd; }
 .alert-card.alert-critical { border-left: 3px solid rgba(239,68,68,0.6); }
 .alert-card.alert-high     { border-left: 3px solid rgba(249,115,22,0.6); }
+.alert-card.alert-medium   { border-left: 3px solid rgba(234,179,8,0.6); }
+.alert-card.alert-warn     { border-left: 3px solid rgba(59,130,246,0.6); }
 .alert-dash {
     color: var(--color-blue-400);
     font-size: 0.72rem;
@@ -861,7 +863,8 @@ function toggleAlertGroup(groupId) {
         const cards = document.querySelectorAll('.alert-card[data-severity]');
         const counts = {};
         cards.forEach(c => { const s = c.dataset.severity; counts[s] = (counts[s] || 0) + 1; });
-        const severities = Object.keys(counts);
+        const SEVERITY_ORDER = ['critical', 'high', 'medium', 'warn', 'warning'];
+        const severities = SEVERITY_ORDER.filter(s => counts[s]);
         [{ sev: 'all', label: `All (${cards.length})` },
          ...severities.map(s => ({ sev: s, label: `${s.charAt(0).toUpperCase() + s.slice(1)} (${counts[s]})` }))
         ].forEach(({ sev, label }) => {

@@ -170,10 +170,10 @@ class TestSeverityEmoji:
         assert SEVERITY_EMOJI["critical"] == "🔴"
         assert SEVERITY_EMOJI["high"] == "🟠"
 
-    def test_warning_and_medium_map_to_yellow_circle(self) -> None:
-        """Warning and medium severities should map to yellow circle emoji"""
-        assert SEVERITY_EMOJI["warning"] == "🟡"
-        assert SEVERITY_EMOJI["warn"] == "🟡"
+    def test_warn_maps_to_blue_medium_maps_to_yellow(self) -> None:
+        """Warn/warning use blue circle; medium uses yellow for visual distinction"""
+        assert SEVERITY_EMOJI["warning"] == "🔵"
+        assert SEVERITY_EMOJI["warn"] == "🔵"
         assert SEVERITY_EMOJI["medium"] == "🟡"
 
     def test_low_and_good_map_to_green_circle(self) -> None:
