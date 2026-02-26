@@ -173,1382 +173,6 @@
           },
           "total_open": 1628,
           "total_closed_90d": 1063,
-          "collected_at": "2026-02-19T22:52:44.349086"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 11,
-              "closed_count_90d": 0,
-              "wip": 11,
-              "lead_time": {
-                "p50": null,
-                "p85": null,
-                "p95": null,
-                "sample_size": 0
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 0,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 10,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 0,
-                "lookback_days": 90,
-                "per_week": 0.0
-              },
-              "cycle_time_variance": {
-                "sample_size": 0,
-                "std_dev_days": null,
-                "coefficient_of_variation": null
-              },
-              "excluded_security_bugs": {
-                "open": 9,
-                "closed": 0
-              }
-            },
-            "User Story": {
-              "open_count": 3,
-              "closed_count_90d": 12,
-              "wip": 3,
-              "lead_time": {
-                "p50": 1102.9,
-                "p85": 1600.8,
-                "p95": 1600.8,
-                "sample_size": 12
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 286.1,
-                  "p85": 337.2,
-                  "p95": 351.9,
-                  "closed_count": 2,
-                  "sample_size": 2
-                },
-                "cleanup": {
-                  "p50": 1308.9,
-                  "p85": 1600.8,
-                  "p95": 1600.8,
-                  "closed_count": 10,
-                  "sample_size": 10,
-                  "avg_age_years": 3.6
-                },
-                "indicators": {
-                  "cleanup_percentage": 83.3,
-                  "is_cleanup_effort": true,
-                  "has_significant_cleanup": false,
-                  "total_closed": 12,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 3,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 12,
-                "lookback_days": 90,
-                "per_week": 0.9
-              },
-              "cycle_time_variance": {
-                "sample_size": 12,
-                "std_dev_days": 474.2,
-                "coefficient_of_variation": 41.8,
-                "mean_days": 1134.0
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 72,
-              "closed_count_90d": 42,
-              "wip": 72,
-              "lead_time": {
-                "p50": 1569.9,
-                "p85": 1597.7,
-                "p95": 1600.8,
-                "sample_size": 42
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 314.9,
-                  "p85": 314.9,
-                  "p95": 314.9,
-                  "closed_count": 1,
-                  "sample_size": 1
-                },
-                "cleanup": {
-                  "p50": 1569.9,
-                  "p85": 1597.8,
-                  "p95": 1600.8,
-                  "closed_count": 41,
-                  "sample_size": 41,
-                  "avg_age_years": 4.0
-                },
-                "indicators": {
-                  "cleanup_percentage": 97.6,
-                  "is_cleanup_effort": true,
-                  "has_significant_cleanup": true,
-                  "total_closed": 42,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 72,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 42,
-                "lookback_days": 90,
-                "per_week": 3.3
-              },
-              "cycle_time_variance": {
-                "sample_size": 42,
-                "std_dev_days": 253.8,
-                "coefficient_of_variation": 17.6,
-                "mean_days": 1445.3
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 86,
-          "total_closed_90d": 54,
-          "collected_at": "2026-02-19T22:52:44.016985"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 0,
-              "closed_count_90d": 5,
-              "wip": 0,
-              "lead_time": {
-                "p50": 0.9,
-                "p85": 11.1,
-                "p95": 18.3,
-                "sample_size": 5
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 0.9,
-                  "p85": 11.1,
-                  "p95": 18.3,
-                  "closed_count": 5,
-                  "sample_size": 5
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 5,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 0,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 5,
-                "lookback_days": 90,
-                "per_week": 0.4
-              },
-              "cycle_time_variance": {
-                "sample_size": 5,
-                "std_dev_days": 9.4,
-                "coefficient_of_variation": 174.9,
-                "mean_days": 5.4
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "User Story": {
-              "open_count": 161,
-              "closed_count_90d": 87,
-              "wip": 161,
-              "lead_time": {
-                "p50": 31.9,
-                "p85": 80.5,
-                "p95": 112.7,
-                "sample_size": 87
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 31.9,
-                  "p85": 80.5,
-                  "p95": 112.7,
-                  "closed_count": 87,
-                  "sample_size": 87
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 87,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 110,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 87,
-                "lookback_days": 90,
-                "per_week": 6.8
-              },
-              "cycle_time_variance": {
-                "sample_size": 87,
-                "std_dev_days": 34.3,
-                "coefficient_of_variation": 82.1,
-                "mean_days": 41.8
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 834,
-              "closed_count_90d": 83,
-              "wip": 834,
-              "lead_time": {
-                "p50": 29.2,
-                "p85": 79.9,
-                "p95": 118.8,
-                "sample_size": 83
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 29.2,
-                  "p85": 79.9,
-                  "p95": 118.8,
-                  "closed_count": 83,
-                  "sample_size": 83
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 83,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 792,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 83,
-                "lookback_days": 90,
-                "per_week": 6.5
-              },
-              "cycle_time_variance": {
-                "sample_size": 83,
-                "std_dev_days": 33.1,
-                "coefficient_of_variation": 82.6,
-                "mean_days": 40.1
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 995,
-          "total_closed_90d": 175,
-          "collected_at": "2026-02-19T22:52:44.380244"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 7,
-              "closed_count_90d": 58,
-              "wip": 7,
-              "lead_time": {
-                "p50": 2.9,
-                "p85": 11.7,
-                "p95": 30.0,
-                "sample_size": 58
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 2.9,
-                  "p85": 11.7,
-                  "p95": 30.0,
-                  "closed_count": 58,
-                  "sample_size": 58
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 58,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 1,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 58,
-                "lookback_days": 90,
-                "per_week": 4.5
-              },
-              "cycle_time_variance": {
-                "sample_size": 58,
-                "std_dev_days": 11.9,
-                "coefficient_of_variation": 179.7,
-                "mean_days": 6.6
-              },
-              "excluded_security_bugs": {
-                "open": 9,
-                "closed": 10
-              }
-            },
-            "User Story": {
-              "open_count": 76,
-              "closed_count_90d": 141,
-              "wip": 76,
-              "lead_time": {
-                "p50": 9.0,
-                "p85": 62.0,
-                "p95": 102.0,
-                "sample_size": 141
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 9.0,
-                  "p85": 62.0,
-                  "p95": 102.0,
-                  "closed_count": 141,
-                  "sample_size": 141
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 141,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 43,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 141,
-                "lookback_days": 90,
-                "per_week": 11.0
-              },
-              "cycle_time_variance": {
-                "sample_size": 141,
-                "std_dev_days": 40.7,
-                "coefficient_of_variation": 144.5,
-                "mean_days": 28.1
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 169,
-              "closed_count_90d": 2,
-              "wip": 169,
-              "lead_time": {
-                "p50": 13.6,
-                "p85": 23.2,
-                "p95": 25.9,
-                "sample_size": 2
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 13.6,
-                  "p85": 23.2,
-                  "p95": 25.9,
-                  "closed_count": 2,
-                  "sample_size": 2
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 2,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 168,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 2,
-                "lookback_days": 90,
-                "per_week": 0.2
-              },
-              "cycle_time_variance": {
-                "sample_size": 2,
-                "std_dev_days": 19.3,
-                "coefficient_of_variation": 141.4,
-                "mean_days": 13.6
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 252,
-          "total_closed_90d": 201,
-          "collected_at": "2026-02-19T22:52:44.023406"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 5,
-              "closed_count_90d": 6,
-              "wip": 5,
-              "lead_time": {
-                "p50": 10.2,
-                "p85": 53.4,
-                "p95": 115.7,
-                "sample_size": 6
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 10.2,
-                  "p85": 53.4,
-                  "p95": 115.7,
-                  "closed_count": 6,
-                  "sample_size": 6
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 6,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 4,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 6,
-                "lookback_days": 90,
-                "per_week": 0.5
-              },
-              "cycle_time_variance": {
-                "sample_size": 6,
-                "std_dev_days": 57.3,
-                "coefficient_of_variation": 181.0,
-                "mean_days": 31.7
-              },
-              "excluded_security_bugs": {
-                "open": 7,
-                "closed": 0
-              }
-            },
-            "User Story": {
-              "open_count": 47,
-              "closed_count_90d": 17,
-              "wip": 47,
-              "lead_time": {
-                "p50": 32.2,
-                "p85": 54.0,
-                "p95": 127.3,
-                "sample_size": 17
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 32.2,
-                  "p85": 54.0,
-                  "p95": 127.3,
-                  "closed_count": 17,
-                  "sample_size": 17
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 17,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 46,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 17,
-                "lookback_days": 90,
-                "per_week": 1.3
-              },
-              "cycle_time_variance": {
-                "sample_size": 17,
-                "std_dev_days": 62.0,
-                "coefficient_of_variation": 145.9,
-                "mean_days": 42.5
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 13,
-              "closed_count_90d": 0,
-              "wip": 13,
-              "lead_time": {
-                "p50": null,
-                "p85": null,
-                "p95": null,
-                "sample_size": 0
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 0,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 13,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 0,
-                "lookback_days": 90,
-                "per_week": 0.0
-              },
-              "cycle_time_variance": {
-                "sample_size": 0,
-                "std_dev_days": null,
-                "coefficient_of_variation": null
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 65,
-          "total_closed_90d": 23,
-          "collected_at": "2026-02-19T22:52:44.126231"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 18,
-              "closed_count_90d": 21,
-              "wip": 18,
-              "lead_time": {
-                "p50": 9.8,
-                "p85": 903.8,
-                "p95": 1086.1,
-                "sample_size": 21
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 6.1,
-                  "p85": 81.1,
-                  "p95": 102.4,
-                  "closed_count": 15,
-                  "sample_size": 15
-                },
-                "cleanup": {
-                  "p50": 903.8,
-                  "p85": 1086.1,
-                  "p95": 1086.1,
-                  "closed_count": 6,
-                  "sample_size": 6,
-                  "avg_age_years": 2.6
-                },
-                "indicators": {
-                  "cleanup_percentage": 28.6,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 21,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 12,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 21,
-                "lookback_days": 90,
-                "per_week": 1.6
-              },
-              "cycle_time_variance": {
-                "sample_size": 21,
-                "std_dev_days": 437.8,
-                "coefficient_of_variation": 149.0,
-                "mean_days": 293.8
-              },
-              "excluded_security_bugs": {
-                "open": 20,
-                "closed": 10
-              }
-            },
-            "User Story": {
-              "open_count": 54,
-              "closed_count_90d": 17,
-              "wip": 54,
-              "lead_time": {
-                "p50": 21.0,
-                "p85": 103.1,
-                "p95": 107.1,
-                "sample_size": 17
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 21.0,
-                  "p85": 103.1,
-                  "p95": 107.1,
-                  "closed_count": 17,
-                  "sample_size": 17
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 17,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 37,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 17,
-                "lookback_days": 90,
-                "per_week": 1.3
-              },
-              "cycle_time_variance": {
-                "sample_size": 17,
-                "std_dev_days": 40.8,
-                "coefficient_of_variation": 88.2,
-                "mean_days": 46.2
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 96,
-              "closed_count_90d": 103,
-              "wip": 96,
-              "lead_time": {
-                "p50": 14.1,
-                "p85": 40.8,
-                "p95": 81.4,
-                "sample_size": 103
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 14.1,
-                  "p85": 40.8,
-                  "p95": 81.4,
-                  "closed_count": 103,
-                  "sample_size": 103
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 103,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 66,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 103,
-                "lookback_days": 90,
-                "per_week": 8.0
-              },
-              "cycle_time_variance": {
-                "sample_size": 103,
-                "std_dev_days": 25.1,
-                "coefficient_of_variation": 115.8,
-                "mean_days": 21.6
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 168,
-          "total_closed_90d": 141,
-          "collected_at": "2026-02-19T22:52:44.154338"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 13,
-              "closed_count_90d": 91,
-              "wip": 13,
-              "lead_time": {
-                "p50": 20.0,
-                "p85": 94.5,
-                "p95": 220.5,
-                "sample_size": 91
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 20.0,
-                  "p85": 94.5,
-                  "p95": 220.5,
-                  "closed_count": 91,
-                  "sample_size": 91
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 91,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 10,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 91,
-                "lookback_days": 90,
-                "per_week": 7.1
-              },
-              "cycle_time_variance": {
-                "sample_size": 91,
-                "std_dev_days": 67.5,
-                "coefficient_of_variation": 149.7,
-                "mean_days": 45.1
-              },
-              "excluded_security_bugs": {
-                "open": 2,
-                "closed": 12
-              }
-            },
-            "User Story": {
-              "open_count": 563,
-              "closed_count_90d": 316,
-              "wip": 563,
-              "lead_time": {
-                "p50": 11.0,
-                "p85": 79.0,
-                "p95": 344.2,
-                "sample_size": 316
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 10.2,
-                  "p85": 76.9,
-                  "p95": 336.1,
-                  "closed_count": 312,
-                  "sample_size": 312
-                },
-                "cleanup": {
-                  "p50": 956.0,
-                  "p85": 1033.0,
-                  "p95": 1069.0,
-                  "closed_count": 4,
-                  "sample_size": 4,
-                  "avg_age_years": 2.7
-                },
-                "indicators": {
-                  "cleanup_percentage": 1.3,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 316,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 494,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 316,
-                "lookback_days": 90,
-                "per_week": 24.6
-              },
-              "cycle_time_variance": {
-                "sample_size": 316,
-                "std_dev_days": 139.5,
-                "coefficient_of_variation": 226.5,
-                "mean_days": 61.6
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 611,
-              "closed_count_90d": 294,
-              "wip": 611,
-              "lead_time": {
-                "p50": 6.3,
-                "p85": 60.9,
-                "p95": 63.0,
-                "sample_size": 294
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 6.3,
-                  "p85": 60.9,
-                  "p95": 63.0,
-                  "closed_count": 294,
-                  "sample_size": 294
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 294,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 540,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 294,
-                "lookback_days": 90,
-                "per_week": 22.9
-              },
-              "cycle_time_variance": {
-                "sample_size": 294,
-                "std_dev_days": 27.3,
-                "coefficient_of_variation": 131.8,
-                "mean_days": 20.7
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 1187,
-          "total_closed_90d": 701,
-          "collected_at": "2026-02-19T22:52:44.100495"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 46,
-              "closed_count_90d": 45,
-              "wip": 46,
-              "lead_time": {
-                "p50": 115.9,
-                "p85": 516.7,
-                "p95": 878.5,
-                "sample_size": 45
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 101.4,
-                  "p85": 205.8,
-                  "p95": 259.9,
-                  "closed_count": 36,
-                  "sample_size": 36
-                },
-                "cleanup": {
-                  "p50": 660.9,
-                  "p85": 983.1,
-                  "p95": 1087.4,
-                  "closed_count": 9,
-                  "sample_size": 9,
-                  "avg_age_years": 2.0
-                },
-                "indicators": {
-                  "cleanup_percentage": 20.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 45,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 44,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 45,
-                "lookback_days": 90,
-                "per_week": 3.5
-              },
-              "cycle_time_variance": {
-                "sample_size": 45,
-                "std_dev_days": 287.5,
-                "coefficient_of_variation": 123.5,
-                "mean_days": 232.7
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "User Story": {
-              "open_count": 98,
-              "closed_count_90d": 42,
-              "wip": 98,
-              "lead_time": {
-                "p50": 17.1,
-                "p85": 124.8,
-                "p95": 377.4,
-                "sample_size": 42
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 17.1,
-                  "p85": 122.0,
-                  "p95": 133.0,
-                  "closed_count": 38,
-                  "sample_size": 38
-                },
-                "cleanup": {
-                  "p50": 378.0,
-                  "p85": 420.4,
-                  "p95": 443.6,
-                  "closed_count": 4,
-                  "sample_size": 4,
-                  "avg_age_years": 1.1
-                },
-                "indicators": {
-                  "cleanup_percentage": 9.5,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 42,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 79,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 42,
-                "lookback_days": 90,
-                "per_week": 3.3
-              },
-              "cycle_time_variance": {
-                "sample_size": 42,
-                "std_dev_days": 118.6,
-                "coefficient_of_variation": 151.7,
-                "mean_days": 78.1
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 138,
-              "closed_count_90d": 237,
-              "wip": 138,
-              "lead_time": {
-                "p50": 0.3,
-                "p85": 3.9,
-                "p95": 14.1,
-                "sample_size": 237
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 0.3,
-                  "p85": 3.9,
-                  "p95": 14.1,
-                  "closed_count": 237,
-                  "sample_size": 237
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 237,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 84,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 237,
-                "lookback_days": 90,
-                "per_week": 18.4
-              },
-              "cycle_time_variance": {
-                "sample_size": 237,
-                "std_dev_days": 8.7,
-                "coefficient_of_variation": 287.2,
-                "mean_days": 3.0
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 282,
-          "total_closed_90d": 324,
-          "collected_at": "2026-02-19T22:52:44.240805"
-        }
-      ],
-      "config": {
-        "lookback_days": 90,
-        "aging_threshold_days": 30
-      }
-    },
-    {
-      "week_date": "2026-02-19",
-      "week_number": 8,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "work_type_metrics": {
-            "Bug": {
-              "open_count": 182,
-              "closed_count_90d": 73,
-              "wip": 182,
-              "lead_time": {
-                "p50": 163.0,
-                "p85": 479.2,
-                "p95": 771.4,
-                "sample_size": 73
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 65.5,
-                  "p85": 264.6,
-                  "p95": 322.4,
-                  "closed_count": 56,
-                  "sample_size": 56
-                },
-                "cleanup": {
-                  "p50": 524.4,
-                  "p85": 789.6,
-                  "p95": 809.7,
-                  "closed_count": 17,
-                  "sample_size": 17,
-                  "avg_age_years": 1.6
-                },
-                "indicators": {
-                  "cleanup_percentage": 23.3,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": true,
-                  "total_closed": 73,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 171,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 73,
-                "lookback_days": 90,
-                "per_week": 5.7
-              },
-              "cycle_time_variance": {
-                "sample_size": 73,
-                "std_dev_days": 231.6,
-                "coefficient_of_variation": 102.0,
-                "mean_days": 227.0
-              },
-              "excluded_security_bugs": {
-                "open": 1,
-                "closed": 27
-              }
-            },
-            "User Story": {
-              "open_count": 902,
-              "closed_count_90d": 238,
-              "wip": 902,
-              "lead_time": {
-                "p50": 1.1,
-                "p85": 32.6,
-                "p95": 92.3,
-                "sample_size": 238
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 1.1,
-                  "p85": 32.6,
-                  "p95": 92.3,
-                  "closed_count": 238,
-                  "sample_size": 238
-                },
-                "cleanup": {
-                  "p50": null,
-                  "p85": null,
-                  "p95": null,
-                  "closed_count": 0,
-                  "sample_size": 0,
-                  "avg_age_years": null
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.0,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 238,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 857,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 238,
-                "lookback_days": 90,
-                "per_week": 18.5
-              },
-              "cycle_time_variance": {
-                "sample_size": 238,
-                "std_dev_days": 37.0,
-                "coefficient_of_variation": 226.3,
-                "mean_days": 16.3
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            },
-            "Task": {
-              "open_count": 544,
-              "closed_count_90d": 752,
-              "wip": 544,
-              "lead_time": {
-                "p50": 0.7,
-                "p85": 7.4,
-                "p95": 22.2,
-                "sample_size": 752
-              },
-              "dual_metrics": {
-                "operational": {
-                  "p50": 0.7,
-                  "p85": 7.1,
-                  "p95": 21.4,
-                  "closed_count": 751,
-                  "sample_size": 751
-                },
-                "cleanup": {
-                  "p50": 636.0,
-                  "p85": 636.0,
-                  "p95": 636.0,
-                  "closed_count": 1,
-                  "sample_size": 1,
-                  "avg_age_years": 1.7
-                },
-                "indicators": {
-                  "cleanup_percentage": 0.1,
-                  "is_cleanup_effort": false,
-                  "has_significant_cleanup": false,
-                  "total_closed": 752,
-                  "threshold_days": 365
-                }
-              },
-              "aging_items": {
-                "count": 488,
-                "threshold_days": 30
-              },
-              "throughput": {
-                "closed_count": 752,
-                "lookback_days": 90,
-                "per_week": 58.5
-              },
-              "cycle_time_variance": {
-                "sample_size": 752,
-                "std_dev_days": 30.2,
-                "coefficient_of_variation": 449.1,
-                "mean_days": 6.7
-              },
-              "excluded_security_bugs": {
-                "open": 0,
-                "closed": 0
-              }
-            }
-          },
-          "total_open": 1628,
-          "total_closed_90d": 1063,
           "collected_at": "2026-02-19T23:35:42.179596"
         },
         {
@@ -71545,6 +70169,1382 @@
           "total_open": 246,
           "total_closed_90d": 375,
           "collected_at": "2026-02-26T16:22:14.342412"
+        }
+      ],
+      "config": {
+        "lookback_days": 90,
+        "aging_threshold_days": 30
+      }
+    },
+    {
+      "week_date": "2026-02-26",
+      "week_number": 9,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 175,
+              "closed_count_90d": 73,
+              "wip": 175,
+              "lead_time": {
+                "p50": 148.1,
+                "p85": 474.2,
+                "p95": 771.4,
+                "sample_size": 73
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 64.4,
+                  "p85": 253.6,
+                  "p95": 314.3,
+                  "closed_count": 56,
+                  "sample_size": 56
+                },
+                "cleanup": {
+                  "p50": 524.4,
+                  "p85": 789.6,
+                  "p95": 809.7,
+                  "closed_count": 17,
+                  "sample_size": 17,
+                  "avg_age_years": 1.6
+                },
+                "indicators": {
+                  "cleanup_percentage": 23.3,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": true,
+                  "total_closed": 73,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 162,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 73,
+                "lookback_days": 90,
+                "per_week": 5.7
+              },
+              "cycle_time_variance": {
+                "sample_size": 73,
+                "std_dev_days": 230.6,
+                "coefficient_of_variation": 105.0,
+                "mean_days": 219.6
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 25
+              }
+            },
+            "User Story": {
+              "open_count": 897,
+              "closed_count_90d": 262,
+              "wip": 897,
+              "lead_time": {
+                "p50": 1.1,
+                "p85": 33.9,
+                "p95": 100.8,
+                "sample_size": 262
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 1.1,
+                  "p85": 33.9,
+                  "p95": 100.8,
+                  "closed_count": 262,
+                  "sample_size": 262
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 262,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 867,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 262,
+                "lookback_days": 90,
+                "per_week": 20.4
+              },
+              "cycle_time_variance": {
+                "sample_size": 262,
+                "std_dev_days": 39.1,
+                "coefficient_of_variation": 220.3,
+                "mean_days": 17.8
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 547,
+              "closed_count_90d": 807,
+              "wip": 547,
+              "lead_time": {
+                "p50": 0.2,
+                "p85": 6.9,
+                "p95": 20.1,
+                "sample_size": 807
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 0.2,
+                  "p85": 6.8,
+                  "p95": 20.0,
+                  "closed_count": 806,
+                  "sample_size": 806
+                },
+                "cleanup": {
+                  "p50": 636.0,
+                  "p85": 636.0,
+                  "p95": 636.0,
+                  "closed_count": 1,
+                  "sample_size": 1,
+                  "avg_age_years": 1.7
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.1,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 807,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 499,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 807,
+                "lookback_days": 90,
+                "per_week": 62.8
+              },
+              "cycle_time_variance": {
+                "sample_size": 807,
+                "std_dev_days": 29.2,
+                "coefficient_of_variation": 466.1,
+                "mean_days": 6.3
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 1619,
+          "total_closed_90d": 1142,
+          "collected_at": "2026-02-26T16:56:17.848389"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 11,
+              "closed_count_90d": 0,
+              "wip": 11,
+              "lead_time": {
+                "p50": null,
+                "p85": null,
+                "p95": null,
+                "sample_size": 0
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 0,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 10,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 0,
+                "lookback_days": 90,
+                "per_week": 0.0
+              },
+              "cycle_time_variance": {
+                "sample_size": 0,
+                "std_dev_days": null,
+                "coefficient_of_variation": null
+              },
+              "excluded_security_bugs": {
+                "open": 10,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 3,
+              "closed_count_90d": 12,
+              "wip": 3,
+              "lead_time": {
+                "p50": 1102.9,
+                "p85": 1600.8,
+                "p95": 1600.8,
+                "sample_size": 12
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 286.1,
+                  "p85": 337.2,
+                  "p95": 351.9,
+                  "closed_count": 2,
+                  "sample_size": 2
+                },
+                "cleanup": {
+                  "p50": 1308.9,
+                  "p85": 1600.8,
+                  "p95": 1600.8,
+                  "closed_count": 10,
+                  "sample_size": 10,
+                  "avg_age_years": 3.6
+                },
+                "indicators": {
+                  "cleanup_percentage": 83.3,
+                  "is_cleanup_effort": true,
+                  "has_significant_cleanup": false,
+                  "total_closed": 12,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 3,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 12,
+                "lookback_days": 90,
+                "per_week": 0.9
+              },
+              "cycle_time_variance": {
+                "sample_size": 12,
+                "std_dev_days": 474.2,
+                "coefficient_of_variation": 41.8,
+                "mean_days": 1134.0
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 72,
+              "closed_count_90d": 42,
+              "wip": 72,
+              "lead_time": {
+                "p50": 1569.9,
+                "p85": 1597.7,
+                "p95": 1600.8,
+                "sample_size": 42
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 314.9,
+                  "p85": 314.9,
+                  "p95": 314.9,
+                  "closed_count": 1,
+                  "sample_size": 1
+                },
+                "cleanup": {
+                  "p50": 1569.9,
+                  "p85": 1597.8,
+                  "p95": 1600.8,
+                  "closed_count": 41,
+                  "sample_size": 41,
+                  "avg_age_years": 4.0
+                },
+                "indicators": {
+                  "cleanup_percentage": 97.6,
+                  "is_cleanup_effort": true,
+                  "has_significant_cleanup": true,
+                  "total_closed": 42,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 72,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 42,
+                "lookback_days": 90,
+                "per_week": 3.3
+              },
+              "cycle_time_variance": {
+                "sample_size": 42,
+                "std_dev_days": 253.8,
+                "coefficient_of_variation": 17.6,
+                "mean_days": 1445.3
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 86,
+          "total_closed_90d": 54,
+          "collected_at": "2026-02-26T16:56:17.641786"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 0,
+              "closed_count_90d": 4,
+              "wip": 0,
+              "lead_time": {
+                "p50": 2.4,
+                "p85": 13.8,
+                "p95": 19.2,
+                "sample_size": 4
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 2.4,
+                  "p85": 13.8,
+                  "p95": 19.2,
+                  "closed_count": 4,
+                  "sample_size": 4
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 4,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 0,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 4,
+                "lookback_days": 90,
+                "per_week": 0.3
+              },
+              "cycle_time_variance": {
+                "sample_size": 4,
+                "std_dev_days": 10.3,
+                "coefficient_of_variation": 153.3,
+                "mean_days": 6.7
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 150,
+              "closed_count_90d": 84,
+              "wip": 150,
+              "lead_time": {
+                "p50": 30.4,
+                "p85": 82.3,
+                "p95": 115.8,
+                "sample_size": 84
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 30.4,
+                  "p85": 82.3,
+                  "p95": 115.8,
+                  "closed_count": 84,
+                  "sample_size": 84
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 84,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 119,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 84,
+                "lookback_days": 90,
+                "per_week": 6.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 84,
+                "std_dev_days": 34.9,
+                "coefficient_of_variation": 86.2,
+                "mean_days": 40.4
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 831,
+              "closed_count_90d": 85,
+              "wip": 831,
+              "lead_time": {
+                "p50": 29.9,
+                "p85": 79.9,
+                "p95": 118.8,
+                "sample_size": 85
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 29.9,
+                  "p85": 79.9,
+                  "p95": 118.8,
+                  "closed_count": 85,
+                  "sample_size": 85
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 85,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 805,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 85,
+                "lookback_days": 90,
+                "per_week": 6.6
+              },
+              "cycle_time_variance": {
+                "sample_size": 85,
+                "std_dev_days": 32.3,
+                "coefficient_of_variation": 79.4,
+                "mean_days": 40.7
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 981,
+          "total_closed_90d": 173,
+          "collected_at": "2026-02-26T16:56:17.579639"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 9,
+              "closed_count_90d": 61,
+              "wip": 9,
+              "lead_time": {
+                "p50": 2.9,
+                "p85": 12.3,
+                "p95": 16.2,
+                "sample_size": 61
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 2.9,
+                  "p85": 12.3,
+                  "p95": 16.2,
+                  "closed_count": 61,
+                  "sample_size": 61
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 61,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 1,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 61,
+                "lookback_days": 90,
+                "per_week": 4.7
+              },
+              "cycle_time_variance": {
+                "sample_size": 61,
+                "std_dev_days": 11.3,
+                "coefficient_of_variation": 179.3,
+                "mean_days": 6.3
+              },
+              "excluded_security_bugs": {
+                "open": 5,
+                "closed": 18
+              }
+            },
+            "User Story": {
+              "open_count": 80,
+              "closed_count_90d": 144,
+              "wip": 80,
+              "lead_time": {
+                "p50": 6.1,
+                "p85": 59.7,
+                "p95": 102.0,
+                "sample_size": 144
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 6.1,
+                  "p85": 59.7,
+                  "p95": 102.0,
+                  "closed_count": 144,
+                  "sample_size": 144
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 144,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 45,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 144,
+                "lookback_days": 90,
+                "per_week": 11.2
+              },
+              "cycle_time_variance": {
+                "sample_size": 144,
+                "std_dev_days": 40.6,
+                "coefficient_of_variation": 158.8,
+                "mean_days": 25.6
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 169,
+              "closed_count_90d": 2,
+              "wip": 169,
+              "lead_time": {
+                "p50": 13.6,
+                "p85": 23.2,
+                "p95": 25.9,
+                "sample_size": 2
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 13.6,
+                  "p85": 23.2,
+                  "p95": 25.9,
+                  "closed_count": 2,
+                  "sample_size": 2
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 2,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 169,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 2,
+                "lookback_days": 90,
+                "per_week": 0.2
+              },
+              "cycle_time_variance": {
+                "sample_size": 2,
+                "std_dev_days": 19.3,
+                "coefficient_of_variation": 141.4,
+                "mean_days": 13.6
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 258,
+          "total_closed_90d": 207,
+          "collected_at": "2026-02-26T16:56:17.632287"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 4,
+              "closed_count_90d": 6,
+              "wip": 4,
+              "lead_time": {
+                "p50": 20.8,
+                "p85": 105.0,
+                "p95": 132.9,
+                "sample_size": 6
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 20.8,
+                  "p85": 105.0,
+                  "p95": 132.9,
+                  "closed_count": 6,
+                  "sample_size": 6
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 6,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 3,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 6,
+                "lookback_days": 90,
+                "per_week": 0.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 6,
+                "std_dev_days": 59.4,
+                "coefficient_of_variation": 126.9,
+                "mean_days": 46.8
+              },
+              "excluded_security_bugs": {
+                "open": 6,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 58,
+              "closed_count_90d": 19,
+              "wip": 58,
+              "lead_time": {
+                "p50": 32.2,
+                "p85": 43.4,
+                "p95": 110.1,
+                "sample_size": 19
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 32.2,
+                  "p85": 43.4,
+                  "p95": 110.1,
+                  "closed_count": 19,
+                  "sample_size": 19
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 19,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 46,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 19,
+                "lookback_days": 90,
+                "per_week": 1.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 19,
+                "std_dev_days": 60.1,
+                "coefficient_of_variation": 158.5,
+                "mean_days": 37.9
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 13,
+              "closed_count_90d": 0,
+              "wip": 13,
+              "lead_time": {
+                "p50": null,
+                "p85": null,
+                "p95": null,
+                "sample_size": 0
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 0,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 13,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 0,
+                "lookback_days": 90,
+                "per_week": 0.0
+              },
+              "cycle_time_variance": {
+                "sample_size": 0,
+                "std_dev_days": null,
+                "coefficient_of_variation": null
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 75,
+          "total_closed_90d": 25,
+          "collected_at": "2026-02-26T16:56:17.455330"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 17,
+              "closed_count_90d": 25,
+              "wip": 17,
+              "lead_time": {
+                "p50": 12.1,
+                "p85": 901.4,
+                "p95": 1049.6,
+                "sample_size": 25
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 6.1,
+                  "p85": 87.1,
+                  "p95": 126.6,
+                  "closed_count": 19,
+                  "sample_size": 19
+                },
+                "cleanup": {
+                  "p50": 903.8,
+                  "p85": 1086.1,
+                  "p95": 1086.1,
+                  "closed_count": 6,
+                  "sample_size": 6,
+                  "avg_age_years": 2.6
+                },
+                "indicators": {
+                  "cleanup_percentage": 24.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 25,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 11,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 25,
+                "lookback_days": 90,
+                "per_week": 1.9
+              },
+              "cycle_time_variance": {
+                "sample_size": 25,
+                "std_dev_days": 409.7,
+                "coefficient_of_variation": 159.8,
+                "mean_days": 256.4
+              },
+              "excluded_security_bugs": {
+                "open": 19,
+                "closed": 13
+              }
+            },
+            "User Story": {
+              "open_count": 56,
+              "closed_count_90d": 20,
+              "wip": 56,
+              "lead_time": {
+                "p50": 21.0,
+                "p85": 102.3,
+                "p95": 106.9,
+                "sample_size": 20
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 21.0,
+                  "p85": 102.3,
+                  "p95": 106.9,
+                  "closed_count": 20,
+                  "sample_size": 20
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 20,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 38,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 20,
+                "lookback_days": 90,
+                "per_week": 1.6
+              },
+              "cycle_time_variance": {
+                "sample_size": 20,
+                "std_dev_days": 39.1,
+                "coefficient_of_variation": 92.3,
+                "mean_days": 42.4
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 98,
+              "closed_count_90d": 94,
+              "wip": 98,
+              "lead_time": {
+                "p50": 13.1,
+                "p85": 35.1,
+                "p95": 65.2,
+                "sample_size": 94
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 13.1,
+                  "p85": 35.1,
+                  "p95": 65.2,
+                  "closed_count": 94,
+                  "sample_size": 94
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 94,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 67,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 94,
+                "lookback_days": 90,
+                "per_week": 7.3
+              },
+              "cycle_time_variance": {
+                "sample_size": 94,
+                "std_dev_days": 22.4,
+                "coefficient_of_variation": 111.4,
+                "mean_days": 20.1
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 171,
+          "total_closed_90d": 139,
+          "collected_at": "2026-02-26T16:56:17.503021"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 13,
+              "closed_count_90d": 87,
+              "wip": 13,
+              "lead_time": {
+                "p50": 24.2,
+                "p85": 107.6,
+                "p95": 233.5,
+                "sample_size": 87
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 24.2,
+                  "p85": 107.6,
+                  "p95": 233.5,
+                  "closed_count": 87,
+                  "sample_size": 87
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 87,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 8,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 87,
+                "lookback_days": 90,
+                "per_week": 6.8
+              },
+              "cycle_time_variance": {
+                "sample_size": 87,
+                "std_dev_days": 73.8,
+                "coefficient_of_variation": 144.8,
+                "mean_days": 51.0
+              },
+              "excluded_security_bugs": {
+                "open": 2,
+                "closed": 12
+              }
+            },
+            "User Story": {
+              "open_count": 563,
+              "closed_count_90d": 320,
+              "wip": 563,
+              "lead_time": {
+                "p50": 12.0,
+                "p85": 79.0,
+                "p95": 344.2,
+                "sample_size": 320
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 10.9,
+                  "p85": 75.0,
+                  "p95": 336.0,
+                  "closed_count": 316,
+                  "sample_size": 316
+                },
+                "cleanup": {
+                  "p50": 956.0,
+                  "p85": 1033.0,
+                  "p95": 1069.0,
+                  "closed_count": 4,
+                  "sample_size": 4,
+                  "avg_age_years": 2.7
+                },
+                "indicators": {
+                  "cleanup_percentage": 1.2,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 320,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 492,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 320,
+                "lookback_days": 90,
+                "per_week": 24.9
+              },
+              "cycle_time_variance": {
+                "sample_size": 320,
+                "std_dev_days": 138.6,
+                "coefficient_of_variation": 226.1,
+                "mean_days": 61.3
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 629,
+              "closed_count_90d": 289,
+              "wip": 629,
+              "lead_time": {
+                "p50": 6.7,
+                "p85": 60.9,
+                "p95": 63.0,
+                "sample_size": 289
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 6.7,
+                  "p85": 60.9,
+                  "p95": 63.0,
+                  "closed_count": 289,
+                  "sample_size": 289
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 289,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 540,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 289,
+                "lookback_days": 90,
+                "per_week": 22.5
+              },
+              "cycle_time_variance": {
+                "sample_size": 289,
+                "std_dev_days": 27.4,
+                "coefficient_of_variation": 130.1,
+                "mean_days": 21.0
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 1205,
+          "total_closed_90d": 696,
+          "collected_at": "2026-02-26T16:56:17.876341"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "work_type_metrics": {
+            "Bug": {
+              "open_count": 56,
+              "closed_count_90d": 44,
+              "wip": 56,
+              "lead_time": {
+                "p50": 119.0,
+                "p85": 518.7,
+                "p95": 880.6,
+                "sample_size": 44
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 103.7,
+                  "p85": 210.2,
+                  "p95": 262.0,
+                  "closed_count": 35,
+                  "sample_size": 35
+                },
+                "cleanup": {
+                  "p50": 660.9,
+                  "p85": 983.1,
+                  "p95": 1087.4,
+                  "closed_count": 9,
+                  "sample_size": 9,
+                  "avg_age_years": 2.0
+                },
+                "indicators": {
+                  "cleanup_percentage": 20.5,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 44,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 46,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 44,
+                "lookback_days": 90,
+                "per_week": 3.4
+              },
+              "cycle_time_variance": {
+                "sample_size": 44,
+                "std_dev_days": 289.1,
+                "coefficient_of_variation": 121.8,
+                "mean_days": 237.3
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "User Story": {
+              "open_count": 80,
+              "closed_count_90d": 40,
+              "wip": 80,
+              "lead_time": {
+                "p50": 17.1,
+                "p85": 122.2,
+                "p95": 262.7,
+                "sample_size": 40
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 17.1,
+                  "p85": 122.0,
+                  "p95": 133.0,
+                  "closed_count": 38,
+                  "sample_size": 38
+                },
+                "cleanup": {
+                  "p50": 410.3,
+                  "p85": 441.7,
+                  "p95": 450.7,
+                  "closed_count": 2,
+                  "sample_size": 2,
+                  "avg_age_years": 1.1
+                },
+                "indicators": {
+                  "cleanup_percentage": 5.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 40,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 59,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 40,
+                "lookback_days": 90,
+                "per_week": 3.1
+              },
+              "cycle_time_variance": {
+                "sample_size": 40,
+                "std_dev_days": 99.7,
+                "coefficient_of_variation": 158.0,
+                "mean_days": 63.1
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            },
+            "Task": {
+              "open_count": 110,
+              "closed_count_90d": 291,
+              "wip": 110,
+              "lead_time": {
+                "p50": 0.9,
+                "p85": 4.9,
+                "p95": 14.1,
+                "sample_size": 291
+              },
+              "dual_metrics": {
+                "operational": {
+                  "p50": 0.9,
+                  "p85": 4.9,
+                  "p95": 14.1,
+                  "closed_count": 291,
+                  "sample_size": 291
+                },
+                "cleanup": {
+                  "p50": null,
+                  "p85": null,
+                  "p95": null,
+                  "closed_count": 0,
+                  "sample_size": 0,
+                  "avg_age_years": null
+                },
+                "indicators": {
+                  "cleanup_percentage": 0.0,
+                  "is_cleanup_effort": false,
+                  "has_significant_cleanup": false,
+                  "total_closed": 291,
+                  "threshold_days": 365
+                }
+              },
+              "aging_items": {
+                "count": 82,
+                "threshold_days": 30
+              },
+              "throughput": {
+                "closed_count": 291,
+                "lookback_days": 90,
+                "per_week": 22.6
+              },
+              "cycle_time_variance": {
+                "sample_size": 291,
+                "std_dev_days": 14.2,
+                "coefficient_of_variation": 323.9,
+                "mean_days": 4.4
+              },
+              "excluded_security_bugs": {
+                "open": 0,
+                "closed": 0
+              }
+            }
+          },
+          "total_open": 246,
+          "total_closed_90d": 375,
+          "collected_at": "2026-02-26T16:56:17.593877"
         }
       ],
       "config": {
