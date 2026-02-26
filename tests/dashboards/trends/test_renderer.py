@@ -715,8 +715,8 @@ class TestLoadAlerts:
 
     @patch("execution.ml.alert_engine.AlertEngine")
     @patch("execution.dashboards.trends.renderer._DB_PATH")
-    def test_load_alerts_warn_severity_maps_to_yellow_emoji(self, mock_db_path, mock_alert_engine_cls) -> None:
-        """'warn' severity should map to the yellow circle emoji."""
+    def test_load_alerts_warn_severity_maps_to_blue_emoji(self, mock_db_path, mock_alert_engine_cls) -> None:
+        """'warn' severity should map to the blue circle emoji."""
         from execution.ml.alert_engine import Alert
 
         mock_db_path.exists.return_value = True
@@ -740,7 +740,7 @@ class TestLoadAlerts:
         renderer = TrendsRenderer({})
         alerts = renderer._load_alerts()
 
-        assert alerts[0]["severity_emoji"] == "🟡"
+        assert alerts[0]["severity_emoji"] == "🔵"
 
 
 class TestEdgeCases:
