@@ -13,7 +13,7 @@ from execution.template_engine import render_template
 
 SEVERITY_EMOJI: dict[str, str] = {
     "critical": "🔴",
-    "high": "🔴",
+    "high": "🟠",
     "warning": "🟡",
     "warn": "🟡",
     "medium": "🟡",
