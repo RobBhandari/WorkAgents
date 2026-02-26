@@ -893,10 +893,12 @@ function toggleAlertGroup(groupId) {
         // Second pass: show/hide all matching cards
         cards.forEach(card => card.classList.add('hidden'));
         matching.forEach(card => card.classList.remove('hidden'));
-        // Third pass: hide groups that have no visible cards
+        // Third pass: update counts and hide groups that have no visible cards
         document.querySelectorAll('.alerts-group').forEach(group => {
-            const hasVisible = group.querySelectorAll('.alert-card:not(.hidden)').length > 0;
-            group.style.display = hasVisible ? '' : 'none';
+            const visibleCount = group.querySelectorAll('.alert-card:not(.hidden)').length;
+            const countEl = group.querySelector('.alerts-group-count');
+            if (countEl) countEl.textContent = `(${visibleCount})`;
+            group.style.display = visibleCount > 0 ? '' : 'none';
         });
         // No-results notice
         const noResults = document.getElementById('alerts-no-results');
