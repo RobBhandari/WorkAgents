@@ -165,10 +165,10 @@ class TestSeverityEmoji:
         expected_keys = {"critical", "high", "warning", "warn", "medium", "low", "good", "info"}
         assert expected_keys.issubset(set(SEVERITY_EMOJI.keys()))
 
-    def test_critical_and_high_map_to_red_circle(self) -> None:
-        """Critical and high severities should both map to the red circle emoji"""
+    def test_critical_maps_to_red_high_maps_to_orange(self) -> None:
+        """Critical maps to red circle; high maps to orange circle for visual distinction"""
         assert SEVERITY_EMOJI["critical"] == "🔴"
-        assert SEVERITY_EMOJI["high"] == "🔴"
+        assert SEVERITY_EMOJI["high"] == "🟠"
 
     def test_warning_and_medium_map_to_yellow_circle(self) -> None:
         """Warning and medium severities should map to yellow circle emoji"""
