@@ -2,7 +2,7 @@
 AI Tools Usage Tables Report Generator
 
 Generates interactive HTML report for AI usage data with two modes:
-1. Interactive Mode (default): HTML with IMPORT CSV button for browser-based file upload
+1. Interactive Mode (default): HTML with drag-and-drop zone for browser-based file upload
 2. CLI Mode: Direct processing with --file argument
 
 Features:
@@ -16,7 +16,7 @@ Features:
 NOTE: data/ai_usage_data.csv is gitignored (contains sensitive employee data).
 
 Usage:
-    # Interactive mode (generates HTML with IMPORT button)
+    # Interactive mode (generates HTML with drag-and-drop zone)
     python execution/reports/usage_tables_report.py
     python execution/reports/usage_tables_report.py --open
 
@@ -488,88 +488,76 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
             }}
         }}
 
-        .legend-card {{
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }}
-
-        @media (min-width: 768px) {{
-            .legend-card {{
-                padding: 24px;
-                border-radius: 12px;
-                margin-bottom: 30px;
-                box-shadow: 0 4px 12px var(--shadow);
-            }}
-        }}
-
-        @media (min-width: 1024px) {{
-            .legend-card {{
-                padding: 30px;
-            }}
-        }}
-
-        .legend-card h3 {{
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }}
-
-        @media (min-width: 768px) {{
-            .legend-card h3 {{
-                font-size: 1.25rem;
-                margin-bottom: 16px;
-            }}
-        }}
-
-        .legend-content {{
+        .search-row {{
             display: flex;
+            gap: 12px;
             align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
         }}
 
-        @media (min-width: 768px) {{
-            .legend-content {{
-                gap: 20px;
-            }}
+        .search-row .search-box {{
+            flex: 1;
+            width: auto;
         }}
 
-        .legend-item {{
+        .intensity-filters {{
             display: flex;
-            align-items: center;
             gap: 8px;
+            flex-shrink: 0;
+        }}
+
+        .intensity-btn {{
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
             font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }}
 
-        @media (min-width: 768px) {{
-            .legend-item {{
-                font-size: 0.9rem;
-            }}
+        .intensity-btn.btn-all {{
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }}
+        .intensity-btn.btn-all.active {{
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
         }}
 
-        .legend-box {{
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            display: inline-block;
+        .intensity-btn.btn-high {{
+            background: rgba(209, 250, 229, 0.15);
+            color: #6ee7b7;
+            border-color: rgba(6, 95, 70, 0.4);
+        }}
+        .intensity-btn.btn-high.active {{
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #065f46;
         }}
 
-        .legend-green {{
-            background-color: #d1fae5;
-            border: 2px solid #065f46;
+        .intensity-btn.btn-medium {{
+            background: rgba(254, 243, 199, 0.15);
+            color: #fcd34d;
+            border-color: rgba(146, 64, 14, 0.4);
+        }}
+        .intensity-btn.btn-medium.active {{
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #92400e;
         }}
 
-        .legend-amber {{
-            background-color: #fef3c7;
-            border: 2px solid #92400e;
+        .intensity-btn.btn-low {{
+            background: rgba(254, 226, 226, 0.15);
+            color: #fca5a5;
+            border-color: rgba(153, 27, 27, 0.4);
         }}
-
-        .legend-red {{
-            background-color: #fee2e2;
-            border: 2px solid #991b1b;
+        .intensity-btn.btn-low.active {{
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #991b1b;
         }}
 
         .search-card {{
@@ -723,30 +711,20 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
             </div>
         </div>
 
-        <div class="legend-card">
-            <h3>📊 Usage Intensity Legend</h3>
-            <div class="legend-content">
-                <div class="legend-item">
-                    <span class="legend-box legend-green"></span>
-                    <strong>High (≥100 uses)</strong>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-box legend-amber"></span>
-                    <strong>Medium (20-99 uses)</strong>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-box legend-red"></span>
-                    <strong>Low (&lt;20 uses)</strong>
+        <div class="search-card">
+            <div class="search-row">
+                <input type="text"
+                       id="globalSearch"
+                       class="search-box"
+                       placeholder="🔍 Search..."
+                       onkeyup="filterAllTables()">
+                <div class="intensity-filters">
+                    <button class="intensity-btn btn-all active" data-level="all" onclick="setIntensityFilter('all')">All</button>
+                    <button class="intensity-btn btn-high" data-level="high" onclick="setIntensityFilter('high')">High</button>
+                    <button class="intensity-btn btn-medium" data-level="medium" onclick="setIntensityFilter('medium')">Medium</button>
+                    <button class="intensity-btn btn-low" data-level="low" onclick="setIntensityFilter('low')">Low</button>
                 </div>
             </div>
-        </div>
-
-        <div class="search-card">
-            <input type="text"
-                   id="globalSearch"
-                   class="search-box"
-                   placeholder="🔍 Search..."
-                   onkeyup="filterAllTables()">
         </div>
 
         <div class="tables-container">
@@ -758,32 +736,46 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
     {framework_js}
     <script>
         // Dashboard-specific functions
+        let activeIntensityFilter = 'all';
+
+        function setIntensityFilter(level) {{
+            activeIntensityFilter = level;
+            document.querySelectorAll('.intensity-btn').forEach(btn => {{
+                btn.classList.toggle('active', btn.dataset.level === level);
+            }});
+            filterAllTables();
+        }}
+
         function filterAllTables() {{
             const input = document.getElementById('globalSearch');
             const filter = input.value.toLowerCase();
 
-            // Filter both tables
-            const tables = ['claudeTable', 'devinTable'];
-
-            tables.forEach(tableId => {{
+            ['claudeTable', 'devinTable'].forEach(tableId => {{
                 const table = document.getElementById(tableId);
+                if (!table) return;
                 const rows = table.getElementsByTagName('tr');
 
                 for (let i = 1; i < rows.length; i++) {{
                     const nameCell = rows[i].cells[0];
                     const jobTitleCell = rows[i].cells[1];
                     const accessCell = rows[i].cells[2];
+                    const usageCell = rows[i].cells[3];
 
-                    if (nameCell && jobTitleCell && accessCell) {{
+                    if (nameCell) {{
                         const name = nameCell.textContent.toLowerCase();
-                        const jobTitle = jobTitleCell.textContent.toLowerCase();
-                        const access = accessCell.textContent.toLowerCase();
+                        const jobTitle = jobTitleCell ? jobTitleCell.textContent.toLowerCase() : '';
+                        const access = accessCell ? accessCell.textContent.toLowerCase() : '';
+                        const textMatch = !filter || name.includes(filter) || jobTitle.includes(filter) || access.includes(filter);
 
-                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {{
-                            rows[i].style.display = '';
-                        }} else {{
-                            rows[i].style.display = 'none';
+                        let intensityMatch = true;
+                        if (activeIntensityFilter !== 'all' && usageCell) {{
+                            const usage = parseFloat(usageCell.getAttribute('data-value') || 0);
+                            if (activeIntensityFilter === 'high') intensityMatch = usage >= 100;
+                            else if (activeIntensityFilter === 'medium') intensityMatch = usage >= 20 && usage < 100;
+                            else if (activeIntensityFilter === 'low') intensityMatch = usage < 20;
                         }}
+
+                        rows[i].style.display = textMatch && intensityMatch ? '' : 'none';
                     }}
                 }}
             }});
@@ -848,11 +840,11 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
 
 def generate_interactive_html(output_file: str) -> str:
     """
-    Generate interactive HTML with CSV import capability.
+    Generate interactive HTML with drag-and-drop CSV import capability.
 
-    When no data file is provided, this creates an HTML page with an IMPORT button
-    that allows users to upload their CSV file directly in the browser.
-    All processing happens client-side for maximum security.
+    When no data file is provided, this creates an HTML page with a drag-and-drop
+    zone that allows users to drop (or click to browse) their CSV file directly in
+    the browser. All processing happens client-side for maximum security.
 
     Args:
         output_file: Path to save the HTML file
@@ -890,65 +882,68 @@ def generate_interactive_html(output_file: str) -> str:
             padding: 48px 32px !important;
         }}
 
-        .import-button {{
-            position: fixed;
-            top: 220px;
-            right: 20px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }}
-
-        .import-button:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }}
-
-        .import-button:active {{
-            transform: translateY(0);
-        }}
-
-        /* Mobile responsive: Stack import button below theme toggle */
-        @media (max-width: 767px) {{
-            .import-button {{
-                right: 16px;
-                top: 70px;  /* Below theme toggle */
-            }}
-        }}
-
-        #file-input {{
-            display: none;
-        }}
-
-        .placeholder {{
+        /* Drag-and-drop zone */
+        .drop-zone {{
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 64px 40px;
             text-align: center;
-            padding: 60px 20px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            background: var(--bg-secondary);
             color: var(--text-secondary);
+            margin: 32px 0;
+            user-select: none;
         }}
 
-        .placeholder-icon {{
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        .drop-zone:hover,
+        .drop-zone.drag-over {{
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.06);
+            color: var(--text-primary);
         }}
 
-        .placeholder h2 {{
-            font-size: 1.5rem;
+        .drop-zone.drag-over {{
+            transform: scale(1.01);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }}
+
+        .drop-zone-icon {{
+            font-size: 56px;
+            margin-bottom: 16px;
+            display: block;
+            transition: transform 0.2s ease;
+        }}
+
+        .drop-zone:hover .drop-zone-icon,
+        .drop-zone.drag-over .drop-zone-icon {{
+            transform: translateY(-4px);
+        }}
+
+        .drop-zone h2 {{
+            font-size: 1.4rem;
+            font-weight: 600;
             margin-bottom: 10px;
             color: var(--text-primary);
         }}
 
-        .placeholder p {{
-            font-size: 1rem;
-            margin-bottom: 20px;
+        .drop-zone p {{
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            line-height: 1.6;
+        }}
+
+        .drop-zone .browse-hint {{
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 0.875rem;
+            color: #3b82f6;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }}
+
+        #file-input {{
+            display: none;
         }}
 
         .hidden {{
@@ -956,7 +951,7 @@ def generate_interactive_html(output_file: str) -> str:
         }}
 
         /* Match existing dashboard styles */
-        .stats-card, .legend-card, .search-card, .table-card {{
+        .stats-card, .search-card, .table-card {{
             background: var(--bg-secondary);
             padding: 20px;
             border-radius: 12px;
@@ -994,28 +989,77 @@ def generate_interactive_html(output_file: str) -> str:
             font-weight: 600;
         }}
 
-        .legend-content {{
+        .search-row {{
             display: flex;
+            gap: 12px;
             align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
         }}
 
-        .legend-item {{
+        .search-row .search-box {{
+            flex: 1;
+            width: auto;
+        }}
+
+        .intensity-filters {{
             display: flex;
-            align-items: center;
             gap: 8px;
+            flex-shrink: 0;
         }}
 
-        .legend-box {{
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
+        .intensity-btn {{
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }}
 
-        .legend-green {{ background-color: #d1fae5; border: 2px solid #065f46; }}
-        .legend-amber {{ background-color: #fef3c7; border: 2px solid #92400e; }}
-        .legend-red {{ background-color: #fee2e2; border: 2px solid #991b1b; }}
+        .intensity-btn.btn-all {{
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }}
+        .intensity-btn.btn-all.active {{
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }}
+
+        .intensity-btn.btn-high {{
+            background: rgba(209, 250, 229, 0.15);
+            color: #6ee7b7;
+            border-color: rgba(6, 95, 70, 0.4);
+        }}
+        .intensity-btn.btn-high.active {{
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #065f46;
+        }}
+
+        .intensity-btn.btn-medium {{
+            background: rgba(254, 243, 199, 0.15);
+            color: #fcd34d;
+            border-color: rgba(146, 64, 14, 0.4);
+        }}
+        .intensity-btn.btn-medium.active {{
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #92400e;
+        }}
+
+        .intensity-btn.btn-low {{
+            background: rgba(254, 226, 226, 0.15);
+            color: #fca5a5;
+            border-color: rgba(153, 27, 27, 0.4);
+        }}
+        .intensity-btn.btn-low.active {{
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #991b1b;
+        }}
 
         .search-box {{
             width: 100%;
@@ -1110,11 +1154,6 @@ def generate_interactive_html(output_file: str) -> str:
         <span id="theme-label">Light Mode</span>
     </button>
 
-    <button class="import-button" onclick="document.getElementById('file-input').click()">
-        📥 IMPORT CSV
-    </button>
-    <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
-
     <div class="container">
         <div class="header">
             <h1>🤖 {TEAM_FILTER} AI Tools Usage Report</h1>
@@ -1122,14 +1161,23 @@ def generate_interactive_html(output_file: str) -> str:
             <p class="timestamp">Generated: {report_date}</p>
         </div>
 
-        <div id="placeholder" class="placeholder">
-            <div class="placeholder-icon">📊</div>
-            <h2>No Data Loaded</h2>
-            <p>Click the <strong>IMPORT CSV</strong> button above to load your AI usage data.</p>
-            <p style="font-size: 0.9rem; color: var(--text-secondary);">
-                Supported formats: CSV, Excel (.xlsx, .xls)<br>
-                All processing happens in your browser - data never leaves your computer.
-            </p>
+        <div id="placeholder">
+            <div class="drop-zone" id="dropZone"
+                 onclick="document.getElementById('file-input').click()"
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)"
+                 ondrop="handleDrop(event)">
+                <span class="drop-zone-icon">📂</span>
+                <h2>Drop your data file here</h2>
+                <p>
+                    Supported formats: CSV, Excel (.xlsx, .xls)<br>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                        All processing happens in your browser — data never leaves your computer.
+                    </span>
+                </p>
+                <span class="browse-hint">or click to browse files</span>
+            </div>
+            <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
         </div>
 
         <div id="content" class="hidden">
@@ -1158,30 +1206,20 @@ def generate_interactive_html(output_file: str) -> str:
                 </div>
             </div>
 
-            <div class="legend-card">
-                <h3>📊 Usage Intensity Legend</h3>
-                <div class="legend-content">
-                    <div class="legend-item">
-                        <span class="legend-box legend-green"></span>
-                        <strong>High (≥100 uses)</strong>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-box legend-amber"></span>
-                        <strong>Medium (20-99 uses)</strong>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-box legend-red"></span>
-                        <strong>Low (&lt;20 uses)</strong>
+            <div class="search-card">
+                <div class="search-row">
+                    <input type="text"
+                           id="globalSearch"
+                           class="search-box"
+                           placeholder="🔍 Search..."
+                           onkeyup="filterAllTables()">
+                    <div class="intensity-filters">
+                        <button class="intensity-btn btn-all active" data-level="all" onclick="setIntensityFilter('all')">All</button>
+                        <button class="intensity-btn btn-high" data-level="high" onclick="setIntensityFilter('high')">High</button>
+                        <button class="intensity-btn btn-medium" data-level="medium" onclick="setIntensityFilter('medium')">Medium</button>
+                        <button class="intensity-btn btn-low" data-level="low" onclick="setIntensityFilter('low')">Low</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="search-card">
-                <input type="text"
-                       id="globalSearch"
-                       class="search-box"
-                       placeholder="🔍 Search..."
-                       onkeyup="filterAllTables()">
             </div>
 
             <div class="tables-container">
@@ -1226,33 +1264,48 @@ def generate_interactive_html(output_file: str) -> str:
 
     {framework_js}
     <script>
+        // --- Drag-and-drop handlers ---
+        function handleDragOver(event) {{
+            event.preventDefault();
+            document.getElementById('dropZone').classList.add('drag-over');
+        }}
+
+        function handleDragLeave(event) {{
+            // Only remove class when leaving the zone itself (not a child element)
+            if (!document.getElementById('dropZone').contains(event.relatedTarget)) {{
+                document.getElementById('dropZone').classList.remove('drag-over');
+            }}
+        }}
+
+        function handleDrop(event) {{
+            event.preventDefault();
+            const dropZone = document.getElementById('dropZone');
+            dropZone.classList.remove('drag-over');
+            const file = event.dataTransfer.files[0];
+            if (file) parseFile(file);
+        }}
+
         function handleFileUpload(event) {{
             const file = event.target.files[0];
-            if (!file) return;
+            if (file) parseFile(file);
+        }}
 
-            // Show loading state
-            document.querySelector('.import-button').textContent = '⏳ Loading...';
-            document.querySelector('.import-button').disabled = true;
+        function parseFile(file) {{
+            const dropZone = document.getElementById('dropZone');
+            dropZone.innerHTML = '<span class="drop-zone-icon">⏳</span><h2>Loading\u2026</h2>';
 
-            // Parse CSV
             Papa.parse(file, {{
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {{
                     processData(results.data);
-                    document.querySelector('.import-button').textContent = '✅ Data Loaded';
-                    setTimeout(() => {{
-                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
-                        document.querySelector('.import-button').disabled = false;
-                    }}, 2000);
                 }},
                 error: function(error) {{
-                    alert('Error parsing CSV: ' + error.message);
-                    document.querySelector('.import-button').textContent = '❌ Error';
-                    setTimeout(() => {{
-                        document.querySelector('.import-button').textContent = '📥 IMPORT CSV';
-                        document.querySelector('.import-button').disabled = false;
-                    }}, 2000);
+                    dropZone.innerHTML = `
+                        <span class="drop-zone-icon">❌</span>
+                        <h2>Could not parse file</h2>
+                        <p>${{escapeHtml(error.message)}}</p>
+                        <span class="browse-hint">Click to try again</span>`;
                 }}
             }});
         }}
@@ -1363,29 +1416,46 @@ def generate_interactive_html(output_file: str) -> str:
             return div.innerHTML;
         }}
 
+        let activeIntensityFilter = 'all';
+
+        function setIntensityFilter(level) {{
+            activeIntensityFilter = level;
+            document.querySelectorAll('.intensity-btn').forEach(btn => {{
+                btn.classList.toggle('active', btn.dataset.level === level);
+            }});
+            filterAllTables();
+        }}
+
         function filterAllTables() {{
             const input = document.getElementById('globalSearch');
             const filter = input.value.toLowerCase();
 
             ['claudeTable', 'devinTable'].forEach(tableId => {{
                 const table = document.getElementById(tableId);
+                if (!table) return;
                 const rows = table.getElementsByTagName('tr');
 
                 for (let i = 1; i < rows.length; i++) {{
                     const nameCell = rows[i].cells[0];
                     const jobTitleCell = rows[i].cells[1];
                     const accessCell = rows[i].cells[2];
+                    const usageCell = rows[i].cells[3];
 
-                    if (nameCell && jobTitleCell && accessCell) {{
+                    if (nameCell) {{
                         const name = nameCell.textContent.toLowerCase();
-                        const jobTitle = jobTitleCell.textContent.toLowerCase();
-                        const access = accessCell.textContent.toLowerCase();
+                        const jobTitle = jobTitleCell ? jobTitleCell.textContent.toLowerCase() : '';
+                        const access = accessCell ? accessCell.textContent.toLowerCase() : '';
+                        const textMatch = !filter || name.includes(filter) || jobTitle.includes(filter) || access.includes(filter);
 
-                        if (name.includes(filter) || jobTitle.includes(filter) || access.includes(filter)) {{
-                            rows[i].style.display = '';
-                        }} else {{
-                            rows[i].style.display = 'none';
+                        let intensityMatch = true;
+                        if (activeIntensityFilter !== 'all' && usageCell) {{
+                            const usage = parseFloat(usageCell.getAttribute('data-value') || 0);
+                            if (activeIntensityFilter === 'high') intensityMatch = usage >= 100;
+                            else if (activeIntensityFilter === 'medium') intensityMatch = usage >= 20 && usage < 100;
+                            else if (activeIntensityFilter === 'low') intensityMatch = usage < 20;
                         }}
+
+                        rows[i].style.display = textMatch && intensityMatch ? '' : 'none';
                     }}
                 }}
             }});
@@ -1497,9 +1567,8 @@ def main():
             print(f"Output file: {output_file}")
             print("\nTo use this report:")
             print("  1. Open the HTML file in your web browser")
-            print("  2. Click the 'IMPORT CSV' button in the top-right corner")
-            print("  3. Select your AI usage data CSV file")
-            print("  4. View the generated tables instantly")
+            print("  2. Drag-and-drop your CSV/Excel file onto the drop zone (or click it to browse)")
+            print("  3. View the generated tables instantly")
             print("\nAll processing happens in your browser - data never leaves your computer!")
             print(f"{'='*70}\n")
 
