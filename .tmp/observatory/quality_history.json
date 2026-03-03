@@ -1,6 +1,696 @@
 {
   "weeks": [
     {
+      "week_date": "2026-02-19",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "bug_age_distribution": {
+            "median_age_days": 428.9,
+            "p85_age_days": 600.2,
+            "p95_age_days": 817.1,
+            "sample_size": 182,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 10,
+              "31-90_days": 10,
+              "90+_days": 161
+            }
+          },
+          "mttr": {
+            "mttr_days": 22.6,
+            "median_mttr_days": 14.8,
+            "p85_mttr_days": 55.0,
+            "p95_mttr_days": 55.0,
+            "sample_size": 23,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 3,
+              "7-30_days": 10,
+              "30+_days": 7
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 44,
+          "open_bugs_count": 182,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 1
+          },
+          "collected_at": "2026-02-19T23:35:44.135407"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "bug_age_distribution": {
+            "median_age_days": 328.5,
+            "p85_age_days": 534.0,
+            "p95_age_days": 628.5,
+            "sample_size": 11,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 0,
+              "90+_days": 10
+            }
+          },
+          "mttr": {
+            "mttr_days": null,
+            "median_mttr_days": null,
+            "p85_mttr_days": null,
+            "p95_mttr_days": null,
+            "sample_size": 0,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 0,
+              "7-30_days": 0,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 1,
+          "open_bugs_count": 11,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 9
+          },
+          "collected_at": "2026-02-19T23:35:44.214334"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "bug_age_distribution": {
+            "median_age_days": null,
+            "p85_age_days": null,
+            "p95_age_days": null,
+            "sample_size": 0,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 0,
+              "31-90_days": 0,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 5.4,
+            "median_mttr_days": 0.9,
+            "p85_mttr_days": 11.1,
+            "p95_mttr_days": 18.3,
+            "sample_size": 5,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 1,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 5,
+          "open_bugs_count": 0,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-19T23:35:43.949727"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "bug_age_distribution": {
+            "median_age_days": 9.3,
+            "p85_age_days": 22.9,
+            "p95_age_days": 32.0,
+            "sample_size": 7,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 5,
+              "31-90_days": 1,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 4.6,
+            "median_mttr_days": 1.9,
+            "p85_mttr_days": 8.9,
+            "p95_mttr_days": 16.0,
+            "sample_size": 52,
+            "mttr_distribution": {
+              "0-1_days": 20,
+              "1-7_days": 21,
+              "7-30_days": 10,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 59,
+          "open_bugs_count": 7,
+          "excluded_security_bugs": {
+            "total": 18,
+            "open": 9
+          },
+          "collected_at": "2026-02-19T23:35:44.261745"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "bug_age_distribution": {
+            "median_age_days": 54.9,
+            "p85_age_days": 77.7,
+            "p95_age_days": 84.2,
+            "sample_size": 2,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 1,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 5.2,
+            "median_mttr_days": 0.7,
+            "p85_mttr_days": 11.1,
+            "p95_mttr_days": 16.7,
+            "sample_size": 4,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 0,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 6,
+          "open_bugs_count": 2,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 10
+          },
+          "collected_at": "2026-02-19T23:35:44.182446"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "bug_age_distribution": {
+            "median_age_days": 73.4,
+            "p85_age_days": 116.3,
+            "p95_age_days": 175.3,
+            "sample_size": 18,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 5,
+              "31-90_days": 8,
+              "90+_days": 4
+            }
+          },
+          "mttr": {
+            "mttr_days": 13.3,
+            "median_mttr_days": 4.8,
+            "p85_mttr_days": 17.6,
+            "p95_mttr_days": 63.2,
+            "sample_size": 13,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 7,
+              "7-30_days": 1,
+              "30+_days": 2
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 27,
+          "open_bugs_count": 18,
+          "excluded_security_bugs": {
+            "total": 29,
+            "open": 20
+          },
+          "collected_at": "2026-02-19T23:35:43.751629"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "bug_age_distribution": {
+            "median_age_days": 148.3,
+            "p85_age_days": 459.1,
+            "p95_age_days": 543.5,
+            "sample_size": 13,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 2,
+              "31-90_days": 1,
+              "90+_days": 9
+            }
+          },
+          "mttr": {
+            "mttr_days": 15.3,
+            "median_mttr_days": 6.8,
+            "p85_mttr_days": 38.7,
+            "p95_mttr_days": 49.9,
+            "sample_size": 62,
+            "mttr_distribution": {
+              "0-1_days": 16,
+              "1-7_days": 17,
+              "7-30_days": 16,
+              "30+_days": 13
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 66,
+          "open_bugs_count": 13,
+          "excluded_security_bugs": {
+            "total": 4,
+            "open": 2
+          },
+          "collected_at": "2026-02-19T23:35:44.214041"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "bug_age_distribution": {
+            "median_age_days": 163.6,
+            "p85_age_days": 395.1,
+            "p95_age_days": 567.2,
+            "sample_size": 46,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 2,
+              "31-90_days": 15,
+              "90+_days": 29
+            }
+          },
+          "mttr": {
+            "mttr_days": 16.6,
+            "median_mttr_days": 13.1,
+            "p85_mttr_days": 22.4,
+            "p95_mttr_days": 48.8,
+            "sample_size": 12,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 4,
+              "7-30_days": 7,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 29,
+          "open_bugs_count": 46,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-19T23:35:44.242259"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-20",
+      "week_number": 8,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "bug_age_distribution": {
+            "median_age_days": 429.0,
+            "p85_age_days": 600.3,
+            "p95_age_days": 817.1,
+            "sample_size": 182,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 10,
+              "31-90_days": 10,
+              "90+_days": 161
+            }
+          },
+          "mttr": {
+            "mttr_days": 22.8,
+            "median_mttr_days": 13.8,
+            "p85_mttr_days": 55.0,
+            "p95_mttr_days": 55.0,
+            "sample_size": 22,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 3,
+              "7-30_days": 9,
+              "30+_days": 7
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 43,
+          "open_bugs_count": 182,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 1
+          },
+          "collected_at": "2026-02-20T00:56:34.149140"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "bug_age_distribution": {
+            "median_age_days": 328.6,
+            "p85_age_days": 534.0,
+            "p95_age_days": 628.5,
+            "sample_size": 11,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 0,
+              "90+_days": 10
+            }
+          },
+          "mttr": {
+            "mttr_days": null,
+            "median_mttr_days": null,
+            "p85_mttr_days": null,
+            "p95_mttr_days": null,
+            "sample_size": 0,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 0,
+              "7-30_days": 0,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 1,
+          "open_bugs_count": 11,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 9
+          },
+          "collected_at": "2026-02-20T00:56:33.985026"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "bug_age_distribution": {
+            "median_age_days": null,
+            "p85_age_days": null,
+            "p95_age_days": null,
+            "sample_size": 0,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 0,
+              "31-90_days": 0,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 5.4,
+            "median_mttr_days": 0.9,
+            "p85_mttr_days": 11.1,
+            "p95_mttr_days": 18.3,
+            "sample_size": 5,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 1,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 5,
+          "open_bugs_count": 0,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-20T00:56:33.803171"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "bug_age_distribution": {
+            "median_age_days": 9.4,
+            "p85_age_days": 23.0,
+            "p95_age_days": 32.1,
+            "sample_size": 7,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 5,
+              "31-90_days": 1,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 4.5,
+            "median_mttr_days": 1.8,
+            "p85_mttr_days": 8.5,
+            "p95_mttr_days": 16.0,
+            "sample_size": 51,
+            "mttr_distribution": {
+              "0-1_days": 20,
+              "1-7_days": 21,
+              "7-30_days": 9,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 58,
+          "open_bugs_count": 7,
+          "excluded_security_bugs": {
+            "total": 18,
+            "open": 9
+          },
+          "collected_at": "2026-02-20T00:56:33.954656"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "bug_age_distribution": {
+            "median_age_days": 54.9,
+            "p85_age_days": 77.7,
+            "p95_age_days": 84.2,
+            "sample_size": 2,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 1,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 5.2,
+            "median_mttr_days": 0.7,
+            "p85_mttr_days": 11.1,
+            "p95_mttr_days": 16.7,
+            "sample_size": 4,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 0,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 6,
+          "open_bugs_count": 2,
+          "excluded_security_bugs": {
+            "total": 8,
+            "open": 10
+          },
+          "collected_at": "2026-02-20T00:56:33.782831"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "bug_age_distribution": {
+            "median_age_days": 73.5,
+            "p85_age_days": 116.4,
+            "p95_age_days": 175.4,
+            "sample_size": 18,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 5,
+              "31-90_days": 8,
+              "90+_days": 4
+            }
+          },
+          "mttr": {
+            "mttr_days": 13.3,
+            "median_mttr_days": 4.8,
+            "p85_mttr_days": 17.6,
+            "p95_mttr_days": 63.2,
+            "sample_size": 13,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 7,
+              "7-30_days": 1,
+              "30+_days": 2
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 27,
+          "open_bugs_count": 18,
+          "excluded_security_bugs": {
+            "total": 29,
+            "open": 20
+          },
+          "collected_at": "2026-02-20T00:56:33.839821"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "bug_age_distribution": {
+            "median_age_days": 148.4,
+            "p85_age_days": 459.1,
+            "p95_age_days": 543.5,
+            "sample_size": 13,
+            "ages_distribution": {
+              "0-7_days": 1,
+              "8-30_days": 2,
+              "31-90_days": 1,
+              "90+_days": 9
+            }
+          },
+          "mttr": {
+            "mttr_days": 16.0,
+            "median_mttr_days": 6.9,
+            "p85_mttr_days": 39.0,
+            "p95_mttr_days": 50.0,
+            "sample_size": 59,
+            "mttr_distribution": {
+              "0-1_days": 14,
+              "1-7_days": 16,
+              "7-30_days": 16,
+              "30+_days": 13
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 63,
+          "open_bugs_count": 13,
+          "excluded_security_bugs": {
+            "total": 4,
+            "open": 2
+          },
+          "collected_at": "2026-02-20T00:56:33.854259"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "bug_age_distribution": {
+            "median_age_days": 163.6,
+            "p85_age_days": 395.2,
+            "p95_age_days": 567.3,
+            "sample_size": 46,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 2,
+              "31-90_days": 15,
+              "90+_days": 29
+            }
+          },
+          "mttr": {
+            "mttr_days": 17.0,
+            "median_mttr_days": 14.1,
+            "p85_mttr_days": 23.9,
+            "p95_mttr_days": 51.0,
+            "sample_size": 11,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 4,
+              "7-30_days": 6,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 28,
+          "open_bugs_count": 46,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-20T00:56:33.971730"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
       "week_date": "2026-02-20",
       "week_number": 8,
       "projects": [
@@ -16223,9 +16913,9 @@
           "project_key": "Product_A",
           "project_name": "Product A",
           "bug_age_distribution": {
-            "median_age_days": 446.4,
-            "p85_age_days": 607.5,
-            "p95_age_days": 824.2,
+            "median_age_days": 446.2,
+            "p85_age_days": 607.3,
+            "p95_age_days": 824.0,
             "sample_size": 177,
             "ages_distribution": {
               "0-7_days": 2,
@@ -16259,15 +16949,15 @@
             "total": 5,
             "open": 3
           },
-          "collected_at": "2026-02-23T20:01:44.657654"
+          "collected_at": "2026-02-23T17:10:41.969206"
         },
         {
           "project_key": "Product C",
           "project_name": "Product C",
           "bug_age_distribution": {
-            "median_age_days": 332.4,
-            "p85_age_days": 537.8,
-            "p95_age_days": 632.3,
+            "median_age_days": 332.3,
+            "p85_age_days": 537.7,
+            "p95_age_days": 632.2,
             "sample_size": 11,
             "ages_distribution": {
               "0-7_days": 0,
@@ -16301,7 +16991,7 @@
             "total": 8,
             "open": 9
           },
-          "collected_at": "2026-02-23T20:01:44.354784"
+          "collected_at": "2026-02-23T17:10:41.398922"
         },
         {
           "project_key": "Product_O",
@@ -16343,722 +17033,32 @@
             "total": 0,
             "open": 0
           },
-          "collected_at": "2026-02-23T20:01:44.348875"
+          "collected_at": "2026-02-23T17:10:41.636006"
         },
         {
           "project_key": "Product L",
           "project_name": "Product L",
           "bug_age_distribution": {
-            "median_age_days": 9.4,
-            "p85_age_days": 29.0,
-            "p95_age_days": 36.7,
-            "sample_size": 6,
-            "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 2,
-              "31-90_days": 1,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 4.8,
-            "median_mttr_days": 2.0,
-            "p85_mttr_days": 11.0,
-            "p95_mttr_days": 16.0,
-            "sample_size": 55,
-            "mttr_distribution": {
-              "0-1_days": 21,
-              "1-7_days": 21,
-              "7-30_days": 12,
-              "30+_days": 1
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 61,
-          "open_bugs_count": 6,
-          "excluded_security_bugs": {
-            "total": 21,
-            "open": 4
-          },
-          "collected_at": "2026-02-23T20:01:44.385388"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "bug_age_distribution": {
-            "median_age_days": 26.2,
-            "p85_age_days": 26.2,
-            "p95_age_days": 26.2,
-            "sample_size": 1,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 1,
-              "31-90_days": 0,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 5.2,
-            "median_mttr_days": 0.7,
-            "p85_mttr_days": 11.1,
-            "p95_mttr_days": 16.7,
-            "sample_size": 4,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 0,
-              "7-30_days": 1,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 5,
-          "open_bugs_count": 1,
-          "excluded_security_bugs": {
-            "total": 7,
-            "open": 9
-          },
-          "collected_at": "2026-02-23T20:01:44.355749"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "bug_age_distribution": {
-            "median_age_days": 71.3,
-            "p85_age_days": 109.6,
-            "p95_age_days": 174.7,
-            "sample_size": 20,
-            "ages_distribution": {
-              "0-7_days": 4,
-              "8-30_days": 3,
-              "31-90_days": 9,
-              "90+_days": 4
-            }
-          },
-          "mttr": {
-            "mttr_days": 13.2,
-            "median_mttr_days": 5.5,
-            "p85_mttr_days": 13.9,
-            "p95_mttr_days": 61.5,
-            "sample_size": 14,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 7,
-              "7-30_days": 2,
-              "30+_days": 2
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 30,
-          "open_bugs_count": 20,
-          "excluded_security_bugs": {
-            "total": 29,
-            "open": 19
-          },
-          "collected_at": "2026-02-23T20:01:44.403169"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "bug_age_distribution": {
-            "median_age_days": 138.3,
-            "p85_age_days": 436.2,
-            "p95_age_days": 541.8,
-            "sample_size": 15,
-            "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 2,
-              "31-90_days": 1,
-              "90+_days": 9
-            }
-          },
-          "mttr": {
-            "mttr_days": 15.8,
-            "median_mttr_days": 6.9,
-            "p85_mttr_days": 39.0,
-            "p95_mttr_days": 50.0,
-            "sample_size": 60,
-            "mttr_distribution": {
-              "0-1_days": 14,
-              "1-7_days": 17,
-              "7-30_days": 16,
-              "30+_days": 13
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 66,
-          "open_bugs_count": 15,
-          "excluded_security_bugs": {
-            "total": 4,
-            "open": 2
-          },
-          "collected_at": "2026-02-23T20:01:44.379686"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "bug_age_distribution": {
-            "median_age_days": 163.3,
-            "p85_age_days": 392.7,
-            "p95_age_days": 570.0,
-            "sample_size": 50,
-            "ages_distribution": {
-              "0-7_days": 4,
-              "8-30_days": 2,
-              "31-90_days": 14,
-              "90+_days": 30
-            }
-          },
-          "mttr": {
-            "mttr_days": 17.0,
-            "median_mttr_days": 14.1,
-            "p85_mttr_days": 23.9,
-            "p95_mttr_days": 51.0,
-            "sample_size": 11,
-            "mttr_distribution": {
-              "0-1_days": 0,
-              "1-7_days": 4,
-              "7-30_days": 6,
-              "30+_days": 1
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 32,
-          "open_bugs_count": 50,
-          "excluded_security_bugs": {
-            "total": 0,
-            "open": 0
-          },
-          "collected_at": "2026-02-23T20:01:44.375309"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-24",
-      "week_number": 9,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "bug_age_distribution": {
-            "median_age_days": 446.8,
-            "p85_age_days": 607.9,
-            "p95_age_days": 824.6,
-            "sample_size": 177,
-            "ages_distribution": {
-              "0-7_days": 2,
-              "8-30_days": 9,
-              "31-90_days": 8,
-              "90+_days": 158
-            }
-          },
-          "mttr": {
-            "mttr_days": 25.5,
-            "median_mttr_days": 17.9,
-            "p85_mttr_days": 55.0,
-            "p95_mttr_days": 55.6,
-            "sample_size": 25,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 3,
-              "7-30_days": 10,
-              "30+_days": 9
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 44,
-          "open_bugs_count": 177,
-          "excluded_security_bugs": {
-            "total": 4,
-            "open": 2
-          },
-          "collected_at": "2026-02-24T07:06:08.750239"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "bug_age_distribution": {
-            "median_age_days": 332.8,
-            "p85_age_days": 538.3,
-            "p95_age_days": 632.8,
-            "sample_size": 11,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 1,
-              "31-90_days": 0,
-              "90+_days": 10
-            }
-          },
-          "mttr": {
-            "mttr_days": null,
-            "median_mttr_days": null,
-            "p85_mttr_days": null,
-            "p95_mttr_days": null,
-            "sample_size": 0,
-            "mttr_distribution": {
-              "0-1_days": 0,
-              "1-7_days": 0,
-              "7-30_days": 0,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 1,
-          "open_bugs_count": 11,
-          "excluded_security_bugs": {
-            "total": 8,
-            "open": 9
-          },
-          "collected_at": "2026-02-24T07:06:07.604762"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "bug_age_distribution": {
-            "median_age_days": null,
-            "p85_age_days": null,
-            "p95_age_days": null,
-            "sample_size": 0,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 0,
-              "31-90_days": 0,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 5.4,
-            "median_mttr_days": 0.9,
-            "p85_mttr_days": 11.1,
-            "p95_mttr_days": 18.3,
-            "sample_size": 5,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 1,
-              "7-30_days": 1,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 5,
-          "open_bugs_count": 0,
-          "excluded_security_bugs": {
-            "total": 0,
-            "open": 0
-          },
-          "collected_at": "2026-02-24T07:06:07.716236"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "bug_age_distribution": {
-            "median_age_days": 9.8,
-            "p85_age_days": 29.5,
-            "p95_age_days": 37.1,
-            "sample_size": 6,
-            "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 2,
-              "31-90_days": 1,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 4.8,
-            "median_mttr_days": 2.0,
-            "p85_mttr_days": 11.0,
-            "p95_mttr_days": 16.0,
-            "sample_size": 55,
-            "mttr_distribution": {
-              "0-1_days": 21,
-              "1-7_days": 21,
-              "7-30_days": 12,
-              "30+_days": 1
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 61,
-          "open_bugs_count": 6,
-          "excluded_security_bugs": {
-            "total": 21,
-            "open": 4
-          },
-          "collected_at": "2026-02-24T07:06:07.498569"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "bug_age_distribution": {
-            "median_age_days": 26.6,
+            "median_age_days": 6.2,
             "p85_age_days": 26.6,
-            "p95_age_days": 26.6,
-            "sample_size": 1,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 1,
-              "31-90_days": 0,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 5.2,
-            "median_mttr_days": 0.7,
-            "p85_mttr_days": 11.1,
-            "p95_mttr_days": 16.7,
-            "sample_size": 4,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 0,
-              "7-30_days": 1,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 5,
-          "open_bugs_count": 1,
-          "excluded_security_bugs": {
-            "total": 7,
-            "open": 9
-          },
-          "collected_at": "2026-02-24T07:06:07.352271"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "bug_age_distribution": {
-            "median_age_days": 71.7,
-            "p85_age_days": 110.1,
-            "p95_age_days": 175.1,
-            "sample_size": 20,
-            "ages_distribution": {
-              "0-7_days": 4,
-              "8-30_days": 3,
-              "31-90_days": 9,
-              "90+_days": 4
-            }
-          },
-          "mttr": {
-            "mttr_days": 13.2,
-            "median_mttr_days": 5.5,
-            "p85_mttr_days": 13.9,
-            "p95_mttr_days": 61.5,
-            "sample_size": 14,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 7,
-              "7-30_days": 2,
-              "30+_days": 2
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 30,
-          "open_bugs_count": 20,
-          "excluded_security_bugs": {
-            "total": 29,
-            "open": 19
-          },
-          "collected_at": "2026-02-24T07:06:07.774944"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "bug_age_distribution": {
-            "median_age_days": 138.7,
-            "p85_age_days": 436.7,
-            "p95_age_days": 542.3,
-            "sample_size": 15,
-            "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 2,
-              "31-90_days": 1,
-              "90+_days": 9
-            }
-          },
-          "mttr": {
-            "mttr_days": 15.8,
-            "median_mttr_days": 6.9,
-            "p85_mttr_days": 39.0,
-            "p95_mttr_days": 50.0,
-            "sample_size": 60,
-            "mttr_distribution": {
-              "0-1_days": 14,
-              "1-7_days": 17,
-              "7-30_days": 16,
-              "30+_days": 13
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 66,
-          "open_bugs_count": 15,
-          "excluded_security_bugs": {
-            "total": 4,
-            "open": 2
-          },
-          "collected_at": "2026-02-24T07:06:07.775425"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "bug_age_distribution": {
-            "median_age_days": 163.8,
-            "p85_age_days": 393.2,
-            "p95_age_days": 570.5,
-            "sample_size": 50,
-            "ages_distribution": {
-              "0-7_days": 4,
-              "8-30_days": 2,
-              "31-90_days": 14,
-              "90+_days": 30
-            }
-          },
-          "mttr": {
-            "mttr_days": 17.0,
-            "median_mttr_days": 14.1,
-            "p85_mttr_days": 23.9,
-            "p95_mttr_days": 51.0,
-            "sample_size": 11,
-            "mttr_distribution": {
-              "0-1_days": 0,
-              "1-7_days": 4,
-              "7-30_days": 6,
-              "30+_days": 1
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 31,
-          "open_bugs_count": 50,
-          "excluded_security_bugs": {
-            "total": 0,
-            "open": 0
-          },
-          "collected_at": "2026-02-24T07:06:07.772877"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-25",
-      "week_number": 9,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "bug_age_distribution": {
-            "median_age_days": 447.8,
-            "p85_age_days": 609.8,
-            "p95_age_days": 827.1,
-            "sample_size": 174,
-            "ages_distribution": {
-              "0-7_days": 2,
-              "8-30_days": 9,
-              "31-90_days": 8,
-              "90+_days": 155
-            }
-          },
-          "mttr": {
-            "mttr_days": 25.5,
-            "median_mttr_days": 17.9,
-            "p85_mttr_days": 55.0,
-            "p95_mttr_days": 55.6,
-            "sample_size": 25,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 3,
-              "7-30_days": 10,
-              "30+_days": 9
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 44,
-          "open_bugs_count": 174,
-          "excluded_security_bugs": {
-            "total": 4,
-            "open": 2
-          },
-          "collected_at": "2026-02-25T07:07:19.690475"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "bug_age_distribution": {
-            "median_age_days": 333.8,
-            "p85_age_days": 539.3,
-            "p95_age_days": 633.8,
-            "sample_size": 11,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 1,
-              "31-90_days": 0,
-              "90+_days": 10
-            }
-          },
-          "mttr": {
-            "mttr_days": null,
-            "median_mttr_days": null,
-            "p85_mttr_days": null,
-            "p95_mttr_days": null,
-            "sample_size": 0,
-            "mttr_distribution": {
-              "0-1_days": 0,
-              "1-7_days": 0,
-              "7-30_days": 0,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 1,
-          "open_bugs_count": 11,
-          "excluded_security_bugs": {
-            "total": 8,
-            "open": 9
-          },
-          "collected_at": "2026-02-25T07:07:19.510067"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "bug_age_distribution": {
-            "median_age_days": null,
-            "p85_age_days": null,
-            "p95_age_days": null,
-            "sample_size": 0,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 0,
-              "31-90_days": 0,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 6.7,
-            "median_mttr_days": 2.4,
-            "p85_mttr_days": 13.8,
-            "p95_mttr_days": 19.2,
-            "sample_size": 4,
-            "mttr_distribution": {
-              "0-1_days": 2,
-              "1-7_days": 1,
-              "7-30_days": 1,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 4,
-          "open_bugs_count": 0,
-          "excluded_security_bugs": {
-            "total": 0,
-            "open": 0
-          },
-          "collected_at": "2026-02-25T07:07:19.425590"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "bug_age_distribution": {
-            "median_age_days": 7.8,
-            "p85_age_days": 28.2,
-            "p95_age_days": 37.4,
+            "p95_age_days": 35.8,
             "sample_size": 7,
             "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 3,
+              "0-7_days": 4,
+              "8-30_days": 2,
               "31-90_days": 1,
               "90+_days": 0
             }
           },
           "mttr": {
-            "mttr_days": 4.8,
-            "median_mttr_days": 2.0,
-            "p85_mttr_days": 11.0,
+            "mttr_days": 4.9,
+            "median_mttr_days": 1.9,
+            "p85_mttr_days": 11.3,
             "p95_mttr_days": 16.0,
-            "sample_size": 55,
+            "sample_size": 54,
             "mttr_distribution": {
               "0-1_days": 21,
-              "1-7_days": 21,
+              "1-7_days": 20,
               "7-30_days": 12,
               "30+_days": 1
             }
@@ -17069,21 +17069,21 @@
             "p85_minutes": null,
             "p95_minutes": null
           },
-          "total_bugs_analyzed": 62,
+          "total_bugs_analyzed": 61,
           "open_bugs_count": 7,
           "excluded_security_bugs": {
             "total": 21,
             "open": 4
           },
-          "collected_at": "2026-02-25T07:07:19.603100"
+          "collected_at": "2026-02-23T17:10:41.693109"
         },
         {
           "project_key": "Product_E",
           "project_name": "Product E",
           "bug_age_distribution": {
-            "median_age_days": 27.7,
-            "p85_age_days": 27.7,
-            "p95_age_days": 27.7,
+            "median_age_days": 26.1,
+            "p85_age_days": 26.1,
+            "p95_age_days": 26.1,
             "sample_size": 1,
             "ages_distribution": {
               "0-7_days": 0,
@@ -17117,34 +17117,34 @@
             "total": 7,
             "open": 9
           },
-          "collected_at": "2026-02-25T07:07:19.616030"
+          "collected_at": "2026-02-23T17:10:41.398665"
         },
         {
           "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
-            "median_age_days": 74.7,
-            "p85_age_days": 116.4,
-            "p95_age_days": 178.4,
-            "sample_size": 19,
+            "median_age_days": 71.1,
+            "p85_age_days": 109.5,
+            "p95_age_days": 174.6,
+            "sample_size": 20,
             "ages_distribution": {
-              "0-7_days": 3,
+              "0-7_days": 4,
               "8-30_days": 3,
-              "31-90_days": 8,
-              "90+_days": 5
+              "31-90_days": 9,
+              "90+_days": 4
             }
           },
           "mttr": {
-            "mttr_days": 7.5,
-            "median_mttr_days": 4.3,
-            "p85_mttr_days": 9.9,
-            "p95_mttr_days": 25.0,
+            "mttr_days": 13.2,
+            "median_mttr_days": 5.5,
+            "p85_mttr_days": 13.9,
+            "p95_mttr_days": 61.5,
             "sample_size": 14,
             "mttr_distribution": {
               "0-1_days": 3,
-              "1-7_days": 8,
+              "1-7_days": 7,
               "7-30_days": 2,
-              "30+_days": 1
+              "30+_days": 2
             }
           },
           "test_execution_time": {
@@ -17153,39 +17153,39 @@
             "p85_minutes": null,
             "p95_minutes": null
           },
-          "total_bugs_analyzed": 28,
-          "open_bugs_count": 19,
+          "total_bugs_analyzed": 30,
+          "open_bugs_count": 20,
           "excluded_security_bugs": {
-            "total": 32,
-            "open": 22
+            "total": 29,
+            "open": 19
           },
-          "collected_at": "2026-02-25T07:07:19.496861"
+          "collected_at": "2026-02-23T17:10:41.665104"
         },
         {
           "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
-            "median_age_days": 146.7,
-            "p85_age_days": 452.7,
-            "p95_age_days": 546.0,
-            "sample_size": 14,
+            "median_age_days": 138.1,
+            "p85_age_days": 436.1,
+            "p95_age_days": 541.7,
+            "sample_size": 15,
             "ages_distribution": {
               "0-7_days": 3,
-              "8-30_days": 1,
+              "8-30_days": 2,
               "31-90_days": 1,
               "90+_days": 9
             }
           },
           "mttr": {
-            "mttr_days": 16.1,
-            "median_mttr_days": 7.0,
+            "mttr_days": 15.8,
+            "median_mttr_days": 6.9,
             "p85_mttr_days": 39.0,
             "p95_mttr_days": 50.0,
             "sample_size": 60,
             "mttr_distribution": {
               "0-1_days": 14,
-              "1-7_days": 16,
-              "7-30_days": 17,
+              "1-7_days": 17,
+              "7-30_days": 16,
               "30+_days": 13
             }
           },
@@ -17195,27 +17195,27 @@
             "p85_minutes": null,
             "p95_minutes": null
           },
-          "total_bugs_analyzed": 65,
-          "open_bugs_count": 14,
+          "total_bugs_analyzed": 66,
+          "open_bugs_count": 15,
           "excluded_security_bugs": {
             "total": 4,
             "open": 2
           },
-          "collected_at": "2026-02-25T07:07:19.204564"
+          "collected_at": "2026-02-23T17:10:41.401654"
         },
         {
           "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
-            "median_age_days": 161.7,
-            "p85_age_days": 380.5,
-            "p95_age_days": 570.2,
-            "sample_size": 55,
+            "median_age_days": 163.2,
+            "p85_age_days": 392.6,
+            "p95_age_days": 569.9,
+            "sample_size": 50,
             "ages_distribution": {
-              "0-7_days": 7,
+              "0-7_days": 4,
               "8-30_days": 2,
               "31-90_days": 14,
-              "90+_days": 32
+              "90+_days": 30
             }
           },
           "mttr": {
@@ -17237,358 +17237,13 @@
             "p85_minutes": null,
             "p95_minutes": null
           },
-          "total_bugs_analyzed": 34,
-          "open_bugs_count": 55,
-          "excluded_security_bugs": {
-            "total": 0,
-            "open": 0
-          },
-          "collected_at": "2026-02-25T07:07:19.477459"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-26",
-      "week_number": 9,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "bug_age_distribution": {
-            "median_age_days": 448.8,
-            "p85_age_days": 610.8,
-            "p95_age_days": 828.1,
-            "sample_size": 174,
-            "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 9,
-              "31-90_days": 8,
-              "90+_days": 154
-            }
-          },
-          "mttr": {
-            "mttr_days": 25.5,
-            "median_mttr_days": 17.9,
-            "p85_mttr_days": 55.0,
-            "p95_mttr_days": 55.6,
-            "sample_size": 25,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 3,
-              "7-30_days": 10,
-              "30+_days": 9
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 45,
-          "open_bugs_count": 174,
-          "excluded_security_bugs": {
-            "total": 5,
-            "open": 3
-          },
-          "collected_at": "2026-02-26T07:06:06.276363"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "bug_age_distribution": {
-            "median_age_days": 334.8,
-            "p85_age_days": 540.3,
-            "p95_age_days": 634.8,
-            "sample_size": 11,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 1,
-              "31-90_days": 0,
-              "90+_days": 10
-            }
-          },
-          "mttr": {
-            "mttr_days": null,
-            "median_mttr_days": null,
-            "p85_mttr_days": null,
-            "p95_mttr_days": null,
-            "sample_size": 0,
-            "mttr_distribution": {
-              "0-1_days": 0,
-              "1-7_days": 0,
-              "7-30_days": 0,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 1,
-          "open_bugs_count": 11,
-          "excluded_security_bugs": {
-            "total": 8,
-            "open": 9
-          },
-          "collected_at": "2026-02-26T07:06:06.209370"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "bug_age_distribution": {
-            "median_age_days": null,
-            "p85_age_days": null,
-            "p95_age_days": null,
-            "sample_size": 0,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 0,
-              "31-90_days": 0,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 6.7,
-            "median_mttr_days": 2.4,
-            "p85_mttr_days": 13.8,
-            "p95_mttr_days": 19.2,
-            "sample_size": 4,
-            "mttr_distribution": {
-              "0-1_days": 2,
-              "1-7_days": 1,
-              "7-30_days": 1,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 4,
-          "open_bugs_count": 0,
-          "excluded_security_bugs": {
-            "total": 0,
-            "open": 0
-          },
-          "collected_at": "2026-02-26T07:06:05.697387"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "bug_age_distribution": {
-            "median_age_days": 5.8,
-            "p85_age_days": 27.1,
-            "p95_age_days": 37.6,
-            "sample_size": 8,
-            "ages_distribution": {
-              "0-7_days": 4,
-              "8-30_days": 3,
-              "31-90_days": 1,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 4.8,
-            "median_mttr_days": 2.0,
-            "p85_mttr_days": 11.0,
-            "p95_mttr_days": 16.0,
-            "sample_size": 55,
-            "mttr_distribution": {
-              "0-1_days": 21,
-              "1-7_days": 21,
-              "7-30_days": 12,
-              "30+_days": 1
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 63,
-          "open_bugs_count": 8,
-          "excluded_security_bugs": {
-            "total": 21,
-            "open": 4
-          },
-          "collected_at": "2026-02-26T07:06:06.241224"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "bug_age_distribution": {
-            "median_age_days": 28.6,
-            "p85_age_days": 28.6,
-            "p95_age_days": 28.6,
-            "sample_size": 1,
-            "ages_distribution": {
-              "0-7_days": 0,
-              "8-30_days": 1,
-              "31-90_days": 0,
-              "90+_days": 0
-            }
-          },
-          "mttr": {
-            "mttr_days": 9.8,
-            "median_mttr_days": 9.8,
-            "p85_mttr_days": 16.6,
-            "p95_mttr_days": 18.5,
-            "sample_size": 2,
-            "mttr_distribution": {
-              "0-1_days": 1,
-              "1-7_days": 0,
-              "7-30_days": 1,
-              "30+_days": 0
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 3,
-          "open_bugs_count": 1,
-          "excluded_security_bugs": {
-            "total": 7,
-            "open": 9
-          },
-          "collected_at": "2026-02-26T07:06:05.832826"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "bug_age_distribution": {
-            "median_age_days": 73.7,
-            "p85_age_days": 122.6,
-            "p95_age_days": 181.6,
-            "sample_size": 18,
-            "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 3,
-              "31-90_days": 7,
-              "90+_days": 5
-            }
-          },
-          "mttr": {
-            "mttr_days": 12.5,
-            "median_mttr_days": 4.8,
-            "p85_mttr_days": 11.9,
-            "p95_mttr_days": 59.1,
-            "sample_size": 15,
-            "mttr_distribution": {
-              "0-1_days": 3,
-              "1-7_days": 8,
-              "7-30_days": 2,
-              "30+_days": 2
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 28,
-          "open_bugs_count": 18,
-          "excluded_security_bugs": {
-            "total": 31,
-            "open": 22
-          },
-          "collected_at": "2026-02-26T07:06:06.017026"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "bug_age_distribution": {
-            "median_age_days": 147.7,
-            "p85_age_days": 477.1,
-            "p95_age_days": 552.6,
-            "sample_size": 12,
-            "ages_distribution": {
-              "0-7_days": 3,
-              "8-30_days": 1,
-              "31-90_days": 1,
-              "90+_days": 7
-            }
-          },
-          "mttr": {
-            "mttr_days": 15.5,
-            "median_mttr_days": 6.9,
-            "p85_mttr_days": 37.4,
-            "p95_mttr_days": 49.0,
-            "sample_size": 59,
-            "mttr_distribution": {
-              "0-1_days": 14,
-              "1-7_days": 16,
-              "7-30_days": 17,
-              "30+_days": 12
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
-          "total_bugs_analyzed": 64,
-          "open_bugs_count": 12,
-          "excluded_security_bugs": {
-            "total": 4,
-            "open": 2
-          },
-          "collected_at": "2026-02-26T07:06:05.905742"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "bug_age_distribution": {
-            "median_age_days": 162.7,
-            "p85_age_days": 381.5,
-            "p95_age_days": 571.2,
-            "sample_size": 55,
-            "ages_distribution": {
-              "0-7_days": 7,
-              "8-30_days": 2,
-              "31-90_days": 13,
-              "90+_days": 33
-            }
-          },
-          "mttr": {
-            "mttr_days": 18.1,
-            "median_mttr_days": 14.7,
-            "p85_mttr_days": 25.4,
-            "p95_mttr_days": 53.3,
-            "sample_size": 10,
-            "mttr_distribution": {
-              "0-1_days": 0,
-              "1-7_days": 3,
-              "7-30_days": 6,
-              "30+_days": 1
-            }
-          },
-          "test_execution_time": {
-            "sample_size": 0,
-            "median_minutes": null,
-            "p85_minutes": null,
-            "p95_minutes": null
-          },
           "total_bugs_analyzed": 32,
-          "open_bugs_count": 55,
+          "open_bugs_count": 50,
           "excluded_security_bugs": {
             "total": 0,
             "open": 0
           },
-          "collected_at": "2026-02-26T07:06:06.245834"
+          "collected_at": "2026-02-23T17:10:41.764549"
         }
       ],
       "config": {
@@ -17604,7 +17259,7 @@
           "project_name": "Product A",
           "bug_age_distribution": {
             "median_age_days": 449.2,
-            "p85_age_days": 610.9,
+            "p85_age_days": 611.0,
             "p95_age_days": 828.0,
             "sample_size": 175,
             "ages_distribution": {
@@ -17639,15 +17294,15 @@
             "total": 3,
             "open": 0
           },
-          "collected_at": "2026-02-26T15:08:17.541645"
+          "collected_at": "2026-02-26T16:22:20.104714"
         },
         {
           "project_key": "Product C",
           "project_name": "Product C",
           "bug_age_distribution": {
             "median_age_days": 335.2,
-            "p85_age_days": 540.6,
-            "p95_age_days": 635.1,
+            "p85_age_days": 540.7,
+            "p95_age_days": 635.2,
             "sample_size": 11,
             "ages_distribution": {
               "0-7_days": 0,
@@ -17681,7 +17336,7 @@
             "total": 9,
             "open": 10
           },
-          "collected_at": "2026-02-26T15:08:17.544149"
+          "collected_at": "2026-02-26T16:22:20.295228"
         },
         {
           "project_key": "Product_O",
@@ -17723,13 +17378,13 @@
             "total": 0,
             "open": 0
           },
-          "collected_at": "2026-02-26T15:08:17.284131"
+          "collected_at": "2026-02-26T16:22:19.889362"
         },
         {
           "project_key": "Product L",
           "project_name": "Product L",
           "bug_age_distribution": {
-            "median_age_days": 3.2,
+            "median_age_days": 3.3,
             "p85_age_days": 25.5,
             "p95_age_days": 37.2,
             "sample_size": 9,
@@ -17765,7 +17420,7 @@
             "total": 22,
             "open": 5
           },
-          "collected_at": "2026-02-26T15:08:17.358278"
+          "collected_at": "2026-02-26T16:22:19.988083"
         },
         {
           "project_key": "Product_E",
@@ -17807,14 +17462,14 @@
             "total": 7,
             "open": 9
           },
-          "collected_at": "2026-02-26T15:08:17.292504"
+          "collected_at": "2026-02-26T16:22:19.906469"
         },
         {
           "project_key": "Product_F",
           "project_name": "Product F",
           "bug_age_distribution": {
             "median_age_days": 72.1,
-            "p85_age_days": 101.2,
+            "p85_age_days": 101.3,
             "p95_age_days": 184.2,
             "sample_size": 17,
             "ages_distribution": {
@@ -17847,17 +17502,17 @@
           "open_bugs_count": 17,
           "excluded_security_bugs": {
             "total": 31,
-            "open": 21
+            "open": 19
           },
-          "collected_at": "2026-02-26T15:08:17.523443"
+          "collected_at": "2026-02-26T16:22:20.120628"
         },
         {
           "project_key": "Product_D",
           "project_name": "Product D",
           "bug_age_distribution": {
-            "median_age_days": 141.0,
-            "p85_age_days": 465.7,
-            "p95_age_days": 550.1,
+            "median_age_days": 141.1,
+            "p85_age_days": 465.8,
+            "p95_age_days": 550.2,
             "sample_size": 13,
             "ages_distribution": {
               "0-7_days": 3,
@@ -17891,13 +17546,13 @@
             "total": 4,
             "open": 2
           },
-          "collected_at": "2026-02-26T15:08:17.351306"
+          "collected_at": "2026-02-26T16:22:19.963614"
         },
         {
           "project_key": "Product_B",
           "project_name": "Product B",
           "bug_age_distribution": {
-            "median_age_days": 153.0,
+            "median_age_days": 153.1,
             "p85_age_days": 368.3,
             "p95_age_days": 571.3,
             "sample_size": 56,
@@ -17933,7 +17588,352 @@
             "total": 0,
             "open": 0
           },
-          "collected_at": "2026-02-26T15:08:17.561152"
+          "collected_at": "2026-02-26T16:22:19.965633"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-02-26",
+      "week_number": 9,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "bug_age_distribution": {
+            "median_age_days": 449.2,
+            "p85_age_days": 611.0,
+            "p95_age_days": 828.0,
+            "sample_size": 175,
+            "ages_distribution": {
+              "0-7_days": 4,
+              "8-30_days": 9,
+              "31-90_days": 8,
+              "90+_days": 154
+            }
+          },
+          "mttr": {
+            "mttr_days": 25.5,
+            "median_mttr_days": 17.9,
+            "p85_mttr_days": 55.0,
+            "p95_mttr_days": 55.6,
+            "sample_size": 25,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 3,
+              "7-30_days": 10,
+              "30+_days": 9
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 46,
+          "open_bugs_count": 175,
+          "excluded_security_bugs": {
+            "total": 3,
+            "open": 0
+          },
+          "collected_at": "2026-02-26T16:56:22.563924"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "bug_age_distribution": {
+            "median_age_days": 335.3,
+            "p85_age_days": 540.7,
+            "p95_age_days": 635.2,
+            "sample_size": 11,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 0,
+              "90+_days": 10
+            }
+          },
+          "mttr": {
+            "mttr_days": null,
+            "median_mttr_days": null,
+            "p85_mttr_days": null,
+            "p95_mttr_days": null,
+            "sample_size": 0,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 0,
+              "7-30_days": 0,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 1,
+          "open_bugs_count": 11,
+          "excluded_security_bugs": {
+            "total": 9,
+            "open": 10
+          },
+          "collected_at": "2026-02-26T16:56:22.290911"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "bug_age_distribution": {
+            "median_age_days": null,
+            "p85_age_days": null,
+            "p95_age_days": null,
+            "sample_size": 0,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 0,
+              "31-90_days": 0,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 6.7,
+            "median_mttr_days": 2.4,
+            "p85_mttr_days": 13.8,
+            "p95_mttr_days": 19.2,
+            "sample_size": 4,
+            "mttr_distribution": {
+              "0-1_days": 2,
+              "1-7_days": 1,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 4,
+          "open_bugs_count": 0,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-26T16:56:22.269508"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "bug_age_distribution": {
+            "median_age_days": 3.3,
+            "p85_age_days": 25.5,
+            "p95_age_days": 37.2,
+            "sample_size": 9,
+            "ages_distribution": {
+              "0-7_days": 5,
+              "8-30_days": 3,
+              "31-90_days": 1,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 4.8,
+            "median_mttr_days": 1.9,
+            "p85_mttr_days": 10.7,
+            "p95_mttr_days": 15.9,
+            "sample_size": 56,
+            "mttr_distribution": {
+              "0-1_days": 21,
+              "1-7_days": 22,
+              "7-30_days": 12,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 65,
+          "open_bugs_count": 9,
+          "excluded_security_bugs": {
+            "total": 22,
+            "open": 5
+          },
+          "collected_at": "2026-02-26T16:56:22.331437"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "bug_age_distribution": {
+            "median_age_days": 29.1,
+            "p85_age_days": 29.1,
+            "p95_age_days": 29.1,
+            "sample_size": 1,
+            "ages_distribution": {
+              "0-7_days": 0,
+              "8-30_days": 1,
+              "31-90_days": 0,
+              "90+_days": 0
+            }
+          },
+          "mttr": {
+            "mttr_days": 9.8,
+            "median_mttr_days": 9.8,
+            "p85_mttr_days": 16.6,
+            "p95_mttr_days": 18.5,
+            "sample_size": 2,
+            "mttr_distribution": {
+              "0-1_days": 1,
+              "1-7_days": 0,
+              "7-30_days": 1,
+              "30+_days": 0
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 3,
+          "open_bugs_count": 1,
+          "excluded_security_bugs": {
+            "total": 7,
+            "open": 9
+          },
+          "collected_at": "2026-02-26T16:56:22.312076"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "bug_age_distribution": {
+            "median_age_days": 72.2,
+            "p85_age_days": 101.3,
+            "p95_age_days": 184.3,
+            "sample_size": 17,
+            "ages_distribution": {
+              "0-7_days": 2,
+              "8-30_days": 4,
+              "31-90_days": 7,
+              "90+_days": 4
+            }
+          },
+          "mttr": {
+            "mttr_days": 12.5,
+            "median_mttr_days": 4.8,
+            "p85_mttr_days": 11.9,
+            "p95_mttr_days": 59.1,
+            "sample_size": 15,
+            "mttr_distribution": {
+              "0-1_days": 3,
+              "1-7_days": 8,
+              "7-30_days": 2,
+              "30+_days": 2
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 28,
+          "open_bugs_count": 17,
+          "excluded_security_bugs": {
+            "total": 31,
+            "open": 19
+          },
+          "collected_at": "2026-02-26T16:56:22.309587"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "bug_age_distribution": {
+            "median_age_days": 141.1,
+            "p85_age_days": 465.8,
+            "p95_age_days": 550.2,
+            "sample_size": 13,
+            "ages_distribution": {
+              "0-7_days": 3,
+              "8-30_days": 2,
+              "31-90_days": 1,
+              "90+_days": 7
+            }
+          },
+          "mttr": {
+            "mttr_days": 15.5,
+            "median_mttr_days": 6.9,
+            "p85_mttr_days": 37.4,
+            "p95_mttr_days": 49.0,
+            "sample_size": 59,
+            "mttr_distribution": {
+              "0-1_days": 14,
+              "1-7_days": 16,
+              "7-30_days": 17,
+              "30+_days": 12
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 65,
+          "open_bugs_count": 13,
+          "excluded_security_bugs": {
+            "total": 4,
+            "open": 2
+          },
+          "collected_at": "2026-02-26T16:56:22.324619"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "bug_age_distribution": {
+            "median_age_days": 153.1,
+            "p85_age_days": 368.4,
+            "p95_age_days": 571.3,
+            "sample_size": 56,
+            "ages_distribution": {
+              "0-7_days": 8,
+              "8-30_days": 2,
+              "31-90_days": 12,
+              "90+_days": 34
+            }
+          },
+          "mttr": {
+            "mttr_days": 18.1,
+            "median_mttr_days": 14.7,
+            "p85_mttr_days": 25.4,
+            "p95_mttr_days": 53.3,
+            "sample_size": 10,
+            "mttr_distribution": {
+              "0-1_days": 0,
+              "1-7_days": 3,
+              "7-30_days": 6,
+              "30+_days": 1
+            }
+          },
+          "test_execution_time": {
+            "sample_size": 0,
+            "median_minutes": null,
+            "p85_minutes": null,
+            "p95_minutes": null
+          },
+          "total_bugs_analyzed": 33,
+          "open_bugs_count": 56,
+          "excluded_security_bugs": {
+            "total": 0,
+            "open": 0
+          },
+          "collected_at": "2026-02-26T16:56:22.313543"
         }
       ],
       "config": {
