@@ -824,17 +824,6 @@ def generate_html_report_with_data(claude_df: pd.DataFrame, devin_df: pd.DataFra
 
     logger.info(f"HTML report created successfully: {output_file}")
 
-    # Also save a copy as "latest" in dashboards directory for trends dashboard linking
-    latest_file = Path(".tmp/observatory/dashboards/usage_tables_latest.html")
-    try:
-        # Ensure dashboards directory exists
-        latest_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(latest_file, "w", encoding="utf-8") as f:
-            f.write(html)
-        logger.info(f"Latest copy saved to: {latest_file}")
-    except Exception as e:
-        logger.warning(f"Failed to save latest copy: {e}")
-
     return output_file
 
 
