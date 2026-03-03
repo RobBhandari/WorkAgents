@@ -169,13 +169,13 @@ class TestInteractiveHtmlGeneration:
 
         # Verify interactive components
         assert "<!DOCTYPE html>" in html
-        assert "IMPORT CSV" in html
+        assert "drop-zone" in html
         assert "file-input" in html
         assert "handleFileUpload" in html
         assert "processData" in html
         assert "PapaParse" in html
         assert "placeholder" in html
-        assert "No Data Loaded" in html
+        assert "Drop your data file here" in html
 
     def test_generate_interactive_html_includes_team_filter(self, tmp_path):
         """Test that team filter is embedded in JavaScript."""
@@ -263,7 +263,7 @@ class TestEndToEndWorkflow:
             # Verify output
             captured = capsys.readouterr()
             assert "SUCCESS: Interactive AI Tools Usage Report Generated" in captured.out
-            assert "IMPORT CSV" in captured.out
+            assert "Drag-and-drop" in captured.out
 
             # Verify HTML was generated
             assert output_file.exists()
