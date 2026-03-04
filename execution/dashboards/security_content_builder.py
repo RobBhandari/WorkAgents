@@ -34,6 +34,138 @@ def _escape_html(text: str) -> str:
     )
 
 
+def _build_bucket_thead() -> str:
+    """Build the <thead> HTML for the vulnerability detail table."""
+    return (
+        "<thead><tr>"
+        '<th class="sortable" onclick="sortBucketTable(this)">Severity <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">Source <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">Status <span class="sort-indicator"></span></th>'
+        '<th class="sortable" data-type="number" onclick="sortBucketTable(this)">Age (Days) <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">Title <span class="sort-indicator"></span></th>'
+        '<th class="sortable" onclick="sortBucketTable(this)">ID <span class="sort-indicator"></span></th>'
+        "</tr></thead>"
+    )
+
+
+def _build_bucket_search_bar(vulns: list) -> str:
+    """Build the filter/search bar with severity counts for a bucket's vuln list."""
+    fetched_count = len(vulns)
+    critical_count = sum(1 for v in vulns if v.severity.upper() == "CRITICAL")
+    high_count = sum(1 for v in vulns if v.severity.upper() == "HIGH")
+    return (
+        f'<div class="bucket-filter-bar">'
+        f'<input type="text" class="bucket-search-input" placeholder="Search vulnerabilities..."'
+        f' oninput="filterBucketVulns(this)">'
+        f'<div class="bucket-filter-buttons">'
+        f'<button class="active" data-sev="all" onclick="filterBucketSeverity(this,\'all\')">'
+        f"All ({fetched_count})</button>"
+        f'<button data-sev="critical" onclick="filterBucketSeverity(this,\'critical\')">'
+        f"Critical ({critical_count})</button>"
+        f'<button data-sev="high" onclick="filterBucketSeverity(this,\'high\')">'
+        f"High ({high_count})</button>"
+        f"</div></div>"
+    )
+
+
+def _build_bucket_no_detail_row(bucket_name: str, total: int, critical: int, high: int) -> str:
+    """Build the 'no detail available' placeholder row for a bucket beyond the fetch limit."""
+    crit_cls = ' class="critical"' if critical > 0 else ""
+    high_cls = ' class="high"' if high > 0 else ""
+    return (
+        f'<tr class="bucket-row expandable" data-bucket="{bucket_name.lower()}" onclick="toggleBucketDetail(this)">'
+        f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
+        f"<td>{total}</td><td{crit_cls}>{critical}</td><td{high_cls}>{high}</td>"
+        f'</tr><tr class="bucket-detail-row" style="display:none;">'
+        f'<td colspan="4" class="vuln-table-note">'
+        f"&#9888; Detail unavailable &mdash; findings are beyond the 50-result limit.</td></tr>"
+    )
+
+
+def _build_bucket_table_row(v: VulnerabilityDetail, idx: int) -> str:
+    """Build a single vulnerability table row."""
+    sev = v.severity.lower()
+    return (
+        f'<tr data-severity="{sev}" data-idx="{idx}">'
+        f'<td><span class="badge badge-{sev}">{_escape_html(v.severity)}</span></td>'
+        f'<td class="vuln-source">{_escape_html(v.source or "")}</td>'
+        f"<td>{_escape_html(v.status)}</td>"
+        f"<td>{v.age_days}</td>"
+        f"<td>{_escape_html(v.title or '')}</td>"
+        f'<td class="vuln-id">{_escape_html(v.id)}</td></tr>'
+    )
+
+
+def _build_bucket_body_row(
+    bucket_name: str,
+    vulns: list,
+    total: int,
+    critical: int,
+    high: int,
+    thead: str,
+) -> str:
+    """Build the expandable bucket body row with embedded vuln table."""
+    fetched_count = len(vulns)
+    crit_cls = ' class="critical"' if critical > 0 else ""
+    high_cls = ' class="high"' if high > 0 else ""
+
+    truncation_note = ""
+    if fetched_count < total:
+        truncation_note = f'<p class="vuln-table-note">&#9888; Top {fetched_count:,} of {total:,} findings shown.</p>'
+
+    rows = [_build_bucket_table_row(v, idx) for idx, v in enumerate(vulns)]
+    search_bar = _build_bucket_search_bar(vulns)
+
+    return (
+        f'<tr class="bucket-row expandable" data-bucket="{bucket_name.lower()}" onclick="toggleBucketDetail(this)">'
+        f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
+        f"<td>{total}</td>"
+        f"<td{crit_cls}>{critical}</td>"
+        f"<td{high_cls}>{high}</td>"
+        f"</tr>"
+        f'<tr class="bucket-detail-row" style="display:none;">'
+        f'<td colspan="4">{truncation_note}{search_bar}'
+        f'<table class="vuln-table">{thead}<tbody>{"".join(rows)}</tbody></table>'
+        f"</td></tr>"
+    )
+
+
+def _resolve_bucket_counts(
+    bucket_name: str,
+    vulns: list,
+    bucket_counts: dict | None,
+) -> tuple[int, int, int]:
+    """Resolve total/critical/high counts for a bucket from accurate counts or fetched vulns."""
+    if bucket_counts and bucket_name in bucket_counts:
+        acc = bucket_counts[bucket_name]
+        return acc["total"], acc["critical"], acc["high"]
+    fetched_count = len(vulns)
+    critical = sum(1 for v in vulns if v.severity.upper() == "CRITICAL")
+    return fetched_count, critical, fetched_count - critical
+
+
+def _build_single_bucket_rows(
+    bucket_name: str,
+    vulns: list,
+    bucket_counts: dict | None,
+    thead: str,
+) -> str:
+    """Build HTML rows for one bucket (summary row + detail row)."""
+    total, critical, high = _resolve_bucket_counts(bucket_name, vulns, bucket_counts)
+    if len(vulns) == 0:
+        return _build_bucket_no_detail_row(bucket_name, total, critical, high)
+    return _build_bucket_body_row(bucket_name, vulns, total, critical, high, thead)
+
+
+def _group_vulns_by_bucket(vulnerabilities: list) -> dict[str, list]:
+    """Filter to CRITICAL/HIGH and group fetched vulns by bucket name."""
+    fetched_buckets: dict[str, list] = {b: [] for b in BUCKET_ORDER}
+    for vuln in vulnerabilities:
+        if vuln.severity.upper() in ("CRITICAL", "HIGH"):
+            fetched_buckets[SOURCE_BUCKET_MAP.get(vuln.source or "", "Other")].append(vuln)
+    return fetched_buckets
+
+
 def _generate_bucket_expanded_content(
     vulnerabilities: list,
     bucket_counts: dict | None = None,
@@ -46,105 +178,18 @@ def _generate_bucket_expanded_content(
         bucket_counts: Production-only {bucket: {total, critical, high}} from API count queries.
                       When None, counts are derived from the fetched vulnerabilities list.
     """
-    filtered = [v for v in vulnerabilities if v.severity.upper() in ("CRITICAL", "HIGH")]
-
-    # Group fetched vulns by bucket
-    fetched_buckets: dict[str, list] = {b: [] for b in BUCKET_ORDER}
-    for vuln in filtered:
-        fetched_buckets[SOURCE_BUCKET_MAP.get(vuln.source or "", "Other")].append(vuln)
+    fetched_buckets = _group_vulns_by_bucket(vulnerabilities)
 
     # Determine which buckets are active: from accurate counts if available, else from fetched
     active_buckets = set(bucket_counts.keys()) if bucket_counts else {b for b, v in fetched_buckets.items() if v}
 
-    thead = (
-        "<thead><tr>"
-        '<th class="sortable" onclick="sortBucketTable(this)">Severity <span class="sort-indicator"></span></th>'
-        '<th class="sortable" onclick="sortBucketTable(this)">Source <span class="sort-indicator"></span></th>'
-        '<th class="sortable" onclick="sortBucketTable(this)">Status <span class="sort-indicator"></span></th>'
-        '<th class="sortable" data-type="number" onclick="sortBucketTable(this)">Age (Days) <span class="sort-indicator"></span></th>'
-        '<th class="sortable" onclick="sortBucketTable(this)">Title <span class="sort-indicator"></span></th>'
-        '<th class="sortable" onclick="sortBucketTable(this)">ID <span class="sort-indicator"></span></th>'
-        "</tr></thead>"
-    )
-
-    table_body = ""
-    for bucket_name in BUCKET_ORDER:
-        if bucket_name not in active_buckets:
-            continue
-
-        vulns = fetched_buckets[bucket_name]
-        fetched_count = len(vulns)
-
-        # Use accurate counts if provided, else derive from fetched
-        if bucket_counts and bucket_name in bucket_counts:
-            acc = bucket_counts[bucket_name]
-            total, critical, high = acc["total"], acc["critical"], acc["high"]
-        else:
-            total = fetched_count
-            critical = sum(1 for v in vulns if v.severity.upper() == "CRITICAL")
-            high = total - critical
-
-        crit_cls = ' class="critical"' if critical > 0 else ""
-        high_cls = ' class="high"' if high > 0 else ""
-
-        # No fetched detail for this bucket (truncated beyond 50-record limit)
-        if fetched_count == 0:
-            table_body += (
-                f'<tr class="bucket-row expandable" data-bucket="{bucket_name.lower()}" onclick="toggleBucketDetail(this)">'
-                f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
-                f"<td>{total}</td><td{crit_cls}>{critical}</td><td{high_cls}>{high}</td>"
-                f'</tr><tr class="bucket-detail-row" style="display:none;">'
-                f'<td colspan="4" class="vuln-table-note">'
-                f"&#9888; Detail unavailable &mdash; findings are beyond the 50-result limit.</td></tr>"
-            )
-            continue
-
-        # Truncation note when fetched < accurate total
-        truncation_note = ""
-        if fetched_count < total:
-            truncation_note = (
-                f'<p class="vuln-table-note">&#9888; Top {fetched_count:,} of {total:,} findings shown.</p>'
-            )
-
-        rows = []
-        for idx, v in enumerate(vulns):
-            sev = v.severity.lower()
-            rows.append(
-                f'<tr data-severity="{sev}" data-idx="{idx}">'
-                f'<td><span class="badge badge-{sev}">{_escape_html(v.severity)}</span></td>'
-                f'<td class="vuln-source">{_escape_html(v.source or "")}</td>'
-                f"<td>{_escape_html(v.status)}</td>"
-                f"<td>{v.age_days}</td>"
-                f"<td>{_escape_html(v.title or '')}</td>"
-                f'<td class="vuln-id">{_escape_html(v.id)}</td></tr>'
-            )
-
-        search_bar = (
-            f'<div class="bucket-filter-bar">'
-            f'<input type="text" class="bucket-search-input" placeholder="Search vulnerabilities..."'
-            f' oninput="filterBucketVulns(this)">'
-            f'<div class="bucket-filter-buttons">'
-            f'<button class="active" data-sev="all" onclick="filterBucketSeverity(this,\'all\')">'
-            f"All ({fetched_count})</button>"
-            f'<button data-sev="critical" onclick="filterBucketSeverity(this,\'critical\')">'
-            f"Critical ({sum(1 for v in vulns if v.severity.upper() == 'CRITICAL')})</button>"
-            f'<button data-sev="high" onclick="filterBucketSeverity(this,\'high\')">'
-            f"High ({sum(1 for v in vulns if v.severity.upper() == 'HIGH')})</button>"
-            f"</div></div>"
-        )
-
-        table_body += (
-            f'<tr class="bucket-row expandable" data-bucket="{bucket_name.lower()}" onclick="toggleBucketDetail(this)">'
-            f'<td><span class="bucket-arrow">&#9658;</span> <strong>{bucket_name}</strong></td>'
-            f"<td>{total}</td>"
-            f"<td{crit_cls}>{critical}</td>"
-            f"<td{high_cls}>{high}</td>"
-            f"</tr>"
-            f'<tr class="bucket-detail-row" style="display:none;">'
-            f'<td colspan="4">{truncation_note}{search_bar}'
-            f'<table class="vuln-table">{thead}<tbody>{"".join(rows)}</tbody></table>'
-            f"</td></tr>"
-        )
+    thead = _build_bucket_thead()
+    rows = [
+        _build_single_bucket_rows(bucket_name, fetched_buckets[bucket_name], bucket_counts, thead)
+        for bucket_name in BUCKET_ORDER
+        if bucket_name in active_buckets
+    ]
+    table_body = "".join(rows)
 
     if not table_body:
         table_body = '<tr><td colspan="4" class="no-findings">No Critical or High findings</td></tr>'
@@ -156,6 +201,108 @@ def _generate_bucket_expanded_content(
         f"<tbody>{table_body}</tbody>"
         "</table></div>"
     )
+
+
+def _build_bucket_detail_and_categories(
+    product_bucket_counts: dict | None,
+    active_buckets: frozenset,
+) -> tuple[dict, list]:
+    """Build bucket_detail dict and active categories list for a product."""
+    bucket_detail: dict[str, dict] = {}
+    categories: list[str] = []
+    for bucket in ["CODE", "CLOUD", "INFRASTRUCTURE"]:
+        bkt_data = (product_bucket_counts or {}).get(bucket, {})
+        bucket_detail[bucket.lower()] = {
+            "critical": bkt_data.get("critical", 0),
+            "high": bkt_data.get("high", 0),
+        }
+        if bucket in active_buckets and bkt_data.get("total", 0) > 0:
+            categories.append(bucket.lower())
+    return bucket_detail, categories
+
+
+def _filter_bucket_counts(product_bucket_counts: dict | None, active_buckets: frozenset) -> dict:
+    """Return bucket counts filtered to only active buckets."""
+    if not product_bucket_counts:
+        return {}
+    return {b: c for b, c in product_bucket_counts.items() if b in active_buckets}
+
+
+def _build_expanded_html(
+    all_vulns: list,
+    active_source_names: set,
+    filtered_bucket_counts: dict,
+) -> str:
+    """Filter vulns to active sources and generate the expanded bucket HTML."""
+    mode_vulns = [v for v in all_vulns if (v.source or "") in active_source_names]
+    return _generate_bucket_expanded_content(
+        mode_vulns,
+        bucket_counts=filtered_bucket_counts if filtered_bucket_counts else None,
+    )
+
+
+def _build_product_row(
+    product_name: str,
+    metrics: object,
+    all_vulns: list,
+    product_bucket_counts: dict | None,
+    active_buckets: frozenset,
+    active_source_names: set,
+) -> dict:
+    """Build a single product entry dict for the template context."""
+    filtered_bucket_counts = _filter_bucket_counts(product_bucket_counts, active_buckets)
+
+    display_critical = sum(b["critical"] for b in filtered_bucket_counts.values())
+    display_high = sum(b["high"] for b in filtered_bucket_counts.values())
+
+    status, status_class, status_priority = _resolve_product_status(display_critical, display_high)
+
+    expanded_html = _build_expanded_html(all_vulns, active_source_names, filtered_bucket_counts)
+
+    bucket_detail, categories = _build_bucket_detail_and_categories(product_bucket_counts, active_buckets)
+
+    return {
+        "name": product_name,
+        "total": display_critical + display_high,
+        "critical": display_critical,
+        "high": display_high,
+        "medium": metrics.medium,
+        "status": status,
+        "status_class": status_class,
+        "status_priority": status_priority,
+        "expanded_html": expanded_html,
+        "categories": categories,
+        "bucket_detail": bucket_detail,
+    }
+
+
+def _resolve_product_status(display_critical: int, display_high: int) -> tuple[str, str, int]:
+    """Resolve product status label, CSS class, and sort priority from critical/high counts."""
+    if display_critical >= 5:
+        return "Critical", "action", 0
+    if display_critical > 0:
+        return "High Risk", "caution", 1
+    if display_high >= 10:
+        return "Monitor", "caution", 2
+    return "OK", "good", 3
+
+
+def _build_category_counts(active_buckets: frozenset, bucket_counts_by_product: dict) -> dict:
+    """Compute per-category totals for the filter bar, limited to active buckets."""
+    category_counts: dict[str, int] = {}
+    if "CODE" in active_buckets:
+        category_counts["code"] = sum(
+            counts.get("CODE", {}).get("total", 0) for counts in bucket_counts_by_product.values()
+        )
+    if "CLOUD" in active_buckets:
+        category_counts["cloud"] = sum(
+            counts.get("CLOUD", {}).get("total", 0) for counts in bucket_counts_by_product.values()
+        )
+    if "INFRASTRUCTURE" in active_buckets:
+        category_counts["infrastructure"] = sum(
+            counts.get("INFRASTRUCTURE", {}).get("total", 0) for counts in bucket_counts_by_product.values()
+        )
+    return category_counts
 
 
 def _build_context(
@@ -209,82 +356,19 @@ def _build_context(
         all_vulns = vulns_by_product.get(product_name, [])
         product_bucket_counts = bucket_counts_by_product.get(product_name)
 
-        # Filter bucket counts to mode-active buckets only
-        filtered_bucket_counts = (
-            {b: c for b, c in product_bucket_counts.items() if b in active_buckets} if product_bucket_counts else {}
+        product_entry = _build_product_row(
+            product_name,
+            metrics,
+            all_vulns,
+            product_bucket_counts,
+            active_buckets,
+            active_source_names,
         )
-
-        # Display counts from mode-filtered buckets
-        display_critical = sum(b["critical"] for b in filtered_bucket_counts.values())
-        display_high = sum(b["high"] for b in filtered_bucket_counts.values())
-
-        if display_critical >= 5:
-            status = "Critical"
-            status_class = "action"
-            status_priority = 0
-        elif display_critical > 0:
-            status = "High Risk"
-            status_class = "caution"
-            status_priority = 1
-        elif display_high >= 10:
-            status = "Monitor"
-            status_class = "caution"
-            status_priority = 2
-        else:
-            status = "OK"
-            status_class = "good"
-            status_priority = 3
-
-        # Filter vulns to active-bucket sources for expanded row accuracy
-        mode_vulns = [v for v in all_vulns if (v.source or "") in active_source_names]
-        expanded_html = _generate_bucket_expanded_content(
-            mode_vulns,
-            bucket_counts=filtered_bucket_counts if filtered_bucket_counts else None,
-        )
-
-        categories = []
-        bucket_detail: dict[str, dict] = {}
-        for bucket in ["CODE", "CLOUD", "INFRASTRUCTURE"]:
-            bkt_data = (product_bucket_counts or {}).get(bucket, {})
-            bucket_detail[bucket.lower()] = {
-                "critical": bkt_data.get("critical", 0),
-                "high": bkt_data.get("high", 0),
-            }
-            if bucket in active_buckets and bkt_data.get("total", 0) > 0:
-                categories.append(bucket.lower())
-
-        products.append(
-            {
-                "name": product_name,
-                "total": display_critical + display_high,
-                "critical": display_critical,
-                "high": display_high,
-                "medium": metrics.medium,
-                "status": status,
-                "status_class": status_class,
-                "status_priority": status_priority,
-                "expanded_html": expanded_html,
-                "categories": categories,
-                "bucket_detail": bucket_detail,
-            }
-        )
+        products.append(product_entry)
 
     products.sort(key=lambda p: (p["status_priority"], -p["critical"], p["name"]))
 
-    # category_counts: only keys relevant to this dashboard's filter bar
-    category_counts: dict[str, int] = {}
-    if "CODE" in active_buckets:
-        category_counts["code"] = sum(
-            counts.get("CODE", {}).get("total", 0) for counts in bucket_counts_by_product.values()
-        )
-    if "CLOUD" in active_buckets:
-        category_counts["cloud"] = sum(
-            counts.get("CLOUD", {}).get("total", 0) for counts in bucket_counts_by_product.values()
-        )
-    if "INFRASTRUCTURE" in active_buckets:
-        category_counts["infrastructure"] = sum(
-            counts.get("INFRASTRUCTURE", {}).get("total", 0) for counts in bucket_counts_by_product.values()
-        )
+    category_counts = _build_category_counts(active_buckets, bucket_counts_by_product)
 
     return {
         "framework_css": framework_css,
