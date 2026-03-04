@@ -14,250 +14,6 @@
             "p95_hours": null
           },
           "pr_merge_time": {
-            "sample_size": 464,
-            "median_hours": 0.6,
-            "p85_hours": 18.9,
-            "p95_hours": 64.9
-          },
-          "review_iteration_count": {
-            "sample_size": 10,
-            "median_iterations": 1.0,
-            "max_iterations": 2
-          },
-          "pr_size": {
-            "sample_size": 10,
-            "median_commits": 2.0,
-            "p85_commits": 2.6,
-            "p95_commits": 3.0,
-            "note": "Measuring by commit count (LOC requires diff parsing)"
-          },
-          "total_prs_analyzed": 464,
-          "repository_count": 56,
-          "collected_at": "2026-02-20T02:21:24.754535"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "pr_review_time": {
-            "sample_size": 0,
-            "median_hours": null,
-            "p85_hours": null,
-            "p95_hours": null
-          },
-          "pr_merge_time": {
-            "sample_size": 102,
-            "median_hours": 0.1,
-            "p85_hours": 0.7,
-            "p95_hours": 50.7
-          },
-          "review_iteration_count": {
-            "sample_size": 10,
-            "median_iterations": 1.0,
-            "max_iterations": 1
-          },
-          "pr_size": {
-            "sample_size": 10,
-            "median_commits": 1.0,
-            "p85_commits": 1.0,
-            "p95_commits": 1.0,
-            "note": "Measuring by commit count (LOC requires diff parsing)"
-          },
-          "total_prs_analyzed": 102,
-          "repository_count": 20,
-          "collected_at": "2026-02-20T02:21:51.920562"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "pr_review_time": {
-            "sample_size": 0
-          },
-          "pr_merge_time": {
-            "sample_size": 0
-          },
-          "review_iteration_count": {
-            "sample_size": 0
-          },
-          "pr_size": {
-            "sample_size": 0
-          },
-          "total_prs_analyzed": 0,
-          "collected_at": "2026-02-20T02:21:18.950871"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "pr_review_time": {
-            "sample_size": 0,
-            "median_hours": null,
-            "p85_hours": null,
-            "p95_hours": null
-          },
-          "pr_merge_time": {
-            "sample_size": 104,
-            "median_hours": 16.9,
-            "p85_hours": 152.0,
-            "p95_hours": 463.9
-          },
-          "review_iteration_count": {
-            "sample_size": 10,
-            "median_iterations": 1.0,
-            "max_iterations": 25
-          },
-          "pr_size": {
-            "sample_size": 10,
-            "median_commits": 3.0,
-            "p85_commits": 23.6,
-            "p95_commits": 58.5,
-            "note": "Measuring by commit count (LOC requires diff parsing)"
-          },
-          "total_prs_analyzed": 104,
-          "repository_count": 37,
-          "collected_at": "2026-02-20T02:21:24.753711"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "pr_review_time": {
-            "sample_size": 0,
-            "median_hours": null,
-            "p85_hours": null,
-            "p95_hours": null
-          },
-          "pr_merge_time": {
-            "sample_size": 101,
-            "median_hours": 0.7,
-            "p85_hours": 6.0,
-            "p95_hours": 22.5
-          },
-          "review_iteration_count": {
-            "sample_size": 10,
-            "median_iterations": 1.0,
-            "max_iterations": 3
-          },
-          "pr_size": {
-            "sample_size": 10,
-            "median_commits": 1.0,
-            "p85_commits": 2.6,
-            "p95_commits": 5.7,
-            "note": "Measuring by commit count (LOC requires diff parsing)"
-          },
-          "total_prs_analyzed": 101,
-          "repository_count": 2,
-          "collected_at": "2026-02-20T02:21:24.551409"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "pr_review_time": {
-            "sample_size": 0,
-            "median_hours": null,
-            "p85_hours": null,
-            "p95_hours": null
-          },
-          "pr_merge_time": {
-            "sample_size": 306,
-            "median_hours": 0.4,
-            "p85_hours": 22.6,
-            "p95_hours": 121.0
-          },
-          "review_iteration_count": {
-            "sample_size": 10,
-            "median_iterations": 1.0,
-            "max_iterations": 3
-          },
-          "pr_size": {
-            "sample_size": 10,
-            "median_commits": 4.0,
-            "p85_commits": 23.5,
-            "p95_commits": 27.5,
-            "note": "Measuring by commit count (LOC requires diff parsing)"
-          },
-          "total_prs_analyzed": 306,
-          "repository_count": 18,
-          "collected_at": "2026-02-20T02:21:24.751003"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "pr_review_time": {
-            "sample_size": 0,
-            "median_hours": null,
-            "p85_hours": null,
-            "p95_hours": null
-          },
-          "pr_merge_time": {
-            "sample_size": 112,
-            "median_hours": 5.7,
-            "p85_hours": 92.6,
-            "p95_hours": 167.0
-          },
-          "review_iteration_count": {
-            "sample_size": 10,
-            "median_iterations": 1.0,
-            "max_iterations": 1
-          },
-          "pr_size": {
-            "sample_size": 10,
-            "median_commits": 1.0,
-            "p85_commits": 1.0,
-            "p95_commits": 1.5,
-            "note": "Measuring by commit count (LOC requires diff parsing)"
-          },
-          "total_prs_analyzed": 112,
-          "repository_count": 18,
-          "collected_at": "2026-02-20T02:21:23.978544"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "pr_review_time": {
-            "sample_size": 0,
-            "median_hours": null,
-            "p85_hours": null,
-            "p95_hours": null
-          },
-          "pr_merge_time": {
-            "sample_size": 464,
-            "median_hours": 0.6,
-            "p85_hours": 18.9,
-            "p95_hours": 64.9
-          },
-          "review_iteration_count": {
-            "sample_size": 10,
-            "median_iterations": 1.0,
-            "max_iterations": 3
-          },
-          "pr_size": {
-            "sample_size": 10,
-            "median_commits": 1.0,
-            "p85_commits": 2.3,
-            "p95_commits": 15.1,
-            "note": "Measuring by commit count (LOC requires diff parsing)"
-          },
-          "total_prs_analyzed": 464,
-          "repository_count": 56,
-          "collected_at": "2026-02-20T02:21:24.755323"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-20",
-      "week_number": 8,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "pr_review_time": {
-            "sample_size": 0,
-            "median_hours": null,
-            "p85_hours": null,
-            "p95_hours": null
-          },
-          "pr_merge_time": {
             "sample_size": 465,
             "median_hours": 0.6,
             "p85_hours": 18.9,
@@ -12682,6 +12438,250 @@
           "total_prs_analyzed": 487,
           "repository_count": 56,
           "collected_at": "2026-03-03T15:25:05.396052"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-03-04",
+      "week_number": 10,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 487,
+            "median_hours": 0.6,
+            "p85_hours": 17.3,
+            "p95_hours": 47.6
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.0,
+            "max_iterations": 6
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 1.0,
+            "p85_commits": 2.3,
+            "p95_commits": 3.0,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 487,
+          "repository_count": 56,
+          "collected_at": "2026-03-04T06:55:17.726079"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 102,
+            "median_hours": 0.1,
+            "p85_hours": 2.5,
+            "p95_hours": 50.7
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.0,
+            "max_iterations": 4
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 1.0,
+            "p85_commits": 1.0,
+            "p95_commits": 3.7,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 102,
+          "repository_count": 20,
+          "collected_at": "2026-03-04T06:55:17.263490"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "pr_review_time": {
+            "sample_size": 0
+          },
+          "pr_merge_time": {
+            "sample_size": 0
+          },
+          "review_iteration_count": {
+            "sample_size": 0
+          },
+          "pr_size": {
+            "sample_size": 0
+          },
+          "total_prs_analyzed": 0,
+          "collected_at": "2026-03-04T06:55:11.709451"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 103,
+            "median_hours": 9.6,
+            "p85_hours": 118.2,
+            "p95_hours": 234.0
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.0,
+            "max_iterations": 20
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 1.0,
+            "p85_commits": 3.3,
+            "p95_commits": 10.6,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 103,
+          "repository_count": 38,
+          "collected_at": "2026-03-04T06:55:17.387498"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 101,
+            "median_hours": 0.5,
+            "p85_hours": 2.9,
+            "p95_hours": 16.9
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.5,
+            "max_iterations": 9
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 1.0,
+            "p85_commits": 3.3,
+            "p95_commits": 4.5,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 101,
+          "repository_count": 2,
+          "collected_at": "2026-03-04T06:55:16.826222"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 263,
+            "median_hours": 0.4,
+            "p85_hours": 22.5,
+            "p95_hours": 114.3
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.0,
+            "max_iterations": 11
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 2.5,
+            "p85_commits": 5.0,
+            "p95_commits": 11.0,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 263,
+          "repository_count": 18,
+          "collected_at": "2026-03-04T06:55:17.498291"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 121,
+            "median_hours": 5.2,
+            "p85_hours": 74.0,
+            "p95_hours": 144.5
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.0,
+            "max_iterations": 2
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 1.0,
+            "p85_commits": 1.0,
+            "p95_commits": 2.1,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 121,
+          "repository_count": 18,
+          "collected_at": "2026-03-04T06:55:17.271623"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "pr_review_time": {
+            "sample_size": 0,
+            "median_hours": null,
+            "p85_hours": null,
+            "p95_hours": null
+          },
+          "pr_merge_time": {
+            "sample_size": 487,
+            "median_hours": 0.6,
+            "p85_hours": 17.3,
+            "p95_hours": 47.6
+          },
+          "review_iteration_count": {
+            "sample_size": 10,
+            "median_iterations": 1.0,
+            "max_iterations": 5
+          },
+          "pr_size": {
+            "sample_size": 10,
+            "median_commits": 2.0,
+            "p85_commits": 2.6,
+            "p95_commits": 5.7,
+            "note": "Measuring by commit count (LOC requires diff parsing)"
+          },
+          "total_prs_analyzed": 487,
+          "repository_count": 56,
+          "collected_at": "2026-03-04T06:55:17.647598"
         }
       ],
       "config": {
