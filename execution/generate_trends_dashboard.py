@@ -22,21 +22,100 @@ from execution.dashboards.trends.renderer import TrendsRenderer
 logger = logging.getLogger(__name__)
 
 
-def main():
-    """Main dashboard generation using 4-stage pipeline"""
-    # Set UTF-8 encoding for Windows console
+def _setup_logging() -> None:
+    """Configure UTF-8 console output and standard logging format."""
     if sys.platform == "win32":
         import codecs
 
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
-    # Configure logging
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
+
+
+def _extract_security_trends(calculator: TrendsCalculator, weeks: list, trends: dict) -> None:
+    """Extract all three security trend variants and add them to trends in place."""
+    security_trends = calculator.extract_security_trends(weeks)
+    if security_trends:
+        trends["security"] = security_trends
+        logger.info(f"Security metrics extracted: {len(security_trends['vulnerabilities']['trend_data'])} weeks")
+
+    cc_trends = calculator.extract_security_code_cloud_trends(weeks)
+    if cc_trends:
+        trends["security_code_cloud"] = cc_trends
+        logger.info(f"Security Code+Cloud metrics extracted: {len(cc_trends['vulnerabilities']['trend_data'])} weeks")
+
+    infra_trends = calculator.extract_security_infra_trends(weeks)
+    if infra_trends:
+        trends["security_infra"] = infra_trends
+        logger.info(
+            f"Security Infrastructure metrics extracted: {len(infra_trends['vulnerabilities']['trend_data'])} weeks"
+        )
+
+
+def _log_domain_extracted(domain: str, result: dict, log_key: str) -> None:
+    """Emit a standard log line after a domain trend is extracted."""
+    logger.info(f"{domain.capitalize()} metrics extracted: {len(result[log_key]['trend_data'])} weeks")
+
+
+def _extract_simple_domain(
+    calculator: TrendsCalculator,
+    weeks: list,
+    trends: dict,
+    trend_key: str,
+    extractor_name: str,
+    log_key: str,
+) -> None:
+    """Call a named extractor on calculator and store the result in trends if non-empty."""
+    extractor = getattr(calculator, extractor_name)
+    result = extractor(weeks)
+    if result:
+        trends[trend_key] = result
+        _log_domain_extracted(trend_key, result, log_key)
+
+
+# Descriptor table for simple (one-to-one) domain extractions.
+# Each entry: (metrics_data key, trends key, calculator method name, log key within result)
+_SIMPLE_DOMAIN_EXTRACTORS: list[tuple[str, str, str, str]] = [
+    ("quality", "quality", "extract_quality_trends", "bugs"),
+    ("flow", "flow", "extract_flow_trends", "lead_time"),
+    ("deployment", "deployment", "extract_deployment_trends", "build_success"),
+    ("collaboration", "collaboration", "extract_collaboration_trends", "pr_merge_time"),
+    ("ownership", "ownership", "extract_ownership_trends", "work_unassigned"),
+    ("risk", "risk", "extract_risk_trends", "total_commits"),
+    ("exploitable", "exploitable", "extract_exploitable_trends", "exploitable"),
+]
+
+
+def _extract_all_trends(calculator: TrendsCalculator, metrics_data: dict) -> dict:
+    """
+    Run all per-domain trend extractions and return the populated trends dict.
+
+    Each domain is only processed when the corresponding key is present and
+    non-empty in metrics_data.  Security is handled separately because it fans
+    out into three sub-keys.
+    """
+    trends: dict = {}
+
+    for data_key, trend_key, extractor_name, log_key in _SIMPLE_DOMAIN_EXTRACTORS:
+        if metrics_data.get(data_key):
+            _extract_simple_domain(
+                calculator, metrics_data[data_key]["weeks"], trends, trend_key, extractor_name, log_key
+            )
+
+    if metrics_data.get("security"):
+        _extract_security_trends(calculator, metrics_data["security"]["weeks"], trends)
+
+    return trends
+
+
+def main() -> None:
+    """Main dashboard generation using 4-stage pipeline"""
+    _setup_logging()
 
     logger.info("=" * 70)
     logger.info("Executive Trends Dashboard Generator")
@@ -61,72 +140,7 @@ def main():
             quality_weeks=metrics_data["quality"]["weeks"], security_weeks=metrics_data["security"]["weeks"]
         )
 
-    # Extract all trends
-    trends = {}
-
-    if metrics_data.get("quality"):
-        quality_trends = calculator.extract_quality_trends(metrics_data["quality"]["weeks"])
-        if quality_trends:
-            trends["quality"] = quality_trends
-            logger.info(f"Quality metrics extracted: {len(quality_trends['bugs']['trend_data'])} weeks")
-
-    if metrics_data.get("security"):
-        security_trends = calculator.extract_security_trends(metrics_data["security"]["weeks"])
-        if security_trends:
-            trends["security"] = security_trends
-            logger.info(f"Security metrics extracted: {len(security_trends['vulnerabilities']['trend_data'])} weeks")
-
-        cc_trends = calculator.extract_security_code_cloud_trends(metrics_data["security"]["weeks"])
-        if cc_trends:
-            trends["security_code_cloud"] = cc_trends
-            logger.info(
-                f"Security Code+Cloud metrics extracted: {len(cc_trends['vulnerabilities']['trend_data'])} weeks"
-            )
-
-        infra_trends = calculator.extract_security_infra_trends(metrics_data["security"]["weeks"])
-        if infra_trends:
-            trends["security_infra"] = infra_trends
-            logger.info(
-                f"Security Infrastructure metrics extracted: {len(infra_trends['vulnerabilities']['trend_data'])} weeks"
-            )
-
-    if metrics_data.get("flow"):
-        flow_trends = calculator.extract_flow_trends(metrics_data["flow"]["weeks"])
-        if flow_trends:
-            trends["flow"] = flow_trends
-            logger.info(f"Flow metrics extracted: {len(flow_trends['lead_time']['trend_data'])} weeks")
-
-    if metrics_data.get("deployment"):
-        deployment_trends = calculator.extract_deployment_trends(metrics_data["deployment"]["weeks"])
-        if deployment_trends:
-            trends["deployment"] = deployment_trends
-            logger.info(f"Deployment metrics extracted: {len(deployment_trends['build_success']['trend_data'])} weeks")
-
-    if metrics_data.get("collaboration"):
-        collaboration_trends = calculator.extract_collaboration_trends(metrics_data["collaboration"]["weeks"])
-        if collaboration_trends:
-            trends["collaboration"] = collaboration_trends
-            logger.info(
-                f"Collaboration metrics extracted: {len(collaboration_trends['pr_merge_time']['trend_data'])} weeks"
-            )
-
-    if metrics_data.get("ownership"):
-        ownership_trends = calculator.extract_ownership_trends(metrics_data["ownership"]["weeks"])
-        if ownership_trends:
-            trends["ownership"] = ownership_trends
-            logger.info(f"Ownership metrics extracted: {len(ownership_trends['work_unassigned']['trend_data'])} weeks")
-
-    if metrics_data.get("risk"):
-        risk_trends = calculator.extract_risk_trends(metrics_data["risk"]["weeks"])
-        if risk_trends:
-            trends["risk"] = risk_trends
-            logger.info(f"Risk metrics extracted: {len(risk_trends['total_commits']['trend_data'])} weeks")
-
-    if metrics_data.get("exploitable"):
-        exploitable_trends = calculator.extract_exploitable_trends(metrics_data["exploitable"]["weeks"])
-        if exploitable_trends:
-            trends["exploitable"] = exploitable_trends
-            logger.info(f"Exploitable metrics extracted: {len(exploitable_trends['exploitable']['trend_data'])} weeks")
+    trends = _extract_all_trends(calculator, metrics_data)
 
     # Stage 3: Render Dashboard
     logger.info("Generating dashboard...")
