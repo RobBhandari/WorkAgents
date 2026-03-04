@@ -310,12 +310,12 @@ class TestTryEndpointUrls:
                 )
 
     def test_skips_endpoint_on_request_exception(self):
-        from requests.exceptions import RequestException
+        from httpx import RequestError
 
         payload = [{"id": "4"}]
         with patch("execution.armorcode_baseline.get") as mock_get:
             mock_get.side_effect = [
-                RequestException("Connection failed"),
+                RequestError("Connection failed"),
                 self._make_response(200, payload),
             ]
             data, endpoint = _try_endpoint_urls(
@@ -328,10 +328,10 @@ class TestTryEndpointUrls:
         assert endpoint == "/api/v1/ok"
 
     def test_raises_when_all_endpoints_raise_request_exception(self):
-        from requests.exceptions import RequestException
+        from httpx import RequestError
 
         with patch("execution.armorcode_baseline.get") as mock_get:
-            mock_get.side_effect = RequestException("timeout")
+            mock_get.side_effect = RequestError("timeout")
             with pytest.raises(RuntimeError, match="Unable to fetch vulnerabilities"):
                 _try_endpoint_urls(
                     "https://api.example.com",

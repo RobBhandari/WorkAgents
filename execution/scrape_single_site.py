@@ -18,7 +18,7 @@ from urllib.robotparser import RobotFileParser
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from requests.exceptions import HTTPError, Timeout
+from httpx import HTTPStatusError, TimeoutException
 
 from execution.http_client import get
 from execution.secure_config import get_config
@@ -78,14 +78,14 @@ def check_robots_txt(url: str, user_agent: str) -> bool:
 
 def _handle_retry_error(e: Exception, attempt: int) -> None:
     """Handle a single-attempt fetch error. Raises on unrecoverable errors."""
-    if isinstance(e, HTTPError):
+    if isinstance(e, HTTPStatusError):
         if e.response.status_code == 429:  # Rate limited
             wait_time = 2**attempt
             logger.warning(f"Rate limited. Waiting {wait_time} seconds...")
             time.sleep(wait_time)
             return
         raise RuntimeError(f"HTTP error: {e}") from e
-    if isinstance(e, Timeout):
+    if isinstance(e, TimeoutException):
         logger.warning(f"Timeout on attempt {attempt + 1}")
         if attempt == MAX_RETRIES - 1:
             raise RuntimeError(f"Timed out after {MAX_RETRIES} attempts")

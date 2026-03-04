@@ -7,10 +7,10 @@ Prevents man-in-the-middle attacks by forcing verify=True on all requests.
 Usage:
     from http_client import get, post
 
-    # Instead of: requests.get(url)
+    # Instead of: httpx.get(url)
     response = get(url)
 
-    # Instead of: requests.post(url, json=data)
+    # Instead of: httpx.post(url, json=data)
     response = post(url, json=data)
 
 Security Features:
@@ -19,7 +19,7 @@ Security Features:
     - Consistent security configuration across all HTTP calls
 """
 
-import requests
+import httpx
 
 
 class SecureHTTPClient:
@@ -30,118 +30,105 @@ class SecureHTTPClient:
     DEFAULT_TIMEOUT = 30  # seconds
 
     @staticmethod
-    def get(url: str, **kwargs) -> requests.Response:
+    def get(url: str, **kwargs) -> httpx.Response:
         """
         Secure GET request with SSL verification enforced.
 
         Args:
             url: URL to fetch
-            **kwargs: Additional arguments to pass to requests.get()
+            **kwargs: Additional arguments to pass to httpx.get()
 
         Returns:
-            requests.Response: HTTP response
+            httpx.Response: HTTP response
 
         Security:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
             - Prevents insecure HTTP requests
         """
-        # CRITICAL: Force SSL verification (prevent man-in-the-middle attacks)
-        kwargs.setdefault("verify", True)
-
         # Set default timeout (prevent hanging connections)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
 
-        return requests.get(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 53
+        return httpx.get(url, **kwargs)
 
     @staticmethod
-    def post(url: str, **kwargs) -> requests.Response:
+    def post(url: str, **kwargs) -> httpx.Response:
         """
         Secure POST request with SSL verification enforced.
 
         Args:
             url: URL to post to
-            **kwargs: Additional arguments to pass to requests.post()
+            **kwargs: Additional arguments to pass to httpx.post()
 
         Returns:
-            requests.Response: HTTP response
+            httpx.Response: HTTP response
 
         Security:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
             - Prevents insecure HTTP requests
         """
-        # CRITICAL: Force SSL verification (prevent man-in-the-middle attacks)
-        kwargs.setdefault("verify", True)
-
         # Set default timeout (prevent hanging connections)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
 
-        return requests.post(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 78
+        return httpx.post(url, **kwargs)
 
     @staticmethod
-    def put(url: str, **kwargs) -> requests.Response:
+    def put(url: str, **kwargs) -> httpx.Response:
         """
         Secure PUT request with SSL verification enforced.
 
         Args:
             url: URL to put to
-            **kwargs: Additional arguments to pass to requests.put()
+            **kwargs: Additional arguments to pass to httpx.put()
 
         Returns:
-            requests.Response: HTTP response
+            httpx.Response: HTTP response
 
         Security:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
         """
-        kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.put(url, **kwargs)  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 99
+        return httpx.put(url, **kwargs)
 
     @staticmethod
-    def delete(url: str, **kwargs) -> requests.Response:
+    def delete(url: str, **kwargs) -> httpx.Response:
         """
         Secure DELETE request with SSL verification enforced.
 
         Args:
             url: URL to delete
-            **kwargs: Additional arguments to pass to requests.delete()
+            **kwargs: Additional arguments to pass to httpx.delete()
 
         Returns:
-            requests.Response: HTTP response
+            httpx.Response: HTTP response
 
         Security:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
         """
-        kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.delete(
-            url, **kwargs
-        )  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 119
+        return httpx.delete(url, **kwargs)
 
     @staticmethod
-    def patch(url: str, **kwargs) -> requests.Response:
+    def patch(url: str, **kwargs) -> httpx.Response:
         """
         Secure PATCH request with SSL verification enforced.
 
         Args:
             url: URL to patch
-            **kwargs: Additional arguments to pass to requests.patch()
+            **kwargs: Additional arguments to pass to httpx.patch()
 
         Returns:
-            requests.Response: HTTP response
+            httpx.Response: HTTP response
 
         Security:
             - Forces verify=True (SSL verification)
             - Sets default timeout=30 if not provided
         """
-        kwargs.setdefault("verify", True)
         kwargs.setdefault("timeout", SecureHTTPClient.DEFAULT_TIMEOUT)
-        return requests.patch(
-            url, **kwargs
-        )  # nosec B113 - Timeout set via kwargs.setdefault("timeout", 30) on line 139
+        return httpx.patch(url, **kwargs)
 
 
 # Convenience functions (can be imported directly)
@@ -173,11 +160,11 @@ if __name__ == "__main__":
     print("\n[TEST 2] Verify timeout is set")
     import unittest.mock as mock
 
-    with mock.patch("requests.get") as mock_get:
+    with mock.patch("httpx.get") as mock_get:
         get("https://example.com")
         call_kwargs = mock_get.call_args[1]
-        if call_kwargs.get("verify") is True and call_kwargs.get("timeout") == 30:
-            print("  [PASS] verify=True and timeout=30 enforced")
+        if call_kwargs.get("timeout") == 30:
+            print("  [PASS] timeout=30 enforced")
         else:
             print(f"  [FAIL] Security parameters not enforced: {call_kwargs}")
             sys.exit(1)

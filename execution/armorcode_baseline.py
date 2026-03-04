@@ -18,7 +18,7 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
-from requests.exceptions import RequestException
+from httpx import RequestError
 
 from execution.config import get_config
 from execution.http_client import get
@@ -72,7 +72,7 @@ def _try_endpoint_urls(
         logger.info(f"Trying endpoint: {url}")
         try:
             response = get(url, headers=headers, params=params, timeout=60)
-        except RequestException as e:
+        except RequestError as e:
             logger.debug(f"Request to {endpoint} failed: {e}")
             continue
 

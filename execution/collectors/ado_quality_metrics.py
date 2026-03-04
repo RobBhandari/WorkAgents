@@ -105,6 +105,85 @@ async def _fetch_bug_details(rest_client: AzureDevOpsRESTClient, bug_ids: list[i
         raise
 
 
+_ALL_BUG_FIELDS = [
+    "System.Id",
+    "System.Title",
+    "System.State",
+    "System.CreatedDate",
+    "System.WorkItemType",
+    "Microsoft.VSTS.Common.Priority",
+    "Microsoft.VSTS.Common.Severity",
+    "System.Tags",
+    "Microsoft.VSTS.Common.ClosedDate",
+    "Microsoft.VSTS.Common.ResolvedDate",
+    "System.CreatedBy",
+]
+
+_OPEN_BUG_FIELDS = [
+    "System.Id",
+    "System.Title",
+    "System.State",
+    "System.CreatedDate",
+    "System.WorkItemType",
+    "Microsoft.VSTS.Common.Priority",
+    "Microsoft.VSTS.Common.Severity",
+    "System.Tags",
+    "System.CreatedBy",
+]
+
+
+def _build_bug_fetch_tasks(
+    rest_client: "AzureDevOpsRESTClient",
+    all_bugs_result: list | None,
+    open_bugs_result: list | None,
+) -> tuple:
+    """
+    Build coroutine tasks for fetching full bug details.
+    Returns (all_bug_task, open_bug_task) — either may be None if no items.
+    """
+    all_bug_task = None
+    open_bug_task = None
+
+    if all_bugs_result:
+        all_bug_ids = [item.id for item in all_bugs_result]
+        all_bug_task = _fetch_bug_details(rest_client, all_bug_ids, fields=_ALL_BUG_FIELDS)
+
+    if open_bugs_result:
+        open_bug_ids = [item.id for item in open_bugs_result]
+        open_bug_task = _fetch_bug_details(rest_client, open_bug_ids, fields=_OPEN_BUG_FIELDS)
+
+    return all_bug_task, open_bug_task
+
+
+def _unpack_bug_gather_results(
+    results: list,
+    all_bug_task_was_created: bool,
+    open_bug_task_was_created: bool,
+) -> tuple[list, list]:
+    """
+    Unpack asyncio.gather results into (all_bugs, open_bugs).
+    Returns empty list for each task that failed or wasn't created.
+    """
+    all_bugs: list = []
+    open_bugs: list = []
+    result_idx = 0
+
+    if all_bug_task_was_created:
+        r = results[result_idx]
+        all_bugs = [] if isinstance(r, Exception) else r
+        if isinstance(r, Exception):
+            logger.warning(f"Error fetching all bugs: {r}")
+        result_idx += 1
+
+    if open_bug_task_was_created:
+        r = results[result_idx]
+        open_bugs = [] if isinstance(r, Exception) else r
+        if isinstance(r, Exception):
+            logger.warning(f"Error fetching open bugs: {r}")
+
+    return all_bugs, open_bugs
+
+
 async def query_bugs_for_quality(
     rest_client: AzureDevOpsRESTClient, project_name: str, lookback_days: int = 90, area_path_filter: str | None = None
 ) -> dict:
@@ -178,50 +257,11 @@ async def query_bugs_for_quality(
     print(f"      Found {len(open_bugs_result) if open_bugs_result else 0} open bugs")
 
     # Fetch full bug details with batching CONCURRENTLY
-    all_bugs = []
-    open_bugs = []
+    all_bugs: list = []
+    open_bugs: list = []
 
     # Create tasks for concurrent fetching
-    all_bug_task = None
-    open_bug_task = None
-
-    if all_bugs_result:
-        all_bug_ids = [item.id for item in all_bugs_result]
-        all_bug_task = _fetch_bug_details(
-            rest_client,
-            all_bug_ids,
-            fields=[
-                "System.Id",
-                "System.Title",
-                "System.State",
-                "System.CreatedDate",
-                "System.WorkItemType",
-                "Microsoft.VSTS.Common.Priority",
-                "Microsoft.VSTS.Common.Severity",
-                "System.Tags",
-                "Microsoft.VSTS.Common.ClosedDate",
-                "Microsoft.VSTS.Common.ResolvedDate",
-                "System.CreatedBy",
-            ],
-        )
-
-    if open_bugs_result:
-        open_bug_ids = [item.id for item in open_bugs_result]
-        open_bug_task = _fetch_bug_details(
-            rest_client,
-            open_bug_ids,
-            fields=[
-                "System.Id",
-                "System.Title",
-                "System.State",
-                "System.CreatedDate",
-                "System.WorkItemType",
-                "Microsoft.VSTS.Common.Priority",
-                "Microsoft.VSTS.Common.Severity",
-                "System.Tags",
-                "System.CreatedBy",
-            ],
-        )
+    all_bug_task, open_bug_task = _build_bug_fetch_tasks(rest_client, all_bugs_result, open_bugs_result)
 
     # Execute fetches concurrently
     tasks = []
@@ -233,25 +273,11 @@ async def query_bugs_for_quality(
     if tasks:
         try:
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            result_idx = 0
-
-            if all_bug_task:
-                all_bugs_result = results[result_idx]  # type: ignore[assignment]
-                if isinstance(all_bugs_result, Exception):
-                    logger.warning(f"Error fetching all bugs: {all_bugs_result}")
-                    all_bugs = []
-                else:
-                    all_bugs = all_bugs_result  # type: ignore[assignment]
-                result_idx += 1
-
-            if open_bug_task:
-                open_bugs_result = results[result_idx]  # type: ignore[assignment]
-                if isinstance(open_bugs_result, Exception):
-                    logger.warning(f"Error fetching open bugs: {open_bugs_result}")
-                    open_bugs = []
-                else:
-                    open_bugs = open_bugs_result  # type: ignore[assignment]
-
+            all_bugs, open_bugs = _unpack_bug_gather_results(
+                results,
+                all_bug_task_was_created=all_bug_task is not None,
+                open_bug_task_was_created=open_bug_task is not None,
+            )
         except Exception as e:
             logger.error(f"Error fetching bugs: {e}")
 
@@ -269,6 +295,36 @@ async def query_bugs_for_quality(
 # Cannot reliably distinguish customer-found bugs from internally-found production bugs.
 
 
+def _build_ages_distribution(ages: list[float]) -> dict:
+    """Build the 4-bucket age distribution dict from a list of ages in days."""
+    return {
+        "0-7_days": sum(1 for age in ages if age <= 7),
+        "8-30_days": sum(1 for age in ages if 7 < age <= 30),
+        "31-90_days": sum(1 for age in ages if 30 < age <= 90),
+        "90+_days": sum(1 for age in ages if age > 90),
+    }
+
+
+def _collect_bug_ages(open_bugs: list[dict]) -> tuple[list[float], int]:
+    """
+    Parse age in days for each open bug.
+    Returns (ages, parse_error_count).
+    """
+    now = datetime.now(UTC)
+    ages: list[float] = []
+    parse_errors = 0
+    for bug in open_bugs:
+        created = bug.get("System.CreatedDate")
+        age = calculate_age_days(created, reference_time=now)
+        if age is not None:
+            ages.append(age)
+        elif created:
+            parse_errors += 1
+            if parse_errors <= 3:
+                logger.warning(f"Could not parse date for bug {bug.get('System.Id')}: {created}")
+    return ages, parse_errors
+
+
 def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
     """
     Calculate bug age distribution: How long bugs have been open.
@@ -282,22 +338,7 @@ def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
     Raises:
         ValueError: If date parsing fails for all bugs
     """
-    now = datetime.now(UTC)  # Make timezone-aware to match Azure DevOps dates
-    ages = []
-    parse_errors = 0
-
-    for bug in open_bugs:
-        created = bug.get("System.CreatedDate")
-
-        age = calculate_age_days(created, reference_time=now)
-        if age is not None:
-            ages.append(age)
-        elif created:
-            # Log parsing errors
-            parse_errors += 1
-            if parse_errors <= 3:
-                logger.warning(f"Could not parse date for bug {bug.get('System.Id')}: {created}")
-            continue
+    ages, parse_errors = _collect_bug_ages(open_bugs)
 
     if parse_errors > 0:
         logger.warning(f"Failed to parse {parse_errors} out of {len(open_bugs)} open bug dates")
@@ -316,12 +357,7 @@ def calculate_bug_age_distribution(open_bugs: list[dict]) -> dict:
         "p85_age_days": round(calculate_percentile(ages, 85), 1),
         "p95_age_days": round(calculate_percentile(ages, 95), 1),
         "sample_size": len(ages),
-        "ages_distribution": {
-            "0-7_days": sum(1 for age in ages if age <= 7),
-            "8-30_days": sum(1 for age in ages if 7 < age <= 30),
-            "31-90_days": sum(1 for age in ages if 30 < age <= 90),
-            "90+_days": sum(1 for age in ages if age > 90),
-        },
+        "ages_distribution": _build_ages_distribution(ages),
     }
 
 

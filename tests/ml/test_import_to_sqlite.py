@@ -217,11 +217,12 @@ def security_history_file(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def db(tmp_path: Path) -> sqlite3.Connection:
+def db(tmp_path: Path):
     """In-memory-equivalent: a temp-file SQLite DB, pre-schema'd."""
     conn = sqlite3.connect(tmp_path / "test.db")
     create_database(conn)
-    return conn
+    yield conn
+    conn.close()
 
 
 # ---------------------------------------------------------------------------

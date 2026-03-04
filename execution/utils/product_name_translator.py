@@ -22,6 +22,49 @@ from pathlib import Path
 from typing import Any
 
 
+def _translate_string_node(
+    value: str,
+    mapping: dict[str, str],
+    stats: dict[str, int],
+    direction: str,
+    fail_on_unmapped: bool,
+) -> str:
+    """Apply mapping translations to a string value."""
+    translated = value
+    for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
+        pat = re.compile(r"\b" + re.escape(source_name) + r"\b")
+        matches = pat.findall(translated)
+        if matches:
+            stats[source_name] = stats.get(source_name, 0) + len(matches)
+            translated = pat.sub(target_name, translated)
+    if fail_on_unmapped and direction == "reverse":
+        _check_unmapped_generics(translated, mapping, "string value")
+    return translated
+
+
+def _translate_dict_node(
+    value: dict,
+    mapping: dict[str, str],
+    stats: dict[str, int],
+    direction: str,
+    fail_on_unmapped: bool,
+) -> dict:
+    """Translate both keys and values in a dict node."""
+    translated_dict = {}
+    for k, v in value.items():
+        translated_key = k
+        for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
+            pat = re.compile(r"\b" + re.escape(source_name) + r"\b")
+            matches = pat.findall(translated_key)
+            if matches:
+                stats[source_name] = stats.get(source_name, 0) + len(matches)
+                translated_key = pat.sub(target_name, translated_key)
+        if fail_on_unmapped and direction == "reverse":
+            _check_unmapped_generics(translated_key, mapping, "dictionary key")
+        translated_dict[translated_key] = translate_value(v, mapping, stats, direction, fail_on_unmapped)
+    return translated_dict
+
+
 def translate_value(
     value: Any,
     mapping: dict[str, str],
@@ -53,46 +96,12 @@ def translate_value(
         ValueError: If fail_on_unmapped=True and unmapped generic products found
     """
     if isinstance(value, dict):
-        # Translate both keys AND values
-        translated_dict = {}
-        for k, v in value.items():
-            # Translate the key using word boundaries to avoid partial matches
-            translated_key = k
-            for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
-                pat = re.compile(r"\b" + re.escape(source_name) + r"\b")
-                matches = pat.findall(translated_key)
-                if matches:
-                    stats[source_name] = stats.get(source_name, 0) + len(matches)
-                    translated_key = pat.sub(target_name, translated_key)
-
-            # Check for unmapped generic products in keys
-            if fail_on_unmapped and direction == "reverse":
-                _check_unmapped_generics(translated_key, mapping, "dictionary key")
-
-            # Translate the value recursively
-            translated_dict[translated_key] = translate_value(v, mapping, stats, direction, fail_on_unmapped)
-        return translated_dict
-
-    elif isinstance(value, list):
+        return _translate_dict_node(value, mapping, stats, direction, fail_on_unmapped)
+    if isinstance(value, list):
         return [translate_value(item, mapping, stats, direction, fail_on_unmapped) for item in value]
-
-    elif isinstance(value, str):
-        # Replace product names using word boundaries to avoid partial matches in titles
-        translated = value
-        for source_name, target_name in sorted(mapping.items(), key=lambda x: len(x[0]), reverse=True):
-            pat = re.compile(r"\b" + re.escape(source_name) + r"\b")
-            matches = pat.findall(translated)
-            if matches:
-                stats[source_name] = stats.get(source_name, 0) + len(matches)
-                translated = pat.sub(target_name, translated)
-
-        # Check for unmapped generic products in string values
-        if fail_on_unmapped and direction == "reverse":
-            _check_unmapped_generics(translated, mapping, "string value")
-
-        return translated
-    else:
-        return value
+    if isinstance(value, str):
+        return _translate_string_node(value, mapping, stats, direction, fail_on_unmapped)
+    return value
 
 
 def _check_unmapped_generics(text: str, mapping: dict[str, str], context: str) -> None:
