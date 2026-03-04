@@ -42,6 +42,50 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _format_ado_error(e: Exception, project_name: str, org_url: str) -> RuntimeError:
+    """Build a helpful RuntimeError message based on the ADO exception type."""
+    error_msg = str(e)
+    if "401" in error_msg or "Unauthorized" in error_msg:
+        return RuntimeError(
+            f"Authentication failed. Please check your Personal Access Token.\n"
+            f"Create a new PAT at: {org_url}/_usersSettings/tokens\n"
+            f"Required scopes: Work Items (Read)\n"
+            f"Error: {e}"
+        )
+    if "404" in error_msg or "Not Found" in error_msg:
+        return RuntimeError(
+            f"Project '{project_name}' not found.\n"
+            f"Please verify the project name in your ADO organization.\n"
+            f"Error: {e}"
+        )
+    return RuntimeError(f"Failed to query Azure DevOps: {e}")
+
+
+def _fetch_work_item_batches(wit_client, work_item_ids: list, batch_size: int = 200) -> list:
+    """Fetch bug details in batches of batch_size. Returns flat list of formatted bug dicts."""
+    bugs = []
+    for i in range(0, len(work_item_ids), batch_size):
+        batch_ids = work_item_ids[i : i + batch_size]
+        logger.info(
+            f"Fetching batch {i//batch_size + 1}/{(len(work_item_ids) + batch_size - 1)//batch_size} "
+            f"({len(batch_ids)} items)..."
+        )
+        work_items = wit_client.get_work_items(
+            ids=batch_ids,
+            fields=["System.Id", "System.Title", "System.State", "Microsoft.VSTS.Common.Priority"],
+        )
+        for item in work_items:
+            bugs.append(
+                {
+                    "id": item.id,
+                    "title": item.fields.get("System.Title", "N/A"),
+                    "state": item.fields.get("System.State", "N/A"),
+                    "priority": item.fields.get("Microsoft.VSTS.Common.Priority", "N/A"),
+                }
+            )
+    return bugs
+
+
 def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
     """
     Query Azure DevOps for outstanding bugs.
@@ -117,28 +161,7 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
 
         # Step 7: Fetch full work item details in batches (API limit is 200 per request)
         logger.info("Fetching bug details...")
-        bugs = []
-        batch_size = 200
-
-        for i in range(0, len(work_item_ids), batch_size):
-            batch_ids = work_item_ids[i : i + batch_size]
-            logger.info(
-                f"Fetching batch {i//batch_size + 1}/{(len(work_item_ids) + batch_size - 1)//batch_size} ({len(batch_ids)} items)..."
-            )
-
-            work_items = wit_client.get_work_items(
-                ids=batch_ids, fields=["System.Id", "System.Title", "System.State", "Microsoft.VSTS.Common.Priority"]
-            )
-
-            # Step 8: Format results for this batch
-            for item in work_items:
-                bug_data = {
-                    "id": item.id,
-                    "title": item.fields.get("System.Title", "N/A"),
-                    "state": item.fields.get("System.State", "N/A"),
-                    "priority": item.fields.get("Microsoft.VSTS.Common.Priority", "N/A"),
-                }
-                bugs.append(bug_data)
+        bugs = _fetch_work_item_batches(wit_client, work_item_ids)
 
         result = {
             "status": "success",
@@ -157,24 +180,7 @@ def query_bugs(organization_url: str, project_name: str, pat: str) -> dict:
         raise
     except Exception as e:
         logger.error(f"Error querying Azure DevOps: {e}", exc_info=True)
-        error_msg = str(e)
-
-        # Provide helpful error messages
-        if "401" in error_msg or "Unauthorized" in error_msg:
-            raise RuntimeError(
-                f"Authentication failed. Please check your Personal Access Token.\n"
-                f"Create a new PAT at: {organization_url}/_usersSettings/tokens\n"
-                f"Required scopes: Work Items (Read)\n"
-                f"Error: {e}"
-            ) from e
-        elif "404" in error_msg or "Not Found" in error_msg:
-            raise RuntimeError(
-                f"Project '{project_name}' not found.\n"
-                f"Please verify the project name in your ADO organization.\n"
-                f"Error: {e}"
-            ) from e
-        else:
-            raise RuntimeError(f"Failed to query Azure DevOps: {e}") from e
+        raise _format_ado_error(e, project_name, organization_url) from e
 
 
 def parse_arguments():

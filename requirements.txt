@@ -2,7 +2,7 @@
 python-dotenv>=1.0.0,<2.0
 
 # HTTP requests
-requests>=2.32.3,<3.0  # Security patches for CVE-2023-32681
+httpx>=0.27.0,<1.0  # Primary HTTP client (SSL-verified by default)
 
 # Web scraping (for example scripts)
 beautifulsoup4>=4.12.3,<5.0
@@ -14,12 +14,13 @@ pandas>=2.2.3,<4.0
 # Machine Learning
 scikit-learn>=1.5.0,<2.0  # Linear regression for trend prediction
 numpy>=1.26.0,<3.0  # Numerical computing for ML
+scipy>=1.12.0,<2.0  # Statistics for Intelligence Platform forecasting
 
 # Azure DevOps integration - using direct REST API (no SDK needed)
 # Removed azure-devops==7.1.0b4 beta dependency in favor of direct REST API calls
 # See execution/collectors/ado_rest_client.py for REST API implementation
 
-# ArmorCode integration uses requests (no additional SDK needed)
+# ArmorCode integration uses httpx (via execution/http_client.py)
 
 # HTML templating (XSS prevention)
 jinja2>=3.1.6,<4.0  # Auto-escaping templates for secure HTML generation
@@ -46,8 +47,10 @@ ruptures>=1.1.0,<2.0      # Change-point detection
 pyarrow>=15.0.0,<24.0     # Parquet I/O for feature store (DuckDB reads natively)
 
 # Testing dependencies
-httpx>=0.27.0,<1.0  # Required by FastAPI TestClient
 h2>=4.1.0,<5.0  # HTTP/2 support for httpx (required by AsyncSecureHTTPClient)
+# Security constraints for transitive dependencies
+cryptography>=46.0.5  # CVE-2026-26007 fix
+aiohttp>=3.10.11  # CVE fixes for transitive dependency
 
 # MCP (Model Context Protocol) - for skill-based architecture
 mcp>=1.0.0,<2.0  # Model Context Protocol SDK for reusable skills
