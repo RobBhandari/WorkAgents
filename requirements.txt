@@ -51,6 +51,7 @@ h2>=4.1.0,<5.0  # HTTP/2 support for httpx (required by AsyncSecureHTTPClient)
 # Security constraints for transitive dependencies
 cryptography>=46.0.5  # CVE-2026-26007 fix
 aiohttp>=3.10.11  # CVE pin for transitive dep via instructor (not directly imported)
+urllib3>=2.6.3  # CVE-2025-50181, CVE-2025-66418, CVE-2025-66471, CVE-2026-21441
 
 # MCP (Model Context Protocol) - for skill-based architecture
 mcp>=1.0.0,<2.0  # Model Context Protocol SDK for reusable skills
