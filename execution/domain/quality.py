@@ -11,7 +11,7 @@ Represents bug work items and quality metrics for tracking:
 from dataclasses import dataclass
 from datetime import datetime
 
-from .metrics import MetricSnapshot
+from execution.domain.metrics import MetricSnapshot
 
 
 @dataclass

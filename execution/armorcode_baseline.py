@@ -116,7 +116,7 @@ def _extract_vulnerability_list(response_data) -> list:
     if isinstance(response_data, dict):
         for key in ("vulnerabilities", "findings", "data"):
             if key in response_data:
-                return response_data[key]
+                return list(response_data[key])
     return []
 
 

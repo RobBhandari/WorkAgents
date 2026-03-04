@@ -332,6 +332,37 @@ class WIQLValidator:
         return field_name
 
     @staticmethod
+    def _validate_generic_param(key: str, value: str) -> str:
+        """Generic validation for unknown parameter names — blocks injection characters."""
+        if not isinstance(value, str):
+            value = str(value)
+        if len(value) > 256:
+            raise ValidationError(f"Parameter '{key}' too long (max 256 chars)")
+        if "'" in value or '"' in value:
+            raise ValidationError(f"Parameter '{key}' contains quotes")
+        if ";" in value:
+            raise ValidationError(f"Parameter '{key}' contains semicolon")
+        return value
+
+    @staticmethod
+    def _validate_single_param(key: str, value: str) -> str:
+        """Route a single parameter to its appropriate validator based on key name."""
+        key_lower = key.lower()
+        if "project" in key_lower:
+            return WIQLValidator.validate_project_name(value)
+        if "work_type" in key_lower or "workitemtype" in key_lower:
+            return WIQLValidator.validate_work_item_type(value)
+        if "state" in key_lower:
+            return WIQLValidator.validate_state(value)
+        if "date" in key_lower:
+            return WIQLValidator.validate_date_iso8601(value)
+        if "area" in key_lower and "path" in key_lower:
+            return WIQLValidator.validate_area_path(value)
+        if "field" in key_lower:
+            return WIQLValidator.validate_field_name(value)
+        return WIQLValidator._validate_generic_param(key, value)
+
+    @staticmethod
     def build_safe_wiql(template: str, **params: str) -> str:
         """
         Build WIQL query with validated parameters.
@@ -358,46 +389,7 @@ class WIQLValidator:
             ...     work_type='Bug'
             ... )
         """
-        validated_params = {}
-
-        for key, value in params.items():
-            # Determine validation based on parameter name
-            key_lower = key.lower()
-
-            if "project" in key_lower:
-                validated_params[key] = WIQLValidator.validate_project_name(value)
-
-            elif "work_type" in key_lower or "workitemtype" in key_lower:
-                validated_params[key] = WIQLValidator.validate_work_item_type(value)
-
-            elif "state" in key_lower:
-                validated_params[key] = WIQLValidator.validate_state(value)
-
-            elif "date" in key_lower:
-                validated_params[key] = WIQLValidator.validate_date_iso8601(value)
-
-            elif "area" in key_lower and "path" in key_lower:
-                validated_params[key] = WIQLValidator.validate_area_path(value)
-
-            elif "field" in key_lower:
-                validated_params[key] = WIQLValidator.validate_field_name(value)
-
-            else:
-                # Generic validation for unknown parameters
-                if not isinstance(value, str):
-                    value = str(value)
-
-                if len(value) > 256:
-                    raise ValidationError(f"Parameter '{key}' too long (max 256 chars)")
-
-                # Block quotes and semicolons
-                if "'" in value or '"' in value:
-                    raise ValidationError(f"Parameter '{key}' contains quotes")
-                if ";" in value:
-                    raise ValidationError(f"Parameter '{key}' contains semicolon")
-
-                validated_params[key] = value
-
+        validated_params = {key: WIQLValidator._validate_single_param(key, value) for key, value in params.items()}
         try:
             return template.format(**validated_params)
         except KeyError as e:
