@@ -50,7 +50,7 @@ pyarrow>=15.0.0,<24.0     # Parquet I/O for feature store (DuckDB reads natively
 h2>=4.1.0,<5.0  # HTTP/2 support for httpx (required by AsyncSecureHTTPClient)
 # Security constraints for transitive dependencies
 cryptography>=46.0.5  # CVE-2026-26007 fix
-aiohttp>=3.10.11  # CVE fixes for transitive dependency
+aiohttp>=3.10.11  # CVE pin for transitive dep via instructor (not directly imported)
 
 # MCP (Model Context Protocol) - for skill-based architecture
 mcp>=1.0.0,<2.0  # Model Context Protocol SDK for reusable skills
