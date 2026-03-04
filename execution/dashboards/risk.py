@@ -37,6 +37,53 @@ from execution.utils.error_handling import log_and_raise
 logger = get_logger(__name__)
 
 
+def _v(d: dict, key: str, default: int = 0) -> Any:
+    """Get a value from a dict, treating None as the default."""
+    return d.get(key) or default
+
+
+def _build_commit_section(code_churn: dict) -> tuple[str, str, str]:
+    """Build commit metric cards. Returns (commit_metric, file_changes_metric, avg_changes_metric)."""
+    commit_metric = render_template(
+        "dashboards/risk/metric_card.html",
+        label="Total Commits",
+        value=f"{_v(code_churn, 'total_commits'):,}",
+    )
+    file_changes_metric = render_template(
+        "dashboards/risk/metric_card.html",
+        label="File Changes",
+        value=f"{_v(code_churn, 'total_file_changes'):,}",
+    )
+    avg_changes_metric = render_template(
+        "dashboards/risk/metric_card.html",
+        label="Avg Changes/Commit",
+        value=f"{_v(code_churn, 'avg_changes_per_commit'):.1f}",
+    )
+    return commit_metric, file_changes_metric, avg_changes_metric
+
+
+def _build_pr_section(pr_dist: dict) -> tuple[str, str, str]:
+    """Build PR metric cards. Returns (total_prs_metric, small_prs_metric, large_prs_metric)."""
+    small_pct = _v(pr_dist, "small_pct")
+    large_pct = _v(pr_dist, "large_pct")
+    total_prs_metric = render_template(
+        "dashboards/risk/metric_card.html",
+        label="Total PRs",
+        value=f"{_v(pr_dist, 'total_prs'):,}",
+    )
+    small_prs_metric = render_template(
+        "dashboards/risk/metric_card.html",
+        label=f"Small PRs ({small_pct:.0f}%)",
+        value=f"{_v(pr_dist, 'small_prs'):,}",
+    )
+    large_prs_metric = render_template(
+        "dashboards/risk/metric_card.html",
+        label=f"Large PRs ({large_pct:.0f}%)",
+        value=f"{_v(pr_dist, 'large_prs'):,}",
+    )
+    return total_prs_metric, small_prs_metric, large_prs_metric
+
+
 def generate_risk_dashboard(output_path: Path | None = None) -> str:
     """
     Generate delivery risk dashboard HTML.
@@ -393,70 +440,20 @@ def _generate_drilldown_html(project: dict) -> str:
     code_churn = project.get("code_churn", {})
     pr_dist = project.get("pr_size_distribution", {})
     repo_count = project.get("repository_count", 0)
-
-    # Handle None values explicitly
-    total_commits = code_churn.get("total_commits", 0)
-    total_prs = pr_dist.get("total_prs", 0)
-    has_commits = (total_commits or 0) > 0
-    has_prs = (total_prs or 0) > 0
-    has_activity = has_commits or has_prs
-
-    # Generate commit metrics HTML
-    commit_metric = ""
-    file_changes_metric = ""
-    avg_changes_metric = ""
-    if has_commits:
-        total_commits = code_churn.get("total_commits", 0) or 0
-        total_file_changes = code_churn.get("total_file_changes", 0) or 0
-        avg_changes = code_churn.get("avg_changes_per_commit", 0) or 0
-
-        commit_metric = render_template(
-            "dashboards/risk/metric_card.html",
-            label="Total Commits",
-            value=f"{total_commits:,}",
-        )
-        file_changes_metric = render_template(
-            "dashboards/risk/metric_card.html",
-            label="File Changes",
-            value=f"{total_file_changes:,}",
-        )
-        avg_changes_metric = render_template(
-            "dashboards/risk/metric_card.html",
-            label="Avg Changes/Commit",
-            value=f"{avg_changes:.1f}",
-        )
-
-    # Generate PR metrics HTML
-    total_prs_metric = ""
-    small_prs_metric = ""
-    large_prs_metric = ""
-    if has_prs:
-        total_prs = pr_dist.get("total_prs", 0) or 0
-        small_prs = pr_dist.get("small_prs", 0) or 0
-        small_pct = pr_dist.get("small_pct", 0) or 0
-        large_prs = pr_dist.get("large_prs", 0) or 0
-        large_pct = pr_dist.get("large_pct", 0) or 0
-
-        total_prs_metric = render_template(
-            "dashboards/risk/metric_card.html",
-            label="Total PRs",
-            value=f"{total_prs:,}",
-        )
-        small_prs_metric = render_template(
-            "dashboards/risk/metric_card.html",
-            label=f"Small PRs ({small_pct:.0f}%)",
-            value=f"{small_prs:,}",
-        )
-        large_prs_metric = render_template(
-            "dashboards/risk/metric_card.html",
-            label=f"Large PRs ({large_pct:.0f}%)",
-            value=f"{large_prs:,}",
-        )
-
-    # Hot paths (high churn files)
     hot_paths = code_churn.get("hot_paths", [])
 
-    # Render using template
+    has_commits = (_v(code_churn, "total_commits") or 0) > 0
+    has_prs = (_v(pr_dist, "total_prs") or 0) > 0
+    has_activity = has_commits or has_prs
+
+    commit_metric = file_changes_metric = avg_changes_metric = ""
+    total_prs_metric = small_prs_metric = large_prs_metric = ""
+
+    if has_commits:
+        commit_metric, file_changes_metric, avg_changes_metric = _build_commit_section(code_churn)
+    if has_prs:
+        total_prs_metric, small_prs_metric, large_prs_metric = _build_pr_section(pr_dist)
+
     return render_template(
         "dashboards/risk/drilldown_detail.html",
         has_activity=has_activity,
