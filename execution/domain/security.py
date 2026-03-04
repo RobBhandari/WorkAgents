@@ -11,7 +11,7 @@ Represents security vulnerabilities and metrics for tracking:
 from dataclasses import dataclass
 from datetime import datetime
 
-from .metrics import MetricSnapshot
+from execution.domain.metrics import MetricSnapshot
 
 # Source tool → bucket mapping for security dashboard grouping
 SOURCE_BUCKET_MAP: dict[str, str] = {

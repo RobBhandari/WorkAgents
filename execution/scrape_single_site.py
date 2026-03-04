@@ -76,6 +76,81 @@ def check_robots_txt(url: str, user_agent: str) -> bool:
         return True  # If robots.txt can't be read, proceed but log warning
 
 
+def _handle_retry_error(e: Exception, attempt: int) -> None:
+    """Handle a single-attempt fetch error. Raises on unrecoverable errors."""
+    if isinstance(e, HTTPError):
+        if e.response.status_code == 429:  # Rate limited
+            wait_time = 2**attempt
+            logger.warning(f"Rate limited. Waiting {wait_time} seconds...")
+            time.sleep(wait_time)
+            return
+        raise RuntimeError(f"HTTP error: {e}") from e
+    if isinstance(e, Timeout):
+        logger.warning(f"Timeout on attempt {attempt + 1}")
+        if attempt == MAX_RETRIES - 1:
+            raise RuntimeError(f"Timed out after {MAX_RETRIES} attempts")
+        return
+    if attempt == MAX_RETRIES - 1:
+        raise RuntimeError(f"Scraping failed: {e}") from e
+    logger.warning(f"Attempt {attempt + 1} failed: {e}")
+    time.sleep(1)
+
+
+def _fetch_with_retries(url: str, headers: dict[str, str], selectors: dict[str, str]) -> dict[str, Any]:
+    """Fetch a URL with retries and exponential backoff, returning parsed result."""
+    for attempt in range(MAX_RETRIES):
+        try:
+            logger.info(f"Fetch attempt {attempt + 1}/{MAX_RETRIES}")
+            response = get(url, headers=headers, timeout=DEFAULT_TIMEOUT, stream=True)
+            content_length = response.headers.get("content-length")
+            if content_length and int(content_length) > MAX_PAGE_SIZE:
+                raise RuntimeError(f"Page too large: {content_length} bytes (max: {MAX_PAGE_SIZE})")
+            response.raise_for_status()
+            result = _parse_html_response(response, url, selectors)
+            logger.info(f"Successfully scraped {url}")
+            return result
+        except Exception as e:
+            _handle_retry_error(e, attempt)
+    raise RuntimeError(f"Failed to scrape {url} after {MAX_RETRIES} attempts")
+
+
+def _build_request_headers(user_agent: str) -> dict[str, str]:
+    """Build HTTP request headers with the given user agent."""
+    return {
+        "User-Agent": user_agent,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "keep-alive",
+    }
+
+
+def _parse_html_response(response: Any, url: str, selectors: dict[str, str]) -> dict[str, Any]:
+    """Parse an HTTP response with BeautifulSoup and extract selector-based data."""
+    soup = BeautifulSoup(response.content, "lxml")
+    extracted_data: dict[str, str | list[str] | None] = {}
+    for field_name, selector in selectors.items():
+        elements = soup.select(selector)
+        if elements:
+            if len(elements) == 1:
+                extracted_data[field_name] = elements[0].get_text(strip=True)
+            else:
+                extracted_data[field_name] = [el.get_text(strip=True) for el in elements]
+        else:
+            logger.warning(f"No elements found for selector '{selector}'")
+            extracted_data[field_name] = None
+    return {
+        "url": url,
+        "scraped_at": datetime.now().isoformat(),
+        "data": extracted_data,
+        "metadata": {
+            "status_code": response.status_code,
+            "content_type": response.headers.get("content-type"),
+            "content_length": len(response.content),
+        },
+    }
+
+
 def scrape_website(url: str, selectors: dict[str, str] | None = None, respect_robots: bool = True) -> dict[str, Any]:
     """
     Scrape a website and extract data based on CSS selectors.
@@ -107,84 +182,13 @@ def scrape_website(url: str, selectors: dict[str, str] | None = None, respect_ro
     import random
 
     user_agent = random.choice(USER_AGENTS)
-    headers = {
-        "User-Agent": user_agent,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate",
-        "Connection": "keep-alive",
-    }
+    headers = _build_request_headers(user_agent)
 
     # Check robots.txt if required
     if respect_robots and not check_robots_txt(url, user_agent):
         raise RuntimeError(f"Scraping disallowed by robots.txt: {url}")
 
-    # Attempt to fetch with retries
-    for attempt in range(MAX_RETRIES):
-        try:
-            logger.info(f"Fetch attempt {attempt + 1}/{MAX_RETRIES}")
-
-            response = get(url, headers=headers, timeout=DEFAULT_TIMEOUT, stream=True)
-
-            # Check content length
-            content_length = response.headers.get("content-length")
-            if content_length and int(content_length) > MAX_PAGE_SIZE:
-                raise RuntimeError(f"Page too large: {content_length} bytes (max: {MAX_PAGE_SIZE})")
-
-            response.raise_for_status()
-
-            # Parse HTML
-            soup = BeautifulSoup(response.content, "lxml")
-
-            # Extract data based on selectors
-            extracted_data: dict[str, str | list[str] | None] = {}
-            for field_name, selector in selectors.items():
-                elements = soup.select(selector)
-                if elements:
-                    if len(elements) == 1:
-                        extracted_data[field_name] = elements[0].get_text(strip=True)
-                    else:
-                        extracted_data[field_name] = [el.get_text(strip=True) for el in elements]
-                else:
-                    logger.warning(f"No elements found for selector '{selector}'")
-                    extracted_data[field_name] = None
-
-            # Build result
-            result = {
-                "url": url,
-                "scraped_at": datetime.now().isoformat(),
-                "data": extracted_data,
-                "metadata": {
-                    "status_code": response.status_code,
-                    "content_type": response.headers.get("content-type"),
-                    "content_length": len(response.content),
-                },
-            }
-
-            logger.info(f"Successfully scraped {url}")
-            return result
-
-        except HTTPError as e:
-            if e.response.status_code == 429:  # Rate limited
-                wait_time = 2**attempt  # Exponential backoff
-                logger.warning(f"Rate limited. Waiting {wait_time} seconds...")
-                time.sleep(wait_time)
-            else:
-                raise RuntimeError(f"HTTP error: {e}") from e
-
-        except Timeout:
-            logger.warning(f"Timeout on attempt {attempt + 1}")
-            if attempt == MAX_RETRIES - 1:
-                raise RuntimeError(f"Timed out after {MAX_RETRIES} attempts")
-
-        except Exception as e:
-            if attempt == MAX_RETRIES - 1:
-                raise RuntimeError(f"Scraping failed: {e}") from e
-            logger.warning(f"Attempt {attempt + 1} failed: {e}")
-            time.sleep(1)
-
-    # If we exhaust all retries without returning
-    raise RuntimeError(f"Failed to scrape {url} after {MAX_RETRIES} attempts")
+    return _fetch_with_retries(url, headers, selectors)
 
 
 def parse_arguments():

@@ -23,6 +23,7 @@ Usage:
 """
 
 import json
+import logging
 import time
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -120,7 +121,7 @@ def setup_observability(
         global SENTRY_AVAILABLE
         sentry_logging = LoggingIntegration(
             level=None,  # Capture all logs
-            event_level="ERROR",  # Send errors and above to Sentry
+            event_level=logging.ERROR,  # Send errors and above to Sentry
         )
 
         sentry_sdk.init(
