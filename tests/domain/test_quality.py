@@ -127,3 +127,43 @@ class TestQualityMetrics:
         assert "Test Project" in str_repr
         assert "open=50" in str_repr
         assert "net_change=-5" in str_repr
+
+    def test_from_json_round_trips_all_fields(self, sample_timestamp):
+        """Test that from_json() correctly maps all fields from a full data dict."""
+        data = {
+            "timestamp": sample_timestamp.isoformat(),
+            "project": "TestProject",
+            "open_bugs": 50,
+            "closed_this_week": 10,
+            "created_this_week": 5,
+            "net_change": -5,
+            "p1_count": 2,
+            "p2_count": 8,
+            "aging_bugs": 15,
+        }
+        m = QualityMetrics.from_json(data)
+        assert m.project == "TestProject"
+        assert m.timestamp == sample_timestamp
+        assert m.open_bugs == 50
+        assert m.closed_this_week == 10
+        assert m.created_this_week == 5
+        assert m.net_change == -5
+        assert m.p1_count == 2
+        assert m.p2_count == 8
+        assert m.aging_bugs == 15
+
+    def test_from_json_uses_defaults_for_optional_fields(self, sample_timestamp):
+        """Test that from_json() uses correct defaults when optional fields are absent."""
+        data = {
+            "timestamp": sample_timestamp.isoformat(),
+            "project": "MinimalProject",
+            "open_bugs": 10,
+            "closed_this_week": 3,
+            "created_this_week": 5,
+            "net_change": 2,
+        }
+        m = QualityMetrics.from_json(data)
+        assert m.project == "MinimalProject"
+        assert m.p1_count == 0
+        assert m.p2_count == 0
+        assert m.aging_bugs == 0

@@ -15,7 +15,7 @@ permissions:
 jobs:
   # Job 1: Discover Projects (MUST run first - other collectors depend on it)
   discover-projects:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
@@ -86,7 +86,7 @@ jobs:
   # Job 2: Collect all other metrics in parallel (depends on project discovery)
   collect-metrics:
     needs: discover-projects
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         collector:
@@ -235,7 +235,7 @@ jobs:
   run-intelligence:
     needs: collect-metrics
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     continue-on-error: true
 
     steps:
@@ -304,7 +304,7 @@ jobs:
   generate-intelligence-dashboards:
     needs: run-intelligence
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         dashboard:
@@ -382,7 +382,7 @@ jobs:
   generate-dashboards:
     needs: collect-metrics
     if: always()  # Run even if collect-metrics fails
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         dashboard:
@@ -553,7 +553,7 @@ jobs:
   deploy-to-azure:
     needs: [generate-dashboards, generate-intelligence-dashboards]
     if: always()  # Run even if some dashboards fail
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
