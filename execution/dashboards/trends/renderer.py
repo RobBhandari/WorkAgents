@@ -14,6 +14,7 @@ from typing import Any
 
 from execution.dashboards.components.cards import SEVERITY_EMOJI
 from execution.dashboards.renderer import render_dashboard
+from execution.dashboards.trends.calculator import TrendsCalculator
 from execution.framework import get_dashboard_framework
 
 logger = logging.getLogger(__name__)
@@ -114,6 +115,37 @@ class TrendsRenderer:
             logger.warning("Could not load alerts from analytics DB", exc_info=True)
             return []
 
+    def _build_standard_metric(
+        self,
+        metric_id: str,
+        icon: str,
+        title: str,
+        description: str,
+        data: dict[str, Any],
+        rag_metric_type: str,
+        good_direction: str,
+        dashboard_url: str,
+        round_change: bool = False,
+    ) -> dict[str, Any]:
+        """Build a standard metric dict from a trend data sub-dict."""
+        arrow, css_class, change = self._get_trend_indicator(data["current"], data["previous"], good_direction)
+        rag_color = self._get_rag_color(data["current"], rag_metric_type)
+        return {
+            "id": metric_id,
+            "icon": icon,
+            "title": title,
+            "description": description,
+            "current": data["current"],
+            "unit": data["unit"],
+            "change": round(change, 1) if round_change else change,
+            "changeLabel": "vs last week",
+            "data": data["trend_data"],
+            "arrow": arrow,
+            "cssClass": css_class,
+            "ragColor": rag_color,
+            "dashboardUrl": dashboard_url,
+        }
+
     def _generate_metrics_list(self) -> list[dict[str, Any]]:
         """Generate list of metrics with trend data for JavaScript rendering
 
@@ -165,229 +197,159 @@ class TrendsRenderer:
             }
         )
 
-        # 3a. Security: Code & Cloud
-        security_cc = self.trends_data.get("security_code_cloud", {})
-        if security_cc:
-            vulns_cc = security_cc.get("vulnerabilities", {})
-            arrow, css_class, change = self._get_trend_indicator(vulns_cc["current"], vulns_cc["previous"], "down")
-            rag_color = self._get_rag_color(vulns_cc["current"], "total_vulns")
-            metrics.append(
-                {
-                    "id": "security",
-                    "icon": "🔒",
-                    "title": "Security: Code & Cloud",
-                    "description": "Code and cloud vulnerability trends (Mend, SonarQube, Prisma). Tracks the 70% reduction target.",
-                    "current": vulns_cc["current"],
-                    "unit": vulns_cc["unit"],
-                    "change": change,
-                    "changeLabel": "vs last week",
-                    "data": vulns_cc["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "security_dashboard.html",
-                }
-            )
+        self._append_standard_metrics(metrics)
+        return metrics
 
-        # 3b. Security: Infrastructure (immediately after Code & Cloud)
-        security_infra = self.trends_data.get("security_infra", {})
-        if security_infra:
-            vulns_infra = security_infra.get("vulnerabilities", {})
-            arrow, css_class, change = self._get_trend_indicator(
-                vulns_infra["current"], vulns_infra["previous"], "down"
-            )
-            rag_color = self._get_rag_color(vulns_infra["current"], "total_vulns")
-            metrics.append(
-                {
-                    "id": "security-infra",
-                    "icon": "🛡️",
-                    "title": "Security: Infrastructure",
-                    "description": "Infrastructure vulnerability trends (Cortex XDR, Tenable, AppCheck, BitSight). Not included in 70% target.",
-                    "current": vulns_infra["current"],
-                    "unit": vulns_infra["unit"],
-                    "change": change,
-                    "changeLabel": "vs last week",
-                    "data": vulns_infra["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "security_infrastructure_dashboard.html",
-                }
-            )
+    # Ordered list of (trends_data_key, sub_key, metric_id, icon, title, description,
+    #                   rag_metric_type, good_direction, dashboard_url, round_change)
+    _METRIC_CONFIGS: list[tuple[str, str, str, str, str, str, str, str, str, bool]] = [
+        (
+            "security_code_cloud",
+            "vulnerabilities",
+            "security",
+            "🔒",
+            "Security: Code & Cloud",
+            "Code and cloud vulnerability trends (Mend, SonarQube, Prisma). Tracks the 70% reduction target.",
+            "total_vulns",
+            "down",
+            "security_dashboard.html",
+            False,
+        ),
+        (
+            "security_infra",
+            "vulnerabilities",
+            "security-infra",
+            "🛡️",
+            "Security: Infrastructure",
+            "Infrastructure vulnerability trends (Cortex XDR, Tenable, AppCheck, BitSight). Not included in 70% target.",
+            "total_vulns",
+            "down",
+            "security_infrastructure_dashboard.html",
+            False,
+        ),
+        (
+            "quality",
+            "bugs",
+            "bugs",
+            "🐛",
+            "Open Bugs",
+            "Track bug resolution speed and open bug trends. Measure how quickly issues are fixed across teams.",
+            "bugs",
+            "down",
+            "quality_dashboard.html",
+            False,
+        ),
+        (
+            "flow",
+            "lead_time",
+            "flow",
+            "🔄",
+            "Lead Time (P85)",
+            "Measure delivery speed, work in progress, and throughput across teams. See bottlenecks before they become problems.",
+            "lead_time",
+            "down",
+            "flow_dashboard.html",
+            True,
+        ),
+        (
+            "deployment",
+            "build_success",
+            "deployment",
+            "🚀",
+            "Build Success Rate",
+            "Track deployment frequency, build success rates, and lead time for changes. Measure DevOps performance.",
+            "success_rate",
+            "up",
+            "deployment_dashboard.html",
+            True,
+        ),
+        (
+            "collaboration",
+            "pr_merge_time",
+            "collaboration",
+            "🤝",
+            "PR Merge Time",
+            "Monitor code review efficiency, PR merge times, and review iterations. Optimize team collaboration.",
+            "merge_time",
+            "down",
+            "collaboration_dashboard.html",
+            True,
+        ),
+        (
+            "ownership",
+            "work_unassigned",
+            "ownership",
+            "👤",
+            "Work Unassigned",
+            "Track work assignment clarity and orphan areas. Identify ownership gaps early.",
+            "unassigned",
+            "down",
+            "ownership_dashboard.html",
+            True,
+        ),
+        (
+            "risk",
+            "total_commits",
+            "risk",
+            "📊",
+            "Total Commits",
+            "Track code change activity and commit patterns. Understand delivery risk through Git metrics.",
+            "commits",
+            "stable",
+            "risk_dashboard.html",
+            False,
+        ),
+    ]
 
-        # 4. Exploitable Vulns
+    def _append_standard_metrics(self, metrics: list[dict[str, Any]]) -> None:
+        """Append all data-driven metric cards to the metrics list.
+
+        First handles the exploitable metric (custom RAG logic), then iterates
+        _METRIC_CONFIGS for the remaining standard metrics.
+        """
+        # Exploitable Vulns (custom RAG logic — severity-based color)
         exploitable = self.trends_data.get("exploitable", {})
         if exploitable:
-            exp = exploitable.get("exploitable", {})
-            arrow, css_class, change = self._get_trend_indicator(exp["current"], exp["previous"], "down")
-            rag_color = (
-                "#ef4444" if exp["current_critical"] > 0 else ("#f59e0b" if exp["current_high"] > 0 else "#10b981")
-            )
-            metrics.append(
-                {
-                    "id": "exploitable",
-                    "icon": "🎯",
-                    "title": "Exploitable Vulns",
-                    "description": "CISA KEV exploitable findings by product. Critical = immediate action required.",
-                    "current": exp["current"],
-                    "unit": exp["unit"],
-                    "change": change,
-                    "changeLabel": "vs last week",
-                    "data": exp["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "exploitable_dashboard.html",
-                }
-            )
+            metrics.append(self._build_exploitable_metric(exploitable["exploitable"]))
 
-        # 5. Open Bugs
-        quality = self.trends_data.get("quality", {})
-        if quality:
-            bugs = quality.get("bugs", {})
-            arrow, css_class, change = self._get_trend_indicator(bugs["current"], bugs["previous"], "down")
-            rag_color = self._get_rag_color(bugs["current"], "bugs")
-            metrics.append(
-                {
-                    "id": "bugs",
-                    "icon": "🐛",
-                    "title": "Open Bugs",
-                    "description": "Track bug resolution speed and open bug trends. Measure how quickly issues are fixed across teams.",
-                    "current": bugs["current"],
-                    "unit": bugs["unit"],
-                    "change": change,
-                    "changeLabel": "vs last week",
-                    "data": bugs["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "quality_dashboard.html",
-                }
-            )
+        # All remaining standard metrics
+        for cfg in self._METRIC_CONFIGS:
+            data_key, sub_key, metric_id, icon, title, description, rag_type, direction, url, round_chg = cfg
+            source = self.trends_data.get(data_key, {})
+            if source:
+                metrics.append(
+                    self._build_standard_metric(
+                        metric_id,
+                        icon,
+                        title,
+                        description,
+                        source[sub_key],
+                        rag_type,
+                        direction,
+                        url,
+                        round_change=round_chg,
+                    )
+                )
 
-        # 5. Lead Time
-        flow = self.trends_data.get("flow", {})
-        if flow:
-            lead_time = flow.get("lead_time", {})
-            arrow, css_class, change = self._get_trend_indicator(lead_time["current"], lead_time["previous"], "down")
-            rag_color = self._get_rag_color(lead_time["current"], "lead_time")
-            metrics.append(
-                {
-                    "id": "flow",
-                    "icon": "🔄",
-                    "title": "Lead Time (P85)",
-                    "description": "Measure delivery speed, work in progress, and throughput across teams. See bottlenecks before they become problems.",
-                    "current": lead_time["current"],
-                    "unit": lead_time["unit"],
-                    "change": round(change, 1),
-                    "changeLabel": "vs last week",
-                    "data": lead_time["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "flow_dashboard.html",
-                }
-            )
-
-        # 6. Build Success Rate
-        deployment = self.trends_data.get("deployment", {})
-        if deployment:
-            build_success = deployment.get("build_success", {})
-            arrow, css_class, change = self._get_trend_indicator(
-                build_success["current"], build_success["previous"], "up"
-            )
-            rag_color = self._get_rag_color(build_success["current"], "success_rate")
-            metrics.append(
-                {
-                    "id": "deployment",
-                    "icon": "🚀",
-                    "title": "Build Success Rate",
-                    "description": "Track deployment frequency, build success rates, and lead time for changes. Measure DevOps performance.",
-                    "current": build_success["current"],
-                    "unit": build_success["unit"],
-                    "change": round(change, 1),
-                    "changeLabel": "vs last week",
-                    "data": build_success["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "deployment_dashboard.html",
-                }
-            )
-
-        # 7. PR Merge Time
-        collaboration = self.trends_data.get("collaboration", {})
-        if collaboration:
-            pr_merge = collaboration.get("pr_merge_time", {})
-            arrow, css_class, change = self._get_trend_indicator(pr_merge["current"], pr_merge["previous"], "down")
-            rag_color = self._get_rag_color(pr_merge["current"], "merge_time")
-            metrics.append(
-                {
-                    "id": "collaboration",
-                    "icon": "🤝",
-                    "title": "PR Merge Time",
-                    "description": "Monitor code review efficiency, PR merge times, and review iterations. Optimize team collaboration.",
-                    "current": pr_merge["current"],
-                    "unit": pr_merge["unit"],
-                    "change": round(change, 1),
-                    "changeLabel": "vs last week",
-                    "data": pr_merge["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "collaboration_dashboard.html",
-                }
-            )
-
-        # 8. Work Unassigned
-        ownership = self.trends_data.get("ownership", {})
-        if ownership:
-            unassigned = ownership.get("work_unassigned", {})
-            arrow, css_class, change = self._get_trend_indicator(unassigned["current"], unassigned["previous"], "down")
-            rag_color = self._get_rag_color(unassigned["current"], "unassigned")
-            metrics.append(
-                {
-                    "id": "ownership",
-                    "icon": "👤",
-                    "title": "Work Unassigned",
-                    "description": "Track work assignment clarity and orphan areas. Identify ownership gaps early.",
-                    "current": unassigned["current"],
-                    "unit": unassigned["unit"],
-                    "change": round(change, 1),
-                    "changeLabel": "vs last week",
-                    "data": unassigned["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "ownership_dashboard.html",
-                }
-            )
-
-        # 9. Total Commits (Risk)
-        risk = self.trends_data.get("risk", {})
-        if risk:
-            commits = risk.get("total_commits", {})
-            arrow, css_class, change = self._get_trend_indicator(commits["current"], commits["previous"], "stable")
-            rag_color = self._get_rag_color(commits["current"], "commits")
-            metrics.append(
-                {
-                    "id": "risk",
-                    "icon": "📊",
-                    "title": "Total Commits",
-                    "description": "Track code change activity and commit patterns. Understand delivery risk through Git metrics.",
-                    "current": commits["current"],
-                    "unit": commits["unit"],
-                    "change": change,
-                    "changeLabel": "vs last week",
-                    "data": commits["trend_data"],
-                    "arrow": arrow,
-                    "cssClass": css_class,
-                    "ragColor": rag_color,
-                    "dashboardUrl": "risk_dashboard.html",
-                }
-            )
-
-        return metrics
+    def _build_exploitable_metric(self, exp: dict[str, Any]) -> dict[str, Any]:
+        """Build the Exploitable Vulns metric dict (custom severity-based RAG color)."""
+        arrow, css_class, change = self._get_trend_indicator(exp["current"], exp["previous"], "down")
+        rag_color = "#ef4444" if exp["current_critical"] > 0 else ("#f59e0b" if exp["current_high"] > 0 else "#10b981")
+        return {
+            "id": "exploitable",
+            "icon": "🎯",
+            "title": "Exploitable Vulns",
+            "description": "CISA KEV exploitable findings by product. Critical = immediate action required.",
+            "current": exp["current"],
+            "unit": exp["unit"],
+            "change": change,
+            "changeLabel": "vs last week",
+            "data": exp["trend_data"],
+            "arrow": arrow,
+            "cssClass": css_class,
+            "ragColor": rag_color,
+            "dashboardUrl": "exploitable_dashboard.html",
+        }
 
     def _get_trend_indicator(
         self, current: float, previous: float, good_direction: str = "down"
@@ -430,94 +392,4 @@ class TrendsRenderer:
         Returns:
             Hex color code for RAG status
         """
-        if value == "N/A" or value is None:
-            return "#94a3b8"  # Gray for N/A
-
-        try:
-            if metric_type == "lead_time":
-                # Lower is better: <30 days green, 30-60 amber, >60 red
-                val = float(value)
-                if val < 30:
-                    return "#10b981"  # Green
-                elif val < 60:
-                    return "#f59e0b"  # Amber
-                else:
-                    return "#ef4444"  # Red
-
-            elif metric_type == "mttr":
-                # Lower is better: <7 days green, 7-14 days amber, >14 days red
-                val = float(value)
-                if val < 7:
-                    return "#10b981"
-                elif val < 14:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "total_vulns":
-                # Lower is better: <150 green, 150-250 amber, >250 red
-                val = int(value)
-                if val < 150:
-                    return "#10b981"
-                elif val < 250:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "bugs":
-                # Lower is better: <100 green, 100-200 amber, >200 red
-                val = int(value)
-                if val < 100:
-                    return "#10b981"
-                elif val < 200:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "success_rate":
-                # Higher is better: >90% green, 70-90% amber, <70% red
-                val = float(value)
-                if val >= 90:
-                    return "#10b981"
-                elif val >= 70:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "merge_time":
-                # Lower is better: <4h green, 4-24h amber, >24h red
-                val = float(value)
-                if val < 4:
-                    return "#10b981"
-                elif val < 24:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "unassigned":
-                # Lower is better: <20% green, 20-40% amber, >40% red
-                val = float(value)
-                if val < 20:
-                    return "#10b981"
-                elif val < 40:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "target_progress":
-                # Higher is better: >=70% green, 40-70% amber, <40% red
-                val = float(value)
-                if val >= 70:
-                    return "#10b981"
-                elif val >= 40:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "commits":
-                # Neutral metric - no RAG thresholds
-                return "#6366f1"  # Purple
-
-            return "#6366f1"  # Default purple
-        except (ValueError, TypeError):
-            return "#94a3b8"  # Gray for invalid values
+        return TrendsCalculator.get_rag_color(value, metric_type)
