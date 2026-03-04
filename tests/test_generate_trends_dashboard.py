@@ -192,7 +192,7 @@ class TestExtractAllTrends:
         calculator.extract_security_code_cloud_trends.return_value = None
         calculator.extract_security_infra_trends.return_value = None
 
-        metrics_data = {
+        metrics_data: dict[str, dict] = {
             "quality": {"weeks": []},
             "flow": {"weeks": []},
             "security": {"weeks": []},

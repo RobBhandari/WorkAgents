@@ -15,6 +15,43 @@ from execution.core import get_logger
 logger = get_logger(__name__)
 
 
+def _count_by_severity_and_bucket(vulnerabilities: list, age_buckets: list[dict]) -> dict[str, dict[str, int]]:
+    """Count Critical/High vulnerabilities by age bucket."""
+    heatmap_data: dict[str, dict[str, int]] = {
+        "CRITICAL": {bucket["label"]: 0 for bucket in age_buckets},
+        "HIGH": {bucket["label"]: 0 for bucket in age_buckets},
+    }
+    for vuln in vulnerabilities:
+        severity = vuln.severity if hasattr(vuln, "severity") else vuln.get("severity", "")
+        age_days = vuln.age_days if hasattr(vuln, "age_days") else vuln.get("age_days", 0)
+        if severity not in ["CRITICAL", "HIGH"]:
+            continue
+        for bucket in age_buckets:
+            if bucket["min"] <= age_days <= bucket["max"]:
+                heatmap_data[severity][bucket["label"]] += 1
+                break
+    return heatmap_data
+
+
+def _build_heatmap_rows_html(
+    heatmap_data: dict[str, dict[str, int]],
+    age_buckets: list[dict],
+    max_count: int,
+) -> list[str]:
+    """Build HTML parts for Critical and High severity rows."""
+    parts = []
+    for severity_key, row_label, css_class in [
+        ("CRITICAL", "Critical", "critical"),
+        ("HIGH", "High", "high"),
+    ]:
+        parts.append(f'<div class="heatmap-row-header {css_class}-header">{row_label}</div>')
+        for bucket in age_buckets:
+            count = heatmap_data[severity_key][bucket["label"]]
+            intensity = (count / max_count) if max_count > 0 else 0
+            parts.append(_generate_heatmap_cell(count, intensity, css_class))
+    return parts
+
+
 def generate_aging_heatmap(vulnerabilities: list) -> str:
     """
     Generate HTML for aging heatmap visualization.
@@ -35,7 +72,6 @@ def generate_aging_heatmap(vulnerabilities: list) -> str:
     if not vulnerabilities:
         return '<div class="no-data">No vulnerability details available</div>'
 
-    # Define age buckets matching modern UX
     age_buckets = [
         {"label": "0-14", "min": 0, "max": 14},
         {"label": "15-29", "min": 15, "max": 29},
@@ -46,62 +82,29 @@ def generate_aging_heatmap(vulnerabilities: list) -> str:
         {"label": "500+", "min": 501, "max": 999999},
     ]
 
-    # Initialize counts for Critical and High only
-    heatmap_data = {
-        "CRITICAL": {bucket["label"]: 0 for bucket in age_buckets},
-        "HIGH": {bucket["label"]: 0 for bucket in age_buckets},
-    }
+    heatmap_data = _count_by_severity_and_bucket(vulnerabilities, age_buckets)
 
-    # Count vulnerabilities by severity and age bucket (Critical and High only)
-    for vuln in vulnerabilities:
-        severity = vuln.severity if hasattr(vuln, "severity") else vuln.get("severity", "")
-        age_days = vuln.age_days if hasattr(vuln, "age_days") else vuln.get("age_days", 0)
-
-        if severity not in ["CRITICAL", "HIGH"]:
-            continue
-
-        for bucket in age_buckets:
-            if bucket["min"] <= age_days <= bucket["max"]:
-                heatmap_data[severity][bucket["label"]] += 1
-                break
-
-    # Calculate max value for color intensity scaling
     max_count = 0
     for severity_data in heatmap_data.values():
         max_count = max(max_count, max(severity_data.values()))
 
-    # Generate heatmap HTML
-    html_parts = []
-    html_parts.append('<div class="detail-content">')
-    html_parts.append('<div class="heatmap-container">')
-    html_parts.append('<div class="heatmap-header">')
-    html_parts.append("<h4>Finding Age Distribution</h4>")
-    html_parts.append('<p class="heatmap-subtitle">Vulnerability count by age and severity</p>')
-    html_parts.append("</div>")
+    html_parts = [
+        '<div class="detail-content">',
+        '<div class="heatmap-container">',
+        '<div class="heatmap-header">',
+        "<h4>Finding Age Distribution</h4>",
+        '<p class="heatmap-subtitle">Vulnerability count by age and severity</p>',
+        "</div>",
+        '<div class="heatmap-grid">',
+        '<div class="heatmap-corner"></div>',
+    ]
 
-    # Heatmap grid
-    html_parts.append('<div class="heatmap-grid">')
-    html_parts.append('<div class="heatmap-corner"></div>')
-
-    # Age bucket headers
     for bucket in age_buckets:
         html_parts.append(
             f'<div class="heatmap-col-header">{bucket["label"]}<span class="days-label">DAYS</span></div>'
         )
 
-    # Critical row
-    html_parts.append('<div class="heatmap-row-header critical-header">Critical</div>')
-    for bucket in age_buckets:
-        count = heatmap_data["CRITICAL"][bucket["label"]]
-        intensity = (count / max_count) if max_count > 0 else 0
-        html_parts.append(_generate_heatmap_cell(count, intensity, "critical"))
-
-    # High row
-    html_parts.append('<div class="heatmap-row-header high-header">High</div>')
-    for bucket in age_buckets:
-        count = heatmap_data["HIGH"][bucket["label"]]
-        intensity = (count / max_count) if max_count > 0 else 0
-        html_parts.append(_generate_heatmap_cell(count, intensity, "high"))
+    html_parts.extend(_build_heatmap_rows_html(heatmap_data, age_buckets, max_count))
 
     html_parts.append("</div>")  # heatmap-grid
     html_parts.append("</div>")  # heatmap-container

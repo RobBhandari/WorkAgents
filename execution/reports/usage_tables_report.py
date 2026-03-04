@@ -58,6 +58,29 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _find_access_column(df: pd.DataFrame, variants: list[str]) -> str:
+    """Find the first column name matching one of the given variants."""
+    for col in df.columns:
+        if col in variants:
+            return str(col)
+    raise ValueError(f"Missing column (tried: {variants})\nAvailable columns: {list(df.columns)}")
+
+
+def _validate_and_rename_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Validate required columns exist and standardize access column names."""
+    claude_access_col = _find_access_column(df, ["Claude Access?", "Claude Access ?"])
+    devin_access_col = _find_access_column(df, ["Devin Access?", "Devin Access ?"])
+
+    missing = [c for c in ["Name", "Software Company", "Claude 30 day usage", "Devin_30d"] if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}\nAvailable columns: {list(df.columns)}")
+
+    df = df.rename(columns={claude_access_col: "Claude Access", devin_access_col: "Devin Access"})
+    logger.info(f"Using column '{claude_access_col}' for Claude Access")
+    logger.info(f"Using column '{devin_access_col}' for Devin Access")
+    return df
+
+
 def read_excel_usage_data(file_path: str) -> pd.DataFrame:
     """
     Read Excel or CSV file and validate required columns exist.
@@ -74,12 +97,10 @@ def read_excel_usage_data(file_path: str) -> pd.DataFrame:
     """
     logger.info(f"Reading file: {file_path}")
 
-    # Validate file exists
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
     try:
-        # Detect file type and read accordingly
         file_ext = Path(file_path).suffix.lower()
 
         if file_ext == ".csv":
@@ -97,54 +118,8 @@ def read_excel_usage_data(file_path: str) -> pd.DataFrame:
         logger.error(f"Failed to read file: {e}")
         raise ValueError(f"Error reading file: {e}") from e
 
-    # Validate required columns (check for variations)
-    required_columns = {
-        "Name": "Name",
-        "Software Company": "Software Company",
-        "Claude Access": None,  # Will find the right variant
-        "Claude 30 day usage": "Claude 30 day usage",
-        "Devin_30d": "Devin_30d",
-    }
+    df = _validate_and_rename_columns(df)
 
-    # Find Claude Access column (with or without space before ?)
-    claude_access_col = None
-    for col in df.columns:
-        if col in ["Claude Access?", "Claude Access ?"]:
-            claude_access_col = col
-            break
-
-    if not claude_access_col:
-        raise ValueError(
-            f"Missing 'Claude Access?' or 'Claude Access ?' column\n" f"Available columns: {list(df.columns)}"
-        )
-
-    # Find Devin Access column (with or without space before ?)
-    devin_access_col = None
-    for col in df.columns:
-        if col in ["Devin Access?", "Devin Access ?"]:
-            devin_access_col = col
-            break
-
-    if not devin_access_col:
-        raise ValueError(
-            f"Missing 'Devin Access?' or 'Devin Access ?' column\n" f"Available columns: {list(df.columns)}"
-        )
-
-    # Verify other required columns exist
-    missing = []
-    for req_col in ["Name", "Software Company", "Claude 30 day usage", "Devin_30d"]:
-        if req_col not in df.columns:
-            missing.append(req_col)
-
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}\n" f"Available columns: {list(df.columns)}")
-
-    # Standardize the access column names
-    df = df.rename(columns={claude_access_col: "Claude Access", devin_access_col: "Devin Access"})
-    logger.info(f"Using column '{claude_access_col}' for Claude Access")
-    logger.info(f"Using column '{devin_access_col}' for Devin Access")
-
-    # Clean data
     # Strip whitespace from string columns
     for col in ["Name", "Software Company", "Claude Access", "Devin Access"]:
         if col in df.columns:
