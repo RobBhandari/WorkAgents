@@ -260,6 +260,31 @@ def _build_summary_cards(summary_stats: dict) -> list[str]:
     return cards
 
 
+def _extract_merge_time_fields(project: dict) -> tuple[float, float, int]:
+    """Extract and normalise merge-time fields from a project dict."""
+    merge_time = project.get("pr_merge_time", {})
+    median_merge: float = merge_time.get("median_hours", 0) or 0
+    p85_merge: float = merge_time.get("p85_hours", 0) or 0
+    merge_sample: int = merge_time.get("sample_size", 0)
+    return median_merge, p85_merge, merge_sample
+
+
+def _extract_iteration_fields(project: dict) -> tuple[float, float]:
+    """Extract and normalise iteration fields from a project dict."""
+    iterations = project.get("review_iteration_count", {})
+    median_iterations: float = iterations.get("median_iterations", 0) or 0
+    max_iterations: float = iterations.get("max_iterations", 0) or 0
+    return median_iterations, max_iterations
+
+
+def _extract_pr_size_fields(project: dict) -> tuple[float, float]:
+    """Extract and normalise PR-size fields from a project dict."""
+    pr_size = project.get("pr_size", {})
+    median_commits: float = pr_size.get("median_commits", 0) or 0
+    p85_commits: float = pr_size.get("p85_commits", 0) or 0
+    return median_commits, p85_commits
+
+
 def _build_project_rows(projects: list[dict]) -> list[dict]:
     """
     Build project table rows with status.
@@ -270,68 +295,149 @@ def _build_project_rows(projects: list[dict]) -> list[dict]:
     Returns:
         List of project dictionaries for template
     """
-    projects_with_status = []
-
-    for project in projects:
-        proj_name = project["project_name"]
-
-        # PR Merge Time
-        merge_time = project.get("pr_merge_time", {})
-        median_merge = merge_time.get("median_hours", 0) or 0
-        p85_merge = merge_time.get("p85_hours", 0) or 0
-        merge_sample = merge_time.get("sample_size", 0)
-
-        # Review Iteration Count
-        iterations = project.get("review_iteration_count", {})
-        median_iterations = iterations.get("median_iterations", 0) or 0
-        max_iterations = iterations.get("max_iterations", 0) or 0
-
-        # PR Size
-        pr_size = project.get("pr_size", {})
-        median_commits = pr_size.get("median_commits", 0) or 0
-        p85_commits = pr_size.get("p85_commits", 0) or 0
-
-        # Total PRs
-        total_prs = project.get("total_prs_analyzed", 0)
-
-        # Format display values
-        merge_display = f"{median_merge:.1f}h" if median_merge else "N/A"
-        merge_detail = f"P85: {p85_merge:.1f}h, {merge_sample} PRs" if merge_sample else "No data"
-
-        iterations_display = f"{median_iterations:.1f}" if median_iterations else "N/A"
-        iterations_detail = f"Max: {max_iterations}" if max_iterations else "No data"
-
-        size_display = f"{median_commits:.1f}" if median_commits else "N/A"
-        size_detail = f"P85: {p85_commits:.1f} commits" if p85_commits else "No data"
-
-        # Calculate status
-        status_text, status_class, status_tooltip, status_priority = _calculate_composite_status(
-            merge_time=median_merge if median_merge else None,
-            iterations=median_iterations if median_iterations else None,
-            pr_size=median_commits if median_commits else None,
-        )
-
-        projects_with_status.append(
-            {
-                "name": proj_name,
-                "total_prs": total_prs,
-                "merge_display": merge_display,
-                "merge_detail": merge_detail,
-                "iterations_display": iterations_display,
-                "iterations_detail": iterations_detail,
-                "size_display": size_display,
-                "size_detail": size_detail,
-                "status_text": status_text,
-                "status_class": status_class,
-                "status_tooltip": status_tooltip,
-                "status_priority": status_priority,
-            }
-        )
+    projects_with_status = [_build_single_project_row(p) for p in projects]
 
     # Sort by status priority (Red->Amber->Green), then by total PRs
     projects_with_status.sort(key=lambda x: (x["status_priority"], -x["total_prs"]))
 
     return projects_with_status
+
+
+def _format_project_display(
+    median_merge: float,
+    p85_merge: float,
+    merge_sample: int,
+    median_iterations: float,
+    max_iterations: float,
+    median_commits: float,
+    p85_commits: float,
+) -> tuple[str, str, str, str, str, str]:
+    """Format raw metric values into display strings and detail strings."""
+    merge_display = f"{median_merge:.1f}h" if median_merge else "N/A"
+    merge_detail = f"P85: {p85_merge:.1f}h, {merge_sample} PRs" if merge_sample else "No data"
+    iterations_display = f"{median_iterations:.1f}" if median_iterations else "N/A"
+    iterations_detail = f"Max: {max_iterations}" if max_iterations else "No data"
+    size_display = f"{median_commits:.1f}" if median_commits else "N/A"
+    size_detail = f"P85: {p85_commits:.1f} commits" if p85_commits else "No data"
+    return merge_display, merge_detail, iterations_display, iterations_detail, size_display, size_detail
+
+
+def _build_single_project_row(project: dict) -> dict:
+    """Build the template row dict for one project."""
+    proj_name = project["project_name"]
+    total_prs = project.get("total_prs_analyzed", 0)
+
+    median_merge, p85_merge, merge_sample = _extract_merge_time_fields(project)
+    median_iterations, max_iterations = _extract_iteration_fields(project)
+    median_commits, p85_commits = _extract_pr_size_fields(project)
+
+    merge_display, merge_detail, iterations_display, iterations_detail, size_display, size_detail = (
+        _format_project_display(
+            median_merge, p85_merge, merge_sample, median_iterations, max_iterations, median_commits, p85_commits
+        )
+    )
+
+    status_text, status_class, status_tooltip, status_priority = _calculate_composite_status(
+        merge_time=median_merge if median_merge else None,
+        iterations=median_iterations if median_iterations else None,
+        pr_size=median_commits if median_commits else None,
+    )
+
+    return {
+        "name": proj_name,
+        "total_prs": total_prs,
+        "merge_display": merge_display,
+        "merge_detail": merge_detail,
+        "iterations_display": iterations_display,
+        "iterations_detail": iterations_detail,
+        "size_display": size_display,
+        "size_detail": size_detail,
+        "status_text": status_text,
+        "status_class": status_class,
+        "status_tooltip": status_tooltip,
+        "status_priority": status_priority,
+    }
+
+
+def _evaluate_metric_level(value: float, poor_threshold: float, caution_threshold: float) -> str:
+    """
+    Return 'poor', 'caution', or 'good' for a metric value given thresholds.
+
+    Args:
+        value: The metric value (already confirmed > 0).
+        poor_threshold: Value strictly above this is 'poor'.
+        caution_threshold: Value strictly above this (but not poor) is 'caution'.
+
+    Returns:
+        One of 'poor', 'caution', 'good'.
+    """
+    if value > poor_threshold:
+        return "poor"
+    if value > caution_threshold:
+        return "caution"
+    return "good"
+
+
+def _check_merge_time(merge_time: float | None, issues: list[str], metric_details: list[str]) -> None:
+    """Evaluate merge_time and append to issues/metric_details in place."""
+    if merge_time is None or merge_time <= 0:
+        return
+    level = _evaluate_metric_level(merge_time, poor_threshold=72, caution_threshold=24)
+    if level == "poor":
+        issues.append("poor")
+        metric_details.append(f"Merge time {merge_time:.1f}h (poor - target <24h)")
+    elif level == "caution":
+        issues.append("caution")
+        metric_details.append(f"Merge time {merge_time:.1f}h (caution - target <24h)")
+    else:
+        metric_details.append(f"Merge time {merge_time:.1f}h (good)")
+
+
+def _check_iterations(iterations: float | None, issues: list[str], metric_details: list[str]) -> None:
+    """Evaluate iterations and append to issues/metric_details in place."""
+    if iterations is None or iterations <= 0:
+        return
+    level = _evaluate_metric_level(iterations, poor_threshold=5, caution_threshold=2)
+    if level == "poor":
+        issues.append("poor")
+        metric_details.append(f"{iterations:.1f} iterations (poor - target ≤2)")
+    elif level == "caution":
+        issues.append("caution")
+        metric_details.append(f"{iterations:.1f} iterations (caution - target ≤2)")
+    else:
+        metric_details.append(f"{iterations:.1f} iterations (good)")
+
+
+def _check_pr_size(pr_size: float | None, issues: list[str], metric_details: list[str]) -> None:
+    """Evaluate pr_size and append to issues/metric_details in place."""
+    if pr_size is None or pr_size <= 0:
+        return
+    level = _evaluate_metric_level(pr_size, poor_threshold=10, caution_threshold=5)
+    if level == "poor":
+        issues.append("poor")
+        metric_details.append(f"{pr_size:.1f} commits (poor - target ≤5)")
+    elif level == "caution":
+        issues.append("caution")
+        metric_details.append(f"{pr_size:.1f} commits (caution - target ≤5)")
+    else:
+        metric_details.append(f"{pr_size:.1f} commits (good)")
+
+
+def _resolve_status(issues: list[str], metric_details: list[str]) -> tuple[str, str, int]:
+    """
+    Determine the overall status label, CSS class, and sort priority from issues list.
+
+    Returns:
+        Tuple of (status_text, status_class, priority).
+    """
+    poor_count = issues.count("poor")
+    if poor_count >= 2:
+        return "● Action Needed", "action", 0
+    if poor_count == 1 or "caution" in issues:
+        return "⚠ Caution", "caution", 1
+    if metric_details:
+        return "✓ Good", "good", 2
+    return "○ No Data", "no-data", 3
 
 
 def _calculate_composite_status(
@@ -362,71 +468,15 @@ def _calculate_composite_status(
     Returns:
         Tuple of (status_text, status_class, tooltip_text, priority)
     """
-    issues = []
-    metric_details = []
+    issues: list[str] = []
+    metric_details: list[str] = []
 
-    # Check Merge Time (hours)
-    if merge_time is not None and merge_time > 0:
-        if merge_time > 72:
-            issues.append("poor")
-            metric_details.append(f"Merge time {merge_time:.1f}h (poor - target <24h)")
-        elif merge_time > 24:
-            issues.append("caution")
-            metric_details.append(f"Merge time {merge_time:.1f}h (caution - target <24h)")
-        else:
-            metric_details.append(f"Merge time {merge_time:.1f}h (good)")
+    _check_merge_time(merge_time, issues, metric_details)
+    _check_iterations(iterations, issues, metric_details)
+    _check_pr_size(pr_size, issues, metric_details)
 
-    # Check Iterations
-    if iterations is not None and iterations > 0:
-        if iterations > 5:
-            issues.append("poor")
-            metric_details.append(f"{iterations:.1f} iterations (poor - target ≤2)")
-        elif iterations > 2:
-            issues.append("caution")
-            metric_details.append(f"{iterations:.1f} iterations (caution - target ≤2)")
-        else:
-            metric_details.append(f"{iterations:.1f} iterations (good)")
-
-    # Check PR Size
-    if pr_size is not None and pr_size > 0:
-        if pr_size > 10:
-            issues.append("poor")
-            metric_details.append(f"{pr_size:.1f} commits (poor - target ≤5)")
-        elif pr_size > 5:
-            issues.append("caution")
-            metric_details.append(f"{pr_size:.1f} commits (caution - target ≤5)")
-        else:
-            metric_details.append(f"{pr_size:.1f} commits (good)")
-
-    # Build tooltip text
     tooltip = "\n".join(metric_details) if metric_details else "No data available"
-
-    # Determine overall status
-    if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
-        # Two or more metrics poor = Action Needed
-        status_text = "● Action Needed"
-        status_class = "action"
-        priority = 0
-    elif "poor" in issues:
-        # One poor metric = Caution
-        status_text = "⚠ Caution"
-        status_class = "caution"
-        priority = 1
-    elif "caution" in issues:
-        # Some caution metrics = Caution
-        status_text = "⚠ Caution"
-        status_class = "caution"
-        priority = 1
-    elif metric_details:
-        # All metrics meet targets = Good
-        status_text = "✓ Good"
-        status_class = "good"
-        priority = 2
-    else:
-        # No data
-        status_text = "○ No Data"
-        status_class = "no-data"
-        priority = 3
+    status_text, status_class, priority = _resolve_status(issues, metric_details)
 
     return status_text, status_class, tooltip, priority
 
