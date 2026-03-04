@@ -11,7 +11,7 @@ Refactored: 2026-02-08
 
 import os
 
-from .validation import ValidationError
+from execution.security.validation import ValidationError
 
 
 class PathValidator:
