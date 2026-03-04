@@ -45,6 +45,67 @@ class PerformanceReportGenerator:
         with open(self.results_file, encoding="utf-8") as f:
             self.results = json.load(f)
 
+    # -----------------------------------------------------------------------
+    # Markdown report helpers
+    # -----------------------------------------------------------------------
+
+    def _build_collector_comparison_rows(
+        self,
+        seq_collectors: dict[str, Any],
+        conc_collectors: dict[str, Any],
+    ) -> list[str]:
+        """Build per-collector comparison table rows for the Markdown report."""
+        rows: list[str] = []
+        for name in sorted(seq_collectors.keys()):
+            seq_col = seq_collectors.get(name, {})
+            conc_col = conc_collectors.get(name, {})
+
+            if seq_col and conc_col and seq_col.get("success") and conc_col.get("success"):
+                speedup = seq_col["duration_seconds"] / conc_col["duration_seconds"]
+                rows.append(
+                    f"| **{name}** | {seq_col['duration_seconds']:.2f}s | "
+                    f"{conc_col['duration_seconds']:.2f}s | **{speedup:.2f}x** | "
+                    f"{conc_col['api_calls_made']} | {conc_col['throughput_per_sec']:.2f} calls/sec |\n"
+                )
+        return rows
+
+    def _build_detailed_metrics_rows(self, concurrent: dict[str, Any]) -> list[str]:
+        """Build detailed concurrent collector metrics rows for the Markdown report."""
+        rows: list[str] = []
+        for collector in concurrent.get("collectors", []):
+            status = "✅ Success" if collector.get("success") else "❌ Failed"
+            rows.append(
+                f"| {collector['name']} | {collector['duration_seconds']:.2f}s | "
+                f"{collector['api_calls_made']} | {collector['memory_peak_mb']:.2f} MB | "
+                f"{collector['throughput_per_sec']:.2f} calls/sec | {status} |\n"
+            )
+        return rows
+
+    def _build_collector_insights(
+        self,
+        seq_collectors: dict[str, Any],
+        conc_collectors: dict[str, Any],
+    ) -> list[str]:
+        """Build collector-specific insight bullet points for the Markdown report."""
+        collector_speedups: list[tuple[str, float]] = []
+        for name in seq_collectors.keys():
+            seq_col = seq_collectors.get(name, {})
+            conc_col = conc_collectors.get(name, {})
+
+            if seq_col and conc_col and seq_col.get("success") and conc_col.get("success"):
+                speedup = seq_col["duration_seconds"] / conc_col["duration_seconds"]
+                collector_speedups.append((name, speedup))
+
+        collector_speedups.sort(key=lambda x: x[1], reverse=True)
+
+        lines: list[str] = []
+        if collector_speedups:
+            fastest = collector_speedups[0]
+            slowest = collector_speedups[-1]
+            lines.append(f"- **Fastest Improvement:** {fastest[0]} achieved {fastest[1]:.2f}x speedup\n")
+            lines.append(f"- **Slowest Improvement:** {slowest[0]} achieved {slowest[1]:.2f}x speedup\n")
+        return lines
+
     def generate_markdown_report(self) -> str:
         """
         Generate Markdown performance report.
@@ -55,6 +116,10 @@ class PerformanceReportGenerator:
         sequential = self.results.get("sequential", {})
         concurrent = self.results.get("concurrent", {})
         comparison = self.results.get("comparison", {})
+
+        seq_throughput = sequential.get("average_throughput_per_sec", 0)
+        conc_throughput = concurrent.get("average_throughput_per_sec", 0)
+        throughput_ratio = (conc_throughput / seq_throughput) if seq_throughput > 0 else 0
 
         report_lines = [
             "# REST API v7.1 Migration Performance Report\n",
@@ -73,7 +138,7 @@ class PerformanceReportGenerator:
             "|--------|------------|------------|--------------|\n",
             f"| **Total Duration** | {sequential.get('total_duration_seconds', 0):.2f}s ({sequential.get('total_duration_minutes', 0):.2f} min) | {concurrent.get('total_duration_seconds', 0):.2f}s ({concurrent.get('total_duration_minutes', 0):.2f} min) | **{comparison.get('speedup_factor', 0):.2f}x faster** |\n",
             f"| **API Calls** | {sequential.get('total_api_calls', 0)} | {concurrent.get('total_api_calls', 0)} | Same |\n",
-            f"| **Throughput** | {sequential.get('average_throughput_per_sec', 0):.2f} calls/sec | {concurrent.get('average_throughput_per_sec', 0):.2f} calls/sec | **{(concurrent.get('average_throughput_per_sec', 0) / sequential.get('average_throughput_per_sec', 1) if sequential.get('average_throughput_per_sec', 0) > 0 else 0):.2f}x faster** |\n",
+            f"| **Throughput** | {seq_throughput:.2f} calls/sec | {conc_throughput:.2f} calls/sec | **{throughput_ratio:.2f}x faster** |\n",
             f"| **Success Rate** | {sequential.get('success_rate_percent', 0):.1f}% | {concurrent.get('success_rate_percent', 0):.1f}% | {concurrent.get('success_rate_percent', 0) - sequential.get('success_rate_percent', 0):+.1f}% |\n",
             "\n---\n",
             "\n## Collector-by-Collector Performance\n",
@@ -81,23 +146,11 @@ class PerformanceReportGenerator:
             "|-----------|----------------|----------------|---------|-----------|------------|\n",
         ]
 
-        # Build collector comparison table
         seq_collectors = {c["name"]: c for c in sequential.get("collectors", [])}
         conc_collectors = {c["name"]: c for c in concurrent.get("collectors", [])}
 
-        for name in sorted(seq_collectors.keys()):
-            seq_col = seq_collectors.get(name, {})
-            conc_col = conc_collectors.get(name, {})
+        report_lines.extend(self._build_collector_comparison_rows(seq_collectors, conc_collectors))
 
-            if seq_col and conc_col and seq_col.get("success") and conc_col.get("success"):
-                speedup = seq_col["duration_seconds"] / conc_col["duration_seconds"]
-                report_lines.append(
-                    f"| **{name}** | {seq_col['duration_seconds']:.2f}s | "
-                    f"{conc_col['duration_seconds']:.2f}s | **{speedup:.2f}x** | "
-                    f"{conc_col['api_calls_made']} | {conc_col['throughput_per_sec']:.2f} calls/sec |\n"
-                )
-
-        # Add detailed metrics
         report_lines.extend(
             [
                 "\n---\n",
@@ -107,47 +160,22 @@ class PerformanceReportGenerator:
             ]
         )
 
-        for collector in concurrent.get("collectors", []):
-            status = "✅ Success" if collector.get("success") else "❌ Failed"
-            report_lines.append(
-                f"| {collector['name']} | {collector['duration_seconds']:.2f}s | "
-                f"{collector['api_calls_made']} | {collector['memory_peak_mb']:.2f} MB | "
-                f"{collector['throughput_per_sec']:.2f} calls/sec | {status} |\n"
-            )
+        report_lines.extend(self._build_detailed_metrics_rows(concurrent))
 
-        # Add key findings
         report_lines.extend(
             [
                 "\n---\n",
                 "\n## Key Findings\n",
                 f"1. **Overall Speedup:** Concurrent execution is **{comparison.get('speedup_factor', 0):.2f}x faster** than sequential\n",
                 f"2. **Time Savings:** Each run saves **{comparison.get('time_saved_minutes', 0):.2f} minutes** ({comparison.get('time_saved_seconds', 0):.2f} seconds)\n",
-                f"3. **API Throughput:** Improved from {sequential.get('average_throughput_per_sec', 0):.2f} to {concurrent.get('average_throughput_per_sec', 0):.2f} calls/sec\n",
+                f"3. **API Throughput:** Improved from {seq_throughput:.2f} to {conc_throughput:.2f} calls/sec\n",
                 f"4. **Reliability:** {concurrent.get('success_rate_percent', 0):.1f}% success rate in concurrent mode\n",
                 "\n### Collector-Specific Insights\n",
             ]
         )
 
-        # Calculate per-collector speedups
-        collector_speedups = []
-        for name in seq_collectors.keys():
-            seq_col = seq_collectors.get(name, {})
-            conc_col = conc_collectors.get(name, {})
+        report_lines.extend(self._build_collector_insights(seq_collectors, conc_collectors))
 
-            if seq_col and conc_col and seq_col.get("success") and conc_col.get("success"):
-                speedup = seq_col["duration_seconds"] / conc_col["duration_seconds"]
-                collector_speedups.append((name, speedup))
-
-        # Sort by speedup (highest first)
-        collector_speedups.sort(key=lambda x: x[1], reverse=True)
-
-        if collector_speedups:
-            fastest = collector_speedups[0]
-            slowest = collector_speedups[-1]
-            report_lines.append(f"- **Fastest Improvement:** {fastest[0]} achieved {fastest[1]:.2f}x speedup\n")
-            report_lines.append(f"- **Slowest Improvement:** {slowest[0]} achieved {slowest[1]:.2f}x speedup\n")
-
-        # Add technical details
         report_lines.extend(
             [
                 "\n---\n",
@@ -184,18 +212,13 @@ class PerformanceReportGenerator:
 
         return "".join(report_lines)
 
-    def generate_html_report(self, markdown_content: str) -> str:
-        """
-        Convert Markdown report to HTML.
+    # -----------------------------------------------------------------------
+    # HTML report helpers
+    # -----------------------------------------------------------------------
 
-        Args:
-            markdown_content: Markdown formatted report
-
-        Returns:
-            HTML formatted report
-        """
-        # Simple Markdown to HTML conversion (basic tables and formatting)
-        html_lines = [
+    def _build_html_head(self) -> list[str]:
+        """Return the HTML <head> block including embedded styles."""
+        return [
             "<!DOCTYPE html>\n",
             "<html>\n",
             "<head>\n",
@@ -219,66 +242,138 @@ class PerformanceReportGenerator:
             "<body>\n",
         ]
 
-        # Convert markdown to HTML (basic conversion)
-        lines = markdown_content.split("\n")
+    def _convert_table_row_to_html(self, line: str, is_header: bool) -> list[str]:
+        """Convert a single Markdown table row to HTML <tr> lines.
+
+        Args:
+            line: The raw Markdown table row (e.g. ``| A | B | C |``).
+            is_header: True if the row should use ``<th>`` cells.
+
+        Returns:
+            List of HTML strings for the row (including surrounding ``<tr>`` tags).
+        """
+        cells = [cell.strip() for cell in line.split("|")[1:-1]]
+        html: list[str] = ["        <tr>\n"]
+        if is_header:
+            for cell in cells:
+                html.append(f"            <th>{cell}</th>\n")
+        else:
+            for cell in cells:
+                cell_html = cell.replace("**", "<strong>").replace("**", "</strong>")
+                html.append(f"            <td>{cell_html}</td>\n")
+        html.append("        </tr>\n")
+        return html
+
+    def _convert_line_to_html(self, line: str) -> str:
+        """Convert a single non-table Markdown line to an HTML string.
+
+        Handles headings (h1–h3), horizontal rules, italic paragraphs, and
+        paragraphs with inline bold / code markup.
+
+        Args:
+            line: Raw Markdown line.
+
+        Returns:
+            HTML string for the line, or empty string for blank lines.
+        """
+        if line.startswith("# "):
+            return f"    <h1>{line[2:].strip()}</h1>\n"
+        if line.startswith("## "):
+            return f"    <h2>{line[3:].strip()}</h2>\n"
+        if line.startswith("### "):
+            return f"    <h3>{line[4:].strip()}</h3>\n"
+        if line.strip() == "---":
+            return "    <hr>\n"
+        if line.strip().startswith("*"):
+            return f"    <p><em>{line.strip()[1:].strip()}</em></p>\n"
+        if line.strip():
+            line_html = line
+            line_html = line_html.replace("**", "<strong>")
+            line_html = line_html.replace("**", "</strong>")
+            line_html = line_html.replace("`", "<code>")
+            line_html = line_html.replace("`", "</code>")
+            return f"    <p>{line_html}</p>\n"
+        return ""
+
+    def _handle_table_row(
+        self,
+        line: str,
+        html_lines: list[str],
+        in_table: bool,
+        table_headers: bool,
+    ) -> tuple[bool, bool]:
+        """Process one Markdown table row, mutating html_lines in place.
+
+        Opens the ``<table>`` tag on the first row encountered, skips separator
+        rows (``|---|``), and delegates cell rendering to
+        ``_convert_table_row_to_html``.
+
+        Args:
+            line: The Markdown table row.
+            html_lines: Accumulator list to append HTML strings to.
+            in_table: Whether a ``<table>`` is currently open.
+            table_headers: Whether the next data row should use ``<th>`` cells.
+
+        Returns:
+            Updated ``(in_table, table_headers)`` tuple.
+        """
+        if not in_table:
+            html_lines.append("    <table>\n")
+            in_table = True
+            table_headers = True
+
+        cells = [cell.strip() for cell in line.split("|")[1:-1]]
+        if table_headers and all(c.startswith("-") for c in cells):
+            return in_table, False
+
+        html_lines.extend(self._convert_table_row_to_html(line, table_headers))
+        return in_table, False
+
+    def _process_markdown_lines(self, lines: list[str]) -> list[str]:
+        """Convert all Markdown lines to HTML, handling table open/close state.
+
+        Args:
+            lines: Markdown content split by newline.
+
+        Returns:
+            List of HTML strings (one or more per input line).
+        """
+        html_lines: list[str] = []
         in_table = False
         table_headers = False
 
         for line in lines:
-            if line.startswith("# "):
-                html_lines.append(f"    <h1>{line[2:].strip()}</h1>\n")
-            elif line.startswith("## "):
-                html_lines.append(f"    <h2>{line[3:].strip()}</h2>\n")
-            elif line.startswith("### "):
-                html_lines.append(f"    <h3>{line[4:].strip()}</h3>\n")
-            elif line.startswith("| ") and "|" in line:
-                if not in_table:
-                    html_lines.append("    <table>\n")
-                    in_table = True
-                    table_headers = True
+            is_table_row = line.startswith("| ") and "|" in line
 
-                # Parse table row
-                cells = [cell.strip() for cell in line.split("|")[1:-1]]
-
-                if table_headers and all(c.startswith("-") for c in cells):
-                    # Skip separator row
-                    table_headers = False
-                    continue
-
-                if table_headers:
-                    html_lines.append("        <tr>\n")
-                    for cell in cells:
-                        html_lines.append(f"            <th>{cell}</th>\n")
-                    html_lines.append("        </tr>\n")
-                else:
-                    html_lines.append("        <tr>\n")
-                    for cell in cells:
-                        # Convert markdown bold to HTML
-                        cell_html = cell.replace("**", "<strong>").replace("**", "</strong>")
-                        html_lines.append(f"            <td>{cell_html}</td>\n")
-                    html_lines.append("        </tr>\n")
+            if is_table_row:
+                in_table, table_headers = self._handle_table_row(line, html_lines, in_table, table_headers)
             else:
-                if in_table and not line.strip().startswith("|"):
+                if in_table:
                     html_lines.append("    </table>\n")
                     in_table = False
                     table_headers = False
 
-                if line.strip().startswith("*"):
-                    html_lines.append(f"    <p><em>{line.strip()[1:].strip()}</em></p>\n")
-                elif line.strip():
-                    # Convert markdown bold and inline code
-                    line_html = line
-                    line_html = line_html.replace("**", "<strong>")
-                    line_html = line_html.replace("**", "</strong>")
-                    line_html = line_html.replace("`", "<code>")
-                    line_html = line_html.replace("`", "</code>")
-                    html_lines.append(f"    <p>{line_html}</p>\n")
-                elif line.strip() == "---":
-                    html_lines.append("    <hr>\n")
+                converted = self._convert_line_to_html(line)
+                if converted:
+                    html_lines.append(converted)
 
         if in_table:
             html_lines.append("    </table>\n")
 
+        return html_lines
+
+    def generate_html_report(self, markdown_content: str) -> str:
+        """
+        Convert Markdown report to HTML.
+
+        Args:
+            markdown_content: Markdown formatted report
+
+        Returns:
+            HTML formatted report
+        """
+        html_lines = self._build_html_head()
+        html_lines.extend(self._process_markdown_lines(markdown_content.split("\n")))
         html_lines.append("</body>\n</html>\n")
         return "".join(html_lines)
 
