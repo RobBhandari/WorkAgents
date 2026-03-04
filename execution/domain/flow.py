@@ -9,6 +9,7 @@ Represents flow metrics for tracking development velocity:
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 
 from .metrics import MetricSnapshot
 
@@ -229,6 +230,43 @@ class FlowMetrics(MetricSnapshot):
             issues.append("slow_delivery")
 
         return len(issues) > 0
+
+    @staticmethod
+    def from_json(data: dict) -> "FlowMetrics":
+        """
+        Create FlowMetrics from JSON data structure.
+
+        Args:
+            data: Dictionary from flow history JSON. Must contain 'timestamp'
+                  and 'project' keys. All metric keys are optional.
+
+        Returns:
+            FlowMetrics instance with all metrics populated from data.
+
+        Example:
+            >>> data = {
+            ...     "timestamp": "2026-01-01T00:00:00",
+            ...     "project": "MyApp",
+            ...     "lead_time": {"p50": 7.5, "p85": 15.0, "p95": 25.0},
+            ...     "wip_count": 25,
+            ... }
+            >>> metrics = FlowMetrics.from_json(data)
+            >>> metrics.lead_time_p50
+            7.5
+        """
+        return FlowMetrics(
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+            project=data["project"],
+            lead_time_p50=data.get("lead_time", {}).get("p50"),
+            lead_time_p85=data.get("lead_time", {}).get("p85"),
+            lead_time_p95=data.get("lead_time", {}).get("p95"),
+            cycle_time_p50=data.get("cycle_time", {}).get("p50"),
+            cycle_time_p85=data.get("cycle_time", {}).get("p85"),
+            cycle_time_p95=data.get("cycle_time", {}).get("p95"),
+            wip_count=data.get("wip_count", 0),
+            aging_items=data.get("aging_items", 0),
+            throughput=data.get("throughput"),
+        )
 
     def __str__(self) -> str:
         """
