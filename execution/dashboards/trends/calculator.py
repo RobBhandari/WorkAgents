@@ -39,12 +39,12 @@ _GRAY = "#94a3b8"
 # ---------------------------------------------------------------------------
 _RAG_THRESHOLDS: dict[str, tuple[Any, list[tuple[float, str]], str] | tuple[Any, list[tuple[float, str]], str, str]] = {
     # lower is better
-    "lead_time": (float, [(30, _GREEN), (60, _AMBER)], _RED),
-    "mttr": (float, [(7, _GREEN), (14, _AMBER)], _RED),
-    "total_vulns": (int, [(150, _GREEN), (250, _AMBER)], _RED),
-    "bugs": (int, [(100, _GREEN), (200, _AMBER)], _RED),
-    "merge_time": (float, [(4, _GREEN), (24, _AMBER)], _RED),
-    "unassigned": (float, [(20, _GREEN), (40, _AMBER)], _RED),
+    "lead_time": (float, [(30.0, _GREEN), (60.0, _AMBER)], _RED),
+    "mttr": (float, [(7.0, _GREEN), (14.0, _AMBER)], _RED),
+    "total_vulns": (int, [(150.0, _GREEN), (250.0, _AMBER)], _RED),
+    "bugs": (int, [(100.0, _GREEN), (200.0, _AMBER)], _RED),
+    "merge_time": (float, [(4.0, _GREEN), (24.0, _AMBER)], _RED),
+    "unassigned": (float, [(20.0, _GREEN), (40.0, _AMBER)], _RED),
     # higher is better
     "success_rate": (float, [(90, _GREEN), (70, _AMBER)], _RED, "higher"),
     "target_progress": (float, [(70, _GREEN), (40, _AMBER)], _RED, "higher"),
@@ -128,7 +128,7 @@ class TrendsCalculator:
         """Extract vuln count from a single security week, preferring code_cloud bucket."""
         bb = security_week.get("metrics", {}).get("bucket_breakdown", {})
         cc = bb.get("code_cloud", {}).get("total", None)
-        return cc if cc is not None else security_week.get("metrics", {}).get("current_total", 0)
+        return int(cc) if cc is not None else int(security_week.get("metrics", {}).get("current_total", 0))
 
     @staticmethod
     def _compute_burn_rates(

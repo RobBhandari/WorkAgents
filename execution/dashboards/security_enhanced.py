@@ -70,58 +70,14 @@ def _load_id_map() -> dict[str, str]:
     return name_to_id
 
 
-def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tuple[str, int]:
-    """
-    Generate enhanced security dashboard with expandable rows.
-
-    Args:
-        output_dir: Directory to write HTML files (defaults to .tmp/observatory/dashboards)
-
-    Returns:
-        Tuple of (main_dashboard_html, 0) - detail pages no longer generated
-
-    Example:
-        html, _ = generate_security_dashboard_enhanced()
-        logger.info("Dashboard generated with expandable rows")
-    """
-    if output_dir is None:
-        output_dir = Path(".tmp/observatory/dashboards")
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info("Enhanced Security Dashboard Generator")
-
-    # Stage 1a: Load product name → ID mapping (from ARMORCODE_ID_MAP secret file).
-    logger.info("Loading product ID map")
-    try:
-        product_id_map = _load_id_map()  # {name: id}
-    except FileNotFoundError as e:
-        logger.warning(
-            "ArmorCode ID map not found, returning empty result",
-            extra={
-                "error_type": "ID map loading",
-                "exception_class": e.__class__.__name__,
-                "context": {"output_dir": str(output_dir)},
-                "default_value": "('', 0)",
-            },
-        )
-        return "", 0
-
-    known_products = list(product_id_map.keys())
-    id_to_name: dict[str, str] = {v: k for k, v in product_id_map.items()}
-
-    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
-    if not hierarchy:
-        logger.warning("ARMORCODE_HIERARCHY not set — cannot load Production-only security data")
-        return "", 0
-
-    vuln_loader = ArmorCodeVulnerabilityLoader()
-
-    # Stage 1c: Accurate per-product Critical + High counts via AQL count endpoint (2 calls).
-    logger.info("Fetching per-product Critical/High counts via AQL (Production only)")
+def _collect_aql_totals(
+    vuln_loader: ArmorCodeVulnerabilityLoader,
+    id_to_name: dict[str, str],
+    hierarchy: str,
+) -> dict[str, dict]:
+    """Fetch per-product Critical/High counts via AQL and map to product names."""
     crit_by_pid = vuln_loader.count_by_severity_aql("Critical", hierarchy, environment="Production")
     high_by_pid = vuln_loader.count_by_severity_aql("High", hierarchy, environment="Production")
-
     aql_by_product: dict[str, dict] = {}
     for pid, c in crit_by_pid.items():
         name = id_to_name.get(pid, pid)
@@ -129,11 +85,11 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
     for pid, h in high_by_pid.items():
         name = id_to_name.get(pid, pid)
         aql_by_product.setdefault(name, {"critical": 0, "high": 0})["high"] = h
+    return aql_by_product
 
-    metrics_by_product = _metrics_from_aql_counts(aql_by_product)
 
-    # Zero-pad: ensure all known products appear even with 0 Critical/High in Production.
-    # known_products comes from ARMORCODE_ID_MAP secret (CI) or data/armorcode_id_map.json (local).
+def _zero_pad_metrics(metrics_by_product: dict, known_products: list[str]) -> None:
+    """Ensure all known products appear even with 0 Critical/High in Production."""
     from datetime import datetime as _dt
 
     for product_name in known_products:
@@ -147,10 +103,14 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
                 medium=0,
                 low=0,
             )
-    logger.info("Security data loaded", extra={"product_count": len(metrics_by_product)})
 
-    # Stage 1d: Per-bucket Critical/High counts via AQL (6 calls: 2 sev × 3 buckets).
-    logger.info("Fetching per-bucket Critical/High counts via AQL (Production only)")
+
+def _collect_bucket_counts(
+    vuln_loader: ArmorCodeVulnerabilityLoader,
+    id_to_name: dict[str, str],
+    hierarchy: str,
+) -> dict[str, dict]:
+    """Fetch per-bucket Critical/High counts via AQL for each non-Other bucket."""
     _infra_cloud_providers = ["aws", "azure"]
     bucket_counts_by_product: dict[str, dict] = {}
     for bucket_name, bucket_sources in BUCKET_SOURCE_MAP.items():
@@ -180,9 +140,16 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
                 "critical": c,
                 "high": h,
             }
+    return bucket_counts_by_product
 
-    # Stage 1e: Display records per product per bucket (up to 50/combination).
-    logger.info("Fetching display records per product per bucket (up to 50 each, Production only)")
+
+def _collect_display_records(
+    vuln_loader: ArmorCodeVulnerabilityLoader,
+    product_id_map: dict[str, str],
+    hierarchy: str,
+    bucket_counts_by_product: dict[str, dict],
+) -> dict[str, list]:
+    """Fetch display records per product per bucket (up to 50 per combination)."""
     vulns_by_product: dict[str, list] = {}
     for product_name, pid in product_id_map.items():
         for bucket_name, bucket_sources in BUCKET_SOURCE_MAP.items():
@@ -200,6 +167,69 @@ def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tupl
             )
             for record in records:
                 vulns_by_product.setdefault(product_name, []).append(record)
+    return vulns_by_product
+
+
+def generate_security_dashboard_enhanced(output_dir: Path | None = None) -> tuple[str, int]:
+    """
+    Generate enhanced security dashboard with expandable rows.
+
+    Args:
+        output_dir: Directory to write HTML files (defaults to .tmp/observatory/dashboards)
+
+    Returns:
+        Tuple of (main_dashboard_html, 0) - detail pages no longer generated
+
+    Example:
+        html, _ = generate_security_dashboard_enhanced()
+        logger.info("Dashboard generated with expandable rows")
+    """
+    if output_dir is None:
+        output_dir = Path(".tmp/observatory/dashboards")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Enhanced Security Dashboard Generator")
+
+    # Stage 1a: Load product name → ID mapping (from ARMORCODE_ID_MAP secret file).
+    logger.info("Loading product ID map")
+    try:
+        product_id_map = _load_id_map()  # {name: id}
+    except FileNotFoundError as e:
+        logger.warning(
+            "ArmorCode ID map not found, returning empty result",
+            extra={
+                "error_type": "ID map loading",
+                "exception_class": e.__class__.__name__,
+                "context": {"output_dir": str(output_dir)},
+                "default_value": "('', 0)",
+            },
+        )
+        return "", 0
+
+    known_products = list(product_id_map.keys())
+    id_to_name: dict[str, str] = {v: k for k, v in product_id_map.items()}
+
+    hierarchy = get_config().get_optional_env("ARMORCODE_HIERARCHY")
+    if not hierarchy:
+        logger.warning("ARMORCODE_HIERARCHY not set — cannot load Production-only security data")
+        return "", 0
+
+    vuln_loader = ArmorCodeVulnerabilityLoader()
+
+    # Stage 1c: Per-product Critical/High counts via AQL (2 calls).
+    logger.info("Fetching per-product Critical/High counts via AQL (Production only)")
+    aql_by_product = _collect_aql_totals(vuln_loader, id_to_name, hierarchy)
+    metrics_by_product = _metrics_from_aql_counts(aql_by_product)
+    _zero_pad_metrics(metrics_by_product, known_products)
+    logger.info("Security data loaded", extra={"product_count": len(metrics_by_product)})
+
+    # Stage 1d: Per-bucket Critical/High counts via AQL (6 calls: 2 sev × 3 buckets).
+    logger.info("Fetching per-bucket Critical/High counts via AQL (Production only)")
+    bucket_counts_by_product = _collect_bucket_counts(vuln_loader, id_to_name, hierarchy)
+
+    # Stage 1e: Display records per product per bucket (up to 50/combination).
+    logger.info("Fetching display records per product per bucket (up to 50 each, Production only)")
+    vulns_by_product = _collect_display_records(vuln_loader, product_id_map, hierarchy, bucket_counts_by_product)
 
     acc_c = sum(d.get("critical", 0) for d in aql_by_product.values())
     acc_h = sum(d.get("high", 0) for d in aql_by_product.values())

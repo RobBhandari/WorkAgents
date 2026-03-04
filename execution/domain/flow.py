@@ -11,7 +11,7 @@ Represents flow metrics for tracking development velocity:
 from dataclasses import dataclass
 from datetime import datetime
 
-from .metrics import MetricSnapshot
+from execution.domain.metrics import MetricSnapshot
 
 
 @dataclass

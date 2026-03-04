@@ -9,6 +9,8 @@ Contains: template context builder, bucket expanded content, HTML escaping.
 
 from __future__ import annotations
 
+from typing import Any
+
 from execution.collectors.armorcode_vulnerability_loader import VulnerabilityDetail
 from execution.dashboards.components.cards import summary_card
 from execution.dashboards.renderer import render_dashboard
@@ -243,7 +245,7 @@ def _build_expanded_html(
 
 def _build_product_row(
     product_name: str,
-    metrics: object,
+    metrics: Any,
     all_vulns: list,
     product_bucket_counts: dict | None,
     active_buckets: frozenset,
