@@ -200,3 +200,44 @@ class TestFlowMetrics:
         assert "7.5" in result
         assert "wip=25" in result
         assert "aging=5" in result
+
+    def test_from_json_round_trips_all_fields(self):
+        """Test that from_json() correctly maps all fields from a full data dict."""
+        sample_timestamp = datetime(2026, 2, 7, 12, 0, 0)
+        data = {
+            "timestamp": sample_timestamp.isoformat(),
+            "project": "ProjectA",
+            "lead_time": {"p50": 5.0, "p85": 10.0, "p95": 15.0},
+            "cycle_time": {"p50": 2.0, "p85": 4.0, "p95": 6.0},
+            "wip_count": 8,
+            "aging_items": 3,
+            "throughput": 12,
+        }
+        m = FlowMetrics.from_json(data)
+        assert m.project == "ProjectA"
+        assert m.timestamp == sample_timestamp
+        assert m.lead_time_p50 == 5.0
+        assert m.lead_time_p85 == 10.0
+        assert m.lead_time_p95 == 15.0
+        assert m.cycle_time_p50 == 2.0
+        assert m.cycle_time_p85 == 4.0
+        assert m.cycle_time_p95 == 6.0
+        assert m.wip_count == 8
+        assert m.aging_items == 3
+        assert m.throughput == 12
+
+    def test_from_json_uses_defaults_for_optional_fields(self):
+        """Test that from_json() uses correct defaults when optional fields are absent."""
+        sample_timestamp = datetime(2026, 2, 7, 12, 0, 0)
+        data = {"timestamp": sample_timestamp.isoformat(), "project": "P"}
+        m = FlowMetrics.from_json(data)
+        assert m.project == "P"
+        assert m.lead_time_p50 is None
+        assert m.lead_time_p85 is None
+        assert m.lead_time_p95 is None
+        assert m.cycle_time_p50 is None
+        assert m.cycle_time_p85 is None
+        assert m.cycle_time_p95 is None
+        assert m.wip_count == 0
+        assert m.aging_items == 0
+        assert m.throughput is None
