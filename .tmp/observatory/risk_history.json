@@ -8,199 +8,6 @@
           "project_key": "Product_A",
           "project_name": "Product A",
           "code_churn": {
-            "total_commits": 4138,
-            "total_file_changes": 5190,
-            "unique_files_touched": 823,
-            "avg_changes_per_commit": 1.2542290961817304
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 823,
-            "single_owner_count": 389,
-            "two_owner_count": 412,
-            "multi_owner_count": 22,
-            "single_owner_pct": 47.3
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 49903,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 56,
-          "collected_at": "2026-02-20T02:21:52.965223"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "code_churn": {
-            "total_commits": 531,
-            "total_file_changes": 109,
-            "unique_files_touched": 20,
-            "avg_changes_per_commit": 0.20527306967984935
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 20,
-            "single_owner_count": 7,
-            "two_owner_count": 13,
-            "multi_owner_count": 0,
-            "single_owner_pct": 35.0
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 23,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 20,
-          "collected_at": "2026-02-20T02:21:53.134561"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "code_churn": {
-            "total_commits": 0,
-            "total_file_changes": 0,
-            "unique_files_touched": 0,
-            "avg_changes_per_commit": 0
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 0,
-            "single_owner_count": 0,
-            "two_owner_count": 0,
-            "multi_owner_count": 0,
-            "single_owner_pct": 0
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 0,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 1,
-          "collected_at": "2026-02-20T02:21:28.482221"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "code_churn": {
-            "total_commits": 1271,
-            "total_file_changes": 1829,
-            "unique_files_touched": 549,
-            "avg_changes_per_commit": 1.4390243902439024
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 549,
-            "single_owner_count": 348,
-            "two_owner_count": 197,
-            "multi_owner_count": 4,
-            "single_owner_pct": 63.4
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 12794,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 37,
-          "collected_at": "2026-02-20T02:21:52.835104"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "code_churn": {
-            "total_commits": 1000,
-            "total_file_changes": 166,
-            "unique_files_touched": 21,
-            "avg_changes_per_commit": 0.166
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 21,
-            "single_owner_count": 0,
-            "two_owner_count": 9,
-            "multi_owner_count": 12,
-            "single_owner_pct": 0.0
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 133,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 2,
-          "collected_at": "2026-02-20T02:21:44.437489"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "code_churn": {
-            "total_commits": 1923,
-            "total_file_changes": 2254,
-            "unique_files_touched": 954,
-            "avg_changes_per_commit": 1.172126885075403
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 954,
-            "single_owner_count": 568,
-            "two_owner_count": 327,
-            "multi_owner_count": 59,
-            "single_owner_pct": 59.5
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 4117,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 18,
-          "collected_at": "2026-02-20T02:21:52.758261"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "code_churn": {
-            "total_commits": 526,
-            "total_file_changes": 1522,
-            "unique_files_touched": 1078,
-            "avg_changes_per_commit": 2.893536121673004
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 1078,
-            "single_owner_count": 1061,
-            "two_owner_count": 14,
-            "multi_owner_count": 3,
-            "single_owner_pct": 98.4
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 889,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 18,
-          "collected_at": "2026-02-20T02:21:53.133669"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "code_churn": {
-            "total_commits": 4138,
-            "total_file_changes": 5190,
-            "unique_files_touched": 823,
-            "avg_changes_per_commit": 1.2542290961817304
-          },
-          "knowledge_distribution": {
-            "total_files_analyzed": 823,
-            "single_owner_count": 389,
-            "two_owner_count": 412,
-            "multi_owner_count": 22,
-            "single_owner_pct": 47.3
-          },
-          "module_coupling": {
-            "total_coupled_pairs": 49903,
-            "note": "Pairs that changed together 3+ times"
-          },
-          "repository_count": 56,
-          "collected_at": "2026-02-20T02:21:53.263986"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-20",
-      "week_number": 8,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "code_churn": {
             "total_commits": 4148,
             "total_file_changes": 5143,
             "unique_files_touched": 822,
@@ -10030,6 +9837,199 @@
           },
           "repository_count": 56,
           "collected_at": "2026-03-03T15:25:27.554258"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-03-04",
+      "week_number": 10,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "code_churn": {
+            "total_commits": 4539,
+            "total_file_changes": 2582,
+            "unique_files_touched": 540,
+            "avg_changes_per_commit": 0.568847763824631
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 540,
+            "single_owner_count": 204,
+            "two_owner_count": 292,
+            "multi_owner_count": 44,
+            "single_owner_pct": 37.8
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 9334,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 56,
+          "collected_at": "2026-03-04T06:55:37.236658"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "code_churn": {
+            "total_commits": 530,
+            "total_file_changes": 183,
+            "unique_files_touched": 36,
+            "avg_changes_per_commit": 0.3452830188679245
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 36,
+            "single_owner_count": 3,
+            "two_owner_count": 33,
+            "multi_owner_count": 0,
+            "single_owner_pct": 8.3
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 269,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 20,
+          "collected_at": "2026-03-04T06:55:36.901559"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "code_churn": {
+            "total_commits": 0,
+            "total_file_changes": 0,
+            "unique_files_touched": 0,
+            "avg_changes_per_commit": 0
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 0,
+            "single_owner_count": 0,
+            "two_owner_count": 0,
+            "multi_owner_count": 0,
+            "single_owner_pct": 0
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 0,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 1,
+          "collected_at": "2026-03-04T06:55:09.057249"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "code_churn": {
+            "total_commits": 1437,
+            "total_file_changes": 2660,
+            "unique_files_touched": 1784,
+            "avg_changes_per_commit": 1.8510786360473208
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 1784,
+            "single_owner_count": 1565,
+            "two_owner_count": 191,
+            "multi_owner_count": 28,
+            "single_owner_pct": 87.7
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 2390,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 38,
+          "collected_at": "2026-03-04T06:55:39.635555"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "code_churn": {
+            "total_commits": 1000,
+            "total_file_changes": 214,
+            "unique_files_touched": 32,
+            "avg_changes_per_commit": 0.214
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 32,
+            "single_owner_count": 3,
+            "two_owner_count": 23,
+            "multi_owner_count": 6,
+            "single_owner_pct": 9.4
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 243,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 2,
+          "collected_at": "2026-03-04T06:55:37.240485"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "code_churn": {
+            "total_commits": 1781,
+            "total_file_changes": 2039,
+            "unique_files_touched": 436,
+            "avg_changes_per_commit": 1.1448624368332398
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 436,
+            "single_owner_count": 44,
+            "two_owner_count": 356,
+            "multi_owner_count": 36,
+            "single_owner_pct": 10.1
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 4296,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 18,
+          "collected_at": "2026-03-04T06:55:37.183161"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "code_churn": {
+            "total_commits": 546,
+            "total_file_changes": 1500,
+            "unique_files_touched": 1073,
+            "avg_changes_per_commit": 2.7472527472527473
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 1073,
+            "single_owner_count": 1057,
+            "two_owner_count": 14,
+            "multi_owner_count": 2,
+            "single_owner_pct": 98.5
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 880,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 18,
+          "collected_at": "2026-03-04T06:55:36.887670"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "code_churn": {
+            "total_commits": 4539,
+            "total_file_changes": 2582,
+            "unique_files_touched": 540,
+            "avg_changes_per_commit": 0.568847763824631
+          },
+          "knowledge_distribution": {
+            "total_files_analyzed": 540,
+            "single_owner_count": 204,
+            "two_owner_count": 292,
+            "multi_owner_count": 44,
+            "single_owner_pct": 37.8
+          },
+          "module_coupling": {
+            "total_coupled_pairs": 9334,
+            "note": "Pairs that changed together 3+ times"
+          },
+          "repository_count": 56,
+          "collected_at": "2026-03-04T06:55:37.218018"
         }
       ],
       "config": {
