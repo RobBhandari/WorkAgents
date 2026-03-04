@@ -369,11 +369,7 @@ def compute_rolling_stats(conn: sqlite3.Connection) -> int:
     Upserts results into rolling_stats table.
     Returns the number of stat rows written.
     """
-    try:
-        import numpy as np
-    except ImportError:
-        print("  ⚠  numpy not available — skipping rolling stats computation")
-        return 0
+    import numpy as np
 
     cursor = conn.cursor()
 
