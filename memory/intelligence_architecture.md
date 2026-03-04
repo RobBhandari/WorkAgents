@@ -1,7 +1,6 @@
 # Intelligence Platform Architecture
 
 **Status**: Designed 2026-02-22. Implementation begins with Phase A.
-**Plan**: `C:\Users\Robin.Bhandari\.claude\plans\encapsulated-hugging-kahan.md`
 
 ---
 
