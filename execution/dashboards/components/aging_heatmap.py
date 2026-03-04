@@ -14,6 +14,35 @@ from execution.core import get_logger
 
 logger = get_logger(__name__)
 
+# Color alpha formulas: list of (max_intensity, base_alpha, scale_factor) tuples
+_INTENSITY_ALPHAS: list[tuple[float, float, float]] = [
+    (0.3, 0.3, 0.3),  # low:  0.3 + intensity * 0.3
+    (0.7, 0.6, 0.2),  # mid:  0.6 + intensity * 0.2
+    (1.0, 0.8, 0.2),  # high: 0.8 + intensity * 0.2
+]
+
+_COLOR_BASES: dict[str, tuple[str, str, str]] = {
+    # severity -> (low_rgb, mid_rgb, high_rgb)  — alpha computed separately
+    "critical": ("239, 68, 68", "239, 68, 68", "220, 38, 38"),
+    "high": ("251, 146, 60", "249, 115, 22", "234, 88, 12"),
+    "medium": ("251, 191, 36", "245, 158, 11", "217, 119, 6"),
+    "low": ("59, 130, 246", "37, 99, 235", "29, 78, 216"),
+}
+
+
+def _compute_cell_bg_color(severity_type: str, intensity: float) -> str:
+    """Return rgba(...) background color string for a heatmap cell."""
+    bases = _COLOR_BASES.get(severity_type, _COLOR_BASES["low"])
+    for i, (threshold, base_alpha, scale) in enumerate(_INTENSITY_ALPHAS):
+        if intensity < threshold:
+            rgb = bases[i]
+            alpha = base_alpha + intensity * scale
+            return f"rgba({rgb}, {alpha:.3f})"
+    # fallback: max intensity
+    rgb = bases[2]
+    alpha = 0.8 + intensity * 0.2
+    return f"rgba({rgb}, {alpha:.3f})"
+
 
 def _count_by_severity_and_bucket(vulnerabilities: list, age_buckets: list[dict]) -> dict[str, dict[str, int]]:
     """Count Critical/High vulnerabilities by age bucket."""
@@ -126,49 +155,12 @@ def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> 
         HTML string for cell
     """
     if count == 0:
-        # Empty cell - subtle gray
         return (
             '<div class="heatmap-cell empty" '
             'style="background: rgba(148, 163, 184, 0.1); color: var(--text-secondary);"></div>'
         )
-
-    # Determine background color based on severity and intensity
-    if severity_type == "critical":
-        # Red color scale for critical
-        if intensity < 0.3:
-            bg_color = f"rgba(239, 68, 68, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(239, 68, 68, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(220, 38, 38, {0.8 + intensity * 0.2})"
-    elif severity_type == "high":
-        # Orange/amber scale for high
-        if intensity < 0.3:
-            bg_color = f"rgba(251, 146, 60, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(249, 115, 22, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(234, 88, 12, {0.8 + intensity * 0.2})"
-    elif severity_type == "medium":
-        # Yellow/amber scale for medium
-        if intensity < 0.3:
-            bg_color = f"rgba(251, 191, 36, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(245, 158, 11, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(217, 119, 6, {0.8 + intensity * 0.2})"
-    else:  # low
-        # Blue/cyan scale for low
-        if intensity < 0.3:
-            bg_color = f"rgba(59, 130, 246, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(37, 99, 235, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(29, 78, 216, {0.8 + intensity * 0.2})"
-
-    # Text color - white for high intensity, darker for low
+    bg_color = _compute_cell_bg_color(severity_type, intensity)
     text_color = "#ffffff" if intensity > 0.5 else "var(--text-primary)"
-
     return f'<div class="heatmap-cell" style="background: {bg_color}; color: {text_color};">{count}</div>'
 
 
