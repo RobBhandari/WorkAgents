@@ -90,3 +90,43 @@ class TestSecurityMetrics:
         str_repr = str(sample_security_metrics)
         assert "API Gateway" in str_repr
         assert "total=42" in str_repr
+
+    def test_from_json_round_trips_all_fields(self, sample_timestamp):
+        """Test that from_json() correctly maps all fields from a full data dict."""
+        data = {
+            "timestamp": sample_timestamp.isoformat(),
+            "project": "API Gateway",
+            "total_vulnerabilities": 42,
+            "critical": 3,
+            "high": 12,
+            "medium": 20,
+            "low": 7,
+            "baseline": 100,
+            "target": 30,
+        }
+        m = SecurityMetrics.from_json(data)
+        assert m.project == "API Gateway"
+        assert m.timestamp == sample_timestamp
+        assert m.total_vulnerabilities == 42
+        assert m.critical == 3
+        assert m.high == 12
+        assert m.medium == 20
+        assert m.low == 7
+        assert m.baseline == 100
+        assert m.target == 30
+
+    def test_from_json_uses_defaults_for_optional_fields(self, sample_timestamp):
+        """Test that from_json() uses correct defaults when optional fields are absent."""
+        data = {
+            "timestamp": sample_timestamp.isoformat(),
+            "project": "MinimalService",
+            "total_vulnerabilities": 10,
+            "critical": 1,
+            "high": 4,
+        }
+        m = SecurityMetrics.from_json(data)
+        assert m.project == "MinimalService"
+        assert m.medium == 0
+        assert m.low == 0
+        assert m.baseline is None
+        assert m.target is None
