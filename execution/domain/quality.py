@@ -9,6 +9,7 @@ Represents bug work items and quality metrics for tracking:
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 
 from .metrics import MetricSnapshot
 
@@ -184,6 +185,44 @@ class QualityMetrics(MetricSnapshot):
         if self.open_bugs == 0:
             return None
         return (self.closed_this_week / self.open_bugs) * 100
+
+    @staticmethod
+    def from_json(data: dict) -> "QualityMetrics":
+        """
+        Create QualityMetrics from JSON data structure.
+
+        Args:
+            data: Dictionary from quality history JSON. Must contain
+                  'timestamp', 'project', 'open_bugs', 'closed_this_week',
+                  'created_this_week', and 'net_change' keys.
+
+        Returns:
+            QualityMetrics instance with all metrics populated from data.
+
+        Example:
+            >>> data = {
+            ...     "timestamp": "2026-01-01T00:00:00",
+            ...     "project": "MyApp",
+            ...     "open_bugs": 50,
+            ...     "closed_this_week": 10,
+            ...     "created_this_week": 5,
+            ...     "net_change": -5,
+            ... }
+            >>> metrics = QualityMetrics.from_json(data)
+            >>> metrics.open_bugs
+            50
+        """
+        return QualityMetrics(
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+            project=data["project"],
+            open_bugs=data["open_bugs"],
+            closed_this_week=data["closed_this_week"],
+            created_this_week=data["created_this_week"],
+            net_change=data["net_change"],
+            p1_count=data.get("p1_count", 0),
+            p2_count=data.get("p2_count", 0),
+            aging_bugs=data.get("aging_bugs", 0),
+        )
 
     def __str__(self) -> str:
         """
