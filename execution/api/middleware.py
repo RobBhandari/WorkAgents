@@ -310,23 +310,20 @@ def add_cors_middleware(app: "FastAPI") -> None:
         from fastapi.middleware.cors import CORSMiddleware
         add_cors_middleware(app)
     """
-    try:
-        from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.middleware.cors import CORSMiddleware
 
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=[
-                "http://localhost:8000",  # Local development
-                "http://127.0.0.1:8000",  # Local development (alternative)
-                # Add production domains here when deployed
-                # "https://your-dashboard.azurestaticapps.net",
-            ],
-            allow_credentials=True,
-            allow_methods=["GET", "POST"],  # Restrict to needed methods
-            allow_headers=["Content-Type", "Authorization"],
-            max_age=3600,  # Cache preflight requests for 1 hour
-        )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:8000",  # Local development
+            "http://127.0.0.1:8000",  # Local development (alternative)
+            # Add production domains here when deployed
+            # "https://your-dashboard.azurestaticapps.net",
+        ],
+        allow_credentials=True,
+        allow_methods=["GET", "POST"],  # Restrict to needed methods
+        allow_headers=["Content-Type", "Authorization"],
+        max_age=3600,  # Cache preflight requests for 1 hour
+    )
 
-        logger.info("CORS middleware enabled")
-    except ImportError:
-        logger.warning("CORSMiddleware not available, skipping CORS setup")
+    logger.info("CORS middleware enabled")
