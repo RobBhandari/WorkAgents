@@ -9,6 +9,103 @@ Extracts and calculates trends from historical Observatory data:
 
 from datetime import datetime
 from statistics import median
+from typing import Any
+
+# ---------------------------------------------------------------------------
+# RAG color constants
+# ---------------------------------------------------------------------------
+_GREEN = "#10b981"
+_AMBER = "#f59e0b"
+_RED = "#ef4444"
+_PURPLE = "#6366f1"
+_GRAY = "#94a3b8"
+
+# ---------------------------------------------------------------------------
+# RAG threshold lookup table
+#
+# Each entry: (cast_fn, [(threshold, color), ...], fallback_color)
+#
+# For "lower is better" metrics the thresholds are upper bounds checked in
+# ascending order; the first threshold whose value is LESS THAN the limit
+# wins.  A sentinel entry of (None, fallback) at the end catches the
+# remainder.
+#
+# For "higher is better" metrics the thresholds are lower bounds checked in
+# descending order; the first threshold whose value is GREATER THAN OR EQUAL
+# TO the limit wins.
+#
+# The optional 4th element "higher" marks metrics where larger values are
+# better (checked with >=).  Absence means "lower is better" (checked with <).
+# ---------------------------------------------------------------------------
+_RAG_THRESHOLDS: dict[str, tuple[Any, list[tuple[float, str]], str] | tuple[Any, list[tuple[float, str]], str, str]] = {
+    # lower is better
+    "lead_time": (float, [(30.0, _GREEN), (60.0, _AMBER)], _RED),
+    "mttr": (float, [(7.0, _GREEN), (14.0, _AMBER)], _RED),
+    "total_vulns": (int, [(150.0, _GREEN), (250.0, _AMBER)], _RED),
+    "bugs": (int, [(100.0, _GREEN), (200.0, _AMBER)], _RED),
+    "merge_time": (float, [(4.0, _GREEN), (24.0, _AMBER)], _RED),
+    "unassigned": (float, [(20.0, _GREEN), (40.0, _AMBER)], _RED),
+    # higher is better
+    "success_rate": (float, [(90, _GREEN), (70, _AMBER)], _RED, "higher"),
+    "target_progress": (float, [(70, _GREEN), (40, _AMBER)], _RED, "higher"),
+    # neutral
+    "commits": (int, [], _PURPLE),
+}
+
+
+def _apply_rag_thresholds(
+    cast_fn: Any,
+    thresholds: list[tuple[float, str]],
+    fallback: str,
+    raw_value: Any,
+    higher_is_better: bool,
+) -> str:
+    """Apply threshold list to a raw value and return the matching color."""
+    val = cast_fn(raw_value)
+    for limit, color in thresholds:
+        if higher_is_better:
+            if val >= limit:
+                return color
+        else:
+            if val < limit:
+                return color
+    return fallback
+
+
+def _compute_progress_pct(current: int, baseline: int, target: int) -> float:
+    """Compute progress percentage toward target for a single metric.
+
+    Returns 0 when the denominator would be zero (baseline already at or below target).
+    """
+    if baseline <= target:
+        return 0.0
+    return (baseline - current) / (baseline - target) * 100
+
+
+def _collect_project_lead_times(proj: dict) -> list[float]:
+    """Extract lead-time values from a single project dict.
+
+    Handles both the new work_type_metrics format and the legacy lead_time format.
+    Returns a (possibly empty) list of p85 values.
+    """
+    lead_times: list[float] = []
+    if "work_type_metrics" in proj:
+        for _wt, metrics in proj.get("work_type_metrics", {}).items():
+            dual = metrics.get("dual_metrics", {})
+            has_cleanup = dual.get("indicators", {}).get("is_cleanup_effort", False)
+            if has_cleanup:
+                op_p85 = dual.get("operational", {}).get("p85")
+                if op_p85:
+                    lead_times.append(op_p85)
+            else:
+                p85 = metrics.get("lead_time", {}).get("p85")
+                if p85:
+                    lead_times.append(p85)
+    else:
+        p85 = proj.get("lead_time", {}).get("p85")
+        if p85:
+            lead_times.append(p85)
+    return lead_times
 
 
 class TrendsCalculator:
@@ -21,6 +118,85 @@ class TrendsCalculator:
             baselines: Dict with 'bugs' and 'security' baseline values
         """
         self.baselines = baselines or {}
+
+    # ------------------------------------------------------------------
+    # Private helpers for calculate_target_progress
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _get_week_vulns(security_week: dict) -> int:
+        """Extract vuln count from a single security week, preferring code_cloud bucket."""
+        bb = security_week.get("metrics", {}).get("bucket_breakdown", {})
+        cc = bb.get("code_cloud", {}).get("total", None)
+        return int(cc) if cc is not None else int(security_week.get("metrics", {}).get("current_total", 0))
+
+    @staticmethod
+    def _compute_burn_rates(
+        quality_weeks: list[dict],
+        security_weeks: list[dict],
+        current_bugs: int,
+        current_vulns: int,
+    ) -> tuple[float, float]:
+        """Compute 4-week burn rates for bugs and vulns. Returns (bugs_rate, vulns_rate)."""
+        if len(quality_weeks) >= 5 and len(security_weeks) >= 5:
+            bugs_4wk_ago = sum(p.get("open_bugs_count", 0) for p in quality_weeks[-5].get("projects", []))
+            actual_bugs_burn_rate = (bugs_4wk_ago - current_bugs) / 4
+
+            vulns_4wk_ago = TrendsCalculator._get_week_vulns(security_weeks[-5])
+            actual_vulns_burn_rate = (vulns_4wk_ago - current_vulns) / 4
+        else:
+            actual_bugs_burn_rate = 0.0
+            actual_vulns_burn_rate = 0.0
+        return actual_bugs_burn_rate, actual_vulns_burn_rate
+
+    @staticmethod
+    def _build_trajectory(overall_progress: float) -> tuple[str, str]:
+        """Return (trajectory_label, trajectory_color) for a given progress %."""
+        if overall_progress >= 70:
+            return "On Track", _GREEN
+        elif overall_progress >= 40:
+            return "Behind", _AMBER
+        return "Behind", _RED
+
+    @staticmethod
+    def _build_forecast_msg(
+        actual_bugs_burn: float,
+        actual_vulns_burn: float,
+        required_bugs_burn: float,
+        required_vulns_burn: float,
+    ) -> str:
+        """Build human-readable forecast message from burn-rate data."""
+        bugs_going_backwards = actual_bugs_burn <= 0
+        vulns_going_backwards = actual_vulns_burn <= 0
+
+        if bugs_going_backwards and vulns_going_backwards:
+            return "⚠ Both bugs and vulnerabilities are increasing. Need to turn around immediately."
+        if bugs_going_backwards:
+            return (
+                f"⚠ Bugs are increasing at {abs(actual_bugs_burn):.1f}/wk. "
+                f"Vulnerabilities decreasing at {actual_vulns_burn:.1f}/wk."
+            )
+        if vulns_going_backwards:
+            return (
+                f"⚠ Vulnerabilities are increasing at {abs(actual_vulns_burn):.1f}/wk. "
+                f"Bugs decreasing at {actual_bugs_burn:.1f}/wk."
+            )
+
+        # Both positive — show pace status
+        bugs_pct = (actual_bugs_burn / required_bugs_burn * 100) if required_bugs_burn > 0 else 0
+        vulns_pct = (actual_vulns_burn / required_vulns_burn * 100) if required_vulns_burn > 0 else 0
+        avg_pct = (bugs_pct + vulns_pct) / 2
+
+        if avg_pct >= 100:
+            return "On track: Current pace will reach target by June 30."
+        return (
+            f"At current pace ({actual_bugs_burn:.1f} bugs/wk, {actual_vulns_burn:.1f} vulns/wk), "
+            f"reaching {int(avg_pct)}% of target by June 30."
+        )
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def calculate_target_progress(self, quality_weeks: list[dict], security_weeks: list[dict]) -> dict | None:
         """Calculate overall target progress (70% reduction goal)
@@ -35,125 +211,47 @@ class TrendsCalculator:
         if not quality_weeks or not security_weeks:
             return None
 
-        # Get current counts from latest data
+        # Current counts from latest data
         latest_quality = quality_weeks[-1]
         current_bugs = sum(p.get("open_bugs_count", 0) for p in latest_quality.get("projects", []))
+        current_vulns = self._get_week_vulns(security_weeks[-1])
 
-        latest_security = security_weeks[-1]
-        # Prefer Code+Cloud bucket total (target scope) over current_total (all sources).
-        # bucket_breakdown is patched in from today onwards; older weeks fall back to current_total.
-        _bb = latest_security.get("metrics", {}).get("bucket_breakdown", {})
-        _cc = _bb.get("code_cloud", {}).get("total", None)
-        current_vulns = _cc if _cc is not None else latest_security.get("metrics", {}).get("current_total", 0)
-
-        # Calculate progress
+        # Baselines and targets (70% reduction = 30% remaining)
         baseline_bugs = self.baselines.get("bugs", 0)
         baseline_vulns = self.baselines.get("security", 0)
-
-        target_bugs = round(baseline_bugs * 0.3)  # 70% reduction = 30% remaining
+        target_bugs = round(baseline_bugs * 0.3)
         target_vulns = round(baseline_vulns * 0.3)
 
-        # Progress calculation
-        bugs_progress = (
-            ((baseline_bugs - current_bugs) / (baseline_bugs - target_bugs) * 100) if baseline_bugs > target_bugs else 0
-        )
-        vulns_progress = (
-            ((baseline_vulns - current_vulns) / (baseline_vulns - target_vulns) * 100)
-            if baseline_vulns > target_vulns
-            else 0
-        )
-
-        # Overall progress (average)
+        # Progress percentages
+        bugs_progress = _compute_progress_pct(current_bugs, baseline_bugs, target_bugs)
+        vulns_progress = _compute_progress_pct(current_vulns, baseline_vulns, target_vulns)
         overall_progress = (bugs_progress + vulns_progress) / 2
 
-        # Weeks to target (June 30, 2026)
+        # Time remaining
         target_date = datetime.strptime("2026-06-30", "%Y-%m-%d")
-        today = datetime.now()
-        weeks_remaining = max(0, (target_date - today).days / 7)
+        weeks_remaining = max(0, (target_date - datetime.now()).days / 7)
 
-        # Burn rate analysis (4-week average) - SEPARATE for bugs and vulns
-        if len(quality_weeks) >= 5 and len(security_weeks) >= 5:
-            # Bugs 4 weeks ago
-            bugs_4wk_ago = sum(p.get("open_bugs_count", 0) for p in quality_weeks[-5].get("projects", []))
-            bugs_burned_4wk = bugs_4wk_ago - current_bugs
-            actual_bugs_burn_rate = bugs_burned_4wk / 4
+        # Burn rates
+        actual_bugs_burn, actual_vulns_burn = self._compute_burn_rates(
+            quality_weeks, security_weeks, current_bugs, current_vulns
+        )
 
-            # Vulns 4 weeks ago — prefer Code+Cloud bucket total where available
-            _bb4 = security_weeks[-5].get("metrics", {}).get("bucket_breakdown", {})
-            _cc4 = _bb4.get("code_cloud", {}).get("total", None)
-            vulns_4wk_ago = _cc4 if _cc4 is not None else security_weeks[-5].get("metrics", {}).get("current_total", 0)
-            vulns_burned_4wk = vulns_4wk_ago - current_vulns
-            actual_vulns_burn_rate = vulns_burned_4wk / 4
-        else:
-            actual_bugs_burn_rate = 0
-            actual_vulns_burn_rate = 0
+        # Required burn rates
+        required_bugs_burn = (current_bugs - target_bugs) / weeks_remaining if weeks_remaining > 0 else 0
+        required_vulns_burn = (current_vulns - target_vulns) / weeks_remaining if weeks_remaining > 0 else 0
 
-        # Required burn rates to hit target - SEPARATE for bugs and vulns
-        remaining_bugs = current_bugs - target_bugs
-        remaining_vulns = current_vulns - target_vulns
-        required_bugs_burn_rate = remaining_bugs / weeks_remaining if weeks_remaining > 0 else 0
-        required_vulns_burn_rate = remaining_vulns / weeks_remaining if weeks_remaining > 0 else 0
+        # Trajectory and forecast
+        trajectory, trajectory_color = self._build_trajectory(overall_progress)
+        forecast_msg = self._build_forecast_msg(
+            actual_bugs_burn, actual_vulns_burn, required_bugs_burn, required_vulns_burn
+        )
 
-        # Trajectory
-        if overall_progress >= 70:
-            trajectory = "On Track"
-            trajectory_color = "#10b981"
-        elif overall_progress >= 40:
-            trajectory = "Behind"
-            trajectory_color = "#f59e0b"
-        else:
-            trajectory = "Behind"
-            trajectory_color = "#ef4444"
+        # Sparkline trend data
+        progress_trend = self._build_progress_trend(
+            quality_weeks, security_weeks, baseline_bugs, baseline_vulns, target_bugs, target_vulns
+        )
 
-        # Forecast message - check if BOTH are going backwards
-        bugs_going_backwards = actual_bugs_burn_rate <= 0
-        vulns_going_backwards = actual_vulns_burn_rate <= 0
-
-        if bugs_going_backwards and vulns_going_backwards:
-            forecast_msg = "⚠ Both bugs and vulnerabilities are increasing. Need to turn around immediately."
-        elif bugs_going_backwards:
-            forecast_msg = f"⚠ Bugs are increasing at {abs(actual_bugs_burn_rate):.1f}/wk. Vulnerabilities decreasing at {actual_vulns_burn_rate:.1f}/wk."
-        elif vulns_going_backwards:
-            forecast_msg = f"⚠ Vulnerabilities are increasing at {abs(actual_vulns_burn_rate):.1f}/wk. Bugs decreasing at {actual_bugs_burn_rate:.1f}/wk."
-        else:
-            # Both positive - show status
-            bugs_pct = (actual_bugs_burn_rate / required_bugs_burn_rate * 100) if required_bugs_burn_rate > 0 else 0
-            vulns_pct = (actual_vulns_burn_rate / required_vulns_burn_rate * 100) if required_vulns_burn_rate > 0 else 0
-            avg_pct = (bugs_pct + vulns_pct) / 2
-
-            if avg_pct >= 100:
-                forecast_msg = "On track: Current pace will reach target by June 30."
-            else:
-                forecast_msg = f"At current pace ({actual_bugs_burn_rate:.1f} bugs/wk, {actual_vulns_burn_rate:.1f} vulns/wk), reaching {int(avg_pct)}% of target by June 30."
-
-        # Extract trend data for sparkline
-        progress_trend = []
-
-        for i in range(len(quality_weeks)):
-            week_bugs = sum(p.get("open_bugs_count", 0) for p in quality_weeks[i].get("projects", []))
-
-            if i < len(security_weeks):
-                # Prefer Code+Cloud bucket total for consistency with target scope
-                _wbb = security_weeks[i].get("metrics", {}).get("bucket_breakdown", {})
-                _wcc = _wbb.get("code_cloud", {}).get("total", None)
-                week_vulns = _wcc if _wcc is not None else security_weeks[i].get("metrics", {}).get("current_total", 0)
-
-                # Calculate progress for this week
-                week_bugs_progress = (
-                    ((baseline_bugs - week_bugs) / (baseline_bugs - target_bugs) * 100)
-                    if baseline_bugs > target_bugs
-                    else 0
-                )
-                week_vulns_progress = (
-                    ((baseline_vulns - week_vulns) / (baseline_vulns - target_vulns) * 100)
-                    if baseline_vulns > target_vulns
-                    else 0
-                )
-                week_progress = (week_bugs_progress + week_vulns_progress) / 2
-                progress_trend.append(round(week_progress, 1))
-
-        # Use previous only if it was also computed with bucket_breakdown (code_cloud) data.
-        # If previous week lacks bucket_breakdown, default to current to avoid a spurious delta.
+        # Use previous only if it was also computed with bucket_breakdown (code_cloud) data
         prev_has_cc = (
             len(security_weeks) >= 2
             and security_weeks[-2].get("metrics", {}).get("bucket_breakdown", {}).get("code_cloud") is not None
@@ -171,13 +269,42 @@ class TrendsCalculator:
                 "trajectory": trajectory,
                 "trajectory_color": trajectory_color,
                 "weeks_to_target": round(weeks_remaining, 1),
-                "required_bugs_burn": round(required_bugs_burn_rate, 2),
-                "required_vulns_burn": round(required_vulns_burn_rate, 2),
-                "actual_bugs_burn": round(actual_bugs_burn_rate, 2),
-                "actual_vulns_burn": round(actual_vulns_burn_rate, 2),
+                "required_bugs_burn": round(required_bugs_burn, 2),
+                "required_vulns_burn": round(required_vulns_burn, 2),
+                "actual_bugs_burn": round(actual_bugs_burn, 2),
+                "actual_vulns_burn": round(actual_vulns_burn, 2),
                 "forecast_msg": forecast_msg,
             },
         }
+
+    def _build_progress_trend(
+        self,
+        quality_weeks: list[dict],
+        security_weeks: list[dict],
+        baseline_bugs: int,
+        baseline_vulns: int,
+        target_bugs: int,
+        target_vulns: int,
+    ) -> list[float]:
+        """Build per-week progress percentages for sparkline rendering."""
+        progress_trend = []
+        for i in range(len(quality_weeks)):
+            if i >= len(security_weeks):
+                continue
+            week_bugs = sum(p.get("open_bugs_count", 0) for p in quality_weeks[i].get("projects", []))
+            week_vulns = self._get_week_vulns(security_weeks[i])
+            week_bugs_progress = _compute_progress_pct(week_bugs, baseline_bugs, target_bugs)
+            week_vulns_progress = _compute_progress_pct(week_vulns, baseline_vulns, target_vulns)
+            progress_trend.append(round((week_bugs_progress + week_vulns_progress) / 2, 1))
+        return progress_trend
+
+    @staticmethod
+    def _extract_week_mttr(projects: list[dict]) -> float:
+        """Return the average MTTR (days) across projects for one week, or 0 if none."""
+        mttr_values = [
+            p.get("mttr", {}).get("mttr_days") for p in projects if p.get("mttr", {}).get("mttr_days") is not None
+        ]
+        return round(sum(mttr_values) / len(mttr_values), 1) if mttr_values else 0
 
     def extract_quality_trends(self, weeks: list[dict]) -> dict | None:
         """Extract bug and MTTR trends from quality data
@@ -195,18 +322,9 @@ class TrendsCalculator:
         mttr_trend = []
 
         for week in weeks:
-            # Sum open bugs across all projects
-            total_bugs = sum(p.get("open_bugs_count", 0) for p in week.get("projects", []))
-            total_bugs_trend.append(total_bugs)
-
-            # Average MTTR across projects
-            mttr_values = [
-                p.get("mttr", {}).get("mttr_days")
-                for p in week.get("projects", [])
-                if p.get("mttr", {}).get("mttr_days") is not None
-            ]
-            avg_mttr = sum(mttr_values) / len(mttr_values) if mttr_values else 0
-            mttr_trend.append(round(avg_mttr, 1))
+            projects = week.get("projects", [])
+            total_bugs_trend.append(sum(p.get("open_bugs_count", 0) for p in projects))
+            mttr_trend.append(self._extract_week_mttr(projects))
 
         return {
             "bugs": {
@@ -272,30 +390,9 @@ class TrendsCalculator:
             projects = week.get("projects", [])
 
             # Collect lead times across all work types (matches exec summary logic)
-            lead_times = []
+            lead_times: list[float] = []
             for proj in projects:
-                # Check if project has work_type_metrics
-                if "work_type_metrics" in proj:
-                    # Aggregate across ALL work types
-                    for work_type, metrics in proj.get("work_type_metrics", {}).items():
-                        dual_metrics = metrics.get("dual_metrics", {})
-                        has_cleanup = dual_metrics.get("indicators", {}).get("is_cleanup_effort", False)
-
-                        if has_cleanup:
-                            # Use operational metrics for accurate performance view
-                            operational = dual_metrics.get("operational", {})
-                            op_p85 = operational.get("p85")
-                            if op_p85:
-                                lead_times.append(op_p85)
-                        else:
-                            # Use standard lead time
-                            lead_time = metrics.get("lead_time", {})
-                            if lead_time.get("p85"):
-                                lead_times.append(lead_time["p85"])
-                else:
-                    # Legacy data format
-                    if proj.get("lead_time", {}).get("p85"):
-                        lead_times.append(proj["lead_time"]["p85"])
+                lead_times.extend(_collect_project_lead_times(proj))
 
             # Use median (not mean) to handle outliers
             avg_lead_time = median(lead_times) if lead_times else 0
@@ -567,93 +664,16 @@ class TrendsCalculator:
             Hex color code for RAG status
         """
         if value == "N/A" or value is None:
-            return "#94a3b8"  # Gray for N/A
+            return _GRAY
+
+        config = _RAG_THRESHOLDS.get(metric_type)
+        if config is None:
+            return _PURPLE
+
+        cast_fn, thresholds, fallback = config[0], config[1], config[2]
+        higher_is_better = len(config) == 4 and config[3] == "higher"
 
         try:
-            if metric_type == "lead_time":
-                # Lower is better: <30 days green, 30-60 amber, >60 red
-                val = float(value)
-                if val < 30:
-                    return "#10b981"  # Green
-                elif val < 60:
-                    return "#f59e0b"  # Amber
-                else:
-                    return "#ef4444"  # Red
-
-            elif metric_type == "mttr":
-                # Lower is better: <7 days green, 7-14 days amber, >14 days red
-                val = float(value)
-                if val < 7:
-                    return "#10b981"
-                elif val < 14:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "total_vulns":
-                # Lower is better: <150 green, 150-250 amber, >250 red
-                val = int(value)
-                if val < 150:
-                    return "#10b981"
-                elif val < 250:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "bugs":
-                # Lower is better: <100 green, 100-200 amber, >200 red
-                val = int(value)
-                if val < 100:
-                    return "#10b981"
-                elif val < 200:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "success_rate":
-                # Higher is better: >90% green, 70-90% amber, <70% red
-                val = float(value)
-                if val >= 90:
-                    return "#10b981"
-                elif val >= 70:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "merge_time":
-                # Lower is better: <4h green, 4-24h amber, >24h red
-                val = float(value)
-                if val < 4:
-                    return "#10b981"
-                elif val < 24:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "unassigned":
-                # Lower is better: <20% green, 20-40% amber, >40% red
-                val = float(value)
-                if val < 20:
-                    return "#10b981"
-                elif val < 40:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "target_progress":
-                # Higher is better: >=70% green, 40-70% amber, <40% red
-                val = float(value)
-                if val >= 70:
-                    return "#10b981"
-                elif val >= 40:
-                    return "#f59e0b"
-                else:
-                    return "#ef4444"
-
-            elif metric_type == "commits":
-                # Neutral metric - no RAG thresholds
-                return "#6366f1"  # Purple
-
-            return "#6366f1"  # Default purple
+            return _apply_rag_thresholds(cast_fn, thresholds, fallback, value, higher_is_better)
         except (ValueError, TypeError):
-            return "#94a3b8"  # Gray for invalid values
+            return _GRAY

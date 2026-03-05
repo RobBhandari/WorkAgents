@@ -11,7 +11,21 @@ Refactored: 2026-02-08
 
 import os
 
-from .validation import ValidationError
+from execution.security.validation import ValidationError
+
+
+def _reject_traversal(filename: str, basename: str) -> None:
+    """Raise ValidationError if filename or basename contains traversal patterns."""
+    if not basename or basename in (".", ".."):
+        raise ValidationError(f"Invalid filename: '{filename}'")
+    if ".." in filename or "/" in filename or "\\" in filename:
+        raise ValidationError(f"Filename contains path separators: '{filename}'")
+
+
+def _reject_extension(basename: str, allowed_extensions: list[str]) -> None:
+    """Raise ValidationError if basename extension is not in the allowed list."""
+    if not any(basename.lower().endswith(ext.lower()) for ext in allowed_extensions):
+        raise ValidationError(f"Invalid file extension. Allowed: {', '.join(allowed_extensions)}")
 
 
 class PathValidator:
@@ -53,24 +67,14 @@ class PathValidator:
 
         # Get basename to prevent directory traversal
         basename = os.path.basename(filename)
+        _reject_traversal(filename, basename)
 
-        if not basename or basename in (".", ".."):
-            raise ValidationError(f"Invalid filename: '{filename}'")
-
-        # Check for path traversal attempts
-        if ".." in filename or "/" in filename or "\\" in filename:
-            raise ValidationError(f"Filename contains path separators: '{filename}'")
-
-        # Validate extension if whitelist provided
         if allowed_extensions:
-            if not any(basename.lower().endswith(ext.lower()) for ext in allowed_extensions):
-                raise ValidationError(f"Invalid file extension. Allowed: {', '.join(allowed_extensions)}")
+            _reject_extension(basename, allowed_extensions)
 
-        # Check for dangerous patterns
         if basename.startswith("."):
             raise ValidationError("Hidden files not allowed")
 
-        # Validate length
         if len(basename) > 255:
             raise ValidationError(f"Filename too long: {len(basename)} chars (max 255)")
 

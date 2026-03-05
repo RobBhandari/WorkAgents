@@ -14,6 +14,72 @@ from execution.core import get_logger
 
 logger = get_logger(__name__)
 
+# Color alpha formulas: list of (max_intensity, base_alpha, scale_factor) tuples
+_INTENSITY_ALPHAS: list[tuple[float, float, float]] = [
+    (0.3, 0.3, 0.3),  # low:  0.3 + intensity * 0.3
+    (0.7, 0.6, 0.2),  # mid:  0.6 + intensity * 0.2
+    (1.0, 0.8, 0.2),  # high: 0.8 + intensity * 0.2
+]
+
+_COLOR_BASES: dict[str, tuple[str, str, str]] = {
+    # severity -> (low_rgb, mid_rgb, high_rgb)  — alpha computed separately
+    "critical": ("239, 68, 68", "239, 68, 68", "220, 38, 38"),
+    "high": ("251, 146, 60", "249, 115, 22", "234, 88, 12"),
+    "medium": ("251, 191, 36", "245, 158, 11", "217, 119, 6"),
+    "low": ("59, 130, 246", "37, 99, 235", "29, 78, 216"),
+}
+
+
+def _compute_cell_bg_color(severity_type: str, intensity: float) -> str:
+    """Return rgba(...) background color string for a heatmap cell."""
+    bases = _COLOR_BASES.get(severity_type, _COLOR_BASES["low"])
+    for i, (threshold, base_alpha, scale) in enumerate(_INTENSITY_ALPHAS):
+        if intensity < threshold:
+            rgb = bases[i]
+            alpha = base_alpha + intensity * scale
+            return f"rgba({rgb}, {alpha:.3f})"
+    # fallback: max intensity
+    rgb = bases[2]
+    alpha = 0.8 + intensity * 0.2
+    return f"rgba({rgb}, {alpha:.3f})"
+
+
+def _count_by_severity_and_bucket(vulnerabilities: list, age_buckets: list[dict]) -> dict[str, dict[str, int]]:
+    """Count Critical/High vulnerabilities by age bucket."""
+    heatmap_data: dict[str, dict[str, int]] = {
+        "CRITICAL": {bucket["label"]: 0 for bucket in age_buckets},
+        "HIGH": {bucket["label"]: 0 for bucket in age_buckets},
+    }
+    for vuln in vulnerabilities:
+        severity = vuln.severity if hasattr(vuln, "severity") else vuln.get("severity", "")
+        age_days = vuln.age_days if hasattr(vuln, "age_days") else vuln.get("age_days", 0)
+        if severity not in ["CRITICAL", "HIGH"]:
+            continue
+        for bucket in age_buckets:
+            if bucket["min"] <= age_days <= bucket["max"]:
+                heatmap_data[severity][bucket["label"]] += 1
+                break
+    return heatmap_data
+
+
+def _build_heatmap_rows_html(
+    heatmap_data: dict[str, dict[str, int]],
+    age_buckets: list[dict],
+    max_count: int,
+) -> list[str]:
+    """Build HTML parts for Critical and High severity rows."""
+    parts = []
+    for severity_key, row_label, css_class in [
+        ("CRITICAL", "Critical", "critical"),
+        ("HIGH", "High", "high"),
+    ]:
+        parts.append(f'<div class="heatmap-row-header {css_class}-header">{row_label}</div>')
+        for bucket in age_buckets:
+            count = heatmap_data[severity_key][bucket["label"]]
+            intensity = (count / max_count) if max_count > 0 else 0
+            parts.append(_generate_heatmap_cell(count, intensity, css_class))
+    return parts
+
 
 def generate_aging_heatmap(vulnerabilities: list) -> str:
     """
@@ -35,7 +101,6 @@ def generate_aging_heatmap(vulnerabilities: list) -> str:
     if not vulnerabilities:
         return '<div class="no-data">No vulnerability details available</div>'
 
-    # Define age buckets matching modern UX
     age_buckets = [
         {"label": "0-14", "min": 0, "max": 14},
         {"label": "15-29", "min": 15, "max": 29},
@@ -46,62 +111,29 @@ def generate_aging_heatmap(vulnerabilities: list) -> str:
         {"label": "500+", "min": 501, "max": 999999},
     ]
 
-    # Initialize counts for Critical and High only
-    heatmap_data = {
-        "CRITICAL": {bucket["label"]: 0 for bucket in age_buckets},
-        "HIGH": {bucket["label"]: 0 for bucket in age_buckets},
-    }
+    heatmap_data = _count_by_severity_and_bucket(vulnerabilities, age_buckets)
 
-    # Count vulnerabilities by severity and age bucket (Critical and High only)
-    for vuln in vulnerabilities:
-        severity = vuln.severity if hasattr(vuln, "severity") else vuln.get("severity", "")
-        age_days = vuln.age_days if hasattr(vuln, "age_days") else vuln.get("age_days", 0)
-
-        if severity not in ["CRITICAL", "HIGH"]:
-            continue
-
-        for bucket in age_buckets:
-            if bucket["min"] <= age_days <= bucket["max"]:
-                heatmap_data[severity][bucket["label"]] += 1
-                break
-
-    # Calculate max value for color intensity scaling
     max_count = 0
     for severity_data in heatmap_data.values():
         max_count = max(max_count, max(severity_data.values()))
 
-    # Generate heatmap HTML
-    html_parts = []
-    html_parts.append('<div class="detail-content">')
-    html_parts.append('<div class="heatmap-container">')
-    html_parts.append('<div class="heatmap-header">')
-    html_parts.append("<h4>Finding Age Distribution</h4>")
-    html_parts.append('<p class="heatmap-subtitle">Vulnerability count by age and severity</p>')
-    html_parts.append("</div>")
+    html_parts = [
+        '<div class="detail-content">',
+        '<div class="heatmap-container">',
+        '<div class="heatmap-header">',
+        "<h4>Finding Age Distribution</h4>",
+        '<p class="heatmap-subtitle">Vulnerability count by age and severity</p>',
+        "</div>",
+        '<div class="heatmap-grid">',
+        '<div class="heatmap-corner"></div>',
+    ]
 
-    # Heatmap grid
-    html_parts.append('<div class="heatmap-grid">')
-    html_parts.append('<div class="heatmap-corner"></div>')
-
-    # Age bucket headers
     for bucket in age_buckets:
         html_parts.append(
             f'<div class="heatmap-col-header">{bucket["label"]}<span class="days-label">DAYS</span></div>'
         )
 
-    # Critical row
-    html_parts.append('<div class="heatmap-row-header critical-header">Critical</div>')
-    for bucket in age_buckets:
-        count = heatmap_data["CRITICAL"][bucket["label"]]
-        intensity = (count / max_count) if max_count > 0 else 0
-        html_parts.append(_generate_heatmap_cell(count, intensity, "critical"))
-
-    # High row
-    html_parts.append('<div class="heatmap-row-header high-header">High</div>')
-    for bucket in age_buckets:
-        count = heatmap_data["HIGH"][bucket["label"]]
-        intensity = (count / max_count) if max_count > 0 else 0
-        html_parts.append(_generate_heatmap_cell(count, intensity, "high"))
+    html_parts.extend(_build_heatmap_rows_html(heatmap_data, age_buckets, max_count))
 
     html_parts.append("</div>")  # heatmap-grid
     html_parts.append("</div>")  # heatmap-container
@@ -123,49 +155,12 @@ def _generate_heatmap_cell(count: int, intensity: float, severity_type: str) -> 
         HTML string for cell
     """
     if count == 0:
-        # Empty cell - subtle gray
         return (
             '<div class="heatmap-cell empty" '
             'style="background: rgba(148, 163, 184, 0.1); color: var(--text-secondary);"></div>'
         )
-
-    # Determine background color based on severity and intensity
-    if severity_type == "critical":
-        # Red color scale for critical
-        if intensity < 0.3:
-            bg_color = f"rgba(239, 68, 68, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(239, 68, 68, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(220, 38, 38, {0.8 + intensity * 0.2})"
-    elif severity_type == "high":
-        # Orange/amber scale for high
-        if intensity < 0.3:
-            bg_color = f"rgba(251, 146, 60, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(249, 115, 22, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(234, 88, 12, {0.8 + intensity * 0.2})"
-    elif severity_type == "medium":
-        # Yellow/amber scale for medium
-        if intensity < 0.3:
-            bg_color = f"rgba(251, 191, 36, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(245, 158, 11, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(217, 119, 6, {0.8 + intensity * 0.2})"
-    else:  # low
-        # Blue/cyan scale for low
-        if intensity < 0.3:
-            bg_color = f"rgba(59, 130, 246, {0.3 + intensity * 0.3})"
-        elif intensity < 0.7:
-            bg_color = f"rgba(37, 99, 235, {0.6 + intensity * 0.2})"
-        else:
-            bg_color = f"rgba(29, 78, 216, {0.8 + intensity * 0.2})"
-
-    # Text color - white for high intensity, darker for low
+    bg_color = _compute_cell_bg_color(severity_type, intensity)
     text_color = "#ffffff" if intensity > 0.5 else "var(--text-primary)"
-
     return f'<div class="heatmap-cell" style="background: {bg_color}; color: {text_color};">{count}</div>'
 
 

@@ -9,11 +9,12 @@ Represents flow metrics for tracking development velocity:
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 
-from .metrics import MetricSnapshot
+from execution.domain.metrics import MetricSnapshot
 
 
-@dataclass
+@dataclass(kw_only=True)
 class FlowMetrics(MetricSnapshot):
     """
     Engineering flow metrics for a project at a point in time.
@@ -229,6 +230,64 @@ class FlowMetrics(MetricSnapshot):
             issues.append("slow_delivery")
 
         return len(issues) > 0
+
+    @property
+    def status(self) -> str:
+        """Overall flow status label: Good, Caution, or Action Needed."""
+        issue_count = sum(
+            [
+                self.has_high_variability(),
+                self.has_aging_issues(),
+                bool(self.lead_time_p50 and self.lead_time_p50 > 14),
+            ]
+        )
+        if issue_count >= 2:
+            return "Action Needed"
+        if issue_count == 1:
+            return "Caution"
+        return "Good"
+
+    @property
+    def status_class(self) -> str:
+        """CSS class for status badge."""
+        return {"Good": "good", "Caution": "caution", "Action Needed": "action"}.get(self.status, "caution")
+
+    @staticmethod
+    def from_json(data: dict) -> "FlowMetrics":
+        """
+        Create FlowMetrics from JSON data structure.
+
+        Args:
+            data: Dictionary from flow history JSON. Must contain 'timestamp'
+                  and 'project' keys. All metric keys are optional.
+
+        Returns:
+            FlowMetrics instance with all metrics populated from data.
+
+        Example:
+            >>> data = {
+            ...     "timestamp": "2026-01-01T00:00:00",
+            ...     "project": "MyApp",
+            ...     "lead_time": {"p50": 7.5, "p85": 15.0, "p95": 25.0},
+            ...     "wip_count": 25,
+            ... }
+            >>> metrics = FlowMetrics.from_json(data)
+            >>> metrics.lead_time_p50
+            7.5
+        """
+        return FlowMetrics(
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+            project=data["project"],
+            lead_time_p50=data.get("lead_time", {}).get("p50"),
+            lead_time_p85=data.get("lead_time", {}).get("p85"),
+            lead_time_p95=data.get("lead_time", {}).get("p95"),
+            cycle_time_p50=data.get("cycle_time", {}).get("p50"),
+            cycle_time_p85=data.get("cycle_time", {}).get("p85"),
+            cycle_time_p95=data.get("cycle_time", {}).get("p95"),
+            wip_count=data.get("wip_count", 0),
+            aging_items=data.get("aging_items", 0),
+            throughput=data.get("throughput"),
+        )
 
     def __str__(self) -> str:
         """

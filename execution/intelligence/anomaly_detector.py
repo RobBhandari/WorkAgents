@@ -244,6 +244,50 @@ def _compute_root_cause_hint(
 
 
 # ---------------------------------------------------------------------------
+# Primary entry point helpers
+# ---------------------------------------------------------------------------
+
+
+def _compute_global_stats(df: pd.DataFrame, value_col: str) -> tuple[float, float]:
+    """Return (global_mean, global_std) for value_col, safe for z-score display."""
+    series_vals = df[value_col].dropna().to_numpy(dtype=float)
+    global_mean = float(np.mean(series_vals)) if len(series_vals) > 0 else 0.0
+    global_std = float(np.std(series_vals, ddof=1)) if len(series_vals) > 1 else 1.0
+    if global_std == 0.0:
+        global_std = 1.0
+    return global_mean, global_std
+
+
+def _make_anomaly_result(
+    row: pd.Series,
+    value_col: str,
+    global_mean: float,
+    global_std: float,
+    method: str,
+    root_cause_hint: str,
+) -> "AnomalyResult | None":
+    """
+    Build an AnomalyResult for one DataFrame row.
+    Returns None if the row value is missing or NaN (caller should skip it).
+    """
+    raw_value = row.get(value_col) if isinstance(row, pd.Series) else None
+    if raw_value is None or (isinstance(raw_value, float) and np.isnan(raw_value)):
+        return None
+    value = float(raw_value)
+    z = (value - global_mean) / global_std
+    raw_date = row.get("week_date", "") if isinstance(row, pd.Series) else ""
+    week_date_str = raw_date.isoformat()[:10] if hasattr(raw_date, "isoformat") else str(raw_date)[:10]
+    return AnomalyResult(
+        week_date=week_date_str,
+        value=value,
+        z_score=round(z, 3),
+        is_anomaly=True,
+        method=method,
+        root_cause_hint=root_cause_hint,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Primary entry point
 # ---------------------------------------------------------------------------
 
@@ -287,11 +331,7 @@ def detect_anomalies(
         return []
 
     # Compute global z-scores for display (regardless of detection method)
-    series_vals = df[value_col].dropna().to_numpy(dtype=float)
-    global_mean = float(np.mean(series_vals)) if len(series_vals) > 0 else 0.0
-    global_std = float(np.std(series_vals, ddof=1)) if len(series_vals) > 1 else 1.0
-    if global_std == 0.0:
-        global_std = 1.0
+    global_mean, global_std = _compute_global_stats(df, value_col)
 
     # Run detection
     if method == "isolation_forest":
@@ -307,30 +347,9 @@ def detect_anomalies(
         if idx not in df.index:
             continue
         row = df.loc[idx]
-
-        raw_value = row.get(value_col, None) if isinstance(row, pd.Series) else None
-        if raw_value is None or (isinstance(raw_value, float) and np.isnan(raw_value)):
-            continue
-        value = float(raw_value)
-
-        z = (value - global_mean) / global_std
-
-        raw_date = row.get("week_date", "") if isinstance(row, pd.Series) else ""
-        if hasattr(raw_date, "isoformat"):
-            week_date_str = raw_date.isoformat()[:10]
-        else:
-            week_date_str = str(raw_date)[:10]
-
-        results.append(
-            AnomalyResult(
-                week_date=week_date_str,
-                value=value,
-                z_score=round(z, 3),
-                is_anomaly=True,
-                method=method,
-                root_cause_hint=root_cause_hint,
-            )
-        )
+        result = _make_anomaly_result(row, value_col, global_mean, global_std, method, root_cause_hint)
+        if result is not None:
+            results.append(result)
 
     # Sort chronologically
     results.sort(key=lambda r: r["week_date"])
