@@ -544,6 +544,70 @@ def save_collaboration_metrics(metrics: dict, output_file: str = ".tmp/observato
 
 
 # Self-test for refactored utilities
+
+
+def _test_pr_sampling() -> None:
+    """Tests 1+2: PR sampling utility with normal and undersized datasets."""
+    print("\n[Test 1] PR sampling utility")
+    test_prs = [{"pr_id": i} for i in range(50)]
+    sampled = sample_prs(test_prs, sample_size=10)
+    assert len(sampled) == 10, f"Expected 10 PRs, got {len(sampled)}"
+    assert all(pr in test_prs for pr in sampled), "Sampled PRs not in original list"
+    print(f"  Sampled {len(sampled)} PRs from {len(test_prs)}")
+    print("  ✓ PASS")
+
+    print("\n[Test 2] PR sampling with dataset smaller than sample size")
+    small_prs = [{"pr_id": i} for i in range(5)]
+    sampled = sample_prs(small_prs, sample_size=10)
+    assert len(sampled) == 5, f"Expected 5 PRs, got {len(sampled)}"
+    print(f"  Sampled {len(sampled)} PRs from {len(small_prs)}")
+    print("  ✓ PASS")
+
+
+def _test_first_comment_time() -> None:
+    """Test 3: First comment time extraction from thread list."""
+    print("\n[Test 3] First comment time extraction")
+    now = datetime.now()
+    earlier = now - timedelta(hours=1)
+    later = now + timedelta(hours=1)
+    threads = [
+        {"comments": [{"published_date": now.isoformat()}, {"published_date": later.isoformat()}]},
+        {"comments": [{"published_date": earlier.isoformat()}]},
+    ]
+    first_time = get_first_comment_time(threads)
+    assert first_time is not None, "Expected a datetime, got None"
+    assert abs((first_time - earlier).total_seconds()) < 1, f"Expected {earlier}, got {first_time}"
+    print(f"  Found first comment at: {first_time}")
+    print("  ✓ PASS")
+
+
+def _test_empty_threads() -> None:
+    """Test 4: Empty thread list returns None."""
+    print("\n[Test 4] Empty threads handling")
+    first_time = get_first_comment_time([])
+    assert first_time is None, "Expected None for empty threads"
+    print("  ✓ PASS - Returns None for empty threads")
+
+
+def _test_percentile_calc() -> None:
+    """Test 5: Percentile calculation with shared utility."""
+    print("\n[Test 5] Percentile calculation with shared utility")
+    test_times = [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0]
+    p85 = calculate_percentile(test_times, 85)
+    assert 40.0 <= p85 <= 50.0, f"P85 should be between 40 and 50, got {p85}"
+    print(f"  P85 of test data: {p85}")
+    print("  ✓ PASS")
+
+
+def _test_merge_time_empty() -> None:
+    """Test 6: Merge time calculation with empty data."""
+    print("\n[Test 6] Merge time calculation with empty data")
+    result = calculate_pr_merge_time([])
+    assert result["sample_size"] == 0, "Expected sample_size 0"
+    assert result["median_hours"] is None, "Expected None for median"
+    print("  ✓ PASS - Handles empty data correctly")
+
+
 def run_self_test() -> None:
     """
     Self-test to verify backward compatibility after refactoring.
@@ -560,68 +624,11 @@ def run_self_test() -> None:
     print("ADO Collaboration Metrics - Self Test")
     print("=" * 60)
 
-    # Test 1: PR sampling
-    print("\n[Test 1] PR sampling utility")
-    test_prs = [{"pr_id": i} for i in range(50)]
-    sampled = sample_prs(test_prs, sample_size=10)
-    assert len(sampled) == 10, f"Expected 10 PRs, got {len(sampled)}"
-    assert all(pr in test_prs for pr in sampled), "Sampled PRs not in original list"
-    print(f"  Sampled {len(sampled)} PRs from {len(test_prs)}")
-    print("  ✓ PASS")
-
-    # Test 2: PR sampling with small dataset
-    print("\n[Test 2] PR sampling with dataset smaller than sample size")
-    small_prs = [{"pr_id": i} for i in range(5)]
-    sampled = sample_prs(small_prs, sample_size=10)
-    assert len(sampled) == 5, f"Expected 5 PRs, got {len(sampled)}"
-    print(f"  Sampled {len(sampled)} PRs from {len(small_prs)}")
-    print("  ✓ PASS")
-
-    # Test 3: First comment time extraction
-    print("\n[Test 3] First comment time extraction")
-
-    now = datetime.now()
-    earlier = now - timedelta(hours=1)
-    later = now + timedelta(hours=1)
-
-    # Mock REST response format
-    threads = [
-        {
-            "comments": [
-                {"published_date": now.isoformat()},
-                {"published_date": later.isoformat()},
-            ]
-        },
-        {"comments": [{"published_date": earlier.isoformat()}]},
-    ]
-
-    first_time = get_first_comment_time(threads)
-    assert first_time is not None, "Expected a datetime, got None"
-    # Compare just the timestamp (ignore microseconds for comparison)
-    assert abs((first_time - earlier).total_seconds()) < 1, f"Expected {earlier}, got {first_time}"
-    print(f"  Found first comment at: {first_time}")
-    print("  ✓ PASS")
-
-    # Test 4: Empty threads
-    print("\n[Test 4] Empty threads handling")
-    first_time = get_first_comment_time([])
-    assert first_time is None, "Expected None for empty threads"
-    print("  ✓ PASS - Returns None for empty threads")
-
-    # Test 5: Percentile calculation integration
-    print("\n[Test 5] Percentile calculation with shared utility")
-    test_times = [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0]
-    p85 = calculate_percentile(test_times, 85)
-    assert 40.0 <= p85 <= 50.0, f"P85 should be between 40 and 50, got {p85}"
-    print(f"  P85 of test data: {p85}")
-    print("  ✓ PASS")
-
-    # Test 6: Merge time calculation with empty data
-    print("\n[Test 6] Merge time calculation with empty data")
-    result = calculate_pr_merge_time([])
-    assert result["sample_size"] == 0, "Expected sample_size 0"
-    assert result["median_hours"] is None, "Expected None for median"
-    print("  ✓ PASS - Handles empty data correctly")
+    _test_pr_sampling()
+    _test_first_comment_time()
+    _test_empty_threads()
+    _test_percentile_calc()
+    _test_merge_time_empty()
 
     print("\n" + "=" * 60)
     print("All self-tests passed! ✓")
