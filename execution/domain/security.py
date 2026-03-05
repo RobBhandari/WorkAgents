@@ -289,6 +289,20 @@ class SecurityMetrics(MetricSnapshot):
 
         return self.critical_high_count <= self.target
 
+    @property
+    def status(self) -> str:
+        """Overall security status label: Good, Caution, or Action Needed."""
+        if self.has_critical:
+            return "Action Needed"
+        if self.has_high:
+            return "Caution"
+        return "Good"
+
+    @property
+    def status_class(self) -> str:
+        """CSS class for status badge."""
+        return {"Good": "good", "Caution": "caution", "Action Needed": "action"}.get(self.status, "caution")
+
     @staticmethod
     def from_json(data: dict) -> "SecurityMetrics":
         """

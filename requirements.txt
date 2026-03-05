@@ -6,7 +6,6 @@ httpx>=0.27.0,<1.0  # Primary HTTP client (SSL-verified by default)
 
 # Web scraping (for example scripts)
 beautifulsoup4>=4.12.3,<5.0
-lxml>=5.3.0,<7.0
 
 # Data processing
 pandas>=2.2.3,<4.0
@@ -31,7 +30,6 @@ pytest-asyncio>=1.3.0,<2.0  # For async test support
 
 # Observability
 sentry-sdk>=2.0.0,<3.0  # Error tracking and performance monitoring
-structlog>=24.1.0,<25.0  # Structured logging for agents and collectors
 
 # REST API
 fastapi>=0.128.7,<1.0  # Modern async web framework (updated to latest: 0.128.7)
@@ -50,7 +48,7 @@ pyarrow>=15.0.0,<24.0     # Parquet I/O for feature store (DuckDB reads natively
 h2>=4.1.0,<5.0  # HTTP/2 support for httpx (required by AsyncSecureHTTPClient)
 # Security constraints for transitive dependencies
 cryptography>=46.0.5  # CVE-2026-26007 fix
-aiohttp>=3.10.11  # CVE pin for transitive dep via instructor (not directly imported)
+aiohttp>=3.13.3,<4.0  # CVE pin for transitive dep via instructor (not directly imported); >=3.13.3 resolves 9 CVEs
 urllib3>=2.6.3  # CVE-2025-50181, CVE-2025-66418, CVE-2025-66471, CVE-2026-21441
 
 # MCP (Model Context Protocol) - for skill-based architecture
