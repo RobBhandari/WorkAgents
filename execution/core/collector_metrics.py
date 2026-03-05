@@ -43,6 +43,7 @@ class CollectorMetricsTracker:
         api_call_count: Number of API requests made
         rate_limit_hits: Number of 429 rate limit responses
         retry_count: Number of transient error retries
+        errors: Number of projects that failed collection
         error_message: Error text if failed (None if successful)
         error_type: Exception class name if failed (None if successful)
 
@@ -71,6 +72,7 @@ class CollectorMetricsTracker:
         self.api_call_count: int = 0
         self.rate_limit_hits: int = 0
         self.retry_count: int = 0
+        self.errors: int = 0
         self.error_message: str | None = None
         self.error_type: str | None = None
 
