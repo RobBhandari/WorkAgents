@@ -51,6 +51,29 @@ class AzureDevOpsConfig:
         """Validate configuration after initialization."""
         self._validate()
 
+    def _validate_organization_url(self) -> None:
+        """Validate the organization URL format."""
+        if not self.organization_url:
+            raise ConfigurationError("AZURE_DEVOPS_ORG_URL is required")
+        if not self.organization_url.startswith("https://"):
+            raise ConfigurationError(f"AZURE_DEVOPS_ORG_URL must use HTTPS: {self.organization_url}")
+        if not ("dev.azure.com" in self.organization_url or "visualstudio.com" in self.organization_url):
+            raise ConfigurationError(f"AZURE_DEVOPS_ORG_URL must be a valid Azure DevOps URL: {self.organization_url}")
+
+    def _validate_pat(self) -> None:
+        """Validate the Personal Access Token."""
+        if not self.pat:
+            raise ConfigurationError("AZURE_DEVOPS_PAT is required")
+        if len(self.pat) < 20:
+            raise ConfigurationError(
+                f"AZURE_DEVOPS_PAT appears invalid (too short: {len(self.pat)} chars, expected ≥20)"
+            )
+        placeholders = ["your_pat", "your_token", "example", "placeholder", "xxx", "replace_me"]
+        if any(placeholder in self.pat.lower() for placeholder in placeholders):
+            raise ConfigurationError(
+                "AZURE_DEVOPS_PAT contains a placeholder value - please set a real Personal Access Token"
+            )
+
     def _validate(self):
         """
         Validate Azure DevOps configuration.
@@ -58,33 +81,8 @@ class AzureDevOpsConfig:
         Raises:
             ConfigurationError: If configuration is invalid
         """
-        # Validate organization URL
-        if not self.organization_url:
-            raise ConfigurationError("AZURE_DEVOPS_ORG_URL is required")
-
-        if not self.organization_url.startswith("https://"):
-            raise ConfigurationError(f"AZURE_DEVOPS_ORG_URL must use HTTPS: {self.organization_url}")
-
-        if not ("dev.azure.com" in self.organization_url or "visualstudio.com" in self.organization_url):
-            raise ConfigurationError(f"AZURE_DEVOPS_ORG_URL must be a valid Azure DevOps URL: {self.organization_url}")
-
-        # Validate PAT
-        if not self.pat:
-            raise ConfigurationError("AZURE_DEVOPS_PAT is required")
-
-        if len(self.pat) < 20:
-            raise ConfigurationError(
-                f"AZURE_DEVOPS_PAT appears invalid (too short: {len(self.pat)} chars, expected ≥20)"
-            )
-
-        # Check for placeholder values
-        placeholders = ["your_pat", "your_token", "example", "placeholder", "xxx", "replace_me"]
-        if any(placeholder in self.pat.lower() for placeholder in placeholders):
-            raise ConfigurationError(
-                "AZURE_DEVOPS_PAT contains a placeholder value - please set a real Personal Access Token"
-            )
-
-        # Validate project if provided
+        self._validate_organization_url()
+        self._validate_pat()
         if self.project:
             if not re.match(r"^[a-zA-Z0-9 _\-\.]+$", self.project):
                 raise ConfigurationError(f"ADO_PROJECT contains invalid characters: {self.project}")

@@ -184,6 +184,33 @@ def detect_anomalies_isolation_forest(
 # ---------------------------------------------------------------------------
 
 
+def _column_normalised_gap(
+    df: pd.DataFrame,
+    col: str,
+    anomaly_mask: pd.Series,
+) -> float:
+    """
+    Compute the normalised mean-gap between anomalous and normal rows for one column.
+
+    Returns 0.0 if the column has insufficient data or zero variance.
+    """
+    series = df[col].dropna()
+    if len(series) < 2:
+        return 0.0
+
+    overall_std = float(series.std(ddof=1))
+    if overall_std == 0.0:
+        return 0.0
+
+    anomaly_vals = df.loc[anomaly_mask, col].dropna()
+    normal_vals = df.loc[~anomaly_mask, col].dropna()
+
+    if anomaly_vals.empty or normal_vals.empty:
+        return 0.0
+
+    return abs(float(anomaly_vals.mean()) - float(normal_vals.mean())) / overall_std
+
+
 def _compute_root_cause_hint(
     df: pd.DataFrame,
     value_col: str,
@@ -206,7 +233,6 @@ def _compute_root_cause_hint(
     if not anomaly_indices:
         return ""
 
-    # Candidate dimension columns: numeric, whitelisted, not the target metric
     candidate_cols = [
         col
         for col in df.select_dtypes(include=[np.number]).columns
@@ -221,21 +247,7 @@ def _compute_root_cause_hint(
     best_gap = 0.0
 
     for col in candidate_cols:
-        series = df[col].dropna()
-        if len(series) < 2:
-            continue
-
-        overall_std = float(series.std(ddof=1))
-        if overall_std == 0.0:
-            continue
-
-        anomaly_vals = df.loc[anomaly_mask, col].dropna()
-        normal_vals = df.loc[~anomaly_mask, col].dropna()
-
-        if anomaly_vals.empty or normal_vals.empty:
-            continue
-
-        gap = abs(float(anomaly_vals.mean()) - float(normal_vals.mean())) / overall_std
+        gap = _column_normalised_gap(df, col, anomaly_mask)
         if gap > best_gap:
             best_gap = gap
             best_dim = col

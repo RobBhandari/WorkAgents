@@ -14,6 +14,32 @@ from execution.dashboards.components.forecast_chart import build_trend_chart
 logger = get_logger(__name__)
 
 
+def _deduplicate_weeks_by_date(weeks: list[dict]) -> list[dict]:
+    """Deduplicate week entries by week_date, keeping last occurrence. Returns last 12."""
+    seen: dict[str, dict] = {}
+    for entry in weeks:
+        date = entry.get("week_date", "")
+        if date:
+            seen[date] = entry
+    return list(seen.values())[-12:]
+
+
+def _extract_avg_success_rates(entries: list[dict]) -> tuple[list[float], list[str]]:
+    """Extract portfolio-average build success rates from unique week entries."""
+    values: list[float] = []
+    labels: list[str] = []
+    for entry in entries:
+        rates = [
+            float(p["build_success_rate"]["success_rate_pct"])
+            for p in entry.get("projects", [])
+            if p.get("build_success_rate", {}).get("total_builds", 0) > 0
+        ]
+        if rates:
+            values.append(sum(rates) / len(rates))
+            labels.append(entry.get("week_date", ""))
+    return values, labels
+
+
 def load_deployment_trend_chart() -> str:
     """
     Load deployment history and build a portfolio avg build success rate trend chart.
@@ -32,36 +58,16 @@ def load_deployment_trend_chart() -> str:
     try:
         with open(history_path, encoding="utf-8") as fh:
             data = json.load(fh)
-    except Exception:
-        logger.warning("Could not load deployment_history.json for trend chart")
+    except (ValueError, OSError) as e:
+        logger.warning("Could not load deployment_history.json for trend chart: %s", e)
         return ""
 
     weeks = data.get("weeks", [])
     if not weeks:
         return ""
 
-    # Deduplicate by week_date (keep last occurrence per date)
-    seen: dict[str, dict] = {}
-    for entry in weeks:
-        date = entry.get("week_date", "")
-        if date:
-            seen[date] = entry
-
-    # Use last 12 unique dates for the chart
-    unique_entries = list(seen.values())[-12:]
-
-    values: list[float] = []
-    labels: list[str] = []
-
-    for entry in unique_entries:
-        rates = [
-            float(p["build_success_rate"]["success_rate_pct"])
-            for p in entry.get("projects", [])
-            if p.get("build_success_rate", {}).get("total_builds", 0) > 0
-        ]
-        if rates:
-            values.append(sum(rates) / len(rates))
-            labels.append(entry.get("week_date", ""))
+    unique_entries = _deduplicate_weeks_by_date(weeks)
+    values, labels = _extract_avg_success_rates(unique_entries)
 
     if not values:
         return ""

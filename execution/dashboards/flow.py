@@ -168,6 +168,29 @@ async def generate_flow_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
+def _extract_p85_values(projects: list[dict[str, Any]]) -> list[float]:
+    """Extract positive P85 lead time values across all projects and work types."""
+    work_types = ["Bug", "User Story", "Task"]
+    values: list[float] = []
+    for project in projects:
+        wt_metrics = project.get("work_type_metrics", {})
+        for work_type in work_types:
+            p85 = wt_metrics.get(work_type, {}).get("lead_time", {}).get("p85")
+            if p85 and float(p85) > 0:
+                values.append(float(p85))
+    return values
+
+
+def _deduplicate_by_date(weeks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Deduplicate week entries by week_date, keeping last occurrence. Returns last 12."""
+    seen: dict[str, dict[str, Any]] = {}
+    for entry in weeks:
+        date = entry.get("week_date", "")
+        if date:
+            seen[date] = entry
+    return list(seen.values())[-12:]
+
+
 def _load_flow_trend_chart() -> str:
     """
     Load flow history and build a portfolio avg lead time trend chart.
@@ -187,37 +210,22 @@ def _load_flow_trend_chart() -> str:
     try:
         data = load_json_with_recovery(str(history_path))
         weeks = data.get("weeks", [])
-    except Exception:
-        logger.warning("Could not load flow_history.json for trend chart")
+    except (ValueError, OSError) as e:
+        logger.warning("Could not load flow_history.json for trend chart: %s", e)
         return ""
 
     if not weeks:
         return ""
 
-    # Deduplicate by week_date (keep last occurrence per date)
-    seen: dict[str, dict[str, Any]] = {}
-    for entry in weeks:
-        date = entry.get("week_date", "")
-        if date:
-            seen[date] = entry
-
-    # Use last 12 unique dates for the chart
-    unique_entries = list(seen.values())[-12:]
+    unique_entries = _deduplicate_by_date(weeks)
 
     weekly_values: list[float] = []
     week_labels: list[str] = []
 
     for entry in unique_entries:
-        projects = entry.get("projects", [])
-        p85_values: list[float] = []
-        for project in projects:
-            for work_type in ["Bug", "User Story", "Task"]:
-                p85 = project.get("work_type_metrics", {}).get(work_type, {}).get("lead_time", {}).get("p85")
-                if p85 and float(p85) > 0:
-                    p85_values.append(float(p85))
+        p85_values = _extract_p85_values(entry.get("projects", []))
         if p85_values:
-            avg_p85 = sum(p85_values) / len(p85_values)
-            weekly_values.append(avg_p85)
+            weekly_values.append(sum(p85_values) / len(p85_values))
             week_labels.append(entry.get("week_date", ""))
 
     if not weekly_values:

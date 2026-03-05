@@ -202,6 +202,43 @@ def _build_training_dataframe() -> tuple[pd.DataFrame, pd.Series] | tuple[None, 
 # ---------------------------------------------------------------------------
 
 
+def _validate_label(label_raw: str, project_name: str) -> str:
+    """Validate a classifier label against the allowlist, defaulting to Amber."""
+    label = str(label_raw)
+    if label not in _VALID_HEALTH_LABELS:
+        logger.warning(
+            "Unexpected classifier label — defaulting to Amber",
+            extra={"label": label, "project": project_name},
+        )
+        return "Amber"
+    return label
+
+
+def _build_classification_results(
+    feature_df: pd.DataFrame,
+    labels_raw: np.ndarray,
+    proba: np.ndarray,
+    importances: dict[str, float],
+) -> list[HealthClassification]:
+    """Build HealthClassification list from classifier outputs."""
+    results: list[HealthClassification] = []
+    for project_name, label_raw, prob_row in zip(feature_df.index, labels_raw, proba, strict=True):
+        label = _validate_label(str(label_raw), str(project_name))
+        confidence = round(float(max(prob_row)), 4)
+
+        results.append(
+            HealthClassification(
+                timestamp=datetime.now(),
+                project=str(project_name),
+                label=label,
+                confidence=confidence,
+                feature_importances=importances,
+                model_version=_MODEL_VERSION,
+            )
+        )
+    return results
+
+
 def classify_project_health(
     random_seed: int | None = 42,
 ) -> list[HealthClassification]:
@@ -231,44 +268,18 @@ def classify_project_health(
         )
         return []
 
-    # Fit RandomForest — no serialization, re-fit each call
     clf = RandomForestClassifier(n_estimators=100, random_state=random_seed)
     clf.fit(feature_df, y)
 
-    # Predict with class probabilities
-    proba: np.ndarray = clf.predict_proba(feature_df)  # shape: (n_samples, n_classes)
+    proba: np.ndarray = clf.predict_proba(feature_df)
     labels_raw: np.ndarray = clf.predict(feature_df)
 
-    # Global feature importances (same for all projects in this run)
     importances: dict[str, float] = {
         feat: round(float(imp), 4)
         for feat, imp in zip(feature_df.columns.tolist(), clf.feature_importances_.tolist(), strict=True)
     }
 
-    results: list[HealthClassification] = []
-    for project_name, label_raw, prob_row in zip(feature_df.index, labels_raw, proba, strict=True):
-        label = str(label_raw)
-
-        # Validate against allowlist — default to "Amber" if unexpected
-        if label not in _VALID_HEALTH_LABELS:
-            logger.warning(
-                "Unexpected classifier label — defaulting to Amber",
-                extra={"label": label, "project": str(project_name)},
-            )
-            label = "Amber"
-
-        confidence = round(float(max(prob_row)), 4)
-
-        results.append(
-            HealthClassification(
-                timestamp=datetime.now(),
-                project=str(project_name),
-                label=label,
-                confidence=confidence,
-                feature_importances=importances,
-                model_version=_MODEL_VERSION,
-            )
-        )
+    results = _build_classification_results(feature_df, labels_raw, proba, importances)
 
     label_distribution = {lb: sum(1 for r in results if r.label == lb) for lb in _VALID_HEALTH_LABELS}
     logger.info(

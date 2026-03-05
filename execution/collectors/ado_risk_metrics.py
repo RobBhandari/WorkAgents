@@ -444,24 +444,15 @@ def _strip_detail_lists_for_history(project: dict) -> dict:
     return p
 
 
-def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json") -> bool:
-    """
-    Save risk metrics to history file.
-
-    Appends to existing history or creates new file.
-    Validates data before saving to prevent persisting collection failures.
-    """
-    from execution.utils_atomic_json import atomic_json_save, load_json_with_recovery
-
-    # Validate that we have actual data before saving
-    projects = metrics.get("projects", [])
+def _validate_risk_data(metrics: dict) -> list | None:
+    """Validate risk metrics before saving. Returns projects list or None if invalid."""
+    projects: list = metrics.get("projects", [])
 
     if not projects:
         logger.warning("No project data to save - collection may have failed")
         print("\n[SKIPPED] No project data to save - collection may have failed")
-        return False
+        return None
 
-    # Check if this looks like a failed collection (all zeros)
     total_commits = sum(p.get("code_churn", {}).get("total_commits", 0) for p in projects)
     total_files = sum(p.get("code_churn", {}).get("unique_files_touched", 0) for p in projects)
     total_repos = sum(p.get("repository_count", 0) for p in projects)
@@ -478,29 +469,37 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
         )
         print("\n[SKIPPED] All projects returned zero risk data - likely a collection failure")
         print("          Not persisting this data to avoid corrupting trend history")
+        return None
+
+    return projects
+
+
+def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json") -> bool:
+    """
+    Save risk metrics to history file.
+
+    Appends to existing history or creates new file.
+    Validates data before saving to prevent persisting collection failures.
+    """
+    from execution.utils_atomic_json import atomic_json_save, load_json_with_recovery
+
+    if _validate_risk_data(metrics) is None:
         return False
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    # Load existing history
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
-    # Add validation if structure check exists
     if not isinstance(history, dict) or "weeks" not in history:
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
-    # Strip internal detail lists before persisting — history is for trend sparklines only
     stripped_projects = [_strip_detail_lists_for_history(p) for p in metrics.get("projects", [])]
     history_entry = {**metrics, "projects": stripped_projects}
 
-    # Add new week entry
     history["weeks"].append(history_entry)
-
-    # Keep only last 52 weeks (12 months) for quarter/annual analysis
     history["weeks"] = history["weeks"][-52:]
 
-    # Save updated history
     try:
         atomic_json_save(history, output_file)
         logger.info("Risk metrics saved", extra={"file": output_file, "week_count": len(history["weeks"])})

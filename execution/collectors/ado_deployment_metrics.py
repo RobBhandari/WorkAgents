@@ -451,6 +451,25 @@ def _strip_pipeline_names_for_history(project: dict) -> dict:
     return p
 
 
+def _validate_deployment_data(metrics: dict) -> bool:
+    """Validate deployment metrics before saving. Returns True if data is valid."""
+    projects = metrics.get("projects", [])
+
+    if not projects:
+        print("\n[SKIPPED] No project data to save - collection may have failed")
+        return False
+
+    total_builds = sum(p.get("build_success_rate", {}).get("total_builds", 0) for p in projects)
+    total_successful = sum(p.get("deployment_frequency", {}).get("total_successful_builds", 0) for p in projects)
+
+    if total_builds == 0 and total_successful == 0:
+        print("\n[SKIPPED] All projects returned zero deployment data - likely a collection failure")
+        print("          Not persisting this data to avoid corrupting trend history")
+        return False
+
+    return True
+
+
 def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/deployment_history.json") -> bool:
     """
     Save deployment metrics to history file.
@@ -460,43 +479,23 @@ def save_deployment_metrics(metrics: dict, output_file: str = ".tmp/observatory/
     """
     from execution.utils_atomic_json import atomic_json_save, load_json_with_recovery
 
-    # Validate that we have actual data before saving
-    projects = metrics.get("projects", [])
-
-    if not projects:
-        print("\n[SKIPPED] No project data to save - collection may have failed")
-        return False
-
-    # Check if this looks like a failed collection (all zeros)
-    total_builds = sum(p.get("build_success_rate", {}).get("total_builds", 0) for p in projects)
-    total_successful = sum(p.get("deployment_frequency", {}).get("total_successful_builds", 0) for p in projects)
-
-    if total_builds == 0 and total_successful == 0:
-        print("\n[SKIPPED] All projects returned zero deployment data - likely a collection failure")
-        print("          Not persisting this data to avoid corrupting trend history")
+    if not _validate_deployment_data(metrics):
         return False
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    # Load existing history
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
-    # Add validation if structure check exists
     if not isinstance(history, dict) or "weeks" not in history:
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
-    # Strip pipeline name detail before persisting — history is for trend sparklines only
     stripped_projects = [_strip_pipeline_names_for_history(p) for p in metrics.get("projects", [])]
     history_entry = {**metrics, "projects": stripped_projects}
 
-    # Add new week entry
     history["weeks"].append(history_entry)
-
-    # Keep only last 52 weeks (12 months) for quarter/annual analysis
     history["weeks"] = history["weeks"][-52:]
 
-    # Save updated history
     try:
         atomic_json_save(history, output_file)
         print(f"\n[SAVED] Deployment metrics saved to: {output_file}")
