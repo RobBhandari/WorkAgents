@@ -104,7 +104,7 @@ def main():
 
     print("Next steps:")
     print("  1. Copy the JSON from .tmp/baseline_secret.json")
-    print("  2. Go to: https://github.com/RobBhandari/WorkAgents/settings/secrets/actions")
+    print("  2. Go to: https://github.com/<your-org>/<your-repo>/settings/secrets/actions")
     print("  3. Edit BASELINE_ADO_PROJECTS secret")
     print("  4. Paste the JSON content")
     print("  5. Save")
