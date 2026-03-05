@@ -77,7 +77,7 @@ jobs:
           python execution/discover_projects.py
 
       - name: Upload project discovery artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: project-discovery
           path: .tmp/observatory/ado_structure.json
@@ -222,7 +222,7 @@ jobs:
           fi
 
       - name: Upload metrics artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: metrics-${{ matrix.collector.name }}
           path: .tmp/observatory/${{ matrix.collector.outputs }}
@@ -289,7 +289,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload intelligence outputs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: intelligence-outputs
           path: |
@@ -371,7 +371,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload dashboard artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dashboard-${{ matrix.dashboard.name }}
           path: .tmp/observatory/dashboards/
@@ -534,7 +534,7 @@ jobs:
           python execution/dashboards/${{ matrix.dashboard.script }}
 
       - name: Upload dashboard artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dashboard-${{ matrix.dashboard.name }}
           path: .tmp/observatory/dashboards/
@@ -542,7 +542,7 @@ jobs:
         if: success()
 
       - name: Upload patched security history (live-accurate count for index.html)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: security-history-patched
           path: .tmp/observatory/security_history.json
