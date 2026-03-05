@@ -41,303 +41,6 @@
             "p85_hours": 504.6,
             "p95_hours": 544.5
           },
-          "collected_at": "2026-02-20T14:29:45.260109"
-        },
-        {
-          "project_key": "Product C",
-          "project_name": "Product C",
-          "deployment_frequency": {
-            "total_successful_builds": 49,
-            "lookback_days": 90,
-            "deployments_per_week": 3.81,
-            "pipeline_count": 5
-          },
-          "build_success_rate": {
-            "total_builds": 70,
-            "succeeded": 49,
-            "failed": 6,
-            "canceled": 15,
-            "partially_succeeded": 0,
-            "success_rate_pct": 70.0,
-            "by_result": {
-              "failed": 6,
-              "succeeded": 49,
-              "canceled": 15
-            }
-          },
-          "build_duration": {
-            "sample_size": 70,
-            "median_minutes": 14.8,
-            "p85_minutes": 73.4,
-            "p95_minutes": 104.1,
-            "min_minutes": 3.2,
-            "max_minutes": 251.0
-          },
-          "lead_time_for_changes": {
-            "sample_size": 49,
-            "median_hours": 0.2,
-            "p85_hours": 1.5,
-            "p95_hours": 36.9
-          },
-          "collected_at": "2026-02-20T14:29:44.487344"
-        },
-        {
-          "project_key": "Product_O",
-          "project_name": "Product O",
-          "deployment_frequency": {
-            "total_successful_builds": 0
-          },
-          "build_success_rate": {
-            "total_builds": 0
-          },
-          "build_duration": {
-            "sample_size": 0
-          },
-          "lead_time_for_changes": {
-            "sample_size": 0
-          },
-          "collected_at": "2026-02-20T14:29:36.387256"
-        },
-        {
-          "project_key": "Product L",
-          "project_name": "Product L",
-          "deployment_frequency": {
-            "total_successful_builds": 283,
-            "lookback_days": 90,
-            "deployments_per_week": 22.01,
-            "pipeline_count": 9
-          },
-          "build_success_rate": {
-            "total_builds": 536,
-            "succeeded": 283,
-            "failed": 134,
-            "canceled": 44,
-            "partially_succeeded": 75,
-            "success_rate_pct": 52.8,
-            "by_result": {
-              "failed": 134,
-              "canceled": 44,
-              "succeeded": 283,
-              "partiallySucceeded": 75
-            }
-          },
-          "build_duration": {
-            "sample_size": 536,
-            "median_minutes": 26.5,
-            "p85_minutes": 52.0,
-            "p95_minutes": 56.1,
-            "min_minutes": 0.4,
-            "max_minutes": 77.7
-          },
-          "lead_time_for_changes": {
-            "sample_size": 50,
-            "median_hours": 0.4,
-            "p85_hours": 2.2,
-            "p95_hours": 22.7
-          },
-          "collected_at": "2026-02-20T14:29:45.131771"
-        },
-        {
-          "project_key": "Product_E",
-          "project_name": "Product E",
-          "deployment_frequency": {
-            "total_successful_builds": 25,
-            "lookback_days": 90,
-            "deployments_per_week": 1.94,
-            "pipeline_count": 3
-          },
-          "build_success_rate": {
-            "total_builds": 38,
-            "succeeded": 25,
-            "failed": 11,
-            "canceled": 2,
-            "partially_succeeded": 0,
-            "success_rate_pct": 65.8,
-            "by_result": {
-              "succeeded": 25,
-              "failed": 11,
-              "canceled": 2
-            }
-          },
-          "build_duration": {
-            "sample_size": 38,
-            "median_minutes": 5.8,
-            "p85_minutes": 18.0,
-            "p95_minutes": 29.2,
-            "min_minutes": 0.4,
-            "max_minutes": 81.8
-          },
-          "lead_time_for_changes": {
-            "sample_size": 23,
-            "median_hours": 0.3,
-            "p85_hours": 1.7,
-            "p95_hours": 11.4
-          },
-          "collected_at": "2026-02-20T14:29:41.819611"
-        },
-        {
-          "project_key": "Product_F",
-          "project_name": "Product F",
-          "deployment_frequency": {
-            "total_successful_builds": 247,
-            "lookback_days": 90,
-            "deployments_per_week": 19.21,
-            "pipeline_count": 11
-          },
-          "build_success_rate": {
-            "total_builds": 424,
-            "succeeded": 247,
-            "failed": 159,
-            "canceled": 16,
-            "partially_succeeded": 2,
-            "success_rate_pct": 58.3,
-            "by_result": {
-              "succeeded": 247,
-              "canceled": 16,
-              "failed": 159,
-              "partiallySucceeded": 2
-            }
-          },
-          "build_duration": {
-            "sample_size": 424,
-            "median_minutes": 7.8,
-            "p85_minutes": 23.7,
-            "p95_minutes": 24.7,
-            "min_minutes": 0.1,
-            "max_minutes": 29.0
-          },
-          "lead_time_for_changes": {
-            "sample_size": 50,
-            "median_hours": 0.1,
-            "p85_hours": 0.4,
-            "p95_hours": 0.4
-          },
-          "collected_at": "2026-02-20T14:29:44.975894"
-        },
-        {
-          "project_key": "Product_D",
-          "project_name": "Product D",
-          "deployment_frequency": {
-            "total_successful_builds": 151,
-            "lookback_days": 90,
-            "deployments_per_week": 11.74,
-            "pipeline_count": 24
-          },
-          "build_success_rate": {
-            "total_builds": 212,
-            "succeeded": 151,
-            "failed": 59,
-            "canceled": 1,
-            "partially_succeeded": 1,
-            "success_rate_pct": 71.2,
-            "by_result": {
-              "succeeded": 151,
-              "failed": 59,
-              "partiallySucceeded": 1,
-              "canceled": 1
-            }
-          },
-          "build_duration": {
-            "sample_size": 211,
-            "median_minutes": 9.2,
-            "p85_minutes": 21.1,
-            "p95_minutes": 26.0,
-            "min_minutes": 0.8,
-            "max_minutes": 48.1
-          },
-          "lead_time_for_changes": {
-            "sample_size": 46,
-            "median_hours": 0.3,
-            "p85_hours": 25.3,
-            "p95_hours": 94.9
-          },
-          "collected_at": "2026-02-20T14:29:44.510210"
-        },
-        {
-          "project_key": "Product_B",
-          "project_name": "Product B",
-          "deployment_frequency": {
-            "total_successful_builds": 371,
-            "lookback_days": 90,
-            "deployments_per_week": 28.86,
-            "pipeline_count": 17
-          },
-          "build_success_rate": {
-            "total_builds": 591,
-            "succeeded": 371,
-            "failed": 155,
-            "canceled": 57,
-            "partially_succeeded": 8,
-            "success_rate_pct": 62.8,
-            "by_result": {
-              "failed": 155,
-              "succeeded": 371,
-              "canceled": 57,
-              "partiallySucceeded": 8
-            }
-          },
-          "build_duration": {
-            "sample_size": 537,
-            "median_minutes": 18.7,
-            "p85_minutes": 30266.9,
-            "p95_minutes": 31694.9,
-            "min_minutes": 0.4,
-            "max_minutes": 43272.5
-          },
-          "lead_time_for_changes": {
-            "sample_size": 47,
-            "median_hours": 0.3,
-            "p85_hours": 504.6,
-            "p95_hours": 544.5
-          },
-          "collected_at": "2026-02-20T14:29:45.239482"
-        }
-      ],
-      "config": {
-        "lookback_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-20",
-      "week_number": 8,
-      "projects": [
-        {
-          "project_key": "Product_A",
-          "project_name": "Product A",
-          "deployment_frequency": {
-            "total_successful_builds": 371,
-            "lookback_days": 90,
-            "deployments_per_week": 28.86,
-            "pipeline_count": 17
-          },
-          "build_success_rate": {
-            "total_builds": 591,
-            "succeeded": 371,
-            "failed": 155,
-            "canceled": 57,
-            "partially_succeeded": 8,
-            "success_rate_pct": 62.8,
-            "by_result": {
-              "failed": 155,
-              "succeeded": 371,
-              "canceled": 57,
-              "partiallySucceeded": 8
-            }
-          },
-          "build_duration": {
-            "sample_size": 537,
-            "median_minutes": 18.7,
-            "p85_minutes": 30266.9,
-            "p95_minutes": 31694.9,
-            "min_minutes": 0.4,
-            "max_minutes": 43272.5
-          },
-          "lead_time_for_changes": {
-            "sample_size": 47,
-            "median_hours": 0.3,
-            "p85_hours": 504.6,
-            "p95_hours": 544.5
-          },
           "collected_at": "2026-02-20T15:22:24.256284"
         },
         {
@@ -15423,6 +15126,302 @@
             "p95_hours": 547.5
           },
           "collected_at": "2026-03-05T06:58:52.249834"
+        }
+      ],
+      "config": {
+        "lookback_days": 90
+      }
+    },
+    {
+      "week_date": "2026-03-05",
+      "week_number": 10,
+      "projects": [
+        {
+          "project_key": "Product_A",
+          "project_name": "Product A",
+          "deployment_frequency": {
+            "total_successful_builds": 449,
+            "lookback_days": 90,
+            "deployments_per_week": 34.92,
+            "pipeline_count": 18
+          },
+          "build_success_rate": {
+            "total_builds": 678,
+            "succeeded": 449,
+            "failed": 175,
+            "canceled": 41,
+            "partially_succeeded": 13,
+            "success_rate_pct": 66.2,
+            "by_result": {
+              "failed": 175,
+              "succeeded": 449,
+              "canceled": 41,
+              "partiallySucceeded": 13
+            }
+          },
+          "build_duration": {
+            "sample_size": 632,
+            "median_minutes": 17.2,
+            "p85_minutes": 30259.7,
+            "p95_minutes": 31691.9,
+            "min_minutes": 0.4,
+            "max_minutes": 43276.7
+          },
+          "lead_time_for_changes": {
+            "sample_size": 42,
+            "median_hours": 0.4,
+            "p85_hours": 504.7,
+            "p95_hours": 528.2
+          },
+          "collected_at": "2026-03-05T18:48:13.119665"
+        },
+        {
+          "project_key": "Product C",
+          "project_name": "Product C",
+          "deployment_frequency": {
+            "total_successful_builds": 54,
+            "lookback_days": 90,
+            "deployments_per_week": 4.2,
+            "pipeline_count": 4
+          },
+          "build_success_rate": {
+            "total_builds": 58,
+            "succeeded": 54,
+            "failed": 2,
+            "canceled": 1,
+            "partially_succeeded": 1,
+            "success_rate_pct": 93.1,
+            "by_result": {
+              "failed": 2,
+              "succeeded": 54,
+              "canceled": 1,
+              "partiallySucceeded": 1
+            }
+          },
+          "build_duration": {
+            "sample_size": 58,
+            "median_minutes": 14.6,
+            "p85_minutes": 74.1,
+            "p95_minutes": 86.8,
+            "min_minutes": 3.1,
+            "max_minutes": 110.4
+          },
+          "lead_time_for_changes": {
+            "sample_size": 50,
+            "median_hours": 0.3,
+            "p85_hours": 2.0,
+            "p95_hours": 20.0
+          },
+          "collected_at": "2026-03-05T18:48:08.614525"
+        },
+        {
+          "project_key": "Product_O",
+          "project_name": "Product O",
+          "deployment_frequency": {
+            "total_successful_builds": 0
+          },
+          "build_success_rate": {
+            "total_builds": 0
+          },
+          "build_duration": {
+            "sample_size": 0
+          },
+          "lead_time_for_changes": {
+            "sample_size": 0
+          },
+          "collected_at": "2026-03-05T18:48:00.945877"
+        },
+        {
+          "project_key": "Product L",
+          "project_name": "Product L",
+          "deployment_frequency": {
+            "total_successful_builds": 218,
+            "lookback_days": 90,
+            "deployments_per_week": 16.96,
+            "pipeline_count": 9
+          },
+          "build_success_rate": {
+            "total_builds": 465,
+            "succeeded": 218,
+            "failed": 165,
+            "canceled": 13,
+            "partially_succeeded": 69,
+            "success_rate_pct": 46.9,
+            "by_result": {
+              "succeeded": 218,
+              "partiallySucceeded": 69,
+              "canceled": 13,
+              "failed": 165
+            }
+          },
+          "build_duration": {
+            "sample_size": 465,
+            "median_minutes": 30.2,
+            "p85_minutes": 56.0,
+            "p95_minutes": 60.4,
+            "min_minutes": 0.7,
+            "max_minutes": 77.7
+          },
+          "lead_time_for_changes": {
+            "sample_size": 50,
+            "median_hours": 1.0,
+            "p85_hours": 75.7,
+            "p95_hours": 119.8
+          },
+          "collected_at": "2026-03-05T18:48:13.154403"
+        },
+        {
+          "project_key": "Product_E",
+          "project_name": "Product E",
+          "deployment_frequency": {
+            "total_successful_builds": 43,
+            "lookback_days": 90,
+            "deployments_per_week": 3.34,
+            "pipeline_count": 3
+          },
+          "build_success_rate": {
+            "total_builds": 55,
+            "succeeded": 43,
+            "failed": 11,
+            "canceled": 1,
+            "partially_succeeded": 0,
+            "success_rate_pct": 78.2,
+            "by_result": {
+              "failed": 11,
+              "succeeded": 43,
+              "canceled": 1
+            }
+          },
+          "build_duration": {
+            "sample_size": 55,
+            "median_minutes": 4.3,
+            "p85_minutes": 6.4,
+            "p95_minutes": 20.0,
+            "min_minutes": 0.4,
+            "max_minutes": 81.8
+          },
+          "lead_time_for_changes": {
+            "sample_size": 40,
+            "median_hours": 0.1,
+            "p85_hours": 1.2,
+            "p95_hours": 11.7
+          },
+          "collected_at": "2026-03-05T18:48:08.651191"
+        },
+        {
+          "project_key": "Product_F",
+          "project_name": "Product F",
+          "deployment_frequency": {
+            "total_successful_builds": 253,
+            "lookback_days": 90,
+            "deployments_per_week": 19.68,
+            "pipeline_count": 10
+          },
+          "build_success_rate": {
+            "total_builds": 561,
+            "succeeded": 253,
+            "failed": 250,
+            "canceled": 58,
+            "partially_succeeded": 0,
+            "success_rate_pct": 45.1,
+            "by_result": {
+              "failed": 250,
+              "succeeded": 253,
+              "canceled": 58
+            }
+          },
+          "build_duration": {
+            "sample_size": 557,
+            "median_minutes": 14.0,
+            "p85_minutes": 24.1,
+            "p95_minutes": 25.5,
+            "min_minutes": 0.2,
+            "max_minutes": 36.4
+          },
+          "lead_time_for_changes": {
+            "sample_size": 50,
+            "median_hours": 0.4,
+            "p85_hours": 0.5,
+            "p95_hours": 0.6
+          },
+          "collected_at": "2026-03-05T18:48:13.107249"
+        },
+        {
+          "project_key": "Product_D",
+          "project_name": "Product D",
+          "deployment_frequency": {
+            "total_successful_builds": 160,
+            "lookback_days": 90,
+            "deployments_per_week": 12.44,
+            "pipeline_count": 21
+          },
+          "build_success_rate": {
+            "total_builds": 210,
+            "succeeded": 160,
+            "failed": 47,
+            "canceled": 3,
+            "partially_succeeded": 0,
+            "success_rate_pct": 76.2,
+            "by_result": {
+              "succeeded": 160,
+              "failed": 47,
+              "canceled": 3
+            }
+          },
+          "build_duration": {
+            "sample_size": 207,
+            "median_minutes": 9.1,
+            "p85_minutes": 21.2,
+            "p95_minutes": 26.8,
+            "min_minutes": 0.8,
+            "max_minutes": 65.0
+          },
+          "lead_time_for_changes": {
+            "sample_size": 50,
+            "median_hours": 0.4,
+            "p85_hours": 1.1,
+            "p95_hours": 60.2
+          },
+          "collected_at": "2026-03-05T18:48:11.998178"
+        },
+        {
+          "project_key": "Product_B",
+          "project_name": "Product B",
+          "deployment_frequency": {
+            "total_successful_builds": 449,
+            "lookback_days": 90,
+            "deployments_per_week": 34.92,
+            "pipeline_count": 18
+          },
+          "build_success_rate": {
+            "total_builds": 678,
+            "succeeded": 449,
+            "failed": 175,
+            "canceled": 41,
+            "partially_succeeded": 13,
+            "success_rate_pct": 66.2,
+            "by_result": {
+              "failed": 175,
+              "succeeded": 449,
+              "canceled": 41,
+              "partiallySucceeded": 13
+            }
+          },
+          "build_duration": {
+            "sample_size": 632,
+            "median_minutes": 17.2,
+            "p85_minutes": 30259.7,
+            "p95_minutes": 31691.9,
+            "min_minutes": 0.4,
+            "max_minutes": 43276.7
+          },
+          "lead_time_for_changes": {
+            "sample_size": 42,
+            "median_hours": 0.4,
+            "p85_hours": 504.7,
+            "p95_hours": 528.2
+          },
+          "collected_at": "2026-03-05T18:48:13.318963"
         }
       ],
       "config": {
