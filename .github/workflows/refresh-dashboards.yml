@@ -186,6 +186,8 @@ jobs:
         env:
           AZURE_DEVOPS_ORG_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          ADO_ORGANIZATION_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
+          ADO_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
 
