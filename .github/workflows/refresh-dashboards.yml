@@ -70,8 +70,6 @@ jobs:
         env:
           AZURE_DEVOPS_ORG_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
-          ADO_ORGANIZATION_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
-          ADO_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
           python execution/discover_projects.py
@@ -83,8 +81,8 @@ jobs:
           path: .tmp/observatory/ado_structure.json
           retention-days: 1
 
-  # Job 2: Collect all other metrics in parallel (depends on project discovery)
-  collect-metrics:
+  # Job 2a: Collect ADO metrics (M-3: ADO secrets only, no ArmorCode secrets)
+  collect-ado-metrics:
     needs: discover-projects
     runs-on: ubuntu-22.04
     strategy:
@@ -96,10 +94,8 @@ jobs:
           - { name: 'Risk Metrics', script: 'collectors/ado_risk_metrics.py', outputs: 'risk_history.json' }
           - { name: 'Deployment Metrics', script: 'collectors/ado_deployment_metrics.py', outputs: 'deployment_history.json' }
           - { name: 'Collaboration Metrics', script: 'collectors/ado_collaboration_metrics.py', outputs: 'collaboration_history.json' }
-          - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
-          - { name: 'Exploitable Metrics', script: 'collectors/armorcode_exploitable_collector.py', outputs: 'exploitable_*.json' }
       fail-fast: false  # Continue even if one fails
-      max-parallel: 8   # Run all 8 collectors at once
+      max-parallel: 6   # Run all 6 ADO collectors at once
 
     steps:
       - name: Checkout repository
@@ -123,9 +119,6 @@ jobs:
 
           # Main ADO baseline
           echo '${{ secrets.BASELINE_ADO_MAIN }}' > data/baseline.json
-
-          # ArmorCode product ID map (from ARMORCODE_ID_MAP secret)
-          echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
 
           # Project-specific baselines (if configured)
           # Note: No if-test needed - jq will handle empty input gracefully
@@ -178,10 +171,6 @@ jobs:
           echo "📂 Checking .tmp/observatory directory..."
           ls -la .tmp/observatory/*.json 2>&1 | head -10 || echo "⚠️  No JSON files found"
 
-          # Show sample product names BEFORE de-genericization
-          echo "📊 Sample product names BEFORE de-genericization:"
-          grep -h "Product [A-Z]" .tmp/observatory/security_history.json 2>/dev/null | head -3 || echo "No generic names found"
-
           # Run de-genericization (fail loudly if it fails)
           if ! python scripts/de_genericize_history_files.py; then
             echo "❌ ERROR: De-genericization failed!"
@@ -190,10 +179,6 @@ jobs:
             exit 1
           fi
 
-          # Verify conversion worked
-          echo "📊 Sample product names AFTER de-genericization:"
-          head -100 .tmp/observatory/security_history.json | grep -E "\"[A-Z][a-z]+ [A-Z]|Product I\"" | head -3 || echo "⚠️  WARNING: Still showing generic names!"
-
           echo "✅ History files now have REAL names - collectors will append with real names"
 
       - name: Collect ${{ matrix.collector.name }}
@@ -201,12 +186,6 @@ jobs:
         env:
           AZURE_DEVOPS_ORG_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
-          ADO_ORGANIZATION_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
-          ADO_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
-          ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
-          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
-          ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}
-          ARMORCODE_HIERARCHY: ${{ secrets.ARMORCODE_HIERARCHY }}
         run: |
           export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
 
@@ -229,11 +208,116 @@ jobs:
           retention-days: 1
         if: steps.collect.outcome == 'success'
 
+  # Job 2b: Collect ArmorCode metrics (M-3: ArmorCode secrets only, no ADO secrets)
+  collect-armorcode-metrics:
+    needs: discover-projects
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        collector:
+          - { name: 'Security Metrics', script: 'armorcode_enhanced_metrics.py', outputs: 'security_history.json' }
+          - { name: 'Exploitable Metrics', script: 'collectors/armorcode_exploitable_collector.py', outputs: 'exploitable_*.json' }
+      fail-fast: false  # Continue even if one fails
+      max-parallel: 2   # Run both ArmorCode collectors at once
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create baseline files from secrets
+        run: |
+          mkdir -p data
+          echo "📂 Creating ArmorCode baseline files from GitHub secrets..."
+
+          # ArmorCode product ID map (from ARMORCODE_ID_MAP secret)
+          echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
+
+          echo "✅ Baseline files created"
+          ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
+
+      - name: Create product name mapping from secret (for de-genericization)
+        run: |
+          echo "🔐 Creating product name mapping from GitHub Secret..."
+          echo '${{ secrets.PRODUCT_NAME_MAPPING }}' > .product_mapping.json
+
+          # Verify mapping file was created
+          if [ ! -f .product_mapping.json ]; then
+            echo "❌ ERROR: Failed to create mapping file"
+            exit 1
+          fi
+
+          # Verify it's valid JSON (without exposing content)
+          if ! python -c "import json; json.load(open('.product_mapping.json'))" 2>/dev/null; then
+            echo "❌ ERROR: Mapping file is not valid JSON"
+            exit 1
+          fi
+
+          echo "✅ Product mapping file created successfully"
+
+      - name: De-genericize history files (reverse Product A → Real Names)
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+          echo "🔓 Converting Product A, B, C back to real product names..."
+
+          # Check if directory and files exist
+          echo "📂 Checking .tmp/observatory directory..."
+          ls -la .tmp/observatory/*.json 2>&1 | head -10 || echo "⚠️  No JSON files found"
+
+          # Show sample product names BEFORE de-genericization
+          echo "📊 Sample product names BEFORE de-genericization:"
+          grep -h "Product [A-Z]" .tmp/observatory/security_history.json 2>/dev/null | head -3 || echo "No generic names found"
+
+          # Run de-genericization (fail loudly if it fails)
+          if ! python scripts/de_genericize_history_files.py; then
+            echo "❌ ERROR: De-genericization failed!"
+            echo "This means Azure dashboards will show generic names (Product A, B, C) instead of real names."
+            echo "Check the de_genericize_history_files.py script for errors."
+            exit 1
+          fi
+
+          # Verify conversion worked
+          echo "📊 Sample product names AFTER de-genericization:"
+          head -100 .tmp/observatory/security_history.json | grep -E "\"[A-Z][a-z]+ [A-Z]|Product I\"" | head -3 || echo "⚠️  WARNING: Still showing generic names!"
+
+          echo "✅ History files now have REAL names - collectors will append with real names"
+
+      - name: Collect ${{ matrix.collector.name }}
+        id: collect
+        env:
+          ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
+          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+          ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}
+          ARMORCODE_HIERARCHY: ${{ secrets.ARMORCODE_HIERARCHY }}
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}:${PYTHONPATH}"
+
+          echo "📊 Running ArmorCode collector: ${{ matrix.collector.script }}"
+          python execution/${{ matrix.collector.script }}
+
+      - name: Upload metrics artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: metrics-${{ matrix.collector.name }}
+          path: .tmp/observatory/${{ matrix.collector.outputs }}
+          retention-days: 1
+        if: steps.collect.outcome == 'success'
+
   # Job 3a: Run intelligence pipeline (feature engineering → forecasting → risk scoring)
-  # Depends on collect-metrics; runs in parallel with generate-dashboards.
+  # Depends on both collector jobs; runs in parallel with generate-dashboards.
   # continue-on-error so a first-run ML failure never blocks dashboard deployment.
   run-intelligence:
-    needs: collect-metrics
+    needs: [collect-ado-metrics, collect-armorcode-metrics]
     if: always()
     runs-on: ubuntu-22.04
     continue-on-error: true
@@ -380,8 +464,8 @@ jobs:
 
   # Job 3c: Generate all legacy dashboards in parallel
   generate-dashboards:
-    needs: collect-metrics
-    if: always()  # Run even if collect-metrics fails
+    needs: [collect-ado-metrics, collect-armorcode-metrics]
+    if: always()  # Run even if collector jobs fail
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -523,8 +607,6 @@ jobs:
         env:
           AZURE_DEVOPS_ORG_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
-          ADO_ORGANIZATION_URL: ${{ secrets.AZURE_DEVOPS_ORG_URL }}
-          ADO_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           ARMORCODE_BASE_URL: ${{ secrets.ARMORCODE_BASE_URL }}
           ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
           ARMORCODE_ENVIRONMENT: ${{ secrets.ARMORCODE_ENVIRONMENT }}

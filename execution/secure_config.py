@@ -60,25 +60,29 @@ class AzureDevOpsConfig:
         """
         # Validate organization URL
         if not self.organization_url:
-            raise ConfigurationError("ADO_ORGANIZATION_URL is required")
+            raise ConfigurationError("AZURE_DEVOPS_ORG_URL is required")
 
         if not self.organization_url.startswith("https://"):
-            raise ConfigurationError(f"ADO_ORGANIZATION_URL must use HTTPS: {self.organization_url}")
+            raise ConfigurationError(f"AZURE_DEVOPS_ORG_URL must use HTTPS: {self.organization_url}")
 
         if not ("dev.azure.com" in self.organization_url or "visualstudio.com" in self.organization_url):
-            raise ConfigurationError(f"ADO_ORGANIZATION_URL must be a valid Azure DevOps URL: {self.organization_url}")
+            raise ConfigurationError(f"AZURE_DEVOPS_ORG_URL must be a valid Azure DevOps URL: {self.organization_url}")
 
         # Validate PAT
         if not self.pat:
-            raise ConfigurationError("ADO_PAT is required")
+            raise ConfigurationError("AZURE_DEVOPS_PAT is required")
 
         if len(self.pat) < 20:
-            raise ConfigurationError(f"ADO_PAT appears invalid (too short: {len(self.pat)} chars, expected ≥20)")
+            raise ConfigurationError(
+                f"AZURE_DEVOPS_PAT appears invalid (too short: {len(self.pat)} chars, expected ≥20)"
+            )
 
         # Check for placeholder values
         placeholders = ["your_pat", "your_token", "example", "placeholder", "xxx", "replace_me"]
         if any(placeholder in self.pat.lower() for placeholder in placeholders):
-            raise ConfigurationError("ADO_PAT contains a placeholder value - please set a real Personal Access Token")
+            raise ConfigurationError(
+                "AZURE_DEVOPS_PAT contains a placeholder value - please set a real Personal Access Token"
+            )
 
         # Validate project if provided
         if self.project:
@@ -276,8 +280,8 @@ class SecureConfig:
         Raises:
             ConfigurationError: If configuration is missing or invalid
         """
-        organization_url = os.getenv("ADO_ORGANIZATION_URL")
-        pat = os.getenv("ADO_PAT")
+        organization_url = os.getenv("AZURE_DEVOPS_ORG_URL")
+        pat = os.getenv("AZURE_DEVOPS_PAT")
         project = project or os.getenv("ADO_PROJECT")
 
         return AzureDevOpsConfig(organization_url=organization_url or "", pat=pat or "", project=project)
