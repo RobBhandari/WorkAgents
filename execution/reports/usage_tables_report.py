@@ -833,7 +833,42 @@ def generate_interactive_html(output_file: str) -> str:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{TEAM_FILTER} AI Tools Usage Report - Import Data</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        /* Inline minimal CSV parser — no CDN dependency */
+        function parseCSV(text) {{
+            const lines = text.split(/\r?\n/);
+            const headers = splitCSVLine(lines[0]);
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {{
+                const line = lines[i].trim();
+                if (!line) continue;
+                const values = splitCSVLine(line);
+                const row = {{}};
+                headers.forEach((h, idx) => {{ row[h] = values[idx] !== undefined ? values[idx] : ''; }});
+                rows.push(row);
+            }}
+            return rows;
+        }}
+        function splitCSVLine(line) {{
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {{
+                const ch = line[i];
+                if (ch === '"') {{
+                    if (inQuotes && line[i + 1] === '"') {{ current += '"'; i++; }}
+                    else {{ inQuotes = !inQuotes; }}
+                }} else if (ch === ',' && !inQuotes) {{
+                    result.push(current);
+                    current = '';
+                }} else {{
+                    current += ch;
+                }}
+            }}
+            result.push(current);
+            return result;
+        }}
+    </script>
     {framework_css}
     <style>
         /* Flat dark header — matches Executive Trends style */
@@ -1258,20 +1293,27 @@ def generate_interactive_html(output_file: str) -> str:
             const dropZone = document.getElementById('dropZone');
             dropZone.innerHTML = '<span class="drop-zone-icon">⏳</span><h2>Loading\u2026</h2>';
 
-            Papa.parse(file, {{
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {{
-                    processData(results.data);
-                }},
-                error: function(error) {{
+            const reader = new FileReader();
+            reader.onload = function(e) {{
+                try {{
+                    const rows = parseCSV(e.target.result);
+                    processData(rows);
+                }} catch (err) {{
                     dropZone.innerHTML = `
                         <span class="drop-zone-icon">❌</span>
                         <h2>Could not parse file</h2>
-                        <p>${{escapeHtml(error.message)}}</p>
+                        <p>${{escapeHtml(err.message)}}</p>
                         <span class="browse-hint">Click to try again</span>`;
                 }}
-            }});
+            }};
+            reader.onerror = function() {{
+                dropZone.innerHTML = `
+                    <span class="drop-zone-icon">❌</span>
+                    <h2>Could not read file</h2>
+                    <p>Please try again.</p>
+                    <span class="browse-hint">Click to try again</span>`;
+            }};
+            reader.readAsText(file);
         }}
 
         function processData(data) {{

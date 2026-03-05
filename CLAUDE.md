@@ -88,7 +88,7 @@ When running as a multi-agent team via `/implement`, `/codereview`, or `/fixrevi
 - Any claim must be backed by evidence (tests, file:line references, reproduction steps)
 - Critic and Verifier can independently block completion
 - Stop when acceptance criteria are met — no improvements beyond scope
-- Skills run from **Windows Terminal**, not VSCode (no live output in VSCode)
+- Skills can be run from Windows Terminal or directly within VSCode/the agent — use whichever context is active
 
 #### Skill Workflows
 | Skill | Use when | Roles |

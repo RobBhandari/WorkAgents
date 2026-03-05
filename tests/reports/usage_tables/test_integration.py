@@ -173,7 +173,7 @@ class TestInteractiveHtmlGeneration:
         assert "file-input" in html
         assert "handleFileUpload" in html
         assert "processData" in html
-        assert "PapaParse" in html
+        assert "parseCSV" in html  # inline CSV parser (no CDN dependency)
         assert "placeholder" in html
         assert "Drop your data file here" in html
 
