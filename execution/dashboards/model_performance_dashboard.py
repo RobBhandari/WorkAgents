@@ -108,15 +108,7 @@ def _calculate_summary(models: list[dict[str, Any]]) -> dict[str, Any]:
 
     avg_mape: float | None = sum(mape_values) / len(mape_values) if mape_values else None
     avg_acc: float | None = sum(acc_values) / len(acc_values) if acc_values else None
-
-    if not has_data:
-        portfolio_status = "No Data"
-    elif degraded == 0:
-        portfolio_status = "Good"
-    elif degraded < len(models):
-        portfolio_status = "Caution"
-    else:
-        portfolio_status = "Action Needed"
+    portfolio_status = _derive_portfolio_status(has_data, degraded, len(models))
 
     return {
         "has_data": has_data,
@@ -134,6 +126,17 @@ def _calculate_summary(models: list[dict[str, Any]]) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
+def _derive_portfolio_status(has_data: bool, degraded: int, total: int) -> str:
+    """Determine portfolio status label from model health counts."""
+    if not has_data:
+        return "No Data"
+    if degraded == 0:
+        return "Good"
+    if degraded < total:
+        return "Caution"
+    return "Action Needed"
+
+
 def _portfolio_status_class(status: str) -> str:
     """Map portfolio_status string to a CSS status class."""
     return {
@@ -144,41 +147,13 @@ def _portfolio_status_class(status: str) -> str:
     }.get(status, "status-caution")
 
 
-def _build_context(
-    summary: dict[str, Any],
-    models: list[dict[str, Any]],
-    last_updated: str,
-) -> dict[str, Any]:
-    """
-    Build the full Jinja2 template context for the Model Performance dashboard.
-
-    Security: model names are validated against _VALID_MODEL_NAMES before
-    being included in model_rows.  Unknown names are logged and skipped.
-
-    Args:
-        summary:      Output of _calculate_summary().
-        models:       Raw model records from _load_data().
-        last_updated: Timestamp string from the data file.
-
-    Returns:
-        Context dict ready for render_dashboard().
-    """
-    framework_css, framework_js = get_dashboard_framework(
-        header_gradient_start="#0f172a",
-        header_gradient_end="#0f172a",
-        include_table_scroll=True,
-        include_expandable_rows=False,
-        include_glossary=True,
-    )
-
-    # Summary cards
+def _build_summary_cards(summary: dict[str, Any]) -> list[dict[str, str]]:
+    """Build the five summary card dicts from the portfolio summary."""
     avg_mape_display = f"{summary['avg_mape']:.1%}" if summary["avg_mape"] is not None else "—"
     avg_acc_display = (
         f"{summary['avg_classification_accuracy']:.1%}" if summary["avg_classification_accuracy"] is not None else "—"
     )
-    portfolio_sc = _portfolio_status_class(summary["portfolio_status"])
-
-    summary_cards: list[dict[str, str]] = [
+    return [
         {
             "title": "Total Models",
             "value": str(summary["total_models"]),
@@ -211,8 +186,10 @@ def _build_context(
         },
     ]
 
-    # Model detail rows — validate names against allowlist
-    model_rows: list[dict[str, str]] = []
+
+def _build_model_rows(models: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Build validated model detail rows, skipping unknown model names."""
+    rows: list[dict[str, str]] = []
     for m in models:
         name = str(m.get("name", m.get("model_name", "")))
         if name not in _VALID_MODEL_NAMES:
@@ -224,14 +201,13 @@ def _build_context(
 
         raw_status = str(m.get("status", "unknown"))
         is_healthy = raw_status in ("healthy", "pass")
-
         mape_display = f"{float(m['mape']):.1%}" if m.get("mape") is not None else "—"
         acc_val = m.get("classification_accuracy") or m.get("accuracy")
         accuracy_display = f"{float(acc_val):.1%}" if acc_val is not None else "—"
         drift_raw = m.get("drift_score")
         drift_display = f"{float(drift_raw):.3f}" if drift_raw is not None else "—"
 
-        model_rows.append(
+        rows.append(
             {
                 "model_name": name,
                 "algorithm": str(m.get("algorithm", "—")),
@@ -244,6 +220,38 @@ def _build_context(
                 "status_class": "status-good" if is_healthy else "status-action",
             }
         )
+    return rows
+
+
+def _build_context(
+    summary: dict[str, Any],
+    models: list[dict[str, Any]],
+    last_updated: str,
+) -> dict[str, Any]:
+    """
+    Build the full Jinja2 template context for the Model Performance dashboard.
+
+    Security: model names are validated against _VALID_MODEL_NAMES before
+    being included in model_rows.  Unknown names are logged and skipped.
+
+    Args:
+        summary:      Output of _calculate_summary().
+        models:       Raw model records from _load_data().
+        last_updated: Timestamp string from the data file.
+
+    Returns:
+        Context dict ready for render_dashboard().
+    """
+    framework_css, framework_js = get_dashboard_framework(
+        header_gradient_start="#0f172a",
+        header_gradient_end="#0f172a",
+        include_table_scroll=True,
+        include_expandable_rows=False,
+        include_glossary=True,
+    )
+    portfolio_sc = _portfolio_status_class(summary["portfolio_status"])
+    summary_cards = _build_summary_cards(summary)
+    model_rows = _build_model_rows(models)
 
     return {
         "framework_css": framework_css,  # REQUIRED — do not remove

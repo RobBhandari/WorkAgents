@@ -288,6 +288,24 @@ def _build_project_rows(projects: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return projects_with_status
 
 
+def _mttr_grade(mttr: float) -> tuple[str, int]:
+    """Return (detail_text, grade) for MTTR. Grade: 0=poor, 1=caution, 2=good."""
+    if mttr > 14:
+        return f"MTTR {mttr:.1f} days (poor - target <7)", 0
+    if mttr > 7:
+        return f"MTTR {mttr:.1f} days (caution - target <7)", 1
+    return f"MTTR {mttr:.1f} days (good)", 2
+
+
+def _age_grade(median_age: float) -> tuple[str, int]:
+    """Return (detail_text, grade) for median bug age. Grade: 0=poor, 1=caution, 2=good."""
+    if median_age > 60:
+        return f"Median bug age {median_age:.0f} days (poor - target <30)", 0
+    if median_age > 30:
+        return f"Median bug age {median_age:.0f} days (caution - target <30)", 1
+    return f"Median bug age {median_age:.0f} days (good)", 2
+
+
 def _calculate_composite_status(mttr: float | None, median_age: float | None) -> tuple[str, str, int]:
     """
     Calculate composite quality status based on metrics.
@@ -296,53 +314,27 @@ def _calculate_composite_status(mttr: float | None, median_age: float | None) ->
 
     Priority is used for sorting: 0 = Action Needed (Red), 1 = Caution (Amber), 2 = Good (Green)
     """
-    issues = []
-    metric_details = []
+    details: list[str] = []
+    grades: list[int] = []
 
-    # Check MTTR
     if mttr is not None:
-        if mttr > 14:
-            issues.append("poor")
-            metric_details.append(f"MTTR {mttr:.1f} days (poor - target <7)")
-        elif mttr > 7:
-            issues.append("caution")
-            metric_details.append(f"MTTR {mttr:.1f} days (caution - target <7)")
-        else:
-            metric_details.append(f"MTTR {mttr:.1f} days (good)")
+        detail, grade = _mttr_grade(mttr)
+        details.append(detail)
+        grades.append(grade)
 
-    # Check Median Bug Age
     if median_age is not None:
-        if median_age > 60:
-            issues.append("poor")
-            metric_details.append(f"Median bug age {median_age:.0f} days (poor - target <30)")
-        elif median_age > 30:
-            issues.append("caution")
-            metric_details.append(f"Median bug age {median_age:.0f} days (caution - target <30)")
-        else:
-            metric_details.append(f"Median bug age {median_age:.0f} days (good)")
+        detail, grade = _age_grade(median_age)
+        details.append(detail)
+        grades.append(grade)
 
-    # Build tooltip text
-    tooltip = "\n".join(metric_details)
+    tooltip = "\n".join(details)
+    poor_count = sum(1 for g in grades if g == 0)
 
-    # Determine overall status
-    if "poor" in issues and len([i for i in issues if i == "poor"]) >= 2:
-        # Both metrics poor = Action Needed
-        status_html = '<span style="color: #ef4444;">● Action Needed</span>'
-        priority = 0
-    elif "poor" in issues:
-        # One poor metric = Caution
-        status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
-        priority = 1
-    elif "caution" in issues:
-        # Some caution metrics = Caution
-        status_html = '<span style="color: #f59e0b;">⚠ Caution</span>'
-        priority = 1
-    else:
-        # All metrics meet targets = Good
-        status_html = '<span style="color: #10b981;">✓ Good</span>'
-        priority = 2
-
-    return status_html, tooltip, priority
+    if poor_count >= 2:
+        return '<span style="color: #ef4444;">● Action Needed</span>', tooltip, 0
+    if any(g < 2 for g in grades):
+        return '<span style="color: #f59e0b;">⚠ Caution</span>', tooltip, 1
+    return '<span style="color: #10b981;">✓ Good</span>', tooltip, 2
 
 
 def _generate_drilldown_html(project: dict[str, Any]) -> str:

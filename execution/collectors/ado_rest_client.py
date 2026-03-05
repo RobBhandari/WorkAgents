@@ -129,6 +129,39 @@ class AzureDevOpsRESTClient:
 
         return url
 
+    @staticmethod
+    def _classify_http_error(e: httpx.HTTPStatusError, attempt: int, tracker: Any, max_retries: int) -> float | None:
+        """
+        Classify an HTTP status error and record tracking events.
+
+        Returns the sleep duration in seconds if the request should be retried,
+        or None if the error is non-retryable (caller should re-raise).
+        """
+        status_code = e.response.status_code
+
+        if status_code in [401, 403]:
+            logger.error(f"Authentication failed (HTTP {status_code}): {e.response.text}")
+            return None
+
+        if status_code == 429:
+            if tracker:
+                tracker.record_rate_limit_hit()
+            retry_after = int(e.response.headers.get("Retry-After", 60))
+            logger.warning(f"Rate limited, retrying after {retry_after}s (attempt {attempt + 1}/{max_retries})")
+            return float(retry_after)
+
+        if status_code in [500, 502, 503]:
+            if tracker:
+                tracker.record_retry()
+            backoff = float(2**attempt)
+            logger.warning(
+                f"Server error (HTTP {status_code}), retrying in {backoff}s (attempt {attempt + 1}/{max_retries})"
+            )
+            return backoff
+
+        logger.error(f"HTTP error {status_code}: {e.response.text}")
+        return None
+
     async def _handle_api_call(self, method: str, url: str, max_retries: int = 3, **kwargs: Any) -> dict[str, Any]:
         """
         Execute API call with retry logic and error handling.
@@ -177,42 +210,12 @@ class AzureDevOpsRESTClient:
                     return response.json()  # type: ignore[no-any-return]
 
             except httpx.HTTPStatusError as e:
-                status_code = e.response.status_code
-
-                # Authentication/Authorization errors - fail fast
-                if status_code in [401, 403]:
-                    logger.error(f"Authentication failed (HTTP {status_code}): {e.response.text}")
+                sleep_secs = self._classify_http_error(e, attempt, tracker, max_retries)
+                if sleep_secs is None:
                     raise
-
-                # Rate limiting - retry with backoff
-                if status_code == 429:
-                    # Record rate limit hit for monitoring
-                    if tracker:
-                        tracker.record_rate_limit_hit()
-
-                    retry_after = int(e.response.headers.get("Retry-After", 60))
-                    logger.warning(f"Rate limited, retrying after {retry_after}s (attempt {attempt + 1}/{max_retries})")
-                    await asyncio.sleep(retry_after)
-                    last_error = e
-                    continue
-
-                # Server errors - retry with exponential backoff
-                if status_code in [500, 502, 503]:
-                    # Record retry for monitoring
-                    if tracker:
-                        tracker.record_retry()
-
-                    backoff = 2**attempt  # Exponential backoff: 1s, 2s, 4s
-                    logger.warning(
-                        f"Server error (HTTP {status_code}), retrying in {backoff}s (attempt {attempt + 1}/{max_retries})"
-                    )
-                    await asyncio.sleep(backoff)
-                    last_error = e
-                    continue
-
-                # Other HTTP errors - fail fast
-                logger.error(f"HTTP error {status_code}: {e.response.text}")
-                raise
+                await asyncio.sleep(sleep_secs)
+                last_error = e
+                continue
 
             except (httpx.TimeoutException, httpx.RequestError) as e:
                 backoff = 2**attempt
