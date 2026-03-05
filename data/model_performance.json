@@ -6,8 +6,8 @@
       "metric": "deployment",
       "column": "build_success_rate",
       "project_count": 7,
-      "mape": 0.0829,
-      "accuracy": 0.9171,
+      "mape": 0.0812,
+      "accuracy": 0.9188,
       "status": "pass",
       "last_updated": "2026-03-05T19:18:47.598662"
     },
@@ -16,8 +16,8 @@
       "metric": "flow",
       "column": "throughput",
       "project_count": 8,
-      "mape": 0.0988,
-      "accuracy": 0.9012,
+      "mape": 0.0877,
+      "accuracy": 0.9123,
       "status": "pass",
       "last_updated": "2026-03-05T19:18:47.576347"
     },
@@ -26,8 +26,8 @@
       "metric": "ownership",
       "column": "unassigned_pct",
       "project_count": 8,
-      "mape": 0.0251,
-      "accuracy": 0.9749,
+      "mape": 0.022,
+      "accuracy": 0.978,
       "status": "pass",
       "last_updated": "2026-03-05T19:18:47.622330"
     },
@@ -36,8 +36,8 @@
       "metric": "quality",
       "column": "open_bugs",
       "project_count": 8,
-      "mape": 0.1356,
-      "accuracy": 0.8644,
+      "mape": 0.1281,
+      "accuracy": 0.8719,
       "status": "pass",
       "last_updated": "2026-03-05T19:18:47.552133"
     }
