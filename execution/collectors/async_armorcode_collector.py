@@ -159,6 +159,45 @@ class AsyncArmorCodeCollector:
         logger.debug(f"Product {product_id}: Collected {len(all_findings)} findings")
         return all_findings
 
+    @staticmethod
+    def _parse_product_page(result: object) -> list[dict]:
+        """Parse one result from asyncio.gather() of product page fetches. Returns product list."""
+        if isinstance(result, Exception):
+            logger.warning(f"Product page fetch failed: {result}")
+            return []
+        try:
+            if hasattr(result, "json"):
+                data = result.json()
+                if "data" in data and "products" in data["data"]:
+                    return list(data["data"]["products"].get("products", []))
+        except (ValueError, KeyError, TypeError) as e:
+            log_and_continue(logger, e, {"result_type": type(result).__name__}, "Product response parsing")
+        return []
+
+    async def _fetch_pages_concurrently(self, client: AsyncSecureHTTPClient) -> list[dict]:
+        """Fetch product pages 2-10 concurrently and return combined product list."""
+        tasks = [
+            client.post(
+                self.graphql_url,
+                headers=self._get_headers(),
+                json={"query": f"""
+                    {{
+                      products(page: {page}, size: 100) {{
+                        products {{ id name }}
+                        pageInfo {{ hasNext }}
+                      }}
+                    }}
+                    """},
+                timeout=60,
+            )
+            for page in range(2, 11)
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        products: list[dict] = []
+        for result in results:
+            products.extend(self._parse_product_page(result))
+        return products
+
     async def _fetch_product_ids(self, client: AsyncSecureHTTPClient, product_names: list[str]) -> dict[str, str]:
         """
         Fetch product IDs by querying products with concurrent pagination.
@@ -172,19 +211,14 @@ class AsyncArmorCodeCollector:
         """
         logger.info(f"Fetching product IDs for {len(product_names)} products...")
 
-        all_products = []
+        all_products: list[dict] = []
 
-        # Fetch first page to determine total pages
+        # Fetch first page to determine if more pages exist
         query = """
         {
           products(page: 1, size: 100) {
-            products {
-              id
-              name
-            }
-            pageInfo {
-              hasNext
-            }
+            products { id name }
+            pageInfo { hasNext }
           }
         }
         """
@@ -196,59 +230,14 @@ class AsyncArmorCodeCollector:
             data = response.json()
 
             if "data" in data and "products" in data["data"]:
-                result = data["data"]["products"]
-                products = result.get("products", [])
-                all_products.extend(products)
+                first_page = data["data"]["products"]
+                all_products.extend(first_page.get("products", []))
 
-                # If more pages, fetch them concurrently
-                if result.get("pageInfo", {}).get("hasNext", False):
-                    # Fetch up to 9 more pages (pages 2-10)
-                    tasks = []
-                    for page in range(2, 11):
-                        query_page = f"""
-                        {{
-                          products(page: {page}, size: 100) {{
-                            products {{
-                              id
-                              name
-                            }}
-                            pageInfo {{
-                              hasNext
-                            }}
-                          }}
-                        }}
-                        """
-                        tasks.append(
-                            client.post(
-                                self.graphql_url, headers=self._get_headers(), json={"query": query_page}, timeout=60
-                            )
-                        )
-
-                    results = await asyncio.gather(*tasks, return_exceptions=True)
-
-                    for result in results:
-                        if isinstance(result, Exception):
-                            logger.warning(f"Product page fetch failed: {result}")
-                            continue
-
-                        try:
-                            if hasattr(result, "json"):
-                                data = result.json()
-                                if "data" in data and "products" in data["data"]:
-                                    page_result = data["data"]["products"]
-                                    products = page_result.get("products", [])
-                                    all_products.extend(products)
-
-                                    if not page_result.get("pageInfo", {}).get("hasNext", False):
-                                        break
-                        except (ValueError, KeyError, TypeError) as e:
-                            log_and_continue(
-                                logger, e, {"result_type": type(result).__name__}, "Product response parsing"
-                            )
+                if first_page.get("pageInfo", {}).get("hasNext", False):
+                    all_products.extend(await self._fetch_pages_concurrently(client))
         except (httpx.HTTPError, httpx.TimeoutException) as e:
             log_and_continue(logger, e, {"page": 1, "operation": "fetch_products"}, "ArmorCode products fetch")
 
-        # Map product names to IDs
         product_map = {p["name"]: str(p["id"]) for p in all_products}
         logger.info(f"Found {len(all_products)} total products from ArmorCode")
 

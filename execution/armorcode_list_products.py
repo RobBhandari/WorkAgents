@@ -18,7 +18,7 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
-from requests.exceptions import RequestException
+from httpx import RequestError
 
 from execution.config import get_config
 from execution.http_client import get
@@ -38,6 +38,46 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _try_endpoint(url: str, headers: dict, timeout: int) -> dict | list | None:
+    """
+    Try a single ArmorCode API endpoint.
+    Returns the parsed JSON response on HTTP 200, or None on 404 or connection error.
+    """
+    try:
+        response = get(url, headers=headers, timeout=timeout)
+        if response.status_code == 200:
+            return response.json()  # type: ignore[no-any-return]
+        if response.status_code == 404:
+            logger.debug(f"Endpoint not found: {url}")
+            return None
+        logger.warning(f"Endpoint {url} returned status {response.status_code}")
+        return None
+    except RequestError as e:
+        logger.debug(f"Request to {url} failed: {e}")
+        return None
+
+
+def _extract_product_list(products: dict | list) -> list[dict]:
+    """Normalize ArmorCode API response to a flat list of product dicts."""
+    if isinstance(products, list):
+        return [
+            {
+                "id": p.get("id") or p.get("product_id"),
+                "name": p.get("name") or p.get("product_name"),
+                "description": p.get("description", ""),
+                "environment": p.get("environment", ""),
+                "hierarchy": p.get("hierarchy", ""),
+            }
+            for p in products
+        ]
+    if isinstance(products, dict):
+        if "products" in products:
+            return products["products"]  # type: ignore[no-any-return]
+        if "data" in products:
+            return products["data"]  # type: ignore[no-any-return]
+    return []
+
+
 def list_products(api_key: str, base_url: str) -> dict:
     """
     List all products/hierarchies from ArmorCode platform.
@@ -52,14 +92,9 @@ def list_products(api_key: str, base_url: str) -> dict:
     Raises:
         RuntimeError: If product listing fails
     """
-    logger.info("Connecting to ArmorCode API")
+    logger.info(f"Connecting to ArmorCode API: {base_url}")
 
     try:
-        # Make API request to list products
-        logger.info(f"Connecting to ArmorCode API: {base_url}")
-
-        # Common ArmorCode API endpoints for products
-        # Try multiple potential endpoints
         product_endpoints = ["/api/v1/products", "/api/products", "/v1/products", "/products"]
 
         headers = {
@@ -72,27 +107,14 @@ def list_products(api_key: str, base_url: str) -> dict:
         successful_endpoint = None
 
         for endpoint in product_endpoints:
-            try:
-                url = f"{base_url.rstrip('/')}{endpoint}"
-                logger.info(f"Trying endpoint: {url}")
-
-                response = get(url, headers=headers, timeout=30)
-
-                if response.status_code == 200:
-                    products = response.json()
-                    successful_endpoint = endpoint
-                    logger.info(f"Successfully fetched products from: {endpoint}")
-                    break
-                elif response.status_code == 404:
-                    logger.debug(f"Endpoint not found: {endpoint}")
-                    continue
-                else:
-                    logger.warning(f"Endpoint {endpoint} returned status {response.status_code}")
-                    continue
-
-            except RequestException as e:
-                logger.debug(f"Request to {endpoint} failed: {e}")
-                continue
+            url = f"{base_url.rstrip('/')}{endpoint}"
+            logger.info(f"Trying endpoint: {url}")
+            raw = _try_endpoint(url, headers=headers, timeout=30)
+            if raw is not None:
+                products = raw
+                successful_endpoint = endpoint
+                logger.info(f"Successfully fetched products from: {endpoint}")
+                break
 
         if products is None:
             raise RuntimeError(
@@ -108,37 +130,16 @@ def list_products(api_key: str, base_url: str) -> dict:
             logger.warning("No products found in ArmorCode")
             return {"status": "success", "product_count": 0, "products": [], "queried_at": datetime.now().isoformat()}
 
-        # Process products into a standardized format
-        product_list = []
-        if isinstance(products, list):
-            for product in products:
-                # Extract key fields (adjust based on actual API response)
-                product_data = {
-                    "id": product.get("id") or product.get("product_id"),
-                    "name": product.get("name") or product.get("product_name"),
-                    "description": product.get("description", ""),
-                    "environment": product.get("environment", ""),
-                    "hierarchy": product.get("hierarchy", ""),
-                }
-                product_list.append(product_data)
-        elif isinstance(products, dict):
-            # If response is a dict with products nested
-            if "products" in products:
-                product_list = products["products"]
-            elif "data" in products:
-                product_list = products["data"]
-
+        product_list = _extract_product_list(products)
         logger.info(f"Found {len(product_list)} products")
 
-        result = {
+        return {
             "status": "success",
             "product_count": len(product_list),
             "products": product_list,
             "queried_at": datetime.now().isoformat(),
             "base_url": base_url,
         }
-
-        return result
 
     except Exception as e:
         logger.error(f"Error listing products: {e}", exc_info=True)

@@ -20,6 +20,32 @@ import sys
 from pathlib import Path
 
 
+def _get_skip_reason(file_path: Path, content: str) -> str | None:
+    """Return a skip reason string if the file should not be migrated, else None."""
+    if file_path.name == "http_client.py":
+        return "SKIP (http_client.py itself)"
+    if file_path.name == "migrate_to_secure_http.py":
+        return "SKIP (migration script)"
+    if not re.search(r"requests\.(get|post|put|delete|patch)\(", content):
+        return "SKIP (no requests calls)"
+    if "from http_client import" in content or "from .http_client import" in content:
+        return "SKIP (already migrated)"
+    return None
+
+
+def _inject_import(content: str) -> tuple[str, bool]:
+    """Insert the http_client import after the last existing import line. Returns (new_content, modified)."""
+    if "import requests" not in content:
+        return content, False
+    import_pattern = re.compile(r"^(from .+ import .+|import .+)$", re.MULTILINE)
+    imports = list(import_pattern.finditer(content))
+    if not imports:
+        return content, False
+    last_import_end = imports[-1].end()
+    new_import = "\nfrom http_client import get, post, put, delete, patch"
+    return content[:last_import_end] + new_import + content[last_import_end:], True
+
+
 def migrate_file(file_path: Path, dry_run: bool = False) -> tuple[bool, str]:
     """
     Migrate a single file to use secure HTTP client.
@@ -31,42 +57,20 @@ def migrate_file(file_path: Path, dry_run: bool = False) -> tuple[bool, str]:
     Returns:
         tuple: (was_modified, status_message)
     """
-    # Skip http_client.py itself
-    if file_path.name == "http_client.py":
-        return False, "SKIP (http_client.py itself)"
-
-    # Skip this migration script
-    if file_path.name == "migrate_to_secure_http.py":
-        return False, "SKIP (migration script)"
-
     try:
         content = file_path.read_text(encoding="utf-8")
+        skip_reason = _get_skip_reason(file_path, content)
+        if skip_reason:
+            return False, skip_reason
+
         original_content = content
         modified = False
 
-        # Check if file uses requests methods
-        if not re.search(r"requests\.(get|post|put|delete|patch)\(", content):
-            return False, "SKIP (no requests calls)"
+        content, import_added = _inject_import(content)
+        if import_added:
+            modified = True
 
-        # Check if already migrated
-        if "from http_client import" in content or "from .http_client import" in content:
-            return False, "SKIP (already migrated)"
-
-        # Step 1: Add import after other imports
-        # Find the last import statement
-        import_pattern = re.compile(r"^(from .+ import .+|import .+)$", re.MULTILINE)
-        imports = list(import_pattern.finditer(content))
-
-        if imports:
-            last_import_end = imports[-1].end()
-            # Check if 'import requests' exists
-            if "import requests" in content:
-                # Add our import after the last import
-                new_import = "\nfrom http_client import get, post, put, delete, patch"
-                content = content[:last_import_end] + new_import + content[last_import_end:]
-                modified = True
-
-        # Step 2: Replace requests.METHOD( with METHOD(
+        # Replace requests.METHOD( with METHOD(
         replacements = [
             (r"\brequests\.get\(", "get("),
             (r"\brequests\.post\(", "post("),
@@ -74,19 +78,16 @@ def migrate_file(file_path: Path, dry_run: bool = False) -> tuple[bool, str]:
             (r"\brequests\.delete\(", "delete("),
             (r"\brequests\.patch\(", "patch("),
         ]
-
         for pattern, replacement in replacements:
             if re.search(pattern, content):
                 content = re.sub(pattern, replacement, content)
                 modified = True
 
-        # Only write if changes were made
         if modified and content != original_content:
             if not dry_run:
                 file_path.write_text(content, encoding="utf-8")
             return True, "MIGRATED"
-        else:
-            return False, "SKIP (no changes needed)"
+        return False, "SKIP (no changes needed)"
 
     except Exception as e:
         return False, f"ERROR: {e}"

@@ -563,17 +563,27 @@ class HealthScorer:
                     break
         return series
 
+    @staticmethod
+    def _count_health_tiers(products: list[ProductHealth]) -> tuple[int, int, int]:
+        """Return (healthy, at_risk, critical) counts by health score tier."""
+        healthy = sum(1 for p in products if p.health_score >= 70)
+        at_risk = sum(1 for p in products if 40 <= p.health_score < 70)
+        critical = sum(1 for p in products if p.health_score < 40)
+        return healthy, at_risk, critical
+
+    @staticmethod
+    def _partition_anomalies(products: list[ProductHealth]) -> tuple[list[str], list[str]]:
+        """Return (critical_names, warning_names) split by anomaly severity."""
+        critical = [p.product_name for p in products if p.anomaly_severity == "critical"]
+        warning = [p.product_name for p in products if p.anomaly_severity == "warning"]
+        return critical, warning
+
     def _build_org_summary(self, products: list[ProductHealth], security_forecast: dict) -> OrgHealthSummary:
         """Aggregate per-product health into org-level summary."""
         scores = [p.health_score for p in products]
         overall = round(median(scores), 1) if scores else 0.0
-
-        healthy = sum(1 for p in products if p.health_score >= 70)
-        at_risk = sum(1 for p in products if 40 <= p.health_score < 70)
-        critical = sum(1 for p in products if p.health_score < 40)
-
-        critical_anomalies = [p.product_name for p in products if p.anomaly_severity == "critical"]
-        warning_anomalies = [p.product_name for p in products if p.anomaly_severity == "warning"]
+        healthy, at_risk, critical = self._count_health_tiers(products)
+        critical_anomalies, warning_anomalies = self._partition_anomalies(products)
 
         return OrgHealthSummary(
             overall_score=overall,

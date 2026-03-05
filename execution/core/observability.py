@@ -23,6 +23,7 @@ Usage:
 """
 
 import json
+import logging
 import time
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -30,19 +31,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
+
 from execution.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Optional imports (gracefully handle if not installed)
-try:
-    import sentry_sdk
-    from sentry_sdk.integrations.logging import LoggingIntegration
-
-    SENTRY_AVAILABLE = True
-except ImportError:
-    SENTRY_AVAILABLE = False
-    logger.warning("Sentry SDK not installed. Error tracking disabled. Install with: pip install sentry-sdk")
+# SENTRY_AVAILABLE is determined at runtime based on DSN configuration,
+# not import availability (sentry-sdk is a required dependency).
+SENTRY_AVAILABLE: bool = False
 
 
 class ObservabilityConfig:
@@ -68,11 +66,9 @@ class ObservabilityConfig:
         self.sentry_dsn = sentry_dsn
         self.slack_webhook_url = slack_webhook_url
         self.environment = environment
-        self.enable_sentry = enable_sentry and SENTRY_AVAILABLE and sentry_dsn
+        # sentry-sdk is a required dependency; enable_sentry is gated on DSN presence only
+        self.enable_sentry = bool(enable_sentry and sentry_dsn)
         self.enable_slack = enable_slack and slack_webhook_url
-
-        if enable_sentry and not SENTRY_AVAILABLE:
-            logger.warning("Sentry requested but SDK not installed. Install with: pip install sentry-sdk")
 
 
 # Global config instance
@@ -120,11 +116,12 @@ def setup_observability(
         enable_slack=enable_slack,
     )
 
-    # Initialize Sentry if enabled
-    if _observability_config.enable_sentry and SENTRY_AVAILABLE:
+    # Initialize Sentry if enabled (DSN presence determines availability)
+    if _observability_config.enable_sentry:
+        global SENTRY_AVAILABLE
         sentry_logging = LoggingIntegration(
             level=None,  # Capture all logs
-            event_level="ERROR",  # Send errors and above to Sentry
+            event_level=logging.ERROR,  # Send errors and above to Sentry
         )
 
         sentry_sdk.init(
@@ -135,12 +132,13 @@ def setup_observability(
             profiles_sample_rate=0.1,  # 10% for profiling
         )
 
+        SENTRY_AVAILABLE = True
         logger.info(
             "Sentry error tracking initialized",
             extra={"environment": environment, "traces_sample_rate": 0.1},
         )
     elif enable_sentry:
-        logger.warning("Sentry error tracking requested but not available")
+        logger.warning("Sentry error tracking requested but no DSN configured")
 
     # Log Slack status
     if _observability_config.enable_slack:
@@ -167,7 +165,7 @@ def capture_exception(exception: Exception, context: dict[str, Any] | None = Non
             })
             raise
     """
-    if _observability_config and _observability_config.enable_sentry and SENTRY_AVAILABLE:
+    if _observability_config and _observability_config.enable_sentry:
         with sentry_sdk.push_scope() as scope:
             if context:
                 for key, value in context.items():

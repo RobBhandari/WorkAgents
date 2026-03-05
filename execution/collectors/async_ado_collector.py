@@ -139,6 +139,21 @@ class AsyncADOCollector:
         result: dict = await collect_risk_metrics_for_project(self.rest_client, project, config)
         return result
 
+    def _build_collector_tasks(self, projects: list[dict], config: dict, collector_type: str) -> list:
+        """Select the per-project coroutine method and build the task list."""
+        method_name = {
+            "quality": "collect_quality_metrics_for_project",
+            "flow": "collect_flow_metrics_for_project",
+            "deployment": "collect_deployment_metrics_for_project",
+            "ownership": "collect_ownership_metrics_for_project",
+            "collaboration": "collect_collaboration_metrics_for_project",
+            "risk": "collect_risk_metrics_for_project",
+        }.get(collector_type)
+        if method_name is None:
+            raise ValueError(f"Unknown collector type: {collector_type}")
+        method = getattr(self, method_name)
+        return [method(p, config) for p in projects]
+
     async def collect_all_projects(
         self, projects: list[dict], config: dict, collector_type: str = "quality"
     ) -> list[dict]:
@@ -155,21 +170,7 @@ class AsyncADOCollector:
         """
         logger.info(f"Collecting {collector_type} metrics for {len(projects)} projects (async REST API)")
 
-        # Select collector method
-        if collector_type == "quality":
-            tasks = [self.collect_quality_metrics_for_project(project, config) for project in projects]
-        elif collector_type == "flow":
-            tasks = [self.collect_flow_metrics_for_project(project, config) for project in projects]
-        elif collector_type == "deployment":
-            tasks = [self.collect_deployment_metrics_for_project(project, config) for project in projects]
-        elif collector_type == "ownership":
-            tasks = [self.collect_ownership_metrics_for_project(project, config) for project in projects]
-        elif collector_type == "collaboration":
-            tasks = [self.collect_collaboration_metrics_for_project(project, config) for project in projects]
-        elif collector_type == "risk":
-            tasks = [self.collect_risk_metrics_for_project(project, config) for project in projects]
-        else:
-            raise ValueError(f"Unknown collector type: {collector_type}")
+        tasks = self._build_collector_tasks(projects, config, collector_type)
 
         start = datetime.now()
         results = await asyncio.gather(*tasks, return_exceptions=True)

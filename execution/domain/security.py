@@ -9,8 +9,9 @@ Represents security vulnerabilities and metrics for tracking:
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 
-from .metrics import MetricSnapshot
+from execution.domain.metrics import MetricSnapshot
 
 # Source tool → bucket mapping for security dashboard grouping
 SOURCE_BUCKET_MAP: dict[str, str] = {
@@ -287,6 +288,57 @@ class SecurityMetrics(MetricSnapshot):
             return None
 
         return self.critical_high_count <= self.target
+
+    @property
+    def status(self) -> str:
+        """Overall security status label: Good, Caution, or Action Needed."""
+        if self.has_critical:
+            return "Action Needed"
+        if self.has_high:
+            return "Caution"
+        return "Good"
+
+    @property
+    def status_class(self) -> str:
+        """CSS class for status badge."""
+        return {"Good": "good", "Caution": "caution", "Action Needed": "action"}.get(self.status, "caution")
+
+    @staticmethod
+    def from_json(data: dict) -> "SecurityMetrics":
+        """
+        Create SecurityMetrics from JSON data structure.
+
+        Args:
+            data: Dictionary from security history JSON. Must contain
+                  'timestamp', 'project', 'total_vulnerabilities',
+                  'critical', and 'high' keys.
+
+        Returns:
+            SecurityMetrics instance with all metrics populated from data.
+
+        Example:
+            >>> data = {
+            ...     "timestamp": "2026-01-01T00:00:00",
+            ...     "project": "API Gateway",
+            ...     "total_vulnerabilities": 42,
+            ...     "critical": 3,
+            ...     "high": 12,
+            ... }
+            >>> metrics = SecurityMetrics.from_json(data)
+            >>> metrics.total_vulnerabilities
+            42
+        """
+        return SecurityMetrics(
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+            project=data["project"],
+            total_vulnerabilities=data["total_vulnerabilities"],
+            critical=data["critical"],
+            high=data["high"],
+            medium=data.get("medium", 0),
+            low=data.get("low", 0),
+            baseline=data.get("baseline"),
+            target=data.get("target"),
+        )
 
     def __str__(self) -> str:
         """

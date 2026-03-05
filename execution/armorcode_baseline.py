@@ -18,7 +18,7 @@ import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
-from requests.exceptions import RequestException
+from httpx import RequestError
 
 from execution.config import get_config
 from execution.http_client import get
@@ -36,6 +36,132 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger(__name__)
+
+_VULN_ENDPOINTS = [
+    "/api/v1/findings",
+    "/api/findings",
+    "/api/v1/vulnerabilities",
+    "/api/vulnerabilities",
+    "/v1/findings",
+]
+
+
+def _try_endpoint_urls(
+    base_url: str,
+    url_candidates: list,
+    headers: dict,
+    params: dict,
+) -> tuple:
+    """
+    Attempt each candidate endpoint until one returns HTTP 200.
+
+    Args:
+        base_url: ArmorCode base URL (used only for error messages)
+        url_candidates: List of endpoint path strings to try in order
+        headers: HTTP headers including Authorization
+        params: Query parameters to include in the request
+
+    Returns:
+        tuple: (response_data, successful_endpoint_path)
+
+    Raises:
+        RuntimeError: If all endpoints fail or return non-200 responses
+    """
+    for endpoint in url_candidates:
+        url = f"{base_url.rstrip('/')}{endpoint}"
+        logger.info(f"Trying endpoint: {url}")
+        try:
+            response = get(url, headers=headers, params=params, timeout=60)
+        except RequestError as e:
+            logger.debug(f"Request to {endpoint} failed: {e}")
+            continue
+
+        if response.status_code == 200:
+            logger.info(f"Successfully fetched vulnerabilities from: {endpoint}")
+            return response.json(), endpoint
+        elif response.status_code == 404:
+            logger.debug(f"Endpoint not found: {endpoint}")
+        else:
+            logger.warning(f"Endpoint {endpoint} returned status {response.status_code}: {response.text[:200]}")
+
+    raise RuntimeError(
+        "Unable to fetch vulnerabilities from ArmorCode API.\n"
+        "Attempted endpoints:\n" + "\n".join([f"  - {base_url}{ep}" for ep in url_candidates]) + "\n\n"
+        "Please verify:\n"
+        "1. API key is correct and has read permissions\n"
+        "2. Base URL is correct\n"
+        "3. Consult ArmorCode API documentation for the correct endpoint and filter parameters"
+    )
+
+
+def _extract_vulnerability_list(response_data) -> list:
+    """
+    Normalise the API response shape into a flat list of vulnerability dicts.
+
+    Handles:
+    - Raw list response
+    - Dict with a "vulnerabilities" key
+    - Dict with a "findings" key
+    - Dict with a "data" key
+    - Any other dict (returns empty list)
+
+    Args:
+        response_data: Parsed JSON response from the API (list or dict)
+
+    Returns:
+        list: Flat list of vulnerability dicts (may be empty)
+    """
+    if isinstance(response_data, list):
+        return response_data
+    if isinstance(response_data, dict):
+        for key in ("vulnerabilities", "findings", "data"):
+            if key in response_data:
+                return list(response_data[key])
+    return []
+
+
+def _first_value(raw: dict, *keys: str):
+    """Return the first non-None/non-empty value from *keys* in *raw*."""
+    for key in keys:
+        value = raw.get(key)
+        if value is not None and value != "":
+            return value
+    return None
+
+
+def _truncate_description(raw: dict, max_len: int = 200) -> str:
+    """Extract and optionally truncate the description field from a raw record."""
+    description = raw.get("description", "") or ""
+    if len(description) > max_len:
+        return description[:max_len] + "..."
+    return description
+
+
+def _format_vulnerability(raw: dict) -> dict:
+    """
+    Map raw API fields to a standardised vulnerability dict.
+
+    Uses _first_value() with fallbacks for all fields so that missing keys
+    never raise. Truncates descriptions longer than 200 characters.
+
+    Args:
+        raw: Single vulnerability record from the API response
+
+    Returns:
+        dict: Standardised vulnerability data dict
+    """
+    return {
+        "id": _first_value(raw, "id", "vulnerability_id", "finding_id"),
+        "title": _first_value(raw, "title", "name"),
+        "severity": raw.get("severity"),
+        "product": _first_value(raw, "product", "product_name"),
+        "asset": _first_value(raw, "asset", "component"),
+        "cve": _first_value(raw, "cve", "cve_id"),
+        "cwe": _first_value(raw, "cwe", "cwe_id"),
+        "status": raw.get("status"),
+        "first_seen": str(_first_value(raw, "first_seen", "discovered_date") or ""),
+        "description": _truncate_description(raw),
+    }
 
 
 def create_baseline(
@@ -70,7 +196,7 @@ def create_baseline(
     """
     baseline_file = ".tmp/armorcode_baseline.json"
 
-    # Check if baseline already exists
+    # Step 1: Guard — refuse to overwrite unless --force
     if os.path.exists(baseline_file) and not force:
         logger.error(f"Baseline already exists at {baseline_file}")
         raise ValueError(
@@ -82,7 +208,7 @@ def create_baseline(
     logger.info(f"Creating baseline for vulnerabilities open on {baseline_date}")
 
     try:
-        # Step 1: Connect to ArmorCode API
+        # Step 2: Build request headers and query parameters
         logger.info(f"Connecting to ArmorCode API: {base_url}")
 
         headers = {
@@ -91,125 +217,39 @@ def create_baseline(
             "Accept": "application/json",
         }
 
-        # Step 2: Build query filters for baseline date
-        # Query for vulnerabilities that existed on the baseline date:
-        # - Severity: HIGH or CRITICAL
-        # - Environment: PRODUCTION (or specified)
-        # - Products: Specified products
-        # - First seen: Before or on baseline date
-        # - Status: Open on baseline date (not closed before that date)
-
-        params = {
-            "severity": "HIGH,CRITICAL",  # May need adjustment based on API
+        params: dict = {
+            "severity": "HIGH,CRITICAL",
             "environment": environment,
-            "status": "Open,In Progress",  # Exclude closed
+            "status": "Open,In Progress",
+            "discovered_before": baseline_date,
         }
 
         if products:
             params["products"] = ",".join(products)
 
-        # Add baseline date filter
-        # Note: Exact parameter names depend on ArmorCode API
-        # Common patterns: discovered_before, first_seen_lte, etc.
-        params["discovered_before"] = baseline_date
-
         logger.info(f"Querying vulnerabilities with filters: {params}")
 
-        # Step 3: Query vulnerabilities from API
-        # Try multiple potential endpoints
-        vuln_endpoints = [
-            "/api/v1/findings",
-            "/api/findings",
-            "/api/v1/vulnerabilities",
-            "/api/vulnerabilities",
-            "/v1/findings",
-        ]
+        # Step 3: Discover a working endpoint and fetch raw data
+        raw_response, successful_endpoint = _try_endpoint_urls(base_url, _VULN_ENDPOINTS, headers, params)
+        logger.debug(f"Successful endpoint: {successful_endpoint}")
 
-        vulnerabilities = None
-        successful_endpoint = None
-
-        for endpoint in vuln_endpoints:
-            try:
-                url = f"{base_url.rstrip('/')}{endpoint}"
-                logger.info(f"Trying endpoint: {url}")
-
-                response = get(url, headers=headers, params=params, timeout=60)
-
-                if response.status_code == 200:
-                    vulnerabilities = response.json()
-                    successful_endpoint = endpoint
-                    logger.info(f"Successfully fetched vulnerabilities from: {endpoint}")
-                    break
-                elif response.status_code == 404:
-                    logger.debug(f"Endpoint not found: {endpoint}")
-                    continue
-                else:
-                    logger.warning(f"Endpoint {endpoint} returned status {response.status_code}: {response.text[:200]}")
-                    continue
-
-            except RequestException as e:
-                logger.debug(f"Request to {endpoint} failed: {e}")
-                continue
-
-        if vulnerabilities is None:
-            raise RuntimeError(
-                "Unable to fetch vulnerabilities from ArmorCode API.\n"
-                "Attempted endpoints:\n" + "\n".join([f"  - {base_url}{ep}" for ep in vuln_endpoints]) + "\n\n"
-                "Please verify:\n"
-                "1. API key is correct and has read permissions\n"
-                "2. Base URL is correct\n"
-                "3. Consult ArmorCode API documentation for the correct endpoint and filter parameters"
-            )
-
-        # Step 4: Process vulnerabilities
-        vulnerability_list = []
-        if isinstance(vulnerabilities, list):
-            vulnerability_list = vulnerabilities
-        elif isinstance(vulnerabilities, dict):
-            if "vulnerabilities" in vulnerabilities:
-                vulnerability_list = vulnerabilities["vulnerabilities"]
-            elif "findings" in vulnerabilities:
-                vulnerability_list = vulnerabilities["findings"]
-            elif "data" in vulnerabilities:
-                vulnerability_list = vulnerabilities["data"]
-
+        # Step 4: Normalise response into a flat list
+        vulnerability_list = _extract_vulnerability_list(raw_response)
         baseline_count = len(vulnerability_list)
         logger.info(f"Found {baseline_count} vulnerabilities on {baseline_date}")
 
         # Step 5: Calculate baseline metrics
         target_count = int(baseline_count * (1 - reduction_goal))
-
-        # Calculate days to target
         baseline_dt = datetime.strptime(baseline_date, "%Y-%m-%d")
         target_dt = datetime.strptime(target_date, "%Y-%m-%d")
         days_to_target = (target_dt - baseline_dt).days
         weeks_to_target = days_to_target // 7
-
-        # Calculate required reduction per week
         required_reduction = (baseline_count - target_count) / weeks_to_target if weeks_to_target > 0 else 0
 
-        # Step 6: Format vulnerability data
-        formatted_vulns = []
-        for vuln in vulnerability_list:
-            vuln_data = {
-                "id": vuln.get("id") or vuln.get("vulnerability_id") or vuln.get("finding_id"),
-                "title": vuln.get("title") or vuln.get("name"),
-                "severity": vuln.get("severity"),
-                "product": vuln.get("product") or vuln.get("product_name"),
-                "asset": vuln.get("asset") or vuln.get("component"),
-                "cve": vuln.get("cve") or vuln.get("cve_id"),
-                "cwe": vuln.get("cwe") or vuln.get("cwe_id"),
-                "status": vuln.get("status"),
-                "first_seen": str(vuln.get("first_seen") or vuln.get("discovered_date") or ""),
-                "description": (
-                    vuln.get("description", "")[:200] + "..."
-                    if vuln.get("description") and len(vuln.get("description", "")) > 200
-                    else vuln.get("description", "")
-                ),
-            }
-            formatted_vulns.append(vuln_data)
+        # Step 6: Format individual vulnerability records
+        formatted_vulns = [_format_vulnerability(v) for v in vulnerability_list]
 
-        # Step 7: Create baseline data structure
+        # Step 7: Assemble baseline data structure
         baseline = {
             "baseline_date": baseline_date,
             "target_date": target_date,
@@ -229,7 +269,7 @@ def create_baseline(
             "vulnerabilities": formatted_vulns,
         }
 
-        # Step 8: Save baseline to file
+        # Step 8: Persist baseline to disk
         os.makedirs(".tmp", exist_ok=True)
         with open(baseline_file, "w", encoding="utf-8") as f:
             json.dump(baseline, f, indent=2, ensure_ascii=False)

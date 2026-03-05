@@ -28,6 +28,7 @@ def db_path(tmp_path: Path) -> Path:
     p = tmp_path / "test.db"
     conn = sqlite3.connect(p)
     _create_schema(conn)
+    conn.close()
     return p
 
 

@@ -20,6 +20,88 @@ from execution.security_utils import WIQLValidator
 logger = get_logger(__name__)
 
 
+def _build_area_filter_clause(area_path_filter: str | None) -> str:
+    """
+    Build a validated WIQL area path filter clause.
+
+    :param area_path_filter: "EXCLUDE:path", "INCLUDE:path", or None
+    :returns: WIQL clause string (empty string when no filter)
+    """
+    if not area_path_filter:
+        return ""
+    if area_path_filter.startswith("EXCLUDE:"):
+        path = area_path_filter.replace("EXCLUDE:", "")
+        safe_path = WIQLValidator.validate_area_path(path)
+        return f"AND [System.AreaPath] NOT UNDER '{safe_path}'"
+    if area_path_filter.startswith("INCLUDE:"):
+        path = area_path_filter.replace("INCLUDE:", "")
+        safe_path = WIQLValidator.validate_area_path(path)
+        return f"AND [System.AreaPath] UNDER '{safe_path}'"
+    return ""
+
+
+def _apply_security_bug_filter(
+    work_type: str,
+    open_items: list,
+    closed_items: list,
+) -> tuple[list, list, int, int]:
+    """
+    Filter ArmorCode security bugs from Bug work items.
+
+    :param work_type: Work item type; filtering only applies when "Bug"
+    :param open_items: Open work item list
+    :param closed_items: Closed work item list
+    :returns: (filtered_open, filtered_closed, excluded_open_count, excluded_closed_count)
+    """
+    if work_type != "Bug":
+        return open_items, closed_items, 0, 0
+    open_items, excluded_open = filter_security_bugs(open_items)
+    closed_items, excluded_closed = filter_security_bugs(closed_items)
+    if excluded_open > 0 or excluded_closed > 0:
+        logger.info(
+            "Security bugs filtered",
+            extra={"excluded_open": excluded_open, "excluded_closed": excluded_closed},
+        )
+    return open_items, closed_items, excluded_open, excluded_closed
+
+
+async def _fetch_work_items_batched(
+    rest_client: AzureDevOpsRESTClient,
+    item_ids: list,
+    fields: list[str],
+    work_type: str,
+    label: str,
+) -> list:
+    """
+    Fetch work item details in batches concurrently.
+
+    :param rest_client: ADO REST client
+    :param item_ids: List of work item IDs to fetch
+    :param fields: Field names to retrieve
+    :param work_type: Work item type (for logging only)
+    :param label: "open" or "closed" (for logging only)
+    :returns: List of work item dicts
+    """
+    if not item_ids:
+        return []
+    batch_tasks = []
+    for i in range(0, len(item_ids), 200):
+        batch_ids = item_ids[i : i + 200]
+        batch_tasks.append(rest_client.get_work_items(ids=batch_ids, fields=fields))
+    try:
+        batch_responses = await asyncio.gather(*batch_tasks)
+    except Exception as e:
+        logger.warning(
+            f"Error fetching {label} work items",
+            extra={"work_type": work_type, "error": str(e)},
+        )
+        return []
+    items: list = []
+    for response in batch_responses:
+        items.extend(WorkItemTransformer.transform_work_items_response(response))
+    return items
+
+
 async def query_work_items_by_type(
     rest_client: AzureDevOpsRESTClient,
     project_name: str,
@@ -72,16 +154,7 @@ async def query_work_items_by_type(
     safe_lookback_date = WIQLValidator.validate_date_iso8601(lookback_date)
 
     # Build area path filter clause with validation
-    area_filter_clause = ""
-    if area_path_filter:
-        if area_path_filter.startswith("EXCLUDE:"):
-            path = area_path_filter.replace("EXCLUDE:", "")
-            safe_path = WIQLValidator.validate_area_path(path)
-            area_filter_clause = f"AND [System.AreaPath] NOT UNDER '{safe_path}'"
-        elif area_path_filter.startswith("INCLUDE:"):
-            path = area_path_filter.replace("INCLUDE:", "")
-            safe_path = WIQLValidator.validate_area_path(path)
-            area_filter_clause = f"AND [System.AreaPath] UNDER '{safe_path}'"
+    area_filter_clause = _build_area_filter_clause(area_path_filter)
 
     # Query 1: Currently open items of this type
     query_open = f"""
@@ -119,83 +192,47 @@ async def query_work_items_by_type(
         open_wiql = WorkItemTransformer.transform_wiql_response(open_response)
         closed_wiql = WorkItemTransformer.transform_wiql_response(closed_response)
 
-        open_count = len(open_wiql.work_items) if open_wiql.work_items else 0
-        closed_count = len(closed_wiql.work_items) if closed_wiql.work_items else 0
-
         # Fetch full work item details with batching (200 per batch) - CONCURRENT
-        open_items = []
-        if open_wiql.work_items and len(open_wiql.work_items) > 0:
-            open_ids = [item.id for item in open_wiql.work_items]
-            try:
-                # Create batch tasks for concurrent execution
-                batch_tasks = []
-                for i in range(0, len(open_ids), 200):
-                    batch_ids = open_ids[i : i + 200]
-                    batch_tasks.append(
-                        rest_client.get_work_items(
-                            ids=batch_ids,
-                            fields=[
-                                "System.Id",
-                                "System.Title",
-                                "System.State",
-                                "System.CreatedDate",
-                                "System.WorkItemType",
-                                "Microsoft.VSTS.Common.StateChangeDate",
-                                "System.CreatedBy",
-                            ],
-                        )
-                    )
-                # Execute all batches concurrently
-                batch_responses = await asyncio.gather(*batch_tasks)
-                # Transform and combine results
-                for response in batch_responses:
-                    items = WorkItemTransformer.transform_work_items_response(response)
-                    open_items.extend(items)
-            except Exception as e:
-                logger.warning("Error fetching open work items", extra={"work_type": work_type, "error": str(e)})
+        open_ids = [item.id for item in open_wiql.work_items] if open_wiql.work_items else []
+        closed_ids = [item.id for item in closed_wiql.work_items] if closed_wiql.work_items else []
 
-        closed_items = []
-        if closed_wiql.work_items and len(closed_wiql.work_items) > 0:
-            closed_ids = [item.id for item in closed_wiql.work_items]
-            try:
-                # Create batch tasks for concurrent execution
-                batch_tasks = []
-                for i in range(0, len(closed_ids), 200):
-                    batch_ids = closed_ids[i : i + 200]
-                    batch_tasks.append(
-                        rest_client.get_work_items(
-                            ids=batch_ids,
-                            fields=[
-                                "System.Id",
-                                "System.Title",
-                                "System.State",
-                                "System.CreatedDate",
-                                "Microsoft.VSTS.Common.ClosedDate",
-                                "System.WorkItemType",
-                                "Microsoft.VSTS.Common.StateChangeDate",
-                                "System.CreatedBy",
-                            ],
-                        )
-                    )
-                # Execute all batches concurrently
-                batch_responses = await asyncio.gather(*batch_tasks)
-                # Transform and combine results
-                for response in batch_responses:
-                    items = WorkItemTransformer.transform_work_items_response(response)
-                    closed_items.extend(items)
-            except Exception as e:
-                logger.warning("Error fetching closed work items", extra={"work_type": work_type, "error": str(e)})
+        open_items = await _fetch_work_items_batched(
+            rest_client,
+            open_ids,
+            fields=[
+                "System.Id",
+                "System.Title",
+                "System.State",
+                "System.CreatedDate",
+                "System.WorkItemType",
+                "Microsoft.VSTS.Common.StateChangeDate",
+                "System.CreatedBy",
+            ],
+            work_type=work_type,
+            label="open",
+        )
+
+        closed_items = await _fetch_work_items_batched(
+            rest_client,
+            closed_ids,
+            fields=[
+                "System.Id",
+                "System.Title",
+                "System.State",
+                "System.CreatedDate",
+                "Microsoft.VSTS.Common.ClosedDate",
+                "System.WorkItemType",
+                "Microsoft.VSTS.Common.StateChangeDate",
+                "System.CreatedBy",
+            ],
+            work_type=work_type,
+            label="closed",
+        )
 
         # Filter out ArmorCode security bugs (ONLY for Bugs, not Stories/Tasks)
-        excluded_open = 0
-        excluded_closed = 0
-        if work_type == "Bug":
-            open_items, excluded_open = filter_security_bugs(open_items)
-            closed_items, excluded_closed = filter_security_bugs(closed_items)
-            if excluded_open > 0 or excluded_closed > 0:
-                logger.info(
-                    "Security bugs filtered", extra={"excluded_open": excluded_open, "excluded_closed": excluded_closed}
-                )
+        open_items, closed_items, excluded_open, excluded_closed = _apply_security_bug_filter(
+            work_type, open_items, closed_items
+        )
 
         return {
             "work_type": work_type,
