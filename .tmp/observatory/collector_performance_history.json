@@ -1,13 +1,13 @@
 {
   "weeks": [
     {
-      "week_date": "2026-02-22",
-      "week_number": 8,
+      "week_date": "2026-03-05",
+      "week_number": 10,
       "collectors": [
         {
-          "timestamp": "2026-02-22T17:03:29.948840+00:00",
+          "timestamp": "2026-03-05T09:46:52.323939+00:00",
           "collector_name": "quality",
-          "execution_time_ms": 11.0,
+          "execution_time_ms": 10.26,
           "success": true,
           "project_count": 0,
           "api_call_count": 0,
@@ -17,21 +17,21 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-22T17:03:29.968593+00:00",
+          "timestamp": "2026-03-05T09:46:52.331873+00:00",
+          "collector_name": "quality",
+          "execution_time_ms": 0.0,
+          "success": true,
+          "project_count": 0,
+          "api_call_count": 0,
+          "rate_limit_hits": 0,
+          "retry_count": 0,
+          "error_message": null,
+          "error_type": null
+        },
+        {
+          "timestamp": "2026-03-05T09:46:52.343527+00:00",
           "collector_name": "quality",
           "execution_time_ms": 0.01,
-          "success": true,
-          "project_count": 0,
-          "api_call_count": 0,
-          "rate_limit_hits": 0,
-          "retry_count": 0,
-          "error_message": null,
-          "error_type": null
-        },
-        {
-          "timestamp": "2026-02-22T17:03:29.999409+00:00",
-          "collector_name": "quality",
-          "execution_time_ms": 0.02,
           "success": true,
           "project_count": 12,
           "api_call_count": 0,
@@ -41,9 +41,9 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-22T17:03:30.014410+00:00",
+          "timestamp": "2026-03-05T09:46:52.349895+00:00",
           "collector_name": "deployment",
-          "execution_time_ms": 0.02,
+          "execution_time_ms": 0.01,
           "success": false,
           "project_count": 8,
           "api_call_count": 0,
@@ -53,7 +53,7 @@
           "error_type": "ValueError"
         },
         {
-          "timestamp": "2026-02-22T17:03:30.032895+00:00",
+          "timestamp": "2026-03-05T09:46:52.358607+00:00",
           "collector_name": "quality",
           "execution_time_ms": 0.01,
           "success": true,
@@ -65,9 +65,9 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-22T17:03:30.043395+00:00",
+          "timestamp": "2026-03-05T09:46:52.363529+00:00",
           "collector_name": "quality",
-          "execution_time_ms": 0.01,
+          "execution_time_ms": 0.0,
           "success": true,
           "project_count": 12,
           "api_call_count": 0,
@@ -77,9 +77,9 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-22T17:03:30.056990+00:00",
+          "timestamp": "2026-03-05T09:46:52.370373+00:00",
           "collector_name": "quality",
-          "execution_time_ms": 0.02,
+          "execution_time_ms": 0.01,
           "success": true,
           "project_count": 12,
           "api_call_count": 3,
@@ -89,9 +89,9 @@
           "error_type": null
         },
         {
-          "timestamp": "2026-02-22T17:03:30.072837+00:00",
+          "timestamp": "2026-03-05T09:46:52.377437+00:00",
           "collector_name": "deployment",
-          "execution_time_ms": 0.54,
+          "execution_time_ms": 0.26,
           "success": false,
           "project_count": 0,
           "api_call_count": 1,

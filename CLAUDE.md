@@ -8,6 +8,8 @@
 
 **Before making ANY code changes, you MUST complete ALL steps below. This is NON-NEGOTIABLE.**
 
+> **Mode note:** Single-agent — you own all 4 steps below. Agent Teams — Coordinator owns all 4 steps; all other agents receive their relevant CLAUDE.md sections via their prompt and do NOT repeat this checklist.
+
 #### Step 1: Read Documentation
 - Read `CLAUDE.md` (this file) completely - verify you understand all rules
 - Check `memory/dashboard_patterns.md` for UX conventions (if dashboard work)
@@ -53,6 +55,49 @@ Waiting for your confirmation to proceed...
 - Do NOT proceed until the user confirms your understanding
 - If the user says "go ahead", proceed to implementation
 - If the user corrects anything, update your understanding and confirm again
+
+---
+
+### 🤝 Agent Teams Protocol
+
+When running as a multi-agent team via `/implement`, `/codereview`, or `/fixreview`, the Pre-Flight Checklist above is owned by the **Coordinator**. Each other agent receives only the CLAUDE.md sections relevant to their role.
+
+#### Role → CLAUDE.md Section Ownership
+
+| Role | Owns / Enforces |
+|---|---|
+| Coordinator | Pre-Flight Checklist, Scope Management, File Naming Conventions |
+| Architect | Architecture Patterns, Import Patterns, File Size & Complexity Limits |
+| Implementer | Tech Stack, Error Handling, Testing Requirements, Quality Gates 1–4 & 6 |
+| Critic | All Security Rules, Error Handling, Quality Gates 5 & 7 |
+| Verifier | Testing Requirements, all 7 Quality Gates (independent re-run) |
+
+#### Quality Gate Ownership
+
+| Gate | Implementer runs | Critic runs | Verifier re-runs |
+|---|---|---|---|
+| black --check | ✅ | — | ✅ |
+| ruff check | ✅ | — | ✅ |
+| mypy | ✅ | — | ✅ |
+| pytest | ✅ | — | ✅ |
+| bandit (Security) | — | ✅ | ✅ |
+| sphinx-build | ✅ | — | ✅ |
+| Template security | — | ✅ | ✅ |
+
+#### Hard Rules (apply in all modes)
+- Any claim must be backed by evidence (tests, file:line references, reproduction steps)
+- Critic and Verifier can independently block completion
+- Stop when acceptance criteria are met — no improvements beyond scope
+- Skills run from **Windows Terminal**, not VSCode (no live output in VSCode)
+
+#### Skill Workflows
+| Skill | Use when | Roles |
+|---|---|---|
+| `/codereview` | Pre-release sweep, "what's wrong?" | 4 parallel reviewers → findings report |
+| `/fixreview` | Actioning known findings | Implementer → Critic → Verifier |
+| `/implement` | New features, changes, bug fixes | Coordinator → Architect → Implementer → Critic → Verifier |
+
+Flow: `/codereview` produces findings → human selects items → `/fixreview` resolves them. `/implement` is independent — starts from a user request, not review findings.
 
 ---
 
