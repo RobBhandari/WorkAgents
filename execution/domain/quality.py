@@ -186,6 +186,20 @@ class QualityMetrics(MetricSnapshot):
             return None
         return (self.closed_this_week / self.open_bugs) * 100
 
+    @property
+    def status(self) -> str:
+        """Overall quality status label: Good, Caution, or Action Needed."""
+        if self.has_critical_bugs:
+            return "Action Needed"
+        if not self.is_improving:
+            return "Caution"
+        return "Good"
+
+    @property
+    def status_class(self) -> str:
+        """CSS class for status badge."""
+        return {"Good": "good", "Caution": "caution", "Action Needed": "action"}.get(self.status, "caution")
+
     @staticmethod
     def from_json(data: dict) -> "QualityMetrics":
         """

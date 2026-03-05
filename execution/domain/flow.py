@@ -14,7 +14,7 @@ from datetime import datetime
 from execution.domain.metrics import MetricSnapshot
 
 
-@dataclass
+@dataclass(kw_only=True)
 class FlowMetrics(MetricSnapshot):
     """
     Engineering flow metrics for a project at a point in time.
@@ -230,6 +230,27 @@ class FlowMetrics(MetricSnapshot):
             issues.append("slow_delivery")
 
         return len(issues) > 0
+
+    @property
+    def status(self) -> str:
+        """Overall flow status label: Good, Caution, or Action Needed."""
+        issue_count = sum(
+            [
+                self.has_high_variability(),
+                self.has_aging_issues(),
+                bool(self.lead_time_p50 and self.lead_time_p50 > 14),
+            ]
+        )
+        if issue_count >= 2:
+            return "Action Needed"
+        if issue_count == 1:
+            return "Caution"
+        return "Good"
+
+    @property
+    def status_class(self) -> str:
+        """CSS class for status badge."""
+        return {"Good": "good", "Caution": "caution", "Action Needed": "action"}.get(self.status, "caution")
 
     @staticmethod
     def from_json(data: dict) -> "FlowMetrics":
