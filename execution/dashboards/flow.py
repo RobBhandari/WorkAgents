@@ -168,39 +168,6 @@ async def generate_flow_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
-def _collect_entry_p85_values(entry: dict[str, Any]) -> list[float]:
-    """Extract all positive P85 lead time values from a single history entry."""
-    p85_values: list[float] = []
-    for project in entry.get("projects", []):
-        for work_type in ["Bug", "User Story", "Task"]:
-            p85 = project.get("work_type_metrics", {}).get(work_type, {}).get("lead_time", {}).get("p85")
-            if p85 and float(p85) > 0:
-                p85_values.append(float(p85))
-    return p85_values
-
-
-def _build_trend_series(unique_entries: list[dict[str, Any]]) -> tuple[list[float], list[str]]:
-    """Build weekly avg P85 values and labels from deduplicated history entries."""
-    weekly_values: list[float] = []
-    week_labels: list[str] = []
-    for entry in unique_entries:
-        p85_values = _collect_entry_p85_values(entry)
-        if p85_values:
-            weekly_values.append(sum(p85_values) / len(p85_values))
-            week_labels.append(entry.get("week_date", ""))
-    return weekly_values, week_labels
-
-
-def _deduplicate_weeks(weeks: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Deduplicate history entries by week_date, keeping last occurrence, returning last 12."""
-    seen: dict[str, dict[str, Any]] = {}
-    for entry in weeks:
-        date = entry.get("week_date", "")
-        if date:
-            seen[date] = entry
-    return list(seen.values())[-12:]
-
-
 def _load_flow_trend_chart() -> str:
     """
     Load flow history and build a portfolio avg lead time trend chart.
@@ -220,15 +187,38 @@ def _load_flow_trend_chart() -> str:
     try:
         data = load_json_with_recovery(str(history_path))
         weeks = data.get("weeks", [])
-    except Exception as exc:
-        logger.warning("Could not load flow_history.json for trend chart", exc_info=True)
+    except Exception:
+        logger.warning("Could not load flow_history.json for trend chart")
         return ""
 
     if not weeks:
         return ""
 
-    unique_entries = _deduplicate_weeks(weeks)
-    weekly_values, week_labels = _build_trend_series(unique_entries)
+    # Deduplicate by week_date (keep last occurrence per date)
+    seen: dict[str, dict[str, Any]] = {}
+    for entry in weeks:
+        date = entry.get("week_date", "")
+        if date:
+            seen[date] = entry
+
+    # Use last 12 unique dates for the chart
+    unique_entries = list(seen.values())[-12:]
+
+    weekly_values: list[float] = []
+    week_labels: list[str] = []
+
+    for entry in unique_entries:
+        projects = entry.get("projects", [])
+        p85_values: list[float] = []
+        for project in projects:
+            for work_type in ["Bug", "User Story", "Task"]:
+                p85 = project.get("work_type_metrics", {}).get(work_type, {}).get("lead_time", {}).get("p85")
+                if p85 and float(p85) > 0:
+                    p85_values.append(float(p85))
+        if p85_values:
+            avg_p85 = sum(p85_values) / len(p85_values)
+            weekly_values.append(avg_p85)
+            week_labels.append(entry.get("week_date", ""))
 
     if not weekly_values:
         return ""
