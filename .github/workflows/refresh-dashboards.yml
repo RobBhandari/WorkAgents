@@ -135,7 +135,7 @@ jobs:
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
 
       - name: Download project discovery artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: project-discovery
           path: .tmp/observatory/
@@ -263,7 +263,7 @@ jobs:
           echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
 
       - name: Download all metrics artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: metrics-*
           path: metrics-artifacts/
@@ -336,7 +336,7 @@ jobs:
           echo '${{ secrets.ARMORCODE_ID_MAP }}' > data/armorcode_id_map.json
 
       - name: Download intelligence outputs (forecasts, risk scores, model perf)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: intelligence-outputs
           path: intelligence-outputs/
@@ -353,7 +353,7 @@ jobs:
           ls data/insights/  2>/dev/null | head -5 || echo "  No insights"
 
       - name: Download metrics artifacts (history files for context-aware dashboards)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: metrics-*
           path: metrics-artifacts/
@@ -434,7 +434,7 @@ jobs:
           ls -la data/*.json 2>/dev/null || echo "⚠️ No baseline files created (secrets may be empty)"
 
       - name: Download ALL metrics artifacts (REQUIRED - no fallback!)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts/
         continue-on-error: false
@@ -571,21 +571,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Download all dashboard artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: dashboard-*
           path: dashboard-artifacts/
           merge-multiple: true
 
       - name: Download fresh metrics artifacts (REQUIRED for git commit)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: metrics-*
           path: metrics-artifacts/
         continue-on-error: false
 
       - name: Apply patched security history (live-accurate count overrides collector)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: security-history-patched
           path: metrics-artifacts/metrics-Security Metrics/
@@ -652,7 +652,7 @@ jobs:
           fi
 
       - name: Download intelligence outputs (report + updated model_performance.json)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: intelligence-outputs
           path: intelligence-outputs/
