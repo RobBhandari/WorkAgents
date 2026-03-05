@@ -236,13 +236,13 @@ class BaseAgent(ABC):
             Organization name (e.g., "contoso")
 
         Raises:
-            ValueError: If ADO_ORGANIZATION_URL not set
+            ValueError: If AZURE_DEVOPS_ORG_URL not set
         """
         import os
 
-        org_url = os.getenv("ADO_ORGANIZATION_URL")
+        org_url = os.getenv("AZURE_DEVOPS_ORG_URL")
         if not org_url:
-            raise ValueError("ADO_ORGANIZATION_URL environment variable not set")
+            raise ValueError("AZURE_DEVOPS_ORG_URL environment variable not set")
 
         # Extract organization name from URL
         # https://dev.azure.com/contoso -> contoso
