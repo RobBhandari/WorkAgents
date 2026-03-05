@@ -15,9 +15,6 @@ scikit-learn>=1.5.0,<2.0  # Linear regression for trend prediction
 numpy>=1.26.0,<3.0  # Numerical computing for ML
 scipy>=1.12.0,<2.0  # Statistics for Intelligence Platform forecasting
 
-# Optional: anthropic (lazy-imported in intelligence/insight_generator.py with template fallback)
-# Install manually if LLM narrative generation is needed: pip install anthropic
-
 # Azure DevOps integration - using direct REST API (no SDK needed)
 # Removed azure-devops==7.1.0b4 beta dependency in favor of direct REST API calls
 # See execution/collectors/ado_rest_client.py for REST API implementation
@@ -51,9 +48,9 @@ pyarrow>=15.0.0,<24.0     # Parquet I/O for feature store (DuckDB reads natively
 # Testing dependencies
 h2>=4.1.0,<5.0  # HTTP/2 support for httpx (required by AsyncSecureHTTPClient)
 # Security constraints for transitive dependencies
-cryptography>=46.0.5,<48.0  # CVE-2026-26007 fix
-aiohttp>=3.13.3,<4.0  # aiohttp: transitive CVE pin for instructor package — NOT imported directly (CLAUDE.md: never use aiohttp directly)
-urllib3>=2.6.3,<3.0  # CVE-2025-50181, CVE-2025-66418, CVE-2025-66471, CVE-2026-21441
+cryptography>=46.0.5  # CVE-2026-26007 fix
+aiohttp>=3.13.3,<4.0  # CVE pin for transitive dep via instructor (not directly imported); >=3.13.3 resolves 9 CVEs
+urllib3>=2.6.3  # CVE-2025-50181, CVE-2025-66418, CVE-2025-66471, CVE-2026-21441
 
 # MCP (Model Context Protocol) - for skill-based architecture
 mcp>=1.0.0,<2.0  # Model Context Protocol SDK for reusable skills
