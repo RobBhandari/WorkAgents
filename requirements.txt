@@ -15,9 +15,9 @@ scikit-learn>=1.5.0,<2.0  # Linear regression for trend prediction
 numpy>=1.26.0,<3.0  # Numerical computing for ML
 scipy>=1.12.0,<2.0  # Statistics for Intelligence Platform forecasting
 
-# Azure DevOps integration - using direct REST API (no SDK needed)
-# Removed azure-devops==7.1.0b4 beta dependency in favor of direct REST API calls
-# See execution/collectors/ado_rest_client.py for REST API implementation
+# Azure DevOps integration
+azure-devops>=7.1.0b4,<8.0  # Used in execution/ado_query_bugs.py, execution/create_ado_dec1_baseline.py
+msrest>=0.7.1,<1.0  # Authentication for azure-devops SDK (BasicAuthentication)
 
 # ArmorCode integration uses httpx (via execution/http_client.py)
 
@@ -56,4 +56,4 @@ urllib3>=2.6.3  # CVE-2025-50181, CVE-2025-66418, CVE-2025-66471, CVE-2026-21441
 mcp>=1.0.0,<2.0  # Model Context Protocol SDK for reusable skills
 
 # Production server (Azure deployment)
-gunicorn>=21.0.0,<22.0  # WSGI server for production
+gunicorn>=22.0.0,<23.0  # WSGI server for production (>=22.0.0 includes security fixes)

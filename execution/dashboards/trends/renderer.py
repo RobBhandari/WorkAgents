@@ -111,8 +111,8 @@ class TrendsRenderer:
                 }
                 for a in alerts
             ]
-        except Exception:
-            logger.warning("Could not load alerts from analytics DB", exc_info=True)
+        except Exception as e:
+            logger.warning("Could not load alerts from analytics DB: %s", e, exc_info=True)
             return []
 
     def _build_standard_metric(
