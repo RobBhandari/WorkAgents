@@ -185,6 +185,24 @@ async def query_work_items_for_ownership(
     return {"open_items": items, "total_count": len(items)}
 
 
+def _is_unassigned(assigned_to: object) -> bool:
+    """Return True if the AssignedTo field indicates an unassigned item."""
+    if not assigned_to:
+        return True
+    if isinstance(assigned_to, dict) and not assigned_to.get("displayName"):
+        return True
+    return False
+
+
+def _count_unassigned_by_type(unassigned_items: list[dict]) -> dict:
+    """Return counts of unassigned items bucketed into bugs/features/tasks."""
+    return {
+        "bugs": sum(1 for item in unassigned_items if item["type"] == "Bug"),
+        "features": sum(1 for item in unassigned_items if item["type"] in ["Feature", "User Story"]),
+        "tasks": sum(1 for item in unassigned_items if item["type"] == "Task"),
+    }
+
+
 def calculate_unassigned_items(open_items: list[dict]) -> dict:
     """
     Calculate count and details of unassigned work items.
@@ -201,7 +219,7 @@ def calculate_unassigned_items(open_items: list[dict]) -> dict:
         assigned_to = item.get("System.AssignedTo")
 
         # Check if item is unassigned (no AssignedTo or empty)
-        if not assigned_to or (isinstance(assigned_to, dict) and not assigned_to.get("displayName")):
+        if _is_unassigned(assigned_to):
             unassigned_items.append(
                 {
                     "id": item.get("System.Id"),
@@ -222,11 +240,18 @@ def calculate_unassigned_items(open_items: list[dict]) -> dict:
         "total_items": total_items,
         "unassigned_pct": round(unassigned_pct, 1),
         "items": unassigned_items[:20],  # Top 20 for reference
-        "by_type": {
-            "bugs": sum(1 for item in unassigned_items if item["type"] == "Bug"),
-            "features": sum(1 for item in unassigned_items if item["type"] in ["Feature", "User Story"]),
-            "tasks": sum(1 for item in unassigned_items if item["type"] == "Task"),
-        },
+        "by_type": _count_unassigned_by_type(unassigned_items),
+    }
+
+
+def _build_segmentation_entry(total: int, unassigned: int) -> dict[str, Any]:
+    """Build a single segmentation entry dict for a work type."""
+    unassigned_pct = (unassigned / total * 100) if total > 0 else 0
+    return {
+        "total": total,
+        "unassigned": unassigned,
+        "assigned": total - unassigned,
+        "unassigned_pct": round(unassigned_pct, 1),
     }
 
 
@@ -252,7 +277,7 @@ def calculate_work_type_segmentation(open_items: list[dict]) -> dict[str, Any]:
         type_totals[work_type] += 1
 
         # Check if unassigned
-        if not assigned_to or (isinstance(assigned_to, dict) and not assigned_to.get("displayName")):
+        if _is_unassigned(assigned_to):
             type_unassigned[work_type] += 1
 
     # Build segmentation for primary work types
@@ -262,30 +287,42 @@ def calculate_work_type_segmentation(open_items: list[dict]) -> dict[str, Any]:
     for wtype in primary_types:
         total = type_totals.get(wtype, 0)
         unassigned = type_unassigned.get(wtype, 0)
-        unassigned_pct = (unassigned / total * 100) if total > 0 else 0
-
-        segmentation[wtype] = {
-            "total": total,
-            "unassigned": unassigned,
-            "assigned": total - unassigned,
-            "unassigned_pct": round(unassigned_pct, 1),
-        }
+        segmentation[wtype] = _build_segmentation_entry(total, unassigned)
 
     # Add "Other" category for all other types
     other_types = [t for t in type_totals.keys() if t not in primary_types]
     other_total = sum(type_totals[t] for t in other_types)
     other_unassigned = sum(type_unassigned[t] for t in other_types)
-    other_unassigned_pct = (other_unassigned / other_total * 100) if other_total > 0 else 0
-
-    segmentation["Other"] = {
-        "total": other_total,
-        "unassigned": other_unassigned,
-        "assigned": other_total - other_unassigned,
-        "unassigned_pct": round(other_unassigned_pct, 1),
-        "types_included": ", ".join(other_types),  # Convert list to string
-    }
+    other_entry = _build_segmentation_entry(other_total, other_unassigned)
+    other_entry["types_included"] = ", ".join(other_types)
+    segmentation["Other"] = other_entry
 
     return segmentation
+
+
+def _extract_assignee_name(assigned_to: object) -> str:
+    """Extract a display name string from an AssignedTo field value."""
+    if assigned_to:
+        if isinstance(assigned_to, dict):
+            return str(assigned_to.get("displayName", "Unassigned"))
+        return str(assigned_to)
+    return "Unassigned"
+
+
+def _calculate_load_imbalance(sorted_assignees: list) -> float | None:
+    """Calculate max/min load ratio from a sorted list of (name, count) pairs.
+
+    Excludes 'Unassigned' from the min load comparison so only real developers
+    are used as the minimum end of the ratio.
+    """
+    if len(sorted_assignees) <= 1:
+        return None
+    max_load = sorted_assignees[0][1]
+    named = [item for item in sorted_assignees if item[0] != "Unassigned"]
+    if len(named) < 2:
+        return None
+    min_load = named[-1][1]
+    return max_load / min_load if min_load > 0 else None
 
 
 def calculate_assignment_distribution(open_items: list[dict]) -> dict:
@@ -298,19 +335,11 @@ def calculate_assignment_distribution(open_items: list[dict]) -> dict:
     Returns:
         Assignment distribution metrics
     """
-    assignee_counts = {}
+    assignee_counts: dict[str, int] = {}
 
     for item in open_items:
         assigned_to = item.get("System.AssignedTo")
-
-        # Extract assignee name
-        if assigned_to:
-            if isinstance(assigned_to, dict):
-                assignee_name = assigned_to.get("displayName", "Unassigned")
-            else:
-                assignee_name = assigned_to
-        else:
-            assignee_name = "Unassigned"
+        assignee_name = _extract_assignee_name(assigned_to)
 
         if assignee_name not in assignee_counts:
             assignee_counts[assignee_name] = 0
@@ -320,17 +349,7 @@ def calculate_assignment_distribution(open_items: list[dict]) -> dict:
     # Sort by count (descending)
     sorted_assignees = sorted(assignee_counts.items(), key=lambda x: x[1], reverse=True)
 
-    # Calculate load imbalance
-    if len(sorted_assignees) > 1:
-        max_load = sorted_assignees[0][1]
-        min_load = (
-            sorted_assignees[-1][1]
-            if sorted_assignees[-1][0] != "Unassigned"
-            else sorted_assignees[-2][1] if len(sorted_assignees) > 1 else 0
-        )
-        load_imbalance_ratio = max_load / min_load if min_load > 0 else None
-    else:
-        load_imbalance_ratio = None
+    load_imbalance_ratio = _calculate_load_imbalance(sorted_assignees)
 
     return {
         "assignee_count": len(assignee_counts) - (1 if "Unassigned" in assignee_counts else 0),
@@ -387,6 +406,35 @@ def calculate_area_unassigned_stats(open_items: list[dict]) -> dict:
     return {"area_count": len(area_list), "areas": area_list}  # All areas, no filtering
 
 
+def _accumulate_repo_commits(
+    commits: list[dict],
+    developer_dates: defaultdict,
+) -> int:
+    """Process commits from one repo into developer_dates; return count added."""
+    added = 0
+    for commit in commits:
+        author_name = commit.get("author_name")
+        author_date_str = commit.get("author_date")
+        if author_name and author_date_str:
+            try:
+                commit_datetime = datetime.fromisoformat(author_date_str.replace("Z", "+00:00"))
+                developer_dates[author_name].add(commit_datetime.date())
+                added += 1
+            except ValueError:
+                continue
+    return added
+
+
+def _build_developer_stats(developer_dates: defaultdict, total_commits: int) -> list[dict]:
+    """Build sorted list of per-developer stats from accumulated dates."""
+    developer_stats = [
+        {"developer": dev, "active_days": len(dates), "commits": total_commits}
+        for dev, dates in developer_dates.items()
+    ]
+    developer_stats.sort(key=lambda x: x["active_days"], reverse=True)
+    return developer_stats
+
+
 async def calculate_developer_active_days(
     rest_client: AzureDevOpsRESTClient, project_name: str, days: int = 90
 ) -> dict:
@@ -421,7 +469,7 @@ async def calculate_developer_active_days(
         # Execute all commit queries concurrently
         commit_responses = await asyncio.gather(*commit_tasks, return_exceptions=True)
 
-        developer_dates = defaultdict(set)  # dev -> set of dates
+        developer_dates: defaultdict = defaultdict(set)  # dev -> set of dates
         total_commits = 0
 
         for repo, response in zip(repos, commit_responses, strict=True):
@@ -436,31 +484,9 @@ async def calculate_developer_active_days(
 
             # Transform REST response to simplified format
             commits = GitTransformer.transform_commits_response(response)  # type: ignore[arg-type]
+            total_commits += _accumulate_repo_commits(commits, developer_dates)
 
-            for commit in commits:
-                author_name = commit.get("author_name")
-                author_date_str = commit.get("author_date")
-
-                if author_name and author_date_str:
-                    # Parse date from ISO string
-                    try:
-                        commit_datetime = datetime.fromisoformat(author_date_str.replace("Z", "+00:00"))
-                        commit_date = commit_datetime.date()
-                        developer_dates[author_name].add(commit_date)
-                        total_commits += 1
-                    except ValueError:
-                        continue
-
-        # Calculate active days per developer
-        developer_stats = []
-        for dev, dates in developer_dates.items():
-            active_days = len(dates)
-            developer_stats.append(
-                {"developer": dev, "active_days": active_days, "commits": total_commits}  # Total commits count
-            )
-
-        # Sort by active days
-        developer_stats.sort(key=lambda x: x["active_days"], reverse=True)
+        developer_stats = _build_developer_stats(developer_dates, total_commits)
 
         return {
             "sample_size": len(developer_stats),

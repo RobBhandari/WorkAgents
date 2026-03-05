@@ -337,6 +337,34 @@ def _calculate_composite_status(mttr: float | None, median_age: float | None) ->
     return '<span style="color: #10b981;">✓ Good</span>', tooltip, 2
 
 
+def _render_detail_metric_card(label: str, value: float) -> str:
+    """Render a single detail metric card using the template."""
+    rag_class, rag_color, rag_status = _get_metric_rag_status(label, value)
+    return render_template(
+        "dashboards/detail_metric.html",
+        rag_class=rag_class,
+        rag_color=rag_color,
+        label=label,
+        value=f"{value:.1f} days",
+        status=rag_status,
+    )
+
+
+def _build_detailed_metrics_section(bug_age: dict[str, Any], mttr_data: dict[str, Any]) -> str:
+    """Build the Detailed Metrics section HTML (P85/P95 cards) if any values are present."""
+    metric_slots = [
+        ("Bug Age P85", bug_age.get("p85_age_days")),
+        ("Bug Age P95", bug_age.get("p95_age_days")),
+        ("MTTR P85", mttr_data.get("p85_mttr_days")),
+        ("MTTR P95", mttr_data.get("p95_mttr_days")),
+    ]
+    present = [(label, val) for label, val in metric_slots if val]
+    if not present:
+        return ""
+    cards = "".join(_render_detail_metric_card(label, val) for label, val in present)
+    return f'<div class="detail-section"><h4>Detailed Metrics</h4><div class="detail-grid">{cards}</div></div>'
+
+
 def _generate_drilldown_html(project: dict[str, Any]) -> str:
     """
     Generate drill-down detail content HTML for a project.
@@ -353,56 +381,7 @@ def _generate_drilldown_html(project: dict[str, Any]) -> str:
     mttr_data = project.get("mttr", {})
 
     # Section 1: Additional Metrics (P85, P95)
-    if bug_age.get("p85_age_days") or bug_age.get("p95_age_days") or mttr_data.get("p85_mttr_days"):
-        html += '<div class="detail-section">'
-        html += "<h4>Detailed Metrics</h4>"
-        html += '<div class="detail-grid">'
-
-        if bug_age.get("p85_age_days"):
-            rag_class, rag_color, rag_status = _get_metric_rag_status("Bug Age P85", bug_age["p85_age_days"])
-            html += render_template(
-                "dashboards/detail_metric.html",
-                rag_class=rag_class,
-                rag_color=rag_color,
-                label="Bug Age P85",
-                value=f"{bug_age['p85_age_days']:.1f} days",
-                status=rag_status,
-            )
-
-        if bug_age.get("p95_age_days"):
-            rag_class, rag_color, rag_status = _get_metric_rag_status("Bug Age P95", bug_age["p95_age_days"])
-            html += render_template(
-                "dashboards/detail_metric.html",
-                rag_class=rag_class,
-                rag_color=rag_color,
-                label="Bug Age P95",
-                value=f"{bug_age['p95_age_days']:.1f} days",
-                status=rag_status,
-            )
-
-        if mttr_data.get("p85_mttr_days"):
-            rag_class, rag_color, rag_status = _get_metric_rag_status("MTTR P85", mttr_data["p85_mttr_days"])
-            html += render_template(
-                "dashboards/detail_metric.html",
-                rag_class=rag_class,
-                rag_color=rag_color,
-                label="MTTR P85",
-                value=f"{mttr_data['p85_mttr_days']:.1f} days",
-                status=rag_status,
-            )
-
-        if mttr_data.get("p95_mttr_days"):
-            rag_class, rag_color, rag_status = _get_metric_rag_status("MTTR P95", mttr_data["p95_mttr_days"])
-            html += render_template(
-                "dashboards/detail_metric.html",
-                rag_class=rag_class,
-                rag_color=rag_color,
-                label="MTTR P95",
-                value=f"{mttr_data['p95_mttr_days']:.1f} days",
-                status=rag_status,
-            )
-
-        html += "</div></div>"
+    html += _build_detailed_metrics_section(bug_age, mttr_data)
 
     # Section 2: Bug Age Distribution
     if bug_age.get("ages_distribution"):

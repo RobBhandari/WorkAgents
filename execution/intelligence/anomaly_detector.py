@@ -143,19 +143,7 @@ def detect_anomalies_isolation_forest(
         )
         return []
 
-    # Build feature matrix from value_col + any numeric columns (exclude dates)
-    numeric_cols = [
-        col
-        for col in df.select_dtypes(include=[np.number]).columns
-        if col != "week_number"  # exclude artificial index-like columns
-    ]
-
-    if value_col not in numeric_cols:
-        numeric_cols = [value_col] + numeric_cols
-
-    # Ensure value_col is the first column (deterministic feature ordering)
-    ordered_cols = [value_col] + [c for c in numeric_cols if c != value_col]
-
+    ordered_cols = _build_ordered_feature_cols(df, value_col)
     clean = df[ordered_cols].dropna()
     if len(clean) < 2:
         return []
@@ -182,6 +170,48 @@ def detect_anomalies_isolation_forest(
 # ---------------------------------------------------------------------------
 # Root-cause dimension hint
 # ---------------------------------------------------------------------------
+
+
+def _build_ordered_feature_cols(df: pd.DataFrame, value_col: str) -> list[str]:
+    """
+    Return numeric columns ordered with value_col first.
+
+    Excludes week_number (artificial index-like column). Ensures value_col is
+    included even if it was not selected by select_dtypes.
+    """
+    numeric_cols = [col for col in df.select_dtypes(include=[np.number]).columns if col != "week_number"]
+    if value_col not in numeric_cols:
+        numeric_cols = [value_col] + numeric_cols
+    return [value_col] + [c for c in numeric_cols if c != value_col]
+
+
+def _compute_dimension_gap(
+    df: pd.DataFrame,
+    col: str,
+    anomaly_mask: pd.Series,
+) -> float:
+    """
+    Compute normalised mean gap for one dimension column.
+
+    Returns the absolute difference in mean between anomalous and normal rows,
+    divided by the overall standard deviation. Returns 0.0 if the column has
+    insufficient data or zero standard deviation.
+    """
+    series = df[col].dropna()
+    if len(series) < 2:
+        return 0.0
+
+    overall_std = float(series.std(ddof=1))
+    if overall_std == 0.0:
+        return 0.0
+
+    anomaly_vals = df.loc[anomaly_mask, col].dropna()
+    normal_vals = df.loc[~anomaly_mask, col].dropna()
+
+    if anomaly_vals.empty or normal_vals.empty:
+        return 0.0
+
+    return abs(float(anomaly_vals.mean()) - float(normal_vals.mean())) / overall_std
 
 
 def _compute_root_cause_hint(
@@ -221,21 +251,7 @@ def _compute_root_cause_hint(
     best_gap = 0.0
 
     for col in candidate_cols:
-        series = df[col].dropna()
-        if len(series) < 2:
-            continue
-
-        overall_std = float(series.std(ddof=1))
-        if overall_std == 0.0:
-            continue
-
-        anomaly_vals = df.loc[anomaly_mask, col].dropna()
-        normal_vals = df.loc[~anomaly_mask, col].dropna()
-
-        if anomaly_vals.empty or normal_vals.empty:
-            continue
-
-        gap = abs(float(anomaly_vals.mean()) - float(normal_vals.mean())) / overall_std
+        gap = _compute_dimension_gap(df, col, anomaly_mask)
         if gap > best_gap:
             best_gap = gap
             best_dim = col
