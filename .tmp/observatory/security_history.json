@@ -4,121 +4,6 @@
       "week_date": "2026-02-20",
       "week_number": 8,
       "metrics": {
-        "current_total": 12421,
-        "severity_breakdown": {
-          "critical": 537,
-          "high": 11884,
-          "total": 12421
-        },
-        "product_breakdown": {
-          "10480": {
-            "critical": 0,
-            "high": 2,
-            "total": 2
-          },
-          "645178": {
-            "critical": 2,
-            "high": 16,
-            "total": 18
-          },
-          "4317": {
-            "critical": 1,
-            "high": 59,
-            "total": 60
-          },
-          "20463": {
-            "critical": 2,
-            "high": 67,
-            "total": 69
-          },
-          "329274": {
-            "critical": 67,
-            "high": 312,
-            "total": 379
-          },
-          "5907": {
-            "critical": 0,
-            "high": 15,
-            "total": 15
-          },
-          "45454": {
-            "critical": 467,
-            "high": 11405,
-            "total": 11872
-          },
-          "4727": {
-            "critical": 0,
-            "high": 21,
-            "total": 21
-          },
-          "4730": {
-            "critical": 0,
-            "high": 15,
-            "total": 15
-          },
-          "5526": {
-            "critical": 0,
-            "high": 14,
-            "total": 14
-          },
-          "4728": {
-            "critical": 0,
-            "high": 15,
-            "total": 15
-          },
-          "4726": {
-            "critical": 0,
-            "high": 0,
-            "total": 0
-          },
-          "5527": {
-            "critical": 0,
-            "high": 0,
-            "total": 0
-          },
-          "227595": {
-            "critical": 0,
-            "high": 10,
-            "total": 10
-          }
-        },
-        "mttr": {
-          "critical_mttr_days": null,
-          "high_mttr_days": null,
-          "critical_sample_size": 0,
-          "high_sample_size": 0,
-          "note": "MTTR calculation disabled - date fields not available in GraphQL schema"
-        },
-        "stale_criticals": {
-          "count": 539,
-          "threshold_days": 90,
-          "items": [],
-          "note": "Age calculation disabled - date fields not available in GraphQL schema"
-        },
-        "age_distribution": {
-          "median_age_days": null,
-          "p85_age_days": null,
-          "p95_age_days": null,
-          "sample_size": 0,
-          "note": "Age calculation disabled - date fields not available in GraphQL schema"
-        },
-        "closed_count_90d": 0,
-        "collected_at": "2026-02-20T15:22:27.730668",
-        "baseline_reference": {
-          "baseline_date": "2025-12-01",
-          "baseline_count": 246,
-          "target_count": 74
-        }
-      },
-      "config": {
-        "lookback_days": 90,
-        "stale_threshold_days": 90
-      }
-    },
-    {
-      "week_date": "2026-02-20",
-      "week_number": 8,
-      "metrics": {
         "current_total": 12490,
         "severity_breakdown": {
           "critical": 539,
@@ -6067,6 +5952,131 @@
         },
         "closed_count_90d": 0,
         "collected_at": "2026-03-05T23:11:41.869764",
+        "baseline_reference": {
+          "baseline_date": "2025-12-01",
+          "baseline_count": 246,
+          "target_count": 74
+        },
+        "bucket_breakdown": {
+          "code_cloud": {
+            "critical": 13,
+            "high": 287,
+            "total": 300
+          },
+          "infrastructure": {
+            "critical": 415,
+            "high": 8410,
+            "total": 8825
+          }
+        }
+      },
+      "config": {
+        "lookback_days": 90,
+        "stale_threshold_days": 90
+      }
+    },
+    {
+      "week_date": "2026-03-05",
+      "week_number": 10,
+      "metrics": {
+        "current_total": 10246,
+        "severity_breakdown": {
+          "critical": 445,
+          "high": 9801,
+          "total": 10246
+        },
+        "product_breakdown": {
+          "10480": {
+            "critical": 0,
+            "high": 2,
+            "total": 2
+          },
+          "645178": {
+            "critical": 3,
+            "high": 21,
+            "total": 24
+          },
+          "4317": {
+            "critical": 1,
+            "high": 62,
+            "total": 63
+          },
+          "20463": {
+            "critical": 2,
+            "high": 52,
+            "total": 54
+          },
+          "329274": {
+            "critical": 70,
+            "high": 318,
+            "total": 388
+          },
+          "5907": {
+            "critical": 0,
+            "high": 19,
+            "total": 19
+          },
+          "45454": {
+            "critical": 367,
+            "high": 9244,
+            "total": 9611
+          },
+          "4727": {
+            "critical": 1,
+            "high": 25,
+            "total": 26
+          },
+          "4730": {
+            "critical": 1,
+            "high": 12,
+            "total": 13
+          },
+          "5526": {
+            "critical": 0,
+            "high": 16,
+            "total": 16
+          },
+          "4728": {
+            "critical": 0,
+            "high": 16,
+            "total": 16
+          },
+          "4726": {
+            "critical": 0,
+            "high": 0,
+            "total": 0
+          },
+          "5527": {
+            "critical": 0,
+            "high": 0,
+            "total": 0
+          },
+          "227595": {
+            "critical": 0,
+            "high": 14,
+            "total": 14
+          }
+        },
+        "mttr": {
+          "critical_mttr_days": null,
+          "high_mttr_days": null,
+          "critical_sample_size": 0,
+          "high_sample_size": 0
+        },
+        "stale_criticals": {
+          "count": 445,
+          "threshold_days": 90,
+          "items": []
+        },
+        "age_distribution": {
+          "median_age_days": null,
+          "p85_age_days": null,
+          "p95_age_days": null,
+          "sample_size": 0,
+          "note": "Age calculation disabled - date fields not available in GraphQL schema"
+        },
+        "closed_count_90d": 0,
+        "collected_at": "2026-03-05T23:44:06.547770",
         "baseline_reference": {
           "baseline_date": "2025-12-01",
           "baseline_count": 246,
