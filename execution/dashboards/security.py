@@ -139,6 +139,37 @@ def generate_security_dashboard(output_path: Path | None = None) -> str:
     return html
 
 
+def _sum_severity_totals(
+    metrics_list: list[SecurityMetrics],
+) -> tuple[int, int, int, int, int]:
+    """Return (total_vulns, total_critical, total_high, total_medium, total_low) summed across all metrics."""
+    return (
+        sum(m.total_vulnerabilities for m in metrics_list),
+        sum(m.critical for m in metrics_list),
+        sum(m.high for m in metrics_list),
+        sum(m.medium for m in metrics_list),
+        sum(m.low for m in metrics_list),
+    )
+
+
+def _count_affected_products(metrics_list: list[SecurityMetrics]) -> tuple[int, int]:
+    """Return (products_with_critical, products_with_high) counts."""
+    return (
+        sum(1 for m in metrics_list if m.has_critical),
+        sum(1 for m in metrics_list if m.has_high),
+    )
+
+
+def _aggregate_severity_counts(
+    metrics_list: list[SecurityMetrics],
+) -> tuple[int, int, int, int, int, int, int]:
+    """Return (total_vulns, total_critical, total_high, total_medium, total_low,
+    products_with_critical, products_with_high) aggregated across all metrics."""
+    total_vulns, total_critical, total_high, total_medium, total_low = _sum_severity_totals(metrics_list)
+    products_with_critical, products_with_high = _count_affected_products(metrics_list)
+    return total_vulns, total_critical, total_high, total_medium, total_low, products_with_critical, products_with_high
+
+
 def _calculate_summary(metrics_by_product: dict[str, SecurityMetrics]) -> dict:
     """
     Calculate aggregate summary statistics across all products.
@@ -163,17 +194,16 @@ def _calculate_summary(metrics_by_product: dict[str, SecurityMetrics]) -> dict:
         >>> summary["status_text"]
         'ACTION NEEDED'
     """
-    total_vulns = sum(m.total_vulnerabilities for m in metrics_by_product.values())
-    total_critical = sum(m.critical for m in metrics_by_product.values())
-    total_high = sum(m.high for m in metrics_by_product.values())
-    total_medium = sum(m.medium for m in metrics_by_product.values())
-    total_low = sum(m.low for m in metrics_by_product.values())
-
-    critical_high_total = total_critical + total_high
-
-    # Count products by severity
-    products_with_critical = sum(1 for m in metrics_by_product.values() if m.has_critical)
-    products_with_high = sum(1 for m in metrics_by_product.values() if m.has_high)
+    metrics_list = list(metrics_by_product.values())
+    (
+        total_vulns,
+        total_critical,
+        total_high,
+        total_medium,
+        total_low,
+        products_with_critical,
+        products_with_high,
+    ) = _aggregate_severity_counts(metrics_list)
 
     return {
         "total_vulnerabilities": total_vulns,
@@ -181,7 +211,7 @@ def _calculate_summary(metrics_by_product: dict[str, SecurityMetrics]) -> dict:
         "total_high": total_high,
         "total_medium": total_medium,
         "total_low": total_low,
-        "critical_high_total": critical_high_total,
+        "critical_high_total": total_critical + total_high,
         "products_with_critical": products_with_critical,
         "products_with_high": products_with_high,
         "product_count": len(metrics_by_product),
@@ -353,6 +383,27 @@ def _generate_product_details(product_name: str, metrics: SecurityMetrics) -> st
     return render_template("dashboards/product_details.html", heatmap_html=heatmap_html, breakdown_html=breakdown_html)
 
 
+_AGE_PATTERNS = [
+    ("0-7", 0.15),  # 15% very recent
+    ("8-14", 0.20),  # 20% recent
+    ("15-30", 0.30),  # 30% this month
+    ("31-90", 0.25),  # 25% 1-3 months
+    ("90+", 0.10),  # 10% stale
+]
+
+
+def _apply_age_distribution(total_count: int) -> list[tuple[str, int]]:
+    """Apply typical age distribution percentages to a total vulnerability count."""
+    return [(label, round(total_count * pct)) for label, pct in _AGE_PATTERNS]
+
+
+def _build_heatmap_cells(dist: list[tuple[str, int]], max_count: int, severity_type: str) -> list[str]:
+    """Build heatmap cell HTML list from a distribution and max count for intensity scaling."""
+    return [
+        _generate_heatmap_cell(count, (count / max_count) if max_count > 0 else 0, severity_type) for _, count in dist
+    ]
+
+
 def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
     """
     Generate aging heatmap with estimated distribution.
@@ -366,27 +417,8 @@ def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
     Returns:
         HTML for aging heatmap visualization
     """
-    # Typical age distribution pattern (based on industry averages)
-    # These percentages can be adjusted based on organization patterns
-    age_patterns = [
-        ("0-7", 0.15),  # 15% very recent
-        ("8-14", 0.20),  # 20% recent
-        ("15-30", 0.30),  # 30% this month
-        ("31-90", 0.25),  # 25% 1-3 months
-        ("90+", 0.10),  # 10% stale
-    ]
-
-    # Calculate estimated counts for critical
-    critical_dist = []
-    for label, pct in age_patterns:
-        count = round(metrics.critical * pct)
-        critical_dist.append((label, count))
-
-    # Calculate estimated counts for high
-    high_dist = []
-    for label, pct in age_patterns:
-        count = round(metrics.high * pct)
-        high_dist.append((label, count))
+    critical_dist = _apply_age_distribution(metrics.critical)
+    high_dist = _apply_age_distribution(metrics.high)
 
     # Find max for intensity scaling
     max_count = (
@@ -395,22 +427,10 @@ def _generate_aging_heatmap_estimated(metrics: SecurityMetrics) -> str:
         else 1
     )
 
-    # Generate age labels
-    age_labels = [label for label, _ in age_patterns]
+    age_labels = [label for label, _ in _AGE_PATTERNS]
+    critical_cells = _build_heatmap_cells(critical_dist, max_count, "critical")
+    high_cells = _build_heatmap_cells(high_dist, max_count, "high")
 
-    # Generate cell HTML for critical row
-    critical_cells = []
-    for _, count in critical_dist:
-        intensity = (count / max_count) if max_count > 0 else 0
-        critical_cells.append(_generate_heatmap_cell(count, intensity, "critical"))
-
-    # Generate cell HTML for high row
-    high_cells = []
-    for _, count in high_dist:
-        intensity = (count / max_count) if max_count > 0 else 0
-        high_cells.append(_generate_heatmap_cell(count, intensity, "high"))
-
-    # Render using template
     return render_template(
         "dashboards/aging_heatmap.html", age_labels=age_labels, critical_cells=critical_cells, high_cells=high_cells
     )

@@ -82,31 +82,14 @@ def display_project_summary(project_data):
     print(f"\n3. Data collected: {project_data['collected_at']}")
 
 
-def main():
-    print("Flow Metrics Validation Helper\n")
-    print("=" * 80)
-
-    # Load latest metrics
-    try:
-        latest = load_latest_metrics()
-    except FileNotFoundError:
-        print("[ERROR] No flow metrics found. Run: python execution/ado_flow_metrics.py")
-        return
-
-    print(f"Week: {latest['week_number']} ({latest['week_date']})")
-    print(f"Projects analyzed: {len(latest['projects'])}")
-
-    # Display each project
-    for project in latest["projects"]:
-        display_project_summary(project)
-
-    # Overall summary
+def _print_portfolio_summary(projects: list) -> None:
+    """Print portfolio-level lead time and WIP summary."""
     print(f"\n{'='*80}")
     print("PORTFOLIO SUMMARY")
     print(f"{'='*80}")
 
-    all_lead_times = [p["lead_time"]["p85"] for p in latest["projects"] if p["lead_time"]["p85"] is not None]
-    total_wip = sum(p["wip_count"] for p in latest["projects"])
+    all_lead_times = [p["lead_time"]["p85"] for p in projects if p["lead_time"]["p85"] is not None]
+    total_wip = sum(p["wip_count"] for p in projects)
 
     if all_lead_times:
         avg_lead = sum(all_lead_times) / len(all_lead_times)
@@ -115,14 +98,15 @@ def main():
 
     print(f"Total WIP across portfolio: {total_wip} items (partial count)")
 
-    # Key observations
+
+def _print_key_observations(projects: list) -> None:
+    """Print slowest and fastest projects by lead time."""
     print(f"\n{'='*80}")
     print("KEY OBSERVATIONS")
     print(f"{'='*80}")
 
-    # Sort projects by lead time
     sorted_projects = sorted(
-        latest["projects"], key=lambda p: p["lead_time"]["p85"] if p["lead_time"]["p85"] else 0, reverse=True
+        projects, key=lambda p: p["lead_time"]["p85"] if p["lead_time"]["p85"] else 0, reverse=True
     )
 
     print("\nSlowest projects (highest lead time):")
@@ -141,6 +125,26 @@ def main():
     print("Next: Validate a few projects manually in ADO UI to confirm accuracy")
     print("Then: Continue to dashboards or additional collectors")
     print(f"{'='*80}\n")
+
+
+def main():
+    print("Flow Metrics Validation Helper\n")
+    print("=" * 80)
+
+    try:
+        latest = load_latest_metrics()
+    except FileNotFoundError:
+        print("[ERROR] No flow metrics found. Run: python execution/ado_flow_metrics.py")
+        return
+
+    print(f"Week: {latest['week_number']} ({latest['week_date']})")
+    print(f"Projects analyzed: {len(latest['projects'])}")
+
+    for project in latest["projects"]:
+        display_project_summary(project)
+
+    _print_portfolio_summary(latest["projects"])
+    _print_key_observations(latest["projects"])
 
 
 if __name__ == "__main__":

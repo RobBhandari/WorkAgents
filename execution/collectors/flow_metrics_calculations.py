@@ -114,6 +114,48 @@ def calculate_lead_time(closed_items: list[dict]) -> dict:
     }
 
 
+def _classify_closed_items(
+    closed_items: list[dict], threshold_days: int
+) -> tuple[list[dict], list[float], list[dict], list[float]]:
+    """Partition closed items into operational vs cleanup buckets.
+
+    Returns (operational_items, operational_lead_times, cleanup_items, cleanup_lead_times).
+    """
+    operational_items: list[dict] = []
+    cleanup_items: list[dict] = []
+    operational_lead_times: list[float] = []
+    cleanup_lead_times: list[float] = []
+
+    for item in closed_items:
+        created = item.get("System.CreatedDate")
+        closed = item.get("Microsoft.VSTS.Common.ClosedDate")
+        lead_time = calculate_lead_time_days(created, closed)
+        if lead_time is None:
+            continue
+        if lead_time < threshold_days:
+            operational_items.append(item)
+            operational_lead_times.append(lead_time)
+        else:
+            cleanup_items.append(item)
+            cleanup_lead_times.append(lead_time)
+
+    return operational_items, operational_lead_times, cleanup_items, cleanup_lead_times
+
+
+def _build_percentile_metrics(lead_times: list[float], item_count: int) -> dict:
+    """Build a p50/p85/p95 metrics dict from a list of lead-time values."""
+    p50 = calculate_percentile(lead_times, flow_metrics.P50_PERCENTILE)
+    p85 = calculate_percentile(lead_times, flow_metrics.P85_PERCENTILE)
+    p95 = calculate_percentile(lead_times, flow_metrics.P95_PERCENTILE)
+    return {
+        "p50": round(p50, 1) if p50 is not None else None,
+        "p85": round(p85, 1) if p85 is not None else None,
+        "p95": round(p95, 1) if p95 is not None else None,
+        "closed_count": item_count,
+        "sample_size": len(lead_times),
+    }
+
+
 def calculate_dual_metrics(
     closed_items: list[dict], cleanup_threshold_days: int = flow_metrics.CLEANUP_THRESHOLD_DAYS
 ) -> dict:
@@ -132,54 +174,16 @@ def calculate_dual_metrics(
     Returns:
         Dict with operational_metrics, cleanup_metrics, and cleanup_indicators
     """
-    operational_items = []
-    cleanup_items = []
-    operational_lead_times = []
-    cleanup_lead_times = []
+    operational_items, operational_lead_times, cleanup_items, cleanup_lead_times = _classify_closed_items(
+        closed_items, cleanup_threshold_days
+    )
 
-    for item in closed_items:
-        created = item.get("System.CreatedDate")
-        closed = item.get("Microsoft.VSTS.Common.ClosedDate")
+    operational_metrics = _build_percentile_metrics(operational_lead_times, len(operational_items))
 
-        lead_time = calculate_lead_time_days(created, closed)
-        if lead_time is not None:
-            if lead_time < cleanup_threshold_days:
-                # Operational work - closed within threshold
-                operational_items.append(item)
-                operational_lead_times.append(lead_time)
-            else:
-                # Cleanup work - very old items closed
-                cleanup_items.append(item)
-                cleanup_lead_times.append(lead_time)
-
-    # Calculate operational metrics
-    op_p50 = calculate_percentile(operational_lead_times, flow_metrics.P50_PERCENTILE)
-    op_p85 = calculate_percentile(operational_lead_times, flow_metrics.P85_PERCENTILE)
-    op_p95 = calculate_percentile(operational_lead_times, flow_metrics.P95_PERCENTILE)
-
-    operational_metrics = {
-        "p50": round(op_p50, 1) if op_p50 is not None else None,
-        "p85": round(op_p85, 1) if op_p85 is not None else None,
-        "p95": round(op_p95, 1) if op_p95 is not None else None,
-        "closed_count": len(operational_items),
-        "sample_size": len(operational_lead_times),
-    }
-
-    # Calculate cleanup metrics
-    cl_p50 = calculate_percentile(cleanup_lead_times, flow_metrics.P50_PERCENTILE)
-    cl_p85 = calculate_percentile(cleanup_lead_times, flow_metrics.P85_PERCENTILE)
-    cl_p95 = calculate_percentile(cleanup_lead_times, flow_metrics.P95_PERCENTILE)
-
-    cleanup_metrics = {
-        "p50": round(cl_p50, 1) if cl_p50 is not None else None,
-        "p85": round(cl_p85, 1) if cl_p85 is not None else None,
-        "p95": round(cl_p95, 1) if cl_p95 is not None else None,
-        "closed_count": len(cleanup_items),
-        "sample_size": len(cleanup_lead_times),
-        "avg_age_years": (
-            round(sum(cleanup_lead_times) / len(cleanup_lead_times) / 365, 1) if cleanup_lead_times else None
-        ),
-    }
+    cleanup_metrics = _build_percentile_metrics(cleanup_lead_times, len(cleanup_items))
+    cleanup_metrics["avg_age_years"] = (
+        round(sum(cleanup_lead_times) / len(cleanup_lead_times) / 365, 1) if cleanup_lead_times else None
+    )
 
     # Cleanup indicators - detect if metrics are being distorted
     total_closed = len(operational_items) + len(cleanup_items)
