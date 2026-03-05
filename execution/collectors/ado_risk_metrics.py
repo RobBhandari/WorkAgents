@@ -444,6 +444,26 @@ def _strip_detail_lists_for_history(project: dict) -> dict:
     return p
 
 
+def _validate_risk_data(projects: list) -> str | None:
+    """Validate risk projects list; return a skip-reason string or None if data is OK."""
+    if not projects:
+        return "No project data to save - collection may have failed"
+
+    total_commits = sum(p.get("code_churn", {}).get("total_commits", 0) for p in projects)
+    total_files = sum(p.get("code_churn", {}).get("unique_files_touched", 0) for p in projects)
+    total_repos = sum(p.get("repository_count", 0) for p in projects)
+
+    if total_commits == 0 and total_files == 0 and total_repos == 0:
+        return "All projects returned zero risk data - likely a collection failure"
+    return None
+
+
+def _build_risk_history_entry(metrics: dict) -> dict:
+    """Strip detail lists from project records and return the history entry."""
+    stripped_projects = [_strip_detail_lists_for_history(p) for p in metrics.get("projects", [])]
+    return {**metrics, "projects": stripped_projects}
+
+
 def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_history.json") -> bool:
     """
     Save risk metrics to history file.
@@ -453,31 +473,14 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
     """
     from execution.utils_atomic_json import atomic_json_save, load_json_with_recovery
 
-    # Validate that we have actual data before saving
     projects = metrics.get("projects", [])
 
-    if not projects:
-        logger.warning("No project data to save - collection may have failed")
-        print("\n[SKIPPED] No project data to save - collection may have failed")
-        return False
-
-    # Check if this looks like a failed collection (all zeros)
-    total_commits = sum(p.get("code_churn", {}).get("total_commits", 0) for p in projects)
-    total_files = sum(p.get("code_churn", {}).get("unique_files_touched", 0) for p in projects)
-    total_repos = sum(p.get("repository_count", 0) for p in projects)
-
-    if total_commits == 0 and total_files == 0 and total_repos == 0:
-        logger.warning(
-            "All projects returned zero risk data - likely a collection failure",
-            extra={
-                "project_count": len(projects),
-                "total_commits": total_commits,
-                "total_files": total_files,
-                "total_repos": total_repos,
-            },
-        )
-        print("\n[SKIPPED] All projects returned zero risk data - likely a collection failure")
-        print("          Not persisting this data to avoid corrupting trend history")
+    skip_reason = _validate_risk_data(projects)
+    if skip_reason:
+        logger.warning(skip_reason)
+        print(f"\n[SKIPPED] {skip_reason}")
+        if "zero" in skip_reason:
+            print("          Not persisting this data to avoid corrupting trend history")
         return False
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -485,14 +488,11 @@ def save_risk_metrics(metrics: dict, output_file: str = ".tmp/observatory/risk_h
     # Load existing history
     history = load_json_with_recovery(output_file, default_value={"weeks": []})
 
-    # Add validation if structure check exists
     if not isinstance(history, dict) or "weeks" not in history:
         print("\n[WARNING] Existing history file has invalid structure - recreating")
         history = {"weeks": []}
 
-    # Strip internal detail lists before persisting — history is for trend sparklines only
-    stripped_projects = [_strip_detail_lists_for_history(p) for p in metrics.get("projects", [])]
-    history_entry = {**metrics, "projects": stripped_projects}
+    history_entry = _build_risk_history_entry(metrics)
 
     # Add new week entry
     history["weeks"].append(history_entry)

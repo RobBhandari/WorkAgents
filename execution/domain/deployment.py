@@ -9,9 +9,12 @@ Represents deployment metrics for tracking:
 """
 
 from dataclasses import dataclass
+from datetime import datetime
+
+from execution.domain.metrics import MetricSnapshot
 
 
-@dataclass
+@dataclass(kw_only=True)
 class DeploymentFrequency:
     """
     Deployment frequency metrics.
@@ -46,7 +49,7 @@ class DeploymentFrequency:
     @property
     def is_frequent(self) -> bool:
         """
-        Check if deployment frequency is high (≥1 per week).
+        Check if deployment frequency is high (>=1 per week).
 
         Returns:
             True if deployments_per_week >= 1.0, False otherwise
@@ -59,7 +62,7 @@ class DeploymentFrequency:
         return self.deployments_per_week >= 1.0
 
 
-@dataclass
+@dataclass(kw_only=True)
 class BuildSuccessRate:
     """
     Build success rate metrics.
@@ -79,7 +82,7 @@ class BuildSuccessRate:
     @property
     def is_stable(self) -> bool:
         """
-        Check if build success rate is stable (≥90%).
+        Check if build success rate is stable (>=90%).
 
         Returns:
             True if success_rate_pct >= 90.0, False otherwise
@@ -94,7 +97,7 @@ class BuildSuccessRate:
     @property
     def is_acceptable(self) -> bool:
         """
-        Check if build success rate is acceptable (≥70%).
+        Check if build success rate is acceptable (>=70%).
 
         Returns:
             True if success_rate_pct >= 70.0, False otherwise
@@ -107,7 +110,7 @@ class BuildSuccessRate:
         return self.success_rate_pct >= 70.0
 
 
-@dataclass
+@dataclass(kw_only=True)
 class BuildDuration:
     """
     Build duration metrics.
@@ -123,7 +126,7 @@ class BuildDuration:
     @property
     def is_fast(self) -> bool:
         """
-        Check if median build is fast (≤10 minutes).
+        Check if median build is fast (<=10 minutes).
 
         Returns:
             True if median_minutes <= 10.0, False otherwise
@@ -136,7 +139,7 @@ class BuildDuration:
         return self.median_minutes <= 10.0
 
 
-@dataclass
+@dataclass(kw_only=True)
 class LeadTimeForChanges:
     """
     Lead time for changes metrics (commit to deploy).
@@ -180,10 +183,14 @@ class LeadTimeForChanges:
         return 24.0 <= self.median_hours <= 168.0
 
 
-@dataclass
-class DeploymentMetrics:
+@dataclass(kw_only=True)
+class DeploymentMetrics(MetricSnapshot):
     """
     Complete deployment metrics for a single project.
+
+    Inherits from MetricSnapshot:
+        timestamp (datetime) — when these metrics were collected
+        project   (str|None) — project name (optional)
 
     Represents all DORA metrics and deployment health indicators
     for a project over a lookback period (typically 90 days).
@@ -197,6 +204,7 @@ class DeploymentMetrics:
 
     Example:
         metrics = DeploymentMetrics(
+            timestamp=datetime.now(),
             project_name="API Gateway",
             deployment_frequency=DeploymentFrequency(
                 total_successful_builds=45,
@@ -235,7 +243,7 @@ class DeploymentMetrics:
         """
         Check if deployment pipeline is healthy.
 
-        Healthy = ≥90% success rate + ≥1 deploy/week
+        Healthy = >=90% success rate + >=1 deploy/week
 
         Returns:
             True if deployment pipeline is healthy, False otherwise
@@ -322,69 +330,94 @@ class DeploymentMetrics:
         }
         return status_map.get(self.status, "inactive")
 
+    @classmethod
+    def from_json(cls, project_data: dict) -> "DeploymentMetrics":
+        """
+        Create DeploymentMetrics from JSON data structure.
+
+        Parses nested JSON structure from deployment_history.json and constructs
+        a complete DeploymentMetrics instance with all DORA metrics.
+
+        Args:
+            project_data: Project data dictionary from deployment_history.json.
+                         Must contain 'project_name' key. Optional nested keys:
+                         'deployment_frequency', 'build_success_rate',
+                         'build_duration', 'lead_time_for_changes'.
+                         Uses 'collected_at' for timestamp if present.
+
+        Returns:
+            DeploymentMetrics instance with all metrics populated.
+            Missing nested data defaults to zeros.
+
+        Example:
+            >>> import json
+            >>> with open('deployment_history.json') as f:
+            ...     data = json.load(f)
+            ...     latest_week = data['weeks'][-1]
+            ...     for project_data in latest_week['projects']:
+            ...         metrics = DeploymentMetrics.from_json(project_data)
+            ...         print(f"{metrics.project_name}: {metrics.status}")
+            API Gateway: Good
+            Web Frontend: Caution
+        """
+        # Parse timestamp from collected_at if present, otherwise use now
+        ts_raw = project_data.get("collected_at")
+        timestamp = datetime.fromisoformat(ts_raw) if ts_raw else datetime.now()
+
+        # Extract deployment frequency
+        deploy_freq_data = project_data.get("deployment_frequency", {})
+        deployment_frequency = DeploymentFrequency(
+            total_successful_builds=deploy_freq_data.get("total_successful_builds", 0),
+            deployments_per_week=deploy_freq_data.get("deployments_per_week", 0.0),
+            lookback_days=deploy_freq_data.get("lookback_days", 90),
+            pipeline_count=deploy_freq_data.get("pipeline_count", 0),
+        )
+
+        # Extract build success rate
+        success_rate_data = project_data.get("build_success_rate", {})
+        build_success_rate = BuildSuccessRate(
+            total_builds=success_rate_data.get("total_builds", 0),
+            succeeded=success_rate_data.get("succeeded", 0),
+            failed=success_rate_data.get("failed", 0),
+            success_rate_pct=success_rate_data.get("success_rate_pct", 0.0),
+        )
+
+        # Extract build duration
+        duration_data = project_data.get("build_duration", {})
+        build_duration = BuildDuration(
+            median_minutes=duration_data.get("median_minutes") or 0.0,
+            p85_minutes=duration_data.get("p85_minutes") or 0.0,
+        )
+
+        # Extract lead time
+        lead_time_data = project_data.get("lead_time_for_changes", {})
+        lead_time_for_changes = LeadTimeForChanges(
+            median_hours=lead_time_data.get("median_hours") or 0.0,
+            p85_hours=lead_time_data.get("p85_hours") or 0.0,
+        )
+
+        return cls(
+            timestamp=timestamp,
+            project_name=project_data["project_name"],
+            deployment_frequency=deployment_frequency,
+            build_success_rate=build_success_rate,
+            build_duration=build_duration,
+            lead_time_for_changes=lead_time_for_changes,
+        )
+
 
 def from_json(project_data: dict) -> DeploymentMetrics:
     """
-    Create DeploymentMetrics from JSON data structure.
+    Module-level backward-compatible wrapper around DeploymentMetrics.from_json.
 
-    Parses nested JSON structure from deployment_history.json and constructs
-    a complete DeploymentMetrics instance with all DORA metrics.
+    Delegates to DeploymentMetrics.from_json(). Existing callers that import
+    this function directly (e.g., execution/dashboards/deployment.py) continue
+    to work without changes.
 
     Args:
         project_data: Project data dictionary from deployment_history.json.
-                     Must contain 'project_name' key. Optional nested keys:
-                     'deployment_frequency', 'build_success_rate',
-                     'build_duration', 'lead_time_for_changes'
 
     Returns:
         DeploymentMetrics instance with all metrics populated.
-        Missing nested data defaults to zeros.
-
-    Example:
-        >>> import json
-        >>> with open('deployment_history.json') as f:
-        ...     data = json.load(f)
-        ...     latest_week = data['weeks'][-1]
-        ...     for project_data in latest_week['projects']:
-        ...         metrics = from_json(project_data)
-        ...         print(f"{metrics.project_name}: {metrics.status}")
-        API Gateway: Good
-        Web Frontend: Caution
     """
-    # Extract deployment frequency
-    deploy_freq_data = project_data.get("deployment_frequency", {})
-    deployment_frequency = DeploymentFrequency(
-        total_successful_builds=deploy_freq_data.get("total_successful_builds", 0),
-        deployments_per_week=deploy_freq_data.get("deployments_per_week", 0.0),
-        lookback_days=deploy_freq_data.get("lookback_days", 90),
-        pipeline_count=deploy_freq_data.get("pipeline_count", 0),
-    )
-
-    # Extract build success rate
-    success_rate_data = project_data.get("build_success_rate", {})
-    build_success_rate = BuildSuccessRate(
-        total_builds=success_rate_data.get("total_builds", 0),
-        succeeded=success_rate_data.get("succeeded", 0),
-        failed=success_rate_data.get("failed", 0),
-        success_rate_pct=success_rate_data.get("success_rate_pct", 0.0),
-    )
-
-    # Extract build duration
-    duration_data = project_data.get("build_duration", {})
-    build_duration = BuildDuration(
-        median_minutes=duration_data.get("median_minutes") or 0.0, p85_minutes=duration_data.get("p85_minutes") or 0.0
-    )
-
-    # Extract lead time
-    lead_time_data = project_data.get("lead_time_for_changes", {})
-    lead_time_for_changes = LeadTimeForChanges(
-        median_hours=lead_time_data.get("median_hours") or 0.0, p85_hours=lead_time_data.get("p85_hours") or 0.0
-    )
-
-    return DeploymentMetrics(
-        project_name=project_data["project_name"],
-        deployment_frequency=deployment_frequency,
-        build_success_rate=build_success_rate,
-        build_duration=build_duration,
-        lead_time_for_changes=lead_time_for_changes,
-    )
+    return DeploymentMetrics.from_json(project_data)

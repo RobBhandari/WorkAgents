@@ -100,6 +100,44 @@ def batch_fetch_with_callback(
     return results, failed_items
 
 
+async def _fetch_batch_with_retry(
+    rest_client: Any,
+    batch_ids: list[int],
+    fields: list[str] | None,
+    batch_num: int,
+    total_batches: int,
+    max_retries: int,
+    logger: logging.Logger | None,
+) -> tuple[list[dict[str, Any]], list[int]]:
+    """
+    Fetch a single batch with exponential backoff retry.
+
+    Returns:
+        Tuple of (fetched_items, failed_ids) for this batch.
+    """
+    for attempt in range(max_retries):
+        try:
+            response = await rest_client.get_work_items(ids=batch_ids, fields=fields)
+            items_data = response.get("value", [])
+            if logger:
+                logger.debug(f"  Batch {batch_num}/{total_batches}: ✓ {len(items_data)} items")
+            return items_data, []
+        except Exception as e:
+            if attempt < max_retries - 1:
+                wait_time = 2**attempt
+                if logger:
+                    logger.warning(
+                        f"  Batch {batch_num}/{total_batches} attempt {attempt + 1} failed: {e}. "
+                        f"Retrying in {wait_time}s..."
+                    )
+                await asyncio.sleep(wait_time)
+            else:
+                if logger:
+                    logger.error(f"  Batch {batch_num}/{total_batches}: ✗ Failed after {max_retries} attempts: {e}")
+                return [], list(batch_ids)
+    return [], list(batch_ids)  # unreachable but satisfies type checker
+
+
 async def batch_fetch_work_items_rest(
     rest_client: Any,  # AzureDevOpsRESTClient
     item_ids: list[int],
@@ -145,8 +183,8 @@ async def batch_fetch_work_items_rest(
     if not item_ids:
         return [], []
 
-    results = []
-    failed_ids = []
+    results: list[dict[str, Any]] = []
+    failed_ids: list[int] = []
     total_batches = (len(item_ids) + batch_size - 1) // batch_size
 
     if logger:
@@ -156,37 +194,12 @@ async def batch_fetch_work_items_rest(
         batch_ids = item_ids[i : i + batch_size]
         batch_num = i // batch_size + 1
 
-        # Try batch with exponential backoff
-        for attempt in range(max_retries):
-            try:
-                # REST API call
-                response = await rest_client.get_work_items(ids=batch_ids, fields=fields)
+        batch_items, batch_failed = await _fetch_batch_with_retry(
+            rest_client, batch_ids, fields, batch_num, total_batches, max_retries, logger
+        )
+        results.extend(batch_items)
+        failed_ids.extend(batch_failed)
 
-                # Extract items from REST response
-                items_data = response.get("value", [])
-                results.extend(items_data)
-
-                if logger:
-                    logger.debug(f"  Batch {batch_num}/{total_batches}: ✓ {len(items_data)} items")
-                break  # Success - exit retry loop
-
-            except Exception as e:
-                if attempt < max_retries - 1:
-                    # Exponential backoff: 1s, 2s, 4s
-                    wait_time = 2**attempt
-                    if logger:
-                        logger.warning(
-                            f"  Batch {batch_num}/{total_batches} attempt {attempt + 1} failed: {e}. "
-                            f"Retrying in {wait_time}s..."
-                        )
-                    await asyncio.sleep(wait_time)  # Async sleep
-                else:
-                    # All retries exhausted
-                    if logger:
-                        logger.error(f"  Batch {batch_num}/{total_batches}: ✗ Failed after {max_retries} attempts: {e}")
-                    failed_ids.extend(batch_ids)
-
-    # Check if everything failed
     if not results and failed_ids:
         raise BatchFetchError(f"All {len(failed_ids)} items failed to fetch")
 

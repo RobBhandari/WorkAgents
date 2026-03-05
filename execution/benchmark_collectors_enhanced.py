@@ -391,6 +391,80 @@ class EnhancedCollectorBenchmark:
         logger.info("=" * 80)
         logger.info("")
 
+    def _load_projects(self) -> list[dict]:
+        """Load ADO projects from discovery file."""
+        try:
+            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
+                discovery_data = json.load(f)
+            projects: list[dict[str, Any]] = discovery_data["projects"]
+            logger.info(f"Loaded {len(projects)} ADO projects")
+            return projects
+        except FileNotFoundError:
+            logger.error("Project discovery file not found. Run: python execution/discover_projects.py")
+            raise
+
+    def _log_speedup_analysis(
+        self, sequential_results: "BenchmarkResults", concurrent_results: "BenchmarkResults"
+    ) -> tuple[float, float]:
+        """Log speedup summary and return (speedup, time_saved)."""
+        speedup = (
+            sequential_results.total_duration_seconds / concurrent_results.total_duration_seconds
+            if concurrent_results.total_duration_seconds > 0
+            else 0
+        )
+        time_saved = sequential_results.total_duration_seconds - concurrent_results.total_duration_seconds
+
+        logger.info("")
+        logger.info("=" * 80)
+        logger.info("SPEEDUP ANALYSIS")
+        logger.info("=" * 80)
+        logger.info(
+            f"Sequential Total:   {sequential_results.total_duration_seconds:6.2f}s "
+            f"({sequential_results.total_duration_seconds / 60:5.2f} min)"
+        )
+        logger.info(
+            f"Concurrent Total:   {concurrent_results.total_duration_seconds:6.2f}s "
+            f"({concurrent_results.total_duration_seconds / 60:5.2f} min)"
+        )
+        logger.info(f"Time Saved:         {time_saved:6.2f}s ({time_saved / 60:5.2f} min)")
+        logger.info(f"Speedup Factor:     {speedup:6.2f}x")
+        logger.info("")
+
+        if speedup >= 3.0:
+            logger.info("✓ CLAIM VALIDATED: Achieved 3x+ speedup target!")
+        elif speedup >= 2.0:
+            logger.info("⚠ PARTIAL SUCCESS: 2-3x speedup (below 3x target)")
+        else:
+            logger.info("✗ BELOW TARGET: <2x speedup (needs investigation)")
+
+        logger.info("=" * 80)
+        logger.info("")
+        return speedup, time_saved
+
+    def _log_collector_comparison(
+        self, sequential_results: "BenchmarkResults", concurrent_results: "BenchmarkResults"
+    ) -> None:
+        """Log per-collector speedup table."""
+        logger.info("Collector-by-Collector Speedup:")
+        logger.info("-" * 80)
+        logger.info(f"{'Collector':<30} {'Sequential':>12} {'Concurrent':>12} {'Speedup':>10}")
+        logger.info("-" * 80)
+
+        for seq_collector in sequential_results.collectors:
+            conc_collector = next(
+                (c for c in concurrent_results.collectors if c.name == seq_collector.name),
+                None,
+            )
+            if conc_collector and seq_collector.success and conc_collector.success:
+                collector_speedup = seq_collector.duration_seconds / conc_collector.duration_seconds
+                logger.info(
+                    f"{seq_collector.name:<30} {seq_collector.duration_seconds:>12.2f}s "
+                    f"{conc_collector.duration_seconds:>12.2f}s {collector_speedup:>9.2f}x"
+                )
+
+        logger.info("=" * 80)
+        logger.info("")
+
     async def run_full_comparison(self, collector_types: list[str]) -> dict[str, Any]:
         """
         Run complete benchmark comparing sequential vs concurrent execution.
@@ -408,19 +482,9 @@ class EnhancedCollectorBenchmark:
         logger.info("=" * 80)
         logger.info("")
 
-        # Load projects
-        try:
-            with open(".tmp/observatory/ado_structure.json", encoding="utf-8") as f:
-                discovery_data = json.load(f)
-            projects = discovery_data["projects"]
-            logger.info(f"Loaded {len(projects)} ADO projects")
-        except FileNotFoundError:
-            logger.error("Project discovery file not found. Run: python execution/discover_projects.py")
-            raise
-
+        projects = self._load_projects()
         config = {"lookback_days": 90, "aging_threshold_days": 30}
 
-        # Phase 1: Sequential baseline
         logger.info("Phase 1: Sequential execution (baseline)...")
         sequential_results = await self.benchmark_all_collectors_sequential(collector_types, projects, config)
 
@@ -428,66 +492,11 @@ class EnhancedCollectorBenchmark:
         logger.info("Waiting 5 seconds before concurrent benchmark...")
         await asyncio.sleep(5)
 
-        # Phase 2: Concurrent optimized
         logger.info("Phase 2: Concurrent execution (optimized)...")
         concurrent_results = await self.benchmark_all_collectors_concurrent(collector_types, projects, config)
 
-        # Calculate speedup
-        speedup = (
-            sequential_results.total_duration_seconds / concurrent_results.total_duration_seconds
-            if concurrent_results.total_duration_seconds > 0
-            else 0
-        )
-        time_saved = sequential_results.total_duration_seconds - concurrent_results.total_duration_seconds
-
-        # Print comparison
-        logger.info("")
-        logger.info("=" * 80)
-        logger.info("SPEEDUP ANALYSIS")
-        logger.info("=" * 80)
-        logger.info(
-            f"Sequential Total:   {sequential_results.total_duration_seconds:6.2f}s ({sequential_results.total_duration_seconds / 60:5.2f} min)"
-        )
-        logger.info(
-            f"Concurrent Total:   {concurrent_results.total_duration_seconds:6.2f}s ({concurrent_results.total_duration_seconds / 60:5.2f} min)"
-        )
-        logger.info(f"Time Saved:         {time_saved:6.2f}s ({time_saved / 60:5.2f} min)")
-        logger.info(f"Speedup Factor:     {speedup:6.2f}x")
-        logger.info("")
-
-        # Validate claim
-        if speedup >= 3.0:
-            logger.info("✓ CLAIM VALIDATED: Achieved 3x+ speedup target!")
-        elif speedup >= 2.0:
-            logger.info("⚠ PARTIAL SUCCESS: 2-3x speedup (below 3x target)")
-        else:
-            logger.info("✗ BELOW TARGET: <2x speedup (needs investigation)")
-
-        logger.info("=" * 80)
-        logger.info("")
-
-        # Detailed collector-by-collector comparison
-        logger.info("Collector-by-Collector Speedup:")
-        logger.info("-" * 80)
-        logger.info(f"{'Collector':<30} {'Sequential':>12} {'Concurrent':>12} {'Speedup':>10}")
-        logger.info("-" * 80)
-
-        for seq_collector in sequential_results.collectors:
-            # Find matching concurrent collector
-            conc_collector = next(
-                (c for c in concurrent_results.collectors if c.name == seq_collector.name),
-                None,
-            )
-
-            if conc_collector and seq_collector.success and conc_collector.success:
-                collector_speedup = seq_collector.duration_seconds / conc_collector.duration_seconds
-                logger.info(
-                    f"{seq_collector.name:<30} {seq_collector.duration_seconds:>12.2f}s "
-                    f"{conc_collector.duration_seconds:>12.2f}s {collector_speedup:>9.2f}x"
-                )
-
-        logger.info("=" * 80)
-        logger.info("")
+        speedup, time_saved = self._log_speedup_analysis(sequential_results, concurrent_results)
+        self._log_collector_comparison(sequential_results, concurrent_results)
 
         return {
             "sequential": sequential_results.to_dict(),

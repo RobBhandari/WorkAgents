@@ -126,6 +126,55 @@ def _aggregate_per_project(df: pd.DataFrame, feature_col: str) -> pd.DataFrame:
     return agg.to_frame()
 
 
+def _join_and_impute_frames(frames: list[pd.DataFrame]) -> pd.DataFrame | None:
+    """
+    Outer-join a list of per-project aggregation frames, impute NaN with column
+    means, and validate that all remaining columns are numeric.
+
+    Returns None if no valid numeric columns remain after joining.
+    """
+    combined = frames[0]
+    for frame in frames[1:]:
+        combined = combined.join(frame, how="outer")
+
+    # Drop projects with ALL features missing
+    combined.dropna(how="all", inplace=True)
+
+    # Fill remaining NaN with column means (imputation)
+    combined.fillna(combined.mean(numeric_only=True), inplace=True)
+
+    # Validate that remaining columns are numeric
+    valid_numeric = _validate_numeric_columns(combined, list(combined.columns))
+    if not valid_numeric:
+        return None
+
+    return combined[valid_numeric]
+
+
+def _collect_aggregated_frames(
+    dfs: dict[str, pd.DataFrame],
+    feature_map: dict[str, str],
+) -> list[pd.DataFrame]:
+    """
+    Validate and aggregate each metric DataFrame to one row per project.
+
+    Skips metrics whose feature column is absent, non-numeric, or whose
+    aggregation produces an empty result.
+    """
+    aggregated_frames: list[pd.DataFrame] = []
+    for metric, feature_col in feature_map.items():
+        df = dfs.get(metric)
+        if df is None or df.empty:
+            continue
+        valid_cols = _validate_numeric_columns(df, [feature_col])
+        if not valid_cols:
+            continue
+        agg = _aggregate_per_project(df, feature_col)
+        if not agg.empty:
+            aggregated_frames.append(agg)
+    return aggregated_frames
+
+
 def _build_feature_matrix(
     dfs: dict[str, pd.DataFrame],
     feature_map: dict[str, str],
@@ -136,42 +185,14 @@ def _build_feature_matrix(
     Validates column schema before aggregation.
     Returns (feature_df, project_list) or (None, None) if insufficient data.
     """
-    aggregated_frames: list[pd.DataFrame] = []
-
-    for metric, feature_col in feature_map.items():
-        df = dfs.get(metric)
-        if df is None or df.empty:
-            continue
-
-        # Schema validation: confirm the feature column is numeric
-        valid_cols = _validate_numeric_columns(df, [feature_col])
-        if not valid_cols:
-            continue
-
-        agg = _aggregate_per_project(df, feature_col)
-        if not agg.empty:
-            aggregated_frames.append(agg)
+    aggregated_frames = _collect_aggregated_frames(dfs, feature_map)
 
     if not aggregated_frames:
         return None, None
 
-    # Outer join on project index — missing metrics get NaN
-    combined = aggregated_frames[0]
-    for frame in aggregated_frames[1:]:
-        combined = combined.join(frame, how="outer")
-
-    # Drop projects that have ALL features missing
-    combined.dropna(how="all", inplace=True)
-
-    # Fill remaining NaN with column mean (imputation)
-    combined.fillna(combined.mean(numeric_only=True), inplace=True)
-
-    # Validate that remaining columns are numeric
-    valid_numeric = _validate_numeric_columns(combined, list(combined.columns))
-    if not valid_numeric:
+    combined = _join_and_impute_frames(aggregated_frames)
+    if combined is None:
         return None, None
-
-    combined = combined[valid_numeric]
 
     if len(combined) < _MIN_PROJECTS:
         return None, None
@@ -183,6 +204,61 @@ def _build_feature_matrix(
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
+
+def _fit_clustering_model(
+    algorithm: str,
+    x_scaled: np.ndarray,
+    n_clusters: int,
+    n_projects: int,
+    random_seed: int | None,
+) -> tuple[np.ndarray, int]:
+    """
+    Fit the requested clustering algorithm and return (labels, n_clusters_found).
+
+    Security: No model serialization — in-memory fit-and-predict only.
+    """
+    if algorithm == "dbscan":
+        model = DBSCAN(eps=0.5, min_samples=2)
+        labels: np.ndarray = model.fit_predict(x_scaled)
+        unique_labels = set(labels.tolist()) - {-1}
+        return labels, int(len(unique_labels))
+
+    # Default: KMeans
+    safe_k = min(n_clusters, n_projects)
+    model_km = KMeans(n_clusters=safe_k, n_init=10, random_state=random_seed)
+    labels = model_km.fit_predict(x_scaled)
+    return labels, int(safe_k)
+
+
+def _build_cluster_results(
+    projects: list[str],
+    labels: np.ndarray,
+    n_found: int,
+    algorithm: str,
+    feature_df: pd.DataFrame,
+    feature_names: list[str],
+) -> list[ClusterResult]:
+    """
+    Build a ClusterResult for each project from fitted cluster labels.
+
+    Cluster IDs are coerced to Python int (not numpy.int64).
+    Feature vectors are rounded to 4 decimal places.
+    """
+    results: list[ClusterResult] = []
+    for i, project_name in enumerate(projects):
+        raw_vector = feature_df.iloc[i]
+        feature_vector = {feat: round(float(raw_vector[feat]), 4) for feat in feature_names if feat in raw_vector.index}
+        results.append(
+            ClusterResult(
+                project=str(project_name),
+                cluster_id=int(labels[i]),
+                algorithm=algorithm,
+                n_clusters=n_found,
+                feature_vector=feature_vector,
+            )
+        )
+    return results
 
 
 def cluster_projects(
@@ -238,33 +314,10 @@ def cluster_projects(
     x_scaled: np.ndarray = scaler.fit_transform(feature_df.values)
 
     # Fit clustering model
-    if algorithm == "dbscan":
-        model = DBSCAN(eps=0.5, min_samples=2)
-        labels: np.ndarray = model.fit_predict(x_scaled)
-        unique_labels = set(labels.tolist()) - {-1}
-        n_found = int(len(unique_labels))
-    else:
-        # Default: KMeans
-        safe_k = min(n_clusters, len(projects))
-        model_km = KMeans(n_clusters=safe_k, n_init=10, random_state=random_seed)
-        labels = model_km.fit_predict(x_scaled)
-        n_found = int(safe_k)
+    labels, n_found = _fit_clustering_model(algorithm, x_scaled, n_clusters, len(projects), random_seed)
 
     feature_names = feature_df.columns.tolist()
-
-    results: list[ClusterResult] = []
-    for i, project_name in enumerate(projects):
-        raw_vector = feature_df.iloc[i]
-        feature_vector = {feat: round(float(raw_vector[feat]), 4) for feat in feature_names if feat in raw_vector.index}
-        results.append(
-            ClusterResult(
-                project=str(project_name),
-                cluster_id=int(labels[i]),  # Coerce numpy.int64 → Python int
-                algorithm=algorithm,
-                n_clusters=n_found,
-                feature_vector=feature_vector,
-            )
-        )
+    results = _build_cluster_results(projects, labels, n_found, algorithm, feature_df, feature_names)
 
     logger.info(
         "Clustering complete",

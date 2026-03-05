@@ -89,6 +89,22 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         return response
 
+    def _get_recent_requests(self, client_ip: str, now: datetime) -> list | None:
+        """
+        Filter stored requests to the last hour and update storage.
+
+        Returns the filtered list, or None if the IP had no recent requests
+        (in which case it has been removed from the store).
+        """
+        hour_ago = now - timedelta(hours=1)
+        recent = [(ts, count) for ts, count in self.request_counts[client_ip] if ts >= hour_ago]
+        if recent:
+            self.request_counts[client_ip] = recent
+        elif client_ip in self.request_counts:
+            del self.request_counts[client_ip]
+            return None
+        return recent
+
     def _check_rate_limit(self, client_ip: str) -> tuple[bool, str]:
         """
         Check if client has exceeded rate limits.
@@ -97,29 +113,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             Tuple of (is_allowed, reason)
         """
         now = datetime.now()
-        requests = self.request_counts[client_ip]
+        recent_requests = self._get_recent_requests(client_ip, now)
 
-        # Clean old entries and update storage
-        minute_ago = now - timedelta(minutes=1)
-        hour_ago = now - timedelta(hours=1)
-
-        # Filter to keep only recent requests (last hour)
-        recent_requests = [(ts, count) for ts, count in requests if ts >= hour_ago]
-
-        # Update storage with cleaned data or remove IP if no recent requests
-        if recent_requests:
-            self.request_counts[client_ip] = recent_requests
-        elif client_ip in self.request_counts:
-            # No recent requests - remove this IP to prevent memory leak
-            del self.request_counts[client_ip]
-            # No requests in last hour means we're definitely not rate limiting
+        # No requests in the last hour — not rate limited
+        if recent_requests is None:
             return True, ""
 
+        minute_ago = now - timedelta(minutes=1)
         requests_last_minute = sum(count for ts, count in recent_requests if ts >= minute_ago)
-
         requests_last_hour = sum(count for ts, count in recent_requests)
 
-        # Check limits
         if requests_last_minute >= self.requests_per_minute:
             return False, f"{self.requests_per_minute} requests per minute exceeded"
 
@@ -242,6 +245,36 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
     - /docs, /redoc: 1 day cache (static docs)
     """
 
+    def _resolve_cache_max_age(self, path: str) -> int | None:
+        """
+        Return cache max-age in seconds for the given path, or None for no-cache.
+
+        Returns:
+            Max-age seconds, or None to use no-cache directive.
+        """
+        if path == "/health":
+            return 60
+        if "/metrics/" in path and "/latest" in path:
+            return 3600
+        if "/metrics/" in path and "/history" in path:
+            return 3600
+        if "/dashboards/list" in path:
+            return 600
+        if path in ["/docs", "/redoc", "/openapi.json"]:
+            return 86400
+        if "/predictions/" in path:
+            return 1800
+        return None
+
+    def _apply_cache_headers(self, response: Response, path: str) -> None:
+        """Set Cache-Control and Expires headers on the response."""
+        max_age = self._resolve_cache_max_age(path)
+        if max_age is not None:
+            response.headers["Cache-Control"] = f"public, max-age={max_age}"
+            response.headers["Expires"] = self._get_expires_header(max_age)
+        else:
+            response.headers["Cache-Control"] = "no-cache, must-revalidate"
+
     async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         """Add Cache-Control headers based on endpoint."""
 
@@ -251,42 +284,7 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
         if request.method != "GET" or response.status_code >= 400:
             return response
 
-        path = request.url.path
-
-        # Health check: 1 minute cache
-        if path == "/health":
-            response.headers["Cache-Control"] = "public, max-age=60"
-            response.headers["Expires"] = self._get_expires_header(60)
-
-        # Latest metrics: 1 hour cache (data updates once daily at 6am)
-        elif "/metrics/" in path and "/latest" in path:
-            response.headers["Cache-Control"] = "public, max-age=3600"
-            response.headers["Expires"] = self._get_expires_header(3600)
-
-        # Historical metrics: 1 hour cache
-        elif "/metrics/" in path and "/history" in path:
-            response.headers["Cache-Control"] = "public, max-age=3600"
-            response.headers["Expires"] = self._get_expires_header(3600)
-
-        # Dashboard list: 10 minutes cache
-        elif "/dashboards/list" in path:
-            response.headers["Cache-Control"] = "public, max-age=600"
-            response.headers["Expires"] = self._get_expires_header(600)
-
-        # API docs: 1 day cache (static content)
-        elif path in ["/docs", "/redoc", "/openapi.json"]:
-            response.headers["Cache-Control"] = "public, max-age=86400"
-            response.headers["Expires"] = self._get_expires_header(86400)
-
-        # ML predictions: 30 minutes cache
-        elif "/predictions/" in path:
-            response.headers["Cache-Control"] = "public, max-age=1800"
-            response.headers["Expires"] = self._get_expires_header(1800)
-
-        # Default: No cache for unknown endpoints
-        else:
-            response.headers["Cache-Control"] = "no-cache, must-revalidate"
-
+        self._apply_cache_headers(response, request.url.path)
         return response
 
     def _get_expires_header(self, seconds: int) -> str:
