@@ -232,15 +232,15 @@ if __name__ == "__main__":
         args = parse_arguments()
 
         # Load configuration
-        organization_url = get_config().get("ADO_ORGANIZATION_URL")
+        organization_url = get_config().get("AZURE_DEVOPS_ORG_URL")
         pat = get_config().get_ado_config().pat
 
         # Validate environment
         if not organization_url or organization_url == "your_ado_org_url_here":
-            raise RuntimeError("ADO_ORGANIZATION_URL not configured in .env file")
+            raise RuntimeError("AZURE_DEVOPS_ORG_URL not configured in .env file")
 
         if not pat or pat == "your_personal_access_token_here":
-            raise RuntimeError("ADO_PAT not configured in .env file")
+            raise RuntimeError("AZURE_DEVOPS_PAT not configured in .env file")
 
         # Determine project(s)
         if args.all_projects:

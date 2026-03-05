@@ -213,14 +213,14 @@ if __name__ == "__main__":
         args = parse_arguments()
 
         # Load configuration from environment
-        organization_url = get_config().get("ADO_ORGANIZATION_URL")
+        organization_url = get_config().get("AZURE_DEVOPS_ORG_URL")
         project_name = args.project or get_config().get("ADO_PROJECT_NAME")
         pat = get_config().get_ado_config().pat
 
         # Validate environment variables
         if not organization_url or organization_url == "your_ado_org_url_here":
             raise RuntimeError(
-                "ADO_ORGANIZATION_URL not configured in .env file.\n"
+                "AZURE_DEVOPS_ORG_URL not configured in .env file.\n"
                 "Please set your Azure DevOps organization URL (e.g., https://dev.azure.com/yourorg)"
             )
 
@@ -232,7 +232,7 @@ if __name__ == "__main__":
 
         if not pat or pat == "your_personal_access_token_here":
             raise RuntimeError(
-                "ADO_PAT not configured in .env file.\n"
+                "AZURE_DEVOPS_PAT not configured in .env file.\n"
                 "Please create a Personal Access Token at:\n"
                 f"{organization_url}/_usersSettings/tokens\n"
                 "Required scopes: Work Items (Read)"

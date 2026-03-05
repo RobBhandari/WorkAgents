@@ -140,7 +140,7 @@ class AzureDevOpsRESTClient:
         status_code = e.response.status_code
 
         if status_code in [401, 403]:
-            logger.error(f"Authentication failed (HTTP {status_code}): {e.response.text}")
+            logger.error(f"Authentication failed (HTTP {status_code})")
             return None
 
         if status_code == 429:
@@ -159,7 +159,7 @@ class AzureDevOpsRESTClient:
             )
             return backoff
 
-        logger.error(f"HTTP error {status_code}: {e.response.text}")
+        logger.error(f"HTTP error {status_code}")
         return None
 
     async def _handle_api_call(self, method: str, url: str, max_retries: int = 3, **kwargs: Any) -> dict[str, Any]:
@@ -646,7 +646,7 @@ def get_ado_rest_client() -> AzureDevOpsRESTClient:
         AzureDevOpsRESTClient: Authenticated REST client
 
     Raises:
-        ValueError: If ADO_ORGANIZATION_URL or ADO_PAT are not set
+        ValueError: If AZURE_DEVOPS_ORG_URL or AZURE_DEVOPS_PAT are not set
 
     Example:
         client = get_ado_rest_client()
