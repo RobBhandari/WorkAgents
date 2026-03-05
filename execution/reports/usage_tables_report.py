@@ -836,7 +836,7 @@ def generate_interactive_html(output_file: str) -> str:
     <script>
         /* Inline minimal CSV parser — no CDN dependency */
         function parseCSV(text) {{
-            const lines = text.split(/\r?\n/);
+            const lines = text.split(/\\r?\\n/);
             const headers = splitCSVLine(lines[0]);
             const rows = [];
             for (let i = 1; i < lines.length; i++) {{
