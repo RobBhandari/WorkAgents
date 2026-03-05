@@ -12,45 +12,50 @@ import sys
 from pathlib import Path
 
 
+def _check_file_readable(file_path: str) -> tuple:
+    """Check file exists and is non-empty. Returns (file_size, error_message)."""
+    if not os.path.exists(file_path):
+        return None, "File does not exist"
+    file_size = os.path.getsize(file_path)
+    if file_size == 0:
+        return None, "File is empty (0 bytes)"
+    return file_size, None
+
+
+def _check_weeks_structure(data: dict) -> tuple:
+    """Validate the weeks key and structure. Returns (weeks, error_message)."""
+    if "weeks" not in data:
+        return None, "Missing 'weeks' key in data structure"
+    weeks = data["weeks"]
+    if not isinstance(weeks, list):
+        return None, "'weeks' is not a list"
+    if len(weeks) == 0:
+        return None, "No weeks data found (empty weeks array)"
+    return weeks, None
+
+
+def _check_required_fields(weeks: list, required_fields: list) -> tuple:
+    """Validate required fields in the latest week. Returns (ok, error_message)."""
+    latest_week = weeks[-1]
+    missing_fields = [field for field in required_fields if field not in latest_week]
+    if missing_fields:
+        return False, f"Missing required fields: {missing_fields}"
+    return True, None
+
+
 def validate_history_file(file_path: str, required_fields: list | None = None) -> tuple:
     """
     Validate a single history file.
 
     Returns: (is_valid, error_message)
     """
-    if not os.path.exists(file_path):
-        return False, "File does not exist"
+    file_size, err = _check_file_readable(file_path)
+    if err:
+        return False, err
 
     try:
-        # Check file is not empty
-        file_size = os.path.getsize(file_path)
-        if file_size == 0:
-            return False, "File is empty (0 bytes)"
-
-        # Check valid JSON
         with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
-
-        # Check has weeks structure
-        if "weeks" not in data:
-            return False, "Missing 'weeks' key in data structure"
-
-        weeks = data["weeks"]
-        if not isinstance(weeks, list):
-            return False, "'weeks' is not a list"
-
-        if len(weeks) == 0:
-            return False, "No weeks data found (empty weeks array)"
-
-        # Check required fields if specified
-        if required_fields:
-            latest_week = weeks[-1]
-            missing_fields = [field for field in required_fields if field not in latest_week]
-            if missing_fields:
-                return False, f"Missing required fields: {missing_fields}"
-
-        return True, f"Valid ({len(weeks)} weeks, {file_size:,} bytes)"
-
     except json.JSONDecodeError as e:
         return False, f"Invalid JSON: {e}"
     except UnicodeDecodeError as e:
@@ -58,15 +63,60 @@ def validate_history_file(file_path: str, required_fields: list | None = None) -
     except Exception as e:
         return False, f"Unexpected error: {e}"
 
+    weeks, err = _check_weeks_structure(data)
+    if err:
+        return False, err
 
-def main():
-    """Validate all metrics history files"""
-    # Set UTF-8 encoding for Windows console
+    if required_fields:
+        ok, err = _check_required_fields(weeks, required_fields)
+        if not ok:
+            return False, err
+
+    return True, f"Valid ({len(weeks)} weeks, {file_size:,} bytes)"
+
+
+def _setup_utf8_console() -> None:
+    """Configure UTF-8 console output on Windows."""
     if sys.platform == "win32":
         import codecs
 
         sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
         sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
+
+
+def _run_validations(required_files: dict, data_dir: Path) -> list:
+    """Validate each file and return list of result dicts."""
+    validation_results = []
+    for filename, required_fields in required_files.items():
+        file_path = data_dir / filename
+        is_valid, message = validate_history_file(str(file_path), required_fields)
+        status_icon = "✓" if is_valid else "✗"
+        status_text = "VALID" if is_valid else "INVALID"
+        print(f"{status_icon} {filename:30s} {status_text:8s} - {message}")
+        validation_results.append({"file": filename, "valid": is_valid, "message": message})
+    return validation_results
+
+
+def _print_summary(validation_results: list, total_count: int) -> int:
+    """Print validation summary and return exit code."""
+    print("=" * 70)
+    all_valid = all(r["valid"] for r in validation_results)
+    if all_valid:
+        print("✓ All metrics history files are valid!")
+        print(f"✓ Total files validated: {total_count}")
+        return 0
+    invalid_count = sum(1 for r in validation_results if not r["valid"])
+    print(f"✗ Validation failed! {invalid_count}/{total_count} files are invalid.")
+    print("\nInvalid files:")
+    for result in validation_results:
+        if not result["valid"]:
+            print(f"  - {result['file']}: {result['message']}")
+    return 1
+
+
+def main():
+    """Validate all metrics history files"""
+    _setup_utf8_console()
 
     print("=" * 70)
     print("Metrics Data Validation")
@@ -74,7 +124,6 @@ def main():
 
     data_dir = Path(".tmp/observatory")
 
-    # Required history files
     required_files = {
         "quality_history.json": ["projects", "week_date"],
         "security_history.json": ["week_date"],
@@ -85,37 +134,8 @@ def main():
         "risk_history.json": ["projects", "week_date"],
     }
 
-    all_valid = True
-    validation_results = []
-
-    for filename, required_fields in required_files.items():
-        file_path = data_dir / filename
-        is_valid, message = validate_history_file(str(file_path), required_fields)
-
-        status_icon = "✓" if is_valid else "✗"
-        status_text = "VALID" if is_valid else "INVALID"
-
-        print(f"{status_icon} {filename:30s} {status_text:8s} - {message}")
-
-        validation_results.append({"file": filename, "valid": is_valid, "message": message})
-
-        if not is_valid:
-            all_valid = False
-
-    print("=" * 70)
-
-    if all_valid:
-        print("✓ All metrics history files are valid!")
-        print(f"✓ Total files validated: {len(required_files)}")
-        return 0
-    else:
-        invalid_count = sum(1 for r in validation_results if not r["valid"])
-        print(f"✗ Validation failed! {invalid_count}/{len(required_files)} files are invalid.")
-        print("\nInvalid files:")
-        for result in validation_results:
-            if not result["valid"]:
-                print(f"  - {result['file']}: {result['message']}")
-        return 1
+    validation_results = _run_validations(required_files, data_dir)
+    return _print_summary(validation_results, len(required_files))
 
 
 if __name__ == "__main__":
