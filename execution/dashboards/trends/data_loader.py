@@ -34,14 +34,14 @@ class TrendsDataLoader:
         file_path = os.path.join(self.history_dir, filename)
 
         if not os.path.exists(file_path):
-            print(f"  ⚠️ {filename}: File not found")
+            print(f"  [WARN] {filename}: File not found")
             return None
 
         try:
             # Check file size
             file_size = os.path.getsize(file_path)
             if file_size == 0:
-                print(f"  ⚠️ {filename}: File is empty")
+                print(f"  [WARN] {filename}: File is empty")
                 return None
 
             # Load and parse JSON
@@ -50,29 +50,29 @@ class TrendsDataLoader:
 
             # Validate structure
             if not isinstance(data, dict):
-                print(f"  ⚠️ {filename}: Invalid data structure (not a dictionary)")
+                print(f"  [WARN] {filename}: Invalid data structure (not a dictionary)")
                 return None
 
             if "weeks" not in data:
-                print(f"  ⚠️ {filename}: Missing 'weeks' key")
+                print(f"  [WARN] {filename}: Missing 'weeks' key")
                 return None
 
             weeks = data.get("weeks", [])
             if not weeks:
-                print(f"  ⚠️ {filename}: No weeks data found")
+                print(f"  [WARN] {filename}: No weeks data found")
                 return None
 
-            print(f"  ✓ {filename}: Loaded successfully ({len(weeks)} weeks, {file_size:,} bytes)")
+            print(f"  [OK] {filename}: Loaded successfully ({len(weeks)} weeks, {file_size:,} bytes)")
             return data
 
         except json.JSONDecodeError as e:
-            print(f"  ✗ {filename}: JSON decode error - {e}")
+            print(f"  [ERR] {filename}: JSON decode error - {e}")
             return None
         except UnicodeDecodeError as e:
-            print(f"  ✗ {filename}: Unicode decode error - {e}")
+            print(f"  [ERR] {filename}: Unicode decode error - {e}")
             return None
         except Exception as e:
-            print(f"  ✗ {filename}: Unexpected error - {e}")
+            print(f"  [ERR] {filename}: Unexpected error - {e}")
             return None
 
     def load_baseline_data(self) -> dict[str, int]:
@@ -95,7 +95,7 @@ class TrendsDataLoader:
                     data = json.load(f)
                     baselines["security"] = data.get("baseline_total", 0)
             except (json.JSONDecodeError, UnicodeDecodeError, Exception) as e:
-                print(f"  ⚠️ Failed to load security_targets.json: {e}")
+                print(f"  [WARN] Failed to load security_targets.json: {e}")
 
         # Load ADO bugs baseline
         ado_file = "data/baseline.json"
@@ -105,7 +105,7 @@ class TrendsDataLoader:
                     data = json.load(f)
                     baselines["bugs"] = data.get("open_count", 0)  # Field is 'open_count' not 'total_bugs'
             except (json.JSONDecodeError, UnicodeDecodeError, Exception) as e:
-                print(f"  ⚠️ Failed to load baseline.json: {e}")
+                print(f"  [WARN] Failed to load baseline.json: {e}")
 
         return baselines
 
