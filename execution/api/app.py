@@ -472,6 +472,38 @@ def create_app() -> FastAPI:
 
         return {"dashboards": dashboards, "count": len(dashboards)}
 
+    @app.get("/api/v1/dashboards/executive-trends", tags=["Dashboards"])
+    async def get_executive_trends(username: str = Depends(verify_credentials)):
+        """
+        Get Executive Trends dashboard data as JSON.
+
+        Returns the same metrics, alerts, and timestamp used to render
+        index.html, sourced from Observatory history files.
+        """
+        from execution.dashboards.trends.pipeline import build_trends_context
+
+        try:
+            context = build_trends_context(history_dir=Path(".tmp/observatory"))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No historical data found. Run collectors first.",
+            )
+        except Exception:
+            logger.error("Failed to build executive trends context", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to load executive trends data.",
+            )
+
+        logger.info("Executive trends accessed", extra={"username": username})
+
+        return {
+            "metrics": context["metrics"],
+            "alerts": context["active_alerts"],
+            "timestamp": context["timestamp"],
+        }
+
     return app
 
 
