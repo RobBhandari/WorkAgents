@@ -12,12 +12,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from execution.generate_trends_dashboard import (
+from execution.dashboards.trends.pipeline import (
     _extract_all_trends,
     _extract_security_trends,
     _extract_simple_domain,
-    _log_domain_extracted,
 )
+from execution.generate_trends_dashboard import _log_domain_extracted
 
 
 def _make_trend(weeks: int, key: str) -> dict:
