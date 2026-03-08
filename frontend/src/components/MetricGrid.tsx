@@ -4,6 +4,7 @@ import { MetricCard } from './MetricCard';
 interface MetricGridProps {
   metrics: MetricItem[];
   alerts?: AlertItem[];
+  onInvestigate?: (item: MetricItem) => void;
 }
 
 function narrativeFor(item: MetricItem): string | undefined {
@@ -19,7 +20,7 @@ function narrativeFor(item: MetricItem): string | undefined {
   return undefined;
 }
 
-export function MetricGrid({ metrics, alerts = [] }: MetricGridProps) {
+export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridProps) {
   // Build set of alert-linked metric IDs by matching metric.id against alert.dashboard
   const linkedIds = new Set(alerts.map((a) => a.dashboard).filter(Boolean));
 
@@ -49,6 +50,7 @@ export function MetricGrid({ metrics, alerts = [] }: MetricGridProps) {
           item={item}
           isAlertLinked={linkedIds.has(item.id)}
           narrativeSentence={narrativeFor(item)}
+          onInvestigate={onInvestigate}
         />
       ))}
     </div>

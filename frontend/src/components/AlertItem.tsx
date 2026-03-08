@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { AlertItem as AlertItemType } from '../types/trends';
+import { alertSignalMap } from '../config/alertSignalMap';
 
 interface AlertItemProps {
   alert: AlertItemType;
@@ -16,7 +18,19 @@ const SEVERITY_BORDER: Record<string, string> = {
   medium: 'rgba(245, 158, 11, 0.2)',
 };
 
+function scrollToMetric(metricId: string, e: React.MouseEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = document.querySelector(`[data-metric-id="${metricId}"]`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
 export function AlertItem({ alert }: AlertItemProps) {
+  const [expanded, setExpanded] = useState(false);
+  const signals = (alertSignalMap[alert.dashboard] ?? []).slice(0, 4);
+
   return (
     <div
       style={{
@@ -31,7 +45,7 @@ export function AlertItem({ alert }: AlertItemProps) {
       }}
     >
       <span style={{ fontSize: '14px', lineHeight: '20px', flexShrink: 0 }}>{alert.severity_emoji}</span>
-      <div style={{ minWidth: 0 }}>
+      <div style={{ minWidth: 0, width: '100%' }}>
         <div style={{ fontSize: '12px', color: '#f1f5f9', lineHeight: 1.4, wordBreak: 'break-word' }}>
           {alert.message}
         </div>
@@ -40,6 +54,56 @@ export function AlertItem({ alert }: AlertItemProps) {
           <span>·</span>
           <span>{alert.metric_date}</span>
         </div>
+
+        {signals.length > 0 && (
+          <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '6px' }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '11px',
+                color: '#475569',
+              }}
+            >
+              <span style={{ fontSize: '9px' }}>{expanded ? '▾' : '▸'}</span>
+              <span>Signals contributing ({signals.length})</span>
+            </button>
+
+            {expanded && (
+              <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {signals.map((sig) => (
+                  <button
+                    key={sig.id}
+                    onClick={(e) => scrollToMetric(sig.id, e)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '2px 0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontSize: '11px',
+                      color: '#64748b',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <span style={{ color: sig.direction === 'up' ? '#f87171' : '#94a3b8', fontWeight: 700, lineHeight: 1 }}>
+                      {sig.direction === 'up' ? '↑' : '↓'}
+                    </span>
+                    <span>{sig.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,30 @@
+import { useState } from 'react';
 import { MetricGrid } from './components/MetricGrid';
 import { ActiveRisksSummary } from './components/ActiveRisksSummary';
 import { MovementLayerPanel } from './components/dashboard/MovementLayerPanel';
 import { NarrativeLayerPanel } from './components/NarrativeLayerPanel';
 import { SystemShapeRadar } from './components/SystemShapeRadar';
+import { MetricInvestigationDrawer } from './components/MetricInvestigationDrawer';
+import { DrawerTarget, buildMetricTarget } from './utils/buildDrawerTarget';
+import { AnomalyRiver } from './components/AnomalyRiver';
 import { useTrendsData } from './hooks/useTrendsData';
 import { useHealthScore } from './hooks/useHealthScore';
 import { useSignalsData } from './hooks/useSignalsData';
+import { MetricItem } from './types/trends';
+
+// Maps metric IDs to their WHY_IT_MATTERS / alert-domain key
+const METRIC_TO_DOMAIN: Record<string, string> = {
+  exploitable:      'security',
+  security:         'security',
+  'security-infra': 'infrastructure',
+  target:           'security',
+  deployment:       'deployment',
+  flow:             'flow',
+  bugs:             'bugs',
+  collaboration:    'collaboration',
+  ownership:        'ownership',
+  risk:             'risk',
+};
 
 function parseDataAge(timestamp: string): { isStale: boolean; label: string } {
   const parsed = new Date(timestamp.replace(' at ', ' '));
@@ -31,6 +50,11 @@ const SCORE_GRADIENT: Record<string, string> = {
 };
 
 export default function App() {
+  const [drawerTarget, setDrawerTarget] = useState<DrawerTarget | null>(null);
+
+  function openMetricDrawer(m: MetricItem) {
+    setDrawerTarget(buildMetricTarget(m, METRIC_TO_DOMAIN[m.id] ?? 'deployment'));
+  }
   const { data, error, loading } = useTrendsData();
   const { data: healthData, error: healthError, loading: healthLoading } = useHealthScore();
   const { data: signalsData, loading: signalsLoading } = useSignalsData();
@@ -358,6 +382,13 @@ export default function App() {
           />
         </div>
 
+        {/* ── ANOMALY RIVER ── */}
+        <AnomalyRiver
+          metrics={data.metrics}
+          alerts={data.alerts}
+          onDomainClick={setDrawerTarget}
+        />
+
         {/* ── METRIC ENTRY POINTS — rounded-[28px] bg-[#0b1626] p-6 ── */}
         <section style={{
           borderRadius: '28px',
@@ -378,10 +409,17 @@ export default function App() {
               The relevant cards are pulled forward.
             </div>
           </div>
-          <MetricGrid metrics={data.metrics} alerts={data.alerts} />
+          <MetricGrid metrics={data.metrics} alerts={data.alerts} onInvestigate={openMetricDrawer} />
         </section>
 
       </div>
+      {drawerTarget && (
+        <MetricInvestigationDrawer
+          target={drawerTarget}
+          alerts={data.alerts}
+          onClose={() => setDrawerTarget(null)}
+        />
+      )}
     </div>
   );
 }

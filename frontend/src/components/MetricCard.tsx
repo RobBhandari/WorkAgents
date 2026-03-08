@@ -4,6 +4,7 @@ interface MetricCardProps {
   item: MetricItem;
   isAlertLinked?: boolean;
   narrativeSentence?: string;
+  onInvestigate?: (item: MetricItem) => void;
 }
 
 function formatValue(current: number | string, unit: string): string {
@@ -84,7 +85,7 @@ function MiniBarChart({ data }: { data: number[] }) {
 
 const isLauncher = (item: MetricItem) => item.current === '';
 
-export function MetricCard({ item, isAlertLinked, narrativeSentence }: MetricCardProps) {
+export function MetricCard({ item, isAlertLinked, narrativeSentence, onInvestigate }: MetricCardProps) {
   const launcher = isLauncher(item);
   const changeStr = formatChange(item.change);
 
@@ -100,6 +101,8 @@ export function MetricCard({ item, isAlertLinked, narrativeSentence }: MetricCar
       href={item.dashboardUrl}
       target="_blank"
       rel="noreferrer"
+      data-metric-id={item.id}
+      onClick={(e) => { if (onInvestigate) { e.preventDefault(); onInvestigate(item); } }}
       style={{
         display: 'flex',
         flexDirection: 'column',
