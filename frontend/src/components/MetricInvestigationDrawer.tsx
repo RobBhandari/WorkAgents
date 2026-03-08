@@ -80,13 +80,16 @@ const CONFIDENCE_LABELS: Record<string, string> = {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+const DRAWER_TRANSITION = 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1), opacity 380ms cubic-bezier(0.16, 1, 0.3, 1)';
+
 interface MetricInvestigationDrawerProps {
   target: DrawerTarget;
   alerts: AlertItem[];
+  isOpen: boolean;
   onClose: () => void;
 }
 
-export function MetricInvestigationDrawer({ target, alerts, onClose }: MetricInvestigationDrawerProps) {
+export function MetricInvestigationDrawer({ target, alerts, isOpen, onClose }: MetricInvestigationDrawerProps) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -123,7 +126,11 @@ export function MetricInvestigationDrawer({ target, alerts, onClose }: MetricInv
       {/* Overlay */}
       <div
         onClick={onClose}
-        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.40)', zIndex: 50 }}
+        style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.40)', zIndex: 50,
+          opacity: isOpen ? 1 : 0,
+          transition: DRAWER_TRANSITION,
+        }}
       />
 
       {/* Drawer */}
@@ -142,6 +149,9 @@ export function MetricInvestigationDrawer({ target, alerts, onClose }: MetricInv
           display: 'flex',
           flexDirection: 'column',
           gap: 0,
+          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+          opacity: isOpen ? 1 : 0,
+          transition: DRAWER_TRANSITION,
         }}
       >
         {/* ── Header ── */}

@@ -59,10 +59,22 @@ const SCORE_GRADIENT: Record<string, string> = {
 };
 
 export default function App() {
-  const [drawerTarget, setDrawerTarget] = useState<DrawerTarget | null>(null);
+  const [renderedTarget, setRenderedTarget] = useState<DrawerTarget | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  function openDrawer(target: DrawerTarget) {
+    setRenderedTarget(target);
+    // Allow the DOM to mount before transitioning in
+    requestAnimationFrame(() => requestAnimationFrame(() => setDrawerOpen(true)));
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    setTimeout(() => setRenderedTarget(null), 520);
+  }
 
   function openMetricDrawer(m: MetricItem) {
-    setDrawerTarget(buildMetricTarget(m, METRIC_TO_DOMAIN[m.id] ?? 'deployment'));
+    openDrawer(buildMetricTarget(m, METRIC_TO_DOMAIN[m.id] ?? 'deployment'));
   }
   const { data, error, loading } = useTrendsData();
   const { data: healthData, error: healthError, loading: healthLoading } = useHealthScore();
@@ -419,7 +431,7 @@ export default function App() {
           rows={riverRows}
           metrics={data.metrics}
           alerts={data.alerts}
-          onDomainClick={setDrawerTarget}
+          onDomainClick={openDrawer}
         />
 
         {/* ── METRIC ENTRY POINTS — rounded-[28px] bg-[#0b1626] p-6 ── */}
@@ -446,11 +458,12 @@ export default function App() {
         </section>
 
       </div>
-      {drawerTarget && (
+      {renderedTarget && (
         <MetricInvestigationDrawer
-          target={drawerTarget}
+          target={renderedTarget}
           alerts={data.alerts}
-          onClose={() => setDrawerTarget(null)}
+          isOpen={drawerOpen}
+          onClose={closeDrawer}
         />
       )}
     </div>
