@@ -74,8 +74,8 @@ _RAG_RED = "#ef4444"
 
 _RAG_POINTS: dict[str, int] = {
     _RAG_GREEN: 100,
-    _RAG_AMBER: 50,
-    _RAG_RED: 0,
+    _RAG_AMBER: 65,  # below-target but not failing — penalised, not zeroed
+    _RAG_RED: 30,    # needs attention — penalised, not zeroed
 }
 
 # Metrics excluded from scoring (see module docstring).

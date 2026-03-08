@@ -109,23 +109,23 @@ class TestScoreModel:
         result = build_health_score_response(_metrics_all(_RAG_GREEN))
         assert result["score"] == 100
 
-    def test_all_amber_score_50(self) -> None:
+    def test_all_amber_score_65(self) -> None:
         result = build_health_score_response(_metrics_all(_RAG_AMBER))
-        assert result["score"] == 50
+        assert result["score"] == 65
 
-    def test_all_red_score_0(self) -> None:
+    def test_all_red_score_30(self) -> None:
         result = build_health_score_response(_metrics_all(_RAG_RED))
-        assert result["score"] == 0
+        assert result["score"] == 30
 
     def test_mixed_rag_mean(self) -> None:
-        # Green=100, Amber=50, Red=0 → mean=50 → "fair"
+        # Green=100, Amber=65, Red=30 → mean=65 → "fair"
         metrics = [
             _metric("a", _RAG_GREEN),
             _metric("b", _RAG_AMBER),
             _metric("c", _RAG_RED),
         ]
         result = build_health_score_response(metrics)
-        assert result["score"] == 50
+        assert result["score"] == 65
         assert result["contributing_metrics"] == 3
 
     def test_empty_metrics_list(self) -> None:
@@ -170,27 +170,27 @@ class TestLabelThresholds:
         metrics += [_metric(f"r{i}", _RAG_RED) for i in range(total - green)]
         return build_health_score_response(metrics)
 
-    def test_score_80_is_healthy(self) -> None:
-        # 4 green + 1 red → mean(100,100,100,100,0) = 80
+    def test_score_86_is_healthy(self) -> None:
+        # 4 green + 1 red → mean(100,100,100,100,30) = 86
         result = self._score_from_ratio(4, 5)
-        assert result["score"] == 80
+        assert result["score"] == 86
         assert result["label"] == "healthy"
 
-    def test_score_60_is_fair(self) -> None:
-        # 3 green + 2 red → mean(100,100,100,0,0) = 60
+    def test_score_72_is_fair(self) -> None:
+        # 3 green + 2 red → mean(100,100,100,30,30) = 72
         result = self._score_from_ratio(3, 5)
-        assert result["score"] == 60
+        assert result["score"] == 72
         assert result["label"] == "fair"
 
-    def test_score_59_is_at_risk(self) -> None:
-        # all-amber = 50 → "at risk"
-        result = build_health_score_response(_metrics_all(_RAG_AMBER, n=1))
-        assert result["score"] == 50
+    def test_score_44_is_at_risk(self) -> None:
+        # 1 green + 4 red → mean(100,30,30,30,30) = 44 → "at risk"
+        result = self._score_from_ratio(1, 5)
+        assert result["score"] == 44
         assert result["label"] == "at risk"
 
-    def test_score_0_is_at_risk(self) -> None:
+    def test_score_30_is_at_risk(self) -> None:
         result = build_health_score_response(_metrics_all(_RAG_RED))
-        assert result["score"] == 0
+        assert result["score"] == 30
         assert result["label"] == "at risk"
 
     def test_score_100_is_healthy(self) -> None:
