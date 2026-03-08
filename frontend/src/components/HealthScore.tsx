@@ -29,13 +29,29 @@ const LABEL_BORDER: Record<string, string> = {
   'at risk': 'rgba(239, 68, 68, 0.2)',
 };
 
-function Indicator({ label, value, color }: { label: string; value: number | string; color: string }) {
+function Chip({ label, value, color, bg, border }: {
+  label: string;
+  value: number | string;
+  color: string;
+  bg: string;
+  border: string;
+}) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-      <span style={{ fontSize: '18px', fontWeight: 700, color, lineHeight: 1, letterSpacing: '-0.02em' }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '5px 10px',
+        background: bg,
+        border: `1px solid ${border}`,
+        borderRadius: '8px',
+      }}
+    >
+      <span style={{ fontSize: '14px', fontWeight: 700, color, lineHeight: 1, letterSpacing: '-0.02em' }}>
         {value}
       </span>
-      <span style={{ fontSize: '10px', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+      <span style={{ fontSize: '10px', color: '#334155', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
         {label}
       </span>
     </div>
@@ -58,16 +74,16 @@ export function HealthScore({ data, error, loading, activeAlerts, worsening, imp
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '28px',
+          marginBottom: '24px',
         }}
       >
         <h2
           style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#f1f5f9',
+            fontSize: '11px',
+            fontWeight: 600,
+            color: '#475569',
             textTransform: 'uppercase',
-            letterSpacing: '0.09em',
+            letterSpacing: '0.08em',
           }}
         >
           Engineering Health
@@ -102,48 +118,55 @@ export function HealthScore({ data, error, loading, activeAlerts, worsening, imp
             : 'Several metrics are below target and require action.';
 
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {/* Score row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <span style={{ fontSize: '58px', fontWeight: 700, color, lineHeight: 1, letterSpacing: '-0.03em' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '14px' }}>
+              <span style={{ fontSize: '80px', fontWeight: 800, color, lineHeight: 1, letterSpacing: '-0.04em' }}>
                 {data.score}
               </span>
-              <span style={{ fontSize: '20px', color: '#334155', lineHeight: 1 }}>/</span>
-              <span style={{ fontSize: '20px', fontWeight: 600, color: '#475569', lineHeight: 1 }}>100</span>
-              <span
-                style={{
-                  fontSize: '11px', fontWeight: 700, color,
-                  background: bg, border: `1px solid ${border}`,
-                  padding: '3px 10px', borderRadius: '10px',
-                  textTransform: 'uppercase', letterSpacing: '0.06em',
-                }}
-              >
-                {data.label}
-              </span>
-              <span style={{ fontSize: '11px', color: '#334155', marginLeft: '4px' }}>
-                {data.contributing_metrics} of {data.total_metrics} metrics
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingBottom: '10px' }}>
+                <span
+                  style={{
+                    fontSize: '11px', fontWeight: 700, color,
+                    background: bg, border: `1px solid ${border}`,
+                    padding: '3px 10px', borderRadius: '10px',
+                    textTransform: 'uppercase', letterSpacing: '0.07em',
+                    alignSelf: 'flex-start',
+                  }}
+                >
+                  {data.label}
+                </span>
+                <span style={{ fontSize: '11px', color: '#334155' }}>
+                  {data.contributing_metrics} of {data.total_metrics} metrics contributing
+                </span>
+              </div>
             </div>
 
-            {/* Explanatory sentence */}
-            <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>{summary}</p>
+            {/* Interpretation */}
+            <p style={{ fontSize: '13px', color: '#475569', margin: 0, lineHeight: 1.5, maxWidth: '380px' }}>{summary}</p>
 
-            {/* Summary indicators */}
-            <div style={{ display: 'flex', gap: '24px' }}>
-              <Indicator
+            {/* Status chips */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <Chip
                 label="Active alerts"
                 value={activeAlerts ?? '—'}
-                color={activeAlerts != null && activeAlerts > 0 ? '#ef4444' : '#475569'}
+                color={activeAlerts != null && activeAlerts > 0 ? '#ef4444' : '#334155'}
+                bg={activeAlerts != null && activeAlerts > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)'}
+                border={activeAlerts != null && activeAlerts > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)'}
               />
-              <Indicator
+              <Chip
                 label="Worsening"
                 value={worsening ?? '—'}
-                color={worsening != null && worsening > 0 ? '#f59e0b' : '#475569'}
+                color={worsening != null && worsening > 0 ? '#f59e0b' : '#334155'}
+                bg={worsening != null && worsening > 0 ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.03)'}
+                border={worsening != null && worsening > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)'}
               />
-              <Indicator
+              <Chip
                 label="Improving"
                 value={improving ?? '—'}
-                color={improving != null && improving > 0 ? '#10b981' : '#475569'}
+                color={improving != null && improving > 0 ? '#10b981' : '#334155'}
+                bg={improving != null && improving > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)'}
+                border={improving != null && improving > 0 ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}
               />
             </div>
           </div>

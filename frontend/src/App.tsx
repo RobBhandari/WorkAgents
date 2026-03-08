@@ -1,8 +1,6 @@
 import { MetricGrid } from './components/MetricGrid';
-import { AlertList } from './components/AlertList';
 import { ActiveRisksSummary } from './components/ActiveRisksSummary';
 import { HealthScore } from './components/HealthScore';
-import { PlaceholderPanel } from './components/PlaceholderPanel';
 import { MovementLayerPanel } from './components/dashboard/MovementLayerPanel';
 import { NarrativeLayerPanel } from './components/NarrativeLayerPanel';
 import { SystemShapeRadar } from './components/SystemShapeRadar';
@@ -12,7 +10,6 @@ import { useHealthScore } from './hooks/useHealthScore';
 import { useSignalsData } from './hooks/useSignalsData';
 
 function parseDataAge(timestamp: string): { isStale: boolean; label: string } {
-  // timestamp format: "March 07, 2026 at 22:47"
   const parsed = new Date(timestamp.replace(' at ', ' '));
   if (isNaN(parsed.getTime())) return { isStale: false, label: 'live' };
   const ageMs = Date.now() - parsed.getTime();
@@ -22,10 +19,11 @@ function parseDataAge(timestamp: string): { isStale: boolean; label: string } {
   return { isStale: true, label: `stale · ${ageDisplay}` };
 }
 
-// Shared panel shell used for command-grid cells.
-function PanelShell({ title, badge, children }: {
+// Shared panel shell.
+function PanelShell({ title, badge, accent, children }: {
   title: string;
   badge?: React.ReactNode;
+  accent?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -33,6 +31,8 @@ function PanelShell({ title, badge, children }: {
       style={{
         background: '#111827',
         border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '10px',
+        borderTop: accent ? `2px solid ${accent}` : '1px solid rgba(255,255,255,0.06)',
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
@@ -41,7 +41,7 @@ function PanelShell({ title, badge, children }: {
     >
       <div
         style={{
-          padding: '16px 24px 0',
+          padding: '18px 22px 0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -50,18 +50,18 @@ function PanelShell({ title, badge, children }: {
       >
         <h2
           style={{
-            fontSize: '13px',
+            fontSize: '11px',
             fontWeight: 600,
-            color: '#94a3b8',
+            color: '#475569',
             textTransform: 'uppercase',
-            letterSpacing: '0.06em',
+            letterSpacing: '0.08em',
           }}
         >
           {title}
         </h2>
         {badge}
       </div>
-      <div style={{ padding: '14px 24px 20px', overflowY: 'auto', flex: 1 }}>
+      <div style={{ padding: '14px 22px 20px', overflowY: 'auto', flex: 1 }}>
         {children}
       </div>
     </div>
@@ -85,112 +85,179 @@ export default function App() {
     </div>
   );
 
+  const { isStale, label: ageLabel } = parseDataAge(data.timestamp);
+  const activeAlerts = data.alerts.length;
+  const worsening = data.metrics.filter((m) => m.ragColor === '#ef4444').length;
+  const improving = data.metrics.filter((m) => m.ragColor === '#10b981').length;
+
+  // Split metrics: show top 6 as featured, rest in extended section
+  const featuredMetrics = data.metrics.slice(0, 6);
+  const extendedMetrics = data.metrics.slice(6);
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0f172a' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0f172a', fontFamily: 'inherit' }}>
 
       {/* ── Header ── */}
       <header
         style={{
           background: '#0f172a',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          padding: '20px 32px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          padding: '16px 32px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexShrink: 0,
         }}
       >
-        <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#f1f5f9', letterSpacing: '-0.01em' }}>
-            Engineering Command Centre
-          </h1>
-          <p style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
-            Updated {data.timestamp}
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div
+            style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: '#38bdf8',
+              flexShrink: 0,
+            }}
+          />
+          <div>
+            <h1 style={{ fontSize: '15px', fontWeight: 700, color: '#e2e8f0', letterSpacing: '-0.01em', lineHeight: 1 }}>
+              Engineering Command Centre
+            </h1>
+            <p style={{ fontSize: '11px', color: '#334155', marginTop: '3px' }}>
+              {data.timestamp}
+            </p>
+          </div>
         </div>
-        {(() => {
-          const { isStale, label } = parseDataAge(data.timestamp);
-          return (
-            <div
-              style={{
-                fontSize: '11px',
-                color: isStale ? '#f59e0b' : '#475569',
-                background: isStale ? 'rgba(245, 158, 11, 0.08)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${isStale ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255,255,255,0.07)'}`,
-                padding: '4px 10px',
-                borderRadius: '6px',
-              }}
-            >
-              {isStale ? label : `live · ${new Date().toLocaleTimeString()}`}
-            </div>
-          );
-        })()}
-      </header>
-
-      {/* ── Primary Zone: Engineering Health (40%) + Key Signals (60%) ── */}
-      <div
-        style={{
-          display: 'flex',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          background: '#111827',
-        }}
-      >
-        {/* Left column — Health (headline panel) */}
         <div
           style={{
-            flex: '0 0 42%',
-            borderRight: '1px solid rgba(255,255,255,0.1)',
-            borderTop: '3px solid rgba(203,213,225,0.35)',
+            fontSize: '11px',
+            color: isStale ? '#f59e0b' : '#334155',
+            background: isStale ? 'rgba(245,158,11,0.07)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${isStale ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)'}`,
+            padding: '4px 10px',
+            borderRadius: '6px',
+            letterSpacing: '0.02em',
+          }}
+        >
+          {isStale ? ageLabel : 'live'}
+        </div>
+      </header>
+
+      {/* ── HERO: Executive Status Surface ── */}
+      <div
+        style={{
+          margin: '20px 32px 0',
+          background: '#111827',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '12px',
+          display: 'flex',
+          minHeight: '220px',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        {/* Left — Health score instrument */}
+        <div
+          style={{
+            flex: '0 0 52%',
             padding: '32px 40px',
-            background: 'rgba(255,255,255,0.03)',
+            borderRight: '1px solid rgba(255,255,255,0.06)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            position: 'relative',
           }}
         >
           <HealthScore
             data={healthData}
             error={healthError}
             loading={healthLoading}
-            activeAlerts={data.alerts.length}
-            worsening={data.metrics.filter((m) => m.ragColor === '#ef4444').length}
-            improving={data.metrics.filter((m) => m.ragColor === '#10b981').length}
+            activeAlerts={activeAlerts}
+            worsening={worsening}
+            improving={improving}
             inlined
           />
         </div>
 
-        {/* Right column — Key Signals */}
-        <div style={{ flex: 1, padding: '22px 24px', minWidth: 0, borderTop: '3px solid transparent' }}>
-          <SignalsPanel data={signalsData} error={signalsError} loading={signalsLoading} inlined />
+        {/* Right — Signals + status blocks */}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0,
+          }}
+        >
+          {/* Signals area */}
+          <div
+            style={{
+              flex: 1,
+              padding: '24px 28px 16px',
+              overflowY: 'auto',
+              minHeight: 0,
+            }}
+          >
+            <SignalsPanel data={signalsData} error={signalsError} loading={signalsLoading} inlined />
+          </div>
+
+          {/* Status bar */}
+          <div
+            style={{
+              borderTop: '1px solid rgba(255,255,255,0.05)',
+              padding: '12px 28px',
+              display: 'flex',
+              gap: '0',
+              flexShrink: 0,
+            }}
+          >
+            <StatusBlock
+              label="Active Alerts"
+              value={activeAlerts}
+              color={activeAlerts > 0 ? '#ef4444' : '#334155'}
+            />
+            <div style={{ width: '1px', background: 'rgba(255,255,255,0.05)', margin: '0 20px', alignSelf: 'stretch' }} />
+            <StatusBlock
+              label="Data Freshness"
+              value={isStale ? ageLabel.split('·')[1]?.trim() ?? 'stale' : 'live'}
+              color={isStale ? '#f59e0b' : '#10b981'}
+            />
+            <div style={{ width: '1px', background: 'rgba(255,255,255,0.05)', margin: '0 20px', alignSelf: 'stretch' }} />
+            <StatusBlock
+              label="Metrics Tracked"
+              value={data.metrics.length}
+              color="#475569"
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── Command grid — 2×2 ── */}
+      {/* ── INTELLIGENCE ROW: Alert Layer + System Shape ── */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gridTemplateRows: 'repeat(2, minmax(300px, auto))',
-          gap: '1px',
-          background: 'rgba(255,255,255,0.06)',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          gap: '16px',
+          padding: '16px 32px 0',
         }}
       >
-        {/* Row 1 left — Active Risks */}
+        {/* Alert Layer */}
         <PanelShell
           title="Active Risks"
+          accent={activeAlerts > 0 ? 'rgba(239,68,68,0.6)' : undefined}
           badge={
-            data.alerts.length > 0 ? (
+            activeAlerts > 0 ? (
               <span
                 style={{
                   fontSize: '11px',
                   fontWeight: 700,
                   color: '#ef4444',
-                  background: 'rgba(239,68,68,0.12)',
+                  background: 'rgba(239,68,68,0.1)',
+                  border: '1px solid rgba(239,68,68,0.2)',
                   padding: '2px 8px',
                   borderRadius: '10px',
                 }}
               >
-                {data.alerts.length}
+                {activeAlerts}
               </span>
             ) : undefined
           }
@@ -198,48 +265,87 @@ export default function App() {
           <ActiveRisksSummary alerts={data.alerts} />
         </PanelShell>
 
-        {/* Row 1 right — System Shape */}
-        <SystemShapeRadar metrics={data.metrics} />
+        {/* System Shape */}
+        <div
+          style={{
+            background: '#111827',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '10px',
+            minHeight: '300px',
+          }}
+        >
+          <SystemShapeRadar metrics={data.metrics} />
+        </div>
+      </div>
 
-        {/* Row 2 left — Movement Layer */}
+      {/* ── PREVIEW ROW: Movement + Narrative ── */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '16px',
+          padding: '16px 32px 0',
+        }}
+      >
         <MovementLayerPanel />
-
-        {/* Row 2 right — Narrative Layer */}
         <NarrativeLayerPanel />
       </div>
 
-      {/* ── Metrics section — reference footer ── */}
+      {/* ── METRICS: Entry Points ── */}
       <div
         style={{
-          padding: '28px 32px 24px',
-          borderTop: '2px solid rgba(255,255,255,0.07)',
-          background: 'rgba(0,0,0,0.18)',
+          margin: '20px 32px 32px',
+          background: '#111827',
+          border: '1px solid rgba(255,255,255,0.05)',
+          borderRadius: '10px',
+          padding: '20px 24px 24px',
         }}
       >
         <div
           style={{
-            marginBottom: '12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            marginBottom: '16px',
           }}
         >
           <h2
             style={{
               fontSize: '11px',
-              fontWeight: 500,
+              fontWeight: 600,
               color: '#334155',
               textTransform: 'uppercase',
               letterSpacing: '0.09em',
             }}
           >
-            Metrics
+            Metric Entry Points
           </h2>
-          <span style={{ fontSize: '11px', color: '#1e293b' }}>{data.metrics.length} metrics</span>
+          <span style={{ fontSize: '11px', color: '#1e293b' }}>
+            {data.metrics.length} metrics
+          </span>
         </div>
-        <MetricGrid metrics={data.metrics} />
+        <MetricGrid metrics={featuredMetrics} />
+        {extendedMetrics.length > 0 && (
+          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <MetricGrid metrics={extendedMetrics} />
+          </div>
+        )}
       </div>
 
+    </div>
+  );
+}
+
+// Small status block used in the hero status bar.
+function StatusBlock({ label, value, color }: { label: string; value: number | string; color: string }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+      <span style={{ fontSize: '15px', fontWeight: 700, color, lineHeight: 1, letterSpacing: '-0.02em' }}>
+        {value}
+      </span>
+      <span style={{ fontSize: '10px', color: '#334155', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        {label}
+      </span>
     </div>
   );
 }

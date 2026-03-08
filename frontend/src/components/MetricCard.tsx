@@ -8,7 +8,7 @@ interface MetricCardProps {
 const TREND_COLORS: Record<string, string> = {
   'trend-up': '#ef4444',
   'trend-down': '#10b981',
-  'trend-stable': '#94a3b8',
+  'trend-stable': '#64748b',
 };
 
 function formatValue(current: number | string, unit: string): string {
@@ -109,7 +109,7 @@ export function MetricCard({ item }: MetricCardProps) {
           {item.arrow && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
               <span style={{ color: trendColor, fontWeight: 700, fontSize: '14px' }}>{item.arrow}</span>
-              <span style={{ color: trendColor, fontWeight: 600 }}>{formatChange(item.change)}</span>
+              <span style={{ color: trendColor, fontWeight: 700, fontSize: '14px' }}>{formatChange(item.change)}</span>
               <span style={{ color: '#475569' }}>{item.changeLabel}</span>
             </div>
           )}
