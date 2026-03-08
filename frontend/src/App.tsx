@@ -1,12 +1,14 @@
 import { MetricGrid } from './components/MetricGrid';
 import { AlertList } from './components/AlertList';
+import { ActiveRisksSummary } from './components/ActiveRisksSummary';
 import { HealthScore } from './components/HealthScore';
 import { PlaceholderPanel } from './components/PlaceholderPanel';
-import { ProductRiskMatrix } from './components/ProductRiskMatrix';
+import { MovementLayerPanel } from './components/dashboard/MovementLayerPanel';
+import { NarrativeLayerPanel } from './components/NarrativeLayerPanel';
+import { SystemShapeRadar } from './components/SystemShapeRadar';
 import { SignalsPanel } from './components/SignalsPanel';
 import { useTrendsData } from './hooks/useTrendsData';
 import { useHealthScore } from './hooks/useHealthScore';
-import { useProductRisk } from './hooks/useProductRisk';
 import { useSignalsData } from './hooks/useSignalsData';
 
 function parseDataAge(timestamp: string): { isStale: boolean; label: string } {
@@ -34,6 +36,7 @@ function PanelShell({ title, badge, children }: {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
+        height: '100%',
       }}
     >
       <div
@@ -69,7 +72,6 @@ export default function App() {
   const { data, error, loading } = useTrendsData();
   const { data: healthData, error: healthError, loading: healthLoading } = useHealthScore();
   const { data: signalsData, error: signalsError, loading: signalsLoading } = useSignalsData();
-  const { data: productRiskData, error: productRiskError, loading: productRiskLoading } = useProductRisk();
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#475569', fontSize: '13px' }}>
@@ -125,17 +127,48 @@ export default function App() {
         })()}
       </header>
 
-      {/* ── Engineering Health — full-width panel ── */}
-      <HealthScore data={healthData} error={healthError} loading={healthLoading} />
+      {/* ── Primary Zone: Engineering Health (40%) + Key Signals (60%) ── */}
+      <div
+        style={{
+          display: 'flex',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: '#111827',
+        }}
+      >
+        {/* Left column — Health (headline panel) */}
+        <div
+          style={{
+            flex: '0 0 42%',
+            borderRight: '1px solid rgba(255,255,255,0.1)',
+            borderTop: '3px solid rgba(203,213,225,0.35)',
+            padding: '32px 40px',
+            background: 'rgba(255,255,255,0.03)',
+          }}
+        >
+          <HealthScore
+            data={healthData}
+            error={healthError}
+            loading={healthLoading}
+            activeAlerts={data.alerts.length}
+            worsening={data.metrics.filter((m) => m.ragColor === '#ef4444').length}
+            improving={data.metrics.filter((m) => m.ragColor === '#10b981').length}
+            inlined
+          />
+        </div>
 
-      {/* ── Key Signals — full-width panel ── */}
-      <SignalsPanel data={signalsData} error={signalsError} loading={signalsLoading} />
+        {/* Right column — Key Signals */}
+        <div style={{ flex: 1, padding: '22px 24px', minWidth: 0, borderTop: '3px solid transparent' }}>
+          <SignalsPanel data={signalsData} error={signalsError} loading={signalsLoading} inlined />
+        </div>
+      </div>
 
       {/* ── Command grid — 2×2 ── */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
+          gridTemplateRows: 'repeat(2, minmax(300px, auto))',
           gap: '1px',
           background: 'rgba(255,255,255,0.06)',
           borderTop: '1px solid rgba(255,255,255,0.06)',
@@ -162,29 +195,30 @@ export default function App() {
             ) : undefined
           }
         >
-          <AlertList alerts={data.alerts} />
+          <ActiveRisksSummary alerts={data.alerts} />
         </PanelShell>
 
-        {/* Row 1 right — Products at Risk */}
-        <ProductRiskMatrix data={productRiskData} error={productRiskError} loading={productRiskLoading} />
+        {/* Row 1 right — System Shape */}
+        <SystemShapeRadar metrics={data.metrics} />
 
         {/* Row 2 left — Movement Layer */}
-        <PlaceholderPanel title="Movement Layer" />
+        <MovementLayerPanel />
 
         {/* Row 2 right — Narrative Layer */}
-        <PlaceholderPanel title="Narrative Layer" />
+        <NarrativeLayerPanel />
       </div>
 
-      {/* ── Metrics section — full-width ── */}
+      {/* ── Metrics section — reference footer ── */}
       <div
         style={{
-          padding: '24px 32px',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
+          padding: '28px 32px 24px',
+          borderTop: '2px solid rgba(255,255,255,0.07)',
+          background: 'rgba(0,0,0,0.18)',
         }}
       >
         <div
           style={{
-            marginBottom: '16px',
+            marginBottom: '12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -192,16 +226,16 @@ export default function App() {
         >
           <h2
             style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#94a3b8',
+              fontSize: '11px',
+              fontWeight: 500,
+              color: '#334155',
               textTransform: 'uppercase',
-              letterSpacing: '0.06em',
+              letterSpacing: '0.09em',
             }}
           >
             Metrics
           </h2>
-          <span style={{ fontSize: '12px', color: '#334155' }}>{data.metrics.length} metrics</span>
+          <span style={{ fontSize: '11px', color: '#1e293b' }}>{data.metrics.length} metrics</span>
         </div>
         <MetricGrid metrics={data.metrics} />
       </div>
