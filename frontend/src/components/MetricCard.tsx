@@ -4,6 +4,7 @@ interface MetricCardProps {
   item: MetricItem;
   isAlertLinked?: boolean;
   narrativeSentence?: string;
+  whyItMatters?: string;
   onInvestigate?: (item: MetricItem) => void;
 }
 
@@ -85,7 +86,7 @@ function MiniBarChart({ data }: { data: number[] }) {
 
 const isLauncher = (item: MetricItem) => item.current === '';
 
-export function MetricCard({ item, isAlertLinked, narrativeSentence, onInvestigate }: MetricCardProps) {
+export function MetricCard({ item, isAlertLinked, narrativeSentence, whyItMatters, onInvestigate }: MetricCardProps) {
   const launcher = isLauncher(item);
   const changeStr = formatChange(item.change);
 
@@ -215,7 +216,7 @@ export function MetricCard({ item, isAlertLinked, narrativeSentence, onInvestiga
           {item.data.length >= 2 && <MiniBarChart data={item.data} />}
 
           {/* Insight block — mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm text-slate-300 */}
-          {narrativeSentence && (
+          {(narrativeSentence || whyItMatters) && (
             <div style={{
               fontSize: '13px',
               color: '#cbd5e1',
@@ -227,7 +228,17 @@ export function MetricCard({ item, isAlertLinked, narrativeSentence, onInvestiga
               border: '1px solid rgba(255,255,255,0.10)',
               borderRadius: '16px',
             }}>
-              {narrativeSentence}
+              {narrativeSentence && <div>{narrativeSentence}</div>}
+              {whyItMatters && (
+                <div style={{
+                  fontSize: '11px',
+                  color: '#64748b',
+                  marginTop: narrativeSentence ? '6px' : undefined,
+                  lineHeight: 1.5,
+                }}>
+                  {whyItMatters}
+                </div>
+              )}
             </div>
           )}
         </>

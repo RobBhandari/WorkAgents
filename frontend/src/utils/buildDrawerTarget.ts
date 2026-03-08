@@ -55,7 +55,7 @@ export interface DrawerTarget {
 
 // ── Editorial copy ────────────────────────────────────────────────────────────
 
-const WHY_IT_MATTERS: Record<string, { headline: string; detail: string }> = {
+export const WHY_IT_MATTERS: Record<string, { headline: string; detail: string }> = {
   security:       { headline: 'Persistent security pressure raises exposure and increases remediation load.', detail: 'Unresolved vulnerabilities compound risk over time and erode compliance posture.' },
   infrastructure: { headline: 'Infrastructure risk compounds quietly and is often underweighted until it disrupts delivery.', detail: 'Degrading posture signals future reliability gaps before they become incidents.' },
   deployment:     { headline: 'Sustained delivery pressure slows release velocity and limits recovery capacity.', detail: 'Bottlenecks here affect every team downstream and increase change-failure rate.' },

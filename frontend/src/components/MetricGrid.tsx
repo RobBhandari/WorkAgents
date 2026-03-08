@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MetricItem, AlertItem } from '../types/trends';
 import { MetricCard } from './MetricCard';
+import { WHY_IT_MATTERS } from '../utils/buildDrawerTarget';
 
 interface MetricGridProps {
   metrics: MetricItem[];
@@ -57,6 +58,7 @@ export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridPr
             item={item}
             isAlertLinked={linkedIds.has(item.id)}
             narrativeSentence={narrativeFor(item)}
+            whyItMatters={WHY_IT_MATTERS[item.id]?.headline}
             onInvestigate={onInvestigate}
           />
         ))}
@@ -66,6 +68,7 @@ export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridPr
             item={item}
             isAlertLinked={linkedIds.has(item.id)}
             narrativeSentence={narrativeFor(item)}
+            whyItMatters={WHY_IT_MATTERS[item.id]?.headline}
             onInvestigate={onInvestigate}
           />
         ))}
