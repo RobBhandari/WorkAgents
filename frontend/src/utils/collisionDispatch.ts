@@ -34,7 +34,9 @@ const RIVER_DOMAIN_TO_KEY: Record<string, string> = {
  * Priority:
  * 1. primarySharedDriver metricId → find metric in list → use its dashboardUrl;
  *    domain = first collision domain that resolves to a known DOMAIN_DASHBOARD_LABEL entry.
- * 2. Fallback: first collision domain with a known dashboard label + any metric URL.
+ * 2. Participant-safe fallback: for each collision domain in order, find any shared-driver
+ *    metric belonging to that domain that has a dashboardUrl.
+ *    Never uses a metric outside the collision's shared drivers.
  */
 function resolveDispatch(
   collision: CrossDomainCollision,
@@ -56,13 +58,16 @@ function resolveDispatch(
     }
   }
 
-  // 2. Fallback: first collision domain with a known key + any available metric URL
-  const anyUrl = metrics.find((m) => m.dashboardUrl)?.dashboardUrl;
-  if (anyUrl) {
-    for (const domainLabel of collision.domainKeys) {
-      const domainKey = RIVER_DOMAIN_TO_KEY[domainLabel] ?? domainLabel.toLowerCase();
-      if (DOMAIN_DASHBOARD_LABEL[domainKey]) {
-        return { domainKey, dashboardUrl: anyUrl };
+  // 2. Participant-safe fallback: only consider metricIds that are shared drivers
+  //    of this collision, scoped to each participant domain in order.
+  const sharedDriverKeys = new Set(collision.sharedDrivers.map((d) => d.signalKey));
+  for (const domainLabel of collision.domainKeys) {
+    const domainKey = RIVER_DOMAIN_TO_KEY[domainLabel] ?? domainLabel.toLowerCase();
+    if (!DOMAIN_DASHBOARD_LABEL[domainKey]) continue;
+    for (const driverSignalKey of sharedDriverKeys) {
+      const m = metricMap.get(driverSignalKey);
+      if (m?.dashboardUrl) {
+        return { domainKey, dashboardUrl: m.dashboardUrl };
       }
     }
   }
