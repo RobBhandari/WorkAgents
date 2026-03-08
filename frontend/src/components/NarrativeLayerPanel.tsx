@@ -1,92 +1,138 @@
-// Narrative Layer — concise executive interpretation of current dashboard state.
-// Backend endpoint not yet available. Rendered as a deliberate reserved panel.
+import { HealthScorePayload } from '../types/health';
+import { SignalsPayload } from '../types/signals';
+import { AlertItem } from '../types/trends';
 
-export function NarrativeLayerPanel() {
-  const lines = [92, 76, 85, 60, 70];
+interface NarrativeLayerPanelProps {
+  healthData: HealthScorePayload | null;
+  signalsData: SignalsPayload | null;
+  signalsLoading: boolean;
+  topAlertDomain: string | null;
+  alerts: AlertItem[];
+  worsening: number;
+  improving: number;
+}
+
+export function NarrativeLayerPanel({
+  healthData,
+  signalsData,
+  signalsLoading,
+  topAlertDomain,
+  alerts,
+  worsening,
+  improving,
+}: NarrativeLayerPanelProps) {
+  const topDomainProducts = topAlertDomain
+    ? new Set(
+        alerts
+          .filter((a) => {
+            const label = (a.dashboard || 'other')
+              .replace(/-/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase());
+            return label === topAlertDomain;
+          })
+          .map((a) => a.project_name)
+          .filter(Boolean),
+      ).size
+    : 0;
+
+  const topDomainAlertCount = topAlertDomain
+    ? alerts.filter((a) => {
+        const label = (a.dashboard || 'other')
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        return label === topAlertDomain;
+      }).length
+    : 0;
+
+  const block1: string | null = signalsData?.signals?.[0]?.message ?? null;
+
+  const block2: string | null = topAlertDomain && topDomainAlertCount > 0
+    ? `${topAlertDomain}: ${topDomainAlertCount} alert${topDomainAlertCount !== 1 ? 's' : ''}, ${topDomainProducts} product${topDomainProducts !== 1 ? 's' : ''} affected.`
+    : null;
+
+  const block3: string | null =
+    worsening > 0 && improving > 0
+      ? `${worsening} metric${worsening !== 1 ? 's' : ''} declining, ${improving} improving.`
+      : worsening > 0
+      ? `${worsening} metric${worsening !== 1 ? 's' : ''} declining this period.`
+      : improving > 0
+      ? `${improving} metric${improving !== 1 ? 's' : ''} improving this period.`
+      : healthData?.label === 'healthy'
+      ? 'No critical action required at this time.'
+      : null;
+
+  const blocks = [block1, block2, block3].filter((b): b is string => b !== null);
 
   return (
-    <div
-      style={{
-        background: '#111827',
-        border: '1px solid rgba(255,255,255,0.06)',
-        borderRadius: '10px',
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0,
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          padding: '18px 22px 0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexShrink: 0,
-        }}
-      >
-        <h2
-          style={{
-            fontSize: '11px',
-            fontWeight: 600,
-            color: '#475569',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Narrative
-        </h2>
-        <span
-          style={{
-            fontSize: '9px',
-            fontWeight: 600,
-            color: '#1d4ed8',
-            background: 'rgba(29,78,216,0.08)',
-            border: '1px solid rgba(29,78,216,0.15)',
-            padding: '2px 8px',
-            borderRadius: '8px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Reserved
-        </span>
+    // Reference AiPanel: rounded-[28px] border border-violet-300/10 bg-[linear-gradient(180deg,rgba(76,29,149,0.10),rgba(10,20,34,0.92))] p-6
+    <div style={{
+      background: 'linear-gradient(180deg, rgba(76,29,149,0.10) 0%, rgba(10,20,34,0.92) 100%)',
+      border: '1px solid rgba(167,139,250,0.10)',
+      borderRadius: '28px',
+      padding: '24px',
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '280px',
+    }}>
+      {/* Category — text-xs uppercase tracking-[0.24em] text-violet-200 */}
+      <div style={{
+        fontSize: '10px',
+        fontWeight: 700,
+        color: '#ddd6fe',
+        textTransform: 'uppercase',
+        letterSpacing: '0.24em',
+        marginBottom: '8px',
+      }}>
+        AI Narrative Layer
       </div>
 
-      {/* Body */}
-      <div
-        style={{
-          padding: '14px 22px 20px',
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-        }}
-      >
-        <p
-          style={{
-            fontSize: '11px',
-            color: '#1e293b',
-            lineHeight: 1.6,
-            margin: 0,
-          }}
-        >
-          Auto-generated executive summary of current engineering health signals.
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-          {lines.map((w, i) => (
-            <div
-              key={i}
-              style={{
-                height: '7px',
-                width: `${w}%`,
-                background: 'rgba(255,255,255,0.04)',
-                borderRadius: '3px',
-              }}
-            />
+      {/* h2 — mt-2 text-2xl font-semibold */}
+      <h2 style={{
+        fontSize: '24px',
+        fontWeight: 600,
+        color: '#f1f5f9',
+        margin: '0 0 4px',
+        letterSpacing: '-0.02em',
+      }}>
+        Executive interpretation
+      </h2>
+      <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px', lineHeight: 1.5 }}>
+        Deterministic signals from the current data window.
+      </p>
+
+      {signalsLoading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {[88, 72, 58].map((w, i) => (
+            <div key={i} style={{
+              height: '10px',
+              width: `${w}%`,
+              borderRadius: '3px',
+              background: 'rgba(255,255,255,0.05)',
+            }} />
           ))}
         </div>
-      </div>
+      ) : blocks.length === 0 ? (
+        <p style={{ fontSize: '13px', color: '#334155', margin: 0, fontStyle: 'italic' }}>
+          Narrative unavailable.
+        </p>
+      ) : (
+        // Reference: rounded-[22px] border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-200
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {blocks.map((text, i) => (
+            <div key={i} style={{
+              background: i === 0 ? 'rgba(99,102,241,0.10)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${i === 0 ? 'rgba(99,102,241,0.22)' : 'rgba(255,255,255,0.10)'}`,
+              borderRadius: '22px',
+              padding: '16px',
+              fontSize: '14px',
+              color: i === 0 ? '#c4b5fd' : '#e2e8f0',
+              lineHeight: 1.6,
+            }}>
+              {text}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

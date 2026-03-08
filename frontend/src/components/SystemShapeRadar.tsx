@@ -34,14 +34,9 @@ function domainScores(metrics: MetricItem[]): (number | null)[] {
   });
 }
 
-// Compute SVG polygon point for axis i at value v (0–100).
 function radarPoint(
-  cx: number,
-  cy: number,
-  radius: number,
-  index: number,
-  total: number,
-  value: number,
+  cx: number, cy: number, radius: number,
+  index: number, total: number, value: number,
 ): [number, number] {
   const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
   const r = (value / 100) * radius;
@@ -49,194 +44,126 @@ function radarPoint(
 }
 
 function axisLabelPoint(
-  cx: number,
-  cy: number,
-  radius: number,
-  index: number,
-  total: number,
+  cx: number, cy: number, radius: number,
+  index: number, total: number,
 ): [number, number] {
   const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
-  const r = radius + 24;
+  const r = radius + 26;
   return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
 }
 
-export function SystemShapeRadar({ metrics, loading }: SystemShapeRadarProps) {
-  const panelStyle: React.CSSProperties = {
-    background: '#111827',
-    border: '1px solid rgba(255,255,255,0.06)',
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 0,
-    height: '100%',
-  };
+function axisEndPoint(
+  cx: number, cy: number, radius: number,
+  index: number, total: number,
+): [number, number] {
+  const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
+  return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
+}
 
-  const headerStyle: React.CSSProperties = {
-    padding: '16px 24px 0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexShrink: 0,
-  };
-
-  const titleStyle: React.CSSProperties = {
-    fontSize: '13px',
-    fontWeight: 600,
-    color: '#94a3b8',
-    textTransform: 'uppercase',
-    letterSpacing: '0.06em',
-  };
-
-  const contentStyle: React.CSSProperties = {
-    padding: '14px 24px 20px',
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-
-  const centeredText = (msg: string) => (
+const centeredText = (msg: string) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
     <span style={{ fontSize: '12px', color: '#475569', fontStyle: 'italic' }}>{msg}</span>
-  );
+  </div>
+);
 
-  if (loading) {
-    return (
-      <div style={panelStyle}>
-        <div style={headerStyle}><h2 style={titleStyle}>System Shape</h2></div>
-        <div style={contentStyle}>{centeredText('Evaluating system shape\u2026')}</div>
-      </div>
-    );
-  }
-
-  if (!metrics || metrics.length === 0) {
-    return (
-      <div style={panelStyle}>
-        <div style={headerStyle}><h2 style={titleStyle}>System Shape</h2></div>
-        <div style={contentStyle}>{centeredText('System shape unavailable.')}</div>
-      </div>
-    );
-  }
+export function SystemShapeRadar({ metrics, loading }: SystemShapeRadarProps) {
+  if (loading) return centeredText('Evaluating system shape\u2026');
+  if (!metrics || metrics.length === 0) return centeredText('System shape unavailable.');
 
   const scores = domainScores(metrics);
   const validCount = scores.filter((s) => s !== null).length;
+  if (validCount < 3) return centeredText('Insufficient data to evaluate system shape.');
 
-  if (validCount < 3) {
-    return (
-      <div style={panelStyle}>
-        <div style={headerStyle}><h2 style={titleStyle}>System Shape</h2></div>
-        <div style={contentStyle}>{centeredText('Insufficient data to evaluate system shape.')}</div>
-      </div>
-    );
-  }
-
-  // SVG dimensions — chart fills the panel with room for labels.
-  const size = 340;
-  const pad = 32;          // extra canvas on each side for label text
-  const cx = size / 2;     // chart center is the middle of the 340 square
-  const cy = size / 2;
-  const radius = 118;
-  const n = DOMAINS.length;
+  const size    = 340;
+  const pad     = 36;
+  const cx      = size / 2;
+  const cy      = size / 2;
+  const radius  = 118;
+  const n       = DOMAINS.length;
+  // Circular grid levels — matching the reference's circle rings
   const gridLevels = [25, 50, 75, 100];
 
-  // Filled polygon — use 0 for null domains.
   const filledPoints = scores.map((s, i) =>
     radarPoint(cx, cy, radius, i, n, s ?? 0),
   );
   const polygonPoints = filledPoints.map(([x, y]) => `${x},${y}`).join(' ');
 
   return (
-    <div style={panelStyle}>
-      <div style={headerStyle}>
-        <h2 style={titleStyle}>System Shape</h2>
-      </div>
-      <div style={{ ...contentStyle, padding: '10px 24px 16px' }}>
-        <svg
-          viewBox={`${-pad} ${-pad} ${size + pad * 2} ${size + pad * 2}`}
-          style={{ width: '100%', maxWidth: '340px', overflow: 'hidden' }}
-          aria-label="System shape radar chart"
-        >
-          {/* Radial grid lines */}
-          {gridLevels.map((level) => {
-            const pts = Array.from({ length: n }, (_, i) =>
-              radarPoint(cx, cy, radius, i, n, level),
-            );
-            return (
-              <polygon
-                key={level}
-                points={pts.map(([x, y]) => `${x},${y}`).join(' ')}
-                fill="none"
-                stroke="rgba(148,163,184,0.15)"
-                strokeWidth="1"
-              />
-            );
-          })}
-
-          {/* Axis spokes */}
-          {DOMAINS.map((_, i) => {
-            const [x, y] = radarPoint(cx, cy, radius, i, n, 100);
-            return (
-              <line
-                key={i}
-                x1={cx}
-                y1={cy}
-                x2={x}
-                y2={y}
-                stroke="rgba(148,163,184,0.25)"
-                strokeWidth="1"
-              />
-            );
-          })}
-
-          {/* Filled radar polygon */}
-          <polygon
-            points={polygonPoints}
-            fill="rgba(56,189,248,0.20)"
-            stroke="#38bdf8"
-            strokeWidth="2"
-            strokeLinejoin="round"
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+      <svg
+        viewBox={`${-pad} ${-pad} ${size + pad * 2} ${size + pad * 2}`}
+        style={{ width: '100%', height: 'auto', overflow: 'visible' }}
+        aria-label="System shape radar chart"
+      >
+        {/* Circular grid rings — replacing polygons for premium feel */}
+        {gridLevels.map((level) => (
+          <circle
+            key={level}
+            cx={cx}
+            cy={cy}
+            r={(level / 100) * radius}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="1"
           />
+        ))}
 
-          {/* Axis dots */}
-          {filledPoints.map(([x, y], i) => (
-            <circle
+        {/* Axis spokes */}
+        {DOMAINS.map((_, i) => {
+          const [x, y] = axisEndPoint(cx, cy, radius, i, n);
+          return (
+            <line
               key={i}
-              cx={x}
-              cy={y}
-              r="2.5"
-              fill="#38bdf8"
+              x1={cx} y1={cy} x2={x} y2={y}
+              stroke="rgba(255,255,255,0.10)"
+              strokeWidth="1"
             />
-          ))}
+          );
+        })}
 
-          {/* Axis labels */}
-          {DOMAINS.map(({ label }, i) => {
-            const [lx, ly] = axisLabelPoint(cx, cy, radius, i, n);
-            const score = scores[i];
-            const scoreColor =
-              score == null ? '#334155'
-              : score >= 80 ? '#10b981'
-              : score >= 55 ? '#f59e0b'
-              : '#ef4444';
-            return (
-              <text
-                key={i}
-                x={lx}
-                y={ly}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="11"
-                fill="#94a3b8"
-                fontFamily="inherit"
-              >
-                <tspan x={lx} dy="0">{label}</tspan>
-                {score != null && (
-                  <tspan x={lx} dy="12" fontSize="9" fill={scoreColor} fontWeight="700">
-                    {Math.round(score)}
-                  </tspan>
-                )}
-              </text>
-            );
-          })}
-        </svg>
-      </div>
+        {/* Filled radar polygon */}
+        <polygon
+          points={polygonPoints}
+          fill="rgba(56,189,248,0.18)"
+          stroke="rgba(125,211,252,0.90)"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+
+        {/* Axis vertex dots */}
+        {filledPoints.map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="3" fill="#38bdf8" opacity="0.9" />
+        ))}
+
+        {/* Axis labels */}
+        {DOMAINS.map(({ label }, i) => {
+          const [lx, ly] = axisLabelPoint(cx, cy, radius, i, n);
+          const score = scores[i];
+          const scoreColor =
+            score == null ? '#475569'
+            : score >= 80  ? '#34d399'
+            : score >= 55  ? '#fcd34d'
+            :                '#f87171';
+          return (
+            <text
+              key={i}
+              x={lx} y={ly}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="11"
+              fill="rgba(226,232,240,0.85)"
+              fontFamily="inherit"
+            >
+              <tspan x={lx} dy="0">{label}</tspan>
+              {score != null && (
+                <tspan x={lx} dy="13" fontSize="10" fill={scoreColor} fontWeight="700">
+                  {Math.round(score)}
+                </tspan>
+              )}
+            </text>
+          );
+        })}
+      </svg>
     </div>
   );
 }
