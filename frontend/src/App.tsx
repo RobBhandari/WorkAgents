@@ -1,7 +1,9 @@
 import { MetricGrid } from './components/MetricGrid';
 import { AlertList } from './components/AlertList';
+import { HealthScore } from './components/HealthScore';
 import { SignalsPanel } from './components/SignalsPanel';
 import { useTrendsData } from './hooks/useTrendsData';
+import { useHealthScore } from './hooks/useHealthScore';
 import { useSignalsData } from './hooks/useSignalsData';
 
 function parseDataAge(timestamp: string): { isStale: boolean; label: string } {
@@ -17,6 +19,7 @@ function parseDataAge(timestamp: string): { isStale: boolean; label: string } {
 
 export default function App() {
   const { data, error, loading } = useTrendsData();
+  const { data: healthData, error: healthError, loading: healthLoading } = useHealthScore();
   const { data: signalsData, error: signalsError, loading: signalsLoading } = useSignalsData();
 
   if (loading) return (
@@ -53,23 +56,26 @@ export default function App() {
             Updated {data.timestamp}
           </p>
         </div>
-        {(() => {
-          const { isStale, label } = parseDataAge(data.timestamp);
-          return (
-            <div
-              style={{
-                fontSize: '11px',
-                color: isStale ? '#f59e0b' : '#475569',
-                background: isStale ? 'rgba(245, 158, 11, 0.08)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${isStale ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255,255,255,0.07)'}`,
-                padding: '4px 10px',
-                borderRadius: '6px',
-              }}
-            >
-              {isStale ? label : `live · ${new Date().toLocaleTimeString()}`}
-            </div>
-          );
-        })()}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <HealthScore data={healthData} error={healthError} loading={healthLoading} />
+          {(() => {
+            const { isStale, label } = parseDataAge(data.timestamp);
+            return (
+              <div
+                style={{
+                  fontSize: '11px',
+                  color: isStale ? '#f59e0b' : '#475569',
+                  background: isStale ? 'rgba(245, 158, 11, 0.08)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${isStale ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255,255,255,0.07)'}`,
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                }}
+              >
+                {isStale ? label : `live · ${new Date().toLocaleTimeString()}`}
+              </div>
+            );
+          })()}
+        </div>
       </header>
 
       {/* Key Signals — full-width strip above body */}
