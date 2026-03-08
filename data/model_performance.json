@@ -1,45 +1,45 @@
 {
-  "last_updated": "2026-03-07T06:50:18.557289",
+  "last_updated": "2026-03-08T06:53:10.096780",
   "models": [
     {
       "name": "forecast_deployment",
       "metric": "deployment",
       "column": "build_success_rate",
       "project_count": 7,
-      "mape": 0.0435,
-      "accuracy": 0.9565,
+      "mape": 0.0386,
+      "accuracy": 0.9614,
       "status": "pass",
-      "last_updated": "2026-03-07T06:50:18.006223"
+      "last_updated": "2026-03-08T06:53:09.550762"
     },
     {
       "name": "forecast_flow",
       "metric": "flow",
       "column": "throughput",
       "project_count": 8,
-      "mape": 0.0469,
-      "accuracy": 0.9531,
+      "mape": 0.0471,
+      "accuracy": 0.9529,
       "status": "pass",
-      "last_updated": "2026-03-07T06:50:17.984977"
+      "last_updated": "2026-03-08T06:53:09.529601"
     },
     {
       "name": "forecast_ownership",
       "metric": "ownership",
       "column": "unassigned_pct",
       "project_count": 8,
-      "mape": 0.0135,
-      "accuracy": 0.9865,
+      "mape": 0.0142,
+      "accuracy": 0.9858,
       "status": "pass",
-      "last_updated": "2026-03-07T06:50:18.028633"
+      "last_updated": "2026-03-08T06:53:09.572943"
     },
     {
       "name": "forecast_quality",
       "metric": "quality",
       "column": "open_bugs",
       "project_count": 8,
-      "mape": 0.0565,
-      "accuracy": 0.9435,
+      "mape": 0.0611,
+      "accuracy": 0.9389,
       "status": "pass",
-      "last_updated": "2026-03-07T06:50:17.962403"
+      "last_updated": "2026-03-08T06:53:09.507437"
     }
   ]
 }
