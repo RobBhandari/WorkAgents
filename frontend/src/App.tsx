@@ -374,6 +374,18 @@ export default function App() {
                   color: '#fde68a',
                 }}>
                   {topCollision!.summary}
+                  {topCollision!.sharedDrivers.length > 1 && (
+                    <div style={{ marginTop: '6px', fontSize: '13px', color: '#fde68a', opacity: 0.85 }}>
+                      {'Related signals: '}
+                      {topCollision!.sharedDrivers.slice(1, 3).map((s, i, arr) => (
+                        <span key={s.signalKey}>
+                          {s.signalLabel}
+                          {s.direction === 'up' ? ' ↑' : s.direction === 'down' ? ' ↓' : ''}
+                          {i < arr.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {topCollisionDispatchHint && (
                     <div style={{ marginTop: '6px', fontSize: '13px', color: '#fbbf24', opacity: 0.8 }}>
                       Suggested investigation: {topCollisionDispatchHint.dashboardLabel}

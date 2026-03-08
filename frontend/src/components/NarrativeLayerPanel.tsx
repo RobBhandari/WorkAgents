@@ -152,6 +152,18 @@ export function NarrativeLayerPanel({
                 lineHeight:   1.6,
               }}>
                 {text}
+                {isCollision && collision && collision.sharedDrivers.length > 1 && (
+                  <div style={{ marginTop: '6px', fontSize: '13px', color: '#fde68a', opacity: 0.85 }}>
+                    {'Related signals: '}
+                    {collision.sharedDrivers.slice(1, 3).map((s, i, arr) => (
+                      <span key={s.signalKey}>
+                        {s.signalLabel}
+                        {s.direction === 'up' ? ' ↑' : s.direction === 'down' ? ' ↓' : ''}
+                        {i < arr.length - 1 ? ', ' : ''}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {isCollision && collisionDispatchHint && (
                   <div style={{ marginTop: '6px', fontSize: '13px', color: '#fbbf24', opacity: 0.8 }}>
                     Suggested investigation: {collisionDispatchHint.dashboardLabel}

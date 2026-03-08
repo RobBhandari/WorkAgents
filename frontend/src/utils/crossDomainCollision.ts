@@ -12,6 +12,7 @@ export interface CollisionSharedDriver {
   signalLabel:    string;   // attribution contributor label (metric title or fallback)
   combinedWeight: number;   // sum of min(weightA, weightB) across the pair
   domains:        string[];
+  direction?:     'up' | 'down' | 'flat';
 }
 
 export interface CrossDomainCollision {
@@ -46,14 +47,14 @@ const COLLISION_MIN_PAIR_PRESS = 0.30;
  */
 function getAttributedSignalWeights(
   attribution: DomainAttribution,
-): Map<string, { label: string; weight: number }> {
-  const result = new Map<string, { label: string; weight: number }>();
+): Map<string, { label: string; weight: number; direction: 'up' | 'down' | 'flat' }> {
+  const result = new Map<string, { label: string; weight: number; direction: 'up' | 'down' | 'flat' }>();
   const contributors: DomainContributor[] = [
     ...(attribution.dominantSignal ? [attribution.dominantSignal] : []),
     ...attribution.secondarySignals,
   ];
   for (const c of contributors) {
-    result.set(c.metricId, { label: c.label, weight: c.contributionScore });
+    result.set(c.metricId, { label: c.label, weight: c.contributionScore, direction: c.direction });
   }
   return result;
 }
@@ -78,8 +79,8 @@ function computeDomainPressureStrength(row: AnomalyRiverRow): number {
  * using sum(min(weightA, weightB)) — a stable, simple formula.
  */
 function computeAttributionOverlap(
-  aWeights: Map<string, { label: string; weight: number }>,
-  bWeights: Map<string, { label: string; weight: number }>,
+  aWeights: Map<string, { label: string; weight: number; direction: 'up' | 'down' | 'flat' }>,
+  bWeights: Map<string, { label: string; weight: number; direction: 'up' | 'down' | 'flat' }>,
 ): { overlapScore: number; sharedDrivers: CollisionSharedDriver[] } {
   const shared: CollisionSharedDriver[] = [];
   for (const [key, aEntry] of aWeights.entries()) {
@@ -92,6 +93,7 @@ function computeAttributionOverlap(
       signalLabel:    aEntry.label,
       combinedWeight: Math.min(aEntry.weight, bEntry.weight),
       domains:        [],
+      direction:      aEntry.direction,
     });
   }
   shared.sort((a, b) => b.combinedWeight - a.combinedWeight);

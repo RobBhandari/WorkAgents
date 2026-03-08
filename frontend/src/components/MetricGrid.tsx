@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { MetricItem, AlertItem } from '../types/trends';
 import { MetricCard } from './MetricCard';
 
@@ -21,6 +22,8 @@ function narrativeFor(item: MetricItem): string | undefined {
 }
 
 export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridProps) {
+  const [expanded, setExpanded] = useState(false);
+
   // Build set of alert-linked metric IDs by matching metric.id against alert.dashboard
   const linkedIds = new Set(alerts.map((a) => a.dashboard).filter(Boolean));
 
@@ -38,21 +41,54 @@ export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridPr
     return aStable - bStable;
   });
 
+  const visibleMetrics = sorted.slice(0, 6);
+  const hiddenMetrics = sorted.slice(6);
+
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '16px',
-    }}>
-      {sorted.slice(0, 6).map((item) => (
-        <MetricCard
-          key={item.id}
-          item={item}
-          isAlertLinked={linkedIds.has(item.id)}
-          narrativeSentence={narrativeFor(item)}
-          onInvestigate={onInvestigate}
-        />
-      ))}
+    <div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: '16px',
+      }}>
+        {visibleMetrics.map((item) => (
+          <MetricCard
+            key={item.id}
+            item={item}
+            isAlertLinked={linkedIds.has(item.id)}
+            narrativeSentence={narrativeFor(item)}
+            onInvestigate={onInvestigate}
+          />
+        ))}
+        {expanded && hiddenMetrics.map((item) => (
+          <MetricCard
+            key={item.id}
+            item={item}
+            isAlertLinked={linkedIds.has(item.id)}
+            narrativeSentence={narrativeFor(item)}
+            onInvestigate={onInvestigate}
+          />
+        ))}
+      </div>
+      {hiddenMetrics.length > 0 && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          style={{
+            marginTop: '12px',
+            background: 'none',
+            border: 'none',
+            padding: '4px 0',
+            cursor: 'pointer',
+            fontSize: '13px',
+            color: '#64748b',
+            letterSpacing: '0.01em',
+          }}
+        >
+          {expanded
+            ? 'Show fewer'
+            : `+${hiddenMetrics.length} more metric${hiddenMetrics.length !== 1 ? 's' : ''}`}
+        </button>
+      )}
     </div>
   );
 }
