@@ -1,6 +1,7 @@
 import { HealthScorePayload } from '../types/health';
 import { SignalsPayload } from '../types/signals';
 import { AlertItem } from '../types/trends';
+import { CrossDomainCollision } from '../utils/crossDomainCollision';
 
 interface NarrativeLayerPanelProps {
   healthData: HealthScorePayload | null;
@@ -10,6 +11,7 @@ interface NarrativeLayerPanelProps {
   alerts: AlertItem[];
   worsening: number;
   improving: number;
+  collision?: CrossDomainCollision | null;
 }
 
 export function NarrativeLayerPanel({
@@ -20,6 +22,7 @@ export function NarrativeLayerPanel({
   alerts,
   worsening,
   improving,
+  collision,
 }: NarrativeLayerPanelProps) {
   const topDomainProducts = topAlertDomain
     ? new Set(
@@ -61,7 +64,12 @@ export function NarrativeLayerPanel({
       ? 'No critical action required at this time.'
       : null;
 
-  const blocks = [block1, block2, block3].filter((b): b is string => b !== null);
+  const blockCollision: string | null =
+    collision && collision.confidence !== 'low'
+      ? collision.summary
+      : null;
+
+  const blocks = [block1, block2, blockCollision, block3].filter((b): b is string => b !== null);
 
   return (
     // Reference AiPanel: rounded-[28px] border border-violet-300/10 bg-[linear-gradient(180deg,rgba(76,29,149,0.10),rgba(10,20,34,0.92))] p-6
@@ -118,19 +126,32 @@ export function NarrativeLayerPanel({
       ) : (
         // Reference: rounded-[22px] border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-200
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {blocks.map((text, i) => (
-            <div key={i} style={{
-              background: i === 0 ? 'rgba(99,102,241,0.10)' : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${i === 0 ? 'rgba(99,102,241,0.22)' : 'rgba(255,255,255,0.10)'}`,
-              borderRadius: '22px',
-              padding: '16px',
-              fontSize: '14px',
-              color: i === 0 ? '#c4b5fd' : '#e2e8f0',
-              lineHeight: 1.6,
-            }}>
-              {text}
-            </div>
-          ))}
+          {blocks.map((text, i) => {
+            const isFirst     = i === 0;
+            const isCollision = blockCollision !== null && text === blockCollision;
+            const bg     = isFirst ? 'rgba(99,102,241,0.10)'
+                         : isCollision ? 'rgba(245,158,11,0.08)'
+                         : 'rgba(255,255,255,0.05)';
+            const border = isFirst ? 'rgba(99,102,241,0.22)'
+                         : isCollision ? 'rgba(245,158,11,0.22)'
+                         : 'rgba(255,255,255,0.10)';
+            const color  = isFirst ? '#c4b5fd'
+                         : isCollision ? '#fde68a'
+                         : '#e2e8f0';
+            return (
+              <div key={i} style={{
+                background:   bg,
+                border:       `1px solid ${border}`,
+                borderRadius: '22px',
+                padding:      '16px',
+                fontSize:     '14px',
+                color,
+                lineHeight:   1.6,
+              }}>
+                {text}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

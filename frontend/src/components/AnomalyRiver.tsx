@@ -1,5 +1,5 @@
 import { MetricItem, AlertItem } from '../types/trends';
-import { buildAnomalyRiver, ALERT_DOMAIN_TO_RIVER_DOMAIN } from '../utils/buildAnomalyRiver';
+import { AnomalyRiverRow, ALERT_DOMAIN_TO_RIVER_DOMAIN } from '../utils/buildAnomalyRiver';
 import { DrawerTarget, buildDomainTarget } from '../utils/buildDrawerTarget';
 
 // More descriptive display label when a domain row is backed by only one metric.
@@ -20,15 +20,13 @@ const ROW_DOMAIN_TO_KEY: Record<string, string> = {
 };
 
 interface AnomalyRiverProps {
+  rows: AnomalyRiverRow[];
   metrics: MetricItem[];
   alerts?: AlertItem[];
   onDomainClick?: (target: DrawerTarget) => void;
 }
 
-export function AnomalyRiver({ metrics, alerts = [], onDomainClick }: AnomalyRiverProps) {
-  const rows = buildAnomalyRiver(metrics);
-  const metricMap = new Map(metrics.map((m) => [m.id, m]));
-
+export function AnomalyRiver({ rows, metrics, alerts = [], onDomainClick }: AnomalyRiverProps) {
   if (rows.length === 0) return null;
 
   // Derive spotlight label from most-alerted domain — plain editorial text, no decoration

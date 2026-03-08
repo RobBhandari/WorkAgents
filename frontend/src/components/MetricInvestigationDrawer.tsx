@@ -108,12 +108,6 @@ export function MetricInvestigationDrawer({ target, alerts, onClose }: MetricInv
             : domainAlerts[0].message}"`
         : `Referenced by ${domainAlerts.length} active alerts across ${new Set(domainAlerts.map((a) => a.project_name)).size} products.`;
 
-  const TREND_COLORS: Record<string, string> = {
-    'trend-up':     '#f87171',
-    'trend-down':   '#34d399',
-    'trend-stable': '#64748b',
-  };
-  const trendColor = metric ? (TREND_COLORS[metric.cssClass] ?? '#94a3b8') : '#94a3b8';
   const movementColor = MOVEMENT_COLORS[movement.direction];
 
   function scrollToMetric(id: string) {

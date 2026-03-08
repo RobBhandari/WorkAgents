@@ -11,6 +11,15 @@ import { useTrendsData } from './hooks/useTrendsData';
 import { useHealthScore } from './hooks/useHealthScore';
 import { useSignalsData } from './hooks/useSignalsData';
 import { MetricItem } from './types/trends';
+import { buildAnomalyRiver } from './utils/buildAnomalyRiver';
+import { detectCrossDomainPressureCollisions, CrossDomainCollision } from './utils/crossDomainCollision';
+
+function shouldEscalateCollision(collision: CrossDomainCollision | null): boolean {
+  if (!collision) return false;
+  if (collision.confidence !== 'high') return false;
+  if (collision.sharedDrivers.length === 0) return false;
+  return true;
+}
 
 // Maps metric IDs to their WHY_IT_MATTERS / alert-domain key
 const METRIC_TO_DOMAIN: Record<string, string> = {
@@ -86,6 +95,10 @@ export default function App() {
     ? topAlertDomain.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     : null;
 
+  const riverRows   = buildAnomalyRiver(data.metrics);
+  const collisionResult = detectCrossDomainPressureCollisions(riverRows);
+  const topCollision: CrossDomainCollision | null = collisionResult.topCollision;
+
   const heroHeadline =
     !healthData ? 'Engineering health data loading…'
     : healthData.label === 'at risk' ? 'Several metrics are below target and require action.'
@@ -107,7 +120,7 @@ export default function App() {
   const chipWarn    = { color: '#fcd34d', bg: 'rgba(245,158,11,0.10)',  border: 'rgba(245,158,11,0.20)'  };
   const chipNeutral = { color: '#e2e8f0', bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.10)' };
 
-  const chip = (c: typeof chipDanger, label: string): React.CSSProperties => ({
+  const chip = (c: typeof chipDanger, _label: string): React.CSSProperties => ({
     display: 'inline-flex', alignItems: 'center', gap: '8px',
     padding: '6px 12px',
     background: c.bg, border: `1px solid ${c.border}`, borderRadius: '9999px',
@@ -330,7 +343,25 @@ export default function App() {
               </div>
             </div>
             <div style={{ marginTop: '20px' }}>
-              <ActiveRisksSummary alerts={data.alerts} horizontal />
+              {/* Only show API alerts when present; suppress empty-state when collision escalates instead */}
+              {(activeAlerts > 0 || !shouldEscalateCollision(topCollision)) && (
+                <ActiveRisksSummary alerts={data.alerts} horizontal />
+              )}
+              {shouldEscalateCollision(topCollision) && (
+                <div style={{
+                  marginTop: activeAlerts > 0 ? '12px' : '0',
+                  padding: '14px 18px',
+                  borderRadius: '14px',
+                  background: 'rgba(245,158,11,0.07)',
+                  border: '1px solid rgba(245,158,11,0.20)',
+                  borderLeft: '3px solid #f59e0b',
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: '#fde68a',
+                }}>
+                  {topCollision!.summary}
+                </div>
+              )}
             </div>
           </section>
 
@@ -379,11 +410,13 @@ export default function App() {
             alerts={data.alerts}
             worsening={worsening}
             improving={improving}
+            collision={topCollision}
           />
         </div>
 
         {/* ── ANOMALY RIVER ── */}
         <AnomalyRiver
+          rows={riverRows}
           metrics={data.metrics}
           alerts={data.alerts}
           onDomainClick={setDrawerTarget}

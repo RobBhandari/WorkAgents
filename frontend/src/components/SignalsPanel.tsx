@@ -26,17 +26,11 @@ const SEVERITY_BORDER: Record<string, string> = {
   info:     'rgba(99, 102, 241, 0.2)',
 };
 
-const TYPE_LABEL: Record<string, string> = {
-  threshold_breach:        'threshold',
-  sustained_deterioration: 'deteriorating',
-  recovery_trend:          'recovering',
-};
 
 function SignalRow({ signal }: { signal: Signal }) {
   const color  = SEVERITY_COLOR[signal.severity] ?? '#64748b';
   const bg     = SEVERITY_BG[signal.severity]    ?? 'transparent';
   const border = SEVERITY_BORDER[signal.severity] ?? 'rgba(255,255,255,0.06)';
-  const typeLabel = TYPE_LABEL[signal.type] ?? signal.type;
 
   return (
     <div

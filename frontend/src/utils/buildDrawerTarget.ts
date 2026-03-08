@@ -175,7 +175,7 @@ export function buildMetricTarget(m: MetricItem, domainKey: string): DrawerTarge
     domainLabel: domainKey.charAt(0).toUpperCase() + domainKey.slice(1),
     movement: metricMovement(m),
     implication: { headline: impl.headline, detail: impl.detail },
-    evidence: { contributorCount: 1, confidence: 'high' },
+    evidence: { contributorCount: 1, confidence: 'high', attributionSummary: '' },
     relatedSignals: buildRelatedSignals(domainKey, [m.id]),
     dispatch: { label: `Open ${dashLabel} →`, url: m.dashboardUrl },
     metric: m,
