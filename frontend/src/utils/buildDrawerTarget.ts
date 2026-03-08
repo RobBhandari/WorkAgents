@@ -68,7 +68,7 @@ const WHY_IT_MATTERS: Record<string, { headline: string; detail: string }> = {
   collaboration:  { headline: 'Collaboration pressure can indicate review bottlenecks or growing team isolation.', detail: 'Low PR velocity reduces knowledge sharing and slows quality gatekeeping.' },
 };
 
-const DOMAIN_DASHBOARD_LABEL: Record<string, string> = {
+export const DOMAIN_DASHBOARD_LABEL: Record<string, string> = {
   security:       'Security Dashboard',
   infrastructure: 'Infrastructure Dashboard',
   deployment:     'Delivery Dashboard',

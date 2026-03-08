@@ -13,6 +13,7 @@ import { useSignalsData } from './hooks/useSignalsData';
 import { MetricItem } from './types/trends';
 import { buildAnomalyRiver } from './utils/buildAnomalyRiver';
 import { detectCrossDomainPressureCollisions, CrossDomainCollision } from './utils/crossDomainCollision';
+import { buildCollisionDispatchHint, CollisionDispatchHint } from './utils/collisionDispatch';
 
 function shouldEscalateCollision(collision: CrossDomainCollision | null): boolean {
   if (!collision) return false;
@@ -110,6 +111,7 @@ export default function App() {
   const riverRows   = buildAnomalyRiver(data.metrics);
   const collisionResult = detectCrossDomainPressureCollisions(riverRows);
   const topCollision: CrossDomainCollision | null = collisionResult.topCollision;
+  const topCollisionDispatchHint: CollisionDispatchHint | null = buildCollisionDispatchHint(topCollision, data.metrics);
 
   const heroHeadline =
     !healthData ? 'Engineering health data loading…'
@@ -372,6 +374,11 @@ export default function App() {
                   color: '#fde68a',
                 }}>
                   {topCollision!.summary}
+                  {topCollisionDispatchHint && (
+                    <div style={{ marginTop: '6px', fontSize: '13px', color: '#fbbf24', opacity: 0.8 }}>
+                      Suggested investigation: {topCollisionDispatchHint.dashboardLabel}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -423,6 +430,7 @@ export default function App() {
             worsening={worsening}
             improving={improving}
             collision={topCollision}
+            collisionDispatchHint={topCollisionDispatchHint}
           />
         </div>
 
