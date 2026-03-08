@@ -35,8 +35,10 @@ def build_product_risk_response(alerts: list[dict[str, Any]]) -> dict[str, Any]:
 
     Returns:
         Dict with generated_at, total_alerts, products (sorted by score desc).
-        Always returns a valid payload — never raises.
+        Always returns a valid payload — never raises for well-formed input (list[dict]).
     """
+    if not alerts:
+        alerts = []
     product_scores: dict[str, int] = {}
     product_counts: dict[str, dict[str, int]] = {}
     product_domains: dict[str, set[str]] = {}

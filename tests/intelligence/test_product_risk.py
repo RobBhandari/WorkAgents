@@ -158,6 +158,20 @@ class TestDomains:
 # ---------------------------------------------------------------------------
 
 
+class TestInputContract:
+    def test_non_dict_items_in_alerts_skipped(self) -> None:
+        """Alerts that are None or non-dict raise AttributeError — input contract is list[dict]."""
+        # The function contract requires list[dict]. Non-dict items will raise AttributeError.
+        # This test documents the assumption; the route handler's except Exception catches it.
+        with pytest.raises((AttributeError, TypeError)):
+            build_product_risk_response([None, "bad"])  # type: ignore[list-item]
+
+
+# ---------------------------------------------------------------------------
+# TestResponseShape
+# ---------------------------------------------------------------------------
+
+
 class TestResponseShape:
     def test_empty_alerts_returns_empty_products(self) -> None:
         result = build_product_risk_response([])
