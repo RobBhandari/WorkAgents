@@ -42,8 +42,14 @@ export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridPr
     return aStable - bStable;
   });
 
-  const visibleMetrics = sorted.slice(0, 6);
-  const hiddenMetrics = sorted.slice(6);
+  const PINNED_METRIC_IDS = ['bugs'];
+  const VISIBLE_COUNT = 6;
+
+  const pinnedMetrics = sorted.filter((m) => PINNED_METRIC_IDS.includes(m.id));
+  const dynamicMetrics = sorted.filter((m) => !PINNED_METRIC_IDS.includes(m.id));
+  const dynamicVisible = dynamicMetrics.slice(0, VISIBLE_COUNT - pinnedMetrics.length);
+  const visibleMetrics = [...pinnedMetrics, ...dynamicVisible];
+  const hiddenMetrics = dynamicMetrics.slice(VISIBLE_COUNT - pinnedMetrics.length);
 
   return (
     <div>
