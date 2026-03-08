@@ -1,12 +1,15 @@
 // Narrative Layer — concise executive interpretation of current dashboard state.
-// Backend endpoint not yet available. Rendered as a deliberate preview panel.
+// Backend endpoint not yet available. Rendered as a deliberate reserved panel.
 
 export function NarrativeLayerPanel() {
+  const lines = [92, 76, 85, 60, 70];
+
   return (
     <div
       style={{
-        background: '#0d1420',
-        border: '1px solid rgba(255,255,255,0.04)',
+        background: '#111827',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '10px',
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
@@ -15,7 +18,7 @@ export function NarrativeLayerPanel() {
       {/* Header */}
       <div
         style={{
-          padding: '16px 24px 0',
+          padding: '18px 22px 0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -24,11 +27,11 @@ export function NarrativeLayerPanel() {
       >
         <h2
           style={{
-            fontSize: '13px',
+            fontSize: '11px',
             fontWeight: 600,
-            color: '#4b5a6e',
+            color: '#475569',
             textTransform: 'uppercase',
-            letterSpacing: '0.06em',
+            letterSpacing: '0.08em',
           }}
         >
           Narrative
@@ -36,24 +39,24 @@ export function NarrativeLayerPanel() {
         <span
           style={{
             fontSize: '9px',
-            fontWeight: 700,
-            color: '#3b82f6',
-            background: 'rgba(59,130,246,0.08)',
-            border: '1px solid rgba(59,130,246,0.2)',
+            fontWeight: 600,
+            color: '#1d4ed8',
+            background: 'rgba(29,78,216,0.08)',
+            border: '1px solid rgba(29,78,216,0.15)',
             padding: '2px 8px',
             borderRadius: '8px',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
           }}
         >
-          Coming Soon
+          Reserved
         </span>
       </div>
 
-      {/* Placeholder body */}
+      {/* Body */}
       <div
         style={{
-          padding: '20px 24px 24px',
+          padding: '14px 22px 20px',
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
@@ -62,26 +65,27 @@ export function NarrativeLayerPanel() {
       >
         <p
           style={{
-            fontSize: '12px',
-            color: '#334155',
+            fontSize: '11px',
+            color: '#1e293b',
             lineHeight: 1.6,
             margin: 0,
           }}
         >
           Auto-generated executive summary of current engineering health signals.
         </p>
-        {/* Skeleton text lines */}
-        {[90, 70, 82, 58].map((w, i) => (
-          <div
-            key={i}
-            style={{
-              height: '8px',
-              width: `${w}%`,
-              background: 'rgba(255,255,255,0.04)',
-              borderRadius: '4px',
-            }}
-          />
-        ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+          {lines.map((w, i) => (
+            <div
+              key={i}
+              style={{
+                height: '7px',
+                width: `${w}%`,
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '3px',
+              }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

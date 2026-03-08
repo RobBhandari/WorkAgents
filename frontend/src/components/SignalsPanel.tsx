@@ -128,10 +128,10 @@ export function SignalsPanel({ data, error, loading, inlined }: SignalsPanelProp
         <h2
           style={{
             fontSize: '11px',
-            fontWeight: 500,
-            color: '#64748b',
+            fontWeight: 600,
+            color: '#475569',
             textTransform: 'uppercase',
-            letterSpacing: '0.06em',
+            letterSpacing: '0.08em',
           }}
         >
           Key Signals

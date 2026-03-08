@@ -164,7 +164,7 @@ export function SystemShapeRadar({ metrics, loading }: SystemShapeRadarProps) {
                 key={level}
                 points={pts.map(([x, y]) => `${x},${y}`).join(' ')}
                 fill="none"
-                stroke="rgba(255,255,255,0.06)"
+                stroke="rgba(148,163,184,0.15)"
                 strokeWidth="1"
               />
             );
@@ -180,7 +180,7 @@ export function SystemShapeRadar({ metrics, loading }: SystemShapeRadarProps) {
                 y1={cy}
                 x2={x}
                 y2={y}
-                stroke="rgba(255,255,255,0.06)"
+                stroke="rgba(148,163,184,0.25)"
                 strokeWidth="1"
               />
             );
@@ -189,9 +189,9 @@ export function SystemShapeRadar({ metrics, loading }: SystemShapeRadarProps) {
           {/* Filled radar polygon */}
           <polygon
             points={polygonPoints}
-            fill="rgba(56,189,248,0.18)"
+            fill="rgba(56,189,248,0.20)"
             stroke="#38bdf8"
-            strokeWidth="1.5"
+            strokeWidth="2"
             strokeLinejoin="round"
           />
 
@@ -222,7 +222,7 @@ export function SystemShapeRadar({ metrics, loading }: SystemShapeRadarProps) {
                 y={ly}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize="10"
+                fontSize="11"
                 fill="#94a3b8"
                 fontFamily="inherit"
               >
