@@ -152,6 +152,11 @@ export function NarrativeLayerPanel({
                 lineHeight:   1.6,
               }}>
                 {text}
+                {isCollision && collision && collision.confidence && (
+                  <div style={{ marginTop: '6px', fontSize: '13px', color: '#fde68a', opacity: 0.85 }}>
+                    Confidence: {collision.confidence.charAt(0).toUpperCase() + collision.confidence.slice(1)}
+                  </div>
+                )}
                 {isCollision && collision && collision.sharedDrivers.length > 1 && (
                   <div style={{ marginTop: '6px', fontSize: '13px', color: '#fde68a', opacity: 0.85 }}>
                     {'Related signals: '}

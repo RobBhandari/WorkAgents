@@ -374,6 +374,11 @@ export default function App() {
                   color: '#fde68a',
                 }}>
                   {topCollision!.summary}
+                  {topCollision!.confidence && (
+                    <div style={{ marginTop: '6px', fontSize: '13px', color: '#fde68a', opacity: 0.85 }}>
+                      Confidence: {topCollision!.confidence.charAt(0).toUpperCase() + topCollision!.confidence.slice(1)}
+                    </div>
+                  )}
                   {topCollision!.sharedDrivers.length > 1 && (
                     <div style={{ marginTop: '6px', fontSize: '13px', color: '#fde68a', opacity: 0.85 }}>
                       {'Related signals: '}
