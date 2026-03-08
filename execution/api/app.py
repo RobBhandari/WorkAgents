@@ -611,7 +611,7 @@ def create_app() -> FastAPI:
 
         logger.info("Product risk accessed", extra={"username": username})
         try:
-            return build_product_risk_response(context["active_alerts"])
+            return build_product_risk_response(context.get("active_alerts", []))
         except Exception:
             logger.error("Failed to build product risk response", exc_info=True)
             raise HTTPException(
