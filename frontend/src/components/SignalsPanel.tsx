@@ -4,6 +4,8 @@ interface SignalsPanelProps {
   data: SignalsPayload | null;
   error: string | null;
   loading: boolean;
+  /** When true, suppresses the component's own border/padding (parent column provides chrome). */
+  inlined?: boolean;
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -104,10 +106,10 @@ function SignalRow({ signal }: { signal: Signal }) {
   );
 }
 
-export function SignalsPanel({ data, error, loading }: SignalsPanelProps) {
+export function SignalsPanel({ data, error, loading, inlined }: SignalsPanelProps) {
   return (
     <div
-      style={{
+      style={inlined ? {} : {
         borderTop: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         padding: '20px 32px',
@@ -125,9 +127,9 @@ export function SignalsPanel({ data, error, loading }: SignalsPanelProps) {
       >
         <h2
           style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            color: '#94a3b8',
+            fontSize: '11px',
+            fontWeight: 500,
+            color: '#64748b',
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
           }}
