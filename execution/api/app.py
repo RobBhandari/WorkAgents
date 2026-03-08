@@ -543,6 +543,47 @@ def create_app() -> FastAPI:
                 detail="Failed to generate signals.",
             )
 
+    @app.get("/api/v1/intelligence/health", tags=["Intelligence"])
+    async def get_health_score(username: str = Depends(verify_credentials)):
+        """
+        Get provisional portfolio health score over Executive Trends metrics.
+
+        Score is derived from the ragColor classifications already computed by
+        TrendsRenderer (Green=100, Amber=50, Red=0). Equal-weighted mean across
+        all scoreable metrics, rounded to integer.
+
+        Labels: healthy (>=80), fair (>=60), at risk (<60).
+
+        contributing_metrics / total_metrics indicates score coverage.
+        A low contributing_metrics value means the score is based on less data.
+        """
+        from execution.dashboards.trends.pipeline import build_trends_context
+        from execution.intelligence.health_score import build_health_score_response
+
+        try:
+            context = build_trends_context(history_dir=Path(".tmp/observatory"))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No historical data found. Run collectors first.",
+            )
+        except Exception:
+            logger.error("Failed to build trends context for health score", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to generate health score.",
+            )
+
+        logger.info("Health score accessed", extra={"username": username})
+        try:
+            return build_health_score_response(context["metrics"])
+        except Exception:
+            logger.error("Failed to build health score response", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to generate health score.",
+            )
+
     return app
 
 
