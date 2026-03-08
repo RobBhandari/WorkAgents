@@ -584,6 +584,41 @@ def create_app() -> FastAPI:
                 detail="Failed to generate health score.",
             )
 
+    @app.get("/api/v1/intelligence/product-risk", tags=["Intelligence"])
+    async def get_product_risk(username: str = Depends(verify_credentials)):
+        """
+        Get per-product risk scores derived from active alerts.
+
+        Products are ranked by severity-weighted score (critical=3, warn=1, medium=1).
+        Only products with score > 0 are included.
+        """
+        from execution.dashboards.trends.pipeline import build_trends_context
+        from execution.intelligence.product_risk import build_product_risk_response
+
+        try:
+            context = build_trends_context(history_dir=Path(".tmp/observatory"))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No historical data found. Run collectors first.",
+            )
+        except Exception:
+            logger.error("Failed to build trends context for product risk", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to generate product risk data.",
+            )
+
+        logger.info("Product risk accessed", extra={"username": username})
+        try:
+            return build_product_risk_response(context["active_alerts"])
+        except Exception:
+            logger.error("Failed to build product risk response", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to generate product risk data.",
+            )
+
     return app
 
 
