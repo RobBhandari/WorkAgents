@@ -1,9 +1,23 @@
 import { MetricGrid } from './components/MetricGrid';
 import { AlertList } from './components/AlertList';
+import { SignalsPanel } from './components/SignalsPanel';
 import { useTrendsData } from './hooks/useTrendsData';
+import { useSignalsData } from './hooks/useSignalsData';
+
+function parseDataAge(timestamp: string): { isStale: boolean; label: string } {
+  // timestamp format: "March 07, 2026 at 22:47"
+  const parsed = new Date(timestamp.replace(' at ', ' '));
+  if (isNaN(parsed.getTime())) return { isStale: false, label: 'live' };
+  const ageMs = Date.now() - parsed.getTime();
+  const ageHours = ageMs / (1000 * 60 * 60);
+  if (ageHours < 24) return { isStale: false, label: 'live' };
+  const ageDisplay = ageHours < 48 ? `${Math.round(ageHours)}h old` : `${Math.round(ageHours / 24)}d old`;
+  return { isStale: true, label: `stale · ${ageDisplay}` };
+}
 
 export default function App() {
   const { data, error, loading } = useTrendsData();
+  const { data: signalsData, error: signalsError, loading: signalsLoading } = useSignalsData();
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#475569', fontSize: '13px' }}>
@@ -33,25 +47,33 @@ export default function App() {
       >
         <div>
           <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#f1f5f9', letterSpacing: '-0.01em' }}>
-            Engineering Metrics
+            Engineering Command Centre
           </h1>
           <p style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
-            Executive Trends — {data.timestamp}
+            Updated {data.timestamp}
           </p>
         </div>
-        <div
-          style={{
-            fontSize: '11px',
-            color: '#475569',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.07)',
-            padding: '4px 10px',
-            borderRadius: '6px',
-          }}
-        >
-          live · {new Date().toLocaleTimeString()}
-        </div>
+        {(() => {
+          const { isStale, label } = parseDataAge(data.timestamp);
+          return (
+            <div
+              style={{
+                fontSize: '11px',
+                color: isStale ? '#f59e0b' : '#475569',
+                background: isStale ? 'rgba(245, 158, 11, 0.08)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${isStale ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255,255,255,0.07)'}`,
+                padding: '4px 10px',
+                borderRadius: '6px',
+              }}
+            >
+              {isStale ? label : `live · ${new Date().toLocaleTimeString()}`}
+            </div>
+          );
+        })()}
       </header>
+
+      {/* Key Signals — full-width strip above body */}
+      <SignalsPanel data={signalsData} error={signalsError} loading={signalsLoading} />
 
       {/* Body */}
       <main
@@ -75,7 +97,7 @@ export default function App() {
             <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Metrics
             </h2>
-            <span style={{ fontSize: '12px', color: '#334155' }}>{data.metrics.length} cards</span>
+            <span style={{ fontSize: '12px', color: '#334155' }}>{data.metrics.length} metrics</span>
           </div>
           <MetricGrid metrics={data.metrics} />
         </div>

@@ -504,6 +504,45 @@ def create_app() -> FastAPI:
             "timestamp": context["timestamp"],
         }
 
+    # ============================================================
+    # Intelligence Endpoints
+    # ============================================================
+
+    @app.get("/api/v1/intelligence/signals", tags=["Intelligence"])
+    async def get_signals(username: str = Depends(verify_credentials)):
+        """
+        Get rule-based intelligence signals over Executive Trends metrics.
+
+        Returns up to 5 signals ranked by severity, magnitude, and metric ID.
+        Signal types: threshold_breach, sustained_deterioration, recovery_trend.
+        """
+        from execution.dashboards.trends.pipeline import build_trends_context
+        from execution.intelligence.signals import build_signals_response
+
+        try:
+            context = build_trends_context(history_dir=Path(".tmp/observatory"))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No historical data found. Run collectors first.",
+            )
+        except Exception:
+            logger.error("Failed to build trends context for signals", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to generate signals.",
+            )
+
+        logger.info("Signals accessed", extra={"username": username})
+        try:
+            return build_signals_response(context["metrics"])
+        except Exception:
+            logger.error("Failed to build signals response", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to generate signals.",
+            )
+
     return app
 
 
