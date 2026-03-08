@@ -114,15 +114,19 @@ export function AnomalyRiver({ metrics, alerts = [], onDomainClick }: AnomalyRiv
                 style={{
                   marginBottom: '8px',
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   justifyContent: 'space-between',
+                  gap: '12px',
                   fontSize: '14px',
                 }}
               >
-                {/* Domain name — proxy rows get a more descriptive editorial label */}
-                <span style={{ fontWeight: 500, color: '#e2e8f0' }}>{displayLabel}</span>
+                {/* Domain name + attribution subtitle */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                  <span style={{ fontWeight: 500, color: '#e2e8f0' }}>{displayLabel}</span>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>{row.attribution.summary}</span>
+                </div>
                 {/* Interval count — reference: text-slate-500 */}
-                <span style={{ color: '#64748b' }}>{intervalCount} interval{intervalCount !== 1 ? 's' : ''}</span>
+                <span style={{ color: '#64748b', flexShrink: 0 }}>{intervalCount} interval{intervalCount !== 1 ? 's' : ''}</span>
               </div>
 
               {/* Bar lane — reference: flex h-16 items-center gap-1 rounded-2xl border border-white/10 bg-white/[0.03] px-2 */}

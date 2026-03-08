@@ -12,10 +12,9 @@ export interface DrawerRelatedSignal {
 }
 
 export interface DrawerEvidence {
-  contributorCount: number;
-  confidence: 'low' | 'moderate' | 'high';
-  dominantSignalLabel?: string;
-  isBroad?: boolean;
+  contributorCount:    number;
+  confidence:          'low' | 'moderate' | 'high';
+  attributionSummary:  string;
 }
 
 export interface DrawerMovement {
@@ -192,17 +191,14 @@ export function buildDomainTarget(
   const metricMap = new Map(metrics.map((m) => [m.id, m]));
   const dashboardUrl = row.metricIds.map((id) => metricMap.get(id)?.dashboardUrl).find((u) => !!u) ?? '';
 
-  const impl = WHY_IT_MATTERS[domainKey] ?? WHY_IT_MATTERS['deployment'];
+  const impl     = WHY_IT_MATTERS[domainKey] ?? WHY_IT_MATTERS['deployment'];
   const dashLabel = DOMAIN_DASHBOARD_LABEL[domainKey] ?? 'Dashboard';
-  const mvmt = anomalyMovement(row.values);
+  const mvmt     = anomalyMovement(row.values);
+  const { attribution } = row;
 
-  const contributorCount = row.metricIds.length;
-  const confidence: 'low' | 'moderate' | 'high' =
-    contributorCount >= 3 ? 'high' : contributorCount === 2 ? 'moderate' : 'low';
-  const dominantMetric = contributorCount === 1 ? metricMap.get(row.metricIds[0]) : undefined;
-
+  // Headline: movement direction + attribution summary
   const dirLabel = mvmt.direction === 'up' ? 'rising' : mvmt.direction === 'down' ? 'easing' : 'stable';
-  const headline = `${row.domain} pressure is ${dirLabel} — ${mvmt.summary.toLowerCase().replace(/\.$/, '')}.`;
+  const headline = `${row.domain} pressure is ${dirLabel}. ${attribution.summary}.`;
 
   return {
     kind: 'domain',
@@ -213,10 +209,9 @@ export function buildDomainTarget(
     movement: mvmt,
     implication: { headline: impl.headline, detail: impl.detail },
     evidence: {
-      contributorCount,
-      confidence,
-      dominantSignalLabel: dominantMetric?.title,
-      isBroad: contributorCount >= 3,
+      contributorCount:   attribution.contributorCount,
+      confidence:         attribution.confidence,
+      attributionSummary: attribution.summary,
     },
     relatedSignals: buildRelatedSignals(domainKey, row.metricIds),
     dispatch: { label: `Open ${dashLabel} →`, url: dashboardUrl },

@@ -270,6 +270,11 @@ export function MetricInvestigationDrawer({ target, alerts, onClose }: MetricInv
         {!isMetric && evidence && (
           <div style={SECTION_DIVIDER}>
             <div style={LABEL_STYLE}>Signal evidence</div>
+            {/* Attribution summary prose */}
+            <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.6, margin: '0 0 8px' }}>
+              {evidence.attributionSummary}
+            </p>
+            {/* Meta pills: contributor count + confidence */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               <span style={{
                 fontSize: '11px', color: '#64748b',
@@ -288,16 +293,6 @@ export function MetricInvestigationDrawer({ target, alerts, onClose }: MetricInv
               }}>
                 {CONFIDENCE_LABELS[evidence.confidence]}
               </span>
-              {evidence.dominantSignalLabel && (
-                <span style={{
-                  fontSize: '11px', color: '#94a3b8',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: '9999px', padding: '2px 8px',
-                }}>
-                  Driven by {evidence.dominantSignalLabel}
-                </span>
-              )}
             </div>
           </div>
         )}
