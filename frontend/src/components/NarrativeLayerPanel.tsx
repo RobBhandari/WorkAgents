@@ -2,6 +2,7 @@ import { HealthScorePayload } from '../types/health';
 import { SignalsPayload } from '../types/signals';
 import { AlertItem } from '../types/trends';
 import { CrossDomainCollision } from '../utils/crossDomainCollision';
+import { CollisionDispatchHint } from '../utils/collisionDispatch';
 
 interface NarrativeLayerPanelProps {
   healthData: HealthScorePayload | null;
@@ -12,6 +13,7 @@ interface NarrativeLayerPanelProps {
   worsening: number;
   improving: number;
   collision?: CrossDomainCollision | null;
+  collisionDispatchHint?: CollisionDispatchHint | null;
 }
 
 export function NarrativeLayerPanel({
@@ -23,6 +25,7 @@ export function NarrativeLayerPanel({
   worsening,
   improving,
   collision,
+  collisionDispatchHint,
 }: NarrativeLayerPanelProps) {
   const topDomainProducts = topAlertDomain
     ? new Set(
@@ -149,6 +152,11 @@ export function NarrativeLayerPanel({
                 lineHeight:   1.6,
               }}>
                 {text}
+                {isCollision && collisionDispatchHint && (
+                  <div style={{ marginTop: '6px', fontSize: '13px', color: '#fbbf24', opacity: 0.8 }}>
+                    Suggested investigation: {collisionDispatchHint.dashboardLabel}
+                  </div>
+                )}
               </div>
             );
           })}

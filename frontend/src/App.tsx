@@ -13,6 +13,7 @@ import { useSignalsData } from './hooks/useSignalsData';
 import { MetricItem } from './types/trends';
 import { buildAnomalyRiver } from './utils/buildAnomalyRiver';
 import { detectCrossDomainPressureCollisions, CrossDomainCollision } from './utils/crossDomainCollision';
+import { buildCollisionDispatchHint, CollisionDispatchHint } from './utils/collisionDispatch';
 
 function shouldEscalateCollision(collision: CrossDomainCollision | null): boolean {
   if (!collision) return false;
@@ -59,10 +60,22 @@ const SCORE_GRADIENT: Record<string, string> = {
 };
 
 export default function App() {
-  const [drawerTarget, setDrawerTarget] = useState<DrawerTarget | null>(null);
+  const [renderedTarget, setRenderedTarget] = useState<DrawerTarget | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  function openDrawer(target: DrawerTarget) {
+    setRenderedTarget(target);
+    // Allow the DOM to mount before transitioning in
+    requestAnimationFrame(() => requestAnimationFrame(() => setDrawerOpen(true)));
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    setTimeout(() => setRenderedTarget(null), 520);
+  }
 
   function openMetricDrawer(m: MetricItem) {
-    setDrawerTarget(buildMetricTarget(m, METRIC_TO_DOMAIN[m.id] ?? 'deployment'));
+    openDrawer(buildMetricTarget(m, METRIC_TO_DOMAIN[m.id] ?? 'deployment'));
   }
   const { data, error, loading } = useTrendsData();
   const { data: healthData, error: healthError, loading: healthLoading } = useHealthScore();
@@ -98,6 +111,7 @@ export default function App() {
   const riverRows   = buildAnomalyRiver(data.metrics);
   const collisionResult = detectCrossDomainPressureCollisions(riverRows);
   const topCollision: CrossDomainCollision | null = collisionResult.topCollision;
+  const topCollisionDispatchHint: CollisionDispatchHint | null = buildCollisionDispatchHint(topCollision, data.metrics);
 
   const heroHeadline =
     !healthData ? 'Engineering health data loading…'
@@ -360,6 +374,11 @@ export default function App() {
                   color: '#fde68a',
                 }}>
                   {topCollision!.summary}
+                  {topCollisionDispatchHint && (
+                    <div style={{ marginTop: '6px', fontSize: '13px', color: '#fbbf24', opacity: 0.8 }}>
+                      Suggested investigation: {topCollisionDispatchHint.dashboardLabel}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -411,6 +430,7 @@ export default function App() {
             worsening={worsening}
             improving={improving}
             collision={topCollision}
+            collisionDispatchHint={topCollisionDispatchHint}
           />
         </div>
 
@@ -419,7 +439,7 @@ export default function App() {
           rows={riverRows}
           metrics={data.metrics}
           alerts={data.alerts}
-          onDomainClick={setDrawerTarget}
+          onDomainClick={openDrawer}
         />
 
         {/* ── METRIC ENTRY POINTS — rounded-[28px] bg-[#0b1626] p-6 ── */}
@@ -446,11 +466,12 @@ export default function App() {
         </section>
 
       </div>
-      {drawerTarget && (
+      {renderedTarget && (
         <MetricInvestigationDrawer
-          target={drawerTarget}
+          target={renderedTarget}
           alerts={data.alerts}
-          onClose={() => setDrawerTarget(null)}
+          isOpen={drawerOpen}
+          onClose={closeDrawer}
         />
       )}
     </div>
