@@ -810,9 +810,8 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: ${{ github.ref == 'refs/heads/Staging' && 'frontend' || '.tmp/observatory/dashboards' }}
-          output_location: ${{ github.ref == 'refs/heads/Staging' && 'dist' || '' }}
-          skip_app_build: ${{ github.ref != 'refs/heads/Staging' }}
+          app_location: ${{ github.ref == 'refs/heads/Staging' && 'frontend/dist' || '.tmp/observatory/dashboards' }}
+          skip_app_build: true
           skip_api_build: true
           # main branch → static HTML dashboards (team production URL)
           # Staging branch → React app preview URL (engineering command centre)
