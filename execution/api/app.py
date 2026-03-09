@@ -64,8 +64,8 @@ def create_app() -> FastAPI:
             "http://localhost:5173",
         ],
         allow_credentials=True,
-        allow_methods=["GET"],
-        allow_headers=["Authorization"],
+        allow_methods=["GET", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
     )
 
     @app.on_event("startup")
