@@ -787,6 +787,7 @@ jobs:
 
           echo "✅ Authentication config validated"
           cp staticwebapp.config.json .tmp/observatory/dashboards/
+          cp staticwebapp.config.json frontend/public/
           echo "✅ Authentication config copied to deployment"
 
       - name: Set up Node.js (for React build on Staging)
