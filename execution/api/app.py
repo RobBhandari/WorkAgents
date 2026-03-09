@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
@@ -54,7 +55,18 @@ def create_app() -> FastAPI:
     # Add middleware (order matters - last added is executed first)
     app.add_middleware(CacheControlMiddleware)  # Cache headers (innermost)
     app.add_middleware(RequestIDMiddleware)  # Request tracking
-    app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=1000)  # Rate limiting (outermost)
+    app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=1000)  # Rate limiting
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "https://brave-glacier-024d38710-staging.centralus.6.azurestaticapps.net",
+            "https://brave-glacier-024d38710.centralus.6.azurestaticapps.net",
+            "http://localhost:5173",
+        ],
+        allow_credentials=True,
+        allow_methods=["GET"],
+        allow_headers=["Authorization"],
+    )
 
     @app.on_event("startup")
     async def startup_event():

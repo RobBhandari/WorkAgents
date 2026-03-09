@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { TrendsPayload } from '../types/trends';
-import { API_BASE } from '../lib/apiBase';
+import { API_BASE, AUTH_HEADER } from '../lib/apiBase';
 
 export function useTrendsData() {
   const [data, setData] = useState<TrendsPayload | null>(null);
@@ -8,7 +8,7 @@ export function useTrendsData() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/dashboards/executive-trends`)
+    fetch(`${API_BASE}/api/v1/dashboards/executive-trends`, { headers: AUTH_HEADER })
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<TrendsPayload>;

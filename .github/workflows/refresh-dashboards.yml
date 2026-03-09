@@ -800,6 +800,9 @@ jobs:
       - name: Build React app (Staging only)
         if: github.ref == 'refs/heads/Staging'
         working-directory: frontend
+        env:
+          VITE_API_USERNAME: ${{ secrets.API_USERNAME }}
+          VITE_API_PASSWORD: ${{ secrets.API_PASSWORD }}
         run: |
           npm ci
           npm run build
