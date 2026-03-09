@@ -47,7 +47,7 @@ function MiniBarChart({ data }: { data: number[] }) {
         letterSpacing: '0.12em',
         marginBottom: '8px',
       }}>
-        7 Day Shape
+        10-week shape
       </div>
       {/* Reference: h-24(96px) rounded-2xl border-white/10 bg-white/[0.03] px-3 py-3 */}
       <div style={{

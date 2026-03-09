@@ -34,6 +34,7 @@ const METRIC_TO_DOMAIN: Record<string, string> = {
   collaboration:    'collaboration',
   ownership:        'ownership',
   risk:             'risk',
+  'ai-usage':       'deployment',
 };
 
 function parseDataAge(timestamp: string): { isStale: boolean; label: string } {

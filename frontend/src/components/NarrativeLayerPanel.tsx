@@ -50,7 +50,10 @@ export function NarrativeLayerPanel({
       }).length
     : 0;
 
-  const block1: string | null = signalsData?.signals?.[0]?.message ?? null;
+  const signalBlocks: string[] = (signalsData?.signals ?? [])
+    .slice(0, 3)
+    .map((s) => s.message)
+    .filter((m): m is string => !!m);
 
   const block2: string | null = topAlertDomain && topDomainAlertCount > 0
     ? `${topAlertDomain}: ${topDomainAlertCount} alert${topDomainAlertCount !== 1 ? 's' : ''}, ${topDomainProducts} product${topDomainProducts !== 1 ? 's' : ''} affected.`
@@ -72,7 +75,7 @@ export function NarrativeLayerPanel({
       ? collision.summary
       : null;
 
-  const blocks = [block1, block2, blockCollision, block3].filter((b): b is string => b !== null);
+  const blocks = [...signalBlocks, block2, blockCollision, block3].filter((b): b is string => b !== null);
 
   return (
     // Reference AiPanel: rounded-[28px] border border-violet-300/10 bg-[linear-gradient(180deg,rgba(76,29,149,0.10),rgba(10,20,34,0.92))] p-6

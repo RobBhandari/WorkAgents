@@ -19,7 +19,10 @@ function narrativeFor(item: MetricItem): string | undefined {
   if (ragColor === '#f59e0b' && cssClass === 'trend-down') return 'Recovering — not yet at target.';
   if (ragColor === '#f59e0b')                              return 'Within amber range — monitor closely.';
   if (ragColor === '#10b981')                              return 'Within healthy range.';
-  return undefined;
+  // Non-RAG metrics (e.g. indigo activity metrics)
+  if (cssClass === 'trend-up')   return 'Activity trending upward this period.';
+  if (cssClass === 'trend-down') return 'Activity trending downward this period.';
+  return 'Activity stable this period.';
 }
 
 export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridProps) {
