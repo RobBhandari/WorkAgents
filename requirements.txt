@@ -38,7 +38,7 @@ uvicorn[standard]>=0.27.0,<1.0  # ASGI server with WebSocket support
 python-multipart>=0.0.6,<1.0  # For handling form data
 
 # Interactive charts (Intelligence Platform — Phase A)
-plotly>=5.18.0,<6.0  # Interactive chart generation; JS served via CDN (see base_dashboard.html)
+plotly>=5.18.0,<7.0  # Interactive chart generation; JS served via CDN (see base_dashboard.html)
 
 # Intelligence Platform — Phase B ML/forecasting stack
 duckdb>=0.10.0,<2.0       # Columnar analytics over JSON/Parquet (in-process, zero infra)
