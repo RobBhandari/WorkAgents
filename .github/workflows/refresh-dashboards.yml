@@ -787,6 +787,7 @@ jobs:
 
           echo "✅ Authentication config validated"
           cp staticwebapp.config.json .tmp/observatory/dashboards/
+          mkdir -p frontend/public
           cp staticwebapp.config.json frontend/public/
           echo "✅ Authentication config copied to deployment"
 
