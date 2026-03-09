@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { HealthScorePayload } from '../types/health';
+import { API_BASE } from '../lib/apiBase';
 
 export function useHealthScore() {
   const [data, setData] = useState<HealthScorePayload | null>(null);
@@ -7,7 +8,7 @@ export function useHealthScore() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/intelligence/health')
+    fetch(`${API_BASE}/api/v1/intelligence/health`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<HealthScorePayload>;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ProductRiskPayload } from '../types/product_risk';
+import { API_BASE } from '../lib/apiBase';
 
 export function useProductRisk() {
   const [data, setData] = useState<ProductRiskPayload | null>(null);
@@ -7,7 +8,7 @@ export function useProductRisk() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/intelligence/product-risk')
+    fetch(`${API_BASE}/api/v1/intelligence/product-risk`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<ProductRiskPayload>;
