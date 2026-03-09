@@ -789,17 +789,31 @@ jobs:
           cp staticwebapp.config.json .tmp/observatory/dashboards/
           echo "✅ Authentication config copied to deployment"
 
+      - name: Set up Node.js (for React build on Staging)
+        if: github.ref == 'refs/heads/Staging'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build React app (Staging only)
+        if: github.ref == 'refs/heads/Staging'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ github.ref == 'refs/heads/Staging' && secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_STAGING || secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: ".tmp/observatory/dashboards"
-          skip_app_build: true
+          app_location: ${{ github.ref == 'refs/heads/Staging' && 'frontend' || '.tmp/observatory/dashboards' }}
+          output_location: ${{ github.ref == 'refs/heads/Staging' && 'dist' || '' }}
+          skip_app_build: ${{ github.ref != 'refs/heads/Staging' }}
           skip_api_build: true
-          # Staging branch → observatory-dashboards-staging (purple-stone-01287dd10.azurestaticapps.net)
-          # main branch → observatory-dashboards (production URL for team)
+          # main branch → static HTML dashboards (team production URL)
+          # Staging branch → React app preview URL (engineering command centre)
           production_branch: main
 
       - name: Deployment Complete
