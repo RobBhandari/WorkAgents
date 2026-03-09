@@ -7,9 +7,11 @@ import { SystemShapeRadar } from './components/SystemShapeRadar';
 import { MetricInvestigationDrawer } from './components/MetricInvestigationDrawer';
 import { DrawerTarget, buildMetricTarget } from './utils/buildDrawerTarget';
 import { AnomalyRiver } from './components/AnomalyRiver';
+import { ProductRiskPanel } from './components/ProductRiskPanel';
 import { useTrendsData } from './hooks/useTrendsData';
 import { useHealthScore } from './hooks/useHealthScore';
 import { useSignalsData } from './hooks/useSignalsData';
+import { useProductRisk } from './hooks/useProductRisk';
 import { MetricItem } from './types/trends';
 import { buildAnomalyRiver } from './utils/buildAnomalyRiver';
 import { detectCrossDomainPressureCollisions, CrossDomainCollision } from './utils/crossDomainCollision';
@@ -81,16 +83,64 @@ export default function App() {
   const { data, error, loading } = useTrendsData();
   const { data: healthData, error: healthError, loading: healthLoading } = useHealthScore();
   const { data: signalsData, loading: signalsLoading } = useSignalsData();
+  const { data: productRiskData, error: productRiskError, loading: productRiskLoading } = useProductRisk();
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#07111f', color: '#94a3b8', fontSize: '14px' }}>
-      Loading…
+    <div style={{ minHeight: '100vh', background: '#07111f', padding: '32px 24px' }}>
+      {/* Header skeleton */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 32px', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#1e3a52', animation: 'pulse 1.6s ease-in-out infinite' }} />
+          <div style={{ width: '180px', height: '13px', borderRadius: '6px', background: '#1e3a52', animation: 'pulse 1.6s ease-in-out infinite' }} />
+        </div>
+        <div style={{ width: '48px', height: '22px', borderRadius: '6px', background: '#1e3a52', animation: 'pulse 1.6s ease-in-out infinite' }} />
+      </div>
+      {/* Body skeletons */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ height: '260px', borderRadius: '32px', background: 'rgba(30,58,82,0.45)', animation: 'pulse 1.6s ease-in-out infinite' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '24px' }}>
+          <div style={{ height: '200px', borderRadius: '28px', background: 'rgba(30,58,82,0.45)', animation: 'pulse 1.6s ease-in-out infinite' }} />
+          <div style={{ height: '200px', borderRadius: '28px', background: 'rgba(30,58,82,0.45)', animation: 'pulse 1.6s ease-in-out infinite' }} />
+        </div>
+        <div style={{ height: '160px', borderRadius: '28px', background: 'rgba(30,58,82,0.45)', animation: 'pulse 1.6s ease-in-out infinite' }} />
+      </div>
+      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
     </div>
   );
 
   if (error || !data) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#07111f', color: '#f87171', fontSize: '14px' }}>
-      {error ?? 'No data'}
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#07111f' }}>
+      <div style={{
+        maxWidth: '420px', width: '100%',
+        borderRadius: '24px',
+        border: '1px solid rgba(239,68,68,0.20)',
+        background: 'linear-gradient(135deg, rgba(127,29,29,0.15), rgba(8,16,28,0.95))',
+        padding: '32px',
+        textAlign: 'center',
+      }}>
+        <div style={{ fontSize: '32px', marginBottom: '16px' }}>⚠</div>
+        <h2 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 600, color: '#f8fafc', letterSpacing: '-0.01em' }}>
+          Could not load dashboard
+        </h2>
+        <p style={{ margin: '0 0 24px', fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
+          {error ?? 'No data was returned from the API.'} Check that the Observatory API is running and your credentials are valid.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            padding: '10px 20px',
+            borderRadius: '9999px',
+            border: '1px solid rgba(239,68,68,0.30)',
+            background: 'rgba(239,68,68,0.12)',
+            color: '#fca5a5',
+            fontSize: '14px', fontWeight: 500,
+            cursor: 'pointer',
+          }}
+        >
+          ↺ Retry
+        </button>
+      </div>
     </div>
   );
 
@@ -418,7 +468,7 @@ export default function App() {
               Engineering health radar
             </h2>
             <p style={{ margin: '8px 0 0', fontSize: '14px', lineHeight: 1.6, color: '#cbd5e1' }}>
-              Weakness should be visible as form. If leaders need ten cards to understand the system, the design failed.
+              Domain health at a glance across the engineering portfolio.
             </p>
             {/* Radar container — rounded-[24px] border-white/10 radial-gradient p-4 */}
             <div style={{
@@ -473,15 +523,22 @@ export default function App() {
                 Metric entry points
               </div>
               <h2 style={{ margin: '8px 0 0', fontSize: '24px', fontWeight: 600, color: '#f8fafc', letterSpacing: '-0.01em' }}>
-                Cards that actually lead somewhere
+                Metric overview
               </h2>
             </div>
             <div style={{ fontSize: '14px', color: '#94a3b8' }}>
-              The relevant cards are pulled forward.
+              Alerts surface the metrics that need attention.
             </div>
           </div>
           <MetricGrid metrics={data.metrics} alerts={data.alerts} onInvestigate={openMetricDrawer} />
         </section>
+
+        {/* ── PRODUCT RISK ── */}
+        <ProductRiskPanel
+          data={productRiskData}
+          loading={productRiskLoading}
+          error={productRiskError}
+        />
 
       </div>
       {renderedTarget && (

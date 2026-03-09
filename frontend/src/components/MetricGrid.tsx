@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MetricItem, AlertItem } from '../types/trends';
 import { MetricCard } from './MetricCard';
 import { WHY_IT_MATTERS } from '../utils/buildDrawerTarget';
+import { alertSignalMap } from '../config/alertSignalMap';
 
 interface MetricGridProps {
   metrics: MetricItem[];
@@ -28,8 +29,16 @@ function narrativeFor(item: MetricItem): string | undefined {
 export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridProps) {
   const [expanded, setExpanded] = useState(false);
 
-  // Build set of alert-linked metric IDs by matching metric.id against alert.dashboard
-  const linkedIds = new Set(alerts.map((a) => a.dashboard).filter(Boolean));
+  // Build set of alert-linked metric IDs by expanding each alert's dashboard key
+  // via alertSignalMap (alert.dashboard != metric.id in the general case).
+  const linkedIds = new Set<string>();
+  for (const alert of alerts) {
+    if (!alert.dashboard) continue;
+    linkedIds.add(alert.dashboard);
+    for (const signal of alertSignalMap[alert.dashboard] ?? []) {
+      linkedIds.add(signal.id);
+    }
+  }
 
   // Sort: alert-linked first, then red → amber → green, then non-stable before stable
   const SEV: Record<string, number> = { '#ef4444': 0, '#f59e0b': 1, '#10b981': 2 };
@@ -56,11 +65,11 @@ export function MetricGrid({ metrics, alerts = [], onInvestigate }: MetricGridPr
 
   return (
     <div>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '16px',
-      }}>
+      <style>{`
+        .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        @media (min-width: 1100px) { .metric-grid { grid-template-columns: repeat(3, 1fr); } }
+      `}</style>
+      <div className="metric-grid">
         {visibleMetrics.map((item) => (
           <MetricCard
             key={item.id}
