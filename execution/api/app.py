@@ -23,6 +23,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from pydantic import BaseModel
 
 from execution.api.middleware import (
     CacheControlMiddleware,
@@ -64,7 +65,7 @@ def create_app() -> FastAPI:
             "http://localhost:5173",
         ],
         allow_credentials=True,
-        allow_methods=["GET", "OPTIONS"],
+        allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type"],
     )
 
@@ -629,6 +630,36 @@ def create_app() -> FastAPI:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to generate product risk data.",
+            )
+
+    class QueryRequest(BaseModel):
+        query: str
+        context: dict[str, Any] | None = None
+
+    @app.post("/api/v1/intelligence/query", tags=["Intelligence"])
+    async def intelligence_query(
+        request: QueryRequest,
+        username: str = Depends(verify_credentials),
+    ):
+        """Answer a natural-language query about engineering health."""
+        logger.info(
+            "Query received",
+            extra={"username": username, "query": request.query[:120]},
+        )
+        from execution.intelligence.query_engine import build_query_response
+
+        try:
+            return build_query_response(request.query, request.context)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(exc),
+            )
+        except Exception:
+            logger.error("Failed to build query response", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to process query.",
             )
 
     return app
