@@ -23,6 +23,36 @@ logger = logging.getLogger(__name__)
 
 _INTENT_MAP: dict[str, list[str]] = {
     # Order matters — more specific intents first
+    "product_query": [
+        "status of",
+        "how is",
+        "tell me about",
+        "what's happening with",
+        "what is happening with",
+        "posture for",
+        "health of",
+        "how are",
+    ],
+    "worst_product": [
+        "worst performing product",
+        "worst product",
+        "bottom of the portfolio",
+        "most problems",
+        "underperforming product",
+        "lowest performing",
+    ],
+    "attention_areas": [
+        "need most attention",
+        "most attention",
+        "where to focus",
+        "where should we focus",
+        "most critical",
+        "needs focus",
+        "which areas",
+        "which products need",
+        "need to prioritise",
+        "need to prioritize",
+    ],
     "security_query": [
         "security",
         "vulnerabilit",
@@ -94,6 +124,39 @@ def _fmt_delta(change: Any) -> str:
     return "±0"
 
 
+def _extract_product(query: str, products: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Find a product whose name appears in the query string (case-insensitive).
+
+    Tries longest name first so "Product A Extra" beats "Product A".
+    Returns the matching product dict, or None if no match.
+    """
+    lowered = query.lower()
+    sorted_products = sorted(products, key=lambda p: len(str(p.get("product", ""))), reverse=True)
+    for p in sorted_products:
+        name = str(p.get("product", ""))
+        if name and name.lower() in lowered:
+            return p
+    return None
+
+
+def _alerts_for_product(product_name: str, alerts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return alerts where project_name matches product_name (case-insensitive)."""
+    name_lower = product_name.lower()
+    return [a for a in alerts if str(a.get("project_name", "")).lower() == name_lower]
+
+
+def _format_alert_reasons(alerts: list[dict[str, Any]], limit: int = 4) -> str:
+    """Build a human-readable bullet list of alert reasons from alert messages."""
+    seen: list[str] = []
+    for a in alerts[:limit]:
+        msg = a.get("message") or a.get("root_cause_hint") or ""
+        if msg and msg not in seen:
+            seen.append(msg)
+    if not seen:
+        return ""
+    return " ".join(f"• {m}" for m in seen)
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -113,6 +176,9 @@ _LLM_INTENT_SYSTEM = """\
 You are an intent classifier for an engineering intelligence dashboard.
 Classify the user query into exactly one of these intent keys:
 
+- product_query: questions about a specific named product (e.g. "status of Fusion", "how is Proclaim doing", "tell me about Product A")
+- worst_product: questions about the worst or lowest-performing product overall and why
+- attention_areas: questions about which products or areas need the most attention, where to focus, most critical issues
 - security_query: questions about security posture, vulnerabilities, exploitable issues, which product is most/least secure
 - ownership_query: questions about code ownership, single owners, bus factor, knowledge concentration
 - deployment_compare: questions about deployments, build success, pipelines, release frequency
@@ -173,6 +239,8 @@ def compose_response(
     context: dict[str, Any],
     trends_context: dict[str, Any],
     product_risk: dict[str, Any] | None = None,
+    alerts: list[dict[str, Any]] | None = None,
+    query: str = "",
 ) -> dict[str, Any]:
     """Build the full query response dict from intent + live trends data.
 
@@ -186,7 +254,7 @@ def compose_response(
         Fully-formed response dict (see module docstring for schema).
     """
     metrics: list[dict[str, Any]] = trends_context.get("metrics", [])
-    alerts: list[dict[str, Any]] = trends_context.get("alerts", [])
+    raw_alerts: list[dict[str, Any]] = alerts or []
     products: list[dict[str, Any]] = (product_risk or {}).get("products", [])
 
     # Segment metrics by RAG colour for reuse across intents
@@ -735,7 +803,7 @@ def build_query_response(
     from execution.intelligence.product_risk import build_product_risk_response
 
     trends_context = build_trends_context(history_dir=Path(".tmp/observatory"))
-    alerts: list[dict[str, Any]] = trends_context.get("alerts", [])
+    alerts: list[dict[str, Any]] = trends_context.get("active_alerts", [])
     product_risk = build_product_risk_response(alerts)
     intent = route_intent(query, context)
     response = compose_response(intent, context, trends_context, product_risk)
