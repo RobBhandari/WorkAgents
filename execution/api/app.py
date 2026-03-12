@@ -54,6 +54,7 @@ def create_app() -> FastAPI:
     )
 
     # Add middleware (order matters - last added is executed first)
+    # CORS must be outermost (added last = runs first) so preflight OPTIONS never gets blocked
     app.add_middleware(CacheControlMiddleware)  # Cache headers (innermost)
     app.add_middleware(RequestIDMiddleware)  # Request tracking
     app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=1000)  # Rate limiting

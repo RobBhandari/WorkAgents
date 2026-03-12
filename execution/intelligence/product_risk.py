@@ -7,7 +7,7 @@ returned by build_trends_context(). Equal-weight severity scoring:
     warn     -> 1 point
     medium   -> 1 point
 
-Products sorted descending by score, then alphabetically for ties.
+Products sorted alphabetically by name.
 Metrics with missing/empty project_name are skipped.
 Excluded from response: products with score == 0.
 
@@ -81,10 +81,7 @@ def build_product_risk_response(alerts: list[dict[str, Any]]) -> dict[str, Any]:
             }
         )
 
-    def _sort_key(p: dict[str, Any]) -> tuple[int, str]:
-        return (-int(p["score"]), str(p["product"]))
-
-    products.sort(key=_sort_key)
+    products.sort(key=lambda p: str(p["product"]).lower())
 
     return {
         "generated_at": datetime.now(tz=UTC).isoformat(),

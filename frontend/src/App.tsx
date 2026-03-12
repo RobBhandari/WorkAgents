@@ -8,6 +8,7 @@ import { MetricInvestigationDrawer } from './components/MetricInvestigationDrawe
 import { DrawerTarget, buildMetricTarget } from './utils/buildDrawerTarget';
 import { AnomalyRiver } from './components/AnomalyRiver';
 import { ProductRiskPanel } from './components/ProductRiskPanel';
+import { QueryDrawer } from './components/QueryDrawer';
 import { useTrendsData } from './hooks/useTrendsData';
 import { useHealthScore } from './hooks/useHealthScore';
 import { useSignalsData } from './hooks/useSignalsData';
@@ -65,6 +66,7 @@ const SCORE_GRADIENT: Record<string, string> = {
 export default function App() {
   const [renderedTarget, setRenderedTarget] = useState<DrawerTarget | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [queryDrawerOpen, setQueryDrawerOpen] = useState(false);
 
   function openDrawer(target: DrawerTarget) {
     setRenderedTarget(target);
@@ -207,6 +209,12 @@ export default function App() {
             Engineering Command Centre
           </span>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button onClick={() => setQueryDrawerOpen(true)} style={{
+            fontSize: '12px', fontWeight: 600, color: '#38bdf8',
+            background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)',
+            padding: '4px 12px', borderRadius: '6px', cursor: 'pointer', letterSpacing: '0.03em',
+          }}>◈ Ask EI</button>
         <span style={{
           fontSize: '11px',
           color: isStale ? '#f59e0b' : '#475569',
@@ -216,6 +224,7 @@ export default function App() {
         }}>
           {isStale ? ageLabel : 'live'}
         </span>
+        </div>
       </header>
 
       {/* ── Centered composition wrapper ── */}
@@ -549,6 +558,7 @@ export default function App() {
           onClose={closeDrawer}
         />
       )}
+      <QueryDrawer isOpen={queryDrawerOpen} onClose={() => setQueryDrawerOpen(false)} />
     </div>
   );
 }

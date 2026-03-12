@@ -17,6 +17,9 @@ from typing import Any, Optional
 DB_PATH = Path(".tmp/observatory/observatory.db")
 HISTORY_DIR = Path(".tmp/observatory")
 
+# Set to True via --real-names flag to skip genericization (local dev only)
+_USE_REAL_NAMES = False
+
 
 # ---------------------------------------------------------------------------
 # Schema
@@ -301,6 +304,25 @@ def _load_armorcode_id_map() -> dict[str, str]:
     return {v: k for k, v in name_to_id.items()}
 
 
+def _load_forward_mapping() -> dict[str, str]:
+    """Load product name forward mapping (real → generic).
+
+    Returns an empty dict if the file doesn't exist.
+    """
+    mapping_path = Path(".product_mapping_forward.json")
+    if not mapping_path.exists():
+        return {}
+    with open(mapping_path, encoding="utf-8") as fh:
+        return json.load(fh)  # type: ignore[no-any-return]
+
+
+def _genericize_product_name(name: str, mapping: dict[str, str]) -> str:
+    """Replace a real product name with its generic equivalent if present."""
+    if _USE_REAL_NAMES:
+        return name
+    return mapping.get(name, name)
+
+
 def import_security_metrics(conn: sqlite3.Connection) -> int:
     """Import security metrics (critical/high counts) per product."""
     weeks = _load_history(HISTORY_DIR / "security_history.json")
@@ -308,6 +330,7 @@ def import_security_metrics(conn: sqlite3.Connection) -> int:
     total = 0
 
     id_to_name = _load_armorcode_id_map()
+    forward_mapping = _load_forward_mapping()
 
     for week in weeks:
         week_date = week["week_date"]
@@ -315,7 +338,8 @@ def import_security_metrics(conn: sqlite3.Connection) -> int:
         product_breakdown = metrics.get("product_breakdown", {})
 
         for product_id, counts in product_breakdown.items():
-            product_name = id_to_name.get(str(product_id), f"Product {product_id}")
+            raw_name = id_to_name.get(str(product_id), f"Product {product_id}")
+            product_name = _genericize_product_name(raw_name, forward_mapping)
             rows: list[tuple[str, float | None, str]] = [
                 ("critical_vulns", counts.get("critical"), "vulns"),
                 ("high_vulns", counts.get("high"), "vulns"),
@@ -335,6 +359,7 @@ def import_exploitable_metrics(conn: sqlite3.Connection) -> int:
     total = 0
 
     id_to_name = _load_armorcode_id_map()
+    forward_mapping = _load_forward_mapping()
 
     for week in weeks:
         week_date = week["week_date"]
@@ -342,7 +367,8 @@ def import_exploitable_metrics(conn: sqlite3.Connection) -> int:
         product_breakdown = metrics.get("product_breakdown", {})
 
         for product_id, counts in product_breakdown.items():
-            product_name = id_to_name.get(str(product_id), f"Product {product_id}")
+            raw_name = id_to_name.get(str(product_id), f"Product {product_id}")
+            product_name = _genericize_product_name(raw_name, forward_mapping)
             rows: list[tuple[str, float | None, str]] = [
                 ("critical_vulns", counts.get("critical"), "vulns"),
                 ("high_vulns", counts.get("high"), "vulns"),
@@ -443,6 +469,12 @@ def clear_existing_data(conn: sqlite3.Connection) -> None:
 
 def main() -> None:
     """Run the full import pipeline: raw metrics → rolling stats."""
+    import sys
+
+    global _USE_REAL_NAMES
+    if "--real-names" in sys.argv:
+        _USE_REAL_NAMES = True
+
     print("=" * 60)
     print("Observatory Metrics → SQLite")
     print("=" * 60)
