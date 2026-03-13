@@ -40,9 +40,33 @@ jobs:
           cd deploy_package && zip -r ../deploy.zip . -x "*.pyc" -x "*/__pycache__/*"
           echo "Package size: $(du -sh ../deploy.zip)"
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: observatory-api
-          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
-          package: deploy.zip
+      - name: Deploy to Azure Web App via ZipDeploy
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+        run: |
+          # Extract credentials from publish profile XML
+          USERNAME=$(echo "$PUBLISH_PROFILE" | grep -oP 'publishMethod="ZipDeploy"[^>]*userName="\K[^"]+')
+          PASSWORD=$(echo "$PUBLISH_PROFILE" | grep -oP 'publishMethod="ZipDeploy"[^>]*userPWD="\K[^"]+')
+          echo "Deploying via ZipDeploy..."
+          HTTP_STATUS=$(curl -s -o /tmp/deploy_out.txt -w "%{http_code}" \
+            -X POST "https://observatory-api-gkb9c7ccb9bgcrf7.scm.centralus-01.azurewebsites.net/api/zipdeploy?isAsync=true" \
+            -u "${USERNAME}:${PASSWORD}" \
+            --data-binary @deploy.zip \
+            -H "Content-Type: application/zip")
+          cat /tmp/deploy_out.txt
+          echo "HTTP Status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" != "202" ] && [ "$HTTP_STATUS" != "200" ]; then
+            echo "Deployment failed with status $HTTP_STATUS"
+            exit 1
+          fi
+          echo "Deployment accepted. Waiting for completion..."
+          sleep 60
+          # Check deployment status
+          DEPLOY_STATUS=$(curl -s \
+            "https://observatory-api-gkb9c7ccb9bgcrf7.scm.centralus-01.azurewebsites.net/api/deployments" \
+            -u "${USERNAME}:${PASSWORD}" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['status'])")
+          echo "Deployment status: $DEPLOY_STATUS (4=success, 3=failed)"
+          if [ "$DEPLOY_STATUS" = "3" ]; then
+            echo "Deployment failed"
+            exit 1
+          fi
