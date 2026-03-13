@@ -61,8 +61,8 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
-            "https://brave-glacier-024d38710-staging.centralus.6.azurestaticapps.net",
-            "https://brave-glacier-024d38710.centralus.6.azurestaticapps.net",
+            "https://brave-glacier-024d38710-staging.centralus-6.azurestaticapps.net",
+            "https://brave-glacier-024d38710.centralus-6.azurestaticapps.net",
             "http://localhost:5173",
         ],
         allow_credentials=True,
