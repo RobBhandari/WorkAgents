@@ -314,9 +314,7 @@ def compose_response(
             ]
         else:
             # Product name not found — give a ranked list instead
-            narrative = (
-                "I couldn't find a product matching your query in the current data. "
-            )
+            narrative = "I couldn't find a product matching your query in the current data. "
             if products:
                 names = ", ".join(p["product"] for p in products)
                 narrative += f"Known products with active alerts: {names}."
@@ -354,10 +352,7 @@ def compose_response(
 
             if len(ranked) > 1:
                 second = ranked[1]
-                narrative += (
-                    f" The next most at-risk is {second['product']} "
-                    f"(score: {second['score']})."
-                )
+                narrative += f" The next most at-risk is {second['product']} " f"(score: {second['score']})."
 
             evidence_cards = [
                 {
@@ -400,14 +395,12 @@ def compose_response(
                 reasons = _format_alert_reasons(p_alerts, limit=2)
                 line = (
                     f"{p['product']} (score {p['score']}, {p['critical']}× critical"
-                    + (f": {reasons}" if reasons else "") + ")"
+                    + (f": {reasons}" if reasons else "")
+                    + ")"
                 )
                 parts.append(line)
 
-            narrative = (
-                f"The {len(top)} product(s) needing the most attention right now: "
-                + "; ".join(parts) + ". "
-            )
+            narrative = f"The {len(top)} product(s) needing the most attention right now: " + "; ".join(parts) + ". "
 
             # Portfolio metric summary
             n_red = len(red_metrics)
@@ -758,9 +751,13 @@ def compose_response(
         if named_product:
             pname = named_product["product"]
             p_alerts = _alerts_for_product(pname, raw_alerts)
-            sec_alerts = [a for a in p_alerts if "security" in a.get("dashboard", "").lower()
-                          or "vuln" in a.get("metric_name", "").lower()
-                          or "security" in a.get("metric_name", "").lower()]
+            sec_alerts = [
+                a
+                for a in p_alerts
+                if "security" in a.get("dashboard", "").lower()
+                or "vuln" in a.get("metric_name", "").lower()
+                or "security" in a.get("metric_name", "").lower()
+            ]
             reasons = _format_alert_reasons(sec_alerts or p_alerts)
             rag = "red" if named_product["critical"] > 0 else ("amber" if named_product.get("warn", 0) > 0 else "green")
             narrative = (
