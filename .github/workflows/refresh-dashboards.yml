@@ -822,11 +822,30 @@ jobs:
 
       - name: Deploy Python API to Azure App Service (Staging only)
         if: github.ref == 'refs/heads/Staging'
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: observatory-api
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: .
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        run: |
+          pip install -r requirements.txt --target api_package/.python_packages/lib/site-packages
+          cp -r execution api_package/
+          cp -r templates api_package/
+          cp -r data api_package/
+          cp requirements.txt api_package/
+          cp runtime.txt api_package/
+          cd api_package && zip -r ../api_deploy.zip . -x "*.pyc" -x "*/__pycache__/*"
+          USERNAME=$(echo "$PUBLISH_PROFILE" | grep -oP 'publishMethod="ZipDeploy"[^>]*userName="\K[^"]+')
+          PASSWORD=$(echo "$PUBLISH_PROFILE" | grep -oP 'publishMethod="ZipDeploy"[^>]*userPWD="\K[^"]+')
+          HTTP_STATUS=$(curl -s -o /tmp/api_deploy_out.txt -w "%{http_code}" \
+            -X POST "https://observatory-api-gkb9c7ccb9bgcrf7.scm.centralus-01.azurewebsites.net/api/zipdeploy?isAsync=true" \
+            -u "${USERNAME}:${PASSWORD}" \
+            --data-binary @../api_deploy.zip \
+            -H "Content-Type: application/zip")
+          cat /tmp/api_deploy_out.txt
+          echo "HTTP Status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" != "202" ] && [ "$HTTP_STATUS" != "200" ]; then
+            echo "API deployment failed with status $HTTP_STATUS"
+            exit 1
+          fi
+          echo "API deployment accepted."
 
       - name: Deployment Complete
         run: |
