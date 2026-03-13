@@ -269,7 +269,186 @@ def compose_response(
     source_modules: list[str] = ["pipeline", "query_engine"]
 
     # ------------------------------------------------------------------
-    if intent == "risk_explanation":
+    if intent == "product_query":
+        source_modules.append("product_risk")
+        matched = _extract_product(query, products)
+
+        if matched:
+            pname = matched["product"]
+            p_alerts = _alerts_for_product(pname, raw_alerts)
+            score = matched["score"]
+            critical = matched["critical"]
+            warn = matched.get("warn", 0)
+            domains = matched.get("domains", [])
+
+            rag = "red" if critical > 0 else ("amber" if warn > 0 else "green")
+            narrative = (
+                f"{pname} has a risk score of {score} "
+                f"({critical} critical, {warn} warning alert(s)) — status: {rag}. "
+            )
+            if domains:
+                narrative += f"Active problem areas: {', '.join(domains)}. "
+            reasons = _format_alert_reasons(p_alerts)
+            if reasons:
+                narrative += f"Key issues: {reasons}"
+            else:
+                narrative += "No detailed alert messages available for this product."
+
+            evidence_cards = [
+                {
+                    "label": a.get("metric_name", a.get("dashboard", "")),
+                    "value": a.get("severity", "").upper(),
+                    "delta": a.get("dashboard", ""),
+                    "rag": "red" if a.get("severity") == "critical" else "amber",
+                }
+                for a in p_alerts[:4]
+            ]
+            signal_pills = [
+                {
+                    "type": "threshold_breach",
+                    "metric_id": f"{pname.lower().replace(' ', '_')}_{a.get('dashboard', '')}",
+                    "severity": a.get("severity", "warn"),
+                    "label": a.get("metric_name", a.get("dashboard", "")),
+                }
+                for a in p_alerts[:3]
+            ]
+        else:
+            # Product name not found — give a ranked list instead
+            narrative = (
+                "I couldn't find a product matching your query in the current data. "
+            )
+            if products:
+                names = ", ".join(p["product"] for p in products)
+                narrative += f"Known products with active alerts: {names}."
+            evidence_cards = []
+            signal_pills = []
+
+        suggested_followups = [
+            "What's the overall portfolio risk?",
+            "Which product needs the most attention?",
+            "What are the security posture details?",
+        ]
+
+    # ------------------------------------------------------------------
+    elif intent == "worst_product":
+        source_modules.append("product_risk")
+        # Sort by score desc for this intent (products list is alphabetical after the fix)
+        ranked = sorted(products, key=lambda p: (-int(p["score"]), str(p["product"])))
+
+        if ranked:
+            worst = ranked[0]
+            pname = worst["product"]
+            p_alerts = _alerts_for_product(pname, raw_alerts)
+            reasons = _format_alert_reasons(p_alerts)
+
+            narrative = (
+                f"The worst performing product is {pname} with a risk score of {worst['score']} "
+                f"({worst['critical']} critical, {worst.get('warn', 0)} warning alert(s)). "
+            )
+            if worst.get("domains"):
+                narrative += f"Problems span: {', '.join(worst['domains'])}. "
+            if reasons:
+                narrative += f"Why: {reasons}"
+            else:
+                narrative += "No detailed alert breakdown available."
+
+            if len(ranked) > 1:
+                second = ranked[1]
+                narrative += (
+                    f" The next most at-risk is {second['product']} "
+                    f"(score: {second['score']})."
+                )
+
+            evidence_cards = [
+                {
+                    "label": p["product"],
+                    "value": str(p["score"]),
+                    "delta": f"{p['critical']}× critical",
+                    "rag": "red" if p["critical"] > 0 else "amber",
+                }
+                for p in ranked[:4]
+            ]
+            signal_pills = [
+                {
+                    "type": "threshold_breach",
+                    "metric_id": f"product_{worst['product'].lower().replace(' ', '_')}",
+                    "severity": "critical",
+                    "label": f"{worst['product']} — highest risk",
+                }
+            ]
+        else:
+            narrative = "No products with active alerts found. The portfolio appears healthy."
+            evidence_cards = []
+            signal_pills = []
+
+        suggested_followups = [
+            f"Tell me more about {ranked[0]['product']}" if ranked else "What should I focus on this sprint?",
+            "Which areas need the most attention?",
+            "What's the security posture across the portfolio?",
+        ]
+
+    # ------------------------------------------------------------------
+    elif intent == "attention_areas":
+        source_modules.append("product_risk")
+        ranked = sorted(products, key=lambda p: (-int(p["score"]), str(p["product"])))
+        top = ranked[:3]
+
+        if top:
+            parts: list[str] = []
+            for p in top:
+                p_alerts = _alerts_for_product(p["product"], raw_alerts)
+                reasons = _format_alert_reasons(p_alerts, limit=2)
+                line = (
+                    f"{p['product']} (score {p['score']}, {p['critical']}× critical"
+                    + (f": {reasons}" if reasons else "") + ")"
+                )
+                parts.append(line)
+
+            narrative = (
+                f"The {len(top)} product(s) needing the most attention right now: "
+                + "; ".join(parts) + ". "
+            )
+
+            # Portfolio metric summary
+            n_red = len(red_metrics)
+            n_amber = len(amber_metrics)
+            if n_red or n_amber:
+                narrative += (
+                    f"Across all metrics, {n_red} are red and {n_amber} are amber. "
+                    "Focus efforts on the products above first."
+                )
+        else:
+            narrative = (
+                "No products with active alerts detected. "
+                f"Portfolio metrics: {len(red_metrics)} red, {len(amber_metrics)} amber, {len(green_metrics)} green."
+            )
+
+        evidence_cards = [
+            {
+                "label": p["product"],
+                "value": str(p["score"]),
+                "delta": f"{p['critical']}× critical, {p.get('warn', 0)}× warn",
+                "rag": "red" if p["critical"] > 0 else "amber",
+            }
+            for p in top
+        ]
+        signal_pills = [
+            {
+                "type": "threshold_breach",
+                "metric_id": f"attention_{p['product'].lower().replace(' ', '_')}",
+                "severity": "critical" if p["critical"] > 0 else "warning",
+                "label": f"{p['product']} needs attention",
+            }
+            for p in top
+        ]
+        suggested_followups = [
+            f"Tell me about {top[0]['product']}" if top else "What's the overall portfolio status?",
+            "What's the worst performing product and why?",
+            "What should I do about the security posture?",
+        ]
+
+    # ------------------------------------------------------------------
+    elif intent == "risk_explanation":
         source_modules.append("risk_scorer")
         risk_metric = next((m for m in metrics if "risk" in m.get("id", "").lower()), None)
         if risk_metric:
@@ -568,12 +747,53 @@ def compose_response(
             None,
         )
 
+        # If a specific product is named in the query, scope to that product
+        named_product = _extract_product(query, products)
+
         # Use per-product ranking if available
         sec_products = [p for p in products if "security" in p.get("domains", [])]
         if not sec_products:
             sec_products = products  # fall back to all-domain ranking
 
-        if sec_products:
+        if named_product:
+            pname = named_product["product"]
+            p_alerts = _alerts_for_product(pname, raw_alerts)
+            sec_alerts = [a for a in p_alerts if "security" in a.get("dashboard", "").lower()
+                          or "vuln" in a.get("metric_name", "").lower()
+                          or "security" in a.get("metric_name", "").lower()]
+            reasons = _format_alert_reasons(sec_alerts or p_alerts)
+            rag = "red" if named_product["critical"] > 0 else ("amber" if named_product.get("warn", 0) > 0 else "green")
+            narrative = (
+                f"Security posture for {pname}: risk score {named_product['score']}, "
+                f"{named_product['critical']} critical alert(s) — status {rag}. "
+            )
+            if reasons:
+                narrative += f"Key issues: {reasons}"
+            else:
+                narrative += "No security-specific alerts found for this product."
+            evidence_cards = [
+                {
+                    "label": a.get("metric_name", a.get("dashboard", "")),
+                    "value": a.get("severity", "").upper(),
+                    "delta": a.get("dashboard", ""),
+                    "rag": "red" if a.get("severity") == "critical" else "amber",
+                }
+                for a in (sec_alerts or p_alerts)[:4]
+            ]
+            signal_pills = [
+                {
+                    "type": "threshold_breach",
+                    "metric_id": f"security_{pname.lower().replace(' ', '_')}",
+                    "severity": "critical" if named_product["critical"] > 0 else "warning",
+                    "label": f"{pname} security — {rag}",
+                }
+            ]
+            suggested_followups = [
+                f"What's the overall status of {pname}?",
+                "Which product has the worst security posture?",
+                "What should we prioritise this sprint?",
+            ]
+        elif sec_products:
             worst_product = sec_products[0]
             best_product_item = sec_products[-1] if len(sec_products) > 1 else None
             narrative = (
@@ -589,6 +809,39 @@ def compose_response(
             if sec_metric:
                 rag = _rag_label(sec_metric.get("ragColor", ""))
                 narrative += f"Portfolio-level security is {rag} at {_fmt_value(sec_metric.get('current'))}."
+
+            evidence_cards = [
+                {
+                    "label": p["product"],
+                    "value": f"Score {p['score']}",
+                    "delta": f"{p['critical']}× critical",
+                    "rag": "red" if p["critical"] > 0 else "amber",
+                }
+                for p in sec_products[:3]
+            ]
+            if sec_metric and len(evidence_cards) < 4:
+                evidence_cards.append(
+                    {
+                        "label": sec_metric.get("title", "Security"),
+                        "value": _fmt_value(sec_metric.get("current")),
+                        "delta": _fmt_delta(sec_metric.get("change")),
+                        "rag": _rag_label(sec_metric.get("ragColor", "")),
+                    }
+                )
+            signal_pills = [
+                {
+                    "type": "threshold_breach",
+                    "metric_id": f"security_{p['product'].lower().replace(' ', '_')}",
+                    "severity": "critical" if p["critical"] > 0 else "warning",
+                    "label": f"{p['product']} security at risk",
+                }
+                for p in sec_products[:3]
+            ]
+            suggested_followups = [
+                "What's the overall portfolio risk?",
+                "Is the security trend improving?",
+                "What should I prioritise this sprint?",
+            ]
         elif sec_metric:
             rag = _rag_label(sec_metric.get("ragColor", ""))
             narrative = (
@@ -602,47 +855,31 @@ def compose_response(
                 narrative += "Exploitable vulnerabilities need immediate attention."
             else:
                 narrative += "Some progress is being made but the target has not yet been reached."
-        else:
-            narrative = (
-                "No security data found in the current dashboard. "
-                "Ensure the security collector has run and produced history data."
-            )
-
-        # Evidence: per-product rows first, then portfolio metric
-        evidence_cards = [
-            {
-                "label": p["product"],
-                "value": f"Score {p['score']}",
-                "delta": f"{p['critical']}× critical",
-                "rag": "red" if p["critical"] > 0 else "amber",
-            }
-            for p in sec_products[:3]
-        ]
-        if sec_metric and len(evidence_cards) < 4:
-            evidence_cards.append(
+            evidence_cards = [
                 {
                     "label": sec_metric.get("title", "Security"),
                     "value": _fmt_value(sec_metric.get("current")),
                     "delta": _fmt_delta(sec_metric.get("change")),
                     "rag": _rag_label(sec_metric.get("ragColor", "")),
                 }
+            ]
+            signal_pills = []
+            suggested_followups = [
+                "What's the overall portfolio risk?",
+                "Is the security trend improving?",
+                "What should I prioritise this sprint?",
+            ]
+        else:
+            narrative = (
+                "No security data found in the current dashboard. "
+                "Ensure the security collector has run and produced history data."
             )
-
-        signal_pills = [
-            {
-                "type": "threshold_breach",
-                "metric_id": f"security_{p['product'].lower().replace(' ', '_')}",
-                "severity": "critical" if p["critical"] > 0 else "warning",
-                "label": f"{p['product']} security at risk",
-            }
-            for p in sec_products[:3]
-        ]
-
-        suggested_followups = [
-            "What's the overall portfolio risk?",
-            "Is the security trend improving?",
-            "What should I prioritise this sprint?",
-        ]
+            evidence_cards = []
+            signal_pills = []
+            suggested_followups = [
+                "What's the overall portfolio risk?",
+                "What should I prioritise this sprint?",
+            ]
 
     # ------------------------------------------------------------------
     elif intent == "worst_metric":
@@ -765,9 +1002,6 @@ def compose_response(
             "How is deployment performing?",
         ]
 
-    # Suppress unused alerts variable warning by referencing it
-    _ = alerts
-
     return {
         "generated_at": datetime.now(tz=UTC).isoformat(),
         "intent": intent,
@@ -806,6 +1040,6 @@ def build_query_response(
     alerts: list[dict[str, Any]] = trends_context.get("active_alerts", [])
     product_risk = build_product_risk_response(alerts)
     intent = route_intent(query, context)
-    response = compose_response(intent, context, trends_context, product_risk)
+    response = compose_response(intent, context, trends_context, product_risk, alerts, query)
     response["query"] = query
     return response
