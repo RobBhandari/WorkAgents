@@ -1,0 +1,48 @@
+name: Deploy Observatory API
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify app imports correctly
+        run: |
+          python -c "from execution.api.app import app; print('App imports OK')"
+
+      - name: Build deployment package
+        run: |
+          # Create a zip with installed packages + source code
+          mkdir -p deploy_package
+          # Copy source
+          cp -r execution deploy_package/
+          cp -r templates deploy_package/
+          cp -r data deploy_package/
+          cp requirements.txt deploy_package/
+          cp runtime.txt deploy_package/
+          # Copy installed packages into the package
+          pip install -r requirements.txt --target deploy_package/.python_packages/lib/site-packages
+          cd deploy_package && zip -r ../deploy.zip . -x "*.pyc" -x "*/__pycache__/*"
+          echo "Package size: $(du -sh ../deploy.zip)"
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: observatory-api
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: deploy.zip
