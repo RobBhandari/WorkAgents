@@ -84,8 +84,8 @@ const alerts: AlertItem[] = [
     title: 'Infrastructure Pressure',
     severity: 'Critical',
     headline: '+152 vulnerabilities this week',
-    body: 'Risk is clustering across Product I, Compliance, and AI Services. This is not random noise; it is concentrated exposure.',
-    impact: ['Product I', 'Compliance', 'AI Services'],
+    body: 'Risk is clustering across Product I, Product K, and Product N. This is not random noise; it is concentrated exposure.',
+    impact: ['Product I', 'Product K', 'Product N'],
     metricIds: ['infra-vulns', 'security-code-cloud'],
     timestamp: '12m ago',
   },
@@ -95,7 +95,7 @@ const alerts: AlertItem[] = [
     severity: 'High',
     headline: '13 critical findings still open',
     body: 'Code and cloud issues are holding above baseline for a second consecutive week.',
-    impact: ['Compliance', 'Product I'],
+    impact: ['Product K', 'Product I'],
     metricIds: ['security-code-cloud', 'exploitable-vulns'],
     timestamp: '28m ago',
   },
@@ -105,7 +105,7 @@ const alerts: AlertItem[] = [
     severity: 'Medium',
     headline: 'Build reliability remains soft',
     body: 'Lead time improved slightly, but low build success is still suppressing true delivery recovery.',
-    impact: ['AI Services', 'Financial Director'],
+    impact: ['Product N', 'Financial Director'],
     metricIds: ['build-success', 'lead-time'],
     timestamp: '1h ago',
   },
@@ -122,12 +122,12 @@ const metrics: MetricItem[] = [
     direction: 'flat',
     status: 'Watch',
     series: [36, 40, 44, 41, 52, 78, 76],
-    insight: 'Concentration remains highest in Compliance and Product I.',
+    insight: 'Concentration remains highest in Product K and Product I.',
     summary: 'Code and cloud issues are not worsening rapidly, but they are refusing to resolve. That is still failure.',
     breakdown: [
-      { label: 'Compliance', value: 54, tone: 'critical' },
+      { label: 'Product K', value: 54, tone: 'critical' },
       { label: 'Product I', value: 27, tone: 'high' },
-      { label: 'AI Services', value: 24, tone: 'high' },
+      { label: 'Product N', value: 24, tone: 'high' },
     ],
   },
   {
@@ -162,8 +162,8 @@ const metrics: MetricItem[] = [
     summary: 'This deserves the default landing spotlight because it combines severity, speed, and spread.',
     breakdown: [
       { label: 'Product I', value: 144, tone: 'critical' },
-      { label: 'Compliance', value: 118, tone: 'critical' },
-      { label: 'AI Services', value: 96, tone: 'high' },
+      { label: 'Product K', value: 118, tone: 'critical' },
+      { label: 'Product N', value: 96, tone: 'high' },
     ],
   },
   {
@@ -197,7 +197,7 @@ const metrics: MetricItem[] = [
     insight: 'Two products are dragging the average down hard.',
     summary: 'You do not have delivery health if builds are this unreliable.',
     breakdown: [
-      { label: 'AI Services', value: 42, tone: 'critical' },
+      { label: 'Product N', value: 42, tone: 'critical' },
       { label: 'Financial Director', value: 55, tone: 'high' },
       { label: 'Platform Avg', value: 59.6, tone: 'warn' },
     ],
@@ -216,8 +216,8 @@ const metrics: MetricItem[] = [
     summary: 'Improvement exists, but it is nowhere near enough to call this healthy.',
     breakdown: [
       { label: 'Platform', value: 80.9, tone: 'warn' },
-      { label: 'Compliance', value: 94, tone: 'critical' },
-      { label: 'AI Services', value: 87, tone: 'high' },
+      { label: 'Product K', value: 94, tone: 'critical' },
+      { label: 'Product N', value: 87, tone: 'high' },
     ],
   },
 ];
@@ -240,17 +240,17 @@ const radarScores: RadarScore[] = [
 ];
 
 const galaxyNodes: GalaxyNode[] = [
-  { name: 'Compliance', risk: 'Critical', size: 84, x: 20, y: 16 },
+  { name: 'Product K', risk: 'Critical', size: 84, x: 20, y: 16 },
   { name: 'Product I', risk: 'High', size: 68, x: 46, y: 40 },
-  { name: 'AI Services', risk: 'High', size: 58, x: 74, y: 20 },
+  { name: 'Product N', risk: 'High', size: 58, x: 74, y: 20 },
   { name: 'Financial Director', risk: 'Warn', size: 48, x: 24, y: 76 },
   { name: 'Product P', risk: 'Warn', size: 40, x: 76, y: 78 },
 ];
 
 const matrix: MatrixRow[] = [
-  { product: 'Compliance', security: 'critical', bugs: 'critical', delivery: 'high' },
+  { product: 'Product K', security: 'critical', bugs: 'critical', delivery: 'high' },
   { product: 'Product I', security: 'critical', bugs: 'warn', delivery: 'ok' },
-  { product: 'AI Services', security: 'high', bugs: 'ok', delivery: 'warn' },
+  { product: 'Product N', security: 'high', bugs: 'ok', delivery: 'warn' },
   { product: 'Financial Director', security: 'warn', bugs: 'warn', delivery: 'ok' },
 ];
 

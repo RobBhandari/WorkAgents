@@ -176,7 +176,7 @@ _LLM_INTENT_SYSTEM = """\
 You are an intent classifier for an engineering intelligence dashboard.
 Classify the user query into exactly one of these intent keys:
 
-- product_query: questions about a specific named product (e.g. "status of Fusion", "how is Proclaim doing", "tell me about Product A")
+- product_query: questions about a specific named product (e.g. "status of Product A", "how is Product B doing", "tell me about Product C")
 - worst_product: questions about the worst or lowest-performing product overall and why
 - attention_areas: questions about which products or areas need the most attention, where to focus, most critical issues
 - security_query: questions about security posture, vulnerabilities, exploitable issues, which product is most/least secure
