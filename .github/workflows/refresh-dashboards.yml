@@ -825,12 +825,12 @@ jobs:
         env:
           PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         run: |
-          pip install -r requirements.txt --target api_package/.python_packages/lib/site-packages
           cp -r execution api_package/
           cp -r templates api_package/
           cp -r data api_package/
           cp requirements.txt api_package/
           cp runtime.txt api_package/
+          cp startup.sh api_package/
           cd api_package && zip -r ../api_deploy.zip . -x "*.pyc" -x "*/__pycache__/*"
           USERNAME=$(echo "$PUBLISH_PROFILE" | grep -oP 'publishMethod="ZipDeploy"[^>]*userName="\K[^"]+')
           PASSWORD=$(echo "$PUBLISH_PROFILE" | grep -oP 'publishMethod="ZipDeploy"[^>]*userPWD="\K[^"]+')
