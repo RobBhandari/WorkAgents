@@ -829,16 +829,17 @@ def compose_response(
 
             rag = "red" if critical > 0 else ("amber" if warn > 0 else "green")
             narrative = (
-                f"{pname} has a risk score of {score} "
-                f"({critical} critical, {warn} warning alert(s)) — status: {rag}. "
+                f"{pname} — risk score {score} "
+                f"({critical} critical, {warn} warning) — {rag}."
             )
             if domains:
-                narrative += f"Active problem areas: {', '.join(domains)}. "
+                narrative += f"\nProblem areas: {', '.join(domains)}"
             reasons = _format_alert_reasons(p_alerts)
             if reasons:
-                narrative += f"Key issues: {reasons}"
+                bullet_lines = [r.strip() for r in reasons.split("•") if r.strip()]
+                narrative += "\n\nKey issues:\n" + "\n".join(f"  • {b}" for b in bullet_lines)
             else:
-                narrative += "No detailed alert messages available for this product."
+                narrative += "\n\nNo detailed alert messages available for this product."
 
             # Lead with product summary card, then individual alerts
             evidence_cards = [
@@ -898,19 +899,19 @@ def compose_response(
             reasons = _format_alert_reasons(p_alerts)
 
             narrative = (
-                f"The worst performing product is {pname} with a risk score of {worst['score']} "
-                f"({worst['critical']} critical, {worst.get('warn', 0)} warning alert(s)). "
+                f"The worst performing product is {pname} — "
+                f"risk score {worst['score']} "
+                f"({worst['critical']} critical, {worst.get('warn', 0)} warning)."
             )
             if worst.get("domains"):
-                narrative += f"Problems span: {', '.join(worst['domains'])}. "
+                narrative += f"\nProblem areas: {', '.join(worst['domains'])}"
             if reasons:
-                narrative += f"Why: {reasons}"
-            else:
-                narrative += "No detailed alert breakdown available."
+                bullet_lines = [r.strip() for r in reasons.split("•") if r.strip()]
+                narrative += "\n\nKey issues:\n" + "\n".join(f"  • {b}" for b in bullet_lines)
 
             if len(ranked) > 1:
                 second = ranked[1]
-                narrative += f" The next most at-risk is {second['product']} " f"(score: {second['score']})."
+                narrative += f"\n\nNext most at-risk: {second['product']} (score {second['score']})."
 
             evidence_cards = [
                 {
@@ -948,25 +949,27 @@ def compose_response(
 
         if top:
             parts: list[str] = []
-            for p in top:
+            for idx, p in enumerate(top, 1):
                 p_alerts = _alerts_for_product(p["product"], raw_alerts)
                 reasons = _format_alert_reasons(p_alerts, limit=2)
-                line = (
-                    f"{p['product']} (score {p['score']}, {p['critical']}× critical"
-                    + (f": {reasons}" if reasons else "")
-                    + ")"
-                )
-                parts.append(line)
+                header = f"{idx}. {p['product']} — score {p['score']}, {p['critical']}× critical"
+                if reasons:
+                    # Split bullet reasons onto separate lines
+                    bullet_lines = [r.strip() for r in reasons.split("•") if r.strip()]
+                    header += "\n" + "\n".join(f"   • {b}" for b in bullet_lines)
+                parts.append(header)
 
-            narrative = f"The {len(top)} product(s) needing the most attention right now: " + "; ".join(parts) + ". "
+            narrative = (
+                f"{len(top)} product(s) need attention:\n\n" + "\n\n".join(parts)
+            )
 
             # Portfolio metric summary
             n_red = len(red_metrics)
             n_amber = len(amber_metrics)
             if n_red or n_amber:
                 narrative += (
-                    f"Across all metrics, {n_red} are red and {n_amber} are amber. "
-                    "Focus efforts on the products above first."
+                    f"\n\nAcross all metrics: {n_red} red, {n_amber} amber. "
+                    "Focus on the products above first."
                 )
         else:
             narrative = (
@@ -1004,21 +1007,21 @@ def compose_response(
         risk_metric = next((m for m in metrics if "risk" in m.get("id", "").lower()), None)
         if risk_metric:
             narrative = (
-                f"The risk score is currently {_fmt_value(risk_metric.get('current'))} "
-                f"({_rag_label(risk_metric.get('ragColor', ''))}), "
-                f"up {_fmt_delta(risk_metric.get('change'))} from the prior period. "
+                f"Risk score: {_fmt_value(risk_metric.get('current'))} "
+                f"({_rag_label(risk_metric.get('ragColor', ''))}) — "
+                f"{_fmt_delta(risk_metric.get('change'))} from prior period."
             )
         else:
-            narrative = "No risk metric found in current data. "
+            narrative = "No risk metric found in current data."
 
         if red_metrics:
             top = red_metrics[:3]
-            names = ", ".join(m.get("title", m.get("id", "")) for m in top)
-            narrative += f"Key contributors in the red zone include: {names}. "
+            narrative += "\n\nRed zone contributors:"
+            for m in top:
+                title = m.get("title", m.get("id", ""))
+                narrative += f"\n  • {title} — {_fmt_value(m.get('current'))} ({_fmt_delta(m.get('change'))})"
         else:
-            narrative += "No metrics are currently in the red zone. "
-
-        narrative += "Review the evidence cards below for detailed figures."
+            narrative += "\n\nNo metrics are currently in the red zone."
 
         evidence_cards = [
             {
@@ -1056,15 +1059,15 @@ def compose_response(
         if n_red:
             top_concern = red_metrics[0].get("title", red_metrics[0].get("id", "unknown"))
             narrative = (
-                f"The portfolio has {n_red} red metric(s) and {n_amber} amber metric(s) "
-                f"requiring attention. The top concern is {top_concern} "
+                f"Portfolio health: {n_red} red, {n_amber} amber, {n_green} green metric(s).\n\n"
+                f"Top concern: {top_concern} "
                 f"(current: {_fmt_value(red_metrics[0].get('current'))}, "
-                f"change: {_fmt_delta(red_metrics[0].get('change'))}). "
+                f"change: {_fmt_delta(red_metrics[0].get('change'))})"
             )
         else:
             narrative = (
-                f"The portfolio looks relatively healthy with {n_amber} amber metric(s) "
-                f"and {n_green} green metric(s). "
+                f"The portfolio looks relatively healthy — "
+                f"{n_amber} amber, {n_green} green metric(s)."
             )
 
         # Augment with per-product risk ranking if available
@@ -1072,14 +1075,14 @@ def compose_response(
             sorted_products = sorted(products, key=lambda p: (-int(p["score"]), str(p["product"])))
             top_product = sorted_products[0]
             narrative += (
-                f"The highest-risk product is {top_product['product']} "
-                f"(score: {top_product['score']}, "
-                f"{top_product['critical']} critical alert(s)). "
+                f"\n\nHighest-risk product: {top_product['product']} "
+                f"(score {top_product['score']}, "
+                f"{top_product['critical']} critical)"
             )
 
         if n_green:
             green_names = ", ".join(m.get("title", m.get("id", "")) for m in green_metrics[:2])
-            narrative += f"Positives this sprint: {green_names}."
+            narrative += f"\n\nPositives this sprint: {green_names}."
 
         evidence_cards = [
             {
@@ -1323,12 +1326,13 @@ def compose_response(
             rag = "red" if named_product["critical"] > 0 else ("amber" if named_product.get("warn", 0) > 0 else "green")
             narrative = (
                 f"Security posture for {pname}: risk score {named_product['score']}, "
-                f"{named_product['critical']} critical alert(s) — status {rag}. "
+                f"{named_product['critical']} critical — {rag}."
             )
             if reasons:
-                narrative += f"Key issues: {reasons}"
+                bullet_lines = [r.strip() for r in reasons.split("•") if r.strip()]
+                narrative += "\n\nKey issues:\n" + "\n".join(f"  • {b}" for b in bullet_lines)
             else:
-                narrative += "No security-specific alerts found for this product."
+                narrative += "\n\nNo security-specific alerts found for this product."
             # Lead with product summary card, then individual alerts
             evidence_cards = [
                 {

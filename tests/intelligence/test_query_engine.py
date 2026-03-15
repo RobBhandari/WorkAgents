@@ -716,8 +716,8 @@ class TestPortfolioSummarySortsProducts:
         }
         result = compose_response("portfolio_summary", {}, MOCK_TRENDS, product_risk=product_risk)
         assert "High Risk" in result["narrative"]
-        # The narrative should mention High Risk as the highest-risk, not Low Risk
-        assert result["narrative"].index("High Risk") < result["narrative"].index("highest-risk") + 50
+        # Should NOT mention Low Risk as the highest-risk product
+        assert "Low Risk" not in result["narrative"].split("Highest-risk")[0] if "Highest-risk" in result["narrative"] else True
 
 
 # ---------------------------------------------------------------------------

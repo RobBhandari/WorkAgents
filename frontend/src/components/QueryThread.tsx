@@ -214,7 +214,7 @@ export function QueryThread({ context, suggestedQuestions }: QueryThreadProps) {
                   borderRadius: '2px 12px 12px 12px',
                   padding: '12px 14px',
                 }}>
-                  <p style={{ fontSize: 13, lineHeight: 1.65, color: '#cbd5e1', margin: 0 }}>
+                  <p style={{ fontSize: 13, lineHeight: 1.65, color: '#cbd5e1', margin: 0, whiteSpace: 'pre-wrap' }}>
                     {msg.content}
                   </p>
 
