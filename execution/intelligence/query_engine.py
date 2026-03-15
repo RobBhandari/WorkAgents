@@ -2,7 +2,8 @@
 Ask EI — Conversational Query Layer.
 
 Intent router + module composer for natural-language queries about engineering health.
-Uses LLM classification (Claude Haiku, lazy import) with keyword fallback when API key absent.
+Uses Gemini Flash for intent classification and narrative generation (free tier).
+Falls back to keyword routing and template narratives when API key absent.
 
 Public entry point: build_query_response(query, context) -> dict
 """
@@ -22,7 +23,12 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 _INTENT_MAP: dict[str, list[str]] = {
-    # Order matters — more specific intents first
+    # ---------------------------------------------------------------
+    # Order matters — more specific intents checked first.
+    # Keywords are substring-matched (case-insensitive).
+    # ---------------------------------------------------------------
+    #
+    # 1. Product-specific (narrow phrases that imply a named product)
     "product_query": [
         "status of",
         "how is",
@@ -31,8 +37,105 @@ _INTENT_MAP: dict[str, list[str]] = {
         "what is happening with",
         "posture for",
         "health of",
-        "how are",
+        "details for",
+        "drill into",
+        "deep dive on",
+        "alerts for",
+        "issues with",
+        "problems with",
     ],
+    #
+    # 2. Visual / dashboard-element explanations
+    "visual_explanation": [
+        # Named sections
+        "anomaly river",
+        "system shape",
+        "radar chart",
+        "spider chart",
+        "sparkline",
+        "heatmap",
+        "heat map",
+        "movement layer",
+        "movement panel",
+        "narrative layer",
+        "narrative panel",
+        "alert layer",
+        "risk signals panel",
+        "metric grid",
+        "metric cards",
+        "metric overview",
+        "health score card",
+        "health score panel",
+        "health radar",
+        "product risk panel",
+        "product risk breakdown",
+        "risk breakdown",
+        "collision banner",
+        "escalation banner",
+        "investigation drawer",
+        # Generic "explain this UI" phrases
+        "what does the",
+        "what do the",
+        "showing me",
+        "on this page",
+        "on the page",
+        "on the screen",
+        "on screen",
+        "explain the chart",
+        "explain the radar",
+        "explain the river",
+        "explain the panel",
+        "explain the section",
+        "explain the dashboard",
+        "explain the grid",
+        "explain the heatmap",
+        "explain the score",
+        "how to read",
+        "how do i read",
+        "what am i looking at",
+        "what's this chart",
+        "what's this section",
+        "this visualization",
+        "this section",
+        "this panel",
+        "this chart",
+        "this graph",
+        "this diagram",
+    ],
+    #
+    # 3. Specific metric by name (before broad intents steal keywords)
+    "metric_detail": [
+        "lead time",
+        "cycle time",
+        "merge time",
+        "pr merge time",
+        "pull request merge",
+        "open bugs",
+        "bug count",
+        "how many bugs",
+        "number of bugs",
+        "work unassigned",
+        "unassigned work",
+        "unassigned percentage",
+        "total commits",
+        "commit count",
+        "commit volume",
+        "reduction target",
+        "70% target",
+        "70 percent",
+        "ai usage",
+        "ai tracker",
+        "copilot usage",
+        "infrastructure vuln",
+        "infra vuln",
+        "code and cloud",
+        "code & cloud",
+        "build success rate",
+        "current value of",
+        "what's the current",
+    ],
+    #
+    # 4. Worst product
     "worst_product": [
         "worst performing product",
         "worst product",
@@ -40,19 +143,48 @@ _INTENT_MAP: dict[str, list[str]] = {
         "most problems",
         "underperforming product",
         "lowest performing",
+        "weakest product",
+        "struggling product",
+        "most troubled product",
+        "highest risk product",
+        "riskiest product",
+        "which product is worst",
+        "which product is failing",
+        "which product has the most",
+        "which product should i worry",
     ],
+    #
+    # 5. Attention areas
     "attention_areas": [
         "need most attention",
         "most attention",
         "where to focus",
         "where should we focus",
+        "where should i focus",
         "most critical",
         "needs focus",
         "which areas",
         "which products need",
         "need to prioritise",
         "need to prioritize",
+        "urgent",
+        "action needed",
+        "immediate attention",
+        "top priorities",
+        "what's urgent",
+        "what needs fixing",
+        "what needs work",
+        "where to start",
+        "where should i start",
+        "what do i tackle",
+        "what to tackle",
+        "what should i address",
+        "what requires action",
+        "needs intervention",
+        "fire to put out",
     ],
+    #
+    # 6. Security
     "security_query": [
         "security",
         "vulnerabilit",
@@ -60,9 +192,81 @@ _INTENT_MAP: dict[str, list[str]] = {
         "security posture",
         "worst security",
         "secure",
+        "insecure",
+        "vuln count",
+        "vuln",
+        "cve",
+        "patch",
+        "remediat",
+        "attack surface",
+        "exposure",
+        "most vulnerable",
+        "least secure",
+        "appsec",
+        "application security",
+        "code scan",
+        "cloud scan",
+        "infra scan",
+        "sast",
+        "dast",
+        "pen test",
+        "penetration",
     ],
-    "ownership_query": ["owner", "single owner", "knowledge", "who owns", "inactive", "bus factor"],
-    "deployment_compare": ["deploy", "build success", "success rate", "pipeline", "release frequency"],
+    #
+    # 7. Ownership / knowledge
+    "ownership_query": [
+        "owner",
+        "single owner",
+        "knowledge",
+        "who owns",
+        "inactive",
+        "bus factor",
+        "code ownership",
+        "knowledge concentration",
+        "expertise",
+        "contributor",
+        "abandoned",
+        "orphaned",
+        "unmaintained",
+        "who maintains",
+        "who is responsible",
+        "single point of failure",
+        "key person risk",
+        "tribal knowledge",
+    ],
+    #
+    # 8. Deployment / build / pipeline
+    "deployment_compare": [
+        "deploy",
+        "build success",
+        "success rate",
+        "pipeline",
+        "release frequency",
+        "release cadence",
+        "ci/cd",
+        "cicd",
+        "build fail",
+        "build failure",
+        "deployment frequency",
+        "deployment trend",
+        "pipeline health",
+        "pipeline status",
+        "release",
+        "shipping",
+        "ship rate",
+        "build rate",
+        "build status",
+        "builds",
+        "continuous integration",
+        "continuous delivery",
+        "deployment stability",
+        "deployment success",
+        "how often do we deploy",
+        "how often do we release",
+        "how often do we ship",
+    ],
+    #
+    # 9. Risk explanation
     "risk_explanation": [
         "risk score",
         "risk high",
@@ -71,8 +275,107 @@ _INTENT_MAP: dict[str, list[str]] = {
         "what's driving",
         "driving the risk",
         "high score",
+        "risk",
+        "red zone",
+        "red metrics",
+        "why red",
+        "why is it red",
+        "what's red",
+        "what is red",
+        "risk factor",
+        "risk contributor",
+        "contributing to risk",
+        "causes of risk",
+        "danger",
+        "at risk",
+        "explain the red",
+        "why are there red",
+        "why so many red",
+        "what caused the red",
     ],
-    "trend_drill": ["getting worse", "trend over", "improving over", "declining", "deteriorat"],
+    #
+    # 10. Trend / time-series
+    "trend_drill": [
+        "getting worse",
+        "trend over",
+        "improving over",
+        "declining",
+        "deteriorat",
+        "trajectory",
+        "over time",
+        "week over week",
+        "week-over-week",
+        "week on week",
+        "historical",
+        "history of",
+        "trending",
+        "trend for",
+        "rate of change",
+        "direction",
+        "momentum",
+        "velocity",
+        "going up",
+        "going down",
+        "increasing",
+        "decreasing",
+        "changed since",
+        "compare to last",
+        "compared to last",
+        "vs last week",
+        "from last week",
+        "over the last",
+        "past few weeks",
+        "last 5 weeks",
+        "last five weeks",
+        "how has",
+        "getting better",
+    ],
+    #
+    # 11. Best product / positive signals (before portfolio_summary to avoid "good news" conflict)
+    "best_product": [
+        "improving fastest",
+        "healthiest",
+        "going well",
+        "best performing",
+        "good news",
+        "positive",
+        "strongest",
+        "winning",
+        "success story",
+        "bright spot",
+        "what's going right",
+        "what's working",
+        "performing well",
+        "best metric",
+        "greenest",
+        "most improved",
+        "best progress",
+        "celebrate",
+        "proud of",
+        "highlight",
+        "shout out",
+    ],
+    #
+    # 12. Worst metric
+    "worst_metric": [
+        "which metric",
+        "which area",
+        "what is failing",
+        "most at risk",
+        "worst metric",
+        "worst area",
+        "biggest concern metric",
+        "most broken",
+        "weakest metric",
+        "weakest area",
+        "what metric is worst",
+        "failing metric",
+        "lowest metric",
+        "bottom metric",
+        "what's failing",
+    ],
+    #
+    # 13. Portfolio summary (broadest — checked last among real intents)
     "portfolio_summary": [
         "worry about",
         "this sprint",
@@ -82,11 +385,40 @@ _INTENT_MAP: dict[str, list[str]] = {
         "concerned",
         "what to focus",
         "priority",
-        "worst",
         "biggest problem",
+        "summary",
+        "overall",
+        "how are we doing",
+        "how's everything",
+        "general health",
+        "portfolio",
+        "big picture",
+        "state of things",
+        "what's happening",
+        "give me a summary",
+        "brief me",
+        "sitrep",
+        "situation report",
+        "catch me up",
+        "what do i need to know",
+        "anything wrong",
+        "how's the portfolio",
+        "how is the portfolio",
+        "what should i know",
+        "quick update",
+        "status update",
+        "engineering health",
+        "what's the status",
+        "how's it looking",
+        "good or bad",
+        "are we ok",
+        "are we okay",
+        "how are things",
+        "high level",
+        "executive summary",
+        "tldr",
+        "tl;dr",
     ],
-    "best_product": ["improving fastest", "healthiest", "going well", "best performing"],
-    "worst_metric": ["which metric", "which area", "what is failing", "most at risk"],
 }
 
 _FALLBACK_INTENT = "portfolio_summary"
@@ -177,15 +509,17 @@ You are an intent classifier for an engineering intelligence dashboard.
 Classify the user query into exactly one of these intent keys:
 
 - product_query: questions about a specific named product (e.g. "status of Product A", "how is Product B doing", "tell me about Product C")
+- visual_explanation: questions about what a dashboard section or chart shows (e.g. "what does the anomaly river show?", "explain the radar chart", "what am I looking at?", "what is the product risk breakdown showing me?")
+- metric_detail: questions about a specific metric's current value or status (e.g. "what's the lead time?", "how are bugs looking?", "current build success rate?", "what's the reduction target at?")
 - worst_product: questions about the worst or lowest-performing product overall and why
 - attention_areas: questions about which products or areas need the most attention, where to focus, most critical issues
 - security_query: questions about security posture, vulnerabilities, exploitable issues, which product is most/least secure
 - ownership_query: questions about code ownership, single owners, bus factor, knowledge concentration
 - deployment_compare: questions about deployments, build success, pipelines, release frequency
-- risk_explanation: questions about risk scores, what is driving risk, why risk is high/low
-- trend_drill: questions about trends over time, deteriorating/improving metrics, rate of change
+- risk_explanation: questions about risk scores, what is driving risk, why risk is high/low, red metrics explanation
+- trend_drill: questions about trends over time, deteriorating/improving metrics, rate of change, historical data
 - portfolio_summary: general health questions, what to worry about, overview, priorities, sprint concerns
-- best_product: which product/metric is performing best, healthiest, improving fastest
+- best_product: which product/metric is performing best, healthiest, improving fastest, good news
 - worst_metric: which metric/area is worst, most at risk, failing
 
 Respond with ONLY the intent key — no explanation, no punctuation."""
@@ -193,19 +527,38 @@ Respond with ONLY the intent key — no explanation, no punctuation."""
 _VALID_INTENTS = frozenset(_INTENT_MAP.keys())
 
 
-def _route_intent_llm(query: str) -> str | None:
-    """LLM-based intent classification via Claude Haiku. Returns None on any failure."""
+def _get_gemini_client() -> Any | None:
+    """Lazy-initialise Gemini client. Returns None if unavailable."""
     try:
-        from anthropic import Anthropic  # lazy import — only needed when API key present
+        import os
 
-        client = Anthropic()
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=20,
-            system=_LLM_INTENT_SYSTEM,
-            messages=[{"role": "user", "content": query}],
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        if not api_key:
+            return None
+        from google import genai  # lazy import — new SDK
+
+        return genai.Client(api_key=api_key)
+    except Exception as exc:
+        logger.debug("Gemini init failed (%s)", exc)
+        return None
+
+
+_GEMINI_MODEL = "gemini-2.5-flash"
+
+
+def _route_intent_llm(query: str) -> str | None:
+    """LLM-based intent classification via Gemini Flash. Returns None on any failure."""
+    try:
+        client = _get_gemini_client()
+        if client is None:
+            return None
+        valid_list = ", ".join(sorted(_VALID_INTENTS))
+        response = client.models.generate_content(
+            model=_GEMINI_MODEL,
+            contents=f"{_LLM_INTENT_SYSTEM}\n\nValid keys: {valid_list}\n\nUser query: {query}",
+            config={"max_output_tokens": 256, "temperature": 0.0},
         )
-        raw = message.content[0].text.strip().lower() if message.content else ""
+        raw = response.text.strip().lower().strip("`\"' ") if response.text else ""
         if raw in _VALID_INTENTS:
             return raw
         logger.warning("LLM returned unknown intent %r — falling back to keywords", raw)
@@ -215,10 +568,90 @@ def _route_intent_llm(query: str) -> str | None:
         return None
 
 
+def _generate_narrative_llm(
+    query: str,
+    intent: str,
+    template_narrative: str,
+    data_summary: str,
+) -> str | None:
+    """Use Gemini Flash to generate a conversational narrative from data context.
+
+    Returns None on any failure (caller falls back to template narrative).
+    """
+    try:
+        client = _get_gemini_client()
+        if client is None:
+            return None
+
+        prompt = (
+            "You are the AI assistant for an Engineering Intelligence dashboard. "
+            "A user asked a question about their engineering health metrics. "
+            "You have been given the classified intent, a template answer, and the "
+            "raw data summary. Generate a concise, conversational, and specific answer "
+            "to the user's actual question. Use the data provided — do not invent numbers. "
+            "Keep the response to 2-4 sentences. Do not use markdown formatting. "
+            "Do not start with 'Based on the data' or similar preamble — just answer directly.\n\n"
+            f"User question: {query}\n"
+            f"Classified intent: {intent}\n"
+            f"Template answer: {template_narrative}\n"
+            f"Data summary:\n{data_summary}"
+        )
+
+        response = client.models.generate_content(
+            model=_GEMINI_MODEL,
+            contents=prompt,
+            config={"max_output_tokens": 1024, "temperature": 0.3},
+        )
+        text = response.text.strip() if response.text else ""
+        if len(text) > 20:  # sanity check — must be a real answer
+            return text
+        return None
+    except Exception as exc:
+        logger.debug("Gemini narrative generation failed (%s) — using template", exc)
+        return None
+
+
+def _build_data_summary(
+    metrics: list[dict[str, Any]],
+    products: list[dict[str, Any]],
+    alerts: list[dict[str, Any]],
+) -> str:
+    """Build a compact text summary of current data for the LLM prompt."""
+    lines: list[str] = []
+
+    lines.append("=== Metrics ===")
+    for m in metrics:
+        title = m.get("title", m.get("id", "unknown"))
+        current = _fmt_value(m.get("current"))
+        delta = _fmt_delta(m.get("change"))
+        rag = _rag_label(m.get("ragColor", ""))
+        lines.append(f"- {title}: {current} ({delta} vs last week) [{rag}]")
+
+    if products:
+        lines.append("\n=== Product Risk (sorted by score desc) ===")
+        for p in sorted(products, key=lambda x: -int(x.get("score", 0)))[:6]:
+            lines.append(
+                f"- {p['product']}: score {p['score']}, "
+                f"{p.get('critical', 0)} critical, "
+                f"{p.get('warn', 0)} warning, "
+                f"domains: {', '.join(p.get('domains', []))}"
+            )
+
+    if alerts:
+        lines.append(f"\n=== Active Alerts ({len(alerts)} total) ===")
+        for a in alerts[:8]:
+            lines.append(
+                f"- [{a.get('severity', '?')}] {a.get('project_name', '?')} / "
+                f"{a.get('dashboard', '?')}: {a.get('message', a.get('metric_name', ''))}"
+            )
+
+    return "\n".join(lines)
+
+
 def route_intent(query: str, context: dict[str, Any]) -> str:
     """Determine intent from query string.
 
-    Tries LLM classification first (Claude Haiku); falls back to keyword matching
+    Tries LLM classification first (Gemini Flash); falls back to keyword matching
     if API key is absent or the call fails.
 
     Args:
@@ -975,13 +1408,289 @@ def compose_response(
         ]
 
     # ------------------------------------------------------------------
+    elif intent == "visual_explanation":
+        source_modules.append("dashboard")
+        lowered_query = query.lower()
+
+        # Map dashboard section keywords to plain-English explanations
+        section_guide: list[tuple[list[str], str, str]] = [
+            (
+                ["anomaly river"],
+                "Anomaly River",
+                "The Anomaly River is a time-based heatmap showing anomaly intensity "
+                "across metric domains (security, deployment, flow, quality, etc.) over "
+                "recent weeks. Brighter/warmer colours indicate stronger anomalies — "
+                "periods where metrics deviated significantly from their normal range. "
+                "Click any domain row to drill into that metric's history.",
+            ),
+            (
+                ["system shape", "radar chart", "spider chart", "health radar"],
+                "System Shape Radar",
+                "The System Shape radar chart shows engineering health across all metric "
+                "domains simultaneously. Each axis is a domain — the further the plot "
+                "extends outward, the healthier that domain. An ideal shape is a large, "
+                "balanced polygon. A lopsided shape reveals which domains are lagging.",
+            ),
+            (
+                ["movement layer", "movement panel"],
+                "Movement Layer",
+                "The Movement Layer shows week-over-week changes for every metric. "
+                "It highlights which metrics moved significantly (up or down) since the "
+                "last data collection, helping you spot sudden shifts that need investigation.",
+            ),
+            (
+                ["narrative layer", "narrative panel"],
+                "Narrative Layer",
+                "The Narrative Layer provides a text summary of the current engineering "
+                "health state, combining signals from the health score, active alerts, "
+                "and collision detection to tell a coherent story about what's happening.",
+            ),
+            (
+                ["alert layer", "risk signals panel"],
+                "Alert Layer / Active Risk Signals",
+                "The Alert Layer shows all currently firing alerts across the portfolio. "
+                "Alerts are grouped by severity (critical, warning). When multiple "
+                "domains deteriorate simultaneously a cross-domain collision escalation "
+                "banner appears, signalling a systemic issue.",
+            ),
+            (
+                ["metric grid", "metric cards", "metric overview"],
+                "Metric Overview Grid",
+                "The Metric Overview grid displays all tracked metrics as cards. Each "
+                "card shows the current value, week-over-week change, a sparkline trend "
+                "line, and RAG (Red/Amber/Green) status. Click any card to open the "
+                "investigation drawer for deeper analysis.",
+            ),
+            (
+                [
+                    "product risk panel",
+                    "product risk breakdown",
+                    "risk breakdown",
+                    "risk panel",
+                ],
+                "Product Risk Panel",
+                "The Product Risk Panel ranks products by risk score. Scores are "
+                "calculated from alert severity: critical alerts score 3 points, "
+                "warnings and medium alerts score 1 each. Higher scores mean more "
+                "active problems across that product's domains.",
+            ),
+            (
+                ["health score card", "health score panel", "health score"],
+                "Health Score",
+                "The Health Score (0–100) is a weighted composite of all metric domains. "
+                "It factors in how many metrics are green vs red/amber, the severity of "
+                "active alerts, and trend direction. Above 70 is generally healthy, "
+                "40–70 needs attention, below 40 is critical.",
+            ),
+            (
+                ["collision banner", "escalation banner", "collision"],
+                "Collision Escalation",
+                "The Collision Escalation banner appears when multiple metric domains "
+                "deteriorate at the same time, suggesting a systemic issue rather than "
+                "an isolated problem. High-confidence collisions warrant immediate "
+                "investigation.",
+            ),
+            (
+                ["sparkline"],
+                "Sparklines",
+                "Sparklines are the small inline trend charts on each metric card. "
+                "They show the metric's value over the last several weeks so you can "
+                "see the direction of travel at a glance without opening the detail view.",
+            ),
+            (
+                ["investigation drawer"],
+                "Metric Investigation Drawer",
+                "The Investigation Drawer opens when you click a metric card or an "
+                "Anomaly River row. It provides a deep dive into that metric's "
+                "history, change points, and contributing factors.",
+            ),
+        ]
+
+        matched_explanation: str | None = None
+        matched_section: str = ""
+        for keywords, section_name, explanation in section_guide:
+            if any(kw in lowered_query for kw in keywords):
+                matched_explanation = explanation
+                matched_section = section_name
+                break
+
+        if matched_explanation:
+            narrative = matched_explanation
+        else:
+            # Generic "what am I looking at?" response
+            narrative = (
+                "The Engineering Command Centre has these main sections: "
+                "Health Score (overall 0–100 composite), "
+                "Alert Layer (active risk signals), "
+                "System Shape radar (domain health), "
+                "Movement Layer (week-over-week changes), "
+                "Narrative Layer (text summary), "
+                "Anomaly River (time-heatmap of anomalies), "
+                "Metric Overview grid (all metric cards with sparklines), "
+                "and the Product Risk Panel (per-product risk ranking). "
+                "Ask about any specific section for more detail."
+            )
+            matched_section = "dashboard"
+
+        evidence_cards = [
+            {
+                "label": m.get("title", m.get("id", "")),
+                "value": _fmt_value(m.get("current")),
+                "delta": _fmt_delta(m.get("change")),
+                "rag": _rag_label(m.get("ragColor", "")),
+            }
+            for m in metrics[:3]
+        ]
+        signal_pills = (
+            [
+                {
+                    "type": "info",
+                    "metric_id": f"visual_{matched_section.lower().replace(' ', '_')}",
+                    "severity": "info",
+                    "label": f"Explaining: {matched_section}",
+                }
+            ]
+            if matched_section
+            else []
+        )
+        suggested_followups = [
+            "What does the anomaly river show?",
+            "How do I read the system shape radar?",
+            "What's the overall portfolio health?",
+        ]
+
+    # ------------------------------------------------------------------
+    elif intent == "metric_detail":
+        source_modules.append("pipeline")
+
+        # Try to find the specific metric the user is asking about
+        lowered_query = query.lower()
+        metric_hints: list[tuple[list[str], str]] = [
+            (["lead time", "cycle time"], "flow"),
+            (["merge time", "pr merge", "pull request merge"], "collaboration"),
+            (["open bugs", "bug count", "bugs", "number of bugs", "how many bugs"], "bugs"),
+            (["unassigned", "work unassigned"], "ownership"),
+            (["total commits", "commit count", "commit volume"], "risk"),
+            (["reduction target", "70% target", "70 percent"], "target"),
+            (["ai usage", "ai tracker", "copilot"], "ai-usage"),
+            (["infrastructure vuln", "infra vuln"], "security-infra"),
+            (["code and cloud", "code & cloud"], "security"),
+            (["build success rate", "build success"], "deployment"),
+            (["exploitable"], "exploitable"),
+        ]
+
+        target_id: str | None = None
+        for hint_keywords, metric_id in metric_hints:
+            if any(kw in lowered_query for kw in hint_keywords):
+                target_id = metric_id
+                break
+
+        # Fall back to searching metric titles/ids directly
+        if not target_id:
+            for m in metrics:
+                mid = m.get("id", "").lower()
+                mtitle = m.get("title", "").lower()
+                if mid in lowered_query or mtitle in lowered_query:
+                    target_id = m.get("id")
+                    break
+
+        matched_metric = next((m for m in metrics if m.get("id") == target_id), None) if target_id else None
+
+        if matched_metric:
+            title = matched_metric.get("title", matched_metric.get("id", "unknown"))
+            current = _fmt_value(matched_metric.get("current"))
+            delta = _fmt_delta(matched_metric.get("change"))
+            rag = _rag_label(matched_metric.get("ragColor", ""))
+            desc = matched_metric.get("description", "")
+
+            narrative = f"{title} is currently at {current} ({delta} vs last week) — " f"status: {rag}. "
+            if desc:
+                narrative += f"{desc} "
+
+            # Add directional commentary
+            change_val = matched_metric.get("change")
+            try:
+                change_num = float(change_val) if change_val is not None else 0.0
+            except (TypeError, ValueError):
+                change_num = 0.0
+
+            if rag == "red":
+                narrative += "This metric needs attention — it is below the acceptable threshold."
+            elif rag == "amber":
+                narrative += "This metric is in the warning zone — monitor closely."
+            elif rag == "green":
+                if change_num < 0:
+                    narrative += "This metric is healthy and still improving."
+                else:
+                    narrative += "This metric is healthy."
+
+            evidence_cards = [
+                {
+                    "label": title,
+                    "value": current,
+                    "delta": delta,
+                    "rag": rag,
+                }
+            ]
+            # Add neighbouring metrics for context
+            for m in metrics:
+                if m.get("id") == target_id:
+                    continue
+                if len(evidence_cards) >= 4:
+                    break
+                evidence_cards.append(
+                    {
+                        "label": m.get("title", m.get("id", "")),
+                        "value": _fmt_value(m.get("current")),
+                        "delta": _fmt_delta(m.get("change")),
+                        "rag": _rag_label(m.get("ragColor", "")),
+                    }
+                )
+            signal_pills = [
+                {
+                    "type": "threshold_breach" if rag == "red" else "info",
+                    "metric_id": matched_metric.get("id", ""),
+                    "severity": "critical" if rag == "red" else ("warning" if rag == "amber" else "info"),
+                    "label": f"{title}: {current} ({rag})",
+                }
+            ]
+        else:
+            # Could not identify which metric the user means
+            metric_names = ", ".join(m.get("title", m.get("id", "")) for m in metrics[:8])
+            narrative = (
+                "I couldn't identify which specific metric you're asking about. "
+                f"Available metrics include: {metric_names}. "
+                "Try asking by name, e.g. 'What's the current lead time?' or "
+                "'How are bugs looking?'"
+            )
+            evidence_cards = [
+                {
+                    "label": m.get("title", m.get("id", "")),
+                    "value": _fmt_value(m.get("current")),
+                    "delta": _fmt_delta(m.get("change")),
+                    "rag": _rag_label(m.get("ragColor", "")),
+                }
+                for m in metrics[:4]
+            ]
+            signal_pills = []
+
+        suggested_followups = [
+            "What's the overall portfolio health?",
+            "Which metric is most at risk?",
+            "How has this changed over time?",
+        ]
+
+    # ------------------------------------------------------------------
     else:
-        # Unexpected intent — return a safe fallback
+        # Unrecognised query — be honest rather than guessing
+        metric_names = ", ".join(m.get("title", m.get("id", "")) for m in metrics[:8])
         narrative = (
-            "Unable to determine a specific answer for that query. "
-            "The portfolio currently has "
-            f"{len(red_metrics)} red and {len(amber_metrics)} amber metrics. "
-            "Try asking about risk, deployment, trends, or ownership."
+            "I'm not sure how to answer that specific question. "
+            "I can help with: portfolio health overview, risk explanations, "
+            "security posture, deployment/build status, ownership & bus factor, "
+            "trend analysis, product comparisons, or details on specific metrics. "
+            f"Available metrics: {metric_names}. "
+            "Try one of the suggestions below."
         )
         evidence_cards = [
             {
@@ -995,8 +1704,9 @@ def compose_response(
         signal_pills = []
         suggested_followups = [
             "What should I worry about this sprint?",
-            "Why is risk high?",
-            "How is deployment performing?",
+            "Which product has the highest risk?",
+            "What's the current build success rate?",
+            "How does the anomaly river work?",
         ]
 
     return {
@@ -1039,4 +1749,13 @@ def build_query_response(
     intent = route_intent(query, context)
     response = compose_response(intent, context, trends_context, product_risk, alerts, query)
     response["query"] = query
+
+    # Try LLM-enhanced narrative — falls back to template on any failure
+    products: list[dict[str, Any]] = (product_risk or {}).get("products", [])
+    data_summary = _build_data_summary(trends_context.get("metrics", []), products, alerts)
+    llm_narrative = _generate_narrative_llm(query, intent, response["narrative"], data_summary)
+    if llm_narrative:
+        response["narrative"] = llm_narrative
+        response["source_modules"] = response.get("source_modules", []) + ["gemini_flash"]
+
     return response

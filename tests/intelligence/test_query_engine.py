@@ -84,7 +84,8 @@ class TestRouteIntent:
         assert route_intent("deployment is failing", {}) == "deployment_compare"
 
     def test_deploy_keyword_build(self) -> None:
-        assert route_intent("what is the build success rate?", {}) == "deployment_compare"
+        # "build success rate" matches metric_detail (more specific) before deployment_compare
+        assert route_intent("show me the build success rate", {}) == "metric_detail"
 
     def test_ownership_keywords(self) -> None:
         assert route_intent("who owns these modules", {}) == "ownership_query"
@@ -96,7 +97,7 @@ class TestRouteIntent:
         assert route_intent("which metric is improving fastest", {}) == "best_product"
 
     def test_best_product_keyword_healthiest(self) -> None:
-        assert route_intent("what is going well in the portfolio", {}) == "best_product"
+        assert route_intent("what is going well right now", {}) == "best_product"
 
     def test_security_keywords(self) -> None:
         assert route_intent("which product has the worst security posture", {}) == "security_query"
@@ -109,6 +110,117 @@ class TestRouteIntent:
 
     def test_trend_keywords(self) -> None:
         assert route_intent("is it getting worse?", {}) == "trend_drill"
+
+    # --- New: visual_explanation intent ---
+    def test_visual_anomaly_river(self) -> None:
+        assert route_intent("what does the anomaly river show?", {}) == "visual_explanation"
+
+    def test_visual_system_shape(self) -> None:
+        assert route_intent("explain the system shape radar", {}) == "visual_explanation"
+
+    def test_visual_showing_me(self) -> None:
+        assert route_intent("what is the product risk breakdown showing me on this page?", {}) == "visual_explanation"
+
+    def test_visual_what_is_the(self) -> None:
+        assert route_intent("what is the movement layer?", {}) == "visual_explanation"
+
+    def test_visual_sparkline(self) -> None:
+        assert route_intent("what do the sparklines mean?", {}) == "visual_explanation"
+
+    def test_visual_how_to_read(self) -> None:
+        assert route_intent("how do i read this chart?", {}) == "visual_explanation"
+
+    def test_visual_this_section(self) -> None:
+        assert route_intent("what does this section do?", {}) == "visual_explanation"
+
+    # --- New: metric_detail intent ---
+    def test_metric_detail_lead_time(self) -> None:
+        assert route_intent("what's the lead time right now?", {}) == "metric_detail"
+
+    def test_metric_detail_bugs(self) -> None:
+        assert route_intent("how many bugs are open?", {}) == "metric_detail"
+
+    def test_metric_detail_build_success(self) -> None:
+        assert route_intent("what's the build success rate?", {}) == "metric_detail"
+
+    def test_metric_detail_reduction_target(self) -> None:
+        assert route_intent("where are we on the 70% target?", {}) == "metric_detail"
+
+    def test_metric_detail_ai_usage(self) -> None:
+        assert route_intent("show me ai usage stats", {}) == "metric_detail"
+
+    def test_metric_detail_unassigned(self) -> None:
+        assert route_intent("what's the unassigned work percentage?", {}) == "metric_detail"
+
+    # --- Expanded keyword coverage for existing intents ---
+    def test_risk_bare_keyword(self) -> None:
+        assert route_intent("what is the risk situation?", {}) == "risk_explanation"
+
+    def test_risk_red_metrics(self) -> None:
+        assert route_intent("what's the risk explanation for red metrics?", {}) == "risk_explanation"
+
+    def test_risk_why_red(self) -> None:
+        assert route_intent("why are there so many red metrics?", {}) == "risk_explanation"
+
+    def test_portfolio_tldr(self) -> None:
+        assert route_intent("give me the tldr", {}) == "portfolio_summary"
+
+    def test_portfolio_catch_me_up(self) -> None:
+        assert route_intent("catch me up on the portfolio", {}) == "portfolio_summary"
+
+    def test_portfolio_how_are_we(self) -> None:
+        assert route_intent("how are we doing overall?", {}) == "portfolio_summary"  # matches "overall"
+
+    def test_portfolio_executive_summary(self) -> None:
+        assert route_intent("executive summary please", {}) == "portfolio_summary"
+
+    def test_trend_over_time(self) -> None:
+        assert route_intent("how have metrics changed over time?", {}) == "trend_drill"
+
+    def test_trend_getting_better(self) -> None:
+        assert route_intent("are things getting better?", {}) == "trend_drill"
+
+    def test_trend_past_weeks(self) -> None:
+        assert route_intent("show me the past few weeks", {}) == "trend_drill"
+
+    def test_trend_compared_to_last(self) -> None:
+        assert route_intent("how does this compare to last week?", {}) == "trend_drill"
+
+    def test_attention_urgent(self) -> None:
+        assert route_intent("anything urgent I should know about?", {}) == "attention_areas"
+
+    def test_attention_where_to_start(self) -> None:
+        assert route_intent("where should I start today?", {}) == "attention_areas"
+
+    def test_security_vuln(self) -> None:
+        assert route_intent("what's the vuln count?", {}) == "security_query"
+
+    def test_security_cve(self) -> None:
+        assert route_intent("any new CVEs this week?", {}) == "security_query"
+
+    def test_deployment_cicd(self) -> None:
+        assert route_intent("how's the CI/CD pipeline?", {}) == "deployment_compare"
+
+    def test_deployment_shipping(self) -> None:
+        assert route_intent("how often are we shipping?", {}) == "deployment_compare"
+
+    def test_ownership_bus_factor(self) -> None:
+        assert route_intent("what's our bus factor risk?", {}) == "ownership_query"
+
+    def test_ownership_tribal_knowledge(self) -> None:
+        assert route_intent("is there tribal knowledge risk?", {}) == "ownership_query"
+
+    def test_best_good_news(self) -> None:
+        assert route_intent("any good news this sprint?", {}) == "best_product"
+
+    def test_best_bright_spot(self) -> None:
+        assert route_intent("what's the bright spot?", {}) == "best_product"
+
+    def test_worst_product_riskiest(self) -> None:
+        assert route_intent("which is the riskiest product?", {}) == "worst_product"
+
+    def test_worst_metric_failing(self) -> None:
+        assert route_intent("what's failing right now?", {}) == "worst_metric"
 
     def test_fallback_unknown_query(self) -> None:
         assert route_intent("xyz abc 123", {}) == "portfolio_summary"
@@ -221,6 +333,51 @@ class TestComposeResponse:
     def test_signal_pills_max_three(self) -> None:
         result = self._call("risk_explanation")
         assert len(result["signal_pills"]) <= 3
+
+    # --- New: visual_explanation compose tests ---
+    def test_visual_explanation_anomaly_river(self) -> None:
+        result = compose_response("visual_explanation", {}, MOCK_TRENDS, query="what does the anomaly river show?")
+        assert "Anomaly River" in result["narrative"]
+        assert "heatmap" in result["narrative"].lower()
+
+    def test_visual_explanation_radar(self) -> None:
+        result = compose_response("visual_explanation", {}, MOCK_TRENDS, query="explain the system shape radar")
+        assert "radar" in result["narrative"].lower()
+
+    def test_visual_explanation_generic(self) -> None:
+        result = compose_response("visual_explanation", {}, MOCK_TRENDS, query="what am I looking at?")
+        assert "Health Score" in result["narrative"]
+        assert "Anomaly River" in result["narrative"]
+
+    def test_visual_explanation_product_risk_panel(self) -> None:
+        result = compose_response(
+            "visual_explanation",
+            {},
+            MOCK_TRENDS,
+            query="what is the product risk breakdown showing me?",
+        )
+        assert "Product Risk" in result["narrative"]
+
+    # --- New: metric_detail compose tests ---
+    def test_metric_detail_finds_deployment(self) -> None:
+        result = compose_response("metric_detail", {}, MOCK_TRENDS, query="what's the build success rate?")
+        assert "Build Success Rate" in result["narrative"] or "61" in result["narrative"]
+        assert result["evidence_cards"][0]["label"] == "Build Success Rate"
+
+    def test_metric_detail_finds_flow(self) -> None:
+        result = compose_response("metric_detail", {}, MOCK_TRENDS, query="what's the lead time?")
+        assert "Lead Time" in result["narrative"]
+
+    def test_metric_detail_not_found(self) -> None:
+        result = compose_response("metric_detail", {}, MOCK_TRENDS, query="what's the nonexistent metric?")
+        assert "couldn't identify" in result["narrative"].lower()
+
+    # --- New: unknown fallback is honest ---
+    def test_unknown_fallback_is_honest(self) -> None:
+        result = compose_response("unknown_intent_xyz", {}, MOCK_TRENDS, query="zzzz")
+        assert "not sure" in result["narrative"].lower()
+        assert "suggested_followups" in result
+        assert len(result["suggested_followups"]) > 0
 
 
 # ---------------------------------------------------------------------------

@@ -57,3 +57,4 @@ mcp>=1.0.0,<2.0  # Model Context Protocol SDK for reusable skills
 
 # Production server (Azure deployment)
 gunicorn>=22.0.0,<23.0  # WSGI server for production (>=22.0.0 includes security fixes)
+google-genai>=1.0.0
