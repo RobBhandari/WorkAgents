@@ -717,7 +717,11 @@ class TestPortfolioSummarySortsProducts:
         result = compose_response("portfolio_summary", {}, MOCK_TRENDS, product_risk=product_risk)
         assert "High Risk" in result["narrative"]
         # Should NOT mention Low Risk as the highest-risk product
-        assert "Low Risk" not in result["narrative"].split("Highest-risk")[0] if "Highest-risk" in result["narrative"] else True
+        assert (
+            "Low Risk" not in result["narrative"].split("Highest-risk")[0]
+            if "Highest-risk" in result["narrative"]
+            else True
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -775,3 +779,61 @@ class TestFollowupRouting:
 
     def test_deployment_trend(self) -> None:
         assert route_intent("What's the deployment trend over the last 5 weeks?", {}) == "deployment_compare"
+
+
+# ---------------------------------------------------------------------------
+# TestNewKeywordRouting — critical risk / high risk keywords
+# ---------------------------------------------------------------------------
+
+
+class TestNewKeywordRouting:
+    """Tests for new keyword additions to security_query and risk_explanation."""
+
+    def test_critical_risks_routes_to_security(self) -> None:
+        assert route_intent("100 critical risks - what are these?", {}) == "security_query"
+
+    def test_high_risk_routes_to_security(self) -> None:
+        assert route_intent("show me the high risk items", {}) == "security_query"
+
+    def test_what_are_the_risks_routes_to_risk_explanation(self) -> None:
+        assert route_intent("what are the risks", {}) == "risk_explanation"
+
+    def test_what_are_these_risks_routes_to_risk_explanation(self) -> None:
+        assert route_intent("what are these risks we're seeing", {}) == "risk_explanation"
+
+    def test_critical_risk_products(self) -> None:
+        assert route_intent("which products have critical risk?", {}) == "security_query"
+
+
+# ---------------------------------------------------------------------------
+# TestFallbackDisclaimer — honest acknowledgment on fallback routing
+# ---------------------------------------------------------------------------
+
+
+class TestFallbackDisclaimer:
+    """When portfolio_summary is reached via pure fallback, narrative should
+    include a disclaimer acknowledging the question wasn't directly answered."""
+
+    @patch("execution.intelligence.query_engine.build_trends_context", return_value=MOCK_TRENDS)
+    @patch("execution.intelligence.query_engine._route_intent_llm", return_value=None)
+    @patch("execution.intelligence.query_engine._route_intent_keywords", return_value=None)
+    def test_fallback_disclaimer_present(self, _kw: object, _llm: object, _trends: object) -> None:
+        """Query that matches no keyword and no LLM intent should get disclaimer."""
+        result = build_query_response("xyzzy gibberish question")
+        assert result["intent"] == "portfolio_summary"
+        assert result["routing_source"] == "fallback"
+        assert result["narrative"].startswith("I don't have the specific data")
+
+    @patch("execution.intelligence.query_engine.build_trends_context", return_value=MOCK_TRENDS)
+    def test_keyword_match_no_disclaimer(self, _trends: object) -> None:
+        """Direct keyword match to portfolio_summary should NOT get disclaimer."""
+        result = build_query_response("give me an overview")
+        assert result["intent"] == "portfolio_summary"
+        assert not result["narrative"].startswith("I don't have the specific data")
+
+    @patch("execution.intelligence.query_engine.build_trends_context", return_value=MOCK_TRENDS)
+    def test_specific_intent_no_disclaimer(self, _trends: object) -> None:
+        """Queries routed to specific intents should never get disclaimer."""
+        result = build_query_response("why is risk so high?")
+        assert result["intent"] == "risk_explanation"
+        assert "I don't have the specific data" not in result["narrative"]

@@ -242,6 +242,8 @@ _INTENT_MAP: dict[str, list[str]] = {
         "dast",
         "pen test",
         "penetration",
+        "critical risk",
+        "high risk",
     ],
     #
     # 7. Ownership / knowledge
@@ -324,6 +326,8 @@ _INTENT_MAP: dict[str, list[str]] = {
         "why are there red",
         "why so many red",
         "what caused the red",
+        "what are these risks",
+        "what are the risks",
     ],
     #
     # 10. Trend / time-series
@@ -638,7 +642,12 @@ def _generate_narrative_llm(
             "answers the user's question using the data provided. "
             "Do not invent numbers. Do not use markdown. "
             "Do not start with 'Based on the data' or similar preamble. "
-            "Do not list individual issues or bullet points — just the headline answer.\n\n"
+            "Do not list individual issues or bullet points — just the headline answer. "
+            "IMPORTANT: If the data provided does not contain the specific information "
+            "the user asked about (e.g. they asked for a list of items but you only "
+            "have aggregate counts), acknowledge this honestly — say what you CAN "
+            "show and what you cannot. Never present unrelated data as if it answers "
+            "the question.\n\n"
             f"User question: {query}\n"
             f"Classified intent: {intent}\n"
             f"Data summary:\n{data_summary}"
@@ -1981,6 +1990,15 @@ def build_query_response(
     response = compose_response(intent, context, trends_context, product_risk, alerts, query)
     response["query"] = query
     response["routing_source"] = _last_routing_source
+
+    # When the query fell through to the portfolio_summary fallback (not a
+    # direct keyword match), prefix the narrative with an honest acknowledgment
+    # so the user knows their specific question wasn't directly answered.
+    if intent == _FALLBACK_INTENT and _last_routing_source == "fallback":
+        response["narrative"] = (
+            "I don't have the specific data to answer that question directly, "
+            "but here's the closest context I can provide.\n\n" + response["narrative"]
+        )
 
     # 1. Check knowledge base first (instant, no API call)
     kb_answer = lookup_knowledge(query)
