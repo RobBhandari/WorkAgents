@@ -95,6 +95,16 @@ _INTENT_MAP: dict[str, list[str]] = {
         "explain the grid",
         "explain the heatmap",
         "explain the score",
+        "how is the score",
+        "how are scores",
+        "how is risk calculated",
+        "how does the score work",
+        "how does scoring work",
+        "score calculated",
+        "calculated the score",
+        "methodology",
+        "how does this work",
+        "how does it work",
         "how to read",
         "how do i read",
         "what am i looking at",
@@ -1674,6 +1684,29 @@ def compose_response(
                 "The Investigation Drawer opens when you click a metric card or an "
                 "Anomaly River row. It provides a deep dive into that metric's "
                 "history, change points, and contributing factors.",
+            ),
+            (
+                [
+                    "score calculated",
+                    "how is the score",
+                    "how are scores",
+                    "how does the score",
+                    "how does scoring",
+                    "risk calculated",
+                    "methodology",
+                    "how does this work",
+                    "how does it work",
+                ],
+                "Risk Score Methodology",
+                "Product risk scores are calculated from active alerts:\n\n"
+                "  • Critical alerts = 3 points each\n"
+                "  • Warning/medium alerts = 1 point each\n\n"
+                "Higher scores mean more active problems across that product's "
+                "domains (security, deployment, quality, flow, ownership).\n\n"
+                "RAG status thresholds:\n"
+                "  • Red: any critical alerts present\n"
+                "  • Amber: warnings only, no criticals\n"
+                "  • Green: no active alerts",
             ),
         ]
 
