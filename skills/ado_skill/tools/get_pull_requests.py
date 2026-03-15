@@ -11,10 +11,7 @@ from execution.collectors.ado_rest_client import AzureDevOpsRESTClient
 
 
 async def get_pull_requests(
-    organization: str,
-    project: str,
-    repository_id: str,
-    status: str | None = None
+    organization: str, project: str, repository_id: str, status: str | None = None
 ) -> dict[str, Any]:
     """
     Get pull request history for a repository.
@@ -67,11 +64,7 @@ async def get_pull_requests(
     client = AzureDevOpsRESTClient(organization_url=organization_url, pat=pat)
 
     try:
-        result = await client.get_pull_requests(
-            project=project,
-            repository_id=repository_id,
-            status=status
-        )
+        result = await client.get_pull_requests(project=project, repository_id=repository_id, status=status)
         return result
     except Exception as e:
         raise RuntimeError(f"Failed to fetch PRs for repository '{repository_id}': {e}") from e

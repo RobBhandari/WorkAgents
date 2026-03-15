@@ -11,11 +11,7 @@ from typing import Any
 from execution.collectors.ado_rest_client import AzureDevOpsRESTClient
 
 
-async def get_work_items_by_ids(
-    organization: str,
-    ids: list[int],
-    fields: list[str] | None = None
-) -> dict[str, Any]:
+async def get_work_items_by_ids(organization: str, ids: list[int], fields: list[str] | None = None) -> dict[str, Any]:
     """
     Fetch full work item details by IDs.
 
@@ -87,9 +83,7 @@ async def get_work_items_by_ids(
         )
 
     if organization not in organization_url:
-        raise ValueError(
-            f"Organization '{organization}' does not match ADO_ORGANIZATION_URL '{organization_url}'."
-        )
+        raise ValueError(f"Organization '{organization}' does not match ADO_ORGANIZATION_URL '{organization_url}'.")
 
     # Execute API call
     client = AzureDevOpsRESTClient(organization_url=organization_url, pat=pat)
@@ -98,6 +92,4 @@ async def get_work_items_by_ids(
         result = await client.get_work_items(ids=ids, fields=fields)
         return result
     except Exception as e:
-        raise RuntimeError(
-            f"Failed to fetch work items {ids[:5]}{'...' if len(ids) > 5 else ''}: {e}"
-        ) from e
+        raise RuntimeError(f"Failed to fetch work items {ids[:5]}{'...' if len(ids) > 5 else ''}: {e}") from e

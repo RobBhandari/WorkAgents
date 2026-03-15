@@ -11,10 +11,7 @@ from execution.collectors.ado_rest_client import AzureDevOpsRESTClient
 
 
 async def get_builds(
-    organization: str,
-    project: str,
-    min_time: str | None = None,
-    max_per_definition: int | None = None
+    organization: str, project: str, min_time: str | None = None, max_per_definition: int | None = None
 ) -> dict[str, Any]:
     """
     Get build history for a project.
@@ -67,11 +64,7 @@ async def get_builds(
     client = AzureDevOpsRESTClient(organization_url=organization_url, pat=pat)
 
     try:
-        result = await client.get_builds(
-            project=project,
-            min_time=min_time,
-            max_per_definition=max_per_definition
-        )
+        result = await client.get_builds(project=project, min_time=min_time, max_per_definition=max_per_definition)
         return result
     except Exception as e:
         raise RuntimeError(f"Failed to fetch builds for project '{project}': {e}") from e

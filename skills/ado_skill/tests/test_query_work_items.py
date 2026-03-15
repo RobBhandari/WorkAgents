@@ -5,10 +5,11 @@ Ensures WIQL injection prevention, authentication, and API error handling.
 """
 
 import os
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from skills.ado_skill.tools.query_work_items import query_work_items, SecurityError
+import pytest
+
+from skills.ado_skill.tools.query_work_items import SecurityError, query_work_items
 
 
 @pytest.mark.asyncio
@@ -23,11 +24,7 @@ async def test_query_work_items_validates_wiql():
     malicious_wiql = "[System.Id] = 1; DROP TABLE WorkItems--"
 
     with pytest.raises(SecurityError, match="WIQL validation failed"):
-        await query_work_items(
-            organization="contoso",
-            project="TestProject",
-            wiql=malicious_wiql
-        )
+        await query_work_items(organization="contoso", project="TestProject", wiql=malicious_wiql)
 
 
 @pytest.mark.asyncio
@@ -41,11 +38,7 @@ async def test_query_work_items_requires_credentials():
         del os.environ["ADO_PAT"]
 
     with pytest.raises(ValueError, match="Missing Azure DevOps credentials"):
-        await query_work_items(
-            organization="contoso",
-            project="TestProject",
-            wiql="SELECT [System.Id] FROM WorkItems"
-        )
+        await query_work_items(organization="contoso", project="TestProject", wiql="SELECT [System.Id] FROM WorkItems")
 
 
 @pytest.mark.asyncio
@@ -59,9 +52,7 @@ async def test_query_work_items_validates_organization_match():
     # Try to query different org (potential credential leak)
     with pytest.raises(ValueError, match="Organization.*does not match"):
         await query_work_items(
-            organization="different-org",  # Wrong org!
-            project="TestProject",
-            wiql="SELECT [System.Id] FROM WorkItems"
+            organization="different-org", project="TestProject", wiql="SELECT [System.Id] FROM WorkItems"  # Wrong org!
         )
 
 
@@ -76,29 +67,25 @@ async def test_query_work_items_success():
     # Mock the REST client
     mock_result = {
         "queryType": "flat",
-        "workItems": [
-            {"id": 1001, "url": "https://..."},
-            {"id": 1002, "url": "https://..."}
-        ]
+        "workItems": [{"id": 1001, "url": "https://..."}, {"id": 1002, "url": "https://..."}],
     }
 
-    with patch("skills.ado_skill.tools.query_work_items.AzureDevOpsRESTClient") as MockClient:
-        mock_client = MockClient.return_value
+    with patch("skills.ado_skill.tools.query_work_items.AzureDevOpsRESTClient") as mock_client_cls:
+        mock_client = mock_client_cls.return_value
         mock_client.query_by_wiql = AsyncMock(return_value=mock_result)
 
         # Execute
         result = await query_work_items(
             organization="contoso",
             project="TestProject",
-            wiql="SELECT [System.Id] FROM WorkItems WHERE [System.State] = 'Active'"
+            wiql="SELECT [System.Id] FROM WorkItems WHERE [System.State] = 'Active'",
         )
 
         # Verify
         assert result == mock_result
         assert len(result["workItems"]) == 2
         mock_client.query_by_wiql.assert_called_once_with(
-            project="TestProject",
-            wiql_query="SELECT [System.Id] FROM WorkItems WHERE [System.State] = 'Active'"
+            project="TestProject", wiql_query="SELECT [System.Id] FROM WorkItems WHERE [System.State] = 'Active'"
         )
 
 
@@ -111,16 +98,14 @@ async def test_query_work_items_handles_api_error():
     os.environ["ADO_PAT"] = "test-pat"
 
     # Mock API failure
-    with patch("skills.ado_skill.tools.query_work_items.AzureDevOpsRESTClient") as MockClient:
-        mock_client = MockClient.return_value
+    with patch("skills.ado_skill.tools.query_work_items.AzureDevOpsRESTClient") as mock_client_cls:
+        mock_client = mock_client_cls.return_value
         mock_client.query_by_wiql = AsyncMock(side_effect=Exception("API Error: 429 Too Many Requests"))
 
         # Execute and verify error wrapping
         with pytest.raises(RuntimeError, match="ADO query failed for project 'TestProject'"):
             await query_work_items(
-                organization="contoso",
-                project="TestProject",
-                wiql="SELECT [System.Id] FROM WorkItems"
+                organization="contoso", project="TestProject", wiql="SELECT [System.Id] FROM WorkItems"
             )
 
 
@@ -133,20 +118,17 @@ async def test_query_work_items_empty_result():
     os.environ["ADO_PAT"] = "test-pat"
 
     # Mock empty result
-    mock_result = {
-        "queryType": "flat",
-        "workItems": []
-    }
+    mock_result = {"queryType": "flat", "workItems": []}
 
-    with patch("skills.ado_skill.tools.query_work_items.AzureDevOpsRESTClient") as MockClient:
-        mock_client = MockClient.return_value
+    with patch("skills.ado_skill.tools.query_work_items.AzureDevOpsRESTClient") as mock_client_cls:
+        mock_client = mock_client_cls.return_value
         mock_client.query_by_wiql = AsyncMock(return_value=mock_result)
 
         # Execute
         result = await query_work_items(
             organization="contoso",
             project="TestProject",
-            wiql="SELECT [System.Id] FROM WorkItems WHERE 1 = 0"  # Always false
+            wiql="SELECT [System.Id] FROM WorkItems WHERE 1 = 0",  # Always false
         )
 
         # Verify

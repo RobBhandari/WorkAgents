@@ -10,11 +10,7 @@ from typing import Any
 from execution.collectors.ado_rest_client import AzureDevOpsRESTClient
 
 
-async def get_test_runs(
-    organization: str,
-    project: str,
-    top: int = 50
-) -> dict[str, Any]:
+async def get_test_runs(organization: str, project: str, top: int = 50) -> dict[str, Any]:
     """
     Get test run history for a project.
 

@@ -16,12 +16,7 @@ def test_collector(script_path: str, name: str) -> bool:
     print(f"{'='*60}")
 
     try:
-        result = subprocess.run(
-            [sys.executable, script_path],
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
+        result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, timeout=120)
 
         if result.returncode == 0:
             print(f"✓ {name} - PASS")
@@ -40,9 +35,9 @@ def test_collector(script_path: str, name: str) -> bool:
 
 
 def main():
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("COLLECTOR REFACTORING - VERIFICATION TEST")
-    print("="*60)
+    print("=" * 60)
 
     collectors = [
         ("execution/utils/ado_batch_utils.py", "Batch Utils"),
@@ -59,9 +54,9 @@ def main():
         results.append(test_collector(script, name))
 
     # Summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST SUMMARY")
-    print("="*60)
+    print("=" * 60)
 
     passed = sum(results)
     total = len(results)

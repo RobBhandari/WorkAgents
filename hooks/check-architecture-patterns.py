@@ -16,7 +16,6 @@ Exit codes:
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
 class ArchitectureViolation:

@@ -13,7 +13,6 @@ Returns exit code 1 if violations found (warning only, non-blocking)
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 # Files to exclude from checks
 EXCLUDE_PATTERNS = [

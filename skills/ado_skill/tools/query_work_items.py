@@ -82,11 +82,10 @@ async def query_work_items(organization: str, project: str, wiql: str) -> dict[s
         return result
     except Exception as e:
         # Re-raise with context
-        raise RuntimeError(
-            f"ADO query failed for project '{project}': {e}"
-        ) from e
+        raise RuntimeError(f"ADO query failed for project '{project}': {e}") from e
 
 
 class SecurityError(Exception):
     """Raised when security validation fails (e.g., WIQL injection detected)"""
+
     pass
