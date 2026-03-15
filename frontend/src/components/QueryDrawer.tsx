@@ -323,7 +323,7 @@ export function QueryDrawer({ isOpen, onClose }: QueryDrawerProps) {
                   borderRadius: '2px 12px 12px 12px',
                   padding: '14px 16px',
                 }}>
-                  <p style={{ fontSize: 14, lineHeight: 1.65, color: '#cbd5e1', margin: 0 }}>
+                  <p style={{ fontSize: 14, lineHeight: 1.65, color: '#cbd5e1', margin: 0, whiteSpace: 'pre-wrap' }}>
                     {msg.content}
                   </p>
 
