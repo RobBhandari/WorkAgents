@@ -152,6 +152,14 @@ _INTENT_MAP: dict[str, list[str]] = {
         "which product is failing",
         "which product has the most",
         "which product should i worry",
+        "worst performing",
+        "poorest performing",
+        "worst in the portfolio",
+        "bottom performer",
+        "which product is the worst",
+        "product performing worst",
+        "lagging product",
+        "most at-risk product",
     ],
     #
     # 5. Attention areas
@@ -275,7 +283,8 @@ _INTENT_MAP: dict[str, list[str]] = {
         "what's driving",
         "driving the risk",
         "high score",
-        "risk",
+        "risk level",
+        "risk situation",
         "red zone",
         "red metrics",
         "why red",
@@ -354,6 +363,10 @@ _INTENT_MAP: dict[str, list[str]] = {
         "proud of",
         "highlight",
         "shout out",
+        "best product",
+        "best in the portfolio",
+        "top performer",
+        "top performing product",
     ],
     #
     # 12. Worst metric
@@ -384,8 +397,6 @@ _INTENT_MAP: dict[str, list[str]] = {
         "should i",
         "concerned",
         "what to focus",
-        "priority",
-        "biggest problem",
         "summary",
         "overall",
         "how are we doing",
@@ -394,7 +405,6 @@ _INTENT_MAP: dict[str, list[str]] = {
         "portfolio",
         "big picture",
         "state of things",
-        "what's happening",
         "give me a summary",
         "brief me",
         "sitrep",
@@ -422,6 +432,8 @@ _INTENT_MAP: dict[str, list[str]] = {
 }
 
 _FALLBACK_INTENT = "portfolio_summary"
+
+_last_routing_source: str = "fallback"
 
 # RAG colour constants
 _RAG_RED = "#ef4444"
@@ -506,21 +518,30 @@ def _route_intent_keywords(query: str) -> str | None:
 
 _LLM_INTENT_SYSTEM = """\
 You are an intent classifier for an engineering intelligence dashboard.
-Classify the user query into exactly one of these intent keys:
+Classify the user query into exactly one of these intent keys.
 
-- product_query: questions about a specific named product (e.g. "status of Product A", "how is Product B doing", "tell me about Product C")
-- visual_explanation: questions about what a dashboard section or chart shows (e.g. "what does the anomaly river show?", "explain the radar chart", "what am I looking at?", "what is the product risk breakdown showing me?")
-- metric_detail: questions about a specific metric's current value or status (e.g. "what's the lead time?", "how are bugs looking?", "current build success rate?", "what's the reduction target at?")
-- worst_product: questions about the worst or lowest-performing product overall and why
-- attention_areas: questions about which products or areas need the most attention, where to focus, most critical issues
+INTENT DEFINITIONS (with disambiguation):
+
+- product_query: questions about a SPECIFIC NAMED product (e.g. "status of Product A", "how is Product B doing", "tell me about Product C"). Must mention a product by name.
+- visual_explanation: questions about what a dashboard section or chart shows (e.g. "what does the anomaly river show?", "explain the radar chart", "what am I looking at?")
+- metric_detail: questions about a specific metric's current value (e.g. "what's the lead time?", "how are bugs looking?", "current build success rate?")
+- worst_product: questions about which PRODUCT is worst, lowest-performing, most troubled, riskiest. Even if "portfolio" appears in the query, if the user is asking about the worst PRODUCT, use this intent. Examples: "worst performing product", "worst product in the portfolio", "which product is failing", "bottom of the portfolio"
+- best_product: which PRODUCT is performing best, healthiest, improving fastest, good news. Examples: "best performing product", "which product is doing well", "any success stories"
+- attention_areas: questions about where to focus effort, what needs the most attention, top priorities, what to tackle first
 - security_query: questions about security posture, vulnerabilities, exploitable issues, which product is most/least secure
 - ownership_query: questions about code ownership, single owners, bus factor, knowledge concentration
-- deployment_compare: questions about deployments, build success, pipelines, release frequency
-- risk_explanation: questions about risk scores, what is driving risk, why risk is high/low, red metrics explanation
-- trend_drill: questions about trends over time, deteriorating/improving metrics, rate of change, historical data
-- portfolio_summary: general health questions, what to worry about, overview, priorities, sprint concerns
-- best_product: which product/metric is performing best, healthiest, improving fastest, good news
-- worst_metric: which metric/area is worst, most at risk, failing
+- deployment_compare: questions about deployments, build success, pipelines, release frequency, CI/CD
+- risk_explanation: questions about risk SCORES specifically — what is driving the risk score, why risk is high/low. NOT general "what's wrong" questions.
+- trend_drill: questions about changes OVER TIME, deteriorating/improving trends, week-over-week comparisons, historical data
+- worst_metric: which METRIC or AREA (not product) is worst, most at risk, failing. Use when the question is about metrics, not products.
+- portfolio_summary: ONLY for genuinely broad overview questions — "how are we doing", "give me a summary", "catch me up", "sitrep". Do NOT use this for questions that ask about worst/best/specific things.
+
+CRITICAL RULES:
+- "worst product" / "worst performing product" → worst_product (NEVER portfolio_summary)
+- "best product" / "best performing product" → best_product (NEVER portfolio_summary)
+- "which product" + superlative → worst_product or best_product depending on direction
+- "what should I focus on" / "where to focus" → attention_areas (NOT portfolio_summary)
+- The word "portfolio" does NOT automatically mean portfolio_summary — check the actual question
 
 Respond with ONLY the intent key — no explanation, no punctuation."""
 
@@ -617,26 +638,28 @@ def _select_relevant_cards(
     products: list[dict[str, Any]],
     alerts: list[dict[str, Any]],
     max_cards: int = 3,
+    intent: str = "",
 ) -> list[dict[str, Any]] | None:
     """Pick evidence cards that match entities mentioned in the LLM narrative.
 
-    Scans the narrative for metric titles/IDs and product names, then builds
-    cards for the matches.  Returns None if nothing relevant is found (caller
-    keeps the original template cards).
+    For product-focused intents, product cards take priority over metric cards
+    to ensure evidence cards match the question type.
     """
     lowered = narrative.lower()
-    cards: list[dict[str, Any]] = []
+    product_cards: list[dict[str, Any]] = []
+    metric_cards: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
+
+    product_intents = {"worst_product", "best_product", "product_query", "attention_areas"}
 
     # 1. Match metrics mentioned by title or ID
     for m in metrics:
         mid = m.get("id", "")
         title = m.get("title", "")
-        # Check if the metric title or id appears in the narrative
         if (title and title.lower() in lowered) or (mid and mid.lower() in lowered):
             if mid not in seen_ids:
                 seen_ids.add(mid)
-                cards.append(
+                metric_cards.append(
                     {
                         "label": title or mid,
                         "value": _fmt_value(m.get("current")),
@@ -650,7 +673,7 @@ def _select_relevant_cards(
         pname = str(p.get("product", ""))
         if pname and pname.lower() in lowered and pname not in seen_ids:
             seen_ids.add(pname)
-            cards.append(
+            product_cards.append(
                 {
                     "label": pname,
                     "value": str(p.get("score", "")),
@@ -658,6 +681,12 @@ def _select_relevant_cards(
                     "rag": "red" if p.get("critical", 0) > 0 else ("amber" if p.get("warn", 0) > 0 else "green"),
                 }
             )
+
+    # 3. Order by intent type — product intents lead with product cards
+    if intent in product_intents:
+        cards = product_cards + metric_cards
+    else:
+        cards = metric_cards + product_cards
 
     if not cards:
         return None
@@ -705,8 +734,10 @@ def _build_data_summary(
 def route_intent(query: str, context: dict[str, Any]) -> str:
     """Determine intent from query string.
 
-    Tries LLM classification first (Gemini Flash); falls back to keyword matching
-    if API key is absent or the call fails.
+    Strategy: keywords first for specific intents, LLM as tiebreaker/fallback.
+    Keyword matches on specific intents are high-confidence — the LLM can
+    misclassify when broad terms (e.g. "portfolio") appear alongside specific
+    phrases (e.g. "worst performing product").
 
     Args:
         query: Raw natural-language query from the user.
@@ -715,10 +746,23 @@ def route_intent(query: str, context: dict[str, Any]) -> str:
     Returns:
         Intent key string.
     """
-    intent = _route_intent_llm(query)
-    if intent:
-        return intent
-    return _route_intent_keywords(query) or _FALLBACK_INTENT
+    global _last_routing_source
+    keyword_intent = _route_intent_keywords(query)
+
+    # High-confidence keyword match on a specific (non-fallback) intent — trust it.
+    if keyword_intent and keyword_intent != _FALLBACK_INTENT:
+        _last_routing_source = "keyword"
+        return keyword_intent
+
+    # Keywords matched nothing or only the broad fallback — let the LLM decide.
+    llm_intent = _route_intent_llm(query)
+    if llm_intent:
+        _last_routing_source = "llm"
+        return llm_intent
+
+    # LLM unavailable or failed — use keyword result or ultimate fallback.
+    _last_routing_source = "keyword" if keyword_intent else "fallback"
+    return keyword_intent or _FALLBACK_INTENT
 
 
 def compose_response(
@@ -1010,7 +1054,8 @@ def compose_response(
 
         # Augment with per-product risk ranking if available
         if products:
-            top_product = products[0]
+            sorted_products = sorted(products, key=lambda p: (-int(p["score"]), str(p["product"])))
+            top_product = sorted_products[0]
             narrative += (
                 f"The highest-risk product is {top_product['product']} "
                 f"(score: {top_product['score']}, "
@@ -1891,6 +1936,7 @@ def build_query_response(
     products: list[dict[str, Any]] = (product_risk or {}).get("products", [])
     response = compose_response(intent, context, trends_context, product_risk, alerts, query)
     response["query"] = query
+    response["routing_source"] = _last_routing_source
 
     # 1. Check knowledge base first (instant, no API call)
     kb_answer = lookup_knowledge(query)
@@ -1903,6 +1949,7 @@ def build_query_response(
             trends_context.get("metrics", []),
             products,
             alerts,
+            intent=intent,
         )
         if kb_cards:
             response["evidence_cards"] = kb_cards
@@ -1922,6 +1969,7 @@ def build_query_response(
             metrics_list,
             products,
             alerts,
+            intent=intent,
         )
         if relevant_cards:
             response["evidence_cards"] = relevant_cards
