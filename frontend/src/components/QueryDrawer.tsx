@@ -57,15 +57,15 @@ function EvidenceCardMini({ card }: { card: EvidenceCard }) {
   return (
     <div style={{
       background: 'rgba(255,255,255,0.03)',
-      border: `1px solid ${color}30`,
+      border: `1px solid ${color}50`,
       borderRadius: 8,
       padding: '8px 10px',
       minWidth: 90,
       flex: '1 1 auto',
     }}>
-      <div style={{ fontSize: 10, color: '#475569', marginBottom: 2 }}>{card.label}</div>
+      <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>{card.label}</div>
       <div style={{ fontSize: 20, fontWeight: 700, color, lineHeight: 1.1 }}>{card.value}</div>
-      <div style={{ fontSize: 10, color: '#475569', marginTop: 2 }}>{card.delta}</div>
+      <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>{card.delta}</div>
     </div>
   );
 }
@@ -310,10 +310,10 @@ export function QueryDrawer({ isOpen, onClose }: QueryDrawerProps) {
                     <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                       {msg.sourceModules.map((s) => (
                         <span key={s} style={{
-                          fontSize: 10, color: '#334155',
+                          fontSize: 10, color: '#94a3b8',
                           fontFamily: 'monospace',
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          background: 'rgba(255,255,255,0.08)',
+                          border: '1px solid rgba(255,255,255,0.15)',
                           borderRadius: 4,
                           padding: '1px 5px',
                         }}>
