@@ -619,31 +619,25 @@ def _generate_narrative_llm(
         if client is None:
             return None
 
+        # Only ask Gemini for a short conversational summary (1-2 sentences).
+        # The structured detail (bullets, numbered lists) comes from the template.
         prompt = (
             "You are the AI assistant for an Engineering Intelligence dashboard. "
             "A user asked a question about their engineering health metrics. "
-            "You have been given the classified intent, a template answer, and the "
-            "raw data summary. Generate a concise, conversational, and specific answer "
-            "to the user's actual question. Use the data provided — do not invent numbers. "
-            "Do not use markdown formatting (no **, no ##, no ```). "
-            "Do not start with 'Based on the data' or similar preamble — just answer directly.\n\n"
-            "FORMATTING RULES:\n"
-            "- Preserve the structure of the template answer. If it uses numbered lists "
-            "or bullet points (•), keep that structure in your response.\n"
-            "- Use newlines (\\n) to separate sections — do NOT flatten into a single paragraph.\n"
-            "- Use bullet points (• prefix) for listing issues, metrics, or products.\n"
-            "- Keep a clear visual hierarchy: headline, then details, then summary.\n"
-            "- Short is better. Each bullet should be one line.\n\n"
+            "Write a SHORT conversational summary (1-2 sentences max) that directly "
+            "answers the user's question using the data provided. "
+            "Do not invent numbers. Do not use markdown. "
+            "Do not start with 'Based on the data' or similar preamble. "
+            "Do not list individual issues or bullet points — just the headline answer.\n\n"
             f"User question: {query}\n"
             f"Classified intent: {intent}\n"
-            f"Template answer: {template_narrative}\n"
             f"Data summary:\n{data_summary}"
         )
 
         response = client.models.generate_content(
             model=_GEMINI_MODEL,
             contents=prompt,
-            config={"max_output_tokens": 1024, "temperature": 0.3},
+            config={"max_output_tokens": 256, "temperature": 0.3},
         )
         text = response.text.strip() if response.text else ""
         if len(text) > 20:  # sanity check — must be a real answer
@@ -835,10 +829,7 @@ def compose_response(
             domains = matched.get("domains", [])
 
             rag = "red" if critical > 0 else ("amber" if warn > 0 else "green")
-            narrative = (
-                f"{pname} — risk score {score} "
-                f"({critical} critical, {warn} warning) — {rag}."
-            )
+            narrative = f"{pname} — risk score {score} " f"({critical} critical, {warn} warning) — {rag}."
             if domains:
                 narrative += f"\nProblem areas: {', '.join(domains)}"
             reasons = _format_alert_reasons(p_alerts)
@@ -966,17 +957,14 @@ def compose_response(
                     header += "\n" + "\n".join(f"   • {b}" for b in bullet_lines)
                 parts.append(header)
 
-            narrative = (
-                f"{len(top)} product(s) need attention:\n\n" + "\n\n".join(parts)
-            )
+            narrative = f"{len(top)} product(s) need attention:\n\n" + "\n\n".join(parts)
 
             # Portfolio metric summary
             n_red = len(red_metrics)
             n_amber = len(amber_metrics)
             if n_red or n_amber:
                 narrative += (
-                    f"\n\nAcross all metrics: {n_red} red, {n_amber} amber. "
-                    "Focus on the products above first."
+                    f"\n\nAcross all metrics: {n_red} red, {n_amber} amber. " "Focus on the products above first."
                 )
         else:
             narrative = (
@@ -1072,10 +1060,7 @@ def compose_response(
                 f"change: {_fmt_delta(red_metrics[0].get('change'))})"
             )
         else:
-            narrative = (
-                f"The portfolio looks relatively healthy — "
-                f"{n_amber} amber, {n_green} green metric(s)."
-            )
+            narrative = f"The portfolio looks relatively healthy — " f"{n_amber} amber, {n_green} green metric(s)."
 
         # Augment with per-product risk ranking if available
         if products:
@@ -1981,17 +1966,29 @@ def build_query_response(
             response["evidence_cards"] = kb_cards
         return response
 
-    # 2. Try LLM-enhanced narrative — falls back to template on any failure
+    # 2. Try LLM-enhanced summary — Gemini provides a conversational headline,
+    #    the template provides the structured detail (bullets, numbered lists).
     data_summary = _build_data_summary(trends_context.get("metrics", []), products, alerts)
-    llm_narrative = _generate_narrative_llm(query, intent, response["narrative"], data_summary)
-    if llm_narrative:
-        response["narrative"] = llm_narrative
+    template_narrative = response["narrative"]
+    llm_summary = _generate_narrative_llm(query, intent, template_narrative, data_summary)
+    if llm_summary:
+        # Extract structured detail from template (everything after first double-newline)
+        detail_parts = template_narrative.split("\n\n", 1)
+        structured_detail = detail_parts[1] if len(detail_parts) > 1 else ""
+
+        # Combine: Gemini summary + template structured detail
+        if structured_detail:
+            response["narrative"] = llm_summary.rstrip() + "\n\n" + structured_detail
+        else:
+            response["narrative"] = llm_summary
+
         response["source_modules"] = response.get("source_modules", []) + ["gemini_flash"]
 
-        # 4. Re-select evidence cards to match what the LLM actually discussed
+        # Re-select evidence cards to match the combined narrative
+        combined = response["narrative"]
         metrics_list: list[dict[str, Any]] = trends_context.get("metrics", [])
         relevant_cards = _select_relevant_cards(
-            llm_narrative,
+            combined,
             metrics_list,
             products,
             alerts,
@@ -2000,8 +1997,7 @@ def build_query_response(
         if relevant_cards:
             response["evidence_cards"] = relevant_cards
 
-        # 5. Log the Gemini Q&A for future review
-        log_qa(query, intent, llm_narrative, source="gemini")
+        log_qa(query, intent, response["narrative"], source="gemini")
     else:
         # Log template responses too (lower priority for review)
         log_qa(query, intent, response["narrative"], source="template")
