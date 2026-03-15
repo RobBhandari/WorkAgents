@@ -33,6 +33,11 @@ _INTENT_MAP: dict[str, list[str]] = {
         "status of",
         "how is",
         "tell me about",
+        "tell me more about",
+        "more about product",
+        "details on product",
+        "what about product",
+        "drill into product",
         "what's happening with",
         "what is happening with",
         "posture for",
@@ -160,6 +165,10 @@ _INTENT_MAP: dict[str, list[str]] = {
         "product performing worst",
         "lagging product",
         "most at-risk product",
+        "which product has the highest risk",
+        "which product has the worst risk",
+        "product with the highest risk",
+        "product with the worst risk",
     ],
     #
     # 5. Attention areas
@@ -187,6 +196,10 @@ _INTENT_MAP: dict[str, list[str]] = {
         "what do i tackle",
         "what to tackle",
         "what should i address",
+        "should i prioritise",
+        "should i prioritize",
+        "should i focus",
+        "what to focus on",
         "what requires action",
         "needs intervention",
         "fire to put out",
@@ -343,6 +356,8 @@ _INTENT_MAP: dict[str, list[str]] = {
     # 11. Best product / positive signals (before portfolio_summary to avoid "good news" conflict)
     "best_product": [
         "improving fastest",
+        "what's improving",
+        "what is improving",
         "healthiest",
         "going well",
         "best performing",
@@ -920,7 +935,7 @@ def compose_response(
             signal_pills = []
 
         suggested_followups = [
-            f"Tell me more about {ranked[0]['product']}" if ranked else "What should I focus on this sprint?",
+            f"Tell me more about {ranked[0]['product']}" if ranked else "Where should I focus next?",
             "Which areas need the most attention?",
             "What's the security posture across the portfolio?",
         ]
@@ -1027,8 +1042,8 @@ def compose_response(
 
         suggested_followups = [
             "What's the deployment trend over the last 5 weeks?",
-            "Which product has the highest risk score?",
-            "What's improving in the portfolio?",
+            "Which product has the highest risk?",
+            "What's improving fastest?",
         ]
 
     # ------------------------------------------------------------------
@@ -1206,7 +1221,7 @@ def compose_response(
 
         suggested_followups = [
             "What's the overall portfolio status?",
-            "Which product has the worst risk score?",
+            "Which product has the worst risk?",
             "Is deployment trend improving or declining?",
         ]
 
@@ -1396,7 +1411,7 @@ def compose_response(
             suggested_followups = [
                 "What's the overall portfolio risk?",
                 "Is the security trend improving?",
-                "What should I prioritise this sprint?",
+                "What should I prioritise next?",
             ]
         elif sec_metric:
             rag = _rag_label(sec_metric.get("ragColor", ""))
@@ -1423,7 +1438,7 @@ def compose_response(
             suggested_followups = [
                 "What's the overall portfolio risk?",
                 "Is the security trend improving?",
-                "What should I prioritise this sprint?",
+                "What should I prioritise next?",
             ]
         else:
             narrative = (
@@ -1434,7 +1449,7 @@ def compose_response(
             signal_pills = []
             suggested_followups = [
                 "What's the overall portfolio risk?",
-                "What should I prioritise this sprint?",
+                "What should I prioritise next?",
             ]
 
     # ------------------------------------------------------------------
@@ -1484,7 +1499,7 @@ def compose_response(
         suggested_followups = [
             "Why is risk high?",
             "What's the deployment status?",
-            "What should I focus on this sprint?",
+            "Where should I focus next?",
         ]
 
     # ------------------------------------------------------------------
@@ -1563,7 +1578,7 @@ def compose_response(
 
         suggested_followups = [
             "What needs the most attention right now?",
-            "Which product has the worst risk score?",
+            "Which product has the worst risk?",
             "How is deployment performing?",
         ]
 

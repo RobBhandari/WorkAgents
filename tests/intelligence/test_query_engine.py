@@ -607,12 +607,11 @@ class TestNewKeywordCoverage:
 class TestKeywordTightening:
     """Verify that overly-broad keywords no longer steal from specific intents."""
 
-    def test_bare_risk_no_longer_matches_risk_explanation(self) -> None:
-        # "risk" alone was too greedy - now needs "risk level" or more specific phrase
-        # "what is the risk situation" should still match via "risk" being part of other keywords
-        # But a query like "which product has the highest risk" should NOT go to risk_explanation
-        # if there's a more specific keyword match
-        pass  # This is implicitly tested by priority routing
+    def test_which_product_highest_risk_routes_to_worst_product(self) -> None:
+        assert route_intent("which product has the highest risk", {}) == "worst_product"
+
+    def test_which_product_worst_risk_routes_to_worst_product(self) -> None:
+        assert route_intent("which product has the worst risk", {}) == "worst_product"
 
     def test_priority_no_longer_matches_portfolio(self) -> None:
         # "priority" was removed from portfolio_summary, so "top priorities" should match attention_areas
@@ -740,3 +739,39 @@ class TestRoutingSource:
         result = build_query_response("worst performing product")
         assert result["routing_source"] == "keyword"
         assert result["intent"] == "worst_product"
+
+
+# ---------------------------------------------------------------------------
+# TestFollowupRouting — verify suggested followups route to correct intents
+# ---------------------------------------------------------------------------
+
+
+class TestFollowupRouting:
+    """Ensure every suggested followup routes to a sensible intent."""
+
+    def test_tell_me_more_about_product(self) -> None:
+        assert route_intent("Tell me more about Product A", {}) == "product_query"
+
+    def test_whats_improving_fastest(self) -> None:
+        assert route_intent("What's improving fastest?", {}) == "best_product"
+
+    def test_where_should_i_focus(self) -> None:
+        assert route_intent("Where should I focus next?", {}) == "attention_areas"
+
+    def test_should_i_prioritise(self) -> None:
+        assert route_intent("What should I prioritise next?", {}) == "attention_areas"
+
+    def test_which_product_highest_risk_followup(self) -> None:
+        assert route_intent("Which product has the highest risk?", {}) == "worst_product"
+
+    def test_which_product_worst_risk_followup(self) -> None:
+        assert route_intent("Which product has the worst risk?", {}) == "worst_product"
+
+    def test_why_is_risk_high(self) -> None:
+        assert route_intent("Why is the risk score high?", {}) == "risk_explanation"
+
+    def test_whats_the_security_posture(self) -> None:
+        assert route_intent("What are the security posture details?", {}) == "security_query"
+
+    def test_deployment_trend(self) -> None:
+        assert route_intent("What's the deployment trend over the last 5 weeks?", {}) == "deployment_compare"
