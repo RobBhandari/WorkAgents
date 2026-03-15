@@ -210,11 +210,6 @@ export default function App() {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={() => setQueryDrawerOpen(true)} style={{
-            fontSize: '12px', fontWeight: 600, color: '#38bdf8',
-            background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)',
-            padding: '4px 12px', borderRadius: '6px', cursor: 'pointer', letterSpacing: '0.03em',
-          }}>◈ Ask EI</button>
         <span style={{
           fontSize: '11px',
           color: isStale ? '#f59e0b' : '#475569',

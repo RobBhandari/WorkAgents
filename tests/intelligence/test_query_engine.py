@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pytest
 
 from execution.intelligence.query_engine import (
+    _select_relevant_cards,
     build_query_response,
     compose_response,
     route_intent,
@@ -445,3 +446,76 @@ class TestBuildQueryResponse:
         from datetime import datetime
 
         datetime.fromisoformat(result["generated_at"])
+
+
+# ---------------------------------------------------------------------------
+# TestSelectRelevantCards
+# ---------------------------------------------------------------------------
+
+
+SAMPLE_METRICS = MOCK_TRENDS["metrics"]
+SAMPLE_PRODUCTS = [
+    {"product": "Product A", "score": 15, "critical": 2, "warn": 1, "domains": ["security"]},
+    {"product": "Product B", "score": 5, "critical": 0, "warn": 2, "domains": ["flow"]},
+]
+
+
+class TestSelectRelevantCards:
+    """Tests for _select_relevant_cards() — narrative-aware card selection."""
+
+    def test_matches_metric_by_title(self) -> None:
+        narrative = "The Risk Score is currently 74, which is above threshold."
+        cards = _select_relevant_cards(narrative, SAMPLE_METRICS, [], [])
+        assert cards is not None
+        assert any(c["label"] == "Risk Score" for c in cards)
+
+    def test_matches_multiple_metrics(self) -> None:
+        narrative = "Risk Score is red at 74. Build Success Rate dropped to 61."
+        cards = _select_relevant_cards(narrative, SAMPLE_METRICS, [], [])
+        assert cards is not None
+        labels = {c["label"] for c in cards}
+        assert "Risk Score" in labels
+        assert "Build Success Rate" in labels
+
+    def test_matches_product_by_name(self) -> None:
+        narrative = "Product A has the highest risk score at 15 with 2 critical alerts."
+        cards = _select_relevant_cards(narrative, [], SAMPLE_PRODUCTS, [])
+        assert cards is not None
+        assert cards[0]["label"] == "Product A"
+        assert cards[0]["rag"] == "red"
+
+    def test_matches_mixed_metrics_and_products(self) -> None:
+        narrative = "Product B has flow issues. Lead Time is amber at 18 days."
+        cards = _select_relevant_cards(narrative, SAMPLE_METRICS, SAMPLE_PRODUCTS, [])
+        assert cards is not None
+        labels = {c["label"] for c in cards}
+        assert "Product B" in labels
+        assert "Lead Time" in labels
+
+    def test_returns_none_when_no_match(self) -> None:
+        narrative = "Everything is fine, no specific metrics mentioned here."
+        cards = _select_relevant_cards(narrative, SAMPLE_METRICS, SAMPLE_PRODUCTS, [])
+        assert cards is None
+
+    def test_respects_max_cards(self) -> None:
+        narrative = "Risk Score, Build Success Rate, Bug Escape Rate, Lead Time, Exploitable Vulns."
+        cards = _select_relevant_cards(narrative, SAMPLE_METRICS, [], [], max_cards=2)
+        assert cards is not None
+        assert len(cards) <= 2
+
+    def test_no_duplicate_ids(self) -> None:
+        narrative = "Risk Score is high. The risk metric is above threshold. Risk Score needs attention."
+        cards = _select_relevant_cards(narrative, SAMPLE_METRICS, [], [])
+        assert cards is not None
+        labels = [c["label"] for c in cards]
+        assert labels.count("Risk Score") == 1
+
+    def test_card_shape(self) -> None:
+        narrative = "Exploitable Vulns are down to 3."
+        cards = _select_relevant_cards(narrative, SAMPLE_METRICS, [], [])
+        assert cards is not None
+        card = cards[0]
+        assert "label" in card
+        assert "value" in card
+        assert "delta" in card
+        assert card["rag"] in ("red", "amber", "green", "neutral")

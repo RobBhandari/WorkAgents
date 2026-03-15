@@ -611,6 +611,60 @@ def _generate_narrative_llm(
         return None
 
 
+def _select_relevant_cards(
+    narrative: str,
+    metrics: list[dict[str, Any]],
+    products: list[dict[str, Any]],
+    alerts: list[dict[str, Any]],
+    max_cards: int = 3,
+) -> list[dict[str, Any]] | None:
+    """Pick evidence cards that match entities mentioned in the LLM narrative.
+
+    Scans the narrative for metric titles/IDs and product names, then builds
+    cards for the matches.  Returns None if nothing relevant is found (caller
+    keeps the original template cards).
+    """
+    lowered = narrative.lower()
+    cards: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+
+    # 1. Match metrics mentioned by title or ID
+    for m in metrics:
+        mid = m.get("id", "")
+        title = m.get("title", "")
+        # Check if the metric title or id appears in the narrative
+        if (title and title.lower() in lowered) or (mid and mid.lower() in lowered):
+            if mid not in seen_ids:
+                seen_ids.add(mid)
+                cards.append(
+                    {
+                        "label": title or mid,
+                        "value": _fmt_value(m.get("current")),
+                        "delta": _fmt_delta(m.get("change")),
+                        "rag": _rag_label(m.get("ragColor", "")),
+                    }
+                )
+
+    # 2. Match products mentioned by name
+    for p in products:
+        pname = str(p.get("product", ""))
+        if pname and pname.lower() in lowered and pname not in seen_ids:
+            seen_ids.add(pname)
+            cards.append(
+                {
+                    "label": pname,
+                    "value": str(p.get("score", "")),
+                    "delta": f"{p.get('critical', 0)}× critical",
+                    "rag": "red" if p.get("critical", 0) > 0 else ("amber" if p.get("warn", 0) > 0 else "green"),
+                }
+            )
+
+    if not cards:
+        return None
+
+    return cards[:max_cards]
+
+
 def _build_data_summary(
     metrics: list[dict[str, Any]],
     products: list[dict[str, Any]],
@@ -727,15 +781,27 @@ def compose_response(
             else:
                 narrative += "No detailed alert messages available for this product."
 
+            # Lead with product summary card, then individual alerts
             evidence_cards = [
                 {
-                    "label": a.get("metric_name", a.get("dashboard", "")),
-                    "value": a.get("severity", "").upper(),
-                    "delta": a.get("dashboard", ""),
-                    "rag": "red" if a.get("severity") == "critical" else "amber",
+                    "label": pname,
+                    "value": str(score),
+                    "delta": f"{critical}× critical, {warn}× warn",
+                    "rag": rag,
                 }
-                for a in p_alerts[:4]
             ]
+            for a in p_alerts[:3]:
+                alert_label = a.get("metric_name", a.get("dashboard", ""))
+                if "_" in alert_label:
+                    alert_label = alert_label.replace("_", " ").title()
+                evidence_cards.append(
+                    {
+                        "label": alert_label,
+                        "value": a.get("severity", "warning").title(),
+                        "delta": a.get("dashboard", ""),
+                        "rag": "red" if a.get("severity") == "critical" else "amber",
+                    }
+                )
             signal_pills = [
                 {
                     "type": "threshold_breach",
@@ -999,6 +1065,8 @@ def compose_response(
 
         narrative += "Use the evidence cards to review week-on-week changes."
 
+        # Show the metrics actually discussed: worsening first, then improving
+        trend_relevant = (worsening + improving)[:4] or metrics[:4]
         evidence_cards = [
             {
                 "label": m.get("title", m.get("id", "")),
@@ -1006,7 +1074,7 @@ def compose_response(
                 "delta": _fmt_delta(m.get("change")),
                 "rag": _rag_label(m.get("ragColor", "")),
             }
-            for m in metrics[:4]
+            for m in trend_relevant
         ]
 
         signal_pills = [
@@ -1063,8 +1131,8 @@ def compose_response(
             if deploy_metric
             else []
         )
-        # Pad with other metrics
-        for m in metrics:
+        # Pad with actionable metrics
+        for m in red_metrics + amber_metrics + green_metrics:
             if deploy_metric and m.get("id") == deploy_metric.get("id"):
                 continue
             if len(evidence_cards) >= 4:
@@ -1201,15 +1269,28 @@ def compose_response(
                 narrative += f"Key issues: {reasons}"
             else:
                 narrative += "No security-specific alerts found for this product."
+            # Lead with product summary card, then individual alerts
             evidence_cards = [
                 {
-                    "label": a.get("metric_name", a.get("dashboard", "")),
-                    "value": a.get("severity", "").upper(),
-                    "delta": a.get("dashboard", ""),
-                    "rag": "red" if a.get("severity") == "critical" else "amber",
+                    "label": pname,
+                    "value": str(named_product["score"]),
+                    "delta": f"{named_product['critical']}× critical",
+                    "rag": rag,
                 }
-                for a in (sec_alerts or p_alerts)[:4]
             ]
+            for a in (sec_alerts or p_alerts)[:3]:
+                alert_label = a.get("metric_name", a.get("dashboard", ""))
+                # Humanise raw IDs: replace underscores with spaces and title-case
+                if "_" in alert_label:
+                    alert_label = alert_label.replace("_", " ").title()
+                evidence_cards.append(
+                    {
+                        "label": alert_label,
+                        "value": a.get("severity", "warning").title(),
+                        "delta": a.get("dashboard", ""),
+                        "rag": "red" if a.get("severity") == "critical" else "amber",
+                    }
+                )
             signal_pills = [
                 {
                     "type": "threshold_breach",
@@ -1363,47 +1444,81 @@ def compose_response(
 
     # ------------------------------------------------------------------
     elif intent == "best_product":
-        source_modules.append("signals")
-        if green_metrics:
-            best = green_metrics[0]
+        source_modules.append("product_risk")
+        # Rank products by lowest risk score (best performing)
+        ranked = sorted(products, key=lambda p: (int(p["score"]), str(p["product"])))
+
+        if ranked:
+            best = ranked[0]
+            bname = best["product"]
             narrative = (
-                f"The metric showing the strongest health is {best.get('title', best.get('id', 'unknown'))} "
-                f"with a current value of {_fmt_value(best.get('current'))} "
-                f"({_fmt_delta(best.get('change'))} vs prior period). "
+                f"The best performing product is {bname} with the lowest risk score "
+                f"of {best['score']} ({best.get('critical', 0)} critical, "
+                f"{best.get('warn', 0)} warning alert(s)). "
             )
-            if len(green_metrics) > 1:
-                rest = ", ".join(m.get("title", m.get("id", "")) for m in green_metrics[1:3])
-                narrative += f"Other green metrics include: {rest}. "
-            narrative += "These represent the portfolio's strongest engineering signals."
+            if len(ranked) > 1:
+                second = ranked[1]
+                narrative += f"Next best is {second['product']} (score: {second['score']}). "
+            # Add green metrics context
+            if green_metrics:
+                green_names = ", ".join(m.get("title", m.get("id", "")) for m in green_metrics[:2])
+                narrative += f"Healthy metrics across the portfolio: {green_names}."
+
+            evidence_cards = [
+                {
+                    "label": p["product"],
+                    "value": str(p["score"]),
+                    "delta": f"{p.get('critical', 0)}× critical",
+                    "rag": (
+                        "green"
+                        if p["critical"] == 0 and p.get("warn", 0) == 0
+                        else ("amber" if p["critical"] == 0 else "red")
+                    ),
+                }
+                for p in ranked[:4]
+            ]
         else:
-            narrative = (
-                "No metrics are currently in the green zone. "
-                "The portfolio is under pressure — focus on reducing red and amber metrics first."
-            )
+            # No product data — fall back to green metrics
+            if green_metrics:
+                best_m = green_metrics[0]
+                narrative = (
+                    f"No per-product data available. The healthiest metric is "
+                    f"{best_m.get('title', best_m.get('id', 'unknown'))} at "
+                    f"{_fmt_value(best_m.get('current'))} "
+                    f"({_fmt_delta(best_m.get('change'))} vs prior period)."
+                )
+            else:
+                narrative = (
+                    "No products or green metrics found. "
+                    "The portfolio is under pressure — focus on reducing red and amber metrics."
+                )
+            evidence_cards = [
+                {
+                    "label": m.get("title", m.get("id", "")),
+                    "value": _fmt_value(m.get("current")),
+                    "delta": _fmt_delta(m.get("change")),
+                    "rag": _rag_label(m.get("ragColor", "")),
+                }
+                for m in green_metrics[:4]
+            ]
 
-        evidence_cards = [
-            {
-                "label": m.get("title", m.get("id", "")),
-                "value": _fmt_value(m.get("current")),
-                "delta": _fmt_delta(m.get("change")),
-                "rag": _rag_label(m.get("ragColor", "")),
-            }
-            for m in green_metrics[:4]
-        ]
-
-        signal_pills = [
-            {
-                "type": "recovery_trend",
-                "metric_id": m.get("id", ""),
-                "severity": "info",
-                "label": f"{m.get('title', m.get('id', ''))} is healthy",
-            }
-            for m in green_metrics[:3]
-        ]
+        signal_pills = (
+            [
+                {
+                    "type": "recovery_trend",
+                    "metric_id": f"product_{p['product'].lower().replace(' ', '_')}",
+                    "severity": "info",
+                    "label": f"{p['product']} — lowest risk",
+                }
+                for p in ranked[:1]
+            ]
+            if ranked
+            else []
+        )
 
         suggested_followups = [
             "What needs the most attention right now?",
-            "What's the risk explanation for red metrics?",
+            "Which product has the worst risk score?",
             "How is deployment performing?",
         ]
 
@@ -1532,15 +1647,39 @@ def compose_response(
             )
             matched_section = "dashboard"
 
-        evidence_cards = [
-            {
-                "label": m.get("title", m.get("id", "")),
-                "value": _fmt_value(m.get("current")),
-                "delta": _fmt_delta(m.get("change")),
-                "rag": _rag_label(m.get("ragColor", "")),
-            }
-            for m in metrics[:3]
-        ]
+        # Pick cards relevant to the section being explained
+        if matched_section == "Product Risk Panel" and products:
+            ranked = sorted(products, key=lambda p: (-int(p["score"]), str(p["product"])))
+            evidence_cards = [
+                {
+                    "label": p["product"],
+                    "value": str(p["score"]),
+                    "delta": f"{p['critical']}× critical",
+                    "rag": "red" if p["critical"] > 0 else "amber",
+                }
+                for p in ranked[:3]
+            ]
+        elif matched_section in ("Health Score", "Alert Layer / Active Risk Signals"):
+            evidence_cards = [
+                {
+                    "label": m.get("title", m.get("id", "")),
+                    "value": _fmt_value(m.get("current")),
+                    "delta": _fmt_delta(m.get("change")),
+                    "rag": _rag_label(m.get("ragColor", "")),
+                }
+                for m in (red_metrics + amber_metrics)[:3]
+            ]
+        else:
+            # For other visual sections, show the most actionable metrics
+            evidence_cards = [
+                {
+                    "label": m.get("title", m.get("id", "")),
+                    "value": _fmt_value(m.get("current")),
+                    "delta": _fmt_delta(m.get("change")),
+                    "rag": _rag_label(m.get("ragColor", "")),
+                }
+                for m in (red_metrics + amber_metrics + green_metrics)[:3]
+            ]
         signal_pills = (
             [
                 {
@@ -1632,8 +1771,8 @@ def compose_response(
                     "rag": rag,
                 }
             ]
-            # Add neighbouring metrics for context
-            for m in metrics:
+            # Add neighbouring metrics for context (prioritise actionable ones)
+            for m in red_metrics + amber_metrics + green_metrics:
                 if m.get("id") == target_id:
                     continue
                 if len(evidence_cards) >= 4:
@@ -1670,7 +1809,7 @@ def compose_response(
                     "delta": _fmt_delta(m.get("change")),
                     "rag": _rag_label(m.get("ragColor", "")),
                 }
-                for m in metrics[:4]
+                for m in (red_metrics + amber_metrics + green_metrics)[:4]
             ]
             signal_pills = []
 
@@ -1699,7 +1838,7 @@ def compose_response(
                 "delta": _fmt_delta(m.get("change")),
                 "rag": _rag_label(m.get("ragColor", "")),
             }
-            for m in metrics[:4]
+            for m in (red_metrics + amber_metrics + green_metrics)[:4]
         ]
         signal_pills = []
         suggested_followups = [
@@ -1749,6 +1888,7 @@ def build_query_response(
     from execution.intelligence.knowledge_base import log_qa, lookup_knowledge
 
     intent = route_intent(query, context)
+    products: list[dict[str, Any]] = (product_risk or {}).get("products", [])
     response = compose_response(intent, context, trends_context, product_risk, alerts, query)
     response["query"] = query
 
@@ -1757,16 +1897,36 @@ def build_query_response(
     if kb_answer:
         response["narrative"] = kb_answer
         response["source_modules"] = response.get("source_modules", []) + ["knowledge_base"]
+        # Re-select evidence cards to match KB answer content
+        kb_cards = _select_relevant_cards(
+            kb_answer,
+            trends_context.get("metrics", []),
+            products,
+            alerts,
+        )
+        if kb_cards:
+            response["evidence_cards"] = kb_cards
         return response
 
     # 2. Try LLM-enhanced narrative — falls back to template on any failure
-    products: list[dict[str, Any]] = (product_risk or {}).get("products", [])
     data_summary = _build_data_summary(trends_context.get("metrics", []), products, alerts)
     llm_narrative = _generate_narrative_llm(query, intent, response["narrative"], data_summary)
     if llm_narrative:
         response["narrative"] = llm_narrative
         response["source_modules"] = response.get("source_modules", []) + ["gemini_flash"]
-        # 3. Log the Gemini Q&A for future review
+
+        # 4. Re-select evidence cards to match what the LLM actually discussed
+        metrics_list: list[dict[str, Any]] = trends_context.get("metrics", [])
+        relevant_cards = _select_relevant_cards(
+            llm_narrative,
+            metrics_list,
+            products,
+            alerts,
+        )
+        if relevant_cards:
+            response["evidence_cards"] = relevant_cards
+
+        # 5. Log the Gemini Q&A for future review
         log_qa(query, intent, llm_narrative, source="gemini")
     else:
         # Log template responses too (lower priority for review)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
 import { API_BASE, AUTH_HEADER } from '../lib/apiBase';
 import { QueryResponse, EvidenceCard } from '../types/query';
 
@@ -74,6 +74,8 @@ export function QueryDrawer({ isOpen, onClose }: QueryDrawerProps) {
   const [thread, setThread] = useState<ThreadMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -91,6 +93,8 @@ export function QueryDrawer({ isOpen, onClose }: QueryDrawerProps) {
   async function fireQuestion(q: string) {
     const trimmed = q.trim();
     if (!trimmed || loading) return;
+    setHistory((prev) => [...prev, trimmed]);
+    setHistoryIndex(-1);
     setInput('');
     setLoading(true);
     setThread((prev) => [...prev, { role: 'user', content: trimmed }, { role: 'thinking' }]);
@@ -121,9 +125,34 @@ export function QueryDrawer({ isOpen, onClose }: QueryDrawerProps) {
     }
   }
 
+  const navigateHistory = useCallback((direction: 'up' | 'down') => {
+    if (history.length === 0) return;
+    if (direction === 'up') {
+      const newIndex = historyIndex === -1 ? history.length - 1 : Math.max(0, historyIndex - 1);
+      setHistoryIndex(newIndex);
+      setInput(history[newIndex]);
+    } else {
+      if (historyIndex === -1) return;
+      const newIndex = historyIndex + 1;
+      if (newIndex >= history.length) {
+        setHistoryIndex(-1);
+        setInput('');
+      } else {
+        setHistoryIndex(newIndex);
+        setInput(history[newIndex]);
+      }
+    }
+  }, [history, historyIndex]);
+
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       void fireQuestion(input);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      navigateHistory('up');
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      navigateHistory('down');
     }
   }
 

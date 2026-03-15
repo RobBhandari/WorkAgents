@@ -1,4 +1,4 @@
-import { useState, useRef, KeyboardEvent } from 'react';
+import { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { useQueryData } from '../hooks/useQueryData';
 import { QueryContext, EvidenceCard } from '../types/query';
 
@@ -63,12 +63,16 @@ function EvidenceCardMini({ card }: { card: EvidenceCard }) {
 export function QueryThread({ context, suggestedQuestions }: QueryThreadProps) {
   const [thread, setThread] = useState<ThreadMessage[]>([]);
   const [input, setInput] = useState('');
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const { loading, error } = useQueryData();
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function fireQuestion(q: string) {
     const trimmed = q.trim();
     if (!trimmed || loading) return;
+    setHistory((prev) => [...prev, trimmed]);
+    setHistoryIndex(-1);
     setInput('');
     setThread((prev) => [...prev, { role: 'user', content: trimmed }, { role: 'thinking' }]);
 
@@ -100,9 +104,34 @@ export function QueryThread({ context, suggestedQuestions }: QueryThreadProps) {
     }
   }
 
+  const navigateHistory = useCallback((direction: 'up' | 'down') => {
+    if (history.length === 0) return;
+    if (direction === 'up') {
+      const newIndex = historyIndex === -1 ? history.length - 1 : Math.max(0, historyIndex - 1);
+      setHistoryIndex(newIndex);
+      setInput(history[newIndex]);
+    } else {
+      if (historyIndex === -1) return;
+      const newIndex = historyIndex + 1;
+      if (newIndex >= history.length) {
+        setHistoryIndex(-1);
+        setInput('');
+      } else {
+        setHistoryIndex(newIndex);
+        setInput(history[newIndex]);
+      }
+    }
+  }, [history, historyIndex]);
+
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       void fireQuestion(input);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      navigateHistory('up');
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      navigateHistory('down');
     }
   }
 
