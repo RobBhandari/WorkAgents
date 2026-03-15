@@ -667,6 +667,40 @@ def _generate_narrative_llm(
         return None
 
 
+def _match_metric_card(m: dict[str, Any], lowered: str, seen_ids: set[str]) -> dict[str, Any] | None:
+    """Return an evidence card if the metric is mentioned in the narrative."""
+    mid = m.get("id", "")
+    title = m.get("title", "")
+    mentioned = (title and title.lower() in lowered) or (mid and mid.lower() in lowered)
+    if not mentioned or mid in seen_ids:
+        return None
+    seen_ids.add(mid)
+    return {
+        "label": title or mid,
+        "value": _fmt_value(m.get("current")),
+        "delta": _fmt_delta(m.get("change")),
+        "rag": _rag_label(m.get("ragColor", "")),
+    }
+
+
+def _match_product_card(p: dict[str, Any], lowered: str, seen_ids: set[str]) -> dict[str, Any] | None:
+    """Return an evidence card if the product is mentioned in the narrative."""
+    pname = str(p.get("product", ""))
+    if not pname or pname.lower() not in lowered or pname in seen_ids:
+        return None
+    seen_ids.add(pname)
+    rag = "red" if p.get("critical", 0) > 0 else ("amber" if p.get("warn", 0) > 0 else "green")
+    return {
+        "label": pname,
+        "value": str(p.get("score", "")),
+        "delta": f"{p.get('critical', 0)}× critical",
+        "rag": rag,
+    }
+
+
+_PRODUCT_INTENTS = {"worst_product", "best_product", "product_query", "attention_areas"}
+
+
 def _select_relevant_cards(
     narrative: str,
     metrics: list[dict[str, Any]],
@@ -675,58 +709,19 @@ def _select_relevant_cards(
     max_cards: int = 3,
     intent: str = "",
 ) -> list[dict[str, Any]] | None:
-    """Pick evidence cards that match entities mentioned in the LLM narrative.
-
-    For product-focused intents, product cards take priority over metric cards
-    to ensure evidence cards match the question type.
-    """
+    """Pick evidence cards that match entities mentioned in the LLM narrative."""
     lowered = narrative.lower()
-    product_cards: list[dict[str, Any]] = []
-    metric_cards: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
 
-    product_intents = {"worst_product", "best_product", "product_query", "attention_areas"}
+    metric_cards = [c for m in metrics if (c := _match_metric_card(m, lowered, seen_ids))]
+    product_cards = [c for p in products if (c := _match_product_card(p, lowered, seen_ids))]
 
-    # 1. Match metrics mentioned by title or ID
-    for m in metrics:
-        mid = m.get("id", "")
-        title = m.get("title", "")
-        if (title and title.lower() in lowered) or (mid and mid.lower() in lowered):
-            if mid not in seen_ids:
-                seen_ids.add(mid)
-                metric_cards.append(
-                    {
-                        "label": title or mid,
-                        "value": _fmt_value(m.get("current")),
-                        "delta": _fmt_delta(m.get("change")),
-                        "rag": _rag_label(m.get("ragColor", "")),
-                    }
-                )
-
-    # 2. Match products mentioned by name
-    for p in products:
-        pname = str(p.get("product", ""))
-        if pname and pname.lower() in lowered and pname not in seen_ids:
-            seen_ids.add(pname)
-            product_cards.append(
-                {
-                    "label": pname,
-                    "value": str(p.get("score", "")),
-                    "delta": f"{p.get('critical', 0)}× critical",
-                    "rag": "red" if p.get("critical", 0) > 0 else ("amber" if p.get("warn", 0) > 0 else "green"),
-                }
-            )
-
-    # 3. Order by intent type — product intents lead with product cards
-    if intent in product_intents:
+    if intent in _PRODUCT_INTENTS:
         cards = product_cards + metric_cards
     else:
         cards = metric_cards + product_cards
 
-    if not cards:
-        return None
-
-    return cards[:max_cards]
+    return cards[:max_cards] or None
 
 
 def _build_data_summary(
@@ -882,8 +877,6 @@ def build_query_response(
     trends_context = build_trends_context(history_dir=Path(".tmp/observatory"))
     alerts: list[dict[str, Any]] = trends_context.get("active_alerts", [])
     product_risk = build_product_risk_response(alerts)
-    from execution.intelligence.knowledge_base import log_qa, lookup_knowledge
-
     intent = route_intent(query, context)
     products: list[dict[str, Any]] = (product_risk or {}).get("products", [])
     response = compose_response(intent, context, trends_context, product_risk, alerts, query)
@@ -899,57 +892,57 @@ def build_query_response(
             "but here's the closest context I can provide.\n\n" + response["narrative"]
         )
 
+    response = _enhance_response(response, query, intent, trends_context, products, alerts)
+    return response
+
+
+def _reselect_cards(
+    response: dict[str, Any],
+    narrative: str,
+    metrics: list[dict[str, Any]],
+    products: list[dict[str, Any]],
+    alerts: list[dict[str, Any]],
+    intent: str,
+) -> None:
+    """Re-select evidence cards to match updated narrative content."""
+    cards = _select_relevant_cards(narrative, metrics, products, alerts, intent=intent)
+    if cards:
+        response["evidence_cards"] = cards
+
+
+def _enhance_response(
+    response: dict[str, Any],
+    query: str,
+    intent: str,
+    trends_context: dict[str, Any],
+    products: list[dict[str, Any]],
+    alerts: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Apply KB or LLM enhancement to the base response."""
+    from execution.intelligence.knowledge_base import log_qa, lookup_knowledge
+
+    metrics = trends_context.get("metrics", [])
+
     # 1. Check knowledge base first (instant, no API call)
     kb_answer = lookup_knowledge(query)
     if kb_answer:
         response["narrative"] = kb_answer
         response["source_modules"] = response.get("source_modules", []) + ["knowledge_base"]
-        # Re-select evidence cards to match KB answer content
-        kb_cards = _select_relevant_cards(
-            kb_answer,
-            trends_context.get("metrics", []),
-            products,
-            alerts,
-            intent=intent,
-        )
-        if kb_cards:
-            response["evidence_cards"] = kb_cards
+        _reselect_cards(response, kb_answer, metrics, products, alerts, intent)
         return response
 
-    # 2. Try LLM-enhanced summary — Gemini provides a conversational headline,
-    #    the template provides the structured detail (bullets, numbered lists).
-    data_summary = _build_data_summary(trends_context.get("metrics", []), products, alerts)
+    # 2. Try LLM-enhanced summary
+    data_summary = _build_data_summary(metrics, products, alerts)
     template_narrative = response["narrative"]
     llm_summary = _generate_narrative_llm(query, intent, template_narrative, data_summary)
     if llm_summary:
-        # Extract structured detail from template (everything after first double-newline)
         detail_parts = template_narrative.split("\n\n", 1)
         structured_detail = detail_parts[1] if len(detail_parts) > 1 else ""
-
-        # Combine: Gemini summary + template structured detail
-        if structured_detail:
-            response["narrative"] = llm_summary.rstrip() + "\n\n" + structured_detail
-        else:
-            response["narrative"] = llm_summary
-
+        response["narrative"] = llm_summary.rstrip() + "\n\n" + structured_detail if structured_detail else llm_summary
         response["source_modules"] = response.get("source_modules", []) + ["gemini_flash"]
-
-        # Re-select evidence cards to match the combined narrative
-        combined = response["narrative"]
-        metrics_list: list[dict[str, Any]] = trends_context.get("metrics", [])
-        relevant_cards = _select_relevant_cards(
-            combined,
-            metrics_list,
-            products,
-            alerts,
-            intent=intent,
-        )
-        if relevant_cards:
-            response["evidence_cards"] = relevant_cards
-
+        _reselect_cards(response, response["narrative"], metrics, products, alerts, intent)
         log_qa(query, intent, response["narrative"], source="gemini")
     else:
-        # Log template responses too (lower priority for review)
         log_qa(query, intent, response["narrative"], source="template")
 
     return response

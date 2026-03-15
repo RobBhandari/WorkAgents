@@ -426,40 +426,62 @@ def handle_portfolio_summary(ctx: IntentContext) -> IntentResult:
     return result
 
 
-def handle_trend_drill(ctx: IntentContext) -> IntentResult:
-    result = IntentResult(narrative="", source_modules=["change_point_detector"])
-    improving = [m for m in ctx.metrics if (m.get("change") or 0) < 0 and m.get("ragColor") == _RAG_GREEN]
-    worsening = [m for m in ctx.metrics if (m.get("change") or 0) > 0 and m.get("ragColor") == _RAG_RED]
+def _metric_name(m: dict[str, Any]) -> str:
+    """Return the display name for a metric dict."""
+    return str(m.get("title", m.get("id", "")))
 
+
+def _trend_narrative(worsening: list[dict[str, Any]], improving: list[dict[str, Any]]) -> str:
+    """Build the narrative paragraph for trend drill."""
+    parts: list[str] = []
     if worsening:
-        names = ", ".join(m.get("title", m.get("id", "")) for m in worsening[:2])
-        result.narrative = f"The metrics showing the most deterioration are: {names}. "
+        names = ", ".join(_metric_name(m) for m in worsening[:2])
+        parts.append(f"The metrics showing the most deterioration are: {names}. ")
     else:
-        result.narrative = "No strongly worsening trends detected in the current data. "
-
+        parts.append("No strongly worsening trends detected in the current data. ")
     if improving:
-        imp_names = ", ".join(m.get("title", m.get("id", "")) for m in improving[:2])
-        result.narrative += f"Metrics that are improving: {imp_names}. "
+        names = ", ".join(_metric_name(m) for m in improving[:2])
+        parts.append(f"Metrics that are improving: {names}. ")
+    parts.append("Use the evidence cards to review week-on-week changes.")
+    return "".join(parts)
 
-    result.narrative += "Use the evidence cards to review week-on-week changes."
 
-    trend_relevant = (worsening + improving)[:4] or ctx.metrics[:4]
-    result.evidence_cards = [_metric_card(m) for m in trend_relevant]
-    result.signal_pills = [
+def _trend_signal_pills(worsening: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build signal pills for worsening metrics."""
+    return [
         {
             "type": "sustained_deterioration",
             "metric_id": m.get("id", ""),
             "severity": "warning",
-            "label": f"{m.get('title', m.get('id', ''))} deteriorating",
+            "label": f"{_metric_name(m)} deteriorating",
         }
         for m in worsening[:3]
     ]
-    result.suggested_followups = [
-        "Why is risk high?",
-        "What's happening with deployment build rates?",
-        "What should I worry about this sprint?",
-    ]
-    return result
+
+
+def _is_improving(m: dict[str, Any]) -> bool:
+    return (m.get("change") or 0) < 0 and m.get("ragColor") == _RAG_GREEN
+
+
+def _is_worsening(m: dict[str, Any]) -> bool:
+    return (m.get("change") or 0) > 0 and m.get("ragColor") == _RAG_RED
+
+
+def handle_trend_drill(ctx: IntentContext) -> IntentResult:
+    improving = [m for m in ctx.metrics if _is_improving(m)]
+    worsening = [m for m in ctx.metrics if _is_worsening(m)]
+    trend_relevant = (worsening + improving)[:4] or ctx.metrics[:4]
+    return IntentResult(
+        narrative=_trend_narrative(worsening, improving),
+        source_modules=["change_point_detector"],
+        evidence_cards=[_metric_card(m) for m in trend_relevant],
+        signal_pills=_trend_signal_pills(worsening),
+        suggested_followups=[
+            "Why is risk high?",
+            "What's happening with deployment build rates?",
+            "What should I worry about this sprint?",
+        ],
+    )
 
 
 def handle_deployment_compare(ctx: IntentContext) -> IntentResult:
@@ -565,6 +587,39 @@ def handle_ownership_query(ctx: IntentContext) -> IntentResult:
     return result
 
 
+def _product_rag(product: dict[str, Any]) -> str:
+    """Derive RAG status from a product dict."""
+    if product.get("critical", 0) > 0:
+        return "red"
+    if product.get("warn", 0) > 0:
+        return "amber"
+    return "green"
+
+
+def _filter_security_alerts(alerts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Filter alerts to security-related ones."""
+    return [
+        a
+        for a in alerts
+        if "security" in a.get("dashboard", "").lower()
+        or "vuln" in a.get("metric_name", "").lower()
+        or "security" in a.get("metric_name", "").lower()
+    ]
+
+
+def _security_narrative(pname: str, product: dict[str, Any], rag: str, reasons: str) -> str:
+    """Build narrative string for a security product response."""
+    narrative = (
+        f"Security posture for {pname}: risk score {product['score']}, " f"{product['critical']} critical — {rag}."
+    )
+    if reasons:
+        bullet_lines = [r.strip() for r in reasons.split("•") if r.strip()]
+        narrative += "\n\nKey issues:\n" + "\n".join(f"  • {b}" for b in bullet_lines)
+    else:
+        narrative += "\n\nNo security-specific alerts found for this product."
+    return narrative
+
+
 def _security_named_product(
     named_product: dict[str, Any],
     ctx: IntentContext,
@@ -572,25 +627,10 @@ def _security_named_product(
     """Security response scoped to a specific named product."""
     pname = named_product["product"]
     p_alerts = _alerts_for_product(pname, ctx.alerts)
-    sec_alerts = [
-        a
-        for a in p_alerts
-        if "security" in a.get("dashboard", "").lower()
-        or "vuln" in a.get("metric_name", "").lower()
-        or "security" in a.get("metric_name", "").lower()
-    ]
-    reasons = _format_alert_reasons(sec_alerts or p_alerts)
-    rag = "red" if named_product["critical"] > 0 else ("amber" if named_product.get("warn", 0) > 0 else "green")
-
-    narrative = (
-        f"Security posture for {pname}: risk score {named_product['score']}, "
-        f"{named_product['critical']} critical — {rag}."
-    )
-    if reasons:
-        bullet_lines = [r.strip() for r in reasons.split("•") if r.strip()]
-        narrative += "\n\nKey issues:\n" + "\n".join(f"  • {b}" for b in bullet_lines)
-    else:
-        narrative += "\n\nNo security-specific alerts found for this product."
+    sec_alerts = _filter_security_alerts(p_alerts)
+    relevant_alerts = sec_alerts or p_alerts
+    reasons = _format_alert_reasons(relevant_alerts)
+    rag = _product_rag(named_product)
 
     evidence_cards: list[dict[str, Any]] = [
         {
@@ -600,10 +640,10 @@ def _security_named_product(
             "rag": rag,
         }
     ]
-    evidence_cards.extend(_alert_cards(sec_alerts or p_alerts))
+    evidence_cards.extend(_alert_cards(relevant_alerts))
 
     return IntentResult(
-        narrative=narrative,
+        narrative=_security_narrative(pname, named_product, rag, reasons),
         source_modules=["risk_scorer"],
         evidence_cards=evidence_cards,
         signal_pills=[
