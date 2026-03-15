@@ -148,7 +148,7 @@ export function QueryDrawer({ isOpen, onClose }: QueryDrawerProps) {
           position: 'fixed',
           right: 0, top: 0,
           height: '100%',
-          width: '600px',
+          width: 'min(700px, 90vw)',
           background: '#0f172a',
           borderLeft: '1px solid rgba(255,255,255,0.08)',
           zIndex: 51,

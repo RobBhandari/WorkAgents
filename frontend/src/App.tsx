@@ -558,6 +558,43 @@ export default function App() {
           onClose={closeDrawer}
         />
       )}
+      {/* Floating Ask EI button — always visible */}
+      {!queryDrawerOpen && (
+        <button
+          onClick={() => setQueryDrawerOpen(true)}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 40,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#ffffff',
+            background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 100%)',
+            border: 'none',
+            padding: '12px 22px',
+            borderRadius: '14px',
+            cursor: 'pointer',
+            boxShadow: '0 8px 32px rgba(99,102,241,0.4), 0 2px 8px rgba(0,0,0,0.3)',
+            letterSpacing: '0.02em',
+            transition: 'transform 200ms ease, box-shadow 200ms ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 12px 40px rgba(99,102,241,0.5), 0 4px 12px rgba(0,0,0,0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.4), 0 2px 8px rgba(0,0,0,0.3)';
+          }}
+        >
+          <span style={{ fontSize: '18px' }}>◈</span>
+          Ask EI
+        </button>
+      )}
       <QueryDrawer isOpen={queryDrawerOpen} onClose={() => setQueryDrawerOpen(false)} />
     </div>
   );

@@ -1746,16 +1746,30 @@ def build_query_response(
     trends_context = build_trends_context(history_dir=Path(".tmp/observatory"))
     alerts: list[dict[str, Any]] = trends_context.get("active_alerts", [])
     product_risk = build_product_risk_response(alerts)
+    from execution.intelligence.knowledge_base import log_qa, lookup_knowledge
+
     intent = route_intent(query, context)
     response = compose_response(intent, context, trends_context, product_risk, alerts, query)
     response["query"] = query
 
-    # Try LLM-enhanced narrative — falls back to template on any failure
+    # 1. Check knowledge base first (instant, no API call)
+    kb_answer = lookup_knowledge(query)
+    if kb_answer:
+        response["narrative"] = kb_answer
+        response["source_modules"] = response.get("source_modules", []) + ["knowledge_base"]
+        return response
+
+    # 2. Try LLM-enhanced narrative — falls back to template on any failure
     products: list[dict[str, Any]] = (product_risk or {}).get("products", [])
     data_summary = _build_data_summary(trends_context.get("metrics", []), products, alerts)
     llm_narrative = _generate_narrative_llm(query, intent, response["narrative"], data_summary)
     if llm_narrative:
         response["narrative"] = llm_narrative
         response["source_modules"] = response.get("source_modules", []) + ["gemini_flash"]
+        # 3. Log the Gemini Q&A for future review
+        log_qa(query, intent, llm_narrative, source="gemini")
+    else:
+        # Log template responses too (lower priority for review)
+        log_qa(query, intent, response["narrative"], source="template")
 
     return response
